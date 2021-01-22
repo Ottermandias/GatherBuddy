@@ -52,6 +52,7 @@ namespace GatherBuddyPlugin
 
             pluginInterface.ClientState.TerritoryChanged += gatherer.OnTerritoryChange;
             pluginInterface.UiBuilder.OnBuildUi += gatherInterface.Draw;
+            pluginInterface.UiBuilder.OnOpenConfigUi += OnConfigCommandHandler;
 
             if (configuration.DoRecord)
                 gatherer.StartRecording();
@@ -59,6 +60,7 @@ namespace GatherBuddyPlugin
 
         public void Dispose()
         {
+            pluginInterface.UiBuilder.OnOpenConfigUi -= OnConfigCommandHandler;
             pluginInterface.UiBuilder.OnBuildUi -= gatherInterface.Draw;
             pluginInterface.SavePluginConfig(configuration);
             this.gatherer.Dispose();
@@ -77,6 +79,11 @@ namespace GatherBuddyPlugin
                 pluginInterface.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gather.");
             else
                 gatherer.OnGatherAction(arguments);
+        }
+
+        private void OnConfigCommandHandler(object a, object b)
+        {
+            gatherInterface.Visible = true;
         }
 
         private void PrintHelp()
