@@ -18,6 +18,7 @@ namespace Gathering
         private readonly World                             world;
         private readonly Dictionary<string, TimedGroup>    groups;
         private readonly GatherBuddyConfiguration          configuration;
+        public  readonly NodeTimeLine                      timeline;
     
         public Gatherer(DalamudPluginInterface pi, GatherBuddyConfiguration config, CommandManager commandManager)
         {
@@ -27,6 +28,7 @@ namespace Gathering
             this.configuration  = config;
             this.world          = new World(pi, configuration);
             this.groups         = TimedGroup.CreateGroups(world);
+            this.timeline       = new(world.nodes);
         }
 
         public void OnTerritoryChange(object sender, UInt16 territory)
@@ -153,24 +155,34 @@ namespace Gathering
             return true;
         }
 
-
-
-        public async void OnGatherAction(string itemName)
+        public async void OnGatherActionWithNode(Node node)
+        {
+            try
+            {
+                if (await   EquipForNode(node) == false) return;
+                if (await TeleportToNode(node) == false) return;
+                if (await    SetNodeFlag(node) == false) return;
+            }
+            catch(Exception e)
+            {
+                Log.Error($"[GatherBuddy] Exception caught: {e}");
+            }
+        }
+        public void OnGatherAction(string itemName)
         {
             try
             {
                 Node closestNode = GetClosestNode(itemName);
                 if (closestNode == null)
                     return;
-
-                if (await   EquipForNode(closestNode) == false) return;
-                if (await TeleportToNode(closestNode) == false) return;
-                if (await    SetNodeFlag(closestNode) == false) return;
+                OnGatherActionWithNode(closestNode);
             }
             catch(Exception e)
             {
                 Log.Error($"[GatherBuddy] Exception caught: {e}");
             }
+
+            
         }
 
         public async void OnGroupGatherAction(string groupName, int minuteOffset)
@@ -233,7 +245,7 @@ namespace Gathering
 
         public void dumpNodes()
         {
-            foreach (var N in world.nodes.nodeIdToNode.Values.Distinct())
+            foreach (var N in world.nodes.BaseNodes())
             {
                 Log.Information($"[GatherBuddy] [NodeDump] |{string.Join(",", N.nodes.nodes.Keys)}|{N.meta.pointBaseId}|{N.meta.gatheringType}|{N.meta.nodeType}|{N.meta.level}|{N.GetX()}|{N.GetY()}|{N.nodes.territory.id}|{N.placeNameEN}|{N.GetClosestAetheryte()?.id ?? -1}|{N.times.UptimeTable()}|{N.items.PrintItems()}");
             }

@@ -72,6 +72,7 @@
     <Compile Include="GatherBuddy.cs" />
     <Compile Include="Gatherer.cs" />
     <Compile Include="GatherBuddyConfiguration.cs" />
+    <Compile Include="Interface.cs" />
     <Compile Include="Managers\AetheryteManager.cs" />
     <Compile Include="Managers\CommandManager.cs" />
     <Compile Include="Managers\ItemManager.cs" />
@@ -83,6 +84,7 @@
     <Compile Include="Managers\TimedGroup.cs" />
     <Compile Include="Managers\World.cs" />
     <Compile Include="Managers\NodeRecorder.cs" />
+    <Compile Include="Managers\NodeTimeLine.cs" />
     <Compile Include="SEFunctions\ProcessChatBox.cs" />
     <Compile Include="Utility\EorzeaTime.cs" />
     <Compile Include="Utility\FFName.cs" />

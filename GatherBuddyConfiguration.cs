@@ -6,9 +6,10 @@ namespace GatherBuddyPlugin
     [Serializable]
     public class GatherBuddyConfiguration : IPluginConfiguration
     {
-        public int Version { get; set; }
         public string BotanistSetName{ get; set; }
         public string MinerSetName{ get; set; }
+        public int Version { get; set; }
+        public uint ShowNodes{ get; set; }
 
         public bool UseGearChange{ get; set; }
         public bool UseTeleport{ get; set; }
@@ -26,6 +27,7 @@ namespace GatherBuddyPlugin
             UseTeleport     = true;
             UseCoordinates  = true;
             DoRecord        = true;
+            ShowNodes       = 0;
             Records         = new Gathering.Records();
         }
     }

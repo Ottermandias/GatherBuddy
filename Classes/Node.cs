@@ -13,8 +13,29 @@ namespace Gathering
         Quarrying    = 1,
         Logging      = 2,
         Harvesting   = 3,
-        Spearfishing = 4
+        Spearfishing = 4,
+        Botanist     = 5,
+        Miner        = 6,
+        Fisher       = 7,
     };
+
+    public static class GatheringTypeExtension
+    {
+        public static GatheringType ToGroup(this GatheringType type)
+        {
+            return type switch
+            {
+                GatheringType.Mining       => GatheringType.Miner,
+                GatheringType.Quarrying    => GatheringType.Miner,
+                GatheringType.Miner        => GatheringType.Miner,
+                GatheringType.Logging      => GatheringType.Botanist,
+                GatheringType.Harvesting   => GatheringType.Botanist,
+                GatheringType.Botanist     => GatheringType.Botanist,
+                GatheringType.Spearfishing => GatheringType.Fisher,
+                _                          => type,
+            };
+        }
+    }
 
     public enum NodeType
     {
@@ -46,8 +67,8 @@ namespace Gathering
             nodeType      = type;
         }
 
-        public bool IsMiner()      { return ((int)gatheringType & 1) == (int)gatheringType; }
-        public bool IsBotanist()   { return ((int)gatheringType & 0b10) == 0b10; }
+        public bool IsMiner()      { return gatheringType.ToGroup() == GatheringType.Miner; }
+        public bool IsBotanist()   { return gatheringType.ToGroup() == GatheringType.Botanist; }
 
         public int CompareTo(object obj)
         {
@@ -64,14 +85,14 @@ namespace Gathering
         readonly Gatherable[] items;
 
         // Print all items that are not null separated by '|'.
-        public string PrintItems()
+        public string PrintItems(string separator = "|", ClientLanguage lang = ClientLanguage.English)
         {
             string s = "";
             for(int i = 0; i < items.Length; ++i)
             {
                 var it = items[i];
                 if (it != null)
-                    s += ((s.Length > 0) ? "|" + it.ToString() : it.ToString());
+                    s += ((s.Length > 0) ? separator + it.nameList[lang] : it.nameList[lang]);
             }
             return s;
         }
@@ -193,7 +214,21 @@ namespace Gathering
         private readonly int hours; // bitfield, 0-23 for each hour.
 
         public bool AlwaysUp() { return hours == allHours; }
-        public bool IsUp(int hour) { return ((hours >> hour) & 1) == 1; }
+        public bool IsUp(int hour) { if (hour > 23) hour %= 24; return ((hours >> hour) & 1) == 1; }
+
+        public int NextUptime(int currentHour)
+        {
+            for (var i = 0; i < 24; ++i)
+            {
+                if (IsUp(currentHour))
+                    return i;
+
+                ++currentHour;
+                if (currentHour > 23)
+                    currentHour -= 24;
+            }
+            return 25;
+        }
 
         // Print a string of 24 '0' or '1' as uptimes.
         public string UptimeTable()
@@ -206,20 +241,11 @@ namespace Gathering
         {
             string ret = "";
             int min = -1, max = -1;
-            for (int i = 0; i < 24; ++i)
-            {
-                if (IsUp(i))
-                {
-                    if (min < 0)
-                        min = i;
-                    else
-                        max = i;
-                }
-                else
-                {
-                    if (min < 0)
-                        continue;
 
+            void AddString()
+            {
+                if (min >= 0)
+                {
                     if (ret.Length > 0)
                     {
                         ret.Replace(" and ", ", ");
@@ -231,6 +257,21 @@ namespace Gathering
                     max = -1;
                 }
             }
+
+            for (int i = 0; i < 24; ++i)
+            {
+                if (IsUp(i))
+                {
+                    if (min < 0)
+                        min = i;
+                    else
+                        max = i;
+                }
+                else
+                    AddString();
+            }
+            AddString();
+
             return ret;
         }
 

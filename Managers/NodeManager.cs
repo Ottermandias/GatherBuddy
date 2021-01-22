@@ -48,6 +48,11 @@ namespace Gathering
             }
         }
 
+        public IEnumerable<Node> BaseNodes()
+        {
+            return nodeIdToNode.Values.Distinct();
+        }
+
         public NodeManager(DalamudPluginInterface pi, GatherBuddyConfiguration config, TerritoryManager territories, AetheryteManager aetherytes, ItemManager gatherables)
         {
             var baseSheet  = pi.Data.GetExcelSheet<GatheringPointBase>();

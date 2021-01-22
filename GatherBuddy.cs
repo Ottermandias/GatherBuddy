@@ -7,14 +7,16 @@ using Serilog;
 
 namespace GatherBuddyPlugin
 {
-    class GatherBuddy : IDalamudPlugin
+
+    public class GatherBuddy : IDalamudPlugin
     {
         public string Name => "GatherBuddy Plugin";
 
         private DalamudPluginInterface   pluginInterface;
-        private Gatherer                 gatherer;
+        public  Gatherer                 gatherer;
         private Otter.CommandManager     commandManager;
         private GatherBuddyConfiguration configuration;
+        private Interface                gatherInterface;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
@@ -22,10 +24,11 @@ namespace GatherBuddyPlugin
             this.commandManager  = new Otter.CommandManager(pluginInterface, "GatherBuddy", Serilog.Events.LogEventLevel.Verbose);
             this.configuration   = pluginInterface.GetPluginConfig() as GatherBuddyConfiguration ?? new GatherBuddyConfiguration();
             this.gatherer        = new Gatherer(pluginInterface, configuration, commandManager);
+            this.gatherInterface = new Interface(this, pluginInterface, configuration);
 
             this.pluginInterface.CommandManager.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
             {
-                HelpMessage = "Use for settings. Use without arguments for more help.",
+                HelpMessage = "Use for settings. Use without arguments for interface.",
                 ShowInHelp = true
             });
 
@@ -48,6 +51,7 @@ namespace GatherBuddyPlugin
             });
 
             pluginInterface.ClientState.TerritoryChanged += gatherer.OnTerritoryChange;
+            pluginInterface.UiBuilder.OnBuildUi += gatherInterface.Draw;
 
             if (configuration.DoRecord)
                 gatherer.StartRecording();
@@ -55,6 +59,7 @@ namespace GatherBuddyPlugin
 
         public void Dispose()
         {
+            pluginInterface.UiBuilder.OnBuildUi -= gatherInterface.Draw;
             pluginInterface.SavePluginConfig(configuration);
             this.gatherer.Dispose();
             pluginInterface.ClientState.TerritoryChanged -= gatherer.OnTerritoryChange;
@@ -93,7 +98,7 @@ namespace GatherBuddyPlugin
 
             if (argumentParts.Length == 0 || argumentParts[0].Length == 0)
             {
-                PrintHelp();
+                gatherInterface.Visible = !gatherInterface.Visible;
                 return;
             }
 
