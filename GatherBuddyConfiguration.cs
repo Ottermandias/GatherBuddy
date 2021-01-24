@@ -27,7 +27,7 @@ namespace GatherBuddyPlugin
             UseTeleport     = true;
             UseCoordinates  = true;
             DoRecord        = true;
-            ShowNodes       = 0;
+            ShowNodes       = 0b11111111;
             Records         = new Gathering.Records();
         }
     }
