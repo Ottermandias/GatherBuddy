@@ -155,7 +155,7 @@ namespace GatherBuddyPlugin
                 pi.SavePluginConfig(config);
             }
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle whether to automatically set a map marker on the approximate location of the chosen node.\nRequires the MapMarker plugin and uses /coord.");
+                ImGui.SetTooltip("Toggle whether to automatically set a map marker on the approximate location of the chosen node.\nRequires the ChatCoordinates plugin and uses /coord.");
 
             var doRecord = config.DoRecord;
             ImGui.SameLine(MinSettingsSize.X - recordOffset);
