@@ -328,25 +328,32 @@ namespace Gathering
         public NodeTimes           times       = null;
         public string              placeNameEN = null; // Relevant for manual coordinates and aetheryte.
         
+        private double CoordinateCap(double input)
+        {
+            if (input > 50.0)
+                return 0.0;
+            return input;
+        }
+
         public double GetX()
         {
             if (initialPos != null)
             {
                 if (initialPos.prefer || nodes == null || nodes.averageX == 0)
-                    return initialPos.xCoord / 100.0;
-                return nodes.averageX / 100.0;
+                    return CoordinateCap(initialPos.xCoord / 100.0);
+                return CoordinateCap(nodes.averageX / 100.0);
             }
-            return nodes?.averageX ?? 0;
+            return CoordinateCap(nodes?.averageX ?? 0);
         }
         public double GetY()
         {
             if (initialPos != null)
             {
                 if (initialPos.prefer || nodes == null || nodes.averageY == 0)
-                    return initialPos.yCoord / 100.0;
-                return nodes.averageY / 100.0;
+                    return CoordinateCap(initialPos.yCoord / 100.0);
+                return CoordinateCap(nodes.averageY / 100.0);
             }
-            return nodes?.averageY ?? 0;
+            return CoordinateCap(nodes?.averageY ?? 0);
         }
 
         public Aetheryte GetValidAetheryte()
