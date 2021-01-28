@@ -15,6 +15,14 @@ namespace Gathering
     public class Records : ISerializable
     {
         public Dictionary<uint, NodeLocation> nodes = new();
+
+        public void Merge(Records rhs)
+        {
+            foreach (var P in rhs.nodes)
+                if (P.Value != null)
+                    nodes[P.Key].AddLocation(P.Value);
+        }
+
         public byte[] SerializeCompressed()
         {
             using (MemoryStream m = new MemoryStream())
@@ -72,16 +80,8 @@ namespace Gathering
         }
     }
 
-    [Serializable]
     public class NodeRecorder : IDisposable
     {
-        private void ApplyRecords()
-        {
-            foreach (var n in records.nodes)
-                if (n.Value != null)
-                    nodes.nodeIdToNode[n.Key].nodes.AddNodeLocation(n.Key, n.Value);
-        }
-
         public NodeRecorder(Dalamud.Plugin.DalamudPluginInterface pi, NodeManager manager, Records records)
         {
             this.nodes       = manager;
@@ -176,6 +176,34 @@ namespace Gathering
             }
         }
 
+        public void PurgeRecord(uint nodeId)
+        {
+            skipList.Remove(nodeId);
+            if (records.nodes.TryGetValue(nodeId, out var loc))
+            {
+                if (loc.locations.Count > 0)
+                {
+                    Log.Information($"[GatherBuddy] [NodeRecorder] Purged all locations for node {nodeId}.");
+                    loc.Clear();
+                }
+            }
+        }
+
+        public void PurgeRecords()
+        {
+            skipList.Clear();
+            foreach (var P in records.nodes)
+                P.Value.Clear();
+        }
+
+        public void MergeRecords(string compressedRecords)
+        {
+            Records newRec = new();
+            newRec.DeserializeCompressed( System.Convert.FromBase64String(compressedRecords) );
+            records.Merge(newRec);
+        }
+
+
         #region privates
         private void OnUpdateEvent(Framework f)
         {
@@ -196,6 +224,13 @@ namespace Gathering
         private static int ConvertCoord(double val, double scale)
         {
             return (int) (100.0 * ((41.0 / scale) * (val * scale + 1024.0) / 2048.0 + 1.0));
+        }
+
+        private void ApplyRecords()
+        {
+            foreach (var n in records.nodes)
+                if (n.Value != null)
+                    nodes.nodeIdToNode[n.Key].nodes.AddNodeLocation(n.Key, n.Value);
         }
 
         private readonly NodeManager      nodes;

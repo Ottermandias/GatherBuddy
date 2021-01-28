@@ -50,6 +50,11 @@ namespace Gathering
         public int       xCoord = 0;
         public int       yCoord = 0;
         public bool      prefer = false;
+
+        public double ToX() => xCoord / 100.0;
+        public double ToY() => yCoord / 100.0;
+        
+
     }
 
     public class NodeMeta : IComparable
@@ -161,6 +166,9 @@ namespace Gathering
         public Dictionary<uint, NodeLocation> nodes = new();
         public int averageX = 0;
         public int averageY = 0;
+
+        public double ToX() => averageX / 100.0;
+        public double ToY() => averageX / 100.0;
 
         private void RecomputeAverage()
         {
@@ -328,32 +336,26 @@ namespace Gathering
         public NodeTimes           times       = null;
         public string              placeNameEN = null; // Relevant for manual coordinates and aetheryte.
         
-        private double CoordinateCap(double input)
-        {
-            if (input > 50.0)
-                return 0.0;
-            return input;
-        }
-
+        private double CoordinateCap(double input) => input > 50.0 ? 0.0 : input;
         public double GetX()
         {
             if (initialPos != null)
             {
                 if (initialPos.prefer || nodes == null || nodes.averageX == 0)
-                    return CoordinateCap(initialPos.xCoord / 100.0);
-                return CoordinateCap(nodes.averageX / 100.0);
+                    return CoordinateCap(initialPos.ToX());
+                return CoordinateCap(nodes.ToX());
             }
-            return CoordinateCap(nodes?.averageX ?? 0);
+            return CoordinateCap(nodes?.ToX() ?? 0);
         }
         public double GetY()
         {
             if (initialPos != null)
             {
                 if (initialPos.prefer || nodes == null || nodes.averageY == 0)
-                    return CoordinateCap(initialPos.yCoord / 100.0);
-                return CoordinateCap(nodes.averageY / 100.0);
+                    return CoordinateCap(initialPos.ToY());
+                return CoordinateCap(nodes.ToY());
             }
-            return CoordinateCap(nodes?.averageY ?? 0);
+            return CoordinateCap(nodes?.ToY() ?? 0);
         }
 
         public Aetheryte GetValidAetheryte()

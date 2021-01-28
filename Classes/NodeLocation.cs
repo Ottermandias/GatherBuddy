@@ -12,6 +12,9 @@ namespace Gathering
         public int averageX = 0;
         public int averageY = 0;
 
+        public double ToX() => averageX / 100.0;
+        public double ToY() => averageY / 100.0;
+
         public int CompareTo(object r)
         {
             if (r == null) return 1;
@@ -21,6 +24,13 @@ namespace Gathering
                 return averageX - rhs.averageX;
 
             return averageY - rhs.averageY;
+        }
+
+        public void Clear()
+        {
+            averageX = 0;
+            averageY = 0;
+            locations.Clear();
         }
 
         public bool AddLocation(int x, int y)
@@ -52,9 +62,6 @@ namespace Gathering
             averageY = sumY / locations.Count;
             return true;
         }
-
-        public double ToX() { return averageX / 100.0; }
-        public double ToY() { return averageY / 100.0; }
 
         public void Write(BinaryWriter writer)
         {

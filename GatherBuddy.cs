@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using Gathering;
@@ -226,18 +227,33 @@ namespace GatherBuddyPlugin
         private void OnGatherDebug(string command, string arguments)
         {
             var argumentParts = arguments.Split();
+            if (argumentParts.Length < 2)
+                if (Util.CompareCI(argumentParts[0], "purgeallrecords"))
+                    gatherer.PurgeAllRecords();
+
             if (Util.CompareCI(argumentParts[0], "dump"))
             {
                 if (Util.CompareCI(argumentParts[1], "aetherytes"))
-                    gatherer.dumpAetherytes();
+                    gatherer.DumpAetherytes();
                 else if (Util.CompareCI(argumentParts[1], "territories"))
-                    gatherer.dumpTerritories();
+                    gatherer.DumpTerritories();
                 else if (Util.CompareCI(argumentParts[1], "items"))
-                    gatherer.dumpItems();
+                    gatherer.DumpItems();
                 else if (Util.CompareCI(argumentParts[1], "nodes"))
-                    gatherer.dumpNodes();
+                    gatherer.DumpNodes();
                 else if (Util.CompareCI(argumentParts[1], "records"))
                     gatherer.PrintRecords();
+            }
+            if (Util.CompareCI(argumentParts[0], "purge"))
+            {
+                if (UInt32.TryParse(argumentParts[1], out uint id))
+                {
+                    gatherer.PurgeRecord(id);
+                }
+                else
+                {
+                    gatherer.PurgeRecords(String.Join(" ", argumentParts.Skip(1)));
+                }
             }
         }
     }

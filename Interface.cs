@@ -25,14 +25,14 @@ namespace GatherBuddyPlugin
 
         static public void ToBools(uint flags, out bool mining, out bool botanist, out bool ephemeral, out bool unspoiled, out bool arr, out bool hw, out bool sb, out bool shb)
         {
-            mining    = ((flags >> 0) & 1) == 1;
-            botanist  = ((flags >> 1) & 1) == 1;
-            ephemeral = ((flags >> 2) & 1) == 1;
-            unspoiled = ((flags >> 3) & 1) == 1;
-            arr       = ((flags >> 4) & 1) == 1;
-            hw        = ((flags >> 5) & 1) == 1;
-            sb        = ((flags >> 6) & 1) == 1;
-            shb       = ((flags >> 7) & 1) == 1;
+            mining    = (flags & (1 << 0)) == (1 << 0);
+            botanist  = (flags & (1 << 1)) == (1 << 1);
+            ephemeral = (flags & (1 << 2)) == (1 << 2);
+            unspoiled = (flags & (1 << 3)) == (1 << 3);
+            arr       = (flags & (1 << 4)) == (1 << 4);
+            hw        = (flags & (1 << 5)) == (1 << 5);
+            sb        = (flags & (1 << 6)) == (1 << 6);
+            shb       = (flags & (1 << 7)) == (1 << 7);
         }
     }
     public class Interface
@@ -54,8 +54,8 @@ namespace GatherBuddyPlugin
         private bool showShBNodes       = false;
 
         private static readonly string pluginName       = "GatherBuddy";
-        private static readonly Vector2 MinSettingsSize = new Vector2( 500, 400 );
-        private static readonly Vector2 MaxSettingsSize = new Vector2( 1000, 4000 );
+        private static readonly Vector2 MinSettingsSize = new( 500, 400 );
+        private static readonly Vector2 MaxSettingsSize = new( 1000, 4000 );
         private readonly float widgetHeight             = 40f;
         private readonly float jobBlockWidth            = MinSettingsSize.X / 2 - ImGui.GetStyle().FrameBorderSize * 2 - ImGui.GetStyle().FramePadding.X * 3f;
         private readonly float expansionBlockWidth      = MinSettingsSize.X - ImGui.GetStyle().FrameBorderSize * 2 - ImGui.GetStyle().FramePadding.X * 4;

@@ -52,7 +52,7 @@ namespace Gathering
                 case 80 + Harvesting:
                     if (apply("Weed"         , "Bog Sage"      , 25.2, 29.8, "Fort Jobb")) return;
                     if (apply("The Wild Fete", "Sweet Marjoram", 26.9, 24.3, "Fanow"    )) return;
-                    if (apply("Scree"        , "Levin Mint"    , 13.6, 13.8, "Stilltide")) return;
+                    if (apply("Scree"        , "White Clay"    , 13.6, 13.8, "Tomra"    )) return;
                 break;
                 case 80 + Mining:
                     if (apply("The Wild Fete"                , "Gale Rock" , 22.3, 18.3, "Slitherbough")) return;

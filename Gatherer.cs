@@ -61,7 +61,17 @@ namespace Gathering
             world.nodes.records.PrintToLog();
         }
 
-        private Node GetClosestNode(string itemName)
+        public void PurgeRecord(uint nodeId)
+        {
+            world.nodes.records.PurgeRecord(nodeId);
+        }
+
+        public void PurgeAllRecords()
+        {
+            world.nodes.records.PurgeRecords();
+        }
+
+        private Gatherable FindItemLogging(string itemName)
         {
             Gatherable item = world.FindItemByName(itemName);
             string output;
@@ -71,9 +81,16 @@ namespace Gathering
                 output = $"Identified [{item.itemId}: {item.nameList[language]}] for \"{itemName}\".";
             chat.Print(output);
             Log.Verbose($"[GatherBuddy] {output}");
+            return item;
+        }
+
+        private Node GetClosestNode(string itemName)
+        {
+            Gatherable item = FindItemLogging(itemName);
             if (item == null)
                 return null;
 
+            string output;
             if (item.NodeList.Count ==  0)
             {
                 output = $"Found no gathering nodes for item {item?.itemId ?? -1}.";
@@ -181,8 +198,6 @@ namespace Gathering
             {
                 Log.Error($"[GatherBuddy] Exception caught: {e}");
             }
-
-            
         }
 
         public async void OnGroupGatherAction(string groupName, int minuteOffset)
@@ -218,7 +233,33 @@ namespace Gathering
             }
         }
 
-        public void dumpAetherytes()
+        public void PurgeRecords(string itemName)
+        {
+            Gatherable item = FindItemLogging(itemName);
+            if (item == null)
+                return;
+
+            string output;
+            if (item.NodeList.Count ==  0)
+            {
+                output = $"Found no gathering nodes for item {item?.itemId ?? -1}.";
+                chat.PrintError(output);
+                Log.Debug($"[GatherBuddy] {output}");
+                return;
+            }
+            foreach (var baseNode in item.NodeList)
+            {
+                foreach (var loc in baseNode.nodes.nodes)
+                    if (loc.Value != null)
+                    {
+                        if(loc.Value.locations.Count > 0)
+                            Log.Information($"[GatherBuddy] [NodeRecorder] Purged all records for node {loc.Key} containing item {loc.Value}.");
+                        loc.Value.Clear();
+                    }
+            }
+        }
+
+        public void DumpAetherytes()
         {
             foreach (var A in world.aetherytes.aetherytes)
             {
@@ -226,7 +267,7 @@ namespace Gathering
             }
         }
 
-        public void dumpTerritories()
+        public void DumpTerritories()
         {
             foreach (var pair in world.territories.territories)
             {
@@ -235,7 +276,7 @@ namespace Gathering
             }
         }
 
-        public void dumpItems()
+        public void DumpItems()
         {
             foreach (var I in world.items.items)
             {
@@ -243,7 +284,7 @@ namespace Gathering
             }
         }
 
-        public void dumpNodes()
+        public void DumpNodes()
         {
             foreach (var N in world.nodes.BaseNodes())
             {
