@@ -168,7 +168,7 @@ namespace Gathering
         public int averageY = 0;
 
         public double ToX() => averageX / 100.0;
-        public double ToY() => averageX / 100.0;
+        public double ToY() => averageY / 100.0;
 
         private void RecomputeAverage()
         {
