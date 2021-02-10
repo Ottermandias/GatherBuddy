@@ -1,5 +1,3 @@
-using System;
-using System.Collections.Generic;
 using Dalamud;
 using System.Linq;
 
@@ -302,6 +300,7 @@ namespace Gathering
                     if (apply("The Destroyer"                  , "Oddly Specific Dark Chestnut Log"   , 20.3, 18.0, "Porta Praetoria"          )) return;
                     if (apply("The Pappus Tree"                , "Oddly Specific Primordial Log"      ,  7.0, 34.2, "Helix"                    )) return;
                     if (apply("Hyperstellar Downconverter"     , "Oddly Specific Primordial Log"      ,  7.1, 15.9, "Helix"                    )) return;
+                    if (apply("Antithesis"                     , "Oddly Delicate Feather"             , 11.6, 26.8, "Helix"                    )) return;
                 break;
                 case 80 + Mining:
                     if (apply("Mourn"                          , "Oddly Specific Dark Matter"         , 17.1, 10.8, "Anyx Trine"               )) return;
@@ -313,6 +312,7 @@ namespace Gathering
                     if (apply("The Pauper's Lode"              , "Oddly Specific Schorl"              ,  4.0, 26.7, "Porta Praetoria"          )) return;
                     if (apply("The Aqueduct"                   , "Oddly Specific Primordial Ore"      , 11.0, 35.2, "Helix"                    )) return;
                     if (apply("Cooling Station"                , "Oddly Specific Primordial Ore"      , 14.0,  9.8, "Helix"                    )) return;
+                    if (apply("Gamma Quadrant"                 , "Oddly Delicate Adamantite Ore"      , 36.2, 27.8, "Helix"                    )) return;
                 break;
                 case 80 + Quarrying:
                     if (apply("Amity"                          , "Black Aethersand"                   , 22.0, 16.0, "Tomra"                    )) return;

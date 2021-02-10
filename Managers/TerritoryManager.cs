@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using Dalamud.Plugin;
 using Otter;
-using Serilog;
 
 namespace Gathering
 {

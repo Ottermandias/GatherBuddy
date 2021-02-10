@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("GatherBuddy")]
-[assembly: AssemblyDescription("This plugin provides the command /gather and /gathergroup to simplify gathering. It is dependent on Teleporter and ChatCoordinates.")]
+[assembly: AssemblyDescription("Adds commands to simplify gathering by finding nodes and their locations via item name and a UI to keep track of special node uptimes.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
 [assembly: AssemblyProduct("GatherBuddyPlugin")]
@@ -28,5 +28,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("1.1.1.1")]
-[assembly: AssemblyFileVersion("1.1.1.1")]
+[assembly: AssemblyVersion("1.1.2.0")]
+[assembly: AssemblyFileVersion("1.1.2.0")]

@@ -3,7 +3,6 @@ using Serilog;
 using System.Collections.Generic;
 using Dalamud.Plugin;
 using Dalamud;
-using Otter;
 using System.Linq;
 using GatherBuddyPlugin;
 

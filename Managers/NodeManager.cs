@@ -64,7 +64,9 @@ namespace Gathering
             foreach (var nodeRow in nodeSheet)
             {
                 var baseId = nodeRow.GatheringPointBase.Row;
-                
+                if (baseId >= baseSheet.RowCount)
+                    continue;
+
                 if (baseIdToNode.TryGetValue(baseId, out var node))
                 {
                     nodeIdToNode[nodeRow.RowId] = node;
