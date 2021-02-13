@@ -109,21 +109,27 @@ namespace Gathering
                     if (apply("The Isle of Consorts" , "Raindrop Cotton Boll" , 33.7, 13.2, "Fanow"                    , true)) return;
                 break;
                 case 80 + Logging:
-                    if (apply("Sharptongue Drip"           , "Lemonette"       , 20.0, 27.0, "Wright"               )) return;
-                    if (apply("Mjrl's Regret"              , "Sandalwood Log"  , 24.0, 36.0, "Slitherbough"         )) return;
-                    if (apply("Anden's Airs"               , "Merbau Log"      , 36.5, 27.3, "Lydha Lran"           , true)) return;
-                    if (apply("Garik"                      , "Silver Beech Log", 16.0, 10.9, "Twine"                , true)) return;
-                    if (apply("The Hour of Certain Durance", "Wattle Petribark",  5.2, 26.5, "The Ostall Imperative", true)) return;
+                    if (apply("Sharptongue Drip"           , "Lemonette"             , 20.0, 27.0, "Wright"               )) return;
+                    if (apply("Mjrl's Regret"              , "Sandalwood Log"        , 24.0, 36.0, "Slitherbough"         )) return;
+                    if (apply("Anden's Airs"               , "Merbau Log"            , 36.5, 27.3, "Lydha Lran"           , true)) return;
+                    if (apply("Garik"                      , "Silver Beech Log"      , 16.0, 10.9, "Twine"                , true)) return;
+                    if (apply("The Hour of Certain Durance", "Wattle Petribark"      ,  5.2, 26.5, "The Ostall Imperative", true)) return;
+                    if (apply("The Central Hills of Amber" , "Rarefied Sandteak Log" , 18.6, 20.5, "Twine"                )) return;
+                    if (apply("The Norvrandt Slope"        , "Rarefied Kelp"         , 37.5, 11.7, "The Ondo Cups"        )) return;
+                    if (apply("Heather Falls"              , "Rarefied Urunday Log"  , 30.6,  6.9, "Ala Gannha"           )) return;
                 break;
                 case 80 + Mining:
-                    if (apply("Ladle"                 , "Raw Triplite" , 20.0, 29.0, "The Inn at Journey's Head")) return;
-                    if (apply("Weed"                  , "Raw Petalite" , 28.0, 33.0, "Fort Jobb"                )) return;
-                    if (apply("The Caliban Gorge"     , "Raw Onyx"     , 16.0, 21.0, "The Macarenses Angle"     )) return;
-                    if (apply("Saint Fathric's Temple", "Prismstone"   , 30.0, 20.0, "Wolekdorf"                )) return;
-                    if (apply("Where the Dry Return"  , "Tungsten Ore" , 32.0,  7.0, "The Ondo Cups"            )) return;
-                    if (apply("The Isle of Ken"       , "Brashgold Ore",  4.7, 33.9, "The Ostall Imperative"    , true)) return;
-                    if (apply("The Husk"              , "Dolomite"     ,  7.5, 30.1, "Slitherbough"             , true)) return;
-                    if (apply("The Duergar's Tewel"   , "Hard Water"   , 36.1, 12.2, "Tomra"                    , true)) return;
+                    if (apply("Ladle"                 , "Raw Triplite"               , 20.0, 29.0, "The Inn at Journey's Head")) return;
+                    if (apply("Weed"                  , "Raw Petalite"               , 28.0, 33.0, "Fort Jobb"                )) return;
+                    if (apply("The Caliban Gorge"     , "Raw Onyx"                   , 16.0, 21.0, "The Macarenses Angle"     )) return;
+                    if (apply("Saint Fathric's Temple", "Prismstone"                 , 30.0, 20.0, "Wolekdorf"                )) return;
+                    if (apply("Where the Dry Return"  , "Tungsten Ore"               , 32.0,  7.0, "The Ondo Cups"            )) return;
+                    if (apply("The Isle of Ken"       , "Brashgold Ore"              ,  4.7, 33.9, "The Ostall Imperative"    , true)) return;
+                    if (apply("The Husk"              , "Dolomite"                   ,  7.5, 30.1, "Slitherbough"             , true)) return;
+                    if (apply("The Duergar's Tewel"   , "Hard Water"                 , 36.1, 12.2, "Tomra"                    , true)) return;
+                    if (apply("The Ondo Cups"         , "Rarefied Reef Rock"         , 32.7, 20.6, "The Ondo Cups"            )) return;
+                    if (apply("The Norvrandt Slope"   , "Rarefied Sea Salt"          , 25.1,  4.5, "The Ondo Cups"            )) return;
+                    if (apply("Virdjala"              , "Rarefied Gyr Abanian Alumen", 31.6, 31.4, "The Peering Stones"       )) return;
                 break;
                 case 80 + Quarrying:
                     if (apply("Purpure"          , "Purpure Shell Chip"      , 34.4, 31.3, "The Macarenses Angle", true)) return;
@@ -131,13 +137,19 @@ namespace Gathering
                     if (apply("Voeburtenburg"    , "Solstice Stone"          , 35.6,  8.7, "Wolekdorf"           , true)) return;
                 break;
 
+                case 75 + Logging:
+                    if (apply("The Chisel"    , "Rarefied White Oak Log", 28.0, 32.8, "Stilltide" )) return;
+                    if (apply("The Woolen Way", "Rarefied Pixie Apple",    4.1, 23.1, "Lydha Lran")) return;
+                break;
                 case 75 + Harvesting:
                     if (apply("Phisor Lran", "Broad Beans"         , 24.0, 36.0, "Lydha Lran")) return;
                     if (apply("Embrasure"  , "Peppermint"          , 26.0, 20.0, "Fort Jobb" )) return;
                 break;
                 case 75 + Mining:
-                    if (apply("Sextuplet Shallow"              , "Raw Diaspore"           , 26.0, 13.0, "Wolekdorf")) return;
-                    if (apply("Cleric"                         , "Raw Lazurite"           , 28.0, 33.0, "Fort Jobb")) return;
+                    if (apply("Sextuplet Shallow"              , "Raw Diaspore"            , 26.0, 13.0, "Wolekdorf"   )) return;
+                    if (apply("Cleric"                         , "Raw Lazurite"            , 25.0, 34.0, "Slitherbough")) return;
+                    if (apply("The Belt"                       , "Rarefied Titancopper Ore", 31.3, 24.2, "Fort Jobb"   )) return;
+                    if (apply("Cleric"                         , "Rarefied Raw Lazurite"   , 16.5, 18.2, "Slitherbough"   )) return;
                 break;
 
                 case 70 + Harvesting:
@@ -149,33 +161,40 @@ namespace Gathering
                     if (apply("The Glittering Basin"        , "Yanxian Cotton Boll", 28.0, 35.0, "Namai"                  )) return;
                 break;
                 case 70 + Logging:
-                    if (apply("Onsal Hakair" , "Othardian Plum"  , 27.0, 17.0, "The Dawn Throne")) return;
-                    if (apply("The High Bank", "Torreya Log"     , 11.0, 13.0, "Porta Praetoria")) return;
-                    if (apply("Pike Falls"   , "Black Willow Log", 15.0, 21.0, "Castrum Oriens" )) return;
-                    if (apply("Rustrock"     , "Urunday Log"     , 32.0, 10.0, "Ala Gannha"     )) return;
-                    if (apply("Venmont Yards", "White Oak Branch", 12.0, 29.0, "Wright"         )) return;
+                    if (apply("Onsal Hakair" , "Othardian Plum"     , 27.0, 17.0, "The Dawn Throne"        )) return;
+                    if (apply("The High Bank", "Torreya Log"        , 11.0, 13.0, "Porta Praetoria"        )) return;
+                    if (apply("Pike Falls"   , "Black Willow Log"   , 15.0, 21.0, "Castrum Oriens"         )) return;
+                    if (apply("Rustrock"     , "Urunday Log"        , 32.0, 10.0, "Ala Gannha"             )) return;
+                    if (apply("Venmont Yards", "White Oak Branch"   , 12.0, 29.0, "Wright"                 )) return;
+                    if (apply("Doma"         , "Rarefied Pine Resin", 18.7, 14.4, "The House of the Fierce")) return;
                 break;
                 case 70 + Mining:
-                    if (apply("Rustrock"                    , "Raw Rhodonite"    , 26.0, 12.0, "Ala Gannha")) return;
-                    if (apply("Valley of the Fallen Rainbow", "Raw Imperial Jade", 29.0,  9.0, "The House of the Fierce")) return;
-                    if (apply("The Towering Still"          , "Raw Azurite"      ,  5.0, 29.0, "Dhoro Iloh")) return;
-                    if (apply("Wightrock"                   , "Chromite Ore"     , 16.0, 33.9, "Ala Ghiri")) return;
-                    if (apply("Doma"                        , "Palladium Ore"    , 20.5, 10.4, "The House of the Fierce")) return;
-                    if (apply("East Othard Coastline"       , "Nightsteel Ore"   , 11.0, 23.0, "Onokoro")) return;
-                    if (apply("Nhaama's Retreat"            , "Silvergrace Ore"  , 23.0, 36.0, "Reunion")) return;
-                    if (apply("Virdjala"                    , "Gyr Abanian Ore"  , 31.0, 27.0, "The Peering Stones")) return;
-                    if (apply("Loch Seld"                   , "Evergleam Ore"    , 22.0, 13.0, "Porta Praetoria")) return;
-                    if (apply("Governor's Row"              , "Raw Hematite"     , 33.0, 23.0, "Stilltide")) return;
+                    if (apply("Rustrock"                    , "Raw Rhodonite"       , 26.0, 12.0, "Ala Gannha"             )) return;
+                    if (apply("Valley of the Fallen Rainbow", "Raw Imperial Jade"   , 29.0,  9.0, "The House of the Fierce")) return;
+                    if (apply("The Towering Still"          , "Raw Azurite"         ,  5.0, 29.0, "Dhoro Iloh"             )) return;
+                    if (apply("Wightrock"                   , "Chromite Ore"        , 16.0, 33.9, "Ala Ghiri"              )) return;
+                    if (apply("Doma"                        , "Palladium Ore"       , 20.5, 10.4, "The House of the Fierce")) return;
+                    if (apply("East Othard Coastline"       , "Nightsteel Ore"      , 11.0, 23.0, "Onokoro"                )) return;
+                    if (apply("Nhaama's Retreat"            , "Silvergrace Ore"     , 23.0, 36.0, "Reunion"                )) return;
+                    if (apply("Virdjala"                    , "Gyr Abanian Ore"     , 31.0, 27.0, "The Peering Stones"     )) return;
+                    if (apply("Loch Seld"                   , "Evergleam Ore"       , 22.0, 13.0, "Porta Praetoria"        )) return;
+                    if (apply("Governor's Row"              , "Raw Hematite"        , 33.0, 23.0, "Stilltide"              )) return;
+                    if (apply("GThe Sea of Blades"          , "Rarefied Raw Azurite", 36.0, 26.4, "Reunion"                )) return;
                 break;
                 case 70 + Quarrying:
                     if (apply("Loch Seld", "Ala Mhigan Salt Crystal", 21.0, 29.0, "The Ala Mhigan Quarter")) return;
                 break;
 
                 case 65 + Logging:
-                    if (apply("The Glittering Basin", "Bamboo Shoot", 28.0, 25.0, "Namai")) return;
+                    if (apply("The Glittering Basin", "Bamboo Shoot"              , 28.0, 25.0, "Namai"  )) return;
+                    if (apply("Isari"               , "Rarefied Larch Log"        ,  6.0, 15.8, "Onokoro")) return;
+                    if (apply("Shoal Rock"          , "Rarefied Shiitake Mushroom", 33.1,  9.2, "Onokoro", true)) return; // Aetheryte
                 break;
                 case 65 + Mining:
                     if (apply("East Othard Coastline", "Raw Star Spinel"                   , 15.0,  4.5, "Onokoro"           )) return;
+                    if (apply("Mirage Creek"         , "Rarefied Raw Triphane"             , 29.6, 12.9, "Rhalgr's Reach"    , true)) return; // Aetheryte
+                    if (apply("Pike Falls"           , "Rarefied Gyr Abanian Mineral Water", 18.1, 22.8, "The Peering Stones")) return;
+                    if (apply("The Crab Pots"        , "Rarefied Raw Star Spinel"          , 21.2, 34.4, "Kugane"            , true)) return; // Aetheryte
                 break;
 
                 case 60 + Harvesting:
@@ -195,16 +214,18 @@ namespace Gathering
                     if (apply("Beta Quadrant"        , "Wattle Bark"               , 22.0, 10.0, "Helix"         )) return;
                     if (apply("Ohl Tahn"             , "Old-growth Camphorwood Log", 11.0, 10.0, "Zenith"        )) return;
                     if (apply("East End"             , "Beech Branch"              , 11.0, 18.0, "Castrum Oriens")) return;
+                    if (apply("Avalonia Fallen"      , "Rarefied Dark Chestnut"    , 16.2, 35.5, "Anyx Trine"    )) return;
                 break;
                 case 60 + Mining:
-                    if (apply("Twinpools"         , "Tungstite"       , 10.0,  9.0, "Tailfeather"   )) return;
-                    if (apply("Alpha Quadrant"    , "Luminium Ore"    ,  5.0, 17.0, "Helix"         )) return;
-                    if (apply("The Ruling Quarter", "Light Kidney Ore", 34.0, 30.0, "Anyx Trine"    )) return;
-                    if (apply("Beta Quadrant"     , "Adamantite Ore"  , 24.0,  6.0, "Helix"         )) return;
-                    if (apply("Greensward"        , "Aurum Regis Ore" , 11.0, 38.0, "Zenith"        )) return;
-                    if (apply("The Habisphere"    , "Red Alumen"      , 35.0, 16.0, "Helix"         )) return;
-                    if (apply("The Gauntlet"      , "Smithsonite Ore" , 38.0, 15.0, "Ok' Zundu"     )) return;
-                    if (apply("The Striped Hills" , "Raw Triphane"    , 25.0,  8.0, "Castrum Oriens")) return;
+                    if (apply("Twinpools"         , "Tungstite"                       , 10.0,  9.0, "Tailfeather"   )) return;
+                    if (apply("Alpha Quadrant"    , "Luminium Ore"                    ,  5.0, 17.0, "Helix"         )) return;
+                    if (apply("The Ruling Quarter", "Light Kidney Ore"                , 34.0, 30.0, "Anyx Trine"    )) return;
+                    if (apply("Beta Quadrant"     , "Adamantite Ore"                  , 24.0,  6.0, "Helix"         )) return;
+                    if (apply("Greensward"        , "Aurum Regis Ore"                 , 11.0, 38.0, "Zenith"        )) return;
+                    if (apply("The Habisphere"    , "Red Alumen"                      , 35.0, 16.0, "Helix"         )) return;
+                    if (apply("The Gauntlet"      , "Smithsonite Ore"                 , 38.0, 15.0, "Ok' Zundu"     )) return;
+                    if (apply("The Striped Hills" , "Raw Triphane"                    , 25.0,  8.0, "Castrum Oriens")) return;
+                    if (apply("The Blue Window"   , "Rarefied Abalathian Spring Water", 20.6, 11.6, "Ok' Zundu"      )) return;
                 break;
                 case 60 + Quarrying:
                     if (apply("The Ruling Quarter"   , "Zeolite Ore"         , 13.0, 31.0, "Idyllshire"   )) return;
@@ -217,10 +238,12 @@ namespace Gathering
                     if (apply("Riversmeet"    , "Pearl Sprouts"               , 31.0, 20.0, "Falcon's Nest")) return;
                 break;
                 case 55 + Logging:
-                    if (apply("Ohl Tahn", "Porcini", 24.0,  6.0, "Zenith")) return;
+                    if (apply("Ohl Tahn"             , "Porcini"                   , 24.0,  6.0, "Zenith"     )) return;
+                    if (apply("The Smoldering Wastes", "Rarefied Dark Chestnut Sap", 29.2, 30.1, "Tailfeather")) return;
                 break;
                 case 55 + Mining:
-                    if (apply("The Smoldering Wastes", "Pyrite", 26.0, 17.0, "Tailfeather")) return;
+                    if (apply("The Smoldering Wastes", "Pyrite"         , 26.0, 17.0, "Tailfeather")) return;
+                    if (apply("The Smoldering Wastes", "Rarefied Pyrite", 30.7, 32.2, "Tailfeather")) return;
                 break;
                 case 55 + Quarrying:
                     if (apply("Eil Tohm", "Green Quartz"           , 33.0, 22.0, "Moghome"      )) return;
