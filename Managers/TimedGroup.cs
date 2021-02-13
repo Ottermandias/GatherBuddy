@@ -53,7 +53,7 @@ namespace Gathering
         {
             var dict = new Dictionary<string, TimedGroup>();
 
-            Add( dict, "80***", "Contains the six nodes for exarchic crafting."
+            Add( dict, "80***", "Contains exarchic crafting nodes."
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 758) // Hard Water
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 759) // Solstice Stone
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 760) // Dolomite
@@ -62,7 +62,7 @@ namespace Gathering
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 763) // Raindrop Cotton Boll               
             );
 
-            Add( dict, "80**", "Contains the six nodes for neo-ishgardian / aesthete crafting."
+            Add( dict, "80**", "Contains neo-ishgardian / aesthete crafting nodes."
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 681) // Brashgold
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 682) // Purpure
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 683) // Merbau
@@ -71,7 +71,7 @@ namespace Gathering
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 714) // Duskblooms
             );
 
-            Add( dict, "levinsand", "Contains the six nodes for Shadowbringers aethersand reduction."
+            Add( dict, "levinsand", "Contains Shadowbringers aethersand reduction nodes."
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 622)
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 624)
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 626)
@@ -80,13 +80,90 @@ namespace Gathering
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 601)
             );
 
-            Add( dict, "dusksand", "Contains the six nodes for Stormblood aethersand reduction."
+            Add( dict, "dusksand", "Contains Stormblood aethersand reduction nodes."
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 515)
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 518)
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 520)
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 494)
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 496)
                , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 492)
+            );
+
+            Add( dict, "80ws", "Contains Shadowbringers white scrip collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 781) // Rarefied Manasilver Sand, always, used for 6-8.
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 777) // Rarefied Urunday Log, 0
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 775) // Rarefied Amber Cloves, 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 776) // Rarefied Coral, 4
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 334) // Rarefied Raw Onyx, 8
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 767) // Rarefied Gyr Abanian Alumen, 10
+            );
+
+            Add( dict, "80ys", "Contains Shadowbringers yellow scrip collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 784) // Rarefied Bright Flax, always, used for 0-2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 766) // Rarefied Reef Rock, 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 330) // Rarefied Raw Petalite, 4
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 332) // Rarefied Raw Lazurite, 6
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 334) // Rarefied Sea Salt, 8
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 773) // Rarefied Miracle Apple Log, 10
+            );
+
+            Add( dict, "80ysmin", "Contains Shadowbringers yellow scrip miner collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 780) // Rarefied Bluespirit Ore, always, used for 0-2, 10-12.
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 766) // Rarefied Reef Rock, 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 330) // Rarefied Raw Petalite, 4
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 332) // Rarefied Raw Lazurite, 6
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 334) // Rarefied Sea Salt, 8
+            );
+
+            Add( dict, "80ysbot", "Contains Shadowbringers yellow scrip botanist collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 784) // Rarefied Bright Flax, always, used for 0-2, 6-8
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 775) // Rarefied Sandteak Log, 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 776) // Rarefied Kelp, 4
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 774) // Rarefied White Oak Log, 8
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 773) // Rarefied Miracle Apple Log, 10
+            );
+
+            Add( dict, "70ys", "Contains Stormblood yellow scrip collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 772) // 0
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 770) // 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 771) // 4
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 328) // 6
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 310) // 8
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 312) // 10
+            );
+
+            Add( dict, "70ysmin", "Contains Stormblood yellow scrip miner collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 779) // Rarefied Gyr Abanian Mineral Water, always, used for 0-6
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 328) // 6
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 310) // 8
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 312) // 10
+            );
+
+            Add( dict, "70ysbot", "Contains Stormblood yellow scrip miner collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 783) // Rarefied Blood Hemp, always, used for 6-12
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 772) // 0
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 770) // 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 771) // 4
+            );
+
+            Add( dict, "60ys", "Contains Heavensward yellow scrip collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 778) // Rarefied Mythrite Sand, used for 6-10
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 769) // 0
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 308) // 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 310) // 4
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 768) // 10
+            );
+
+            Add( dict, "60ysmin", "Contains Heavensward yellow scrip miner collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 778) // Rarefied Mythrite Sand, used for 0-2, 6-12
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 308) // 2
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 310) // 4
+            );
+
+            Add( dict, "60ysbot", "Contains Heavensward yellow scrip miner collectibles."
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 782) // Rarefied Rainbow Cotton Boll, Always, used for 2-10
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 769) // 0
+               , W.nodes.nodeIdToNode.Values.FirstOrDefault(N => N.meta.pointBaseId == 768) // 10
             );
 
             return dict;
