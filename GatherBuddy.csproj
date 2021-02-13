@@ -115,6 +115,6 @@
     </None>
   </ItemGroup>
   <PropertyGroup>
-    <PostBuildEvent>if $(ConfigurationName) == Release powershell Compress-Archive $(TargetPath), $(TargetDir)$(SolutionName).json $(ProjectDir)$(SolutionName).zip</PostBuildEvent>
+    <PostBuildEvent>if $(ConfigurationName) == Release powershell Compress-Archive -Force $(TargetPath), $(TargetDir)$(SolutionName).json $(ProjectDir)$(SolutionName).zip</PostBuildEvent>
   </PropertyGroup>
 </Project>
