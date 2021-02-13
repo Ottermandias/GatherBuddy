@@ -142,6 +142,7 @@ namespace GatherBuddyPlugin
             if (ImGui.Checkbox("Teleport", ref useTeleport))
             {
                 config.UseTeleport = useTeleport;
+                plugin.gatherer.TryCreateTeleporterWatcher(pi, useTeleport);
                 pi.SavePluginConfig(config);
             }
             if (ImGui.IsItemHovered())

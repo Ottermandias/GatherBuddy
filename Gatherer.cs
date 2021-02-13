@@ -7,11 +7,14 @@ using System;
 using System.Collections.Generic;
 using GatherBuddyPlugin;
 using Otter;
+using System.IO;
 
 namespace Gathering
 {
     public class Gatherer : IDisposable
     {
+        private ClientLanguage                             teleporterLanguage;
+        private FileSystemWatcher                          teleporterWatcher = null;
         private readonly ClientLanguage                    language;
         private readonly Dalamud.Game.Internal.Gui.ChatGui chat;
         private readonly CommandManager                    commandManager;
@@ -19,7 +22,73 @@ namespace Gathering
         private readonly Dictionary<string, TimedGroup>    groups;
         private readonly GatherBuddyConfiguration          configuration;
         public  readonly NodeTimeLine                      timeline;
-    
+
+        public void TryCreateTeleporterWatcher(DalamudPluginInterface pi, bool useTeleport)
+        {
+            teleporterLanguage = language;
+            if (!useTeleport || teleporterWatcher != null)
+            {
+                teleporterWatcher?.Dispose();
+                teleporterWatcher = null;
+                return;
+            }
+
+            const string TeleporterPluginConfigFile = "TeleporterPlugin.json";
+
+            var dir = new DirectoryInfo(pi.GetPluginConfigDirectory());
+            if (!dir.Exists || !dir.Parent.Exists)
+                return;
+            dir = dir.Parent;
+
+            var file = new FileInfo(Path.Combine(dir.FullName, TeleporterPluginConfigFile));
+            if (file.Exists)
+                ParseTeleporterFile(file.FullName);
+
+            void OnTeleporterConfigChange(object source, FileSystemEventArgs args)
+            {
+                Log.Verbose("[GatherBuddy] Reloading Teleporter Config.");
+                if (args.ChangeType != WatcherChangeTypes.Changed && args.ChangeType != WatcherChangeTypes.Created)
+                    return;
+                ParseTeleporterFile(args.FullPath);
+            }
+
+            teleporterWatcher = new();
+            teleporterWatcher.Path = dir.FullName;
+            teleporterWatcher.NotifyFilter = NotifyFilters.LastWrite;
+            teleporterWatcher.Filter = TeleporterPluginConfigFile;
+            teleporterWatcher.Changed += OnTeleporterConfigChange;
+            teleporterWatcher.EnableRaisingEvents = true;
+        }
+
+        private void ParseTeleporterFile(string filePath)
+        {
+            try
+            {
+                const string TeleporterLanguageString = "\"teleporterlanguage\":";
+
+                var content = File.ReadAllText(filePath).ToLowerInvariant();
+                var idx = content.IndexOf(TeleporterLanguageString);
+                if (idx < 0)
+                    return;
+                content = content.Substring(idx + TeleporterLanguageString.Length).Trim();
+                if (content.Length < 1)
+                    return;
+                switch(content[0])
+                {
+                    case '0': teleporterLanguage = ClientLanguage.Japanese; return;
+                    case '1': teleporterLanguage = ClientLanguage.English;  return;
+                    case '2': teleporterLanguage = ClientLanguage.German;   return;
+                    case '3': teleporterLanguage = ClientLanguage.French;   return;
+                    case '4': teleporterLanguage = language;                return;
+                };
+            }
+            catch(Exception e)
+            {
+                Log.Error($"[GatherBuddy] Could not read Teleporter Config:\n{e}");
+                teleporterLanguage = language;
+            }
+        }
+
         public Gatherer(DalamudPluginInterface pi, GatherBuddyConfiguration config, CommandManager commandManager)
         {
             this.commandManager = commandManager;
@@ -29,6 +98,7 @@ namespace Gathering
             this.world          = new World(pi, configuration);
             this.groups         = TimedGroup.CreateGroups(world);
             this.timeline       = new(world.nodes);
+            TryCreateTeleporterWatcher(pi, configuration.UseTeleport);
         }
 
         public void OnTerritoryChange(object sender, UInt16 territory)
@@ -38,6 +108,7 @@ namespace Gathering
 
         public void Dispose()
         {
+            teleporterWatcher?.Dispose();
             world.nodes.records.Dispose();
         }
 
@@ -117,7 +188,7 @@ namespace Gathering
             if (!configuration.UseTeleport)
                 return true;
 
-            var name = node?.GetClosestAetheryte()?.nameList[language] ?? "";
+            var name = node?.GetClosestAetheryte()?.nameList[teleporterLanguage] ?? "";
             if (name.Length == 0)
             {
                 Log.Debug($"[GatherBuddy] No valid aetheryte found for node {node.meta.pointBaseId}.");

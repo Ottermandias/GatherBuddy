@@ -159,6 +159,7 @@ namespace GatherBuddyPlugin
                 {
                     var oldSetting = configuration.UseTeleport;
                     configuration.UseTeleport = setting;
+                    gatherer.TryCreateTeleporterWatcher(pluginInterface, setting);
                     output = $"Set the value of Teleport from {oldSetting} to {setting}.";
                 }
             }
