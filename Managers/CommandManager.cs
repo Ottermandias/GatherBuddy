@@ -39,19 +39,19 @@ namespace Otter
             }
         }
 
-        public void Execute(string message)
+        public bool Execute(string message)
         {
             // First try to process the command through Dalamud.
             if (dalamudCommands.ProcessCommand(message))
             {
                 Log.Verbose($"[{tag}] Executed Dalamud command \"{message}\".");
-                return;
+                return true;
             }
 
             if (uiModule == IntPtr.Zero || raptureModule == IntPtr.Zero)
             {
                 Log.Error($"[{tag}] Can not execute \"{message}\" because no uiModule or raptureModule are available.");
-                return;
+                return false;
             }
             
             // Then prepare a string to send to the game itself.
@@ -70,6 +70,7 @@ namespace Otter
 
             Marshal.FreeHGlobal(payload);
             Marshal.FreeHGlobal(text);
+            return false;
         }
 
         #region privates

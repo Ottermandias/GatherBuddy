@@ -194,7 +194,11 @@ namespace Gathering
                 Log.Debug($"[GatherBuddy] No valid aetheryte found for node {node.meta.pointBaseId}.");
                 return false;
             }
-            commandManager.Execute("/tp " + name);
+            if (!commandManager.Execute("/tp " + name))
+            {
+                chat.PrintError("It seems like you have activated teleporting, but you have not installed the required plugin Teleporter by Pohky.");
+                chat.PrintError("Please either deactivate teleporting or install the plugin.");
+            }
             await Task.Delay(100);
             return true;
         }
@@ -238,7 +242,11 @@ namespace Gathering
                 return false;
             }
 
-            commandManager.Execute($"/coord {xString}, {yString} : {territory}" );
+            if (!commandManager.Execute($"/coord {xString}, {yString} : {territory}" ))
+            {
+                chat.PrintError("It seems like you have activated map markers, but you have not installed the required plugin Map Markers by kij.");
+                chat.PrintError("Please either deactivate teleporting or install the plugin.");
+            }
             await Task.Delay(100);
             return true;
         }
