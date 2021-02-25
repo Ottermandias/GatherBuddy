@@ -21,8 +21,8 @@ namespace GatherBuddyPlugin
         public GatherBuddyConfiguration()
         {
             Version         = 2;
-            BotanistSetName = "Botanist";
-            MinerSetName    = "Miner";
+            BotanistSetName = "BOT";
+            MinerSetName    = "MIN";
             UseGearChange   = true;
             UseTeleport     = true;
             UseCoordinates  = true;
