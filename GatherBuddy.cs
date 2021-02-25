@@ -15,14 +15,14 @@ namespace GatherBuddyPlugin
 
         private DalamudPluginInterface   pluginInterface;
         public  Gatherer                 gatherer;
-        private Otter.CommandManager     commandManager;
+        private Managers.CommandManager  commandManager;
         private GatherBuddyConfiguration configuration;
         private Interface                gatherInterface;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             this.pluginInterface = pluginInterface;
-            this.commandManager  = new Otter.CommandManager(pluginInterface, "GatherBuddy", Serilog.Events.LogEventLevel.Verbose);
+            this.commandManager  = new Managers.CommandManager(pluginInterface, "GatherBuddy", Serilog.Events.LogEventLevel.Verbose);
             this.configuration   = pluginInterface.GetPluginConfig() as GatherBuddyConfiguration ?? new GatherBuddyConfiguration();
             this.gatherer        = new Gatherer(pluginInterface, configuration, commandManager);
             this.gatherInterface = new Interface(this, pluginInterface, configuration);
@@ -66,7 +66,6 @@ namespace GatherBuddyPlugin
             pluginInterface.SavePluginConfig(configuration);
             this.gatherer.Dispose();
             pluginInterface.ClientState.TerritoryChanged -= gatherer.OnTerritoryChange;
-            this.commandManager.RemoveHook();
             this.pluginInterface.CommandManager.RemoveHandler("/gatherdebug");
             this.pluginInterface.CommandManager.RemoveHandler("/gather");
             this.pluginInterface.CommandManager.RemoveHandler("/gathergroup");

@@ -6,7 +6,7 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using GatherBuddyPlugin;
-using Otter;
+using GatherBuddyPlugin.Managers;
 using System.IO;
 
 namespace Gathering

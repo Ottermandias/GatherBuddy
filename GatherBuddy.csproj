@@ -88,6 +88,8 @@
     <Compile Include="Managers\World.cs" />
     <Compile Include="Managers\NodeRecorder.cs" />
     <Compile Include="Managers\NodeTimeLine.cs" />
+    <Compile Include="SEFunctions\BaseUiObject.cs" />
+    <Compile Include="SEFunctions\GetUiModule.cs" />
     <Compile Include="SEFunctions\ProcessChatBox.cs" />
     <Compile Include="Utility\EorzeaTime.cs" />
     <Compile Include="Utility\FFName.cs" />
