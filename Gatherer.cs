@@ -155,7 +155,7 @@ namespace Gathering
             return item;
         }
 
-        private Node GetClosestNode(string itemName)
+        private Node GetClosestNode(string itemName, GatheringType? type = null)
         {
             Gatherable item = FindItemLogging(itemName);
             if (item == null)
@@ -170,11 +170,21 @@ namespace Gathering
                 return null;
             }
 
-            Node closestNode = world.ClosestNodeForItem(item);
+            Node closestNode = world.ClosestNodeForItem(item, type);
             if (closestNode?.GetValidAetheryte() == null)
             {
-                chat.PrintError($"No nodes containing {item.nameList[language]} have associated coordinates or aetheryte.");
-                chat.PrintError($"They will become available after encountering the respective node while having recording enabled.");
+                if (type == null)
+                {
+                    chat.PrintError(
+                        $"No nodes containing {item.nameList[language]} have associated coordinates or aetheryte.");
+                    chat.PrintError(
+                        $"They will become available after encountering the respective node while having recording enabled.");
+                }
+                else
+                {
+                    chat.PrintError(
+                        $"No nodes containing {item.nameList[language]} for the specified job have been found.");
+                }
             }
 
             if (!closestNode?.times.AlwaysUp() ?? false)
@@ -264,11 +274,11 @@ namespace Gathering
                 Log.Error($"[GatherBuddy] Exception caught: {e}");
             }
         }
-        public void OnGatherAction(string itemName)
+        public void OnGatherAction(string itemName, GatheringType? type = null)
         {
             try
             {
-                Node closestNode = GetClosestNode(itemName);
+                Node closestNode = GetClosestNode(itemName, type);
                 if (closestNode == null)
                     return;
                 OnGatherActionWithNode(closestNode);

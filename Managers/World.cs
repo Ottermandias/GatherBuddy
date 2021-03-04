@@ -28,7 +28,7 @@ namespace Gathering
             currentYStream = rawA?.AetherstreamY ?? 0;
         }
 
-        public Node ClosestNodeFromNodeList(IEnumerable<Node> nodes)
+        public Node ClosestNodeFromNodeList(IEnumerable<Node> nodes, GatheringType? type = null)
         {
             Node   minNode = null;
             double minDist = Double.MaxValue;
@@ -37,7 +37,7 @@ namespace Gathering
             {
                 var closest = node.GetClosestAetheryte();
                 var dist = closest?.AetherDistance(currentXStream, currentYStream) ?? Double.MaxValue;
-                if (dist < minDist && closest != null)
+                if (dist < minDist && closest != null && (type == null || type!.Value.ToGroup() == node.meta.gatheringType.ToGroup()))
                 {
                     minDist = dist;
                     minNode = node;
@@ -84,11 +84,11 @@ namespace Gathering
             return items.FindItemByName(itemName, language);
         }
 
-        public Node ClosestNodeForItem(Gatherable item)
+        public Node ClosestNodeForItem(Gatherable item, GatheringType? type = null)
         {
             if (item == null)
                 return null;
-            return ClosestNodeFromNodeList(item.NodeList);
+            return ClosestNodeFromNodeList(item.NodeList, type);
         }
     }
 }

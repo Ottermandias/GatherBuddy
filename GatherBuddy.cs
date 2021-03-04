@@ -39,6 +39,18 @@ namespace GatherBuddyPlugin
                 ShowInHelp = true
             });
 
+            this.pluginInterface.CommandManager.AddHandler("/gatherbot", new CommandInfo(OnGatherBot)
+            {
+                HelpMessage = "Mark the nearest botanist node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
+                ShowInHelp = true
+            });
+
+            this.pluginInterface.CommandManager.AddHandler("/gathermin", new CommandInfo(OnGatherMin)
+            {
+                HelpMessage = "Mark the nearest miner node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
+                ShowInHelp = true
+            });
+
             this.pluginInterface.CommandManager.AddHandler("/gathergroup", new CommandInfo(OnGatherGroup)
             {
                 HelpMessage = "Teleport to the node of a group corresponding to current time. Use /gathergroup for more details.",
@@ -68,6 +80,8 @@ namespace GatherBuddyPlugin
             pluginInterface.ClientState.TerritoryChanged -= gatherer.OnTerritoryChange;
             this.pluginInterface.CommandManager.RemoveHandler("/gatherdebug");
             this.pluginInterface.CommandManager.RemoveHandler("/gather");
+            this.pluginInterface.CommandManager.RemoveHandler("/gatherbot");
+            this.pluginInterface.CommandManager.RemoveHandler("/gathermin");
             this.pluginInterface.CommandManager.RemoveHandler("/gathergroup");
             this.pluginInterface.CommandManager.RemoveHandler("/gatherbuddy");
             this.pluginInterface.Dispose();
@@ -79,6 +93,22 @@ namespace GatherBuddyPlugin
                 pluginInterface.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gather.");
             else
                 gatherer.OnGatherAction(arguments);
+        }
+
+        private void OnGatherBot(string command, string arguments)
+        {
+            if (arguments == null || arguments.Length == 0)
+                pluginInterface.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gatherbot.");
+            else
+                gatherer.OnGatherAction(arguments, GatheringType.Botanist);
+        }
+
+        private void OnGatherMin(string command, string arguments)
+        {
+            if (arguments == null || arguments.Length == 0)
+                pluginInterface.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gathermin.");
+            else
+                gatherer.OnGatherAction(arguments, GatheringType.Miner);
         }
 
         private void OnConfigCommandHandler(object a, object b)
