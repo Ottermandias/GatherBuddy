@@ -170,7 +170,7 @@ namespace Gathering
         public double ToX() => averageX / 100.0;
         public double ToY() => averageY / 100.0;
 
-        private void RecomputeAverage()
+        public void RecomputeAverage()
         {
             if (nodes.Count > 0)
             {
@@ -185,15 +185,12 @@ namespace Gathering
                 }
                 averageX /= num;
                 averageY /= num;
-            }
-        }
 
-        private void FindClosestAetheryte()
-        {
-            if (territory == null || territory.aetherytes.Count == 0)
-                closestAetheryte = null;
-            else 
-                closestAetheryte = territory.aetherytes.Select(a => (a.WorldDistance(territory.id, averageX, averageY), a)).Min().a;
+                if (territory == null || territory.aetherytes.Count == 0)
+                    closestAetheryte = null;
+                else 
+                    closestAetheryte = territory.aetherytes.Select(a => (a.WorldDistance(territory.id, averageX, averageY), a)).Min().a;
+            }
         }
 
         public bool AddNodeLocation(uint nodeId, NodeLocation loc)
@@ -203,14 +200,12 @@ namespace Gathering
                 if (oldLoc.AddLocation(loc))
                 {
                     RecomputeAverage();
-                    FindClosestAetheryte();
                     return true;
                 }
                 return false;
             }
             nodes[nodeId] = loc;
             RecomputeAverage();
-            FindClosestAetheryte();
             return true;
         }
     }

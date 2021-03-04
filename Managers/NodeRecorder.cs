@@ -113,10 +113,14 @@ namespace Gathering
             {
                 Log.Error($"[GatherBuddy] [NodeRecorder] Node found on map {mapId} when it should be on {N.nodes.territory.id}.");
                 return false;
-            }            
+            }
 
             if (records.nodes.TryGetValue(nodeId, out var loc))
-                return loc.AddLocation(x, y);
+            {
+                var ret = loc.AddLocation(x, y);
+                N.nodes.RecomputeAverage();
+                return ret;
+            }
 
             loc = new();
             loc.AddLocation(x, y);
