@@ -11,7 +11,7 @@ namespace Gathering
     public class World
     {
         private readonly DalamudPluginInterface pi;
-        private readonly ClientLanguage         language;
+        public  readonly ClientLanguage         language;
         public readonly TerritoryManager        territories;
         public readonly AetheryteManager        aetherytes;
         public readonly ItemManager             items;

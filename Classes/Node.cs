@@ -87,7 +87,7 @@ namespace Gathering
     public class NodeItems
     {
         // One extra item for multiple overlapping hidden items (esp. maps)
-        readonly Gatherable[] items;
+        public readonly Gatherable[] items;
 
         // Print all items that are not null separated by '|'.
         public string PrintItems(string separator = "|", ClientLanguage lang = ClientLanguage.English)

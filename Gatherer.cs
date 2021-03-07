@@ -306,15 +306,23 @@ namespace Gathering
                 }
                 var currentHour = EorzeaTime.CurrentHours(minuteOffset);
                 var node = group.CurrentNode(currentHour);
-                if (node == null)
+                if (node.node == null)
                 {
                     Log.Debug($"[GatherBuddy] No node for hour {currentHour} set in group {group.name}.");
                     return;
                 }
 
-                if (await   EquipForNode(node) == false) return;
-                if (await TeleportToNode(node) == false) return;
-                if (await    SetNodeFlag(node) == false) return;
+                if (await   EquipForNode(node.node) == false) return;
+                if (await TeleportToNode(node.node) == false) return;
+                if (await    SetNodeFlag(node.node) == false) return;
+                if (node.desc != null)
+                {
+                    if (!configuration.UseCoordinates && node.node.meta.nodeType == NodeType.Regular)
+                        chat.Print(
+                            $"Gather [{node.desc}] at coordinates ({node.node.GetX():F2} | {node.node.GetY():F2}).");
+                    else
+                        chat.Print($"Gather [{node.desc}].");
+                }
             }
             catch(Exception e)
             {
