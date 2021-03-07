@@ -51,7 +51,7 @@ namespace GatherBuddyPlugin
             timedNodes[NodeType.Ephemeral][GatheringType.Botanist].Sort( new NodeComparer() );
         }
 
-        public List<(Node, int)> GetNewList(bool unspoiled, bool ephemeral, bool miner, bool botanist, bool arr, bool hw, bool sb, bool shb)
+        public List<(Node, int)> GetNewList(bool unspoiled, bool ephemeral, bool miner, bool botanist, bool arr, bool hw, bool sb, bool shb, bool ew)
         {
             IEnumerable<Node> list = Enumerable.Empty<Node>();
 
@@ -65,6 +65,8 @@ namespace GatherBuddyPlugin
                     return sb;
                 if (N.meta.level <= 80)
                     return shb;
+                if (N.meta.level <= 90)
+                    return ew;
                 return false;
             }
 
