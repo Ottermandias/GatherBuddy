@@ -1,8 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using AutoVisor.SEFunctions;
 using Dalamud.Plugin;
+using Otter.SEFunctions;
 using Serilog;
 
 namespace GatherBuddyPlugin.Managers

@@ -3,8 +3,11 @@ using ImGuiNET;
 using System.Numerics;
 using Dalamud.Plugin;
 using System.Collections.Generic;
+using System.Linq;
 using Gathering;
 using Dalamud;
+using Microsoft.SqlServer.Server;
+using Otter.SEFunctions;
 
 namespace GatherBuddyPlugin
 {
@@ -62,6 +65,10 @@ namespace GatherBuddyPlugin
         private const float horizontalSpace = 5;
         private List<(Node, int)> activeNodes = new();
 
+        private string newAlarmName = "";
+        private int newAlertIdx = 0;
+        private float longestNodeStringLength = 0f;
+
         void SaveNodes()
         {
             config.ShowNodes = ShowNodes.FromBools(showMiningNodes, showBotanistNodes, showEphemeralNodes
@@ -78,7 +85,15 @@ namespace GatherBuddyPlugin
             ShowNodes.ToBools(config.ShowNodes, out showMiningNodes, out showBotanistNodes, out showEphemeralNodes
                 , out showUnspoiledNodes, out showARRNodes, out showHWNodes, out showSBNodes, out showShBNodes, out showEWNodes);
             RebuildList(false);
+
+            
+            AllTimedNodesNames = plugin.alarms.AllTimedNodes
+                .Select(N => $"{N.times.PrintHours(true)}: {N.items.PrintItems(", ", lang)}")
+                .ToArray();
+            longestNodeStringLength = AllTimedNodesNames.Max(N => ImGui.CalcTextSize(N).X);
         }
+
+        private readonly string[] AllTimedNodesNames;
 
         private void RebuildList(bool save = true)
         {
@@ -186,6 +201,21 @@ namespace GatherBuddyPlugin
                 pi.Framework.Gui.Chat.Print($"Recorded {plugin.gatherer.Snapshot()} new nearby gathering nodes.");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Record currently available nodes around you once.");
+        }
+
+        private void DrawAlarmToggle()
+        {
+            var useAlarm = config.AlarmsEnabled;
+            if (ImGui.Checkbox("Alarms", ref useAlarm))
+            {
+                if (useAlarm != config.AlarmsEnabled)
+                {
+                    if (useAlarm) plugin.alarms.Enable();
+                    else plugin.alarms.Disable();
+                }
+            }
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Toggle all alarms on or off.");
         }
 
         private void DrawTimedNodes(float widgetHeight)
@@ -296,12 +326,238 @@ namespace GatherBuddyPlugin
             HorizontalSpace(space);
             DrawEndwalkerBox();
             ImGui.EndChild();
-            ImGui.EndTabItem();
+        }
+
+        private static readonly string[] SoundNameList = Enum.GetNames(typeof(Sounds)).Where(S => S != "Unknown").ToArray();
+
+        private int nodeSelection = 0;
+        private string nodeFilter = "";
+
+        private void DrawDeleteAndEnable(float space)
+        {
+            ImGui.BeginGroup();
+            ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
+            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            {
+                var alert = plugin.alarms.Alarms[idx];
+                if (ImGui.Button($"  -  ##{idx}"))
+                {
+                    plugin.alarms.RemoveNode(idx--);
+                }
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Delete this alarm.");
+
+                HorizontalSpace(space);
+                bool enabled = alert.Enabled;
+                if (ImGui.Checkbox($"##enabled_{idx}", ref enabled) && enabled != alert.Enabled)
+                    plugin.alarms.ChangeNodeStatus(idx, enabled);
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Enable or disable this alarm.");
+            }
+            ImGui.EndGroup();
+        }
+
+        public void DrawNames(float space)
+        {
+            ImGui.BeginGroup();
+            ImGui.Text("Name");
+            ImGui.SameLine();
+            ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
+            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            {
+                var alert = plugin.alarms.Alarms[idx];
+                ImGui.AlignTextToFramePadding();
+                ImGui.Text(alert.Name);
+                HorizontalSpace(space);
+                ImGui.NewLine();
+            }
+            ImGui.EndGroup();
+        }
+
+        public void DrawOffsets(float space)
+        {
+            ImGui.BeginGroup();
+            ImGui.Text("Pre");
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.");
+            ImGui.SameLine();
+            ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
+            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            {
+                var alert = plugin.alarms.Alarms[idx];
+                var offset = alert.MinuteOffset.ToString();
+                ImGui.SetNextItemWidth(ImGui.CalcTextSize("99999").X);
+                if (ImGui.InputText($"##Offset{idx}", ref offset, 4, ImGuiInputTextFlags.CharsDecimal))
+                {
+                    if (int.TryParse(offset, out var minutes))
+                    {
+                        minutes %= 24 * 60;
+                        if (minutes != alert.MinuteOffset)
+                            plugin.alarms.ChangeNodeOffset(idx, minutes);
+                    }
+                    else if (offset.Length == 0 && alert.MinuteOffset != 0)
+                        plugin.alarms.ChangeNodeOffset(idx, 0);
+                }
+            }
+            ImGui.EndGroup();
+        }
+
+        private void DrawAlarms(float space)
+        {
+            var boxSize = ImGui.CalcTextSize("Sound9999999").X;
+            ImGui.BeginGroup();
+            ImGui.Text("Alarm Sound");
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Set an optional sound that should be played when this alarm triggers.\n" +
+                                 "The sounds are the same as in the character configuration -> log window -> notification sounds.");
+            ImGui.SameLine();
+            ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
+            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            {
+                var alert = plugin.alarms.Alarms[idx];
+                var sound = alert.SoundId.ToIdx();
+                if (sound == -1)
+                {
+                    plugin.alarms.ChangeNodeSound(idx, Sounds.None);
+                    sound = 0;
+                }
+                ImGui.SetNextItemWidth(boxSize);
+                if (ImGui.Combo($"##sound_{idx}", ref sound, SoundNameList, SoundNameList.Length))
+                {
+                    var tmp = SoundsExtensions.FromIdx(sound);
+                    if (tmp != Sounds.Unknown && tmp != alert.SoundId)
+                        plugin.alarms.ChangeNodeSound(idx, tmp);
+                }
+            }
+            ImGui.EndGroup();
+        }
+
+        private void DrawPrintMessageBoxes(float space)
+        {
+            ImGui.BeginGroup();
+            ImGui.Text("Chat");
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("Toggle whether the alarm is printed to chat or not.");
+            ImGui.SameLine();
+            ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
+            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            {
+                var alert = plugin.alarms.Alarms[idx];
+                var print = alert.PrintMessage;
+                if (ImGui.Checkbox($"##print{idx}", ref print) && print != alert.PrintMessage)
+                    plugin.alarms.ChangePrintStatus(idx, print);
+            }
+            ImGui.EndGroup();
+        }
+
+        private void DrawHours(float space)
+        {
+            ImGui.BeginGroup();
+            ImGui.Text("Alarm Times");
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip("The uptimes for the node monitored in this alarm. Hover for the items.");
+            ImGui.SameLine();
+            ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
+            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            {
+                var alert = plugin.alarms.Alarms[idx];
+                ImGui.AlignTextToFramePadding();
+                ImGui.Text(alert.Node.times.PrintHours(true, " | "));
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip(alert.Node.items.PrintItems("\n", lang));
+            }
+
+            ImGui.EndGroup();
+        }
+
+        private bool focusComboFilter = false;
+
+        private void DrawNewAlarm(float space)
+        {
+            if (ImGui.Button("  + "))
+            {
+                plugin.alarms.AddNode(newAlarmName, plugin.alarms.AllTimedNodes[newAlertIdx]);
+                newAlarmName = "";
+            }
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(ImGui.CalcTextSize("mmmmmmmmmmmm").X);
+            ImGui.InputTextWithHint("##Name", "New Alarm Name", ref newAlarmName, 64);
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(-1);
+            if (ImGui.BeginCombo("##Node", AllTimedNodesNames[nodeSelection]))
+            { 
+                ImGui.SetNextItemWidth(-1);
+                ImGui.InputTextWithHint("##NodeFilter", "Filter", ref nodeFilter,  60);
+                var isFocused = ImGui.IsItemActive();
+                if (!focusComboFilter)
+                    ImGui.SetKeyboardFocusHere();
+
+                if (!ImGui.BeginChild("##nodeList",
+                    new Vector2(longestNodeStringLength * ImGui.GetIO().FontGlobalScale,
+                        ImGui.GetTextLineHeightWithSpacing() * 6)))
+                {
+                    ImGui.EndCombo();
+                    return;
+                }
+
+                if (!focusComboFilter)
+                {
+                    ImGui.SetScrollY(0);
+                    focusComboFilter = true;
+                }
+
+                var filter = nodeFilter.ToLowerInvariant();
+                var numNodes = 0;
+                var node = 0;
+                for (var i = 0; i < AllTimedNodesNames.Length; ++i)
+                {
+                    if (AllTimedNodesNames[i].ToLowerInvariant().Contains(filter))
+                    {
+                        ++numNodes;
+                        node = i;
+                        if (ImGui.Selectable(AllTimedNodesNames[i], i == nodeSelection))
+                        {
+                            nodeSelection = i;
+                            
+                            ImGui.CloseCurrentPopup();
+                        }
+                    }
+                }
+                ImGui.EndChild();
+                if (!isFocused && numNodes <= 1) {
+                    nodeSelection = node;
+                    ImGui.CloseCurrentPopup();
+                };
+
+                ImGui.EndCombo();
+            }
+            else if (focusComboFilter) {
+                focusComboFilter = false;
+                nodeFilter = "";
+            }
         }
 
         private void DrawAlertsTab()
         {
+            var space = ImGui.GetStyle().ItemSpacing.X / 2;
+            var listSize = new Vector2(-1, -ImGui.GetTextLineHeightWithSpacing() - 2 * ImGui.GetStyle().FramePadding.X);
+            if (ImGui.BeginChild("##alarmlist", listSize, true))
+            {
+                DrawDeleteAndEnable(space);
+                ImGui.SameLine();
+                DrawNames(space);
+                ImGui.SameLine();
+                DrawOffsets(space);
+                ImGui.SameLine();
+                DrawAlarms(space);
+                ImGui.SameLine();
+                DrawPrintMessageBoxes(space);
+                ImGui.SameLine();
+                DrawHours(space);
+                ImGui.EndChild();
+            }
 
+            DrawNewAlarm(space);
         }
 
         public void Draw()
@@ -359,29 +615,37 @@ namespace GatherBuddyPlugin
             HorizontalSpace(3 * space);
             ImGui.BeginGroup();
             DrawSnapshotButton(buttonSize);
+            DrawAlarmToggle();
             ImGui.EndGroup();
             ImGui.EndGroup();
 
-            if (!ImGui.BeginTabBar("##Tabs"))
+            if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip))
                 return;
 
             minXSize = ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X;
 
-            if (ImGui.BeginTabItem("Timed Nodes"))
-                DrawTimedTab(space);
+            var timedTab = ImGui.BeginTabItem("Timed Nodes");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Shows timed nodes corresponding to the selection of the checkmarks below, sorted by next uptime.\n" +
                                  "Click on a node to do a /gather command for that node.");
+            if (timedTab)
+            {
+                DrawTimedTab(space);
+                ImGui.EndTabItem();
+            }
 
-            if (ImGui.BeginTabItem("Alerts"))
-                DrawAlertsTab();
+            var alertTab = ImGui.BeginTabItem("Alerts");
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Setup alarms for specific timed gathering nodes.");
+                ImGui.SetTooltip("Setup alarms for specific timed gathering nodes.\n" +
+                                 "You can use [/gather alarm] to directly gather the last triggered alarm.");
+            if (alertTab)
+            {
+                DrawAlertsTab();
+                ImGui.EndTabItem();
+            }
 
             ImGui.EndTabBar();
-
             minXSize = Math.Max(minXSize, ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X);
-
             ImGui.End();
         }
     }

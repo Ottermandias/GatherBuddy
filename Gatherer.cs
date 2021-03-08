@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using GatherBuddyPlugin;
 using GatherBuddyPlugin.Managers;
 using System.IO;
+using Otter;
 
 namespace Gathering
 {
@@ -22,6 +23,7 @@ namespace Gathering
         private readonly Dictionary<string, TimedGroup>    groups;
         private readonly GatherBuddyConfiguration          configuration;
         public  readonly NodeTimeLine                      timeline;
+        public  readonly AlarmManager                      alarms;
 
         public void TryCreateTeleporterWatcher(DalamudPluginInterface pi, bool useTeleport)
         {
@@ -98,6 +100,7 @@ namespace Gathering
             this.world          = new World(pi, configuration);
             this.groups         = TimedGroup.CreateGroups(world);
             this.timeline       = new(world.nodes);
+            this.alarms         = new AlarmManager(pi, world.nodes, configuration);
             TryCreateTeleporterWatcher(pi, configuration.UseTeleport);
         }
 
@@ -108,6 +111,7 @@ namespace Gathering
 
         public void Dispose()
         {
+            alarms?.Dispose();
             teleporterWatcher?.Dispose();
             world.nodes.records.Dispose();
         }
@@ -278,10 +282,25 @@ namespace Gathering
         {
             try
             {
-                Node closestNode = GetClosestNode(itemName, type);
-                if (closestNode == null)
-                    return;
-                OnGatherActionWithNode(closestNode);
+                if (Util.CompareCI(itemName, "alarm"))
+                {
+                    Node node = alarms.LastAlarm?.Node;
+                    if (node == null)
+                        chat.PrintError("No active alarm was triggered, yet.");
+                    else
+                    {
+                        chat.Print($"Teleporting to [Alarm {alarms.LastAlarm.Name}] ({node.times.PrintHours()}):");
+                        chat.Print(node.items.PrintItems(", ", language) + '.');
+                        OnGatherActionWithNode(node);
+                    }
+                }
+                else
+                {
+                    Node closestNode = GetClosestNode(itemName, type);
+                    if (closestNode == null)
+                        return;
+                    OnGatherActionWithNode(closestNode);
+                }
             }
             catch(Exception e)
             {

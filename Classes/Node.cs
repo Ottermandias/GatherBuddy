@@ -236,11 +236,11 @@ namespace Gathering
         // Print a string of 24 '0' or '1' as uptimes.
         public string UptimeTable()
         {
-            return new string(Convert.ToString(hours, 2).PadLeft(24, '0').Reverse().ToArray());
+            return new (Convert.ToString(hours, 2).PadLeft(24, '0').Reverse().ToArray());
         }
 
         // Print hours in human readable format.
-        public string PrintHours()
+        public string PrintHours(bool simple = false, string simpleSeparator = "|")
         {
             string ret = "";
             int min = -1, max = -1;
@@ -251,10 +251,19 @@ namespace Gathering
                 {
                     if (ret.Length > 0)
                     {
-                        ret.Replace(" and ", ", ");
-                        ret += " and ";
+                        if (simple)
+                            ret += simpleSeparator;
+                        else
+                        {
+                            ret = ret.Replace(" and ", ", ");
+                            ret += " and ";
+                        }
                     }
-                    ret += $"{min.ToString().PadLeft(2, '0')}:00 - {(max + 1).ToString().PadLeft(2, '0')}:00 ET";
+
+                    if (simple)
+                        ret += $"{min:D2}-{(max + 1):D2}";
+                    else
+                        ret += $"{min:D2}:00 - {(max + 1):D2}:00 ET";
 
                     min = -1;
                     max = -1;

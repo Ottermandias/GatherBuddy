@@ -69,6 +69,7 @@
   <ItemGroup>
     <Compile Include="AssemblyInfo.cs" />
     <Compile Include="Classes\Aetheryte.cs" />
+    <Compile Include="Classes\Alarm.cs" />
     <Compile Include="Classes\Gatherable.cs" />
     <Compile Include="Classes\Node.cs" />
     <Compile Include="Classes\Territory.cs" />
@@ -77,6 +78,7 @@
     <Compile Include="GatherBuddyConfiguration.cs" />
     <Compile Include="Interface.cs" />
     <Compile Include="Managers\AetheryteManager.cs" />
+    <Compile Include="Managers\AlarmManager.cs" />
     <Compile Include="Managers\CommandManager.cs" />
     <Compile Include="Managers\ItemManager.cs" />
     <Compile Include="Managers\NodeCoords.cs" />
@@ -88,6 +90,7 @@
     <Compile Include="Managers\World.cs" />
     <Compile Include="Managers\NodeRecorder.cs" />
     <Compile Include="Managers\NodeTimeLine.cs" />
+    <Compile Include="SEFunctions\PlaySound.cs" />
     <Compile Include="SEFunctions\BaseUiObject.cs" />
     <Compile Include="SEFunctions\GetUiModule.cs" />
     <Compile Include="SEFunctions\ProcessChatBox.cs" />

@@ -18,6 +18,7 @@ namespace GatherBuddyPlugin
         private Managers.CommandManager  commandManager;
         private GatherBuddyConfiguration configuration;
         private Interface                gatherInterface;
+        public  AlarmManager             alarms;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
@@ -25,6 +26,7 @@ namespace GatherBuddyPlugin
             this.commandManager  = new Managers.CommandManager(pluginInterface, "GatherBuddy", Serilog.Events.LogEventLevel.Verbose);
             this.configuration   = pluginInterface.GetPluginConfig() as GatherBuddyConfiguration ?? new GatherBuddyConfiguration();
             this.gatherer        = new Gatherer(pluginInterface, configuration, commandManager);
+            this.alarms          = gatherer.alarms;
             this.gatherInterface = new Interface(this, pluginInterface, configuration);
 
             this.pluginInterface.CommandManager.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
@@ -69,6 +71,9 @@ namespace GatherBuddyPlugin
 
             if (configuration.DoRecord)
                 gatherer.StartRecording();
+
+            if (configuration.AlarmsEnabled)
+                alarms.Enable(true);
         }
 
         public void Dispose()

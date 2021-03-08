@@ -4,7 +4,7 @@ using Dalamud.Game;
 using Dalamud.Hooking;
 using Serilog;
 
-namespace AutoVisor.SEFunctions
+namespace Otter.SEFunctions
 {
     public class ProcessChatBox
     {

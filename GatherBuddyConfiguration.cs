@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
 using Dalamud.Configuration;
+using Gathering;
 
 namespace GatherBuddyPlugin
 {
@@ -15,8 +17,10 @@ namespace GatherBuddyPlugin
         public bool UseTeleport{ get; set; }
         public bool UseCoordinates{ get; set; }
         public bool DoRecord{ get; set; }
+        public bool AlarmsEnabled { get; set; }
 
         public Gathering.Records Records{ get; set; }
+        public List<Alarm> Alarms { get; set; }
 
         public GatherBuddyConfiguration()
         {
@@ -27,8 +31,10 @@ namespace GatherBuddyPlugin
             UseTeleport     = true;
             UseCoordinates  = true;
             DoRecord        = true;
+            AlarmsEnabled   = false;
             ShowNodes       = 0b11111111;
             Records         = new Gathering.Records();
+            Alarms = new();
         }
     }
 }

@@ -2,7 +2,7 @@ using Dalamud.Game;
 using Serilog;
 using System;
 
-namespace AutoVisor.SEFunctions
+namespace Otter.SEFunctions
 {
     public class BaseUiObject
     {
