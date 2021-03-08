@@ -330,9 +330,6 @@ namespace GatherBuddyPlugin
 
         private static readonly string[] SoundNameList = Enum.GetNames(typeof(Sounds)).Where(S => S != "Unknown").ToArray();
 
-        private int nodeSelection = 0;
-        private string nodeFilter = "";
-
         private void DrawDeleteAndEnable(float space)
         {
             ImGui.BeginGroup();
@@ -472,6 +469,8 @@ namespace GatherBuddyPlugin
 
         private bool focusComboFilter = false;
 
+
+        private string nodeFilter = "";
         private void DrawNewAlarm(float space)
         {
             if (ImGui.Button("  + "))
@@ -484,7 +483,7 @@ namespace GatherBuddyPlugin
             ImGui.InputTextWithHint("##Name", "New Alarm Name", ref newAlarmName, 64);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(-1);
-            if (ImGui.BeginCombo("##Node", AllTimedNodesNames[nodeSelection]))
+            if (ImGui.BeginCombo("##Node", AllTimedNodesNames[newAlertIdx]))
             { 
                 ImGui.SetNextItemWidth(-1);
                 ImGui.InputTextWithHint("##NodeFilter", "Filter", ref nodeFilter,  60);
@@ -515,17 +514,16 @@ namespace GatherBuddyPlugin
                     {
                         ++numNodes;
                         node = i;
-                        if (ImGui.Selectable(AllTimedNodesNames[i], i == nodeSelection))
+                        if (ImGui.Selectable(AllTimedNodesNames[i], i == newAlertIdx))
                         {
-                            nodeSelection = i;
-                            
+                            newAlertIdx = i;
                             ImGui.CloseCurrentPopup();
                         }
                     }
                 }
                 ImGui.EndChild();
                 if (!isFocused && numNodes <= 1) {
-                    nodeSelection = node;
+                    newAlertIdx = node;
                     ImGui.CloseCurrentPopup();
                 };
 
