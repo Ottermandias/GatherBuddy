@@ -1,21 +1,24 @@
 using Dalamud;
+using GatherBuddy.Classes;
 
-namespace Gathering
+namespace GatherBuddy.Managers
 {
     public class NodeHidden
     {
-        private readonly Gatherable[] maps;
+        private readonly Gatherable[] _maps;
 
-        private readonly (string seed, Gatherable fruit)[] seeds;
+        private readonly (string seed, Gatherable fruit)[] _seeds;
 
-        private readonly Gatherable[] otherHidden;
+        private readonly Gatherable[] _otherHidden;
 
-        private readonly Gatherable darkMatterCluster;
-        private readonly Gatherable unaspectedCrystal;
+        private readonly Gatherable _darkMatterCluster;
+        private readonly Gatherable _unaspectedCrystal;
+
         public NodeHidden(ItemManager items)
         {
-            var from = items.fromLanguage[(int)ClientLanguage.English];
-            maps = new Gatherable[]
+            // @formatter:off
+            var from = items.FromLanguage[(int)ClientLanguage.English];
+            _maps = new Gatherable[]
             { from["Timeworn Leather Map"    ]
             , from["Timeworn Goatskin Map"   ]
             , from["Timeworn Toadskin Map"   ]
@@ -27,13 +30,13 @@ namespace Gathering
             , from["Timeworn Gaganaskin Map" ]
             , from["Timeworn Gazelleskin Map"]
             , from["Timeworn Gliderskin Map" ]
-            , from["Timeworn Zonureskin Map" ]
+            , from["Timeworn Zonureskin Map" ],
             };
 
-            darkMatterCluster = from["Dark Matter Cluster"];
-            unaspectedCrystal = from["Unaspected Crystal" ];
+            _darkMatterCluster = from["Dark Matter Cluster"];
+            _unaspectedCrystal = from["Unaspected Crystal" ];
 
-            seeds = new (string, Gatherable)[]
+            _seeds = new (string, Gatherable)[]
             { ("Paprika Seeds"           , from["Paprika"                   ])
             , ("Wild Onion Set"          , from["Wild Onion"                ])
             , ("Coerthan Carrot Seeds"   , from["Coerthan Carrot"           ])
@@ -69,102 +72,107 @@ namespace Gathering
             , ("Oddly Specific Dark Chestnut Log", from["Oddly Specific Leafborne Aethersand"])
             , ("Oddly Specific Primordial Log"   , from["Oddly Specific Primordial Resin"    ])
             , ("Oddly Specific Schorl"           , from["Oddly Specific Landborne Aethersand"])
-            , ("Oddly Specific Primordial Ore"   , from["Oddly Specific Primordial Asphaltum"])
+            , ("Oddly Specific Primordial Ore"   , from["Oddly Specific Primordial Asphaltum"]),
             };
 
-            otherHidden = new Gatherable[]
-            { (from["Grade 1 La Noscean Topsoil"])
-            , (from["Grade 1 Shroud Topsoil"    ])
-            , (from["Grade 1 Thanalan Topsoil"  ])
-            , (from["Grade 2 La Noscean Topsoil"])
-            , (from["Grade 2 Shroud Topsoil"    ])
-            , (from["Grade 2 Thanalan Topsoil"  ])
-            , (from["Black Limestone"           ])
-            , (from["Little Worm"               ])
-            , (from["Yafaem Wildgrass"          ])
-            , (from["Dark Chestnut"             ])
-            , (from["Firelight Seeds"           ])
-            , (from["Icelight Seeds"            ])
-            , (from["Windlight Seeds"           ])
-            , (from["Earthlight Seeds"          ])
-            , (from["Levinlight Seeds"          ])
-            , (from["Waterlight Seeds"          ])
-            , (from["Mythrite Ore"              ])
-            , (from["Hardsilver Ore"            ])
-            , (from["Titanium Ore"              ])
-            , (from["Birch Log"                 ])
-            , (from["Cyclops Onion"             ])
-            , (from["Emerald Beans"             ])
+            _otherHidden = new Gatherable[]
+            { @from["Grade 1 La Noscean Topsoil"]
+            , @from["Grade 1 Shroud Topsoil"    ]
+            , @from["Grade 1 Thanalan Topsoil"  ]
+            , @from["Grade 2 La Noscean Topsoil"]
+            , @from["Grade 2 Shroud Topsoil"    ]
+            , @from["Grade 2 Thanalan Topsoil"  ]
+            , @from["Black Limestone"           ]
+            , @from["Little Worm"               ]
+            , @from["Yafaem Wildgrass"          ]
+            , @from["Dark Chestnut"             ]
+            , @from["Firelight Seeds"           ]
+            , @from["Icelight Seeds"            ]
+            , @from["Windlight Seeds"           ]
+            , @from["Earthlight Seeds"          ]
+            , @from["Levinlight Seeds"          ]
+            , @from["Waterlight Seeds"          ]
+            , @from["Mythrite Ore"              ]
+            , @from["Hardsilver Ore"            ]
+            , @from["Titanium Ore"              ]
+            , @from["Birch Log"                 ]
+            , @from["Cyclops Onion"             ]
+            , @from["Emerald Beans"             ],
             };
+            // @formatter:on
         }
 
         private void ApplySeeds(Node N)
         {
-            foreach ((string seed, Gatherable fruit) in seeds)
-                if (N.items.HasItems(seed))
+            foreach (var (seed, fruit) in _seeds)
+                if (N.Items!.HasItems(seed))
                     N.AddItem(fruit);
         }
 
+        // @formatter:off
         private void ApplyOtherHidden(Node N)
         {
-            switch(N.meta.pointBaseId)
+            switch(N.Meta!.PointBaseId)
             {
-                case 183: N.AddItem(otherHidden[ 0]); return;
-                case 163: N.AddItem(otherHidden[ 1]); return;
-                case 172: N.AddItem(otherHidden[ 2]); return;
-                case 193: N.AddItem(otherHidden[ 3]); return;
-                case 209: N.AddItem(otherHidden[ 4]); return;
-                case 151: N.AddItem(otherHidden[ 5]); return;
-                case 210: N.AddItem(otherHidden[ 6]); return;
-                case 177: N.AddItem(otherHidden[ 7]); return;
-                case 133: N.AddItem(otherHidden[ 8]); return;
-                case 295: N.AddItem(otherHidden[ 9]); return;
-                case  30: N.AddItem(otherHidden[10]); return;
-                case  39: N.AddItem(otherHidden[11]); return;
-                case  21: N.AddItem(otherHidden[12]); return;
-                case  31: N.AddItem(otherHidden[13]); return;
-                case  25: N.AddItem(otherHidden[14]); return;
-                case  14: N.AddItem(otherHidden[15]); return;
-                case 285: N.AddItem(otherHidden[16]); return;
-                case 353: N.AddItem(otherHidden[17]); return;
-                case 286: N.AddItem(otherHidden[18]); return;
-                case 356: N.AddItem(otherHidden[19]); return;
-                case 297: N.AddItem(otherHidden[20]); return;
-                case 298: N.AddItem(otherHidden[21]); return;
+                case 183: N.AddItem(_otherHidden[ 0]); return;
+                case 163: N.AddItem(_otherHidden[ 1]); return;
+                case 172: N.AddItem(_otherHidden[ 2]); return;
+                case 193: N.AddItem(_otherHidden[ 3]); return;
+                case 209: N.AddItem(_otherHidden[ 4]); return;
+                case 151: N.AddItem(_otherHidden[ 5]); return;
+                case 210: N.AddItem(_otherHidden[ 6]); return;
+                case 177: N.AddItem(_otherHidden[ 7]); return;
+                case 133: N.AddItem(_otherHidden[ 8]); return;
+                case 295: N.AddItem(_otherHidden[ 9]); return;
+                case  30: N.AddItem(_otherHidden[10]); return;
+                case  39: N.AddItem(_otherHidden[11]); return;
+                case  21: N.AddItem(_otherHidden[12]); return;
+                case  31: N.AddItem(_otherHidden[13]); return;
+                case  25: N.AddItem(_otherHidden[14]); return;
+                case  14: N.AddItem(_otherHidden[15]); return;
+                case 285: N.AddItem(_otherHidden[16]); return;
+                case 353: N.AddItem(_otherHidden[17]); return;
+                case 286: N.AddItem(_otherHidden[18]); return;
+                case 356: N.AddItem(_otherHidden[19]); return;
+                case 297: N.AddItem(_otherHidden[20]); return;
+                case 298: N.AddItem(_otherHidden[21]); return;
             }
         }
 
         private void ApplyMaps(Node N)
         {
-            if (N.meta.nodeType != NodeType.Regular)            
+            if (N.Meta!.NodeType != NodeType.Regular)            
                 return;
 
-            switch(N.meta.level)
+            switch(N.Meta!.Level)
             {
-                case 40: N.AddItem(maps[ 0]); return;
-                case 45: N.AddItem(maps[ 1]); return;
-                case 50: N.AddItem(maps[ 2]);
-                         N.AddItem(maps[ 3]);
-                         N.AddItem(maps[ 4]); return;
-                case 55: N.AddItem(maps[ 5]); return;
-                case 60: N.AddItem(maps[ 6]);
-                         N.AddItem(maps[ 7]); return;
-                case 70: N.AddItem(maps[ 8]);
-                         N.AddItem(maps[ 9]); return;
-                case 80: N.AddItem(maps[10]);
-                         N.AddItem(maps[11]); return;
+                case 40: N.AddItem(_maps[ 0]); return;
+                case 45: N.AddItem(_maps[ 1]); return;
+                case 50: N.AddItem(_maps[ 2]);
+                         N.AddItem(_maps[ 3]);
+                         N.AddItem(_maps[ 4]); return;
+                case 55: N.AddItem(_maps[ 5]); return;
+                case 60: N.AddItem(_maps[ 6]);
+                         N.AddItem(_maps[ 7]); return;
+                case 70: N.AddItem(_maps[ 8]);
+                         N.AddItem(_maps[ 9]); return;
+                case 80: N.AddItem(_maps[10]);
+                         N.AddItem(_maps[11]); return;
             }
         }
+        // @formatter:on
 
         private void ApplyDarkMatter(Node N)
         {
-            if (N.meta.nodeType != NodeType.Unspoiled)
+            if (N.Meta!.NodeType != NodeType.Unspoiled)
                 return;
-            if (N.meta.level != 50)
+            if (N.Meta.Level != 50)
                 return;
-            N.AddItem(darkMatterCluster);
-            N.AddItem(unaspectedCrystal);
+
+            N.AddItem(_darkMatterCluster);
+            N.AddItem(_unaspectedCrystal);
         }
+
         public void SetHiddenItems(Node N)
         {
             ApplySeeds(N);

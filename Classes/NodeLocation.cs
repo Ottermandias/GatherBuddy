@@ -2,70 +2,73 @@
 using System.Collections.Generic;
 using System.IO;
 
-namespace Gathering
+namespace GatherBuddy.Classes
 {
     public class NodeLocation : IComparable
     {
-        public HashSet<(int, int)> locations = new HashSet<(int, int)>();
+        public HashSet<(int, int)> Locations { get; set; } = new();
 
-        public int averageX = 0;
-        public int averageY = 0;
+        public int AverageX { get; set; }
+        public int AverageY { get; set; }
 
-        public double ToX() => averageX / 100.0;
-        public double ToY() => averageY / 100.0;
+        public double XCoord
+            => AverageX / 100.0;
+
+        public double YCoord
+            => AverageY / 100.0;
 
         public int CompareTo(object r)
         {
-            if (r == null) return 1;
-            var rhs = r as NodeLocation;
+            if (!(r is NodeLocation rhs))
+                return 1;
 
-            if (averageX != rhs.averageX)
-                return averageX - rhs.averageX;
+            if (AverageX != rhs.AverageX)
+                return AverageX - rhs.AverageX;
 
-            return averageY - rhs.averageY;
+            return AverageY - rhs.AverageY;
         }
 
         public void Clear()
         {
-            averageX = 0;
-            averageY = 0;
-            locations.Clear();
+            AverageX = 0;
+            AverageY = 0;
+            Locations.Clear();
         }
 
         public bool AddLocation(int x, int y)
         {
-            if (locations.Add((x, y)))
-            {
-                averageX = (averageX * (locations.Count - 1) + x) / locations.Count;
-                averageY = (averageY * (locations.Count - 1) + y) / locations.Count;
-                return true;
-            }
-            return false;
+            if (!Locations.Add((x, y)))
+                return false;
+
+            AverageX = (AverageX * (Locations.Count - 1) + x) / Locations.Count;
+            AverageY = (AverageY * (Locations.Count - 1) + y) / Locations.Count;
+            return true;
         }
 
         public bool AddLocation(NodeLocation rhs)
         {
-            var previousCount = locations.Count;
-            locations.UnionWith(rhs.locations);
-            if (locations.Count == previousCount)
+            var previousCount = Locations.Count;
+            Locations.UnionWith(rhs.Locations);
+            if (Locations.Count == previousCount)
                 return false;
 
             var sumX = 0;
             var sumY = 0;
-            foreach (var (x,y) in locations)
+            foreach (var (x, y) in Locations)
             {
                 sumX += x;
                 sumY += y;
             }
-            averageX = sumX / locations.Count;
-            averageY = sumY / locations.Count;
+
+            AverageX = sumX / Locations.Count;
+            AverageY = sumY / Locations.Count;
             return true;
         }
 
         public void Write(BinaryWriter writer)
         {
-            writer.Write(locations.Count);
-            foreach (var (x,y) in locations)
+            writer.Write(Locations.Count);
+            foreach (var (x, y) in Locations)
             {
                 writer.Write(x);
                 writer.Write(y);
@@ -74,22 +77,24 @@ namespace Gathering
 
         public static NodeLocation Read(BinaryReader reader)
         {
-            var num   = reader.ReadInt32();
-            var set   = new HashSet<(int, int)>(num);
-            var sumX  = 0;
-            var sumY  = 0;
-            for (int i = 0; i < num; ++i)
+            var num  = reader.ReadInt32();
+            var set  = new HashSet<(int, int)>(num);
+            var sumX = 0;
+            var sumY = 0;
+            for (var i = 0; i < num; ++i)
             {
                 var x = reader.ReadInt32();
                 var y = reader.ReadInt32();
                 sumX += x;
                 sumY += y;
-                set.Add((x,y));
+                set.Add((x, y));
             }
+
             return new NodeLocation
-            { averageX  = sumX / num
-            , averageY  = sumY / num
-            , locations = set
+            {
+                AverageX  = sumX / num,
+                AverageY  = sumY / num,
+                Locations = set,
             };
         }
     }

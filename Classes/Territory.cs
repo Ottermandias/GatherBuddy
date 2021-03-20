@@ -1,28 +1,26 @@
 using System.Collections.Generic;
 using Dalamud;
-using Otter;
+using GatherBuddy.Utility;
 
-namespace Gathering
+namespace GatherBuddy.Classes
 {
     public class Territory
     {
-        public uint               id;
-        public FFName             region;
-        public FFName             nameList;
-        public HashSet<Aetheryte> aetherytes = new();
-        public int                xStream = 0;
-        public int                yStream = 0;
+        public uint               Id         { get; }
+        public FFName             Region     { get; }
+        public FFName             NameList   { get; }
+        public HashSet<Aetheryte> Aetherytes { get; }      = new();
+        public int                XStream    { get; set; } = 0;
+        public int                YStream    { get; set; } = 0;
 
         public Territory(uint id, FFName region, FFName placeName)
         {
-            this.nameList = placeName;
-            this.id       = id;
-            this.region   = region;
+            NameList = placeName;
+            Id       = id;
+            Region   = region;
         }
 
-        override public string ToString()
-        {
-            return $"[{nameList[ClientLanguage.English]}][{region[ClientLanguage.English]}]";
-        }
+        public override string ToString()
+            => $"[{NameList[ClientLanguage.English]}][{Region[ClientLanguage.English]}]";
     }
 }

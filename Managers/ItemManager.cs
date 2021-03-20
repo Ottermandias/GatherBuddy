@@ -1,92 +1,96 @@
 using System;
-using Serilog;
 using System.Collections.Generic;
+using System.Linq;
 using Dalamud.Plugin;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Dalamud;
-using Otter;
+using GatherBuddy.Classes;
+using GatherBuddy.Utility;
 
-namespace Gathering
+namespace GatherBuddy.Managers
 {
     public class ItemManager
     {
         // Sorted Set so the item search uses the lexicographically first item on partial match, rather than a random one.
-        public SortedSet<Gatherable>            items = new();
-        public Dictionary<string, Gatherable>[] fromLanguage = new Dictionary<string, Gatherable>[4]{ new(), new(), new(), new() };
-        public Dictionary<int, Gatherable>      gatheringToItem = new();
+        public SortedSet<Gatherable> Items { get; } = new();
+
+        public Dictionary<string, Gatherable>[] FromLanguage { get; } = new Dictionary<string, Gatherable>[4]
+        {
+            new(),
+            new(),
+            new(),
+            new(),
+        };
+
+        public Dictionary<int, Gatherable> GatheringToItem { get; } = new();
 
         public ItemManager(DalamudPluginInterface pi)
         {
             var gatheringExcel = pi.Data.GetExcelSheet<GatheringItem>();
             var itemSheets     = new ExcelSheet<Item>[4];
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
-                itemSheets[(int)lang] = pi.Data.GetExcelSheet<Item>(lang);
+                itemSheets[(int) lang] = pi.Data.GetExcelSheet<Item>(lang);
 
-            foreach (var item in gatheringExcel)
+            // Skip invalid items.
+            // There are a bunch of ids in gathering that do belong to quest or leve items.
+            foreach (var item in gatheringExcel.Where(i => i != null && i.Item != 0 && i.Item < 1000000))
             {
-                // Skip invalid items.
-                // There are a bunch of ids in gathering that do belong to quest or leve items.
-                if (item == null || item.Item == 0 || item.Item > 1000000) 
-                    continue;
-
-                var I = new Gatherable(item.Item, (int) item.RowId, item.GatheringItemLevel.Value.GatheringItemLevel, item.GatheringItemLevel.Value.Stars);
+                var newItem = new Gatherable(item.Item, (int) item.RowId, item.GatheringItemLevel.Value.GatheringItemLevel,
+                    item.GatheringItemLevel.Value.Stars);
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                 {
-                    var it = itemSheets[(int) lang].GetRow((uint)item.Item);
+                    var it = itemSheets[(int) lang].GetRow((uint) item.Item);
                     if (it == null)
                     {
-                        Log.Error($"[GatherBuddy] No name for {item.Item} in language {Enum.GetName(typeof(ClientLanguage), lang)}.");
+                        PluginLog.Error($"No name for {item.Item} in language {Enum.GetName(typeof(ClientLanguage), lang)}.");
                         continue;
                     }
-                    fromLanguage[(int) lang][it.Name] = I;
-                    I.nameList[lang] = it.Name;
+
+                    FromLanguage[(int) lang][it.Name] = newItem;
+                    newItem.NameList[lang]            = it.Name;
                 }
 
-                items.Add(I);
-                gatheringToItem[(int) item.RowId] = I;
+                Items.Add(newItem);
+                GatheringToItem[(int) item.RowId] = newItem;
             }
-            Log.Verbose($"[GatherBuddy] {items.Count} items collected for gathering.");
+
+            PluginLog.Verbose("{Count} items collected for gathering.", Items.Count);
         }
 
-        public Gatherable FindItemByName(string itemName, ClientLanguage firstLanguage)
+        public Gatherable? FindItemByName(string itemName, ClientLanguage firstLanguage)
         {
             // Check for full matches in first language first.
-            if (fromLanguage[(int) firstLanguage].TryGetValue(itemName, out Gatherable item))
+            if (FromLanguage[(int) firstLanguage].TryGetValue(itemName, out var item))
                 return item;
-            else
-            {
-                // If no full match was found in the first language, check for full matches in other languages.
-                foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
-                {
-                    // Skip actual client language.
-                    if (lang == firstLanguage)
-                        continue;
 
-                    if (fromLanguage[(int)lang].TryGetValue(itemName, out item))
-                        return item;
-                }
-            }
+            // If no full match was found in the first language, check for full matches in other languages.
+            // Skip actual client language.
+            foreach (var lang in Enum.GetValues(typeof(ClientLanguage)).Cast<ClientLanguage>()
+                .Where(l => l != firstLanguage))
+                if (FromLanguage[(int) lang].TryGetValue(itemName, out item))
+                    return item;
 
-            string itemNameLC  = itemName.ToLowerInvariant();
-            int minDist        = int.MaxValue;
-            Gatherable minItem = null;
+            var         itemNameLc = itemName.ToLowerInvariant();
+            var         minDist    = int.MaxValue;
+            Gatherable? minItem    = null;
 
-            foreach (var it in items)
+            foreach (var it in Items)
             {
                 // Check if item name in first language only contains the search-string.
-                string haystack = it.nameList[firstLanguage].ToLowerInvariant();
-                if (haystack.Contains(itemNameLC))
+                var haystack = it.NameList[firstLanguage].ToLowerInvariant();
+                if (haystack.Contains(itemNameLc))
                     return it;
 
                 // Compute the Levenshtein distance between the item name and the search-string.
                 // Keep the name with minimal distance logged.
-                var dist = Levenshtein.Distance(itemNameLC, haystack);
+                var dist = Levenshtein.Distance(itemNameLc, haystack);
                 if (dist < minDist)
                 {
                     minDist = dist;
                     minItem = it;
                 }
+
                 if (dist == 0)
                     break;
             }
@@ -94,9 +98,7 @@ namespace Gathering
             // If no item contains the search string
             // and the Levensthein distance is not too large
             // return the most similar item.
-            if (minDist > 4)
-                return null;
-            return minItem;
+            return minDist > 4 ? null : minItem;
         }
     }
 }

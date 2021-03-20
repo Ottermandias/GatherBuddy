@@ -1,48 +1,54 @@
 using System;
 using System.Collections.Generic;
-using Otter;
+using GatherBuddy.Utility;
 
-namespace Gathering
+namespace GatherBuddy.Classes
 {
     public class Gatherable : IComparable
     {
+        public int           ItemId      { get; }
+        public int           GatheringId { get; }
+        public FFName        NameList    { get; } = new();
+        public HashSet<Node> NodeList    { get; } = new();
+
+        private readonly int _levelStars;
+
         public Gatherable(int id, int gatheringId, int level, int stars)
         {
-            this.itemId      = id;
-            this.gatheringId = gatheringId;
-            this.nameList    = new();
-            this.levelStars  = (level << 3) + stars;
-            this.NodeList    = new();
+            ItemId      = id;
+            GatheringId = gatheringId;
+            _levelStars = (level << 3) + stars;
         }
 
-        public int    Level() { return levelStars >> 3; }
-        public int    Stars() { return levelStars & 0b111; }
-        public string StarsString() { return starsArray[Stars()]; }
+        public int Level
+            => _levelStars >> 3;
 
-        override public string ToString()
-        {
-            return $"{nameList[Dalamud.ClientLanguage.English]} ({Level()}{StarsString()})";
-        }
+        public int Stars
+            => _levelStars & 0b111;
+
+        public string StarsString()
+            => StarsArray[Stars];
+
+        public override string ToString()
+            => $"{NameList[Dalamud.ClientLanguage.English]} ({Level}{StarsString()})";
 
         public int CompareTo(object obj)
         {
-            if (obj == null) return 1;
-            Gatherable rhs = obj as Gatherable;
-            return itemId - rhs.itemId;
+            if (obj == null)
+                return 1;
+
+            var rhs = obj as Gatherable;
+            return ItemId.CompareTo(rhs?.ItemId ?? 0);
         }
 
-        public int    itemId;
-        public int    gatheringId;
-        public FFName nameList;
-        public HashSet<Node> NodeList { get; private set; }
-        private readonly int levelStars;
 
-        private static readonly string[] starsArray = new string[]
-        { ""
-        , "*"
-        , "**"
-        , "***"
-        , "****"
+        private static readonly string[] StarsArray =
+        {
+            "",
+            "*",
+            "**",
+            "***",
+            "****",
         };
     }
 }

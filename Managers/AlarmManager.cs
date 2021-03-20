@@ -1,67 +1,67 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Game.ClientState;
 using Dalamud.Plugin;
-using GatherBuddyPlugin;
-using Otter.SEFunctions;
+using GatherBuddy.Classes;
+using GatherBuddy.SeFunctions;
+using GatherBuddy.SEFunctions;
+using GatherBuddy.Utility;
 
-namespace Gathering
+namespace GatherBuddy.Managers
 {
     public class AlarmManager : IDisposable
     {
-        private readonly DalamudPluginInterface _pi;
-        private readonly NodeManager _nodes;
+        private readonly DalamudPluginInterface   _pi;
+        private readonly NodeManager              _nodes;
         private readonly GatherBuddyConfiguration _config;
-        private readonly PlaySound _sounds;
-        public readonly Node[] AllTimedNodes;
+        private readonly PlaySound                _sounds;
+        public           Node[]                   AllTimedNodes { get; }
 
-        private int currentMinute = 0;
+        private int _currentMinute;
 
-        public List<Alarm> Alarms => _config.Alarms;
-        private List<bool> Status;
+        public List<Alarm> Alarms
+            => _config.Alarms;
 
-        public Alarm LastAlarm { get; set; } = null;
+        private readonly List<bool> _status;
+
+        public Alarm? LastAlarm { get; set; }
 
         public AlarmManager(DalamudPluginInterface pi, NodeManager nodes, GatherBuddyConfiguration config)
         {
-            _pi = pi;
-            _nodes = nodes;
+            _pi     = pi;
+            _nodes  = nodes;
             _config = config;
-            _sounds = new PlaySound(_pi.TargetModuleScanner, "[GatherBuddy]");
-            Status = Enumerable.Repeat(false, Alarms.Count).ToList();
+            _sounds = new PlaySound(_pi.TargetModuleScanner);
+            _status = Enumerable.Repeat(false, Alarms.Count).ToList();
             UpdateNodes();
-            AllTimedNodes = nodes.BaseNodes().Where(N => !N.times.AlwaysUp()).ToArray();
+            AllTimedNodes = nodes.BaseNodes().Where(n => !n.Times!.AlwaysUp()).ToArray();
         }
 
         public void Dispose()
         {
             if (_config.AlarmsEnabled)
-            {
                 _pi.Framework.OnUpdateEvent -= OnUpdate;
-            }
         }
 
         public void Enable(bool force = false)
         {
-            if (force || !_config.AlarmsEnabled)
-            {
-                UpdateNodes();
-                _config.AlarmsEnabled = true;
-                _pi.Framework.OnUpdateEvent += OnUpdate;
-                _pi.SavePluginConfig(_config);
-            }
+            if (!force && _config.AlarmsEnabled)
+                return;
+
+            UpdateNodes();
+            _config.AlarmsEnabled       =  true;
+            _pi.Framework.OnUpdateEvent += OnUpdate;
+            _pi.SavePluginConfig(_config);
         }
 
         public void Disable()
         {
-            if (_config.AlarmsEnabled)
-            {
-                _config.AlarmsEnabled = false;
-                _pi.Framework.OnUpdateEvent -= OnUpdate;
-                _pi.SavePluginConfig(_config);
-            }
+            if (!_config.AlarmsEnabled)
+                return;
+
+            _config.AlarmsEnabled       =  false;
+            _pi.Framework.OnUpdateEvent -= OnUpdate;
+            _pi.SavePluginConfig(_config);
         }
 
         public void OnUpdate(object framework)
@@ -71,25 +71,25 @@ namespace Gathering
                 return;
 
             var minute = EorzeaTime.CurrentMinuteOfDay();
-            if (minute != currentMinute)
+            if (minute == _currentMinute)
+                return;
+
+            _currentMinute = minute;
+            for (var i = 0; i < Alarms.Count; ++i)
             {
-                currentMinute = minute;
-                for (var i = 0; i < Alarms.Count; ++i)
-                {
-                    var alarm = Alarms[i];
-                    if (!alarm.Enabled)
-                        continue;
+                var alarm = Alarms[i];
+                if (!alarm.Enabled)
+                    continue;
 
-                    var hour = ((currentMinute + alarm.MinuteOffset) / 60) % 24;
+                var hour = (_currentMinute + alarm.MinuteOffset) / 60 % 24;
 
-                    var newStatus = alarm.Node.times.IsUp(hour);
-                    if (Status[i] == newStatus)
-                        continue;
+                var newStatus = alarm.Node!.Times!.IsUp(hour);
+                if (_status[i] == newStatus)
+                    continue;
 
-                    Status[i] = newStatus;
-                    if (newStatus)
-                        Ring(alarm, currentMinute);
-                }
+                _status[i] = newStatus;
+                if (newStatus)
+                    Ring(alarm, _currentMinute);
             }
         }
 
@@ -103,14 +103,13 @@ namespace Gathering
                 var tmp = "is currently up";
                 if (alarm.MinuteOffset > 0)
                 {
-                    var offTime = (currentMinute / 60 + alarm.Node.times.NextUptime((currentMinute / 60) % 24)) * 60 -
-                                  currentMinute;
+                    var offTime = (currentMinute / 60 + alarm.Node!.Times!.NextUptime(currentMinute / 60 % 24)) * 60 - currentMinute;
                     var (m, s) = EorzeaTime.MinutesToReal(offTime);
                     if (offTime > 0)
                         tmp = $"will be up in {m}:{s:D2} minutes (real-time)";
                 }
 
-                var items = alarm.Node.items.PrintItems(", ", _pi.ClientState.ClientLanguage);
+                var items = alarm.Node!.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage);
                 _pi.Framework.Gui.Chat.PrintError($"[GatherBuddy][Alarm {alarm.Name}]: The gathering node for {items} {tmp}.");
             }
 
@@ -120,30 +119,31 @@ namespace Gathering
         public void AddNode(string name, int nodeId)
         {
             Alarm alarm = new(name, _nodes, nodeId);
-            if (alarm.Node != null)
-            {
-                Alarms.Add(alarm);
-                Status.Add(false);
-                _pi.SavePluginConfig(_config);
-            }
+            if (alarm.Node == null)
+                return;
+
+            Alarms.Add(alarm);
+            _status.Add(false);
+            _pi.SavePluginConfig(_config);
         }
 
         public void AddNode(string name, Node node)
         {
-            if (node != null)
-            {
-                Alarms.Add(new(name, node));
-                Status.Add(false);
-                _pi.SavePluginConfig(_config);
-            }
+            if (node == null)
+                return;
+
+            Alarms.Add(new Alarm(name, node));
+            _status.Add(false);
+            _pi.SavePluginConfig(_config);
         }
 
         public void RemoveNode(int idx)
         {
             if (idx >= Alarms.Count)
                 return;
+
             Alarms.RemoveAt(idx);
-            Status.RemoveAt(idx);
+            _status.RemoveAt(idx);
             _pi.SavePluginConfig(_config);
         }
 
@@ -151,7 +151,8 @@ namespace Gathering
         {
             if (idx >= Alarms.Count)
                 return;
-            Alarms[idx].SetSound(sound);
+
+            Alarms[idx].SoundId = sound;
             _pi.SavePluginConfig(_config);
         }
 
@@ -159,7 +160,8 @@ namespace Gathering
         {
             if (idx >= Alarms.Count)
                 return;
-            Alarms[idx].SetOffset(offset);
+
+            Alarms[idx].MinuteOffset = offset;
             _pi.SavePluginConfig(_config);
         }
 
@@ -167,7 +169,8 @@ namespace Gathering
         {
             if (idx >= Alarms.Count)
                 return;
-            Alarms[idx].SetEnabled(enabled);
+
+            Alarms[idx].Enabled = enabled;
             _pi.SavePluginConfig(_config);
         }
 
@@ -175,7 +178,8 @@ namespace Gathering
         {
             if (idx >= Alarms.Count)
                 return;
-            Alarms[idx].SetPrintMessage(print);
+
+            Alarms[idx].PrintMessage = print;
             _pi.SavePluginConfig(_config);
         }
 
@@ -183,18 +187,17 @@ namespace Gathering
         {
             var changed = false;
             for (var i = 0; i < Alarms.Count; ++i)
-            {
                 if (Alarms[i].Node == null)
                 {
                     Alarms[i].FetchNode(_nodes);
-                    if (Alarms[i].Node == null)
-                    {
-                        Status.RemoveAt(i);
-                        Alarms.RemoveAt(i--);
-                        changed = true;
-                    }
+                    if (Alarms[i].Node != null)
+                        continue;
+
+                    _status.RemoveAt(i);
+                    Alarms.RemoveAt(i--);
+                    changed = true;
                 }
-            }
+
             if (changed)
                 _pi.SavePluginConfig(_config);
         }

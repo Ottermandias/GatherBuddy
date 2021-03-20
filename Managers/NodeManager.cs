@@ -1,44 +1,39 @@
 using System.Collections.Generic;
-using Dalamud.Plugin;
-using Lumina.Excel.GeneratedSheets;
-using Otter;
 using System.Linq;
-using GatherBuddyPlugin;
-using Serilog;
+using Dalamud.Plugin;
+using GatherBuddy.Classes;
+using GatherBuddy.Utility;
+using Lumina.Excel.GeneratedSheets;
+using GatheringType = GatherBuddy.Classes.GatheringType;
 
-namespace Gathering
+namespace GatherBuddy.Managers
 {
     public class NodeManager
     {
-        public NodeRecorder           records;
-        public Dictionary<uint, Node> nodeIdToNode;
+        public NodeRecorder           Records     { get; }
+        public Dictionary<uint, Node> NodeIdToNode { get; }
 
-        private (NodeTimes, NodeType) GetTimes(DalamudPluginInterface pi, uint nodeId)
+        private static (NodeTimes, NodeType) GetTimes(DalamudPluginInterface pi, uint nodeId)
         {
             var timeSheet = pi.Data.GetExcelSheet<GatheringPointTransient>();
-            var hours = timeSheet.GetRow(nodeId);
+            var hours     = timeSheet.GetRow(nodeId);
 
             // Check for ephemeral nodes
             if (hours.GatheringRarePopTimeTable.Row == 0)
             {
                 var time = new NodeTimes(hours.EphemeralStartTime, hours.EphemeralEndTime);
-                if (time.AlwaysUp())
-                    return (time, NodeType.Regular); 
-                else
-                    return (time, NodeType.Ephemeral);
+                return time.AlwaysUp() ? (time, NodeType.Regular) : (time, NodeType.Ephemeral);
             }
             // and for unspoiled
             else
             {
                 var time = new NodeTimes(hours.GatheringRarePopTimeTable.Value);
-                if (time.AlwaysUp())
-                    return (time, NodeType.Regular); 
-                else
-                    return (time, NodeType.Unspoiled);
+                return time.AlwaysUp() ? (time, NodeType.Regular) : (time, NodeType.Unspoiled);
             }
         }
 
-        private void ApplyHiddenItemsAndCoordinates(ItemManager gatherables, AetheryteManager aetherytes, Dictionary<uint, Node> baseIdToNode)
+        private static void ApplyHiddenItemsAndCoordinates(ItemManager gatherables, AetheryteManager aetherytes,
+            Dictionary<uint, Node> baseIdToNode)
         {
             var hidden = new NodeHidden(gatherables);
             foreach (var node in baseIdToNode)
@@ -49,17 +44,16 @@ namespace Gathering
         }
 
         public IEnumerable<Node> BaseNodes()
-        {
-            return nodeIdToNode.Values.Distinct();
-        }
+            => NodeIdToNode.Values.Distinct();
 
-        public NodeManager(DalamudPluginInterface pi, GatherBuddyConfiguration config, TerritoryManager territories, AetheryteManager aetherytes, ItemManager gatherables)
+        public NodeManager(DalamudPluginInterface pi, GatherBuddyConfiguration config, TerritoryManager territories,
+            AetheryteManager aetherytes, ItemManager gatherables)
         {
-            var baseSheet  = pi.Data.GetExcelSheet<GatheringPointBase>();
-            var nodeSheet  = pi.Data.GetExcelSheet<GatheringPoint>();
+            var baseSheet = pi.Data.GetExcelSheet<GatheringPointBase>();
+            var nodeSheet = pi.Data.GetExcelSheet<GatheringPoint>();
 
             Dictionary<uint, Node> baseIdToNode = new((int) baseSheet.RowCount);
-            nodeIdToNode = new((int) nodeSheet.RowCount);
+            NodeIdToNode = new Dictionary<uint, Node>((int) nodeSheet.RowCount);
 
             foreach (var nodeRow in nodeSheet)
             {
@@ -69,54 +63,54 @@ namespace Gathering
 
                 if (baseIdToNode.TryGetValue(baseId, out var node))
                 {
-                    nodeIdToNode[nodeRow.RowId] = node;
-                    if ((node.nodes.territory?.id ?? 0) != nodeRow.TerritoryType.Row)
-                        Log.Error($"[GatherBuddy] Different gathering nodes to the same base {baseId} have different territories.");
+                    NodeIdToNode[nodeRow.RowId] = node;
+                    if ((node.Nodes!.Territory?.Id ?? 0) != nodeRow.TerritoryType.Row)
+                        PluginLog.Error($"Different gathering nodes to the same base {baseId} have different territories.");
 
-                    if (!node.nodes.nodes.ContainsKey(nodeRow.RowId))
-                        node.nodes.nodes[nodeRow.RowId] = null;
+                    if (!node.Nodes.Nodes.ContainsKey(nodeRow.RowId))
+                        node.Nodes.Nodes[nodeRow.RowId] = null;
                     continue;
                 }
+
                 if (nodeRow.TerritoryType.Row < 2)
                     continue;
 
-                node = new()
+                node = new Node
                 {
-                    placeNameEN = FFName.FromPlaceName(pi, nodeRow.PlaceName.Row)[Dalamud.ClientLanguage.English]
+                    PlaceNameEn = FFName.FromPlaceName(pi, nodeRow.PlaceName.Row)[Dalamud.ClientLanguage.English],
+                    Nodes = new SubNodes()
+                    {
+                        Territory = territories.FindOrAddTerritory(pi, nodeRow.TerritoryType.Value),
+                    },
                 };
-                node.nodes = new()
-                {
-                    territory = territories.FindOrAddTerritory(pi, nodeRow.TerritoryType.Value)
-                };
-                node.nodes.nodes[nodeRow.RowId] = null;
-                if (node.nodes.territory == null)
-                {
-                    //Log.Error($"[GatherBuddy] Could not add territory {nodeRow.TerritoryType.Value.PlaceName.Row}.");
+                node.Nodes.Nodes[nodeRow.RowId] = null;
+                if (node.Nodes.Territory == null)
                     continue;
-                }
 
                 var (times, type) = GetTimes(pi, nodeRow.RowId);
-                node.times = times;
+                node.Times        = times;
 
                 var baseRow = baseSheet.GetRow(baseId);
-                node.meta = new NodeMeta(baseRow, type);
-                
-                if (node.meta.gatheringType >= GatheringType.Spearfishing)
+                node.Meta = new NodeMeta(baseRow, type);
+
+                if (node.Meta.GatheringType >= GatheringType.Spearfishing)
                     continue;
-                
-                node.items = new NodeItems(node, baseRow.Item, gatherables);
-                if (node.items.NoItems())
+
+                node.Items = new NodeItems(node, baseRow.Item, gatherables);
+                if (node.Items.NoItems())
                 {
-                    Log.Debug($"[GatherBuddy] Gathering node {nodeRow.RowId} has no items, skipped.");
+                    PluginLog.Debug("Gathering node {RowId} has no items, skipped.", nodeRow.RowId);
                     continue;
                 }
-                baseIdToNode[baseId] = node;
-                nodeIdToNode[nodeRow.RowId] = node;
-            }
-            records = new NodeRecorder(pi, this, config.Records);
 
-            Log.Verbose($"[GatherBuddy] {nodeIdToNode.Count} unique gathering nodes collected.");
-            Log.Verbose($"[GatherBuddy] {baseIdToNode.Count} base gathering nodes collected.");
+                baseIdToNode[baseId]        = node;
+                NodeIdToNode[nodeRow.RowId] = node;
+            }
+
+            Records = new NodeRecorder(pi, this, config.Records);
+
+            PluginLog.Verbose("{Count} unique gathering nodes collected.", NodeIdToNode.Count);
+            PluginLog.Verbose("{Count} base gathering nodes collected.",   baseIdToNode.Count);
 
             ApplyHiddenItemsAndCoordinates(gatherables, aetherytes, baseIdToNode);
         }

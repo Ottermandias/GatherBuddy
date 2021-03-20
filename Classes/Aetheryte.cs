@@ -1,58 +1,57 @@
 using System;
 using Dalamud;
-using Otter;
+using GatherBuddy.Utility;
 
-namespace Gathering
+namespace GatherBuddy.Classes
 {
     public class Aetheryte : IComparable
     {
-        public int       id;
-        public FFName    nameList;
-        public Territory territory = null;
-        public int       xCoord;
-        public int       yCoord;
-        public int       xStream = 0;
-        public int       yStream = 0;
+        public int        Id        { get; set; }
+        public FFName     NameList  { get; set; }
+        public Territory? Territory { get; set; }
+        public int        XCoord    { get; set; }
+        public int        YCoord    { get; set; }
+        public int        XStream   { get; set; }
+        public int        YStream   { get; set; }
 
         public Aetheryte(int id, int x, int y)
         {
-            this.id       = id;
-            this.xCoord   = x;
-            this.yCoord   = y;
-            this.nameList = new FFName();
+            Id       = id;
+            XCoord   = x;
+            YCoord   = y;
+            NameList = new FFName();
         }
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
-            if (obj == null) return 1;
-            Aetheryte rhs = obj as Aetheryte;
-            return id - rhs.id;
+            if (obj == null)
+                return 1;
+
+            var rhs = obj as Aetheryte;
+            return Id.CompareTo(rhs?.Id ?? 0);
         }
 
         public double WorldDistance(uint mapId, int x, int y)
         {
-            if (mapId != (territory?.id ?? 0))
-                return Double.PositiveInfinity;
-            x -= xCoord;
-            y -= yCoord;
+            if (mapId != (Territory?.Id ?? 0))
+                return double.PositiveInfinity;
+
+            x -= XCoord;
+            y -= YCoord;
             return Math.Sqrt(x * x + y * y);
         }
 
         public double AetherDistance(int x, int y)
         {
-            x -= xStream;
-            y -= yStream;
+            x -= XStream;
+            y -= YStream;
             return Math.Sqrt(x * x + y * y);
         }
 
         public double AetherDistance(Aetheryte rhs)
-        {
-            return AetherDistance(rhs?.xStream ?? 0, rhs?.yStream ?? 0);
-        }
+            => AetherDistance(rhs?.XStream ?? 0, rhs?.YStream ?? 0);
 
-        override public string ToString()
-        {
-            return $"{nameList[ClientLanguage.English]} - {territory.nameList[ClientLanguage.English]}-{xCoord / 100.0 :F2}:{yCoord / 100.0 :F2}";
-        }
+        public override string ToString()
+            => $"{NameList[ClientLanguage.English]} - {Territory!.NameList[ClientLanguage.English]}-{XCoord / 100.0:F2}:{YCoord / 100.0:F2}";
     }
 }

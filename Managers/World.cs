@@ -1,94 +1,83 @@
 using System;
-using Serilog;
 using System.Collections.Generic;
 using Dalamud.Plugin;
 using Dalamud;
 using System.Linq;
-using GatherBuddyPlugin;
+using GatherBuddy.Classes;
 
-namespace Gathering
+namespace GatherBuddy.Managers
 {
     public class World
     {
-        private readonly DalamudPluginInterface pi;
-        public  readonly ClientLanguage         language;
-        public readonly TerritoryManager        territories;
-        public readonly AetheryteManager        aetherytes;
-        public readonly ItemManager             items;
-        public readonly NodeManager             nodes;
-        private int                             currentXStream = 0;
-        private int                             currentYStream = 0;
+        private readonly DalamudPluginInterface _pi;
+        public           ClientLanguage         Language    { get; }
+        public           TerritoryManager       Territories { get; }
+        public           AetheryteManager       Aetherytes  { get; }
+        public           ItemManager            Items       { get; }
+        public           NodeManager            Nodes       { get; }
+        private          int                    _currentXStream = 0;
+        private          int                    _currentYStream = 0;
 
-        public void SetPlayerStreamCoords(UInt16 territory)
+        public void SetPlayerStreamCoords(ushort territory)
         {
-            var rawT = pi.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.TerritoryType>().GetRow(territory);
+            var rawT = _pi.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.TerritoryType>().GetRow(territory);
             var rawA = rawT?.Aetheryte?.Value;
 
-            currentXStream = rawA?.AetherstreamX ?? 0;
-            currentYStream = rawA?.AetherstreamY ?? 0;
+            _currentXStream = rawA?.AetherstreamX ?? 0;
+            _currentYStream = rawA?.AetherstreamY ?? 0;
         }
 
-        public Node ClosestNodeFromNodeList(IEnumerable<Node> nodes, GatheringType? type = null)
+        public Node? ClosestNodeFromNodeList(IEnumerable<Node> nodes, GatheringType? type = null)
         {
-            Node   minNode = null;
-            double minDist = Double.MaxValue;
+            Node? minNode = null;
+            var   minDist = double.MaxValue;
 
             foreach (var node in nodes)
             {
                 var closest = node.GetClosestAetheryte();
-                var dist = closest?.AetherDistance(currentXStream, currentYStream) ?? Double.MaxValue;
-                if (dist < minDist && closest != null && (type == null || type!.Value.ToGroup() == node.meta.gatheringType.ToGroup()))
-                {
-                    minDist = dist;
-                    minNode = node;
-                }
+                var dist    = closest?.AetherDistance(_currentXStream, _currentYStream) ?? double.MaxValue;
+                if (!(dist < minDist) || closest == null || type != null && type!.Value.ToGroup() != node.Meta!.GatheringType.ToGroup())
+                    continue;
+
+                minDist = dist;
+                minNode = node;
             }
+
             return minNode;
-        }        
+        }
 
         private void AddIdyllshireToDravania()
         {
-            var dravania = territories.territories.Values.First( T => T.nameList[ClientLanguage.English] == "The Dravanian Hinterlands" );
+            var dravania = Territories.Territories.Values.First(t => t.NameList[ClientLanguage.English] == "The Dravanian Hinterlands");
             if (dravania == null)
                 return;
-            var idyllshire = aetherytes.aetherytes.First( A => A.nameList[ClientLanguage.English] == "Idyllshire" );
+
+            var idyllshire = Aetherytes.Aetherytes.First(a => a.NameList[ClientLanguage.English] == "Idyllshire");
             if (idyllshire == null)
                 return;
-            dravania.aetherytes.Add(idyllshire);
+
+            dravania.Aetherytes.Add(idyllshire);
         }
 
         public World(DalamudPluginInterface pi, GatherBuddyConfiguration config)
         {
-            try
-            {
-                this.pi     = pi;
-                language    = pi.ClientState.ClientLanguage;
-                territories = new();
-                aetherytes  = new(pi, territories);
-                items       = new (pi);
-                nodes       = new(pi, config, territories, aetherytes, items);
-                
-                AddIdyllshireToDravania();
+            _pi         = pi;
+            Language    = pi.ClientState.ClientLanguage;
+            Territories = new TerritoryManager();
+            Aetherytes  = new AetheryteManager(pi, Territories);
+            Items       = new ItemManager(pi);
+            Nodes       = new NodeManager(pi, config, Territories, Aetherytes, Items);
 
-                Log.Verbose($"[GatherBuddy] {territories.regions.Count} regions collected.");
-                Log.Verbose($"[GatherBuddy] {territories.territories.Count} territories collected.");
-            }
-            catch(Exception e)
-            {
-                Log.Error($"[GatherBuddy] Exception thrown: {e}");
-            }
+            AddIdyllshireToDravania();
+
+            PluginLog.Verbose("{Count} regions collected.",     Territories.Regions.Count);
+            PluginLog.Verbose("{Count} territories collected.", Territories.Territories);
         }
 
-        public Gatherable FindItemByName(string itemName)
-        {
-            return items.FindItemByName(itemName, language);
-        }
+        public Gatherable? FindItemByName(string itemName)
+            => Items.FindItemByName(itemName, Language);
 
-        public Node ClosestNodeForItem(Gatherable item, GatheringType? type = null)
-        {
-            if (item == null)
-                return null;
-            return ClosestNodeFromNodeList(item.NodeList, type);
-        }
+        public Node? ClosestNodeForItem(Gatherable item, GatheringType? type = null)
+            => item == null ? null : ClosestNodeFromNodeList(item.NodeList, type);
     }
 }

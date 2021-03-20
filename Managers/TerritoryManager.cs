@@ -1,44 +1,46 @@
 ﻿using System.Collections.Generic;
 using Dalamud.Plugin;
-using Otter;
+using GatherBuddy.Classes;
+using GatherBuddy.Utility;
 
-namespace Gathering
+namespace GatherBuddy.Managers
 {
     public class TerritoryManager
     {
-        public Dictionary<uint, FFName>    regions     = new();
-        public Dictionary<uint, Territory> territories = new();
+        public Dictionary<uint, FFName>    Regions     { get; } = new();
+        public Dictionary<uint, Territory> Territories { get; } = new();
 
         // Add region name if it does not exist.
-        private FFName FindOrAddRegionName(DalamudPluginInterface pi, uint regionNameRowId)
+        private FFName? FindOrAddRegionName(DalamudPluginInterface pi, uint regionNameRowId)
         {
-            if (!regions.TryGetValue(regionNameRowId, out FFName names))
-            {
-                names = FFName.FromPlaceName(pi, regionNameRowId);
-                if (names.AnyEmpty())
-                    return null;
-                regions[regionNameRowId] = names;
-            }
+            if (Regions.TryGetValue(regionNameRowId, out var names))
+                return names;
+
+            names = FFName.FromPlaceName(pi, regionNameRowId);
+            if (names.AnyEmpty())
+                return null;
+
+            Regions[regionNameRowId] = names;
             return names;
         }
 
-        public Territory FindOrAddTerritory(DalamudPluginInterface pi, Lumina.Excel.GeneratedSheets.TerritoryType T)
+        public Territory? FindOrAddTerritory(DalamudPluginInterface pi, Lumina.Excel.GeneratedSheets.TerritoryType T)
         {
             // Create territory if it does not exist. Otherwise add the aetheryte to its list.
-            if (!territories.TryGetValue(T.RowId, out Territory territory))
-            {
-                var names = FFName.FromPlaceName(pi, T.PlaceName.Row);
-                if (names.AnyEmpty())
-                    return null;
+            if (Territories.TryGetValue(T.RowId, out var territory))
+                return territory;
 
-                territory = new Territory(T.RowId, FindOrAddRegionName(pi, T.PlaceNameRegion.Row), names)
-                {
-                    xStream  = T.Aetheryte.Value?.AetherstreamX ?? 0,
-                    yStream  = T.Aetheryte.Value?.AetherstreamY ?? 0,
-                };
-                
-                territories.Add(T.RowId, territory);
-            }
+            var names = FFName.FromPlaceName(pi, T.PlaceName.Row);
+            if (names.AnyEmpty())
+                return null;
+
+            territory = new Territory(T.RowId, FindOrAddRegionName(pi, T.PlaceNameRegion.Row)!, names)
+            {
+                XStream = T.Aetheryte.Value?.AetherstreamX ?? 0,
+                YStream = T.Aetheryte.Value?.AetherstreamY ?? 0,
+            };
+
+            Territories.Add(T.RowId, territory);
             return territory;
         }
     }

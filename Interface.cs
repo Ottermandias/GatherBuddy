@@ -1,111 +1,66 @@
 ﻿using System;
-using ImGuiNET;
-using System.Numerics;
-using Dalamud.Plugin;
 using System.Collections.Generic;
 using System.Linq;
-using Gathering;
+using System.Numerics;
 using Dalamud;
-using Microsoft.SqlServer.Server;
-using Otter.SEFunctions;
+using Dalamud.Plugin;
+using GatherBuddy.Classes;
+using GatherBuddy.Managers;
+using GatherBuddy.SEFunctions;
+using GatherBuddy.Utility;
+using ImGuiNET;
 
-namespace GatherBuddyPlugin
+namespace GatherBuddy
 {
-    static public class ShowNodes
-    {
-        static public uint FromBools(bool mining, bool botanist, bool ephemeral, bool unspoiled, bool arr, bool hw, bool sb, bool shb, bool ew)
-        {
-            var res = 0u;
-            if (mining)    res |= 1 << 0;
-            if (botanist)  res |= 1 << 1;
-            if (ephemeral) res |= 1 << 2;
-            if (unspoiled) res |= 1 << 3;
-            if (arr)       res |= 1 << 4;
-            if (hw)        res |= 1 << 5;
-            if (sb)        res |= 1 << 6;
-            if (shb)       res |= 1 << 7;
-            if (ew)        res |= 1 << 8;
-            return res;
-        }
-
-        static public void ToBools(uint flags, out bool mining, out bool botanist, out bool ephemeral, out bool unspoiled, out bool arr, out bool hw, out bool sb, out bool shb, out bool ew)
-        {
-            mining    = (flags & (1 << 0)) == (1 << 0);
-            botanist  = (flags & (1 << 1)) == (1 << 1);
-            ephemeral = (flags & (1 << 2)) == (1 << 2);
-            unspoiled = (flags & (1 << 3)) == (1 << 3);
-            arr       = (flags & (1 << 4)) == (1 << 4);
-            hw        = (flags & (1 << 5)) == (1 << 5);
-            sb        = (flags & (1 << 6)) == (1 << 6);
-            shb       = (flags & (1 << 7)) == (1 << 7);
-            ew        = (flags & (1 << 8)) == (1 << 8);
-        }
-    }
     public class Interface
     {
-        private readonly GatherBuddy            plugin;
-        private readonly DalamudPluginInterface pi;
-        private GatherBuddyConfiguration        config;
-        private readonly ClientLanguage         lang;
+        private readonly GatherBuddy              _plugin;
+        private readonly DalamudPluginInterface   _pi;
+        private readonly GatherBuddyConfiguration _config;
+        private readonly ClientLanguage           _lang;
 
-        private int  lastHour           = 0;
-        public  bool Visible            = false;
-        private bool showMiningNodes    = false;
-        private bool showBotanistNodes  = false;
-        private bool showEphemeralNodes = false;
-        private bool showUnspoiledNodes = false;
-        private bool showARRNodes       = false;
-        private bool showHWNodes        = false;
-        private bool showSBNodes        = false;
-        private bool showShBNodes       = false;
-        private bool showEWNodes        = false;
-        private float minXSize = 0;
+        private int  _lastHour = 0;
+        public  bool Visible;
 
-        private const string pluginName       = "GatherBuddy";
-        private const float horizontalSpace = 5;
-        private List<(Node, int)> activeNodes = new();
+        private float _minXSize;
 
-        private string newAlarmName = "";
-        private int newAlertIdx = 0;
-        private float longestNodeStringLength = 0f;
+        private const string            PluginName             = "GatherBuddy";
+        private const float             DefaultHorizontalSpace = 5;
+        private       List<(Node, int)> _activeNodes           = new();
 
-        void SaveNodes()
-        {
-            config.ShowNodes = ShowNodes.FromBools(showMiningNodes, showBotanistNodes, showEphemeralNodes
-                , showUnspoiledNodes, showARRNodes, showHWNodes, showSBNodes, showShBNodes, showEWNodes);
-            pi.SavePluginConfig(config);
-        }
+        private          string _newAlarmName            = "";
+        private          int    _newAlertIdx             = 0;
+        private readonly float  _longestNodeStringLength = 0f;
+
+        private void SaveNodes()
+            => _pi.SavePluginConfig(_config);
 
         public Interface(GatherBuddy plugin, DalamudPluginInterface pi, GatherBuddyConfiguration config)
         {
-            this.pi     = pi;
-            this.plugin = plugin;
-            this.config = config;
-            lang        = pi.ClientState.ClientLanguage;
-            ShowNodes.ToBools(config.ShowNodes, out showMiningNodes, out showBotanistNodes, out showEphemeralNodes
-                , out showUnspoiledNodes, out showARRNodes, out showHWNodes, out showSBNodes, out showShBNodes, out showEWNodes);
+            _pi     = pi;
+            _plugin = plugin;
+            _config = config;
+            _lang   = pi.ClientState.ClientLanguage;
             RebuildList(false);
 
-            
-            AllTimedNodesNames = plugin.alarms.AllTimedNodes
-                .Select(N => $"{N.times.PrintHours(true)}: {N.items.PrintItems(", ", lang)}")
+            _allTimedNodesNames = plugin.Alarms!.AllTimedNodes
+                .Select(n => $"{n.Times!.PrintHours(true)}: {n.Items!.PrintItems(", ", _lang)}")
                 .ToArray();
-            longestNodeStringLength = AllTimedNodesNames.Max(N => ImGui.CalcTextSize(N).X);
+            _longestNodeStringLength = _allTimedNodesNames.Max(n => ImGui.CalcTextSize(n).X);
         }
 
-        private readonly string[] AllTimedNodesNames;
+        private readonly string[] _allTimedNodesNames;
 
         private void RebuildList(bool save = true)
         {
             if (save)
                 SaveNodes();
-            activeNodes = plugin.gatherer.timeline.GetNewList(showUnspoiledNodes, showEphemeralNodes
-                , showMiningNodes, showBotanistNodes, showARRNodes, showHWNodes, showSBNodes, showShBNodes, showEWNodes);
-            if (activeNodes.Count > 0)
-                NodeTimeLine.SortByUptime(lastHour, activeNodes);
+            _activeNodes = _plugin.Gatherer!.Timeline.GetNewList(_config.ShowNodes);
+            if (_activeNodes.Count > 0)
+                NodeTimeLine.SortByUptime(_lastHour, _activeNodes);
         }
 
-        private void HorizontalSpace(float width)
+        private static void HorizontalSpace(float width)
         {
             ImGui.SameLine();
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + width);
@@ -113,84 +68,93 @@ namespace GatherBuddyPlugin
 
         private void DrawGearChangeBox()
         {
-            var useGearChange = config.UseGearChange;
+            var useGearChange = _config.UseGearChange;
             if (ImGui.Checkbox("Gear Change", ref useGearChange))
             {
-                config.UseGearChange = useGearChange;
-                pi.SavePluginConfig(config);
+                _config.UseGearChange = useGearChange;
+                _pi.SavePluginConfig(_config);
             }
+
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set and Botanist Set.");
+                ImGui.SetTooltip(
+                    "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set and Botanist Set.");
         }
 
         private void DrawTeleportBox()
         {
-            var useTeleport = config.UseTeleport;
+            var useTeleport = _config.UseTeleport;
             if (ImGui.Checkbox("Teleport", ref useTeleport))
             {
-                config.UseTeleport = useTeleport;
-                plugin.gatherer.TryCreateTeleporterWatcher(pi, useTeleport);
-                pi.SavePluginConfig(config);
+                _config.UseTeleport = useTeleport;
+                _plugin.Gatherer!.TryCreateTeleporterWatcher(_pi, useTeleport);
+                _pi.SavePluginConfig(_config);
             }
+
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Toggle whether to automatically teleport to a chosen node.\nRequires the Teleporter plugin and uses /tp.");
         }
 
         private void DrawMapMarkerBox()
         {
-            var useCoordinates = config.UseCoordinates;
+            var useCoordinates = _config.UseCoordinates;
             if (ImGui.Checkbox("Map Marker", ref useCoordinates))
             {
-                config.UseCoordinates = useCoordinates;
-                pi.SavePluginConfig(config);
+                _config.UseCoordinates = useCoordinates;
+                _pi.SavePluginConfig(_config);
             }
+
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle whether to automatically set a map marker on the approximate location of the chosen node.\nRequires the ChatCoordinates plugin and uses /coord.");
+                ImGui.SetTooltip(
+                    "Toggle whether to automatically set a map marker on the approximate location of the chosen node.\nRequires the ChatCoordinates plugin and uses /coord.");
         }
 
         private void DrawRecordBox()
         {
-            var doRecord = config.DoRecord;
+            var doRecord = _config.DoRecord;
             if (ImGui.Checkbox("Record", ref doRecord))
             {
-                if (doRecord != config.DoRecord)
+                if (doRecord != _config.DoRecord)
                 {
                     if (doRecord)
-                        plugin.gatherer.StartRecording();
+                        _plugin.Gatherer!.StartRecording();
                     else
-                        plugin.gatherer.StopRecording();
+                        _plugin.Gatherer!.StopRecording();
                 }
-                config.DoRecord = doRecord;
-                pi.SavePluginConfig(config);
+
+                _config.DoRecord = doRecord;
+                _pi.SavePluginConfig(_config);
             }
+
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle whether to record all encountered nodes in regular intervals.\n" +
-                                 "Recorded node coordinates are more accurate than pre-programmed ones and will be used for map markers and aetherytes instead.\n" +
-                                 "Records are saved in compressed form in the plugin configuration.");
+                ImGui.SetTooltip("Toggle whether to record all encountered nodes in regular intervals.\n"
+                  + "Recorded node coordinates are more accurate than pre-programmed ones and will be used for map markers and aetherytes instead.\n"
+                  + "Records are saved in compressed form in the plugin configuration.");
         }
 
         private void DrawMinerSetInput(float width)
         {
-            var minerSet = config.MinerSetName;
+            var minerSet = _config.MinerSetName;
             ImGui.SetNextItemWidth(width);
-            if (ImGui.InputText( "Miner Set", ref minerSet, 15 ))
+            if (ImGui.InputText("Miner Set", ref minerSet, 15))
             {
-                config.MinerSetName = minerSet;
-                pi.SavePluginConfig(config);
+                _config.MinerSetName = minerSet;
+                _pi.SavePluginConfig(_config);
             }
+
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Set the name of your miner set. Can also be the numerical id instead.");
         }
 
         private void DrawBotanistSetInput(float width)
         {
-            var botanistSet = config.BotanistSetName;
+            var botanistSet = _config.BotanistSetName;
             ImGui.SetNextItemWidth(width);
             if (ImGui.InputText("Botanist Set", ref botanistSet, 15))
             {
-                config.BotanistSetName = botanistSet;
-                pi.SavePluginConfig(config);
+                _config.BotanistSetName = botanistSet;
+                _pi.SavePluginConfig(_config);
             }
+
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Set the name of your botanist set. Can also be the numerical id instead.");
         }
@@ -198,109 +162,114 @@ namespace GatherBuddyPlugin
         private void DrawSnapshotButton(float width)
         {
             if (ImGui.Button("Snapshot", new Vector2(width, 0)))
-                pi.Framework.Gui.Chat.Print($"Recorded {plugin.gatherer.Snapshot()} new nearby gathering nodes.");
+                _pi.Framework.Gui.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Record currently available nodes around you once.");
         }
 
         private void DrawAlarmToggle()
         {
-            var useAlarm = config.AlarmsEnabled;
+            var useAlarm = _config.AlarmsEnabled;
             if (ImGui.Checkbox("Alarms", ref useAlarm))
-            {
-                if (useAlarm != config.AlarmsEnabled)
+                if (useAlarm != _config.AlarmsEnabled)
                 {
-                    if (useAlarm) plugin.alarms.Enable();
-                    else plugin.alarms.Disable();
+                    if (useAlarm)
+                        _plugin.Alarms!.Enable();
+                    else
+                        _plugin.Alarms!.Disable();
                 }
-            }
+
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Toggle all alarms on or off.");
         }
 
         private void DrawTimedNodes(float widgetHeight)
         {
-            ImGui.BeginChild( "Nodes", new Vector2( -1, - widgetHeight - ImGui.GetStyle().FramePadding.Y), true);
-            foreach (var (N, _) in activeNodes)
+            ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - ImGui.GetStyle().FramePadding.Y), true);
+            foreach (var (n, _) in _activeNodes)
             {
                 Vector4 colors = new(0.8f, 0.8f, 0.8f, 1f);
 
-                if (N.times.IsUp(lastHour))
-                    colors = new(0, 1, 0, 1);
-                else if (N.times.IsUp(lastHour + 1))
-                    colors = new(0.6f, 1, 0.4f, 1);
-                else if (N.times.IsUp(lastHour + 2))
-                    colors = new(1f, 1f, 0, 1);
-                else if (N.times.IsUp(lastHour + 3))
-                    colors = new(1f, 1f, 0.2f, 1);
-                else if (N.times.IsUp(lastHour + 4))
-                    colors = new(1f, 1f, 0.6f, 1);
+                if (n.Times!.IsUp(_lastHour))
+                    colors = new Vector4(0, 1, 0, 1);
+                else if (n.Times.IsUp(_lastHour + 1))
+                    colors = new Vector4(0.6f, 1, 0.4f, 1);
+                else if (n.Times.IsUp(_lastHour + 2))
+                    colors = new Vector4(1f, 1f, 0, 1);
+                else if (n.Times.IsUp(_lastHour + 3))
+                    colors = new Vector4(1f, 1f, 0.2f, 1);
+                else if (n.Times.IsUp(_lastHour + 4))
+                    colors = new Vector4(1f, 1f, 0.6f, 1);
 
                 ImGui.PushStyleColor(ImGuiCol.Text, colors);
 
-                if (ImGui.Selectable(N.items.PrintItems(", ", pi.ClientState.ClientLanguage)))
-                {
-                    plugin.gatherer.OnGatherActionWithNode(N);
-                }
+                if (ImGui.Selectable(n.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage)))
+                    _plugin.Gatherer!.OnGatherActionWithNode(n);
                 ImGui.PopStyleColor();
 
-                if (ImGui.IsItemHovered())
-                {
-                    var coords = (N.GetX() != 0) ? $"({N.GetX()}|{N.GetY()})" : "(Unknown Location)";
-                    var tooltip = $"{N.nodes.territory.nameList[lang]}, {coords} - {N.GetClosestAetheryte().nameList[lang]}\n" +
-                                  $"{N.meta.nodeType}, up at {N.times.PrintHours()}\n" +
-                                  $"{N.meta.gatheringType} at {N.meta.level}";
-                    ImGui.SetTooltip(tooltip);
-                }
+                if (!ImGui.IsItemHovered())
+                    continue;
+
+                var coords = n.GetX() != 0 ? $"({n.GetX()}|{n.GetY()})" : "(Unknown Location)";
+                var tooltip = $"{n.Nodes!.Territory!.NameList[_lang]}, {coords} - {n.GetClosestAetheryte()?.NameList[_lang] ?? ""}\n"
+                  + $"{n.Meta!.NodeType}, up at {n.Times!.PrintHours()}\n"
+                  + $"{n.Meta!.GatheringType} at {n.Meta!.Level}";
+                ImGui.SetTooltip(tooltip);
             }
+
             ImGui.EndChild();
         }
 
-        private void DrawVisibilityBox(ref bool value, string label, string tooltip)
+        private void DrawVisibilityBox(ShowNodes flag, string label, string tooltip)
         {
-            if (ImGui.Checkbox(label, ref value))
+            var tmp = _config.ShowNodes.HasFlag(flag);
+            if (ImGui.Checkbox(label, ref tmp))
+            {
+                if (tmp)
+                    _config.ShowNodes |= flag;
+                else
+                    _config.ShowNodes &= ~flag;
                 RebuildList();
+            }
+
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip(tooltip);
         }
 
         private void DrawMinerBox()
-            => DrawVisibilityBox(ref showMiningNodes, "Miner", "Show timed nodes for miners.");
+            => DrawVisibilityBox(ShowNodes.Mining, "Miner", "Show timed nodes for miners.");
 
         private void DrawBotanistBox()
-            => DrawVisibilityBox(ref showBotanistNodes, "Botanist", "Show timed nodes for botanists.");
+            => DrawVisibilityBox(ShowNodes.Botanist, "Botanist", "Show timed nodes for botanists.");
 
         private void DrawUnspoiledBox()
-            => DrawVisibilityBox(ref showUnspoiledNodes, "Unspoiled", "Show unspoiled nodes.");
+            => DrawVisibilityBox(ShowNodes.Unspoiled, "Unspoiled", "Show unspoiled nodes.");
 
         private void DrawEphemeralBox()
-            => DrawVisibilityBox(ref showEphemeralNodes, "Ephemeral", "Show ephemeral nodes.");
+            => DrawVisibilityBox(ShowNodes.Ephemeral, "Ephemeral", "Show ephemeral nodes.");
 
         private void DrawArrBox()
-            => DrawVisibilityBox(ref showARRNodes, "ARR", "Show nodes with level 1 to 50.");
+            => DrawVisibilityBox(ShowNodes.ARealmReborn, "ARR", "Show nodes with level 1 to 50.");
 
         private void DrawHeavenswardBox()
-            => DrawVisibilityBox(ref showHWNodes, "HW", "Show nodes with level 51 to 60.");
+            => DrawVisibilityBox(ShowNodes.Heavensward, "HW", "Show nodes with level 51 to 60.");
 
         private void DrawStormbloodBox()
-            => DrawVisibilityBox(ref showSBNodes, "SB", "Show nodes with level 61 to 70.");
+            => DrawVisibilityBox(ShowNodes.Stormblood, "SB", "Show nodes with level 61 to 70.");
 
         private void DrawShadowbringersBox()
-            => DrawVisibilityBox(ref showShBNodes, "ShB", "Show nodes with level 71 to 80.");
+            => DrawVisibilityBox(ShowNodes.Shadowbringers, "ShB", "Show nodes with level 71 to 80.");
 
         private void DrawEndwalkerBox()
-            => DrawVisibilityBox(ref showEWNodes, "EW", "Show nodes with level 81 to 90.");
+            => DrawVisibilityBox(ShowNodes.Endwalker, "EW", "Show nodes with level 81 to 90.");
 
         private void DrawTimedTab(float space)
         {
-            var boxHeight = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGui.GetStyle().ItemSpacing.X +
-                            ImGui.GetStyle().FramePadding.X * 4;
+            var boxHeight = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGui.GetStyle().ItemSpacing.X + ImGui.GetStyle().FramePadding.X * 4;
             DrawTimedNodes(boxHeight + ImGui.GetStyle().FramePadding.Y);
-            var checkBoxAdd = ImGui.GetStyle().ItemSpacing.X * 3 + ImGui.GetStyle().FramePadding.X * 2 +
-                              ImGui.GetTextLineHeight();
-            var jobBoxWidth = ImGui.CalcTextSize("Botanist").X + checkBoxAdd;
-            var typeBoxWidth = Math.Max(ImGui.CalcTextSize("Unspoiled").X, ImGui.CalcTextSize("Ephemeral").X) +
-                               checkBoxAdd;
+            var checkBoxAdd  = ImGui.GetStyle().ItemSpacing.X * 3 + ImGui.GetStyle().FramePadding.X * 2 + ImGui.GetTextLineHeight();
+            var jobBoxWidth  = ImGui.CalcTextSize("Botanist").X + checkBoxAdd;
+            var typeBoxWidth = Math.Max(ImGui.CalcTextSize("Unspoiled").X, ImGui.CalcTextSize("Ephemeral").X) + checkBoxAdd;
             ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true);
             DrawMinerBox();
             DrawBotanistBox();
@@ -328,29 +297,28 @@ namespace GatherBuddyPlugin
             ImGui.EndChild();
         }
 
-        private static readonly string[] SoundNameList = Enum.GetNames(typeof(Sounds)).Where(S => S != "Unknown").ToArray();
+        private static readonly string[] SoundNameList = Enum.GetNames(typeof(Sounds)).Where(s => s != "Unknown").ToArray();
 
         private void DrawDeleteAndEnable(float space)
         {
             ImGui.BeginGroup();
             ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
-            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            for (var idx = 0; idx < _plugin.Alarms!.Alarms.Count; ++idx)
             {
-                var alert = plugin.alarms.Alarms[idx];
+                var alert = _plugin.Alarms.Alarms[idx];
                 if (ImGui.Button($"  -  ##{idx}"))
-                {
-                    plugin.alarms.RemoveNode(idx--);
-                }
+                    _plugin.Alarms.RemoveNode(idx--);
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Delete this alarm.");
 
                 HorizontalSpace(space);
-                bool enabled = alert.Enabled;
+                var enabled = alert.Enabled;
                 if (ImGui.Checkbox($"##enabled_{idx}", ref enabled) && enabled != alert.Enabled)
-                    plugin.alarms.ChangeNodeStatus(idx, enabled);
+                    _plugin.Alarms.ChangeNodeStatus(idx, enabled);
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Enable or disable this alarm.");
             }
+
             ImGui.EndGroup();
         }
 
@@ -360,14 +328,14 @@ namespace GatherBuddyPlugin
             ImGui.Text("Name");
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
-            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            foreach (var alert in _plugin.Alarms!.Alarms)
             {
-                var alert = plugin.alarms.Alarms[idx];
                 ImGui.AlignTextToFramePadding();
                 ImGui.Text(alert.Name);
                 HorizontalSpace(space);
                 ImGui.NewLine();
             }
+
             ImGui.EndGroup();
         }
 
@@ -379,57 +347,62 @@ namespace GatherBuddyPlugin
                 ImGui.SetTooltip("Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.");
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
-            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            for (var idx = 0; idx < _plugin.Alarms!.Alarms.Count; ++idx)
             {
-                var alert = plugin.alarms.Alarms[idx];
+                var alert  = _plugin.Alarms.Alarms[idx];
                 var offset = alert.MinuteOffset.ToString();
                 ImGui.SetNextItemWidth(ImGui.CalcTextSize("99999").X);
-                if (ImGui.InputText($"##Offset{idx}", ref offset, 4, ImGuiInputTextFlags.CharsDecimal))
+                if (!ImGui.InputText($"##Offset{idx}", ref offset, 4, ImGuiInputTextFlags.CharsDecimal))
+                    continue;
+
+                if (int.TryParse(offset, out var minutes))
                 {
-                    if (int.TryParse(offset, out var minutes))
-                    {
-                        minutes %= 24 * 60;
-                        if (minutes != alert.MinuteOffset)
-                            plugin.alarms.ChangeNodeOffset(idx, minutes);
-                    }
-                    else if (offset.Length == 0 && alert.MinuteOffset != 0)
-                        plugin.alarms.ChangeNodeOffset(idx, 0);
+                    minutes %= 24 * 60;
+                    if (minutes != alert.MinuteOffset)
+                        _plugin.Alarms.ChangeNodeOffset(idx, minutes);
+                }
+                else if (offset.Length == 0 && alert.MinuteOffset != 0)
+                {
+                    _plugin.Alarms.ChangeNodeOffset(idx, 0);
                 }
             }
+
             ImGui.EndGroup();
         }
 
-        private void DrawAlarms(float space)
+        private void DrawAlarms()
         {
             var boxSize = ImGui.CalcTextSize("Sound9999999").X;
             ImGui.BeginGroup();
             ImGui.Text("Alarm Sound");
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Set an optional sound that should be played when this alarm triggers.\n" +
-                                 "The sounds are the same as in the character configuration -> log window -> notification sounds.");
+                ImGui.SetTooltip("Set an optional sound that should be played when this alarm triggers.\n"
+                  + "The sounds are the same as in the character configuration -> log window -> notification sounds.");
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
-            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            for (var idx = 0; idx < _plugin.Alarms!.Alarms.Count; ++idx)
             {
-                var alert = plugin.alarms.Alarms[idx];
+                var alert = _plugin.Alarms.Alarms[idx];
                 var sound = alert.SoundId.ToIdx();
                 if (sound == -1)
                 {
-                    plugin.alarms.ChangeNodeSound(idx, Sounds.None);
+                    _plugin.Alarms.ChangeNodeSound(idx, Sounds.None);
                     sound = 0;
                 }
+
                 ImGui.SetNextItemWidth(boxSize);
-                if (ImGui.Combo($"##sound_{idx}", ref sound, SoundNameList, SoundNameList.Length))
-                {
-                    var tmp = SoundsExtensions.FromIdx(sound);
-                    if (tmp != Sounds.Unknown && tmp != alert.SoundId)
-                        plugin.alarms.ChangeNodeSound(idx, tmp);
-                }
+                if (!ImGui.Combo($"##sound_{idx}", ref sound, SoundNameList, SoundNameList.Length))
+                    continue;
+
+                var tmp = SoundsExtensions.FromIdx(sound);
+                if (tmp != Sounds.Unknown && tmp != alert.SoundId)
+                    _plugin.Alarms.ChangeNodeSound(idx, tmp);
             }
+
             ImGui.EndGroup();
         }
 
-        private void DrawPrintMessageBoxes(float space)
+        private void DrawPrintMessageBoxes()
         {
             ImGui.BeginGroup();
             ImGui.Text("Chat");
@@ -437,17 +410,18 @@ namespace GatherBuddyPlugin
                 ImGui.SetTooltip("Toggle whether the alarm is printed to chat or not.");
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
-            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            for (var idx = 0; idx < _plugin.Alarms!.Alarms.Count; ++idx)
             {
-                var alert = plugin.alarms.Alarms[idx];
+                var alert = _plugin.Alarms.Alarms[idx];
                 var print = alert.PrintMessage;
                 if (ImGui.Checkbox($"##print{idx}", ref print) && print != alert.PrintMessage)
-                    plugin.alarms.ChangePrintStatus(idx, print);
+                    _plugin.Alarms.ChangePrintStatus(idx, print);
             }
+
             ImGui.EndGroup();
         }
 
-        private void DrawHours(float space)
+        private void DrawHours()
         {
             ImGui.BeginGroup();
             ImGui.Text("Alarm Times");
@@ -455,89 +429,91 @@ namespace GatherBuddyPlugin
                 ImGui.SetTooltip("The uptimes for the node monitored in this alarm. Hover for the items.");
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, ImGui.GetTextLineHeightWithSpacing()));
-            for (var idx = 0; idx < plugin.alarms.Alarms.Count; ++idx)
+            foreach (var alert in _plugin.Alarms!.Alarms)
             {
-                var alert = plugin.alarms.Alarms[idx];
                 ImGui.AlignTextToFramePadding();
-                ImGui.Text(alert.Node.times.PrintHours(true, " | "));
+                ImGui.Text(alert.Node!.Times!.PrintHours(true, " | "));
                 if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip(alert.Node.items.PrintItems("\n", lang));
+                    ImGui.SetTooltip(alert.Node!.Items!.PrintItems("\n", _lang));
             }
 
             ImGui.EndGroup();
         }
 
-        private bool focusComboFilter = false;
+        private bool   _focusComboFilter = false;
+        private string _nodeFilter       = "";
 
-
-        private string nodeFilter = "";
-        private void DrawNewAlarm(float space)
+        private void DrawNewAlarm()
         {
             if (ImGui.Button("  + "))
             {
-                plugin.alarms.AddNode(newAlarmName, plugin.alarms.AllTimedNodes[newAlertIdx]);
-                newAlarmName = "";
+                _plugin.Alarms!.AddNode(_newAlarmName, _plugin.Alarms!.AllTimedNodes[_newAlertIdx]);
+                _newAlarmName = "";
             }
+
             ImGui.SameLine();
             ImGui.SetNextItemWidth(ImGui.CalcTextSize("mmmmmmmmmmmm").X);
-            ImGui.InputTextWithHint("##Name", "New Alarm Name", ref newAlarmName, 64);
+            ImGui.InputTextWithHint("##Name", "New Alarm Name", ref _newAlarmName, 64);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(-1);
-            if (ImGui.BeginCombo("##Node", AllTimedNodesNames[newAlertIdx]))
-            { 
+            if (ImGui.BeginCombo("##Node", _allTimedNodesNames[_newAlertIdx]))
+            {
                 ImGui.SetNextItemWidth(-1);
-                ImGui.InputTextWithHint("##NodeFilter", "Filter", ref nodeFilter,  60);
+                ImGui.InputTextWithHint("##NodeFilter", "Filter", ref _nodeFilter, 60);
                 var isFocused = ImGui.IsItemActive();
-                if (!focusComboFilter)
+                if (!_focusComboFilter)
                     ImGui.SetKeyboardFocusHere();
 
                 if (!ImGui.BeginChild("##nodeList",
-                    new Vector2(longestNodeStringLength * ImGui.GetIO().FontGlobalScale,
+                    new Vector2(_longestNodeStringLength * ImGui.GetIO().FontGlobalScale,
                         ImGui.GetTextLineHeightWithSpacing() * 6)))
                 {
                     ImGui.EndCombo();
                     return;
                 }
 
-                if (!focusComboFilter)
+                if (!_focusComboFilter)
                 {
                     ImGui.SetScrollY(0);
-                    focusComboFilter = true;
+                    _focusComboFilter = true;
                 }
 
-                var filter = nodeFilter.ToLowerInvariant();
+                var filter   = _nodeFilter.ToLowerInvariant();
                 var numNodes = 0;
-                var node = 0;
-                for (var i = 0; i < AllTimedNodesNames.Length; ++i)
+                var node     = 0;
+                for (var i = 0; i < _allTimedNodesNames.Length; ++i)
                 {
-                    if (AllTimedNodesNames[i].ToLowerInvariant().Contains(filter))
-                    {
-                        ++numNodes;
-                        node = i;
-                        if (ImGui.Selectable(AllTimedNodesNames[i], i == newAlertIdx))
-                        {
-                            newAlertIdx = i;
-                            ImGui.CloseCurrentPopup();
-                        }
-                    }
-                }
-                ImGui.EndChild();
-                if (!isFocused && numNodes <= 1) {
-                    newAlertIdx = node;
+                    if (!_allTimedNodesNames[i].ToLowerInvariant().Contains(filter))
+                        continue;
+
+                    ++numNodes;
+                    node = i;
+                    if (!ImGui.Selectable(_allTimedNodesNames[i], i == _newAlertIdx))
+                        continue;
+
+                    _newAlertIdx = i;
                     ImGui.CloseCurrentPopup();
-                };
+                }
+
+                ImGui.EndChild();
+                if (!isFocused && numNodes <= 1)
+                {
+                    _newAlertIdx = node;
+                    ImGui.CloseCurrentPopup();
+                }
 
                 ImGui.EndCombo();
             }
-            else if (focusComboFilter) {
-                focusComboFilter = false;
-                nodeFilter = "";
+            else if (_focusComboFilter)
+            {
+                _focusComboFilter = false;
+                _nodeFilter       = "";
             }
         }
 
-        private void DrawAlertsTab()
+        private void DrawAlarmsTab()
         {
-            var space = ImGui.GetStyle().ItemSpacing.X / 2;
+            var space    = ImGui.GetStyle().ItemSpacing.X / 2;
             var listSize = new Vector2(-1, -ImGui.GetTextLineHeightWithSpacing() - 2 * ImGui.GetStyle().FramePadding.X);
             if (ImGui.BeginChild("##alarmlist", listSize, true))
             {
@@ -547,15 +523,15 @@ namespace GatherBuddyPlugin
                 ImGui.SameLine();
                 DrawOffsets(space);
                 ImGui.SameLine();
-                DrawAlarms(space);
+                DrawAlarms();
                 ImGui.SameLine();
-                DrawPrintMessageBoxes(space);
+                DrawPrintMessageBoxes();
                 ImGui.SameLine();
-                DrawHours(space);
+                DrawHours();
                 ImGui.EndChild();
             }
 
-            DrawNewAlarm(space);
+            DrawNewAlarm();
         }
 
         public void Draw()
@@ -563,34 +539,34 @@ namespace GatherBuddyPlugin
             if (!Visible)
                 return;
 
-            if (activeNodes.Count > 0)
+            if (_activeNodes.Count > 0)
             {
                 var hour = EorzeaTime.CurrentHours();
-                if (hour != lastHour)
+                if (hour != _lastHour)
                 {
-                    lastHour = hour;
-                    NodeTimeLine.SortByUptime(lastHour, activeNodes);
+                    _lastHour = hour;
+                    NodeTimeLine.SortByUptime(_lastHour, _activeNodes);
                 }
             }
 
             var globalScale = ImGui.GetIO().FontGlobalScale;
-            var buttonSize = ImGui.CalcTextSize("Snapshot").X + 4 * ImGui.GetStyle().FramePadding.X * globalScale;
-            var inputSize = Math.Max(ImGui.CalcTextSize("Miner Set").X, ImGui.CalcTextSize("Botanist Set").X) +
-                            4 * ImGui.GetStyle().ItemSpacing.X;
-            var space = horizontalSpace * globalScale;
-            if (minXSize == 0)
-                minXSize = inputSize * 5;
+            var buttonSize  = ImGui.CalcTextSize("Snapshot").X + 4 * ImGui.GetStyle().FramePadding.X * globalScale;
+            var inputSize = Math.Max(ImGui.CalcTextSize("Miner Set").X, ImGui.CalcTextSize("Botanist Set").X)
+              + 4 * ImGui.GetStyle().ItemSpacing.X;
+            var space = DefaultHorizontalSpace * globalScale;
+            if (_minXSize == 0)
+                _minXSize = inputSize * 5;
 
             ImGui.SetNextWindowSizeConstraints(
-                new Vector2(minXSize, ImGui.GetTextLineHeightWithSpacing() * 16),
-                new Vector2(minXSize * 2, ImGui.GetIO().DisplaySize.Y * 15 / 16));
+                new Vector2(_minXSize,     ImGui.GetTextLineHeightWithSpacing() * 16),
+                new Vector2(_minXSize * 2, ImGui.GetIO().DisplaySize.Y * 15 / 16));
 
-            if (!ImGui.Begin(pluginName, ref Visible ))
+            if (!ImGui.Begin(PluginName, ref Visible))
                 return;
 
             ImGui.BeginGroup();
             ImGui.BeginGroup();
-            
+
             DrawMinerSetInput(inputSize);
             DrawBotanistSetInput(inputSize);
             ImGui.EndGroup();
@@ -620,30 +596,30 @@ namespace GatherBuddyPlugin
             if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip))
                 return;
 
-            minXSize = ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X;
+            _minXSize = ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X;
 
             var timedTab = ImGui.BeginTabItem("Timed Nodes");
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Shows timed nodes corresponding to the selection of the checkmarks below, sorted by next uptime.\n" +
-                                 "Click on a node to do a /gather command for that node.");
+                ImGui.SetTooltip("Shows timed nodes corresponding to the selection of the checkmarks below, sorted by next uptime.\n"
+                  + "Click on a node to do a /gather command for that node.");
             if (timedTab)
             {
                 DrawTimedTab(space);
                 ImGui.EndTabItem();
             }
 
-            var alertTab = ImGui.BeginTabItem("Alerts");
+            var alertTab = ImGui.BeginTabItem("Alarms");
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Setup alarms for specific timed gathering nodes.\n" +
-                                 "You can use [/gather alarm] to directly gather the last triggered alarm.");
+                ImGui.SetTooltip("Setup alarms for specific timed gathering nodes.\n"
+                  + "You can use [/gather alarm] to directly gather the last triggered alarm.");
             if (alertTab)
             {
-                DrawAlertsTab();
+                DrawAlarmsTab();
                 ImGui.EndTabItem();
             }
 
             ImGui.EndTabBar();
-            minXSize = Math.Max(minXSize, ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X);
+            _minXSize = Math.Max(_minXSize, ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X);
             ImGui.End();
         }
     }
