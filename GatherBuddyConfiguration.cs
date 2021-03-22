@@ -29,6 +29,7 @@ namespace GatherBuddy
     {
         public string    BotanistSetName { get; set; }
         public string    MinerSetName    { get; set; }
+        public string    FisherSetName   { get; set; }
         public int       Version         { get; set; }
         public ShowNodes ShowNodes       { get; set; }
 
@@ -38,14 +39,15 @@ namespace GatherBuddy
         public bool DoRecord       { get; set; }
         public bool AlarmsEnabled  { get; set; }
 
-        public Records Records { get; set; }
-        public List<Alarm>       Alarms  { get; set; }
+        public Records     Records { get; set; }
+        public List<Alarm> Alarms  { get; set; }
 
         public GatherBuddyConfiguration()
         {
             Version         = 2;
             BotanistSetName = "BOT";
             MinerSetName    = "MIN";
+            FisherSetName   = "FSH";
             UseGearChange   = true;
             UseTeleport     = true;
             UseCoordinates  = true;

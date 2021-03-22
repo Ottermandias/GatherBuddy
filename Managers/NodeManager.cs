@@ -46,7 +46,7 @@ namespace GatherBuddy.Managers
         public IEnumerable<Node> BaseNodes()
             => NodeIdToNode.Values.Distinct();
 
-        public NodeManager(DalamudPluginInterface pi, GatherBuddyConfiguration config, TerritoryManager territories,
+        public NodeManager(DalamudPluginInterface pi, GatherBuddyConfiguration config, World territories,
             AetheryteManager aetherytes, ItemManager gatherables)
         {
             var baseSheet = pi.Data.GetExcelSheet<GatheringPointBase>();
@@ -80,7 +80,7 @@ namespace GatherBuddy.Managers
                     PlaceNameEn = FFName.FromPlaceName(pi, nodeRow.PlaceName.Row)[Dalamud.ClientLanguage.English],
                     Nodes = new SubNodes()
                     {
-                        Territory = territories.FindOrAddTerritory(pi, nodeRow.TerritoryType.Value),
+                        Territory = territories.FindOrAddTerritory(nodeRow.TerritoryType.Value),
                     },
                 };
                 node.Nodes.Nodes[nodeRow.RowId] = null;

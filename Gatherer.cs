@@ -148,6 +148,17 @@ namespace GatherBuddy
             return item;
         }
 
+        private Fish? FindFishLogging(string fishName)
+        {
+            var fish = _world.FindFishByName(fishName);
+            var output = fish == null
+                ? $"Could not find corresponding fish to \"{fishName}\"."
+                : $"Identified [{fish.Id}: {fish!.Name![_language]}] for \"{fishName}\".";
+            _chat.Print(output);
+            PluginLog.Verbose(output);
+            return fish;
+        }
+
         private Node? GetClosestNode(string itemName, GatheringType? type = null)
         {
             var item = FindItemLogging(itemName);
@@ -185,6 +196,18 @@ namespace GatherBuddy
             return closestNode;
         }
 
+        private async Task ExecuteTeleport(string name)
+        {
+            if (!_commandManager.Execute("/tp " + name))
+            {
+                _chat.PrintError(
+                    "It seems like you have activated teleporting, but you have not installed the required plugin Teleporter by Pohky.");
+                _chat.PrintError("Please either deactivate teleporting or install the plugin.");
+            }
+
+            await Task.Delay(100);
+        }
+
         private async Task<bool> TeleportToNode(Node node)
         {
             if (!_configuration.UseTeleport)
@@ -197,14 +220,25 @@ namespace GatherBuddy
                 return false;
             }
 
-            if (!_commandManager.Execute("/tp " + name))
+            await ExecuteTeleport(name);
+            
+            return true;
+        }
+
+        private async Task<bool> TeleportToFishingSpot(FishingSpot spot)
+        {
+            if (!_configuration.UseTeleport)
+                return true;
+
+            var name = spot.ClosestAetheryte?.NameList[_teleporterLanguage] ?? "";
+            if (name.Length == 0)
             {
-                _chat.PrintError(
-                    "It seems like you have activated teleporting, but you have not installed the required plugin Teleporter by Pohky.");
-                _chat.PrintError("Please either deactivate teleporting or install the plugin.");
+                PluginLog.Debug("No valid aetheryte found for fishing spot {SpotId}.", spot.Id);
+                return false;
             }
 
-            await Task.Delay(100);
+            await ExecuteTeleport(name);
+
             return true;
         }
 
@@ -215,12 +249,12 @@ namespace GatherBuddy
 
             if (node.Meta!.IsBotanist())
             {
-                _commandManager.Execute($"/gearset change {_configuration?.BotanistSetName ?? "Botanist"}");
+                _commandManager.Execute($"/gearset change {_configuration?.BotanistSetName ?? "BOT"}");
                 await Task.Delay(200);
             }
             else if (node.Meta!.IsMiner())
             {
-                _commandManager.Execute($"/gearset change {_configuration?.MinerSetName ?? "Miner"}");
+                _commandManager.Execute($"/gearset change {_configuration?.MinerSetName ?? "MIN"}");
                 await Task.Delay(200);
             }
             else
@@ -230,6 +264,26 @@ namespace GatherBuddy
             }
 
             return true;
+        }
+
+        private async Task EquipFisher()
+        {
+            if (!_configuration.UseGearChange)
+                return;
+            _commandManager.Execute($"/gearset change {_configuration?.FisherSetName ?? "FSH"}");
+            await Task.Delay(200);
+        }
+
+        private async Task ExecuteMapMarker(string x, string y, string territory)
+        {
+            if (!_commandManager.Execute($"/coord {x}, {y} : {territory}"))
+            {
+                _chat.PrintError(
+                    "It seems like you have activated map markers, but you have not installed the required plugin ChatCoordinates by kij.");
+                _chat.PrintError("Please either deactivate map markers or install the plugin.");
+            }
+
+            await Task.Delay(100);
         }
 
         private async Task<bool> SetNodeFlag(Node node)
@@ -248,14 +302,30 @@ namespace GatherBuddy
                 return false;
             }
 
-            if (!_commandManager.Execute($"/coord {xString}, {yString} : {territory}"))
-            {
-                _chat.PrintError(
-                    "It seems like you have activated map markers, but you have not installed the required plugin ChatCoordinates by kij.");
-                _chat.PrintError("Please either deactivate map markers or install the plugin.");
-            }
+            await ExecuteMapMarker(xString, yString, territory);
 
             await Task.Delay(100);
+            return true;
+        }
+
+        private async Task<bool> SetFishingSpotFlag(FishingSpot spot)
+        {
+            if (!_configuration.UseCoordinates)
+                return true;
+
+
+            var xString   = (spot.XCoord / 100.0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            var yString   = (spot.YCoord / 100.0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+            var territory = spot.Territory?.NameList[_language] ?? "";
+
+            if (territory.Length == 0)
+            {
+                PluginLog.Debug("No territory set for node {SpotId}.", spot.Id);
+                return false;
+            }
+
+            await ExecuteMapMarker(xString, yString, territory);
+            
             return true;
         }
 
@@ -274,6 +344,41 @@ namespace GatherBuddy
             {
                 PluginLog.Error($"Exception caught: {e}");
             }
+        }
+
+        private async void OnFishActionWithSpot(FishingSpot spot)
+        {
+            try
+            {
+                await EquipFisher();
+
+                if (await TeleportToFishingSpot(spot) == false)
+                    return;
+                if (await SetFishingSpotFlag(spot) == false)
+                    return;
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error($"Exception caught: {e}");
+            }
+        }
+
+        public void OnFishAction(string fishName)
+        {
+            var fish        = FindFishLogging(fishName);
+            var closestSpot = _world.ClosestSpotForItem(fish);
+            if (closestSpot == null)
+            {
+                var outputError = $"Could not find fishing spot for \"{fish!.Name![_language]}\".";
+                    _chat.PrintError(outputError);
+                    PluginLog.Error(outputError);
+                return;
+            }
+            var output = $"Found fishing spot {closestSpot.PlaceName![_language]} for {fish!.Name![_language]}.";
+            _chat.Print(output);
+            PluginLog.Verbose(output);
+
+            OnFishActionWithSpot(closestSpot);
         }
 
         public void OnGatherAction(string itemName, GatheringType? type = null)
@@ -412,6 +517,23 @@ namespace GatherBuddy
             {
                 PluginLog.Information(
                     $"[NodeDump] |{string.Join(",", n.Nodes!.Nodes.Keys)}|{n.Meta!.PointBaseId}|{n.Meta.GatheringType}|{n.Meta.NodeType}|{n.Meta.Level}|{n.GetX()}|{n.GetY()}|{n.Nodes!.Territory!.Id}|{n.PlaceNameEn}|{n.GetClosestAetheryte()?.Id ?? -1}|{n.Times!.UptimeTable()}|{n.Items!.PrintItems()}");
+            }
+        }
+
+        public void DumpFishingSpots()
+        {
+            foreach (var f in _world.Fish.FishingSpots.Values)
+            {
+                PluginLog.Information(
+                    $"[FishingSpotDump] |{f.Id}|{f.XCoord}|{f.YCoord}|{f.Radius}|{f.PlaceName?[ClientLanguage.English] ?? "MISSING"}|{f.Territory?.NameList[ClientLanguage.English] ?? "MISSING"}|{f.ClosestAetheryte?.NameList[ClientLanguage.English] ?? "MISSING"}|{string.Join("|", f.Items.Where(i => i != null).Select(i => i!.Id))}");
+            }
+        }
+
+        public void DumpFish()
+        {
+            foreach (var f in _world.Fish.Fish.Values)
+            {
+                PluginLog.Information($"[FishDump] |{f.Id}|{f.Name}|");
             }
         }
     }

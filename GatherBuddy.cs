@@ -20,6 +20,7 @@ namespace GatherBuddy
         private Managers.CommandManager?  _commandManager;
         private GatherBuddyConfiguration? _configuration;
         private Interface?                _gatherInterface;
+        private FishingTimer?             _fishingTimer;
 
 
         public void Initialize(DalamudPluginInterface pluginInterface)
@@ -30,6 +31,7 @@ namespace GatherBuddy
             Gatherer         = new Gatherer(pluginInterface, _configuration, _commandManager);
             Alarms           = Gatherer.Alarms;
             _gatherInterface = new Interface(this, pluginInterface, _configuration);
+            _fishingTimer    = new FishingTimer(_pluginInterface, _configuration);
 
             _pluginInterface!.CommandManager.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
             {
@@ -57,6 +59,12 @@ namespace GatherBuddy
                 ShowInHelp = true,
             });
 
+            _pluginInterface!.CommandManager.AddHandler("/gatherfish", new CommandInfo(OnGatherFish)
+            {
+                HelpMessage = "Mark the nearest fishing spot containing the fish supplied, teleport to the nearest aetheryte and equip fishing gear.",
+                ShowInHelp = true,
+            });
+
             _pluginInterface!.CommandManager.AddHandler("/gathergroup", new CommandInfo(OnGatherGroup)
             {
                 HelpMessage = "Teleport to the node of a group corresponding to current time. Use /gathergroup for more details.",
@@ -71,6 +79,7 @@ namespace GatherBuddy
 
             pluginInterface.ClientState.TerritoryChanged += Gatherer!.OnTerritoryChange;
             pluginInterface.UiBuilder.OnBuildUi          += _gatherInterface!.Draw;
+            pluginInterface.UiBuilder.OnBuildUi          += _fishingTimer!.Draw;
             pluginInterface.UiBuilder.OnOpenConfigUi     += OnConfigCommandHandler;
 
             if (_configuration!.DoRecord)
@@ -83,6 +92,7 @@ namespace GatherBuddy
         public void Dispose()
         {
             _pluginInterface!.UiBuilder.OnOpenConfigUi -= OnConfigCommandHandler;
+            _pluginInterface!.UiBuilder.OnBuildUi      -= _fishingTimer!.Draw;
             _pluginInterface!.UiBuilder.OnBuildUi      -= _gatherInterface!.Draw;
             _pluginInterface!.SavePluginConfig(_configuration);
             _pluginInterface.ClientState.TerritoryChanged -= Gatherer!.OnTerritoryChange;
@@ -91,6 +101,7 @@ namespace GatherBuddy
             _pluginInterface.CommandManager.RemoveHandler("/gather");
             _pluginInterface.CommandManager.RemoveHandler("/gatherbot");
             _pluginInterface.CommandManager.RemoveHandler("/gathermin");
+            _pluginInterface.CommandManager.RemoveHandler("/gatherfish");
             _pluginInterface.CommandManager.RemoveHandler("/gathergroup");
             _pluginInterface.CommandManager.RemoveHandler("/gatherbuddy");
             _pluginInterface.Dispose();
@@ -118,6 +129,14 @@ namespace GatherBuddy
                 _pluginInterface!.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gathermin.");
             else
                 Gatherer!.OnGatherAction(arguments, GatheringType.Miner);
+        }
+
+        private void OnGatherFish(string command, string arguments)
+        {
+            if (arguments.Length == 0)
+                _pluginInterface!.Framework.Gui.Chat.Print("Please supply a (partial) fish name for /gatherfish.");
+            else
+                Gatherer!.OnFishAction(arguments);
         }
 
         private void OnConfigCommandHandler(object a, object b)
@@ -284,6 +303,12 @@ namespace GatherBuddy
                         break;
                     case "nodes":
                         Gatherer!.DumpNodes();
+                        break;
+                    case "fish":
+                        Gatherer!.DumpFish();
+                        break;
+                    case "fishingspots":
+                        Gatherer!.DumpFishingSpots();
                         break;
                     case "records":
                         Gatherer!.PrintRecords();
