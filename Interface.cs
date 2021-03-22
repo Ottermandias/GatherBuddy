@@ -77,7 +77,7 @@ namespace GatherBuddy
 
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip(
-                    "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set and Botanist Set.");
+                    "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set, Botanist Set and Fisher Set.");
         }
 
         private void DrawTeleportBox()
@@ -131,37 +131,31 @@ namespace GatherBuddy
                   + "Records are saved in compressed form in the plugin configuration.");
         }
 
-        private void DrawMinerSetInput(float width)
+        private void DrawSetInput(float width, string jobName, string oldName, Action<string> setName)
         {
-            var minerSet = _config.MinerSetName;
+            var tmp = oldName;
             ImGui.SetNextItemWidth(width);
-            if (ImGui.InputText("Miner Set", ref minerSet, 15))
+            if (ImGui.InputText($"{jobName} Set", ref tmp, 15) && tmp != oldName)
             {
-                _config.MinerSetName = minerSet;
+                setName(tmp);
                 _pi.SavePluginConfig(_config);
             }
-
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Set the name of your miner set. Can also be the numerical id instead.");
+                ImGui.SetTooltip($"Set the name of your {jobName.ToLowerInvariant()} set. Can also be the numerical id instead.");
         }
+
+        private void DrawMinerSetInput(float width)
+            => DrawSetInput(width, "Miner", _config.MinerSetName, s => _config.MinerSetName = s);
 
         private void DrawBotanistSetInput(float width)
-        {
-            var botanistSet = _config.BotanistSetName;
-            ImGui.SetNextItemWidth(width);
-            if (ImGui.InputText("Botanist Set", ref botanistSet, 15))
-            {
-                _config.BotanistSetName = botanistSet;
-                _pi.SavePluginConfig(_config);
-            }
+            => DrawSetInput(width, "Botanist", _config.BotanistSetName, s => _config.BotanistSetName = s);
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Set the name of your botanist set. Can also be the numerical id instead.");
-        }
+        private void DrawFisherSetInput(float width)
+            => DrawSetInput(width, "Fisher", _config.FisherSetName, s => _config.FisherSetName = s);
 
         private void DrawSnapshotButton(float width)
         {
-            if (ImGui.Button("Snapshot", new Vector2(width, 0)))
+            if (ImGui.Button("Snapshot", new Vector2(-1, 0)))
                 _pi.Framework.Gui.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Record currently available nodes around you once.");
@@ -534,6 +528,22 @@ namespace GatherBuddy
             DrawNewAlarm();
         }
 
+        private void DrawSettingsTab(float inputSize)
+        {
+            if (!ImGui.BeginChild("##settingsList", new Vector2(-1, -1), true))
+                return;
+
+            DrawMinerSetInput(inputSize);
+            DrawBotanistSetInput(inputSize);
+            DrawFisherSetInput(inputSize);
+
+            DrawGearChangeBox();
+            DrawTeleportBox();
+            DrawMapMarkerBox();
+
+            ImGui.EndChild();
+        }
+
         public void Draw()
         {
             if (!Visible)
@@ -553,50 +563,28 @@ namespace GatherBuddy
             var buttonSize  = ImGui.CalcTextSize("Snapshot").X + 4 * ImGui.GetStyle().FramePadding.X * globalScale;
             var inputSize = Math.Max(ImGui.CalcTextSize("Miner Set").X, ImGui.CalcTextSize("Botanist Set").X)
               + 4 * ImGui.GetStyle().ItemSpacing.X;
+
             var space = DefaultHorizontalSpace * globalScale;
-            if (_minXSize == 0)
-                _minXSize = inputSize * 5;
+            _minXSize = inputSize * 4.25f;
 
             ImGui.SetNextWindowSizeConstraints(
                 new Vector2(_minXSize,     ImGui.GetTextLineHeightWithSpacing() * 16),
-                new Vector2(_minXSize * 2, ImGui.GetIO().DisplaySize.Y * 15 / 16));
+                new Vector2(_minXSize * 4, ImGui.GetIO().DisplaySize.Y * 15 / 16));
 
             if (!ImGui.Begin(PluginName, ref Visible))
                 return;
 
             ImGui.BeginGroup();
-            ImGui.BeginGroup();
-
-            DrawMinerSetInput(inputSize);
-            DrawBotanistSetInput(inputSize);
-            ImGui.EndGroup();
-
-            ImGui.SameLine();
-            HorizontalSpace(space);
-            ImGui.BeginGroup();
-            DrawGearChangeBox();
-            DrawTeleportBox();
-            ImGui.EndGroup();
-
-            ImGui.SameLine();
-            HorizontalSpace(space);
-            ImGui.BeginGroup();
-            DrawRecordBox();
-            DrawMapMarkerBox();
-            ImGui.EndGroup();
-
-            ImGui.SameLine();
-            HorizontalSpace(3 * space);
-            ImGui.BeginGroup();
-            DrawSnapshotButton(buttonSize);
             DrawAlarmToggle();
+            HorizontalSpace(5 * space);
+            DrawRecordBox();
+            HorizontalSpace(5 * space);
+            DrawSnapshotButton(buttonSize);
             ImGui.EndGroup();
-            ImGui.EndGroup();
+            ImGui.Dummy(new Vector2(0, space));
 
             if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip))
                 return;
-
-            _minXSize = ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X;
 
             var timedTab = ImGui.BeginTabItem("Timed Nodes");
             if (ImGui.IsItemHovered())
@@ -618,8 +606,13 @@ namespace GatherBuddy
                 ImGui.EndTabItem();
             }
 
+            if (ImGui.BeginTabItem("Settings"))
+            {
+                DrawSettingsTab(inputSize);
+                ImGui.EndTabItem();
+            }
+
             ImGui.EndTabBar();
-            _minXSize = Math.Max(_minXSize, ImGui.GetItemRectSize().X + 2 * ImGui.GetStyle().WindowPadding.X);
             ImGui.End();
         }
     }
