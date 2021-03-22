@@ -1,4 +1,5 @@
 using Dalamud.Game;
+using GatherBuddy.SEFunctions;
 
 namespace GatherBuddy.SeFunctions
 {
@@ -9,5 +10,8 @@ namespace GatherBuddy.SeFunctions
         public PlaySound(SigScanner sigScanner)
             : base(sigScanner, "E8 ?? ?? ?? ?? 4D 39 BE")
         { }
+
+        public void Play(Sounds id)
+            => Invoke((int) id, 0ul, 0ul);
     }
 }

@@ -93,24 +93,36 @@ namespace GatherBuddy.Managers
             }
         }
 
+        private string ReplaceFormatPlaceholders(string format, Alarm alarm, int currentMinute)
+        {
+            var result = format.Replace("{Name}", alarm.Name);
+            result = result.Replace("{Offset}",     alarm.MinuteOffset.ToString());
+            result = result.Replace("{TimesShort}", alarm.Node!.Times!.PrintHours(true));
+            result = result.Replace("{TimesLong}", alarm.Node!.Times!.PrintHours());
+            result = result.Replace("{AllItems}", alarm.Node!.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage));
+
+            var tmp = "is currently up";
+            if (alarm.MinuteOffset > 0)
+            {
+                var offTime = (currentMinute / 60 + alarm.Node!.Times!.NextUptime(currentMinute / 60 % 24)) * 60 - currentMinute;
+                var (m, s) = EorzeaTime.MinutesToReal(offTime);
+                if (offTime > 0)
+                    tmp = $"will be up in {m}:{s:D2} minutes";
+            }
+
+            result = result.Replace("{DelayString}", tmp);
+            return result;
+        }
+
         private void Ring(Alarm alarm, int currentMinute)
         {
             if (alarm.SoundId > Sounds.Unknown)
-                _sounds.Invoke(alarm.SoundId);
+                _sounds.Play(alarm.SoundId);
 
-            if (alarm.PrintMessage)
+            if (alarm.PrintMessage && _config.AlarmFormat.Length > 0)
             {
-                var tmp = "is currently up";
-                if (alarm.MinuteOffset > 0)
-                {
-                    var offTime = (currentMinute / 60 + alarm.Node!.Times!.NextUptime(currentMinute / 60 % 24)) * 60 - currentMinute;
-                    var (m, s) = EorzeaTime.MinutesToReal(offTime);
-                    if (offTime > 0)
-                        tmp = $"will be up in {m}:{s:D2} minutes (real-time)";
-                }
-
-                var items = alarm.Node!.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage);
-                _pi.Framework.Gui.Chat.PrintError($"[GatherBuddy][Alarm {alarm.Name}]: The gathering node for {items} {tmp}.");
+                _pi.Framework.Gui.Chat.PrintError(ReplaceFormatPlaceholders(_config.AlarmFormat, alarm, currentMinute));
+                PluginLog.Verbose(ReplaceFormatPlaceholders(GatherBuddyConfiguration.DefaultAlarmFormat, alarm, currentMinute));
             }
 
             LastAlarm = alarm;

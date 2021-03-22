@@ -27,17 +27,29 @@ namespace GatherBuddy
     [Serializable]
     public class GatherBuddyConfiguration : IPluginConfiguration
     {
-        public string    BotanistSetName { get; set; }
-        public string    MinerSetName    { get; set; }
-        public string    FisherSetName   { get; set; }
-        public int       Version         { get; set; }
-        public ShowNodes ShowNodes       { get; set; }
+        public const string DefaultIdentifiedItemFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
+        public const string DefaultIdentifiedFishFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
+        public const string DefaultIdentifiedFishingSpotFormat = "Chose fishing spot {Name} for {FishName}.";
+        public const string DefaultAlarmFormat                 = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+
+        public string BotanistSetName { get; set; }
+        public string MinerSetName    { get; set; }
+        public string FisherSetName   { get; set; }
+
+        public string IdentifiedItemFormat        { get; set; }
+        public string IdentifiedFishFormat        { get; set; }
+        public string IdentifiedFishingSpotFormat { get; set; }
+        public string AlarmFormat                 { get; set; }
+
+        public int       Version   { get; set; }
+        public ShowNodes ShowNodes { get; set; }
 
         public bool UseGearChange  { get; set; }
         public bool UseTeleport    { get; set; }
         public bool UseCoordinates { get; set; }
         public bool DoRecord       { get; set; }
         public bool AlarmsEnabled  { get; set; }
+        public bool PrintUptime    { get; set; }
 
         public Records     Records { get; set; }
         public List<Alarm> Alarms  { get; set; }
@@ -53,9 +65,15 @@ namespace GatherBuddy
             UseCoordinates  = true;
             DoRecord        = true;
             AlarmsEnabled   = false;
+            PrintUptime     = true;
             ShowNodes       = ShowNodes.AllNodes;
             Records         = new Records();
             Alarms          = new List<Alarm>();
+
+            IdentifiedItemFormat        = DefaultIdentifiedItemFormat;
+            IdentifiedFishFormat        = DefaultIdentifiedFishFormat;
+            IdentifiedFishingSpotFormat = DefaultIdentifiedFishingSpotFormat;
+            AlarmFormat                 = DefaultAlarmFormat;
         }
     }
 }

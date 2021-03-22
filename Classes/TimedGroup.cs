@@ -14,11 +14,10 @@ namespace GatherBuddy.Classes
         public           string                     Desc { get; }
         private readonly (Node node, string desc)[] _nodes;
 
-        private static string? CorrectItemName(Node node, string itemName)
+        private static string? CorrectItemName(Node? node, string? itemName)
         {
             if (node == null || itemName == null)
                 return null;
-
 
             var item = node.Items!.Items.FirstOrDefault(I => I?.NameList[ClientLanguage.English] == itemName);
             if (item != null)

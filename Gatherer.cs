@@ -137,25 +137,62 @@ namespace GatherBuddy
         public void PurgeAllRecords()
             => _world.Nodes.Records.PurgeRecords();
 
+        private string ReplaceFormatPlaceholders(string format, string input, Gatherable item)
+        {
+            var result = format.Replace("{Id}", item.ItemId.ToString());
+            result = result.Replace("{Name}",  item.NameList[_language]);
+            result = result.Replace("{Input}", input);
+            return result;
+        }
+
+        private string ReplaceFormatPlaceholders(string format, string input, Fish fish)
+        {
+            var result = format.Replace("{Id}", fish.Id.ToString());
+            result = result.Replace("{Name}",  fish.Name![_language]);
+            result = result.Replace("{Input}", input);
+            return result;
+        }
+
+        private string ReplaceFormatPlaceholders(string format, string input, Fish fish, FishingSpot spot)
+        {
+            var result = format.Replace("{Id}", spot.Id.ToString());
+            result = result.Replace("{Name}",     spot.PlaceName![_language]);
+            result = result.Replace("{FishName}", fish.Name![_language]);
+            result = result.Replace("{FishId}",   fish.Id.ToString());
+            result = result.Replace("{Input}",    input);
+            return result;
+        }
+
         private Gatherable? FindItemLogging(string itemName)
         {
             var item = _world.FindItemByName(itemName);
-            var output = item == null
-                ? $"Could not find corresponding item to \"{itemName}\"."
-                : $"Identified [{item.ItemId}: {item.NameList[_language]}] for \"{itemName}\".";
-            _chat.Print(output);
-            PluginLog.Verbose(output);
+            if (item == null)
+            {
+                string output = $"Could not find corresponding item to \"{itemName}\".";
+                _chat.Print(output);
+                PluginLog.Verbose(output);
+                return null;
+            }
+
+            if (_configuration.IdentifiedItemFormat.Length > 0)
+                _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedItemFormat, itemName, item));
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedItemFormat, item.ItemId, item.NameList[_language], itemName);
             return item;
         }
 
         private Fish? FindFishLogging(string fishName)
         {
             var fish = _world.FindFishByName(fishName);
-            var output = fish == null
-                ? $"Could not find corresponding fish to \"{fishName}\"."
-                : $"Identified [{fish.Id}: {fish!.Name![_language]}] for \"{fishName}\".";
-            _chat.Print(output);
-            PluginLog.Verbose(output);
+            if (fish == null)
+            {
+                string output = $"Could not find corresponding item to \"{fishName}\".";
+                _chat.Print(output);
+                PluginLog.Verbose(output);
+                return null;
+            }
+            if (_configuration.IdentifiedFishFormat.Length > 0)
+                _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishFormat, fishName, fish));
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishFormat, fish.Id, fish!.Name![_language], fishName);
             return fish;
         }
 
@@ -181,7 +218,7 @@ namespace GatherBuddy
                     _chat.PrintError(
                         $"No nodes containing {item.NameList[_language]} have associated coordinates or aetheryte.");
                     _chat.PrintError(
-                        $"They will become available after encountering the respective node while having recording enabled.");
+                        "They will become available after encountering the respective node while having recording enabled.");
                 }
                 else
                 {
@@ -190,7 +227,7 @@ namespace GatherBuddy
                 }
             }
 
-            if (!closestNode?.Times?.AlwaysUp() ?? false)
+            if (_configuration.PrintUptime && (!closestNode?.Times?.AlwaysUp() ?? false))
                 _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()}.");
 
             return closestNode;
@@ -221,7 +258,7 @@ namespace GatherBuddy
             }
 
             await ExecuteTeleport(name);
-            
+
             return true;
         }
 
@@ -270,6 +307,7 @@ namespace GatherBuddy
         {
             if (!_configuration.UseGearChange)
                 return;
+
             _commandManager.Execute($"/gearset change {_configuration?.FisherSetName ?? "FSH"}");
             await Task.Delay(200);
         }
@@ -325,7 +363,7 @@ namespace GatherBuddy
             }
 
             await ExecuteMapMarker(xString, yString, territory);
-            
+
             return true;
         }
 
@@ -370,13 +408,14 @@ namespace GatherBuddy
             if (closestSpot == null)
             {
                 var outputError = $"Could not find fishing spot for \"{fish!.Name![_language]}\".";
-                    _chat.PrintError(outputError);
-                    PluginLog.Error(outputError);
+                _chat.PrintError(outputError);
+                PluginLog.Error(outputError);
                 return;
             }
-            var output = $"Found fishing spot {closestSpot.PlaceName![_language]} for {fish!.Name![_language]}.";
-            _chat.Print(output);
-            PluginLog.Verbose(output);
+
+            if (_configuration.IdentifiedFishingSpotFormat.Length > 0)
+                _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![_language], fish!.Name![_language]);
 
             OnFishActionWithSpot(closestSpot);
         }
@@ -532,9 +571,7 @@ namespace GatherBuddy
         public void DumpFish()
         {
             foreach (var f in _world.Fish.Fish.Values)
-            {
                 PluginLog.Information($"[FishDump] |{f.Id}|{f.Name}|");
-            }
         }
     }
 }

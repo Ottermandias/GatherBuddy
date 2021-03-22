@@ -140,6 +140,7 @@ namespace GatherBuddy
                 setName(tmp);
                 _pi.SavePluginConfig(_config);
             }
+
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip($"Set the name of your {jobName.ToLowerInvariant()} set. Can also be the numerical id instead.");
         }
@@ -528,6 +529,59 @@ namespace GatherBuddy
             DrawNewAlarm();
         }
 
+        private void DrawFormatInput(string label, string tooltip, string oldValue, string defaultValue, Action<string> setValue)
+        {
+            var tmp = oldValue;
+
+
+            if (ImGui.Button($"Default##{label}"))
+            {
+                setValue(defaultValue);
+                _pi.SavePluginConfig(_config);
+            }
+
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip(defaultValue);
+
+            HorizontalSpace(10);
+            ImGui.AlignTextToFramePadding();
+            ImGui.Text(label);
+
+            ImGui.SetNextItemWidth(-ImGui.GetStyle().FramePadding.X);
+            if (ImGui.InputText($"##{label}", ref tmp, 256) && tmp != oldValue)
+            {
+                setValue(tmp);
+                _pi.SavePluginConfig(_config);
+            }
+
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip(tooltip);
+        }
+
+        private void DrawAlarmFormatInput()
+            => DrawFormatInput("Alarm Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Name} with the alarm name.\n- {Offset} with the alarm offset.\n- {TimesShort} with the corresponding uptimes in ##-##|##-## format.\n- {TimesLong} with the corresponding uptimes in long format.\n- {AllItems} with the corresponding items, separated by comma and in client language.",
+                _config.AlarmFormat, GatherBuddyConfiguration.DefaultAlarmFormat,
+                s => _config.AlarmFormat = s);
+
+        private void DrawItemIdentifiedFormatInput()
+            => DrawFormatInput("Item Identification Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Id} with the item ID.\n- {Name} with the item name in client language.\n- {Input} with the input string.",
+                _config.IdentifiedItemFormat,
+                GatherBuddyConfiguration.DefaultIdentifiedItemFormat, s => _config.IdentifiedItemFormat = s);
+
+        private void DrawFishIdentifiedFormatInput()
+            => DrawFormatInput("Fish Identification Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Id} with the fish item ID.\n- {Name} with the fish name in client language.\n- {Input} with the input string.",
+                _config.IdentifiedFishFormat,
+                GatherBuddyConfiguration.DefaultIdentifiedFishFormat, s => _config.IdentifiedFishFormat = s);
+
+        private void DrawFishingSpotIdentifiedFormatInput()
+            => DrawFormatInput("Fishing Spot Choice Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Id} with the fishing spot id.\n- {Name} with the fishing spot name in client language.\n- {Input} with the input string.\n- {FishId} with the fish item id.\n- {FishName} with the fish name in client language.",
+                _config.IdentifiedFishingSpotFormat,
+                GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, s => _config.IdentifiedFishingSpotFormat = s);
+
         private void DrawSettingsTab(float inputSize)
         {
             if (!ImGui.BeginChild("##settingsList", new Vector2(-1, -1), true))
@@ -540,6 +594,19 @@ namespace GatherBuddy
             DrawGearChangeBox();
             DrawTeleportBox();
             DrawMapMarkerBox();
+
+            var printNodeUptimes = _config.PrintUptime;
+            if (ImGui.Checkbox("Print Node Uptimes", ref printNodeUptimes) && printNodeUptimes != _config.PrintUptime)
+            {
+                _config.PrintUptime = printNodeUptimes;
+                _pi.SavePluginConfig(_config);
+            }
+
+            ImGui.Dummy(new Vector2(0, 20));
+            DrawAlarmFormatInput();
+            DrawItemIdentifiedFormatInput();
+            DrawFishIdentifiedFormatInput();
+            DrawFishingSpotIdentifiedFormatInput();
 
             ImGui.EndChild();
         }
@@ -581,7 +648,7 @@ namespace GatherBuddy
             HorizontalSpace(5 * space);
             DrawSnapshotButton(buttonSize);
             ImGui.EndGroup();
-            ImGui.Dummy(new Vector2(0, space));
+            ImGui.Dummy(new Vector2(0, space / 2));
 
             if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip))
                 return;
