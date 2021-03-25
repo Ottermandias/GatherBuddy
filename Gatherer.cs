@@ -24,6 +24,9 @@ namespace GatherBuddy
         public           NodeTimeLine                      Timeline { get; }
         public           AlarmManager                      Alarms   { get; }
 
+        public FishManager FishManager
+            => _world.Fish;
+
         public void TryCreateTeleporterWatcher(DalamudPluginInterface pi, bool useTeleport)
         {
             const string teleporterPluginConfigFile = "TeleporterPlugin.json";
@@ -470,7 +473,7 @@ namespace GatherBuddy
                 }
 
                 var currentHour = EorzeaTime.CurrentHours(minuteOffset);
-                var (node, desc) = @group.CurrentNode(currentHour);
+                var (node, desc) = group.CurrentNode(currentHour);
                 if (node == null)
                 {
                     PluginLog.Debug("No node for hour {CurrentHour} set in group {Name}.", currentHour, group.Name);

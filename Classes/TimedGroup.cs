@@ -55,7 +55,7 @@ namespace GatherBuddy.Classes
             }
         }
 
-        public (Node node, string desc) CurrentNode(int hour)
+        public (Node? node, string? desc) CurrentNode(int hour)
         {
             hour = hour switch
             {

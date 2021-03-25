@@ -42,8 +42,8 @@
 		<Reference Include="Lumina">
 			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\Lumina.dll</HintPath>
 		</Reference>
-    <Reference Include="Lumina.Generated">
-			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\Lumina.Generated.dll</HintPath>
+    <Reference Include="Lumina.Excel">
+			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\Lumina.Excel.dll</HintPath>
 		</Reference>
 		<Reference Include="ImGui.NET">
 			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\ImGui.NET.dll</HintPath>
@@ -55,7 +55,7 @@
 			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\SDL2-CS.dll</HintPath>
 		</Reference>
 		<Reference Include="System" />
-		<Reference Include="System.Core" />
+		<Reference Include="System.Core" />		
 		<Reference Include="System.Numerics" />
 		<Reference Include="System.Windows.Forms" />
 		<Reference Include="System.Xml.Linq" />
@@ -70,6 +70,7 @@
 		<PackageReference Include="Newtonsoft.Json">
 			<Version>12.0.3</Version>
 		</PackageReference>
+    <PackageReference Include="System.Memory" Version="4.5.3" />
 	</ItemGroup>
 
 	<ItemGroup>

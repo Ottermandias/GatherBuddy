@@ -1,5 +1,8 @@
 ﻿using System;
 using System.Linq;
+using System.Runtime.InteropServices;
+using Dalamud.Game.Chat;
+using Dalamud.Game.Chat.SeStringHandling;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
@@ -22,7 +25,6 @@ namespace GatherBuddy
         private Interface?                _gatherInterface;
         private FishingTimer?             _fishingTimer;
 
-
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             _pluginInterface = pluginInterface;
@@ -31,7 +33,12 @@ namespace GatherBuddy
             Gatherer         = new Gatherer(pluginInterface, _configuration, _commandManager);
             Alarms           = Gatherer.Alarms;
             _gatherInterface = new Interface(this, pluginInterface, _configuration);
-            _fishingTimer    = new FishingTimer(_pluginInterface, _configuration);
+            _fishingTimer    = new FishingTimer(_pluginInterface, _configuration, Gatherer!.FishManager);
+
+            if (!Gatherer!.FishManager.GetSaveFileName(_pluginInterface).Exists) 
+                Gatherer!.FishManager.SaveFishRecords(_pluginInterface);
+            else
+                Gatherer!.FishManager.LoadFishRecords(_pluginInterface);
 
             _pluginInterface!.CommandManager.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
             {
@@ -79,7 +86,6 @@ namespace GatherBuddy
 
             pluginInterface.ClientState.TerritoryChanged += Gatherer!.OnTerritoryChange;
             pluginInterface.UiBuilder.OnBuildUi          += _gatherInterface!.Draw;
-            pluginInterface.UiBuilder.OnBuildUi          += _fishingTimer!.Draw;
             pluginInterface.UiBuilder.OnOpenConfigUi     += OnConfigCommandHandler;
 
             if (_configuration!.DoRecord)
@@ -91,11 +97,11 @@ namespace GatherBuddy
 
         public void Dispose()
         {
-            _pluginInterface!.UiBuilder.OnOpenConfigUi -= OnConfigCommandHandler;
-            _pluginInterface!.UiBuilder.OnBuildUi      -= _fishingTimer!.Draw;
-            _pluginInterface!.UiBuilder.OnBuildUi      -= _gatherInterface!.Draw;
+            _pluginInterface!.UiBuilder.OnOpenConfigUi        -= OnConfigCommandHandler;
+            _pluginInterface!.UiBuilder.OnBuildUi             -= _gatherInterface!.Draw;
             _pluginInterface!.SavePluginConfig(_configuration);
             _pluginInterface.ClientState.TerritoryChanged -= Gatherer!.OnTerritoryChange;
+            _fishingTimer?.Dispose();
             Gatherer!.Dispose();
             _pluginInterface.CommandManager.RemoveHandler("/gatherdebug");
             _pluginInterface.CommandManager.RemoveHandler("/gather");

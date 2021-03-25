@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Windows.Forms;
 using Dalamud;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
@@ -66,70 +67,74 @@ namespace GatherBuddy
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + width);
         }
 
-        private void DrawGearChangeBox()
+        private void DrawCheckbox(string label, string tooltip, bool current, Action<bool> setter)
         {
-            var useGearChange = _config.UseGearChange;
-            if (ImGui.Checkbox("Gear Change", ref useGearChange))
+            var tmp = current;
+            if (ImGui.Checkbox(label, ref tmp) && tmp != current)
             {
-                _config.UseGearChange = useGearChange;
+                setter(tmp);
                 _pi.SavePluginConfig(_config);
             }
 
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(
-                    "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set, Botanist Set and Fisher Set.");
+                ImGui.SetTooltip(tooltip);
         }
+
+        private void DrawGearChangeBox()
+            => DrawCheckbox("Gear Change",
+                "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set, Botanist Set and Fisher Set.",
+                _config.UseGearChange, b => _config.UseGearChange = b);
 
         private void DrawTeleportBox()
-        {
-            var useTeleport = _config.UseTeleport;
-            if (ImGui.Checkbox("Teleport", ref useTeleport))
-            {
-                _config.UseTeleport = useTeleport;
-                _plugin.Gatherer!.TryCreateTeleporterWatcher(_pi, useTeleport);
-                _pi.SavePluginConfig(_config);
-            }
-
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle whether to automatically teleport to a chosen node.\nRequires the Teleporter plugin and uses /tp.");
-        }
+            => DrawCheckbox("Teleport",
+                "Toggle whether to automatically teleport to a chosen node.\nRequires the Teleporter plugin and uses /tp.",
+                _config.UseTeleport, b => _config.UseTeleport = b);
 
         private void DrawMapMarkerBox()
-        {
-            var useCoordinates = _config.UseCoordinates;
-            if (ImGui.Checkbox("Map Marker", ref useCoordinates))
-            {
-                _config.UseCoordinates = useCoordinates;
-                _pi.SavePluginConfig(_config);
-            }
+            => DrawCheckbox("Map Marker",
+                "Toggle whether to automatically set a map marker on the approximate location of the chosen node.\nRequires the ChatCoordinates plugin and uses /coord.",
+                _config.UseCoordinates, b => _config.UseCoordinates = b);
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(
-                    "Toggle whether to automatically set a map marker on the approximate location of the chosen node.\nRequires the ChatCoordinates plugin and uses /coord.");
-        }
+        private void DrawFishTimerBox()
+            => DrawCheckbox("Show Fish Timer",
+                "Toggle whether to show the fish timer window while fishing.",
+                _config.ShowFishTimer, b => _config.ShowFishTimer = b);
+
+        private void DrawFishTimerEditBox()
+            => DrawCheckbox("Edit Fish Timer",
+                "Enable editing the fish timer window.",
+                _config.FishTimerEdit, b => _config.FishTimerEdit = b);
+
+        private void DrawFishTimerHideBox()
+            => DrawCheckbox("Hide Uncaught Fish",
+                "Hide all fish from the fish timer window that have not been recorded with the given combination of snagging and bait.",
+                _config.HideUncaughtFish, b => _config.HideUncaughtFish = b);
+
 
         private void DrawRecordBox()
-        {
-            var doRecord = _config.DoRecord;
-            if (ImGui.Checkbox("Record", ref doRecord))
-            {
-                if (doRecord != _config.DoRecord)
+            => DrawCheckbox("Record",
+                "Toggle whether to record all encountered nodes in regular intervals.\n"
+              + "Recorded node coordinates are more accurate than pre-programmed ones and will be used for map markers and aetherytes instead.\n"
+              + "Records are saved in compressed form in the plugin configuration.",
+                _config.DoRecord, b =>
                 {
-                    if (doRecord)
+                    if (b)
                         _plugin.Gatherer!.StartRecording();
                     else
                         _plugin.Gatherer!.StopRecording();
-                }
+                    _config.DoRecord = b;
+                });
 
-                _config.DoRecord = doRecord;
-                _pi.SavePluginConfig(_config);
-            }
-
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle whether to record all encountered nodes in regular intervals.\n"
-                  + "Recorded node coordinates are more accurate than pre-programmed ones and will be used for map markers and aetherytes instead.\n"
-                  + "Records are saved in compressed form in the plugin configuration.");
-        }
+        private void DrawAlarmToggle()
+            => DrawCheckbox("Alarms",  "Toggle all alarms on or off.",
+                _config.AlarmsEnabled, b =>
+                {
+                    if (b)
+                        _plugin.Alarms!.Enable();
+                    else
+                        _plugin.Alarms!.Disable();
+                    _config.AlarmsEnabled = b;
+                });
 
         private void DrawSetInput(float width, string jobName, string oldName, Action<string> setName)
         {
@@ -160,22 +165,6 @@ namespace GatherBuddy
                 _pi.Framework.Gui.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Record currently available nodes around you once.");
-        }
-
-        private void DrawAlarmToggle()
-        {
-            var useAlarm = _config.AlarmsEnabled;
-            if (ImGui.Checkbox("Alarms", ref useAlarm))
-                if (useAlarm != _config.AlarmsEnabled)
-                {
-                    if (useAlarm)
-                        _plugin.Alarms!.Enable();
-                    else
-                        _plugin.Alarms!.Disable();
-                }
-
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle all alarms on or off.");
         }
 
         private void DrawTimedNodes(float widgetHeight)
@@ -533,7 +522,6 @@ namespace GatherBuddy
         {
             var tmp = oldValue;
 
-
             if (ImGui.Button($"Default##{label}"))
             {
                 setValue(defaultValue);
@@ -601,6 +589,10 @@ namespace GatherBuddy
                 _config.PrintUptime = printNodeUptimes;
                 _pi.SavePluginConfig(_config);
             }
+
+            DrawFishTimerBox();
+            DrawFishTimerEditBox();
+            DrawFishTimerHideBox();
 
             ImGui.Dummy(new Vector2(0, 20));
             DrawAlarmFormatInput();

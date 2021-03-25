@@ -27,10 +27,10 @@ namespace GatherBuddy
     [Serializable]
     public class GatherBuddyConfiguration : IPluginConfiguration
     {
-        public const string DefaultIdentifiedItemFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
-        public const string DefaultIdentifiedFishFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
+        public const string DefaultIdentifiedItemFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
+        public const string DefaultIdentifiedFishFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
         public const string DefaultIdentifiedFishingSpotFormat = "Chose fishing spot {Name} for {FishName}.";
-        public const string DefaultAlarmFormat                 = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+        public const string DefaultAlarmFormat = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
 
         public string BotanistSetName { get; set; }
         public string MinerSetName    { get; set; }
@@ -44,31 +44,37 @@ namespace GatherBuddy
         public int       Version   { get; set; }
         public ShowNodes ShowNodes { get; set; }
 
-        public bool UseGearChange  { get; set; }
-        public bool UseTeleport    { get; set; }
-        public bool UseCoordinates { get; set; }
-        public bool DoRecord       { get; set; }
-        public bool AlarmsEnabled  { get; set; }
-        public bool PrintUptime    { get; set; }
+        public bool UseGearChange    { get; set; }
+        public bool UseTeleport      { get; set; }
+        public bool UseCoordinates   { get; set; }
+        public bool DoRecord         { get; set; }
+        public bool AlarmsEnabled    { get; set; }
+        public bool PrintUptime      { get; set; }
+        public bool ShowFishTimer    { get; set; }
+        public bool FishTimerEdit    { get; set; }
+        public bool HideUncaughtFish { get; set; }
 
         public Records     Records { get; set; }
         public List<Alarm> Alarms  { get; set; }
 
         public GatherBuddyConfiguration()
         {
-            Version         = 2;
-            BotanistSetName = "BOT";
-            MinerSetName    = "MIN";
-            FisherSetName   = "FSH";
-            UseGearChange   = true;
-            UseTeleport     = true;
-            UseCoordinates  = true;
-            DoRecord        = true;
-            AlarmsEnabled   = false;
-            PrintUptime     = true;
-            ShowNodes       = ShowNodes.AllNodes;
-            Records         = new Records();
-            Alarms          = new List<Alarm>();
+            Version          = 2;
+            BotanistSetName  = "BOT";
+            MinerSetName     = "MIN";
+            FisherSetName    = "FSH";
+            UseGearChange    = true;
+            UseTeleport      = true;
+            UseCoordinates   = true;
+            DoRecord         = true;
+            AlarmsEnabled    = false;
+            PrintUptime      = true;
+            ShowFishTimer    = true;
+            FishTimerEdit    = true;
+            HideUncaughtFish = false;
+            ShowNodes        = ShowNodes.AllNodes;
+            Records          = new Records();
+            Alarms           = new List<Alarm>();
 
             IdentifiedItemFormat        = DefaultIdentifiedItemFormat;
             IdentifiedFishFormat        = DefaultIdentifiedFishFormat;

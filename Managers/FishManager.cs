@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Dalamud;
 using Dalamud.Plugin;
@@ -12,6 +13,8 @@ namespace GatherBuddy.Managers
 {
     public class FishManager
     {
+        private const string SaveFileName = "fishing_records.data";
+
         public Dictionary<uint, Fish> Fish = new();
 
         public Dictionary<string, Fish>[] FishNameToFish = new Dictionary<string, Fish>[4]
@@ -24,12 +27,17 @@ namespace GatherBuddy.Managers
 
         public Dictionary<uint, FishingSpot> FishingSpots = new();
 
+        public Dictionary<string, FishingSpot> FishingSpotNames            = new();
+        public Dictionary<string, FishingSpot> FishingSpotNamesWithArticle = new ();
+        public Dictionary<uint, Bait>          Bait;
+
+
         public Fish FindOrAddFish(Lumina.Excel.ExcelSheet<Item>[] itemSheets, uint fish)
         {
             if (Fish.TryGetValue(fish, out var newFish))
                 return newFish;
 
-            newFish = new Fish() { Id = (int) fish };
+            newFish = new Fish{ Id = fish };
 
             var name = new FFName();
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
@@ -42,6 +50,25 @@ namespace GatherBuddy.Managers
             newFish.Name = name;
             Fish[fish]   = newFish;
             return newFish;
+        }
+
+        private static Dictionary<uint, Bait> CollectBait(Lumina.Excel.ExcelSheet<Item>[] items)
+        {
+            const uint fishingTackleRow = 30;
+
+            Dictionary<uint, Bait> ret = new()
+            {
+                { 0, Classes.Bait.Unknown }
+            };
+            foreach (var item in items[0].Where( i => i.ItemSearchCategory.Row == fishingTackleRow))
+            {
+                FFName        name    = new();
+                foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
+                    name[lang] = items[(int) lang].GetRow(item.RowId).Name;
+                ret.Add(item.RowId, new Bait(item.RowId, name));
+            }
+
+            return ret;
         }
 
         private static int ConvertCoord(int val, double scale)
@@ -89,11 +116,24 @@ namespace GatherBuddy.Managers
                     newSpot.Items[i] = fish;
                 }
 
-                FishingSpots[spot.RowId] = newSpot;
+                FishingSpots[spot.RowId]                                           = newSpot;
+                FishingSpotNames[newSpot.PlaceName[pi.ClientState.ClientLanguage]] = newSpot;
+                if (pi.ClientState.ClientLanguage != ClientLanguage.German)
+                    continue;
+
+                var ffName = new FFName
+                {
+                    [ClientLanguage.German] =
+                        pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8
+                };
+                FishingSpotNamesWithArticle[ffName[ClientLanguage.German]] = newSpot;
             }
+
+            Bait = CollectBait(itemSheets);
 
             PluginLog.Verbose("{Count} Fishing Spots collected.", FishingSpots.Count);
             PluginLog.Verbose("{Count} Fish collected.",          Fish.Count);
+            PluginLog.Verbose("{Count} Types of Bait collected.", Bait.Count - 1);
         }
 
         public Fish? FindFishByName(string fishName, ClientLanguage firstLanguage)
@@ -139,6 +179,66 @@ namespace GatherBuddy.Managers
             // and the Levensthein distance is not too large
             // return the most similar item.
             return minDist > 4 ? null : minFish;
+        }
+
+        public void SaveFishRecords(DalamudPluginInterface pi)
+        {
+            var dir = new DirectoryInfo(pi.GetPluginConfigDirectory());
+            if (!dir.Exists)
+            {
+                try
+                {
+                    dir.Create();
+                }
+                catch (Exception e)
+                {
+                    PluginLog.Error($"Could not create save directory at {dir.FullName}:\n{e}");
+                    return;
+                }
+            }
+
+            var file = new FileInfo(Path.Combine(dir.FullName, SaveFileName));
+            try
+            {
+                File.WriteAllLines(file.FullName, Fish.Values.Select(f => f.Record.WriteLine(f.Id)));
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error($"Could not write fishing records to file {file.FullName}:\n{e}");
+            }
+        }
+
+        public FileInfo GetSaveFileName(DalamudPluginInterface pi)
+            => new(Path.Combine(new DirectoryInfo(pi.GetPluginConfigDirectory()).FullName, SaveFileName));
+
+        public void LoadFishRecords(DalamudPluginInterface pi)
+            => LoadFishRecords(GetSaveFileName(pi));
+
+        public void LoadFishRecords(FileInfo file)
+        {
+            if (!file.Exists)
+            {
+                PluginLog.Error($"Could not read fishing records from file {file.FullName} because it does not exist.");
+                return;
+            }
+
+            try
+            {
+                var lines = File.ReadAllLines(file.FullName);
+                foreach (var line in lines)
+                {
+                    var p = FishRecord.FromLine(line);
+                    if (p == null)
+                        continue;
+
+                    var (fishId, records) = p.Value;
+                    Fish[fishId].Record   = records;
+                }
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error($"Could not read fishing records from file {file.FullName}:\n{e}");
+            }
         }
     }
 }
