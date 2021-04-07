@@ -19,6 +19,8 @@ namespace GatherBuddy.Managers
         public           ItemManager            Items       { get; }
         public           FishManager            Fish        { get; }
         public           NodeManager            Nodes       { get; }
+        public           WeatherManager         Weather     { get; }
+
         private          int                    _currentXStream = 0;
         private          int                    _currentYStream = 0;
 
@@ -57,7 +59,7 @@ namespace GatherBuddy.Managers
 
         public void SetPlayerStreamCoords(ushort territory)
         {
-            var rawT = _pi.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.TerritoryType>().GetRow(territory);
+            var rawT = _pi.Data.GetExcelSheet<TerritoryType>().GetRow(territory);
             var rawA = rawT?.Aetheryte?.Value;
 
             _currentXStream = rawA?.AetherstreamX ?? 0;
@@ -140,6 +142,7 @@ namespace GatherBuddy.Managers
             Aetherytes  = new AetheryteManager(pi, Territories);
             Items       = new ItemManager(pi);
             Nodes       = new NodeManager(pi, config, this, Aetherytes, Items);
+            Weather     = new WeatherManager(pi);
             Fish        = new FishManager(pi, this, Aetherytes);
 
             PluginLog.Verbose("{Count} regions collected.",     Territories.Regions.Count);

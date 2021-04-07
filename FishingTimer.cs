@@ -1,9 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using System.Security.Permissions;
 using Dalamud;
 using Dalamud.Game.ClientState;
 using Dalamud.Plugin;

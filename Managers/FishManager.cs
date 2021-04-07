@@ -15,9 +15,9 @@ namespace GatherBuddy.Managers
     {
         private const string SaveFileName = "fishing_records.data";
 
-        public Dictionary<uint, Fish> Fish = new();
+        public readonly Dictionary<uint, Fish> Fish = new();
 
-        public Dictionary<string, Fish>[] FishNameToFish = new Dictionary<string, Fish>[4]
+        public readonly Dictionary<string, Fish>[] FishNameToFish = new Dictionary<string, Fish>[4]
         {
             new(),
             new(),
@@ -25,21 +25,29 @@ namespace GatherBuddy.Managers
             new(),
         };
 
-        public Dictionary<uint, FishingSpot> FishingSpots = new();
+        public readonly Dictionary<uint, FishingSpot>        FishingSpots = new();
+        public readonly Dictionary<Territory, FishingSpot[]> FishingSpotsByTerritory;
 
-        public Dictionary<string, FishingSpot> FishingSpotNames            = new();
-        public Dictionary<string, FishingSpot> FishingSpotNamesWithArticle = new ();
-        public Dictionary<uint, Bait>          Bait;
+        public readonly Dictionary<string, FishingSpot> FishingSpotNames            = new();
+        public readonly Dictionary<string, FishingSpot> FishingSpotNamesWithArticle = new();
+        public readonly Dictionary<uint, Bait>          Bait;
 
+        public readonly List<Fish> FishByUptime;
 
-        public Fish FindOrAddFish(Lumina.Excel.ExcelSheet<Item>[] itemSheets, uint fish)
+        public readonly Dictionary<byte, GigHead> GigHeadFromRecord = new();
+
+        public Fish FindOrAddFish(Lumina.Excel.ExcelSheet<FishParameter> fishList, Lumina.Excel.ExcelSheet<Item>[] itemSheets, uint fish)
         {
             if (Fish.TryGetValue(fish, out var newFish))
                 return newFish;
 
-            newFish = new Fish{ Id = fish };
+            var fishRow = fishList.FirstOrDefault(r => r.Item == fish);
+            if (fishRow == null)
+                throw new ArgumentOutOfRangeException();
 
             var name = new FFName();
+            newFish = new Fish(fishRow, name);
+
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
             {
                 var langName = itemSheets[(int) lang].GetRow(fish).Name;
@@ -47,8 +55,29 @@ namespace GatherBuddy.Managers
                 FishNameToFish[(int) lang][langName] = newFish;
             }
 
-            newFish.Name = name;
-            Fish[fish]   = newFish;
+            Fish[fish] = newFish;
+            return newFish;
+        }
+
+        public Fish FindOrAddSpearFish(SpearfishingItem fish, Lumina.Excel.ExcelSheet<Item>[] itemSheets)
+        {
+            if (Fish.TryGetValue(fish.Item.Row, out var newFish))
+                return newFish;
+
+            if (!GigHeadFromRecord.TryGetValue((byte) fish.FishingRecordType.Row, out var gig))
+                gig = GigHead.None;
+
+            var name = new FFName();
+            newFish = new Fish(fish, gig, name);
+
+            foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
+            {
+                var langName = itemSheets[(int) lang].GetRow(fish.Item.Row).Name;
+                name[lang]                           = langName;
+                FishNameToFish[(int) lang][langName] = newFish;
+            }
+
+            Fish[fish.Item.Row] = newFish;
             return newFish;
         }
 
@@ -58,11 +87,11 @@ namespace GatherBuddy.Managers
 
             Dictionary<uint, Bait> ret = new()
             {
-                { 0, Classes.Bait.Unknown }
+                { 0, Classes.Bait.Unknown },
             };
-            foreach (var item in items[0].Where( i => i.ItemSearchCategory.Row == fishingTackleRow))
+            foreach (var item in items[0].Where(i => i.ItemSearchCategory.Row == fishingTackleRow))
             {
-                FFName        name    = new();
+                FFName name = new();
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                     name[lang] = items[(int) lang].GetRow(item.RowId).Name;
                 ret.Add(item.RowId, new Bait(item.RowId, name));
@@ -72,64 +101,143 @@ namespace GatherBuddy.Managers
         }
 
         private static int ConvertCoord(int val, double scale)
-            =>(int) (100.0 * (41.0 / scale * val / 2048.0 + 1.0) + 0.5);
+            => (int) (100.0 * (41.0 / scale * val / 2048.0 + 1.0) + 0.5);
+
+        private FishingSpot? FromFishingSpot(DalamudPluginInterface pi, World territories, Lumina.Excel.ExcelSheet<FishParameter> fishSheet,
+            Lumina.Excel.ExcelSheet<Item>[] itemSheets, Lumina.Excel.GeneratedSheets.FishingSpot spot)
+        {
+            var territory = spot.TerritoryType.Value;
+            if (territory == null)
+                return null;
+
+            var newSpot = new FishingSpot
+            {
+                Id        = spot.RowId,
+                Radius    = spot.Radius,
+                Territory = territories.FindOrAddTerritory(territory),
+                XCoord    = spot.X,
+                YCoord    = spot.Z,
+                PlaceName = FFName.FromPlaceName(pi, spot.PlaceName.Row),
+            };
+
+            for (var i = 0; i < 9; ++i)
+            {
+                var fishId = spot.Item[i].Row;
+                if (fishId == 0)
+                    continue;
+
+                var fish = FindOrAddFish(fishSheet, itemSheets, fishId);
+                fish.FishingSpots.Add(newSpot);
+                newSpot.Items[i] = fish;
+            }
+
+            if (pi.ClientState.ClientLanguage != ClientLanguage.German)
+                return newSpot;
+
+            var ffName = new FFName
+            {
+                [ClientLanguage.German] =
+                    pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8,
+            };
+            FishingSpotNamesWithArticle[ffName[ClientLanguage.German]] = newSpot;
+
+            return newSpot;
+        }
+
+        private FishingSpot? FromSpearfishingSpot(DalamudPluginInterface pi, World territories, Lumina.Excel.ExcelSheet<Item>[] itemSheets,
+            Lumina.Excel.ExcelSheet<SpearfishingItem> fishSheet, SpearfishingNotebook spot)
+        {
+            var territory = spot.TerritoryType.Value;
+            if (territory == null)
+                return null;
+
+            var newSpot = new FishingSpot
+            {
+                Id           = spot.RowId,
+                Radius       = spot.Radius,
+                Territory    = territories.FindOrAddTerritory(territory),
+                XCoord       = spot.X,
+                YCoord       = spot.Y,
+                PlaceName    = FFName.FromPlaceName(pi, spot.PlaceName.Row),
+                Spearfishing = true,
+            };
+
+            var items = spot.GatheringPointBase.Value.Item;
+            for (var i = 0; i < items.Length; ++i)
+            {
+                if (items[i] == 0)
+                    continue;
+
+                var gatherFish = fishSheet.GetRow((uint) items[i]);
+                var fish = FindOrAddSpearFish(gatherFish, itemSheets);
+                fish.FishingSpots.Add(newSpot);
+                newSpot.Items[i] = fish;
+            }
+
+            if (pi.ClientState.ClientLanguage != ClientLanguage.German)
+                return newSpot;
+
+            var ffName = new FFName
+            {
+                [ClientLanguage.German] =
+                    pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8,
+            };
+            FishingSpotNamesWithArticle[ffName[ClientLanguage.German]] = newSpot;
+
+            return newSpot;
+        }
+
+        private void SetupGigHeads(DalamudPluginInterface pi)
+        {
+            var records = pi.Data.Excel.GetSheet<SpearfishingRecordPage>();
+            foreach (var record in records)
+            {
+                GigHeadFromRecord[record.Unknown0] = GigHead.Small;
+                GigHeadFromRecord[record.Unknown1] = GigHead.Normal;
+                GigHeadFromRecord[record.Unknown2] = GigHead.Large;
+            }
+        }
+
+        public void SortFishByUptime(WeatherManager weather)
+            => FishByUptime.Sort((f, g) => f.NextUptime(weather).Compare(g.NextUptime(weather)));
 
         public FishManager(DalamudPluginInterface pi, World territories, AetheryteManager aetherytes)
         {
-            var fishingSpots = pi.Data.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishingSpot>();
-            var itemSheets   = new Lumina.Excel.ExcelSheet<Item>[4];
+            var fishingSpots      = pi.Data.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishingSpot>();
+            var spearfishingSpots = pi.Data.Excel.GetSheet<SpearfishingNotebook>();
+            var itemSheets        = new Lumina.Excel.ExcelSheet<Item>[4];
+            var spearfishingItems = pi.Data.Excel.GetSheet<SpearfishingItem>();
+            var fishSheet         = pi.Data.Excel.GetSheet<FishParameter>();
+
+            SetupGigHeads(pi);
+
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                 itemSheets[(int) lang] = pi.Data.GetExcelSheet<Item>(lang);
 
-            foreach (var spot in fishingSpots)
+            foreach (var spot in fishingSpots
+                .Select(s => FromFishingSpot(pi, territories, fishSheet, itemSheets, s))
+                .Concat(spearfishingSpots
+                    .Select(s => FromSpearfishingSpot(pi, territories, itemSheets, spearfishingItems, s)))
+                .Where(s => s != null))
             {
-                var territory = spot.TerritoryType.Value;
-                if (territory == null)
-                    continue;
+                var scale = spot!.Territory!.SizeFactor;
+                spot.XCoord = ConvertCoord(spot.XCoord, scale);
+                spot.YCoord = ConvertCoord(spot.YCoord, scale);
 
-                var newSpot = new FishingSpot()
-                {
-                    Id        = (int) spot.RowId,
-                    Radius    = spot.Radius,
-                    Territory = territories.FindOrAddTerritory(territory),
-                    XCoord    = spot.X,
-                    YCoord    = spot.Z,
-                    PlaceName = FFName.FromPlaceName(pi, spot.PlaceName.Row),
-                };
+                if (spot.Territory!.Aetherytes.Count > 0)
+                    spot.ClosestAetheryte = spot.Territory!.Aetherytes
+                        .Select(a => (a.WorldDistance(spot.Territory.Id, spot.XCoord, spot.YCoord), a)).Min().a;
 
-                var scale = territory.Map.Value?.SizeFactor / 100.0  ?? 1.0;
-                newSpot.XCoord = ConvertCoord(newSpot.XCoord, scale);
-                newSpot.YCoord = ConvertCoord(newSpot.YCoord, scale);
-
-                if (newSpot.Territory!.Aetherytes.Count > 0)
-                    newSpot.ClosestAetheryte = newSpot.Territory!.Aetherytes
-                        .Select(a => (a.WorldDistance(newSpot.Territory.Id, newSpot.XCoord, newSpot.YCoord), a)).Min().a;
-
-                for (var i = 0; i < 9; ++i)
-                {
-                    var fishId = spot.Item[i].Row;
-                    if (fishId == 0)
-                        continue;
-
-                    var fish = FindOrAddFish(itemSheets, fishId);
-                    fish.FishingSpots.Add(newSpot);
-                    newSpot.Items[i] = fish;
-                }
-
-                FishingSpots[spot.RowId]                                           = newSpot;
-                FishingSpotNames[newSpot.PlaceName[pi.ClientState.ClientLanguage]] = newSpot;
-                if (pi.ClientState.ClientLanguage != ClientLanguage.German)
-                    continue;
-
-                var ffName = new FFName
-                {
-                    [ClientLanguage.German] =
-                        pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8
-                };
-                FishingSpotNamesWithArticle[ffName[ClientLanguage.German]] = newSpot;
+                FishingSpots[spot.UniqueId]                                       = spot;
+                FishingSpotNames[spot!.PlaceName![pi.ClientState.ClientLanguage]] = spot;
             }
 
             Bait = CollectBait(itemSheets);
+
+            FishingSpotsByTerritory = FishingSpots.Values.GroupBy(s => s.Territory!).ToDictionary(sg => sg.Key, sg => sg.ToArray());
+
+            FishData.Apply(this);
+            FishByUptime = Fish.Values.Where( f => f.InLog && !f.OceanFish ).ToList();
 
             PluginLog.Verbose("{Count} Fishing Spots collected.", FishingSpots.Count);
             PluginLog.Verbose("{Count} Fish collected.",          Fish.Count);
@@ -185,7 +293,6 @@ namespace GatherBuddy.Managers
         {
             var dir = new DirectoryInfo(pi.GetPluginConfigDirectory());
             if (!dir.Exists)
-            {
                 try
                 {
                     dir.Create();
@@ -195,7 +302,6 @@ namespace GatherBuddy.Managers
                     PluginLog.Error($"Could not create save directory at {dir.FullName}:\n{e}");
                     return;
                 }
-            }
 
             var file = new FileInfo(Path.Combine(dir.FullName, SaveFileName));
             try

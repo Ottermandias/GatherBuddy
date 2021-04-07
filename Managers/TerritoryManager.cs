@@ -24,23 +24,24 @@ namespace GatherBuddy.Managers
             return names;
         }
 
-        public Territory? FindOrAddTerritory(DalamudPluginInterface pi, Lumina.Excel.GeneratedSheets.TerritoryType T)
+        public Territory? FindOrAddTerritory(DalamudPluginInterface pi, Lumina.Excel.GeneratedSheets.TerritoryType t)
         {
             // Create territory if it does not exist. Otherwise add the aetheryte to its list.
-            if (Territories.TryGetValue(T.RowId, out var territory))
+            if (Territories.TryGetValue(t.RowId, out var territory))
                 return territory;
 
-            var names = FFName.FromPlaceName(pi, T.PlaceName.Row);
+            var names = FFName.FromPlaceName(pi, t.PlaceName.Row);
             if (names.AnyEmpty())
                 return null;
 
-            territory = new Territory(T.RowId, FindOrAddRegionName(pi, T.PlaceNameRegion.Row)!, names)
+            territory = new Territory(t.RowId, FindOrAddRegionName(pi, t.PlaceNameRegion.Row)!, names)
             {
-                XStream = T.Aetheryte.Value?.AetherstreamX ?? 0,
-                YStream = T.Aetheryte.Value?.AetherstreamY ?? 0,
+                XStream    = t.Aetheryte.Value?.AetherstreamX ?? 0,
+                YStream    = t.Aetheryte.Value?.AetherstreamY ?? 0,
+                SizeFactor = t.Map.Value?.SizeFactor / 100.0f ?? 1.0f,
             };
 
-            Territories.Add(T.RowId, territory);
+            Territories.Add(t.RowId, territory);
             return territory;
         }
     }

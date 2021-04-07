@@ -3,7 +3,9 @@ using System;
 namespace GatherBuddy.Utility
 {
     public static class EorzeaTime
-    {   
+    {
+        public static readonly DateTime UnixEpoch = new DateTime(1970, 1, 1).ToUniversalTime();
+
         public static int CurrentHours(int minuteOffset = 0)
             => ToHours(CurrentEorzeaTimestamp() + 60 * minuteOffset);
 
@@ -19,8 +21,17 @@ namespace GatherBuddy.Utility
             return (hours: ToHours(timestamp), minutes: ToMinutes(timestamp));
         }
 
+        public static long ToEorzeaTimeStamp(long timeStamp)
+            => timeStamp * 144 / 7;
+
+        public static int Hours(DateTime time)
+            => ToHours(ToEorzeaTimeStamp((long) (time - UnixEpoch).TotalSeconds));
+
+        public static int Minutes(DateTime time)
+            => ToMinutes(ToEorzeaTimeStamp((long) (time - UnixEpoch).TotalSeconds));
+
         private static long CurrentEorzeaTimestamp()
-            => DateTimeOffset.UtcNow.ToUnixTimeSeconds() * 144 / 7;
+            =>ToEorzeaTimeStamp(DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
         public static (int minutes, int seconds) MinutesToReal(long eorzeaMinutes)
         {

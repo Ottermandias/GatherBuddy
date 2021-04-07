@@ -37,22 +37,22 @@
 	
 	<ItemGroup>
 		<Reference Include="Dalamud">
-			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\Dalamud.dll</HintPath>
-		</Reference>
-		<Reference Include="Lumina">
-			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\Lumina.dll</HintPath>
-		</Reference>
-    <Reference Include="Lumina.Excel">
-			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\Lumina.Excel.dll</HintPath>
+			<HintPath>$(AppData)\XIVLauncher\addon\Hooks\dev\Dalamud.dll</HintPath>
 		</Reference>
 		<Reference Include="ImGui.NET">
-			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\ImGui.NET.dll</HintPath>
+			<HintPath>$(AppData)\XIVLauncher\addon\Hooks\dev\ImGui.NET.dll</HintPath>
 		</Reference>
 		<Reference Include="ImGuiScene">
-			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\ImGuiScene.dll</HintPath>
+			<HintPath>$(AppData)\XIVLauncher\addon\Hooks\dev\ImGuiScene.dll</HintPath>
 		</Reference>
 		<Reference Include="SDL2-CS">
-			<HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\SDL2-CS.dll</HintPath>
+			<HintPath>$(AppData)\XIVLauncher\addon\Hooks\dev\SDL2-CS.dll</HintPath>
+		</Reference>
+    <Reference Include="Lumina">
+			<HintPath>$(AppData)\XIVLauncher\addon\Hooks\dev\Lumina.dll</HintPath>
+		</Reference>
+    <Reference Include="Lumina.Excel">
+			<HintPath>$(AppData)\XIVLauncher\addon\Hooks\dev\Lumina.Excel.dll</HintPath>
 		</Reference>
 		<Reference Include="System" />
 		<Reference Include="System.Core" />		
@@ -70,6 +70,7 @@
 		<PackageReference Include="Newtonsoft.Json">
 			<Version>12.0.3</Version>
 		</PackageReference>
+    <PackageReference Include="FFXIVWeather.Lumina" Version="1.2.1" />
     <PackageReference Include="System.Memory" Version="4.5.3" />
 	</ItemGroup>
 

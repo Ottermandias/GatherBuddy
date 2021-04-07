@@ -27,6 +27,9 @@ namespace GatherBuddy
         public FishManager FishManager
             => _world.Fish;
 
+        public WeatherManager WeatherManager
+            => _world.Weather;
+
         public void TryCreateTeleporterWatcher(DalamudPluginInterface pi, bool useTeleport)
         {
             const string teleporterPluginConfigFile = "TeleporterPlugin.json";
@@ -230,7 +233,7 @@ namespace GatherBuddy
                 }
             }
 
-            if (_configuration.PrintUptime && (!closestNode?.Times?.AlwaysUp() ?? false))
+            if (_configuration.PrintUptime && (!closestNode?.Times.AlwaysUp() ?? false))
                 _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()}.");
 
             return closestNode;
@@ -418,6 +421,8 @@ namespace GatherBuddy
 
             if (_configuration.IdentifiedFishingSpotFormat.Length > 0)
                 _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
+            if (fish!.Gig != GigHead.None)
+                _chat.Print($"Use {fish.Gig} gig head.");
             PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![_language], fish!.Name![_language]);
 
             OnFishActionWithSpot(closestSpot);
@@ -427,7 +432,7 @@ namespace GatherBuddy
         {
             try
             {
-                if (Util.CompareCi(itemName, "alarm"))
+                if (Utility.Util.CompareCi(itemName, "alarm"))
                 {
                     var node = Alarms.LastAlarm?.Node;
                     if (node == null)

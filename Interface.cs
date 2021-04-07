@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Windows.Forms;
 using Dalamud;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
@@ -603,6 +602,51 @@ namespace GatherBuddy
             ImGui.EndChild();
         }
 
+        private void DrawFishTab()
+        {
+            if (!ImGui.BeginChild("##Fish", new Vector2(-1, -1), true))
+                return;
+
+            var baitList = _plugin.Gatherer.FishManager.Bait;
+            var fishList = _plugin.Gatherer.FishManager.Fish;
+
+            var scrollY    = ImGui.GetScrollY();
+            var spaceY     = ImGui.GetWindowHeight();
+            var textHeight = ImGui.GetTextLineHeightWithSpacing();
+            var y          = scrollY / textHeight;
+            var maxY       = (int) Math.Ceiling(spaceY / textHeight) + 1;
+            var minY       = (int) Math.Floor(y);
+
+            if (scrollY != 0)
+                ImGui.Dummy(new Vector2(-1, textHeight * (float) Math.Floor(y - 1)));
+
+
+            for (var idx = minY; idx < minY + maxY; ++idx)
+            {
+                var fish = _plugin!.Gatherer!.FishManager.FishByUptime[idx];
+                ImGui.Selectable(fish.Name[_lang]);
+                if (!ImGui.IsItemHovered() || fish.Restrictions == Restrictions.None)
+                    continue;
+
+                var nextUptime = fish.NextUptime(_plugin.Gatherer.WeatherManager);
+                if (nextUptime.Equals(RealUptime.Unknown))
+                    continue;
+
+                var folkloreString = fish.CatchData.Folklore == 0 ? "" : $"\nRequires Folklore {fish.CatchData.Folklore}";
+                var locationName   = $"{fish.FishingSpots.First().Territory.NameList[_lang]} - {fish.FishingSpots.First().PlaceName[_lang]}";
+                var bait           = baitList[fish.CatchData.BaitOrder[0]].Name[_lang];
+                if (fish.CatchData.BaitOrder.Count > 1)
+                    bait += " -> " + string.Join(" -> ", fish.CatchData.BaitOrder.Skip(1).Select(id => fishList[id].Name[_lang]));
+                var patch          = $"From Patch {fish.CatchData.PatchMajor}.{fish.CatchData.PatchMinor}";
+                ImGui.SetTooltip($"{nextUptime.Time.ToLocalTime()} to {nextUptime.EndTime.ToLocalTime()}\n{nextUptime.Duration}\n{locationName}\n{bait}\n{(fish.CatchData.Snagging ? "With " : "Without ")} Snagging{folkloreString}\n{patch}");
+            }
+
+            if (scrollY != ImGui.GetScrollMaxY())
+                ImGui.Dummy(new Vector2(-1, textHeight * (_plugin!.Gatherer!.FishManager.FishByUptime.Count - minY - maxY)));
+
+            ImGui.EndChild();
+        }
+
         public void Draw()
         {
             if (!Visible)
@@ -615,6 +659,7 @@ namespace GatherBuddy
                 {
                     _lastHour = hour;
                     NodeTimeLine.SortByUptime(_lastHour, _activeNodes);
+                    _plugin!.Gatherer!.FishManager.SortFishByUptime(_plugin.Gatherer.WeatherManager);
                 }
             }
 
@@ -652,6 +697,12 @@ namespace GatherBuddy
             if (timedTab)
             {
                 DrawTimedTab(space);
+                ImGui.EndTabItem();
+            }
+
+            if (ImGui.BeginTabItem("Timed Fish"))
+            {
+                DrawFishTab();
                 ImGui.EndTabItem();
             }
 

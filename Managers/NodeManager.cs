@@ -13,7 +13,7 @@ namespace GatherBuddy.Managers
         public NodeRecorder           Records     { get; }
         public Dictionary<uint, Node> NodeIdToNode { get; }
 
-        private static (NodeTimes, NodeType) GetTimes(DalamudPluginInterface pi, uint nodeId)
+        private static (Uptime, NodeType) GetTimes(DalamudPluginInterface pi, uint nodeId)
         {
             var timeSheet = pi.Data.GetExcelSheet<GatheringPointTransient>();
             var hours     = timeSheet.GetRow(nodeId);
@@ -21,13 +21,13 @@ namespace GatherBuddy.Managers
             // Check for ephemeral nodes
             if (hours.GatheringRarePopTimeTable.Row == 0)
             {
-                var time = new NodeTimes(hours.EphemeralStartTime, hours.EphemeralEndTime);
+                var time = new Uptime(hours.EphemeralStartTime, hours.EphemeralEndTime);
                 return time.AlwaysUp() ? (time, NodeType.Regular) : (time, NodeType.Ephemeral);
             }
             // and for unspoiled
             else
             {
-                var time = new NodeTimes(hours.GatheringRarePopTimeTable.Value);
+                var time = new Uptime(hours.GatheringRarePopTimeTable.Value);
                 return time.AlwaysUp() ? (time, NodeType.Regular) : (time, NodeType.Unspoiled);
             }
         }

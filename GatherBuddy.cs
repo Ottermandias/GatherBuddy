@@ -35,6 +35,12 @@ namespace GatherBuddy
             _gatherInterface = new Interface(this, pluginInterface, _configuration);
             _fishingTimer    = new FishingTimer(_pluginInterface, _configuration, Gatherer!.FishManager);
 
+            var tmp = _pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("0F 84 AD 01 00 00 49 89 5B 08 4C 8D 15");
+            PluginLog.Information($"Doop : {tmp.ToInt64():X16} {tmp.ToInt64() - _pluginInterface.TargetModuleScanner.Module.BaseAddress.ToInt64():X16}");
+
+            var count = _pluginInterface.Data.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishParameter>().Count(f => f.IsInLog);
+            PluginLog.Information($"Derp : {tmp.ToInt64() + count / 8:X16} {tmp.ToInt64() - _pluginInterface.TargetModuleScanner.Module.BaseAddress.ToInt64() + count / 8:X16}");
+
             if (!Gatherer!.FishManager.GetSaveFileName(_pluginInterface).Exists) 
                 Gatherer!.FishManager.SaveFishRecords(_pluginInterface);
             else
@@ -179,7 +185,7 @@ namespace GatherBuddy
                 return;
             }
 
-            var  output = "";
+            string  output;
             bool setting;
             if (Util.CompareCi(argumentParts[0], "snap") || Util.CompareCi(argumentParts[0], "snapshot"))
             {

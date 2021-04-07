@@ -6,5 +6,5 @@
     "AssemblyVersion": "1.4.1.0",
     "RepoUrl": "https://github.com/Ottermandias/GatherBuddy",
     "ApplicableVersion": "any",
-    "DalamudApiLevel": 2
+    "DalamudApiLevel": 3
 }

@@ -1,5 +1,9 @@
 namespace GatherBuddy.Classes
 {
+    public class FishRequirements
+    {
+
+    }
     public enum GatheringType
     {
         Mining       = 0,
