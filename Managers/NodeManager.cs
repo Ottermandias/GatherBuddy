@@ -2,9 +2,12 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
+using GatherBuddy.Data;
+using GatherBuddy.Enums;
+using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
 using Lumina.Excel.GeneratedSheets;
-using GatheringType = GatherBuddy.Classes.GatheringType;
+using GatheringType = GatherBuddy.Game.GatheringType;
 
 namespace GatherBuddy.Managers
 {
@@ -77,7 +80,7 @@ namespace GatherBuddy.Managers
 
                 node = new Node
                 {
-                    PlaceNameEn = FFName.FromPlaceName(pi, nodeRow.PlaceName.Row)[Dalamud.ClientLanguage.English],
+                    PlaceNameEn = FFName.FromPlaceName(pi, nodeRow.PlaceName.Row),
                     Nodes = new SubNodes()
                     {
                         Territory = territories.FindOrAddTerritory(nodeRow.TerritoryType.Value),

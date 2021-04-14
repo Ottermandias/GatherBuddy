@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 using Dalamud.Plugin;
-using GatherBuddy.Classes;
+using GatherBuddy.Game;
 using GatherBuddy.Utility;
 
 namespace GatherBuddy.Managers
@@ -34,7 +34,7 @@ namespace GatherBuddy.Managers
             if (names.AnyEmpty())
                 return null;
 
-            territory = new Territory(t.RowId, FindOrAddRegionName(pi, t.PlaceNameRegion.Row)!, names)
+            territory = new Territory(t, FindOrAddRegionName(pi, t.PlaceNameRegion.Row)!, names)
             {
                 XStream    = t.Aetheryte.Value?.AetherstreamX ?? 0,
                 YStream    = t.Aetheryte.Value?.AetherstreamY ?? 0,

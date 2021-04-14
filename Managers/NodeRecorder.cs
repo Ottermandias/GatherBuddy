@@ -5,6 +5,7 @@ using System.Runtime.InteropServices;
 using Dalamud.Game.Internal;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
+using GatherBuddy.Nodes;
 
 namespace GatherBuddy.Managers
 {
@@ -45,7 +46,7 @@ namespace GatherBuddy.Managers
                 return false;
             }
 
-            if (_records.nodes.TryGetValue(nodeId, out var loc))
+            if (_records.Nodes.TryGetValue(nodeId, out var loc))
             {
                 var ret = loc.AddLocation(x, y);
                 n.Nodes.RecomputeAverage();
@@ -54,7 +55,7 @@ namespace GatherBuddy.Managers
 
             loc = new NodeLocation();
             loc.AddLocation(x, y);
-            _records.nodes[nodeId] = loc;
+            _records.Nodes[nodeId] = loc;
 
             return n.Nodes.AddNodeLocation(nodeId, loc);
         }
@@ -94,7 +95,7 @@ namespace GatherBuddy.Managers
 
         public void PrintToLog()
         {
-            foreach (var n in _records.nodes.Where(n => n.Value != null && n.Value.Locations.Count > 0))
+            foreach (var n in _records.Nodes.Where(n => n.Value != null && n.Value.Locations.Count > 0))
             {
                 var locations = string.Join(", ", n.Value.Locations.Select(loc => $"({loc.Item1 / 100.0}, {loc.Item2 / 100.0})"));
                 PluginLog.Information($"[NodeRecorder] [Dump] {n.Key}: Average ({n.Value.XCoord}, {n.Value.YCoord}) | {locations}");
@@ -104,7 +105,7 @@ namespace GatherBuddy.Managers
         public void PurgeRecord(uint nodeId)
         {
             _skipList.Remove(nodeId);
-            if (!_records.nodes.TryGetValue(nodeId, out var loc) || loc.Locations.Count <= 0)
+            if (!_records.Nodes.TryGetValue(nodeId, out var loc) || loc.Locations.Count <= 0)
                 return;
 
             PluginLog.Information($"[NodeRecorder] Purged all locations for node {nodeId}.");
@@ -114,7 +115,7 @@ namespace GatherBuddy.Managers
         public void PurgeRecords()
         {
             _skipList.Clear();
-            foreach (var p in _records.nodes)
+            foreach (var p in _records.Nodes)
                 p.Value.Clear();
         }
 
@@ -146,7 +147,7 @@ namespace GatherBuddy.Managers
 
         private void ApplyRecords()
         {
-            foreach (var n in _records.nodes.Where(n => n.Value != null))
+            foreach (var n in _records.Nodes.Where(n => n.Value != null))
                 _nodes.NodeIdToNode[n.Key].Nodes!.AddNodeLocation(n.Key, n.Value);
         }
     }

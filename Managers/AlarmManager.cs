@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
+using GatherBuddy.Game;
+using GatherBuddy.Nodes;
 using GatherBuddy.SeFunctions;
-using GatherBuddy.SEFunctions;
 using GatherBuddy.Utility;
 
 namespace GatherBuddy.Managers
@@ -17,7 +18,7 @@ namespace GatherBuddy.Managers
         private readonly PlaySound                _sounds;
         public           Node[]                   AllTimedNodes { get; }
 
-        private int _currentMinute;
+        private uint _currentMinute;
 
         public List<Alarm> Alarms
             => _config.Alarms;
@@ -81,9 +82,10 @@ namespace GatherBuddy.Managers
                 if (!alarm.Enabled)
                     continue;
 
-                var hour = (_currentMinute + alarm.MinuteOffset) / 60 % 24;
+                var hour = (_currentMinute + alarm.MinuteOffset) / RealTime.MinutesPerHour;
+                var hourOfDay = (uint) hour % RealTime.HoursPerDay;
 
-                var newStatus = alarm.Node!.Times!.IsUp(hour);
+                var newStatus = alarm.Node!.Times!.IsUp(hourOfDay);
                 if (_status[i] == newStatus)
                     continue;
 
@@ -93,7 +95,7 @@ namespace GatherBuddy.Managers
             }
         }
 
-        private string ReplaceFormatPlaceholders(string format, Alarm alarm, int currentMinute)
+        private string ReplaceFormatPlaceholders(string format, Alarm alarm, uint currentMinute)
         {
             var result = format.Replace("{Name}", alarm.Name);
             result = result.Replace("{Offset}",     alarm.MinuteOffset.ToString());
@@ -104,7 +106,10 @@ namespace GatherBuddy.Managers
             var tmp = "is currently up";
             if (alarm.MinuteOffset > 0)
             {
-                var offTime = (currentMinute / 60 + alarm.Node!.Times!.NextUptime(currentMinute / 60 % 24)) * 60 - currentMinute;
+                var hour       = currentMinute / RealTime.MinutesPerHour;
+                var hourOfDay  = (uint) hour % RealTime.HoursPerDay;
+                var nextUptime = alarm.Node!.Times!.NextUptime(hourOfDay);
+                var offTime    = (hour + nextUptime) * RealTime.MinutesPerHour - currentMinute;
                 var (m, s) = EorzeaTime.MinutesToReal(offTime);
                 if (offTime > 0)
                     tmp = $"will be up in {m}:{s:D2} minutes";
@@ -114,7 +119,7 @@ namespace GatherBuddy.Managers
             return result;
         }
 
-        private void Ring(Alarm alarm, int currentMinute)
+        private void Ring(Alarm alarm, uint currentMinute)
         {
             if (alarm.SoundId > Sounds.Unknown)
                 _sounds.Play(alarm.SoundId);
@@ -128,7 +133,7 @@ namespace GatherBuddy.Managers
             LastAlarm = alarm;
         }
 
-        public void AddNode(string name, int nodeId)
+        public void AddNode(string name, uint nodeId)
         {
             Alarm alarm = new(name, _nodes, nodeId);
             if (alarm.Node == null)
@@ -141,9 +146,6 @@ namespace GatherBuddy.Managers
 
         public void AddNode(string name, Node node)
         {
-            if (node == null)
-                return;
-
             Alarms.Add(new Alarm(name, node));
             _status.Add(false);
             _pi.SavePluginConfig(_config);

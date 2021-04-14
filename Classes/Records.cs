@@ -4,18 +4,19 @@ using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Runtime.Serialization;
+using GatherBuddy.Nodes;
 
 namespace GatherBuddy.Classes
 {
     [Serializable]
     public class Records : ISerializable
     {
-        public Dictionary<uint, NodeLocation> nodes = new();
+        public Dictionary<uint, NodeLocation> Nodes = new();
 
         public void Merge(Records rhs)
         {
-            foreach (var p in rhs.nodes.Where(p => p.Value != null))
-                nodes[p.Key].AddLocation(p.Value);
+            foreach (var p in rhs.Nodes.Where(p => p.Value != null))
+                Nodes[p.Key].AddLocation(p.Value);
         }
 
         public byte[] SerializeCompressed()
@@ -24,8 +25,8 @@ namespace GatherBuddy.Classes
             using var c      = new DeflateStream(m, CompressionMode.Compress);
             using var writer = new BinaryWriter(c);
 
-            writer.Write(nodes.Count);
-            foreach (var n in nodes)
+            writer.Write(Nodes.Count);
+            foreach (var n in Nodes)
             {
                 writer.Write(n.Key);
                 n.Value.Write(writer);
@@ -51,7 +52,7 @@ namespace GatherBuddy.Classes
             for (var i = 0; i < count; ++i)
             {
                 var id = reader.ReadUInt32();
-                nodes.Add(id, NodeLocation.Read(reader));
+                Nodes.Add(id, NodeLocation.Read(reader));
             }
         }
 

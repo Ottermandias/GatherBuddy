@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using GatherBuddy.Classes;
-using GatherBuddy.Managers;
+using GatherBuddy.Enums;
+using GatherBuddy.Game;
+using GatherBuddy.Nodes;
 
 namespace GatherBuddy.Managers
 {
@@ -51,7 +53,7 @@ namespace GatherBuddy.Managers
             TimedNodes[NodeType.Ephemeral][GatheringType.Botanist].Sort(new NodeComparer());
         }
 
-        public List<(Node, int)> GetNewList(ShowNodes which)
+        public List<(Node, uint)> GetNewList(ShowNodes which)
         {
             var list = Enumerable.Empty<Node>();
 
@@ -82,27 +84,27 @@ namespace GatherBuddy.Managers
                     list = list.Concat(TimedNodes[NodeType.Ephemeral][GatheringType.Botanist]).Where(LevelCheck);
             }
 
-            return list.Select(n => (n, 25)).ToList();
+            return list.Select(n => (n, 25u)).ToList();
         }
 
-        private class Comparer : IComparer<(Node, int)>
+        private class Comparer : IComparer<(Node, uint)>
         {
-            public int Compare((Node, int) lhs, (Node, int) rhs)
+            public int Compare((Node, uint) lhs, (Node, uint) rhs)
             {
                 if (lhs.Item2 != rhs.Item2)
-                    return lhs.Item2 - rhs.Item2;
+                    return (int) (lhs.Item2 - rhs.Item2);
 
                 return rhs.Item1.Meta!.Level - lhs.Item1.Meta!.Level;
             }
         }
 
-        private static void UpdateUptimes(int currentHour, IList<(Node, int)> nodes)
+        private static void UpdateUptimes(uint currentHour, IList<(Node, uint)> nodes)
         {
             for (var i = 0; i < nodes.Count; ++i)
                 nodes[i] = (nodes[i].Item1, nodes[i].Item1.Times!.NextUptime(currentHour));
         }
 
-        public static void SortByUptime(int currentHour, List<(Node, int)> nodes)
+        public static void SortByUptime(uint currentHour, List<(Node, uint)> nodes)
         {
             UpdateUptimes(currentHour, nodes);
             nodes.Sort(new Comparer());

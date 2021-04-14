@@ -5,7 +5,7 @@ using Dalamud.Plugin;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Dalamud;
-using GatherBuddy.Classes;
+using GatherBuddy.Game;
 using GatherBuddy.Utility;
 
 namespace GatherBuddy.Managers
@@ -32,12 +32,13 @@ namespace GatherBuddy.Managers
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                 itemSheets[(int) lang] = pi.Data.GetExcelSheet<Item>(lang);
 
+            var defaultSheet = itemSheets[(int) pi.ClientState.ClientLanguage];
             // Skip invalid items.
             // There are a bunch of ids in gathering that do belong to quest or leve items.
             foreach (var item in gatheringExcel.Where(i => i != null && i.Item != 0 && i.Item < 1000000))
             {
-                var newItem = new Gatherable(item.Item, (int) item.RowId, item.GatheringItemLevel.Value.GatheringItemLevel,
-                    item.GatheringItemLevel.Value.Stars);
+                var row       = defaultSheet.GetRow((uint) item.Item);
+                var newItem = new Gatherable(row, item, item.GatheringItemLevel.Value.GatheringItemLevel, item.GatheringItemLevel.Value.Stars);
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                 {
                     var it = itemSheets[(int) lang].GetRow((uint) item.Item);
@@ -48,7 +49,7 @@ namespace GatherBuddy.Managers
                     }
 
                     FromLanguage[(int) lang][it.Name] = newItem;
-                    newItem.NameList[lang]            = it.Name;
+                    newItem.Name[lang]            = it.Name;
                 }
 
                 Items.Add(newItem);
@@ -68,8 +69,10 @@ namespace GatherBuddy.Managers
             // Skip actual client language.
             foreach (var lang in Enum.GetValues(typeof(ClientLanguage)).Cast<ClientLanguage>()
                 .Where(l => l != firstLanguage))
+            {
                 if (FromLanguage[(int) lang].TryGetValue(itemName, out item))
                     return item;
+            }
 
             var         itemNameLc = itemName.ToLowerInvariant();
             var         minDist    = int.MaxValue;
@@ -78,7 +81,7 @@ namespace GatherBuddy.Managers
             foreach (var it in Items)
             {
                 // Check if item name in first language only contains the search-string.
-                var haystack = it.NameList[firstLanguage].ToLowerInvariant();
+                var haystack = it.Name[firstLanguage].ToLowerInvariant();
                 if (haystack.Contains(itemNameLc))
                     return it;
 

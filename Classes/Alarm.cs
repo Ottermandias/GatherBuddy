@@ -1,6 +1,8 @@
+using System;
 using System.Linq;
+using GatherBuddy.Game;
 using GatherBuddy.Managers;
-using GatherBuddy.SEFunctions;
+using GatherBuddy.Nodes;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.Classes
@@ -10,8 +12,8 @@ namespace GatherBuddy.Classes
         [JsonIgnore]
         public Node? Node { get; private set; }
 
-        public string Name         { get; set; } = "";
-        public int    NodeId       { get; set; }
+        public string Name         { get; set; } = string.Empty;
+        public uint   NodeId       { get; set; }
         public int    MinuteOffset { get; set; }
         public Sounds SoundId      { get; set; }
         public bool   Enabled      { get; set; }
@@ -20,7 +22,7 @@ namespace GatherBuddy.Classes
         public Alarm()
         { }
 
-        public Alarm(string name, int nodeId, bool enabled = true, int offset = 0, Sounds sound = Sounds.None, bool printMessage = true)
+        public Alarm(string name, uint nodeId, bool enabled = true, int offset = 0, Sounds sound = Sounds.None, bool printMessage = true)
         {
             Name         = name;
             Node         = null;
@@ -35,7 +37,7 @@ namespace GatherBuddy.Classes
             : this(name, node?.Meta?.PointBaseId ?? 0, enabled, offset, sound, printMessage)
             => Node = node;
 
-        public Alarm(string name, NodeManager nodes, int nodeId, bool enabled = true, int offset = 0, Sounds sound = Sounds.None,
+        public Alarm(string name, NodeManager nodes, uint nodeId, bool enabled = true, int offset = 0, Sounds sound = Sounds.None,
             bool printMessage = true)
             : this(name, nodeId, enabled, offset, sound, printMessage)
         {

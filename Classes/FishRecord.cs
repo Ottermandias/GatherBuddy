@@ -1,33 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using Dalamud.Plugin;
-using GatherBuddy.Classes;
+using GatherBuddy.Enums;
+using GatherBuddy.Game;
 
 namespace GatherBuddy.Classes
 {
-    public enum BiteType : byte
-    {
-        Unknown,
-        Weak,
-        Strong,
-        Legendary,
-    }
-
-    internal static class BiteTypeExtension
-    {
-        public static BiteType FromBiteTime(long time)
-        {
-            return time switch
-            {
-                < 8000  => BiteType.Weak,
-                < 10700 => BiteType.Strong,
-                _       => BiteType.Legendary,
-            };
-        }
-    }
-
     public class FishRecord
     {
         public HashSet<uint> SuccessfulBaits { get; }      = new();
@@ -39,9 +18,20 @@ namespace GatherBuddy.Classes
         public bool Update(Bait bait, ushort time, bool snagging, long biteTime)
             => Update(bait, time, snagging, BiteTypeExtension.FromBiteTime(biteTime));
 
+        public void Delete()
+        {
+            SuccessfulBaits.Clear();
+            EarliestCatch   = ushort.MaxValue;
+            LatestCatch     = 0;
+            WithoutSnagging = false;
+            BiteType        = BiteType.Unknown;
+        }
+
         public bool Update(Bait bait, ushort time, bool snagging, BiteType bite)
         {
-            var ret = false;
+            const uint minTime = 1000;
+            const uint maxTime = 40000;
+            var        ret     = false;
             if (BiteType == BiteType.Unknown)
             {
                 BiteType = bite;
@@ -55,16 +45,19 @@ namespace GatherBuddy.Classes
             }
 
             ret |= SuccessfulBaits.Add(bait.Id);
-            if (time < EarliestCatch)
+            if (time > minTime && time < maxTime)
             {
-                ret           = true;
-                EarliestCatch = time;
-            }
+                if (time < EarliestCatch)
+                {
+                    ret           = true;
+                    EarliestCatch = time;
+                }
 
-            if (time > LatestCatch)
-            {
-                ret         = true;
-                LatestCatch = time;
+                if (time > LatestCatch)
+                {
+                    ret         = true;
+                    LatestCatch = time;
+                }
             }
 
             if (snagging || WithoutSnagging)

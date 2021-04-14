@@ -1,14 +1,18 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Dalamud.Game.Chat;
-using Dalamud.Game.Chat.SeStringHandling;
+using Dalamud.Game.Text;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
+using GatherBuddy.Gui;
 using GatherBuddy.Managers;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
+using ImGuiNET;
+using Lumina.Excel.GeneratedSheets;
+using GatheringType = GatherBuddy.Game.GatheringType;
 
 namespace GatherBuddy
 {
@@ -28,19 +32,15 @@ namespace GatherBuddy
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             _pluginInterface = pluginInterface;
+            var sheet = _pluginInterface.Data.GetExcelSheet<Item>();
+            Service<DalamudPluginInterface>.Set(_pluginInterface);
             _commandManager  = new Managers.CommandManager(pluginInterface);
             _configuration   = pluginInterface.GetPluginConfig() as GatherBuddyConfiguration ?? new GatherBuddyConfiguration();
             Gatherer         = new Gatherer(pluginInterface, _configuration, _commandManager);
             Alarms           = Gatherer.Alarms;
             _gatherInterface = new Interface(this, pluginInterface, _configuration);
             _fishingTimer    = new FishingTimer(_pluginInterface, _configuration, Gatherer!.FishManager);
-
-            var tmp = _pluginInterface.TargetModuleScanner.GetStaticAddressFromSig("0F 84 AD 01 00 00 49 89 5B 08 4C 8D 15");
-            PluginLog.Information($"Doop : {tmp.ToInt64():X16} {tmp.ToInt64() - _pluginInterface.TargetModuleScanner.Module.BaseAddress.ToInt64():X16}");
-
-            var count = _pluginInterface.Data.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishParameter>().Count(f => f.IsInLog);
-            PluginLog.Information($"Derp : {tmp.ToInt64() + count / 8:X16} {tmp.ToInt64() - _pluginInterface.TargetModuleScanner.Module.BaseAddress.ToInt64() + count / 8:X16}");
-
+            
             if (!Gatherer!.FishManager.GetSaveFileName(_pluginInterface).Exists) 
                 Gatherer!.FishManager.SaveFishRecords(_pluginInterface);
             else
@@ -103,6 +103,7 @@ namespace GatherBuddy
 
         public void Dispose()
         {
+            _gatherInterface?.Dispose();
             _pluginInterface!.UiBuilder.OnOpenConfigUi        -= OnConfigCommandHandler;
             _pluginInterface!.UiBuilder.OnBuildUi             -= _gatherInterface!.Draw;
             _pluginInterface!.SavePluginConfig(_configuration);
@@ -297,6 +298,9 @@ namespace GatherBuddy
         private void OnGatherDebug(string command, string arguments)
         {
             var argumentParts = arguments.Split();
+            if (argumentParts.Length == 0)
+                return; 
+
             if (argumentParts.Length < 2)
                 if (Util.CompareCi(argumentParts[0], "purgeallrecords"))
                     Gatherer!.PurgeAllRecords();
@@ -325,7 +329,26 @@ namespace GatherBuddy
                     case "records":
                         Gatherer!.PrintRecords();
                         break;
+                    case "fishlog":
+                        Gatherer!.FishManager.DumpFishLog();
+                        break;
                 }
+
+            if (Util.CompareCi(argumentParts[0], "purgefish"))
+            {
+                var name = arguments.Substring(argumentParts[0].Length + 1);
+                var fish = Gatherer!.FishManager.FindFishByName(name, _pluginInterface!.ClientState.ClientLanguage);
+                if (fish == null)
+                    _pluginInterface.Framework.Gui.Chat.PrintError($"No fish found for [{name}].");
+                else
+                    fish.Record.Delete();
+            }
+
+            if (Util.CompareCi(argumentParts[0], "weather"))
+            {
+                var weather = Service<SkyWatcher>.Get().GetForecast(_pluginInterface!.ClientState.TerritoryType);
+                _pluginInterface.Framework.Gui.Chat.Print(weather.Weather.Name);
+            }
 
             if (!Util.CompareCi(argumentParts[0], "purge"))
                 return;

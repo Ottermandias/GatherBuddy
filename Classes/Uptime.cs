@@ -5,64 +5,50 @@ using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.Classes
 {
-    public readonly struct RealUptime
-    {
-        public DateTime Time     { get; }
-        public DateTime EndTime { get; }
-
-        public TimeSpan Duration
-            => EndTime - Time;
-
-        public RealUptime(DateTime time, DateTime endTime)
-        {
-            Time    = time.ToUniversalTime();
-            EndTime = endTime.ToUniversalTime();
-        }
-
-        public RealUptime(DateTime time, TimeSpan duration)
-        {
-            Time    = time.ToUniversalTime();
-            EndTime = Time + duration;
-        }
-        
-        public static RealUptime Always  = new(DateTime.MinValue, DateTime.MaxValue.AddSeconds(-1));
-        public static RealUptime Unknown = new(DateTime.MinValue, DateTime.MinValue);
-        public static RealUptime Never   = new(DateTime.MaxValue, DateTime.MaxValue);
-
-        public bool Equals(RealUptime rhs)
-            => EndTime == rhs.EndTime && Time == rhs.Time;
-
-        public int Compare(RealUptime rhs)
-        {
-            if (Equals(Unknown))
-                return Never.Compare(rhs);
-            if (rhs.Equals(Unknown))
-                return Compare(Never);
-
-            var diff = DateTime.Compare(EndTime, rhs.EndTime);
-            return diff != 0 ? diff : DateTime.Compare(Time, Time);
-        }
-    }
-
     public readonly struct Uptime
     {
-        private const int AllHoursValue = 0x00FFFFFF;
-
+        private const    uint _badHour      = 25;
+        private const    uint  AllHoursValue = 0x00FFFFFF;
         private readonly uint _hours; // bitfield, 0-23 for each hour.
+
+        public static Uptime AllHours { get; } = new(AllHoursValue);
+
+        public bool Equals(Uptime rhs)
+            => _hours == rhs._hours;
 
         public bool AlwaysUp()
             => _hours == AllHoursValue;
 
-        public bool IsUp(int hour)
+        public bool IsUp(uint hour)
         {
-            hour %= 24;
-            return ((_hours >> hour) & 1) == 1;
+            hour %= RealTime.HoursPerDay;
+            return ((_hours >> (int) hour) & 1) == 1;
         }
 
-        public int FirstHour
+        public uint FirstHour
             => Util.TrailingZeroCount(_hours);
 
-        public int Count
+        public uint EndHour
+            => Util.HighestSetBit(_hours) + 1;
+
+        // Returns null if the time is not continuous.
+        public (uint, uint)? StartAndEnd()
+        {
+            var startHour = FirstHour;
+            var endHour   = EndHour;
+            var count     = Count;
+            if (startHour + count == endHour)
+                return (startHour, endHour); 
+
+            startHour = Util.HighestSetBit(~_hours & AllHoursValue) + 1;
+            endHour   = Util.TrailingZeroCount(~_hours);
+            if (((startHour + count) % RealTime.HoursPerDay) == endHour)
+                return (startHour, endHour);
+
+            return null;
+        }
+
+        public uint Count
             => Util.Popcount(_hours);
 
         public Uptime Overlap(Uptime rhs)
@@ -71,48 +57,56 @@ namespace GatherBuddy.Classes
         public bool Overlaps(Uptime rhs)
             => Overlap(rhs)._hours != 0;
 
-        private static int NextTime(int currentHour, uint hours)
+        private static uint NextTime(uint currentHour, uint hours)
         {
             if (hours == 0)
-                return 25;
+                return _badHour;
 
-            var rotatedHours = currentHour == 0 ? hours : (hours >> currentHour) | ((hours << (32 - currentHour)) >> 8);
+            var rotatedHours = currentHour == 0 ? hours : (hours >> (int) currentHour) | ((hours << (32 - (int) currentHour)) >> 8);
             return Util.TrailingZeroCount(rotatedHours);
         }
 
-        public int NextUptime(int currentHour)
+        public uint NextUptime(uint currentHour)
             => NextTime(currentHour, _hours);
 
-        public int NextDowntime(int currentHour)
+        public uint NextDowntime(uint currentHour)
             => NextTime(currentHour, ~_hours & AllHoursValue);
 
         public RealUptime NextRealUptime()
         {
             var now          = DateTime.UtcNow;
-            var timeStamp    = (long) (now - EorzeaTime.UnixEpoch).TotalSeconds;
-            var hour         = (int) (timeStamp / 175) % 24;
+            var timeStamp    = RealTime.CurrentTimestamp();
+            var hour         = (uint) (timeStamp / EorzeaTime.SecondsPerEorzeaHour) % RealTime.HoursPerDay;
             var nextUptime   = NextUptime(hour);
-            var nextDowntime = NextDowntime((hour + nextUptime) % 24);
-            if (nextUptime == 25)
+            var nextDowntime = NextDowntime((uint) (hour + nextUptime) % RealTime.HoursPerDay);
+            if (nextUptime == _badHour)
                 return RealUptime.Never;
-            if (nextDowntime == 25)
+            if (nextDowntime == _badHour)
                 return RealUptime.Always;
             if (nextUptime == 0)
-                return new RealUptime(now, now.AddSeconds(nextDowntime * 175 - (int) (timeStamp % 175)));
+                return new RealUptime(now,
+                    now.AddSeconds(nextDowntime * EorzeaTime.SecondsPerEorzeaHour - (int) (timeStamp % EorzeaTime.SecondsPerEorzeaHour)));
 
-            now = now.AddSeconds(nextUptime * 175 - (timeStamp % 175));
-            return new RealUptime(now, now.AddSeconds(nextDowntime * 175));
+            now = now.AddSeconds(nextUptime * EorzeaTime.SecondsPerEorzeaHour - timeStamp % EorzeaTime.SecondsPerEorzeaHour);
+            return new RealUptime(now, now.AddSeconds(nextDowntime * EorzeaTime.SecondsPerEorzeaHour));
         }
 
         // Print a string of 24 '0' or '1' as uptimes.
         public string UptimeTable()
-            => new(Convert.ToString(_hours, 2).PadLeft(24, '0').Reverse().ToArray());
+            => new(Convert.ToString(_hours, 2).PadLeft(RealTime.HoursPerDay, '0').Reverse().ToArray());
 
         // Print hours in human readable format.
         public string PrintHours(bool simple = false, string simpleSeparator = "|")
         {
             var ret = "";
             int min = -1, max = -1;
+
+            var hours = StartAndEnd();
+            if (hours != null)
+            {
+                var (start, end) = hours.Value;
+                return simple ? $"{start:D2}-{end:D2}" : $"{start:D2}:00 - {end:D2}:00 ET";
+            }
 
             void AddString()
             {
@@ -141,14 +135,14 @@ namespace GatherBuddy.Classes
                 max = -1;
             }
 
-            for (var i = 0; i < 24; ++i)
+            for (var i = 0u; i < RealTime.HoursPerDay; ++i)
             {
                 if (IsUp(i))
                 {
                     if (min < 0)
-                        min = i;
+                        min = (int) i;
                     else
-                        max = i;
+                        max = (int) i;
                 }
                 else
                 {
@@ -173,14 +167,12 @@ namespace GatherBuddy.Classes
             end   /= 100;
 
             if (end < start)
-                end += 24;
+                end += RealTime.HoursPerDay;
 
             for (int i = start; i < end; ++i)
-                ret |= 1u << (i % 24);
+                ret |= 1u << (i % RealTime.HoursPerDay);
             return ret;
         }
-
-        public static Uptime AllHours { get; } = new(AllHoursValue);
 
         private Uptime(uint hours)
             => _hours = hours;
@@ -191,14 +183,14 @@ namespace GatherBuddy.Classes
         public static Uptime FromHours(uint startHour, uint endHour)
         {
             var hours = 0u;
-            startHour %= 24;
-            endHour   %= 24;
+            startHour %= RealTime.HoursPerDay;
+            endHour   %= RealTime.HoursPerDay;
             if (endHour == startHour)
                 return AllHours;
 
             if (endHour < startHour)
             {
-                for (; startHour < 24; ++startHour)
+                for (; startHour < RealTime.HoursPerDay; ++startHour)
                     hours |= 1u << (int) startHour;
                 for (startHour = 0; startHour < endHour; ++startHour)
                     hours |= 1u << (int) startHour;
@@ -213,9 +205,10 @@ namespace GatherBuddy.Classes
         }
 
 
+        // For Weather.
         public Uptime(DateTime time)
         {
-            var hour = EorzeaTime.Hours(time);
+            var hour = EorzeaTime.HourOfDay(time);
             _hours = (hour / 8) switch
             {
                 0 => 0x000000FF,

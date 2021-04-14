@@ -6,7 +6,11 @@ using System.Threading.Tasks;
 using Dalamud;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
+using GatherBuddy.Data;
+using GatherBuddy.Enums;
+using GatherBuddy.Game;
 using GatherBuddy.Managers;
+using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
 
 namespace GatherBuddy
@@ -109,7 +113,7 @@ namespace GatherBuddy
             _language       = pi.ClientState.ClientLanguage;
             _configuration  = config;
             _world          = new World(pi, _configuration);
-            _groups         = TimedGroup.CreateGroups(_world);
+            _groups         = GroupData.CreateGroups(_language, _world.Nodes);
             Timeline        = new NodeTimeLine(_world.Nodes);
             Alarms          = new AlarmManager(pi, _world.Nodes, _configuration);
             TryCreateTeleporterWatcher(pi, _configuration.UseTeleport);
@@ -146,14 +150,14 @@ namespace GatherBuddy
         private string ReplaceFormatPlaceholders(string format, string input, Gatherable item)
         {
             var result = format.Replace("{Id}", item.ItemId.ToString());
-            result = result.Replace("{Name}",  item.NameList[_language]);
+            result = result.Replace("{Name}",  item.Name[_language]);
             result = result.Replace("{Input}", input);
             return result;
         }
 
         private string ReplaceFormatPlaceholders(string format, string input, Fish fish)
         {
-            var result = format.Replace("{Id}", fish.Id.ToString());
+            var result = format.Replace("{Id}", fish.ItemId.ToString());
             result = result.Replace("{Name}",  fish.Name![_language]);
             result = result.Replace("{Input}", input);
             return result;
@@ -164,7 +168,7 @@ namespace GatherBuddy
             var result = format.Replace("{Id}", spot.Id.ToString());
             result = result.Replace("{Name}",     spot.PlaceName![_language]);
             result = result.Replace("{FishName}", fish.Name![_language]);
-            result = result.Replace("{FishId}",   fish.Id.ToString());
+            result = result.Replace("{FishId}",   fish.ItemId.ToString());
             result = result.Replace("{Input}",    input);
             return result;
         }
@@ -182,7 +186,7 @@ namespace GatherBuddy
 
             if (_configuration.IdentifiedItemFormat.Length > 0)
                 _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedItemFormat, itemName, item));
-            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedItemFormat, item.ItemId, item.NameList[_language], itemName);
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedItemFormat, item.ItemId, item.Name[_language], itemName);
             return item;
         }
 
@@ -196,9 +200,10 @@ namespace GatherBuddy
                 PluginLog.Verbose(output);
                 return null;
             }
+
             if (_configuration.IdentifiedFishFormat.Length > 0)
                 _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishFormat, fishName, fish));
-            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishFormat, fish.Id, fish!.Name![_language], fishName);
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishFormat, fish.ItemId, fish!.Name![_language], fishName);
             return fish;
         }
 
@@ -222,14 +227,14 @@ namespace GatherBuddy
                 if (type == null)
                 {
                     _chat.PrintError(
-                        $"No nodes containing {item.NameList[_language]} have associated coordinates or aetheryte.");
+                        $"No nodes containing {item.Name[_language]} have associated coordinates or aetheryte.");
                     _chat.PrintError(
                         "They will become available after encountering the respective node while having recording enabled.");
                 }
                 else
                 {
                     _chat.PrintError(
-                        $"No nodes containing {item.NameList[_language]} for the specified job have been found.");
+                        $"No nodes containing {item.Name[_language]} for the specified job have been found.");
                 }
             }
 
@@ -256,7 +261,7 @@ namespace GatherBuddy
             if (!_configuration.UseTeleport)
                 return true;
 
-            var name = node?.GetClosestAetheryte()?.NameList[_teleporterLanguage] ?? "";
+            var name = node?.GetClosestAetheryte()?.Name[_teleporterLanguage] ?? "";
             if (name.Length == 0)
             {
                 PluginLog.Debug("No valid aetheryte found for node {NodeId}.", node!.Meta!.PointBaseId);
@@ -273,7 +278,7 @@ namespace GatherBuddy
             if (!_configuration.UseTeleport)
                 return true;
 
-            var name = spot.ClosestAetheryte?.NameList[_teleporterLanguage] ?? "";
+            var name = spot.ClosestAetheryte?.Name[_teleporterLanguage] ?? "";
             if (name.Length == 0)
             {
                 PluginLog.Debug("No valid aetheryte found for fishing spot {SpotId}.", spot.Id);
@@ -338,7 +343,7 @@ namespace GatherBuddy
 
             var xString   = node.GetX().ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
             var yString   = node.GetY().ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var territory = node.Nodes!.Territory?.NameList?[_language] ?? "";
+            var territory = node.Nodes!.Territory?.Name?[_language] ?? "";
 
             if (territory.Length == 0)
             {
@@ -360,7 +365,7 @@ namespace GatherBuddy
 
             var xString   = (spot.XCoord / 100.0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
             var yString   = (spot.YCoord / 100.0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var territory = spot.Territory?.NameList[_language] ?? "";
+            var territory = spot.Territory?.Name[_language] ?? "";
 
             if (territory.Length == 0)
             {
@@ -390,7 +395,7 @@ namespace GatherBuddy
             }
         }
 
-        private async void OnFishActionWithSpot(FishingSpot spot)
+        public async void OnFishActionWithSpot(FishingSpot spot)
         {
             try
             {
@@ -407,9 +412,8 @@ namespace GatherBuddy
             }
         }
 
-        public void OnFishAction(string fishName)
+        public void OnFishActionWithFish(Fish? fish, string fishName = "")
         {
-            var fish        = FindFishLogging(fishName);
             var closestSpot = _world.ClosestSpotForItem(fish);
             if (closestSpot == null)
             {
@@ -421,11 +425,18 @@ namespace GatherBuddy
 
             if (_configuration.IdentifiedFishingSpotFormat.Length > 0)
                 _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
-            if (fish!.Gig != GigHead.None)
+            if (_configuration.PrintGighead && fish!.IsSpearFish)
                 _chat.Print($"Use {fish.Gig} gig head.");
-            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![_language], fish!.Name![_language]);
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![_language],
+                fish!.Name![_language]);
 
             OnFishActionWithSpot(closestSpot);
+        }
+
+        public void OnFishAction(string fishName)
+        {
+            var fish = FindFishLogging(fishName);
+            OnFishActionWithFish(fish, fishName);
         }
 
         public void OnGatherAction(string itemName, GatheringType? type = null)
@@ -477,7 +488,7 @@ namespace GatherBuddy
                     return;
                 }
 
-                var currentHour = EorzeaTime.CurrentHours(minuteOffset);
+                var currentHour = EorzeaTime.CurrentHourOfDay(minuteOffset);
                 var (node, desc) = group.CurrentNode(currentHour);
                 if (node == null)
                 {
@@ -536,7 +547,7 @@ namespace GatherBuddy
             foreach (var a in _world.Aetherytes.Aetherytes)
             {
                 PluginLog.Information(
-                    $"[AetheryteDump] |{a.Id}|{a.NameList}|{a.Territory?.Id ?? 0}|{a.XCoord:F2}|{a.YCoord:F2}|{a.XStream}|{a.YStream}|");
+                    $"[AetheryteDump] |{a.Id}|{a.Name}|{a.Territory?.Id ?? 0}|{a.XCoord:F2}|{a.YCoord:F2}|{a.XStream}|{a.YStream}|");
             }
         }
 
@@ -545,7 +556,7 @@ namespace GatherBuddy
             foreach (var t in _world.Territories.Territories.Values)
             {
                 PluginLog.Information(
-                    $"[TerritoryDump] |{t.Id}|{t.NameList}|{t.Region}|{t.XStream}|{t.YStream}|{string.Join("|", t.Aetherytes.Select(a => a.Id))}|");
+                    $"[TerritoryDump] |{t.Id}|{t.Name}|{t.Region}|{t.XStream}|{t.YStream}|{string.Join("|", t.Aetherytes.Select(a => a.Id))}|");
             }
         }
 
@@ -554,7 +565,7 @@ namespace GatherBuddy
             foreach (var i in _world.Items.Items)
             {
                 PluginLog.Information(
-                    $"[ItemDump] |{i.ItemId}|{i.GatheringId}|{i.NameList}|{i.Level}{i.StarsString()}|{string.Join("|", i.NodeList.Select(n => n.Meta!.PointBaseId))}|");
+                    $"[ItemDump] |{i.ItemId}|{i.GatheringId}|{i.Name}|{i.Level}{i.StarsString()}|{string.Join("|", i.NodeList.Select(n => n.Meta!.PointBaseId))}|");
             }
         }
 
@@ -563,7 +574,7 @@ namespace GatherBuddy
             foreach (var n in _world.Nodes.BaseNodes())
             {
                 PluginLog.Information(
-                    $"[NodeDump] |{string.Join(",", n.Nodes!.Nodes.Keys)}|{n.Meta!.PointBaseId}|{n.Meta.GatheringType}|{n.Meta.NodeType}|{n.Meta.Level}|{n.GetX()}|{n.GetY()}|{n.Nodes!.Territory!.Id}|{n.PlaceNameEn}|{n.GetClosestAetheryte()?.Id ?? -1}|{n.Times!.UptimeTable()}|{n.Items!.PrintItems()}");
+                    $"[NodeDump] |{string.Join(",", n.Nodes!.Nodes.Keys)}|{n.Meta!.PointBaseId}|{n.Meta.GatheringType}|{n.Meta.NodeType}|{n.Meta.Level}|{n.GetX()}|{n.GetY()}|{n.Nodes!.Territory!.Id}|{n.PlaceNameEn}|{n.GetClosestAetheryte()?.Id ?? 0}|{n.Times!.UptimeTable()}|{n.Items!.PrintItems()}");
             }
         }
 
@@ -572,14 +583,14 @@ namespace GatherBuddy
             foreach (var f in _world.Fish.FishingSpots.Values)
             {
                 PluginLog.Information(
-                    $"[FishingSpotDump] |{f.Id}|{f.XCoord}|{f.YCoord}|{f.Radius}|{f.PlaceName?[ClientLanguage.English] ?? "MISSING"}|{f.Territory?.NameList[ClientLanguage.English] ?? "MISSING"}|{f.ClosestAetheryte?.NameList[ClientLanguage.English] ?? "MISSING"}|{string.Join("|", f.Items.Where(i => i != null).Select(i => i!.Id))}");
+                    $"[FishingSpotDump] |{f.Id}|{f.XCoord}|{f.YCoord}|{f.Radius}|{f.PlaceName}|{f.Territory?.Name ?? "MISSING"}|{f.ClosestAetheryte?.Name ?? "MISSING"}|{string.Join("|", f.Items.Where(i => i != null).Select(i => i!.ItemId))}");
             }
         }
 
         public void DumpFish()
         {
-            foreach (var f in _world.Fish.Fish.Values)
-                PluginLog.Information($"[FishDump] |{f.Id}|{f.Name}|");
+            foreach (var f in _world.Fish.Fish.Values.OrderBy((f,g) => f.ItemId.CompareTo(g.ItemId)))
+                PluginLog.Information($"[FishDump] |{f.ItemId}|{f.Name}|");
         }
     }
 }

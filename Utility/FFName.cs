@@ -17,6 +17,9 @@ namespace GatherBuddy.Utility
             set => SetName(lang, value);
         }
 
+        public static implicit operator string(FFName name)
+            => name.Name(ClientLanguage.English);
+
         public bool AnyEmpty()
         {
             return Enum.GetValues(typeof(ClientLanguage))
@@ -25,7 +28,12 @@ namespace GatherBuddy.Utility
         }
 
         public override string ToString()
+            => this;
+
+        public string ToWholeString()
             => $"{Name(ClientLanguage.English)}|{Name(ClientLanguage.German)}|{Name(ClientLanguage.French)}|{Name(ClientLanguage.Japanese)}";
+
+
 
         public static FFName FromPlaceName(DalamudPluginInterface pi, uint id)
         {

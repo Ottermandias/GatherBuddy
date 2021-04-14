@@ -1,12 +1,13 @@
-using System;
 using System.Collections.Generic;
 using Dalamud.Plugin;
 using Dalamud;
 using System.Linq;
 using GatherBuddy.Classes;
+using GatherBuddy.Game;
+using GatherBuddy.Nodes;
 using Lumina.Excel.GeneratedSheets;
-using FishingSpot = GatherBuddy.Classes.FishingSpot;
-using GatheringType = GatherBuddy.Classes.GatheringType;
+using FishingSpot = GatherBuddy.Game.FishingSpot;
+using GatheringType = GatherBuddy.Game.GatheringType;
 
 namespace GatherBuddy.Managers
 {
@@ -26,7 +27,7 @@ namespace GatherBuddy.Managers
 
         private void AddAetherytes(Territory territory)
         {
-            var aetheryteName = territory.NameList[ClientLanguage.English] switch
+            var aetheryteName = (string) territory.Name switch
             {
                 "The Dravanian Hinterlands" => "Idyllshire",
                 "Limsa Lominsa Upper Decks" => "Limsa Lominsa Lower Decks",
@@ -42,11 +43,11 @@ namespace GatherBuddy.Managers
             if (aetheryteName == null)
                 return;
 
-            var aetheryte = Aetherytes.Aetherytes.FirstOrDefault(a => a.NameList[ClientLanguage.English] == aetheryteName);
+            var aetheryte = Aetherytes.Aetherytes.FirstOrDefault(a => a.Name == aetheryteName);
             if (aetheryte != null)
                 territory.Aetherytes.Add(aetheryte);
             else
-                PluginLog.Error($"Tried to add {aetheryteName} to {territory.NameList[ClientLanguage.English]}, but aetheryte not found.");
+                PluginLog.Error($"Tried to add {aetheryteName} to {territory.Name}, but aetheryte not found.");
         }
 
         public Territory? FindOrAddTerritory(TerritoryType territory)
@@ -142,7 +143,7 @@ namespace GatherBuddy.Managers
             Aetherytes  = new AetheryteManager(pi, Territories);
             Items       = new ItemManager(pi);
             Nodes       = new NodeManager(pi, config, this, Aetherytes, Items);
-            Weather     = new WeatherManager(pi);
+            Weather     = new WeatherManager(pi, Territories);
             Fish        = new FishManager(pi, this, Aetherytes);
 
             PluginLog.Verbose("{Count} regions collected.",     Territories.Regions.Count);

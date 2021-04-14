@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using Dalamud.Plugin;
 using System.Linq;
-using GatherBuddy.Classes;
+using GatherBuddy.Game;
 using GatherBuddy.Utility;
 
 namespace GatherBuddy.Managers
@@ -36,14 +36,9 @@ namespace GatherBuddy.Managers
                 if (territory == null)
                     continue;
 
-                var aetheryte = new Aetheryte((int) a.RowId, Util.MapMarkerToMap(mapMarker.X, scale), Util.MapMarkerToMap(mapMarker.Y, scale))
-                {
-                    Territory = territory,
-                    NameList  = nameList,
-                    XStream   = a.AetherstreamX,
-                    YStream   = a.AetherstreamY,
-                };
-
+                var x         = Util.MapMarkerToMap(mapMarker.X, scale);
+                var y         = Util.MapMarkerToMap(mapMarker.Y, scale);
+                var aetheryte = new Aetheryte(a, territory, nameList, x, y);
 
                 territory.Aetherytes.Add(aetheryte);
                 Aetherytes.Add(aetheryte);

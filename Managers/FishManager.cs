@@ -2,15 +2,81 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading.Tasks;
 using Dalamud;
+using Dalamud.Game;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
+using GatherBuddy.Data;
+using GatherBuddy.Enums;
+using GatherBuddy.Game;
+using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
 using Lumina.Excel.GeneratedSheets;
-using FishingSpot = GatherBuddy.Classes.FishingSpot;
+using FishingSpot = GatherBuddy.Game.FishingSpot;
 
 namespace GatherBuddy.Managers
 {
+    public readonly unsafe struct FishLog
+    {
+        public const     uint  SpearFishIdOffset = 20000;
+        private readonly byte* _fish;
+        private readonly byte* _spearFish;
+        private readonly int   _numFish;
+        private readonly int   _numSpearFish;
+
+        public FishLog(SigScanner sigScanner, int numFish, int numSpearFish)
+        {
+            _numFish      = numFish;
+            _numSpearFish = numSpearFish;
+
+            _fish      = (byte*) new FishLogData(sigScanner).Address;
+            _spearFish = (byte*) new SpearFishLogData(sigScanner).Address;
+        }
+
+        public bool SpearFishIsUnlocked(uint spearFishId)
+        {
+            spearFishId -= SpearFishIdOffset;
+            if (spearFishId >= _numSpearFish)
+            {
+                PluginLog.Error($"Spearfish Id {spearFishId} is larger than number of spearfish in log {_numSpearFish}.");
+                return false;
+            }
+
+            if (_spearFish == null)
+            {
+                PluginLog.Error($"Requesting spearfish log completion, but pointer not set.");
+                return false;
+            }
+
+            var offset = spearFishId / 8;
+            var bit    = (byte) spearFishId % 8;
+            return ((_spearFish[offset] >> bit) & 1) == 1;
+        }
+
+        public bool FishIsUnlocked(uint fishId)
+        {
+            if (fishId >= _numFish)
+            {
+                PluginLog.Error($"Fish Id {fishId} is larger than number of fish in log {_numFish}.");
+                return false;
+            }
+
+            if (_fish == null)
+            {
+                PluginLog.Error($"Requesting fish log completion, but pointer not set.");
+                return false;
+            }
+
+            var offset = fishId / 8;
+            var bit    = (byte) fishId % 8;
+            return ((_fish[offset] >> bit) & 1) == 1;
+        }
+
+        public bool IsUnlocked(Fish fish)
+            => fish.IsSpearFish ? SpearFishIsUnlocked(fish.FishId) : FishIsUnlocked(fish.FishId);
+    }
+
     public class FishManager
     {
         private const string SaveFileName = "fishing_records.data";
@@ -36,26 +102,35 @@ namespace GatherBuddy.Managers
 
         public readonly Dictionary<byte, GigHead> GigHeadFromRecord = new();
 
-        public Fish FindOrAddFish(Lumina.Excel.ExcelSheet<FishParameter> fishList, Lumina.Excel.ExcelSheet<Item>[] itemSheets, uint fish)
+        public FishLog FishLog { get; }
+
+        public Fish? FindOrAddFish(Lumina.Excel.ExcelSheet<FishParameter> fishList, Lumina.Excel.ExcelSheet<Item>[] itemSheets, uint fish)
         {
             if (Fish.TryGetValue(fish, out var newFish))
                 return newFish;
 
             var fishRow = fishList.FirstOrDefault(r => r.Item == fish);
+
             if (fishRow == null)
-                throw new ArgumentOutOfRangeException();
+            {
+                PluginLog.Error($"Could not find item {fish} as a fish.");
+                return null;
+            }
 
             var name = new FFName();
-            newFish = new Fish(fishRow, name);
+
+            var item = itemSheets[(int) ClientLanguage.English].GetRow(fish);
+            newFish = new Fish(item, fishRow, name);
 
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
             {
-                var langName = itemSheets[(int) lang].GetRow(fish).Name;
+                var langName = itemSheets[(int) ClientLanguage.English].GetRow(fish).Name;
                 name[lang]                           = langName;
                 FishNameToFish[(int) lang][langName] = newFish;
             }
 
             Fish[fish] = newFish;
+
             return newFish;
         }
 
@@ -65,7 +140,7 @@ namespace GatherBuddy.Managers
                 return newFish;
 
             if (!GigHeadFromRecord.TryGetValue((byte) fish.FishingRecordType.Row, out var gig))
-                gig = GigHead.None;
+                gig = GigHead.Unknown;
 
             var name = new FFName();
             newFish = new Fish(fish, gig, name);
@@ -87,14 +162,14 @@ namespace GatherBuddy.Managers
 
             Dictionary<uint, Bait> ret = new()
             {
-                { 0, Classes.Bait.Unknown },
+                { 0, Game.Bait.Unknown },
             };
             foreach (var item in items[0].Where(i => i.ItemSearchCategory.Row == fishingTackleRow))
             {
                 FFName name = new();
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                     name[lang] = items[(int) lang].GetRow(item.RowId).Name;
-                ret.Add(item.RowId, new Bait(item.RowId, name));
+                ret.Add(item.RowId, new Bait(item, name));
             }
 
             return ret;
@@ -120,13 +195,16 @@ namespace GatherBuddy.Managers
                 PlaceName = FFName.FromPlaceName(pi, spot.PlaceName.Row),
             };
 
-            for (var i = 0; i < 9; ++i)
+            for (var i = 0; i < spot.Item.Length; ++i)
             {
                 var fishId = spot.Item[i].Row;
                 if (fishId == 0)
                     continue;
 
                 var fish = FindOrAddFish(fishSheet, itemSheets, fishId);
+                if (fish == null)
+                    continue;
+
                 fish.FishingSpots.Add(newSpot);
                 newSpot.Items[i] = fish;
             }
@@ -169,7 +247,7 @@ namespace GatherBuddy.Managers
                     continue;
 
                 var gatherFish = fishSheet.GetRow((uint) items[i]);
-                var fish = FindOrAddSpearFish(gatherFish, itemSheets);
+                var fish       = FindOrAddSpearFish(gatherFish, itemSheets);
                 fish.FishingSpots.Add(newSpot);
                 newSpot.Items[i] = fish;
             }
@@ -197,9 +275,6 @@ namespace GatherBuddy.Managers
                 GigHeadFromRecord[record.Unknown2] = GigHead.Large;
             }
         }
-
-        public void SortFishByUptime(WeatherManager weather)
-            => FishByUptime.Sort((f, g) => f.NextUptime(weather).Compare(g.NextUptime(weather)));
 
         public FishManager(DalamudPluginInterface pi, World territories, AetheryteManager aetherytes)
         {
@@ -236,8 +311,10 @@ namespace GatherBuddy.Managers
 
             FishingSpotsByTerritory = FishingSpots.Values.GroupBy(s => s.Territory!).ToDictionary(sg => sg.Key, sg => sg.ToArray());
 
-            FishData.Apply(this);
-            FishByUptime = Fish.Values.Where( f => f.InLog && !f.OceanFish ).ToList();
+            this.Apply();
+            FishByUptime = Fish.Values.Where(f => f.InLog && !f.OceanFish).ToList();
+
+            FishLog = new FishLog(pi.TargetModuleScanner, fishSheet.Count(f => f.IsInLog), (int) spearfishingItems.RowCount);
 
             PluginLog.Verbose("{Count} Fishing Spots collected.", FishingSpots.Count);
             PluginLog.Verbose("{Count} Fish collected.",          Fish.Count);
@@ -306,7 +383,7 @@ namespace GatherBuddy.Managers
             var file = new FileInfo(Path.Combine(dir.FullName, SaveFileName));
             try
             {
-                File.WriteAllLines(file.FullName, Fish.Values.Select(f => f.Record.WriteLine(f.Id)));
+                File.WriteAllLines(file.FullName, Fish.Values.Select(f => f.Record.WriteLine(f.ItemId)));
             }
             catch (Exception e)
             {
@@ -345,6 +422,12 @@ namespace GatherBuddy.Managers
             {
                 PluginLog.Error($"Could not read fishing records from file {file.FullName}:\n{e}");
             }
+        }
+
+        public void DumpFishLog()
+        {
+            foreach (var f in FishByUptime)
+                PluginLog.Information($"[FishLogDump] {(FishLog.IsUnlocked(f) ? "" : "MISSING ")}{f.Name}.");
         }
     }
 }

@@ -67,10 +67,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<PackageReference Include="Newtonsoft.Json">
-			<Version>12.0.3</Version>
-		</PackageReference>
-    <PackageReference Include="FFXIVWeather.Lumina" Version="1.2.1" />
+		<PackageReference Include="Newtonsoft.Json" Version="12.0.3" />
     <PackageReference Include="System.Memory" Version="4.5.3" />
 	</ItemGroup>
 
