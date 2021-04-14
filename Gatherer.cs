@@ -426,7 +426,7 @@ namespace GatherBuddy
             if (_configuration.IdentifiedFishingSpotFormat.Length > 0)
                 _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
             if (_configuration.PrintGighead && fish!.IsSpearFish)
-                _chat.Print($"Use {fish.Gig} gig head.");
+                _chat.Print($"Use {(fish.Gig != GigHead.Unknown ? fish.Gig : fish.CatchData?.GigHead ?? GigHead.Unknown)} gig head.");
             PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![_language],
                 fish!.Name![_language]);
 
