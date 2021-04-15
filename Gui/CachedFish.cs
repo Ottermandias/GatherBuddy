@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Numerics;
+using System.Windows.Forms;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -43,35 +44,16 @@ namespace GatherBuddy.Gui
             public Predator[]      Predators        { get; }
             public string          Patch            { get; }
 
+
             public void PrintTime()
-            {
-                ImGui.PushStyleColor(ImGuiCol.Button,        0xFF008080);
-                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0xFF008080);
-                ImGui.PushStyleColor(ImGuiCol.ButtonActive,  0xFF008080);
-
-                ImGui.Button(Time);
-
-                ImGui.PopStyleColor(3);
-            }
+                => DrawButtonText(Time, Vector2.Zero, 0xFF008080);
 
             public void PrintWeather()
             {
                 if (!Fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
-                {
-                    ImGui.PushStyleColor(ImGuiCol.Button,        0xFFA0A000);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0xFFA0A000);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonActive,  0xFFA0A000);
-                    ImGui.Button("No Weather Restrictions");
-                    ImGui.PopStyleColor(3);
-                }
+                    DrawButtonText("No Weather Restrictions", Vector2.Zero, 0xFFA0A000);
                 else if (WeatherIcons.Length == 0)
-                {
-                    ImGui.PushStyleColor(ImGuiCol.Button,        0xFFA0A000);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0xFFA0A000);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonActive,  0xFFA0A000);
-                    ImGui.Button("Unknown Weather Restrictions");
-                    ImGui.PopStyleColor(3);
-                }
+                    DrawButtonText("Unknown Weather Restrictions", Vector2.Zero, 0xFFA0A000);
                 else
                 {
                     Vector2 pos;
@@ -84,7 +66,7 @@ namespace GatherBuddy.Gui
                         {
                             ImGui.SetCursorPos(pos);
                             pos.X += _iconSize.X;
-                            ImGui.Image(w.ImGuiHandle, _iconSize);
+                            ImGui.Image(w.ImGuiHandle, _weatherIconSize);
                         }
 
                         pos.X += space;
@@ -109,7 +91,7 @@ namespace GatherBuddy.Gui
                         {
                             ImGui.SetCursorPos(pos);
                             pos.X += _iconSize.X;
-                            ImGui.Image(w.ImGuiHandle, _iconSize);
+                            ImGui.Image(w.ImGuiHandle, _weatherIconSize);
                         }
                     }
                 }
@@ -119,11 +101,7 @@ namespace GatherBuddy.Gui
             {
                 if (Bait.Length == 0)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Button,        0xFF0000A0);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0xFF0000A0);
-                    ImGui.PushStyleColor(ImGuiCol.ButtonActive,  0xFF0000A0);
-                    ImGui.Button("Unknown Catch Method");
-                    ImGui.PopStyleColor(3);
+                    DrawButtonText("Unknown Catch Method", Vector2.Zero, 0xFF0000A0);
                     return;
                 }
 
@@ -133,13 +111,13 @@ namespace GatherBuddy.Gui
                 var size     = Vector2.Zero;
                 if (Snagging != null)
                 {
-                    ImGui.Image(Snagging.ImGuiHandle, new Vector2(Snagging.Width, Snagging.Height));
+                    ImGui.Image(Snagging.ImGuiHandle, _iconSize);
                     ImGui.SameLine();
                 }
 
                 foreach (var bait in Bait)
                 {
-                    size = new Vector2(bait.Icon.Width, bait.Icon.Height);
+                    size = _iconSize;
 
                     ImGui.Image(bait.Icon.ImGuiHandle, size);
 
@@ -164,7 +142,7 @@ namespace GatherBuddy.Gui
                     }
 
                     var pos = ImGui.GetCursorPosY();
-                    ImGui.SetCursorPosY(pos + (bait.Icon.Height - ImGui.GetTextLineHeight()) / 2);
+                    ImGui.SetCursorPosY(pos + (_iconSize.Y - ImGui.GetTextLineHeight()) / 2);
                     ImGui.Text(bait.Name);
                     if (bait.Equals(Bait.Last()))
                         break;
@@ -186,7 +164,7 @@ namespace GatherBuddy.Gui
 
                 ImGui.PushStyleColor(ImGuiCol.Button, LegendaryBite.Item2);
                 ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, Vector2.One);
-                var size   = new Vector2(Predators[0].Icon.Width, Predators[0].Icon.Height) / 1.5f * ImGui.GetIO().FontGlobalScale;
+                var size   = _iconSize / 1.5f;
                 var offset = (size.Y - _textHeight) / 2f;
                 foreach (var predator in Predators)
                 {
@@ -282,9 +260,9 @@ namespace GatherBuddy.Gui
             {
                 return hook switch
                 {
-                    HookSet.Precise  => i._precisionHookSet,
-                    HookSet.Powerful => i._powerfulHookSet,
-                    _                => i._hookSet,
+                    HookSet.Precise  => i._fishCache.IconPrecisionHookSet,
+                    HookSet.Powerful => i._fishCache.IconPowerfulHookSet,
+                    _                => i._fishCache.IconHookSet,
                 };
             }
 
@@ -299,10 +277,10 @@ namespace GatherBuddy.Gui
                             Fish = null,
                             Icon = fish.Gig switch
                             {
-                                GigHead.Small  => i._smallGig,
-                                GigHead.Normal => i._normalGig,
-                                GigHead.Large  => i._largeGig,
-                                _              => i._gigs,
+                                GigHead.Small  => i._fishCache.IconSmallGig,
+                                GigHead.Normal => i._fishCache.IconNormalGig,
+                                GigHead.Large  => i._fishCache.IconLargeGig,
+                                _              => i._fishCache.IconGigs,
                             },
                             Bite    = UnknownBite,
                             HookSet = null,
@@ -342,11 +320,11 @@ namespace GatherBuddy.Gui
 
             private static TextureWrap? SetSnagging(Interface i, BaitOrder[] baitOrder, Fish fish)
             {
-                if ((fish.CatchData?.Snagging ?? Classes.Snagging.Unknown) == Classes.Snagging.Required)
-                    return i._snagging;
+                if ((fish.CatchData?.Snagging ?? Enums.Snagging.Unknown) == Enums.Snagging.Required)
+                    return i._fishCache.IconSnagging;
 
-                return baitOrder.Any(bait => (bait.Fish?.CatchData?.Snagging ?? Classes.Snagging.Unknown) == Classes.Snagging.Required)
-                    ? i._snagging
+                return baitOrder.Any(bait => (bait.Fish?.CatchData?.Snagging ?? Enums.Snagging.Unknown) == Enums.Snagging.Required)
+                    ? i._fishCache.IconSnagging
                     : null;
             }
 

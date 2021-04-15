@@ -1,24 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using GatherBuddy.Game;
+﻿using System.Numerics;
+using GatherBuddy.Enums;
 using ImGuiNET;
 
 namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private readonly        string[] _allTimedNodesNames;
-        private static readonly string[] SoundNameList = Enum.GetNames(typeof(Sounds)).Where(s => s != "Unknown").ToArray();
-
-        private string _newAlarmName     = "";
-        private int    _newAlarmIdx      = 0;
-        private bool   _focusComboFilter = false;
-        private string _nodeFilter       = "";
-
-        private          float _alarmsSpacing;
-        private readonly float _longestNodeStringLength = 0f;
+        private float _alarmsSpacing;
 
         private void DrawDeleteAndEnable()
         {
@@ -66,23 +54,25 @@ namespace GatherBuddy.Gui
             ImGui.Text("Pre");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.");
+
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
+
             for (var idx = 0; idx < _plugin.Alarms!.Alarms.Count; ++idx)
             {
-                var alert  = _plugin.Alarms.Alarms[idx];
-                var offset = alert.MinuteOffset.ToString();
-                ImGui.SetNextItemWidth(ImGui.CalcTextSize("99999").X);
+                var alarm  = _plugin.Alarms.Alarms[idx];
+                var offset = alarm.MinuteOffset.ToString();
+                ImGui.SetNextItemWidth(_alarmCache.OffsetSize * _globalScale);
                 if (!ImGui.InputText($"##Offset{idx}", ref offset, 4, ImGuiInputTextFlags.CharsDecimal))
                     continue;
 
                 if (int.TryParse(offset, out var minutes))
                 {
                     minutes %= 24 * 60;
-                    if (minutes != alert.MinuteOffset)
+                    if (minutes != alarm.MinuteOffset)
                         _plugin.Alarms.ChangeNodeOffset(idx, minutes);
                 }
-                else if (offset.Length == 0 && alert.MinuteOffset != 0)
+                else if (offset.Length == 0 && alarm.MinuteOffset != 0)
                 {
                     _plugin.Alarms.ChangeNodeOffset(idx, 0);
                 }
@@ -93,7 +83,6 @@ namespace GatherBuddy.Gui
 
         private void DrawAlarms()
         {
-            var boxSize = ImGui.CalcTextSize("Sound9999999").X;
             ImGui.BeginGroup();
             ImGui.Text("Alarm Sound");
             if (ImGui.IsItemHovered())
@@ -112,8 +101,8 @@ namespace GatherBuddy.Gui
                     sound = 0;
                 }
 
-                ImGui.SetNextItemWidth(boxSize);
-                if (!ImGui.Combo($"##sound_{idx}", ref sound, SoundNameList, SoundNameList.Length))
+                ImGui.SetNextItemWidth(_alarmCache.SoundSize * _globalScale);
+                if (!ImGui.Combo($"##sound{idx}", ref sound, _alarmCache.SoundNames, _alarmCache.SoundNames.Length))
                     continue;
 
                 var tmp = SoundsExtensions.FromIdx(sound);
@@ -130,6 +119,7 @@ namespace GatherBuddy.Gui
             ImGui.Text("Chat");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Toggle whether the alarm is printed to chat or not.");
+
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
 
@@ -150,15 +140,16 @@ namespace GatherBuddy.Gui
             ImGui.Text("Alarm Times");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("The uptimes for the node monitored in this alarm. Hover for the items.");
+
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
 
-            foreach (var alert in _plugin.Alarms!.Alarms)
+            foreach (var alarm in _alarmCache.Manager.Alarms)
             {
                 ImGui.AlignTextToFramePadding();
-                ImGui.Text(alert.Node!.Times!.PrintHours(true, " | "));
+                ImGui.Text(alarm.Node!.Times!.PrintHours(true, " | "));
                 if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip(alert.Node!.Items!.PrintItems("\n", _lang));
+                    ImGui.SetTooltip(alarm.Node!.Items!.PrintItems("\n", _lang));
             }
 
             ImGui.EndGroup();
@@ -167,24 +158,23 @@ namespace GatherBuddy.Gui
         private void DrawNewAlarm()
         {
             if (ImGui.Button("  + "))
-            {
-                _plugin.Alarms!.AddNode(_newAlarmName, _plugin.Alarms!.AllTimedNodes[_newAlarmIdx]);
-                _newAlarmName = "";
-            }
+                _alarmCache.AddNode();
 
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(ImGui.CalcTextSize("mmmmmmmmmmmm").X);
-            ImGui.InputTextWithHint("##Name", "New Alarm Name", ref _newAlarmName, 64);
+            ImGui.SetNextItemWidth(_alarmCache.NameSize * _globalScale);
+            ImGui.InputTextWithHint("##Name", "New Alarm Name", ref _alarmCache.NewName, 64);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(-1);
 
-            var comboSize = _longestNodeStringLength * _globalScale;
-            DrawComboWithFilter("##Node", _allTimedNodesNames, ref _newAlarmIdx, ref _nodeFilter, ref _focusComboFilter, comboSize, 6);
+            var comboSize = _alarmCache.LongestNodeNameLength * _globalScale;
+            DrawComboWithFilter("##Node", _alarmCache.AllTimedNodeNames, ref _alarmCache.NewIdx, ref _alarmCache.NodeFilter, ref _alarmCache.FocusFilter, comboSize, 6);
         }
+
         private void DrawAlarmsTab()
         {
             _alarmsSpacing = _itemSpacing.X / 2;
-            var listSize = new Vector2(-1, -ImGui.GetTextLineHeightWithSpacing() - 2 * ImGui.GetStyle().FramePadding.X);
+
+            var listSize = new Vector2(-1, -_textHeight - 2 * _framePadding.X);
             if (ImGui.BeginChild("##alarmlist", listSize, true))
             {
                 DrawDeleteAndEnable();

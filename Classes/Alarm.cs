@@ -1,5 +1,5 @@
 using System.Linq;
-using GatherBuddy.Game;
+using GatherBuddy.Enums;
 using GatherBuddy.Managers;
 using GatherBuddy.Nodes;
 using Newtonsoft.Json;

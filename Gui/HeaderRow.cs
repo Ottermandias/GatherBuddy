@@ -1,8 +1,6 @@
 ﻿using System.Numerics;
-using GatherBuddy.Managers;
 using GatherBuddy.Utility;
 using ImGuiNET;
-using ImGuiScene;
 
 namespace GatherBuddy.Gui
 {
@@ -54,29 +52,43 @@ namespace GatherBuddy.Gui
             ImGui.Dummy(new Vector2(0, _horizontalSpace / 2));
         }
 
-        private long         _lastDrawHour = 0;
-        private uint         _lastTerritory;
-        private TextureWrap? _lastCurrentWeather;
-        private TextureWrap? _lastNextWeather;
-
-        private void UpdateTimeRow(long hour, uint territory)
+        private static void DrawButtonText(string text, Vector2 size, uint color)
         {
-            if (hour - _lastDrawHour < 8 && _lastTerritory == territory)
-                return;
+            ImGui.PushStyleColor(ImGuiCol.Button,        color);
+            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color);
+            ImGui.PushStyleColor(ImGuiCol.ButtonActive,  color);
 
-            _lastDrawHour = hour - (hour & 0b111);
-            if (territory == 0)
+            ImGui.Button(text, size);
+
+            ImGui.PopStyleColor(3);
+        }
+
+        private static void DrawEorzeaTime(string time)
+            => DrawButtonText(time, new Vector2(0, _weatherIconSize.Y), Colors.HeaderRow.EorzeaTime);
+
+        private static void DrawNextEorzeaHour(string hour, Vector2 size)
+            => DrawButtonText(hour, size, Colors.HeaderRow.NextEorzeaHour);
+
+        private void DrawNextWeather(string nextWeather)
+        {
+            if (_headerCache.Territory != 0)
             {
-                _lastTerritory      = 0;
-                _lastCurrentWeather = null;
-                _lastNextWeather    = null;
-                return;
+                ImGui.SameLine();
+                ImGui.Image(_headerCache.CurrentWeather!.ImGuiHandle, _weatherIconSize);
+                ImGui.SameLine();
+                DrawButtonText(nextWeather, new Vector2(0, _weatherIconSize.Y), Colors.HeaderRow.Weather);
+                ImGui.SameLine();
+                ImGui.Image(_headerCache.NextWeather!.ImGuiHandle, _weatherIconSize);
             }
-
-            _lastTerritory = territory;
-            var weathers = Service<SkyWatcher>.Get().GetForecast(_lastTerritory, 2);
-            _lastCurrentWeather = _icons[weathers[0].Weather.Icon];
-            _lastNextWeather    = _icons[weathers[1].Weather.Icon];
+            else
+            {
+                ImGui.SameLine();
+                ImGui.Dummy(_weatherIconSize);
+                ImGui.SameLine();
+                DrawButtonText(nextWeather, new Vector2(0, _weatherIconSize.Y), Colors.HeaderRow.Weather);
+                ImGui.SameLine();
+                ImGui.Dummy(_weatherIconSize);
+            }
         }
 
         private void DrawTimeRow(long eorzeaHour, long eorzeaMinute)
@@ -93,50 +105,18 @@ namespace GatherBuddy.Gui
             nextHourS    -= nextHourM * RealTime.SecondsPerMinute;
             nextWeatherS -= nextWeatherM * RealTime.SecondsPerMinute;
 
-            ImGui.PushStyleColor(ImGuiCol.Button,        0xFF008080);
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0xFF008080);
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive,  0xFF008080);
-
-            var size = new Vector2(0, _iconSize.Y);
-
-            ImGui.Button($"ET {hourOfDay:D2}:{minuteOfHour:D2}", size);
-            ImGui.SameLine();
-
-            ImGui.PushStyleColor(ImGuiCol.Button,        0xFF404040);
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0xFF404040);
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive,  0xFF404040);
-
             var nextWeatherString = $"  {nextWeatherM:D2}.{nextWeatherS:D2} Min.  ";
-            var width = -(ImGui.CalcTextSize(nextWeatherString).X + (_iconSize.X + _itemSpacing.X * 1.5f + ImGui.GetStyle().FramePadding.X) * 2);
-            ImGui.Button($"{nextHourM:D2}.{nextHourS:D2} Min to next Eorzea hour.", new Vector2(width, size.Y));
-
-            ImGui.PopStyleColor(6);
+            var width = -(ImGui.CalcTextSize(nextWeatherString).X
+              + (_weatherIconSize.X + _itemSpacing.X * 1.5f + ImGui.GetStyle().FramePadding.X) * 2);
 
             var territory = _pi.ClientState?.TerritoryType ?? 0;
-            UpdateTimeRow(eorzeaHour, territory);
+            _headerCache.Update(eorzeaHour, territory);
 
-            ImGui.PushStyleColor(ImGuiCol.Button,        0xFFA0A000);
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, 0xFFA0A000);
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive,  0xFFA0A000);
-            if (_lastTerritory != 0)
-            {
-                ImGui.SameLine();
-                ImGui.Image(_lastCurrentWeather!.ImGuiHandle, _iconSize);
-                ImGui.SameLine();
-                ImGui.Button(nextWeatherString, size);
-                ImGui.SameLine();
-                ImGui.Image(_lastNextWeather!.ImGuiHandle, _iconSize);
-            }
-            else
-            {
-                ImGui.SameLine();
-                ImGui.Dummy(_iconSize);
-                ImGui.SameLine();
-                ImGui.Button(nextWeatherString, size);
-                ImGui.SameLine();
-                ImGui.Dummy(_iconSize);
-            }
-            ImGui.PopStyleColor(3);
+            DrawEorzeaTime($"ET {hourOfDay:D2}:{minuteOfHour:D2}");
+            ImGui.SameLine();
+            DrawNextEorzeaHour($"{nextHourM:D2}.{nextHourS:D2} Min to next Eorzea hour.", new Vector2(width, _weatherIconSize.Y));
+            ImGui.SameLine();
+            DrawNextWeather(nextWeatherString);
 
             ImGui.Dummy(new Vector2(0, _horizontalSpace / 2));
         }

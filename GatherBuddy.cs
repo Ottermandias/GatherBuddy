@@ -1,10 +1,12 @@
 ﻿using System.Linq;
+using Dalamud;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using GatherBuddy.Gui;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
 using GatheringType = GatherBuddy.Enums.GatheringType;
+using Util = GatherBuddy.Utility.Util;
 
 namespace GatherBuddy
 {
@@ -21,9 +23,12 @@ namespace GatherBuddy
         private Interface?                _gatherInterface;
         private FishingTimer?             _fishingTimer;
 
+        public static ClientLanguage Language;
+
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             _pluginInterface = pluginInterface;
+            Language         = _pluginInterface.ClientState.ClientLanguage;
             Service<DalamudPluginInterface>.Set(_pluginInterface);
             _commandManager  = new Managers.CommandManager(pluginInterface);
             _configuration   = pluginInterface.GetPluginConfig() as GatherBuddyConfiguration ?? new GatherBuddyConfiguration();

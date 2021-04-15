@@ -1,42 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Numerics;
-using GatherBuddy.Managers;
 using GatherBuddy.Nodes;
-using GatherBuddy.Utility;
 using ImGuiNET;
 
 namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private List<(Node, uint)> _activeNodes = new();
-
-        private float _boxHeight = 0f;
-        private uint  _lastHourOfDay;
-
-        private void RebuildList(bool save = true)
-        {
-            if (save)
-                Save();
-            else
-                _lastHourOfDay = EorzeaTime.CurrentHourOfDay();
-
-            _activeNodes = _plugin.Gatherer!.Timeline.GetNewList(_config.ShowNodes);
-            if (_activeNodes.Count > 0)
-                NodeTimeLine.SortByUptime(_lastHourOfDay, _activeNodes);
-        }
-
-        private void UpdateNodes(long totalHour)
-        {
-            if (_activeNodes.Count > 0 && totalHour <= _totalHourNodes)
-                return;
-
-            _totalHourNodes = totalHour;
-            _lastHourOfDay  = (uint) _totalHourNodes % RealTime.HoursPerDay;
-            NodeTimeLine.SortByUptime(_lastHourOfDay, _activeNodes);
-        }
-
         private void DrawMinerBox()
             => DrawVisibilityBox(ShowNodes.Mining, "Miner", "Show timed nodes for miners.");
 
@@ -70,18 +40,27 @@ namespace GatherBuddy.Gui
             var tooltip = $"{n.Nodes!.Territory!.Name[_lang]}, {coords} - {n.GetClosestAetheryte()?.Name[_lang] ?? ""}\n"
               + $"{n.Meta!.NodeType}, up at {n.Times!.PrintHours()}\n"
               + $"{n.Meta!.GatheringType} at {n.Meta!.Level}";
-            ImGui.SetTooltip(tooltip);
+            ImGui.BeginTooltip();
+            foreach (var item in n.Items!.ActualItems)
+            {
+                var icon = _icons[item.ItemData.Icon];
+                ImGui.Image(icon.ImGuiHandle, _iconSize);
+                ImGui.SameLine();
+            }
+            ImGui.NewLine();
+            ImGui.Text(tooltip);
+            ImGui.EndTooltip();
         }
 
         private void DrawTimedNodes(float widgetHeight)
         {
             ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true);
-            foreach (var (n, _) in _activeNodes)
+            foreach (var (n, i) in _nodeCache.ActiveNodeItems)
             {
-                var colors = Colors.GetColor(n, _lastHourOfDay);
+                var colors = Colors.NodeTab.GetColor(n, _nodeCache.HourOfDay);
                 ImGui.PushStyleColor(ImGuiCol.Text, colors);
 
-                if (ImGui.Selectable(n.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage)))
+                if (ImGui.Selectable(i))
                     _plugin.Gatherer!.OnGatherActionWithNode(n);
                 ImGui.PopStyleColor();
 
@@ -92,25 +71,25 @@ namespace GatherBuddy.Gui
             ImGui.EndChild();
         }
 
-        private void DrawTimedSelectors()
+        private void DrawTimedSelectors(float boxHeight)
         {
-            var checkBoxAdd  = ImGui.GetStyle().ItemSpacing.X * 3 + _framePadding.X * 2 + ImGui.GetTextLineHeight();
-            var jobBoxWidth  = ImGui.CalcTextSize("Botanist").X + checkBoxAdd;
-            var typeBoxWidth = Math.Max(ImGui.CalcTextSize("Unspoiled").X, ImGui.CalcTextSize("Ephemeral").X) + checkBoxAdd;
+            var checkBoxAdd  = _itemSpacing.X * 3 + _framePadding.X * 2 + ImGui.GetTextLineHeight();
+            var jobBoxWidth  = _nodeCache.BotanistTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
+            var typeBoxWidth = _nodeCache.NodeTypeTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
 
-            ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, _boxHeight), true);
+            ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true);
             DrawMinerBox();
             DrawBotanistBox();
             ImGui.EndChild();
 
             ImGui.SameLine();
-            ImGui.BeginChild("Types", new Vector2(typeBoxWidth, _boxHeight), true);
+            ImGui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true);
             DrawUnspoiledBox();
             DrawEphemeralBox();
             ImGui.EndChild();
 
             ImGui.SameLine();
-            ImGui.BeginChild("Expansion", new Vector2(0, _boxHeight), true);
+            ImGui.BeginChild("Expansion", new Vector2(0, boxHeight), true);
             ImGui.BeginGroup();
             DrawArrBox();
             DrawHeavenswardBox();
@@ -125,40 +104,11 @@ namespace GatherBuddy.Gui
             ImGui.EndChild();
         }
 
-        private void DrawNodesTab(float space)
+        private void DrawNodesTab()
         {
-            _boxHeight = 2 * ImGui.GetTextLineHeightWithSpacing() + _itemSpacing.X + ImGui.GetStyle().FramePadding.X * 4;
-
-            DrawTimedNodes(_boxHeight + ImGui.GetStyle().FramePadding.Y);
-            DrawTimedSelectors();
-        }
-
-        private static class Colors
-        {
-            private static readonly Vector4 Default     = new(0.8f, 0.8f, 0.8f, 1.0f);
-            private static readonly Vector4 CurrentlyUp = new(0.0f, 1.0f, 0.0f, 1.0f);
-            private static readonly Vector4 SoonUp      = new(0.6f, 1.0f, 0.4f, 1.0f);
-            private static readonly Vector4 SoonishUp   = new(1.0f, 1.0f, 0.0f, 1.0f);
-            private static readonly Vector4 LateUp      = new(1.0f, 1.0f, 0.2f, 1.0f);
-            private static readonly Vector4 FarUp       = new(1.0f, 1.0f, 0.6f, 1.0f);
-
-            public static Vector4 GetColor(Node n, uint hour)
-            {
-                Vector4 colors;
-                if (n.Times!.IsUp(hour))
-                    colors = CurrentlyUp;
-                else if (n.Times.IsUp(hour + 1))
-                    colors = SoonUp;
-                else if (n.Times.IsUp(hour + 2))
-                    colors = SoonishUp;
-                else if (n.Times.IsUp(hour + 3))
-                    colors = LateUp;
-                else if (n.Times.IsUp(hour + 4))
-                    colors = FarUp;
-                else
-                    colors = Default;
-                return colors;
-            }
+            var boxHeight = 2 * _textHeight + _itemSpacing.X + _framePadding.X * 4;
+            DrawTimedNodes(boxHeight + _framePadding.Y);
+            DrawTimedSelectors(boxHeight);
         }
     }
 }

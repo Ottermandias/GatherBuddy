@@ -13,15 +13,6 @@ namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private readonly TextureWrap _hookSet;
-        private readonly TextureWrap _precisionHookSet;
-        private readonly TextureWrap _powerfulHookSet;
-        private readonly TextureWrap _snagging;
-        private readonly TextureWrap _smallGig;
-        private readonly TextureWrap _normalGig;
-        private readonly TextureWrap _largeGig;
-        private readonly TextureWrap _gigs;
-
         private readonly Dictionary<Fish, CachedFish> _allCachedFish;
         private          Fish[]                       _currentlyRelevantFish;
         private          CachedFish[]                 _cachedFish;

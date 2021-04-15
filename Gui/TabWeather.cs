@@ -15,7 +15,6 @@ namespace GatherBuddy.Gui
 
         private          DateTime[]                   _nextWeatherTimes;
         private          string[]                     _nextWeatherTimeStrings;
-        private readonly SortedList<int, TextureWrap> _icons;
         private readonly CachedWeather[]              _weatherCache;
 
         private void UpdateWeatherTimes(int addSeconds)
@@ -41,10 +40,11 @@ namespace GatherBuddy.Gui
                 Icons        = new TextureWrap[NumWeathers];
             }
 
-            public void Update(WeatherManager weather, IReadOnlyDictionary<int, TextureWrap> icons, int idx)
+            public void Update(WeatherManager weather, int idx)
             {
                 var timeline = weather.UniqueZones[idx];
                 timeline.Update(NumWeathers);
+                var icons = Service<Cache.Icons>.Get();
                 for (var i = 0; i < NumWeathers; ++i)
                 {
                     WeatherNames[i] = timeline.List[i].Weather.Name;
@@ -53,13 +53,13 @@ namespace GatherBuddy.Gui
             }
         }
 
-        private static CachedWeather[] CreateWeatherCache(WeatherManager weather, SortedList<int, TextureWrap> icons)
+        private static CachedWeather[] CreateWeatherCache(WeatherManager weather)
         {
             var ret = new CachedWeather[weather.UniqueZones.Count];
             for (var i = 0; i < weather.UniqueZones.Count; ++i)
             {
                 ret[i] = new CachedWeather(weather.UniqueZones[i].Territory.Name);
-                ret[i].Update(weather, icons, i);
+                ret[i].Update(weather, i);
             }
 
             return ret;
@@ -69,7 +69,7 @@ namespace GatherBuddy.Gui
         {
             var weather = _plugin.Gatherer!.WeatherManager;
             for (var i = 0; i < _weatherCache.Length; ++i)
-                _weatherCache[i].Update(weather, _icons, i);
+                _weatherCache[i].Update(weather, i);
         }
 
         private void UpdateWeather(long totalHour)
@@ -82,7 +82,7 @@ namespace GatherBuddy.Gui
 
             UpdateWeatherTimes(WeatherManager.SecondsPerWeather);
             for (var i = 0; i < _weatherCache.Length; ++i)
-                _weatherCache[i].Update(_plugin.Gatherer!.WeatherManager, _icons, i);
+                _weatherCache[i].Update(_plugin.Gatherer!.WeatherManager, i);
         }
 
         private          string  _zoneFilter      = "";
@@ -91,6 +91,7 @@ namespace GatherBuddy.Gui
 
         private static float   _textHeightOffset;
         private static Vector2 _iconSize;
+        private static Vector2 _weatherIconSize;
 
         private void DrawHeaderLine()
         {
@@ -139,11 +140,11 @@ namespace GatherBuddy.Gui
             ImGui.SetCursorPosY(pos);
         }
 
-        private void NamedWeather(TextureWrap icon, string name)
+        private static void NamedWeather(TextureWrap icon, string name)
         {
             var cursor = ImGui.GetCursorPos();
-            ImGui.Image(icon.ImGuiHandle, _iconSize);
-            ImGui.SetCursorPos(cursor + new Vector2(_iconSize.X + _itemSpacing.X / 2, _textHeightOffset));
+            ImGui.Image(icon.ImGuiHandle, _weatherIconSize);
+            ImGui.SetCursorPos(cursor + new Vector2(_weatherIconSize.X + _itemSpacing.X / 2, _textHeightOffset));
             ImGui.Text(name);
         }
 

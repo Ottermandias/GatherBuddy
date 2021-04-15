@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using Dalamud;
-using Dalamud.Data.LuminaExtensions;
 using Dalamud.Plugin;
 using GatherBuddy.Game;
 using GatherBuddy.Managers;
@@ -23,9 +22,20 @@ namespace GatherBuddy.Gui
         private readonly DalamudPluginInterface           _pi;
         private readonly GatherBuddyConfiguration         _config;
         private readonly ClientLanguage                   _lang;
-        private          Lumina.Excel.ExcelSheet<Weather> _weatherSheet;
+        private readonly Lumina.Excel.ExcelSheet<Weather> _weatherSheet;
 
-        private long _totalHourNodes   = 0;
+        private FishManager FishManager
+            => _plugin.Gatherer!.FishManager;
+
+        private WeatherManager WeatherManager
+            => _plugin.Gatherer!.WeatherManager;
+
+        private readonly Cache.Icons  _icons;
+        private          Cache.Header _headerCache;
+        private          Cache.Alarms _alarmCache;
+        private readonly Cache.Fish   _fishCache;
+        private          Cache.Node   _nodeCache;
+
         private long _totalHourWeather = 0;
         private long _totalHourFish    = 0;
 
@@ -41,19 +51,6 @@ namespace GatherBuddy.Gui
         private void Save()
             => _pi.SavePluginConfig(_config);
 
-        private TextureWrap LoadIcon(int id)
-        {
-            if (_icons.TryGetValue(id, out var ret))
-                return ret;
-
-            var icon     = _pi.Data.GetIcon(id);
-            var iconData = icon.GetRgbaImageData();
-
-            ret        = _pi.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);
-            _icons[id] = ret;
-            return ret;
-        }
-
         public Interface(GatherBuddy plugin, DalamudPluginInterface pi, GatherBuddyConfiguration config)
         {
             _pi     = pi;
@@ -61,43 +58,23 @@ namespace GatherBuddy.Gui
             _config = config;
             _lang   = pi.ClientState.ClientLanguage;
 
-            // Node List setup
-            RebuildList(false);
-
-            // Alarms Setup
-            _allTimedNodesNames = plugin.Alarms!.AllTimedNodes
-                .Select(n => $"{n.Times!.PrintHours(true)}: {n.Items!.PrintItems(", ", _lang)}")
-                .ToArray();
-            _longestNodeStringLength = _allTimedNodesNames.Max(n => ImGui.CalcTextSize(n).X);
-
-            // Weather Setup
-            _nextWeatherTimes = _plugin.Gatherer!.WeatherManager.NextWeatherChangeTimes(NumWeathers, -WeatherManager.SecondsPerWeather * 2);
-            _nextWeatherTimeStrings = UpdateWeatherTimeStrings();
+            _nodeCache = new Cache.Node(_config, plugin.Gatherer!.Timeline);
+            _headerCache.Setup();
+            _alarmCache = new Cache.Alarms(_plugin.Alarms!, _lang);
 
             _weatherSheet = _pi.Data.GetExcelSheet<Weather>();
+            _icons = Service<Cache.Icons>.Set(_pi, (int) _weatherSheet.RowCount
+              + FishManager.FishByUptime.Count
+              + FishManager.Bait.Count);
 
-            _icons = new SortedList<int, TextureWrap>((int) _weatherSheet.RowCount
-              + 3 * _allTimedNodesNames.Length
-              + _plugin.Gatherer!.FishManager.FishByUptime.Count
-              + _plugin.Gatherer!.FishManager.Bait.Count);
+            _fishCache = new Cache.Fish(_icons);
 
-            foreach (var weather in _weatherSheet)
-                LoadIcon(weather.Icon);
-            foreach (var fish in plugin.Gatherer!.FishManager.Fish.Values)
-                LoadIcon(fish.ItemData.Icon);
-            foreach (var bait in plugin.Gatherer!.FishManager.Bait.Values)
-                LoadIcon(bait.Data.Icon);
 
-            _hookSet          = LoadIcon(1103);
-            _powerfulHookSet  = LoadIcon(1115);
-            _precisionHookSet = LoadIcon(1116);
-            _snagging         = LoadIcon(1109);
-            _gigs             = LoadIcon(1121);
-            _smallGig         = LoadIcon(60671);
-            _normalGig        = LoadIcon(60672);
-            _largeGig         = LoadIcon(60673);
+            // Weather Setup
+            _nextWeatherTimes = WeatherManager.NextWeatherChangeTimes(NumWeathers, -WeatherManager.SecondsPerWeather * 2);
+            _nextWeatherTimeStrings = UpdateWeatherTimeStrings();
 
-            _weatherCache   = CreateWeatherCache(_plugin.Gatherer!.WeatherManager, _icons);
+            _weatherCache   = CreateWeatherCache(WeatherManager);
             _zoneFilterSize = _weatherCache.Max(c => ImGui.CalcTextSize(c.Zone).X);
 
             if (_config.ShowFishFromPatch >= PatchSelector.Length)
@@ -106,7 +83,7 @@ namespace GatherBuddy.Gui
                 Save();
             }
 
-            _allCachedFish         = _plugin.Gatherer!.FishManager.FishByUptime.ToDictionary(f => f, f => new CachedFish(this, f));
+            _allCachedFish         = FishManager.FishByUptime.ToDictionary(f => f, f => new CachedFish(this, f));
             _currentSelector       = PatchSelector[_config.ShowFishFromPatch];
             _currentlyRelevantFish = new Fish[0];
             _cachedFish            = new CachedFish[0];
@@ -122,8 +99,7 @@ namespace GatherBuddy.Gui
 
         public void Dispose()
         {
-            foreach (var icon in _icons.Values)
-                icon.Dispose();
+            Service<Cache.Icons>.Dispose();
         }
 
         public void Draw()
@@ -138,8 +114,9 @@ namespace GatherBuddy.Gui
             _textHeight       = ImGui.GetTextLineHeightWithSpacing();
             _itemSpacing      = ImGui.GetStyle().ItemSpacing;
             _framePadding     = ImGui.GetStyle().FramePadding;
-            _iconSize         = new Vector2(_icons.Last().Value.Width, _icons.Last().Value.Height) * ImGui.GetIO().FontGlobalScale;
-            _textHeightOffset = (_iconSize.Y - ImGui.GetTextLineHeight()) / 2;
+            _iconSize         = new Vector2(40, 40) * ImGui.GetIO().FontGlobalScale;
+            _weatherIconSize  = new Vector2(30, 30) * ImGui.GetIO().FontGlobalScale;
+            _textHeightOffset = (_weatherIconSize.Y - ImGui.GetTextLineHeight()) / 2;
 
             ImGui.SetNextWindowSizeConstraints(
                 new Vector2(_minXSize,     _textHeight * 17),
@@ -163,8 +140,8 @@ namespace GatherBuddy.Gui
                   + "Click on a node to do a /gather command for that node.");
             if (nodeTab)
             {
-                UpdateNodes(hour);
-                DrawNodesTab(_horizontalSpace);
+                _nodeCache.Update(hour);
+                DrawNodesTab();
                 ImGui.EndTabItem();
             }
 

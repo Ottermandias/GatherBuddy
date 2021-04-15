@@ -78,7 +78,8 @@ namespace GatherBuddy.Gui
                     _config.ShowNodes |= flag;
                 else
                     _config.ShowNodes &= ~flag;
-                RebuildList();
+                _nodeCache.Rebuild();
+                Save();
             }
 
             if (ImGui.IsItemHovered())

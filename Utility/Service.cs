@@ -6,6 +6,13 @@ namespace GatherBuddy.Utility
     {
         private static T? _object;
 
+        public static void Dispose()
+        {
+            var o = _object as IDisposable;
+            o?.Dispose();
+            _object = null;
+        }
+
         public static void Set(T obj)
             => _object = obj;
 
