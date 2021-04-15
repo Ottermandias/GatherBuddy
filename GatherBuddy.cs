@@ -166,8 +166,11 @@ namespace GatherBuddy
 
         private void OnGatherBuddy(string command, string arguments)
         {
-            var chat          = _pluginInterface!.Framework.Gui.Chat;
-            var argumentParts = arguments.Split(' ', 2);
+            var chat = _pluginInterface!.Framework.Gui.Chat;
+            var argumentParts = arguments.Split(new[]
+            {
+                ' ',
+            }, 2);
 
             if (argumentParts.Length == 0 || argumentParts[0].Length == 0)
             {

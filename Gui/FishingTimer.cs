@@ -17,6 +17,10 @@ namespace GatherBuddy.Gui
 {
     public class FishingTimer : IDisposable
     {
+        private const    float   MaxTimerSeconds  = 30000f;
+        private readonly Vector2 _buttonTextAlign = new(0f, 0.1f);
+        private readonly Vector2 _itemSpacing     = new(0, 1);
+
         private readonly DalamudPluginInterface   _pi;
         private readonly GatherBuddyConfiguration _config;
         private readonly FishManager              _fish;
@@ -105,12 +109,12 @@ namespace GatherBuddy.Gui
 
         public FishingTimer(DalamudPluginInterface pi, GatherBuddyConfiguration config, FishManager fish)
         {
-            _pi      = pi;
-            _config  = config;
-            _lang    = pi.ClientState.ClientLanguage;
-            _fish    = fish;
-            _bait    = new CurrentBait(pi.TargetModuleScanner);
-            _parser  = new FishingParser(_pi, _fish);
+            _pi     = pi;
+            _config = config;
+            _lang   = pi.ClientState.ClientLanguage;
+            _fish   = fish;
+            _bait   = new CurrentBait(pi.TargetModuleScanner);
+            _parser = new FishingParser(_pi, _fish);
 
             _pi.UiBuilder.OnBuildUi += Draw;
             _parser.BeganFishing    += OnBeganFishing;
@@ -137,35 +141,29 @@ namespace GatherBuddy.Gui
 
         public void DrawFish(ImDrawListPtr drawList, Fish fish)
         {
-            const uint invalidColor = 0x20FFFFFFu;
-            var color = fish.Record.BiteType switch
-            {
-                BiteType.Weak      => 0x8030D030u,
-                BiteType.Strong    => 0x8030D0D0u,
-                BiteType.Legendary => 0x803030D0u,
-                BiteType.Unknown   => invalidColor,
-                _                  => invalidColor,
-            };
+            var bite  = fish.Record.BiteType != BiteType.Unknown ? fish.Record.BiteType : fish.CatchData?.BiteType ?? BiteType.Unknown;
+            var color = Colors.FishTimer.FromBiteType(bite);
 
             var recordsValid = RecordsValid(fish.Record);
             if (!recordsValid)
-                color = invalidColor;
+                color = Colors.FishTimer.Invalid;
 
             var pos    = ImGui.GetCursorPosY();
             var height = ImGui.GetTextLineHeightWithSpacing() * 1.4f;
 
             if (recordsValid)
             {
-                var biteMin = _rectMin + new Vector2(fish.Record.EarliestCatch / 30000f * _rectSize.X - 2, pos);
-                var biteMax = _rectMin + new Vector2(fish.Record.LatestCatch / 30000f * _rectSize.X + 2,   pos + height);
-                drawList.AddRectFilled(biteMin, biteMax, 0xFF000020);
+                var biteMin = _rectMin + new Vector2(fish.Record.EarliestCatch / MaxTimerSeconds * _rectSize.X - 2, pos);
+                var biteMax = _rectMin + new Vector2(fish.Record.LatestCatch / MaxTimerSeconds * _rectSize.X + 2,   pos + height);
+                drawList.AddRectFilled(biteMin, biteMax, Colors.FishTimer.Background);
             }
 
             ImGui.PushStyleColor(ImGuiCol.Button,        color);
             ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color);
             ImGui.PushStyleColor(ImGuiCol.ButtonActive,  color);
-            ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, new Vector2(0f, 0.1f));
-            ImGui.Button(fish.Name![_lang], new Vector2(_rectSize.X,          height));
+            ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, _buttonTextAlign);
+
+            ImGui.Button(fish.Name![_lang], new Vector2(_rectSize.X, height));
 
             ImGui.PopStyleVar();
             ImGui.PopStyleColor(3);
@@ -173,7 +171,7 @@ namespace GatherBuddy.Gui
 
         private uint RecordOrder(Fish fish)
         {
-            if (!RecordsValid(fish!.Record))
+            if (!RecordsValid(fish.Record))
                 return uint.MaxValue;
 
             return ((uint) fish.Record.EarliestCatch << 16) | fish.Record.LatestCatch;
@@ -186,6 +184,7 @@ namespace GatherBuddy.Gui
 
             if (!_config.HideUncaughtFish)
                 return _currentSpot.Items.Where(f => f != null).Cast<Fish>().OrderBy(RecordOrder).ToArray();
+
             return _currentSpot.Items.Where(f => f != null && RecordsValid(f.Record)).Cast<Fish>().OrderBy(RecordOrder).ToArray();
         }
 
@@ -200,21 +199,23 @@ namespace GatherBuddy.Gui
                 return;
 
             var fishing = _pi.ClientState.Condition[ConditionFlag.Fishing] && _start.IsRunning;
+            var rodOut = _pi.ClientState.Condition[ConditionFlag.Gathering];
             if (!fishing)
-            {
                 _start.Stop();
+            if (!rodOut)
+            {
                 _currentFishList = new Fish[0];
                 if (!EditMode)
                     return;
             }
 
-            var diff       = _start.ElapsedMilliseconds;
-            var diffPos    = _rectMin.X + 2 + _rectSize.X * diff / 30000;
+            var diff    = _start.ElapsedMilliseconds;
+            var diffPos = _rectMin.X + 2 + _rectSize.X * diff / MaxTimerSeconds;
 
             ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
-            ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing,   new Vector2(0, 1));
+            ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
 
-            var lineHeight    = (ImGui.GetTextLineHeightWithSpacing() * 1.4f + 1);
+            var lineHeight    = ImGui.GetTextLineHeightWithSpacing() * 1.4f + 1;
             var textLines     = 2 * ImGui.GetTextLineHeightWithSpacing();
             var maxListHeight = 9 * lineHeight + textLines;
             var listHeight    = EditMode ? maxListHeight : _currentFishList.Length * lineHeight + textLines;
@@ -233,42 +234,53 @@ namespace GatherBuddy.Gui
             }
 
             drawList.AddRectFilled(_rectMin, _rectMin + new Vector2(_rectSize.X, textLines), 0x80000000, 4f);
-            if (fishing)
+            if (rodOut)
             {
-                var secondText = (diff / 1000.0).ToString("00.0");
-
                 ImGui.SetCursorPosX(5);
                 ImGui.Text(_currentBait.Name);
                 ImGui.SetCursorPosX(5);
                 ImGui.Text(_currentSpot?.PlaceName?[_lang] ?? "Unknown");
-                ImGui.SameLine(_rectSize.X -ImGui.CalcTextSize(secondText).X - 5);
-                ImGui.Text(secondText);
+                var displayTimer = (fishing || _bite.IsRunning) && _start.ElapsedMilliseconds > 0;
+
+                if (displayTimer)
+                {
+                    var secondText = (diff / 1000.0).ToString("00.0");
+                    ImGui.SameLine(_rectSize.X - ImGui.CalcTextSize(secondText).X - 5);
+                    ImGui.Text(secondText);
+                }
 
                 foreach (var fish in _currentFishList)
                     DrawFish(drawList, fish!);
 
-                if (_start.ElapsedMilliseconds > 0)
-                {
-                    drawList.AddLine(new Vector2(diffPos, _rectMin.Y  + textLines), new Vector2(diffPos, _rectMin.Y + listHeight - 2), 0xFF000000, 3);
-                }
+                if (displayTimer)
+                    drawList.AddLine(new Vector2(diffPos, _rectMin.Y + textLines), new Vector2(diffPos, _rectMin.Y + listHeight - 2),
+                        Colors.FishTimer.Line, 3);
             }
             else if (EditMode)
             {
                 ImGui.Text("  Bait");
                 ImGui.Text("  Place and Time");
-                drawList.AddRect(_rectMin, _rectMin + _rectSize - new Vector2(0, 1), 0xFF000000, 5);
-                drawList.AddRectFilled(_rectMin, _rectMin + _rectSize, 0x20FFFFFF, 5);
-                ImGui.SetCursorPos(new Vector2((_rectSize.X - ImGui.CalcTextSize("FISH").X) / 2,
-                    (_rectSize.Y - ImGui.GetTextLineHeightWithSpacing()) / 2));
-                ImGui.Text("FISH");
-                ImGui.SetCursorPos(new Vector2((_rectSize.X - ImGui.CalcTextSize("TIMER").X) / 2,
-                    (_rectSize.Y + ImGui.GetTextLineHeightWithSpacing()) / 2));
-                ImGui.Text("TIMER");
+                drawList.AddRect(_rectMin, _rectMin + _rectSize - _itemSpacing, Colors.FishTimer.Line, 5);
+                drawList.AddRectFilled(_rectMin, _rectMin + _rectSize, Colors.FishTimer.EditBackground, 5);
+                ImGui.SetCursorPosY((_rectSize.Y - ImGui.GetTextLineHeightWithSpacing()) / 2);
+                DrawCenteredText(_rectSize.X, "FISH");
+                ImGui.SetCursorPosY((_rectSize.Y + ImGui.GetTextLineHeightWithSpacing()) / 2);
+                DrawCenteredText(_rectSize.X, "TIMER");
+                DrawCenteredText(_rectSize.X, "\nDisable \"Edit Fish Timer\"");
+                DrawCenteredText(_rectSize.X, "in /GatherBuddy -> Settings");
+                DrawCenteredText(_rectSize.X, "to hide this when not fishing.");
             }
 
 
             ImGui.End();
             ImGui.PopStyleVar(2);
+        }
+
+        public static void DrawCenteredText(float xSize, string text)
+        {
+            var textSize = ImGui.CalcTextSize(text).X;
+            ImGui.SetCursorPosX((xSize - textSize) / 2);
+            ImGui.Text(text);
         }
     }
 }
