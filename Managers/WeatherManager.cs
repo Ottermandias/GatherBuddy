@@ -75,7 +75,7 @@ namespace GatherBuddy.Managers
             {
                 for (--idx; idx < List.Count; ++idx)
                 {
-                    var w       = List[idx];
+                    var w = List[idx];
                     if (previousFit
                      && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Count * EorzeaTime.SecondsPerEorzeaHour) >= DateTime.UtcNow
                      && w.Uptime.Overlaps(uptime)

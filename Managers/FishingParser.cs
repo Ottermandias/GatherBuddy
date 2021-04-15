@@ -37,7 +37,7 @@ namespace GatherBuddy.Managers
             }
 
             // English
-            private Regexes(bool _1)
+            private Regexes(bool _)
             {
                 Cast           = new Regex(@"You cast your line (?:on|in|at)(?: the)? (?<FishingSpot>.+)\.");
                 Cast           = new Regex(@"You cast your line (?:on|in|at)(?: the)? (?<FishingSpot>.+)\.");
@@ -50,7 +50,7 @@ namespace GatherBuddy.Managers
             }
 
             // German
-            private Regexes(bool _1, bool _2)
+            private Regexes(bool _, bool _2)
             {
                 Cast           = new Regex(@"Du hast mit dem Fischen (?<FishingSpotWithArticle>.+) begonnen\.(?<FishingSpot>invalid)?");
                 AreaDiscovered = new Regex(@"Die neue Angelstelle (?<FishingSpot>.*) wurde in deinem Fischer-Notizbuch vermerkt\.");
@@ -63,7 +63,7 @@ namespace GatherBuddy.Managers
             }
 
             // French
-            private Regexes(bool _1, bool _2, bool _3)
+            private Regexes(bool _, bool _2, bool _3)
             {
                 Cast           = new Regex(@"Vous commencez à pêcher. Point de pêche: (?<FishingSpot>.+)");
                 AreaDiscovered = new Regex(@"Vous notez le banc de poissons “(?<FishingSpot>.+)” dans votre carnet\.");
@@ -75,7 +75,7 @@ namespace GatherBuddy.Managers
             }
 
             // Japanese
-            private Regexes(bool _1, bool _2, bool _3, bool _4)
+            private Regexes(bool _, bool _2, bool _3, bool _4)
             {
                 Cast           = new Regex(@".+\u306f(?<FishingSpot>.+)で釣りを開始した。");
                 AreaDiscovered = new Regex(@"釣り手帳に新しい釣り場「(?<FishingSpot>.+)」の情報を記録した！");
@@ -88,7 +88,7 @@ namespace GatherBuddy.Managers
         }
 
         private const    XivChatType FishingMessage      = (XivChatType) 2243;
-        private const    XivChatType FishingCatchMessage = (XivChatType) 2115; // catch
+        private const    XivChatType FishingCatchMessage = (XivChatType) 2115;
         private readonly Regexes     _regexes;
 
         private readonly DalamudPluginInterface _pi;

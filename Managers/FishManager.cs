@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Threading.Tasks;
 using Dalamud;
 using Dalamud.Game;
 using Dalamud.Plugin;
@@ -83,7 +82,7 @@ namespace GatherBuddy.Managers
 
         public readonly Dictionary<uint, Fish> Fish = new();
 
-        public readonly Dictionary<string, Fish>[] FishNameToFish = new Dictionary<string, Fish>[4]
+        public readonly Dictionary<string, Fish>[] FishNameToFish = new Dictionary<string, Fish>[]
         {
             new(),
             new(),
@@ -276,7 +275,7 @@ namespace GatherBuddy.Managers
             }
         }
 
-        public FishManager(DalamudPluginInterface pi, World territories, AetheryteManager aetherytes)
+        public FishManager(DalamudPluginInterface pi, World territories)
         {
             var fishingSpots      = pi.Data.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishingSpot>();
             var spearfishingSpots = pi.Data.Excel.GetSheet<SpearfishingNotebook>();

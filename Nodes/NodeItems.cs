@@ -32,12 +32,14 @@ namespace GatherBuddy.Nodes
         public bool SetFirstNullItem(Node node, Gatherable item)
         {
             for (var i = 0; i < Items.Length; ++i)
+            {
                 if (Items[i] == null)
                 {
                     Items[i] = item;
                     item.NodeList.Add(node);
                     return true;
                 }
+            }
 
             return false;
         }
@@ -49,8 +51,10 @@ namespace GatherBuddy.Nodes
         public NodeItems(Node node, IEnumerable<int> itemIdList, ItemManager gatherables)
         {
             foreach (var itemId in itemIdList)
+            {
                 if (gatherables.GatheringToItem.TryGetValue(itemId, out var item))
                     SetFirstNullItem(node, item);
+            }
         }
     }
 }

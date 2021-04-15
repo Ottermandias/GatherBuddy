@@ -28,6 +28,7 @@ namespace GatherBuddy.Utility
                 min    = candidate;
                 minKey = candidateProjected;
             }
+
             return min;
         }
     }
@@ -58,9 +59,9 @@ namespace GatherBuddy.Utility
 
         public static uint Popcount(uint value)
         {
-            value -= ((value >> 1) & 0x55555555u);
-            value = (value & 0x33333333u) + ((value >> 2) & 0x33333333u);
-            return (uint) ((value + (value >> 4) & 0xF0F0F0Fu) * 0x1010101u) >> 24;
+            value -= (value >> 1) & 0x55555555u;
+            value =  (value & 0x33333333u) + ((value >> 2) & 0x33333333u);
+            return (((value + (value >> 4)) & 0xF0F0F0Fu) * 0x1010101u) >> 24;
         }
 
         public static uint HighestSetBit(uint value)
@@ -95,31 +96,34 @@ namespace GatherBuddy.Utility
 
         public static uint TrailingZeroCount(uint value)
         {
-
             if ((value & 0x1u) == 0x1u)
                 return 0;
 
             var ret = 1;
-            if ((value & 0xFFFFu) == 0) 
-            {  
-                value >>= 16;  
-                ret +=  16;
+            if ((value & 0xFFFFu) == 0)
+            {
+                value >>= 16;
+                ret   +=  16;
             }
-            if ((value & 0xFFu) == 0) 
-            {  
-                value >>= 8;  
-                ret +=  8;
+
+            if ((value & 0xFFu) == 0)
+            {
+                value >>= 8;
+                ret   +=  8;
             }
-            if ((value & 0xFu) == 0) 
-            {  
+
+            if ((value & 0xFu) == 0)
+            {
                 value >>= 4;
-                ret +=  4;
+                ret   +=  4;
             }
-            if ((value & 0x3u) == 0) 
-            {  
+
+            if ((value & 0x3u) == 0)
+            {
                 value >>= 2;
-                ret +=  2;
+                ret   +=  2;
             }
+
             return (uint) (ret - (value & 0x1));
         }
 

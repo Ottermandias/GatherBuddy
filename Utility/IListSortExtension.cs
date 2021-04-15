@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace GatherBuddy.Utility
 {
-    public static class IListSortExtension
+    public static class ListSortExtension
     {
         public static IEnumerable<T> OrderBy<T>(this IEnumerable<T> list, Comparison<T> comparison)
             => list.OrderBy(t => t, new ComparisonComparer<T>(comparison));

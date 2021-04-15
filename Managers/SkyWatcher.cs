@@ -69,7 +69,7 @@ namespace GatherBuddy.Managers
 
         private static DateTime GetRootTime(DateTime fromWhen)
         {
-            var seconds = (long) ((fromWhen.ToUniversalTime() - RealTime.UnixEpoch).TotalSeconds) % SecondsPerWeather;
+            var seconds = (long) (fromWhen.ToUniversalTime() - RealTime.UnixEpoch).TotalSeconds % SecondsPerWeather;
             return fromWhen.AddTicks(-(fromWhen.Ticks % TimeSpan.TicksPerSecond) - seconds * TimeSpan.TicksPerSecond);
         }
 
@@ -77,7 +77,7 @@ namespace GatherBuddy.Managers
         {
             var timeStamp   = (long) (fromWhen - RealTime.UnixEpoch).TotalSeconds;
             var hour        = timeStamp / EorzeaTime.SecondsPerEorzeaHour;
-            var shiftedHour = (uint) (hour + 8 - (hour % 8)) % 24;
+            var shiftedHour = (uint) (hour + 8 - hour % 8) % 24;
             var day         = (uint) timeStamp / EorzeaTime.SecondsPerEorzeaDay;
 
             var ret = day * 100 + shiftedHour;
@@ -90,9 +90,12 @@ namespace GatherBuddy.Managers
         private static Weather GetWeather(byte target, IList<(Weather, byte)> rates)
         {
             Debug.Assert(target < 100);
-            foreach ( var (w, r) in rates)
+            foreach (var (w, r) in rates)
+            {
                 if (r > target)
                     return w;
+            }
+
             // Should never be reached.
             Debug.Assert(false);
             return rates[0].Item1;

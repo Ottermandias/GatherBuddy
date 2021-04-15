@@ -35,6 +35,12 @@ namespace GatherBuddy.Game
 
         private readonly dynamic _fishData;
 
+        public FishRecord Record { get; set; } = new();
+
+        public CatchData? CatchData { get; set; }
+
+        private RealUptime _nextUptime = RealUptime.Unknown;
+
         public GigHead Gig { get; set; } = GigHead.None;
 
         public bool IsSpearFish
@@ -48,12 +54,6 @@ namespace GatherBuddy.Game
 
         public string Folklore
             => IsSpearFish ? string.Empty : FishData!.GatheringSubCategory.Value?.FolkloreBook ?? string.Empty;
-
-        public FishRecord Record { get; set; } = new();
-
-        public CatchData? CatchData { get; set; } = null;
-
-        private RealUptime _nextUptime = RealUptime.Unknown;
 
         public Fish(SpearFishRow fishRow, GigHead gig, FFName name)
         {
@@ -92,7 +92,9 @@ namespace GatherBuddy.Game
             // Unknown
             if (CatchData == null
              || FishRestrictions.HasFlag(FishRestrictions.Time) && CatchData.Hours.AlwaysUp()
-             || FishRestrictions.HasFlag(FishRestrictions.Weather) && CatchData.PreviousWeather.Length == 0 && CatchData.CurrentWeather.Length == 0)
+             || FishRestrictions.HasFlag(FishRestrictions.Weather)
+             && CatchData.PreviousWeather.Length == 0
+             && CatchData.CurrentWeather.Length == 0)
                 return RealUptime.Unknown;
 
             // Update cache if necessary
@@ -111,7 +113,6 @@ namespace GatherBuddy.Game
                 return;
             }
 
-            var epoch = RealTime.UnixEpoch;
             var wl = weather.RequestForecast(FishingSpots.First().Territory!, CatchData!.CurrentWeather, CatchData.PreviousWeather,
                 CatchData.Hours);
 
@@ -120,7 +121,7 @@ namespace GatherBuddy.Game
             var startTime = wl.Time.AddSeconds(EorzeaTime.SecondsPerEorzeaHour * offset);
             var duration  = TimeSpan.FromSeconds(EorzeaTime.SecondsPerEorzeaHour * (int) overlap.Count);
 
-            var valid = false;
+            bool valid;
             do
             {
                 var endTime   = startTime + duration;

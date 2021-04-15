@@ -44,7 +44,7 @@ namespace GatherBuddy.Managers
             var (text, length) = PrepareString(message);
             var payload = PrepareContainer(text, length);
 
-            _processChatBox.Invoke(_uiModulePtr, payload, IntPtr.Zero, (byte)0);
+            _processChatBox.Invoke(_uiModulePtr, payload, IntPtr.Zero, (byte) 0);
 
             Marshal.FreeHGlobal(payload);
             Marshal.FreeHGlobal(text);

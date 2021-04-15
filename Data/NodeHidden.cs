@@ -1,6 +1,5 @@
 using System.Linq;
 using Dalamud;
-using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
 using GatherBuddy.Managers;
@@ -23,7 +22,7 @@ namespace GatherBuddy.Data
         {
             // @formatter:off
             var from = items.FromLanguage[(int) ClientLanguage.English];
-            _maps = new Gatherable[]
+            _maps = new[]
             { from["Timeworn Leather Map"    ]
             , from["Timeworn Goatskin Map"   ]
             , from["Timeworn Toadskin Map"   ]
@@ -41,7 +40,7 @@ namespace GatherBuddy.Data
             _darkMatterCluster = from["Dark Matter Cluster"];
             _unaspectedCrystal = from["Unaspected Crystal" ];
 
-            _seeds = new (string, Gatherable)[]
+            _seeds = new[]
             { ("Paprika Seeds"           , from["Paprika"                   ])
             , ("Wild Onion Set"          , from["Wild Onion"                ])
             , ("Coerthan Carrot Seeds"   , from["Coerthan Carrot"           ])
@@ -80,113 +79,115 @@ namespace GatherBuddy.Data
             , ("Oddly Specific Primordial Ore"   , from["Oddly Specific Primordial Asphaltum"]),
             };
 
-            _otherHidden = new Gatherable[]
-            { @from["Grade 1 La Noscean Topsoil"]
-            , @from["Grade 1 Shroud Topsoil"    ]
-            , @from["Grade 1 Thanalan Topsoil"  ]
-            , @from["Grade 2 La Noscean Topsoil"]
-            , @from["Grade 2 Shroud Topsoil"    ]
-            , @from["Grade 2 Thanalan Topsoil"  ]
-            , @from["Black Limestone"           ]
-            , @from["Little Worm"               ]
-            , @from["Yafaem Wildgrass"          ]
-            , @from["Dark Chestnut"             ]
-            , @from["Firelight Seeds"           ]
-            , @from["Icelight Seeds"            ]
-            , @from["Windlight Seeds"           ]
-            , @from["Earthlight Seeds"          ]
-            , @from["Levinlight Seeds"          ]
-            , @from["Waterlight Seeds"          ]
-            , @from["Mythrite Ore"              ]
-            , @from["Hardsilver Ore"            ]
-            , @from["Titanium Ore"              ]
-            , @from["Birch Log"                 ]
-            , @from["Cyclops Onion"             ]
-            , @from["Emerald Beans"             ],
+            _otherHidden = new[]
+            { from["Grade 1 La Noscean Topsoil"]
+            , from["Grade 1 Shroud Topsoil"    ]
+            , from["Grade 1 Thanalan Topsoil"  ]
+            , from["Grade 2 La Noscean Topsoil"]
+            , from["Grade 2 Shroud Topsoil"    ]
+            , from["Grade 2 Thanalan Topsoil"  ]
+            , from["Black Limestone"           ]
+            , from["Little Worm"               ]
+            , from["Yafaem Wildgrass"          ]
+            , from["Dark Chestnut"             ]
+            , from["Firelight Seeds"           ]
+            , from["Icelight Seeds"            ]
+            , from["Windlight Seeds"           ]
+            , from["Earthlight Seeds"          ]
+            , from["Levinlight Seeds"          ]
+            , from["Waterlight Seeds"          ]
+            , from["Mythrite Ore"              ]
+            , from["Hardsilver Ore"            ]
+            , from["Titanium Ore"              ]
+            , from["Birch Log"                 ]
+            , from["Cyclops Onion"             ]
+            , from["Emerald Beans"             ],
             };
             // @formatter:on
         }
 
-        private void ApplySeeds(Node N)
+        private void ApplySeeds(Node n)
         {
             foreach (var (seed, fruit) in _seeds)
-                if (N.Items!.HasItems(seed))
-                    N.AddItem(fruit);
-        }
-
-        // @formatter:off
-        private void ApplyOtherHidden(Node N)
-        {
-            switch(N.Meta!.PointBaseId)
             {
-                case 183: N.AddItem(_otherHidden[ 0]); return;
-                case 163: N.AddItem(_otherHidden[ 1]); return;
-                case 172: N.AddItem(_otherHidden[ 2]); return;
-                case 193: N.AddItem(_otherHidden[ 3]); return;
-                case 209: N.AddItem(_otherHidden[ 4]); return;
-                case 151: N.AddItem(_otherHidden[ 5]); return;
-                case 210: N.AddItem(_otherHidden[ 6]); return;
-                case 177: N.AddItem(_otherHidden[ 7]); return;
-                case 133: N.AddItem(_otherHidden[ 8]); return;
-                case 295: N.AddItem(_otherHidden[ 9]); return;
-                case  30: N.AddItem(_otherHidden[10]); return;
-                case  39: N.AddItem(_otherHidden[11]); return;
-                case  21: N.AddItem(_otherHidden[12]); return;
-                case  31: N.AddItem(_otherHidden[13]); return;
-                case  25: N.AddItem(_otherHidden[14]); return;
-                case  14: N.AddItem(_otherHidden[15]); return;
-                case 285: N.AddItem(_otherHidden[16]); return;
-                case 353: N.AddItem(_otherHidden[17]); return;
-                case 286: N.AddItem(_otherHidden[18]); return;
-                case 356: N.AddItem(_otherHidden[19]); return;
-                case 297: N.AddItem(_otherHidden[20]); return;
-                case 298: N.AddItem(_otherHidden[21]); return;
+                if (n.Items!.HasItems(seed))
+                    n.AddItem(fruit);
             }
         }
 
-        private void ApplyMaps(Node N)
+        // @formatter:off
+        private void ApplyOtherHidden(Node n)
         {
-            if (N.Meta!.NodeType != NodeType.Regular)            
+            switch(n.Meta!.PointBaseId)
+            {
+                case 183: n.AddItem(_otherHidden[ 0]); return;
+                case 163: n.AddItem(_otherHidden[ 1]); return;
+                case 172: n.AddItem(_otherHidden[ 2]); return;
+                case 193: n.AddItem(_otherHidden[ 3]); return;
+                case 209: n.AddItem(_otherHidden[ 4]); return;
+                case 151: n.AddItem(_otherHidden[ 5]); return;
+                case 210: n.AddItem(_otherHidden[ 6]); return;
+                case 177: n.AddItem(_otherHidden[ 7]); return;
+                case 133: n.AddItem(_otherHidden[ 8]); return;
+                case 295: n.AddItem(_otherHidden[ 9]); return;
+                case  30: n.AddItem(_otherHidden[10]); return;
+                case  39: n.AddItem(_otherHidden[11]); return;
+                case  21: n.AddItem(_otherHidden[12]); return;
+                case  31: n.AddItem(_otherHidden[13]); return;
+                case  25: n.AddItem(_otherHidden[14]); return;
+                case  14: n.AddItem(_otherHidden[15]); return;
+                case 285: n.AddItem(_otherHidden[16]); return;
+                case 353: n.AddItem(_otherHidden[17]); return;
+                case 286: n.AddItem(_otherHidden[18]); return;
+                case 356: n.AddItem(_otherHidden[19]); return;
+                case 297: n.AddItem(_otherHidden[20]); return;
+                case 298: n.AddItem(_otherHidden[21]); return;
+            }
+        }
+
+        private void ApplyMaps(Node n)
+        {
+            if (n.Meta!.NodeType != NodeType.Regular)            
                 return;
 
-            switch(N.Meta!.Level)
+            switch(n.Meta!.Level)
             {
-                case 40: N.AddItem(_maps[ 0]); return;
-                case 45: N.AddItem(_maps[ 1]); return;
-                case 50: N.AddItem(_maps[ 2]);
-                         N.AddItem(_maps[ 3]);
-                         N.AddItem(_maps[ 4]); return;
-                case 55: N.AddItem(_maps[ 5]); return;
-                case 60: N.AddItem(_maps[ 6]);
-                         N.AddItem(_maps[ 7]); return;
-                case 70: N.AddItem(_maps[ 8]);
-                         N.AddItem(_maps[ 9]); return;
+                case 40: n.AddItem(_maps[ 0]); return;
+                case 45: n.AddItem(_maps[ 1]); return;
+                case 50: n.AddItem(_maps[ 2]);
+                         n.AddItem(_maps[ 3]);
+                         n.AddItem(_maps[ 4]); return;
+                case 55: n.AddItem(_maps[ 5]); return;
+                case 60: n.AddItem(_maps[ 6]);
+                         n.AddItem(_maps[ 7]); return;
+                case 70: n.AddItem(_maps[ 8]);
+                         n.AddItem(_maps[ 9]); return;
                 case 80: 
-                    if (N.Items!.ActualItems.Any(g => ((string) g.Name).StartsWith("Oddly Specific")))
+                    if (n.Items!.ActualItems.Any(g => ((string) g.Name).StartsWith("Oddly Specific")))
                         return;
-                    N.AddItem(_maps[10]);
-                    N.AddItem(_maps[11]); return;
+                    n.AddItem(_maps[10]);
+                    n.AddItem(_maps[11]); return;
             }
         }
         // @formatter:on
 
-        private void ApplyDarkMatter(Node N)
+        private void ApplyDarkMatter(Node n)
         {
-            if (N.Meta!.NodeType != NodeType.Unspoiled)
+            if (n.Meta!.NodeType != NodeType.Unspoiled)
                 return;
-            if (N.Meta.Level != 50)
+            if (n.Meta.Level != 50)
                 return;
 
-            N.AddItem(_darkMatterCluster);
-            N.AddItem(_unaspectedCrystal);
+            n.AddItem(_darkMatterCluster);
+            n.AddItem(_unaspectedCrystal);
         }
 
-        public void SetHiddenItems(Node N)
+        public void SetHiddenItems(Node n)
         {
-            ApplySeeds(N);
-            ApplyMaps(N);
-            ApplyDarkMatter(N);
-            ApplyOtherHidden(N);
+            ApplySeeds(n);
+            ApplyMaps(n);
+            ApplyDarkMatter(n);
+            ApplyOtherHidden(n);
         }
     }
 }

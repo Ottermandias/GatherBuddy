@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using GatherBuddy.Classes;
 using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
 using ItemRow = Lumina.Excel.GeneratedSheets.Item;
@@ -12,8 +11,8 @@ namespace GatherBuddy.Game
     {
         public ItemRow       ItemData      { get; }
         public GatheringRow  GatheringData { get; }
-        public FFName        Name    { get; } = new();
-        public HashSet<Node> NodeList    { get; } = new();
+        public FFName        Name          { get; } = new();
+        public HashSet<Node> NodeList      { get; } = new();
 
         public uint ItemId
             => ItemData.RowId;
@@ -27,7 +26,7 @@ namespace GatherBuddy.Game
         {
             ItemData      = itemData;
             GatheringData = gatheringData;
-            _levelStars = (level << 3) + stars;
+            _levelStars   = (level << 3) + stars;
         }
 
         public int Level

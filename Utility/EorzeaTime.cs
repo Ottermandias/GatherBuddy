@@ -11,7 +11,7 @@ namespace GatherBuddy.Utility
         public const int MinutesPerDay    = MinutesPerHour * HoursPerDay;
         public const int SecondsPerDay    = SecondsPerMinute * MinutesPerDay;
 
-        public static readonly DateTime UnixEpoch = new (1970, 1, 1);
+        public static readonly DateTime UnixEpoch = new(1970, 1, 1);
 
         public static long CurrentTimestamp()
             => DateTimeOffset.UtcNow.ToUnixTimeSeconds();
@@ -24,7 +24,7 @@ namespace GatherBuddy.Utility
         public const double ConversionFactor     = 7.0 / 144.0;
 
         public static long CurrentTimestamp()
-            => (RealTime.CurrentTimestamp() * 144) / 7;
+            => RealTime.CurrentTimestamp() * 144 / 7;
 
         public static long CurrentHour()
             => RealTime.CurrentTimestamp() / SecondsPerEorzeaHour;
@@ -39,7 +39,7 @@ namespace GatherBuddy.Utility
             => (uint) CurrentHour(eorzeaMinuteOffset) % RealTime.HoursPerDay;
 
         public static long CurrentMinute(int eorzeaMinuteOffset = 0)
-            => (RealTime.CurrentTimestamp() * 36) / 105 + eorzeaMinuteOffset;
+            => RealTime.CurrentTimestamp() * 36 / 105 + eorzeaMinuteOffset;
 
         public static uint CurrentMinuteOfHour(int eorzeaMinuteOffset = 0)
             => (uint) CurrentMinute(eorzeaMinuteOffset) % RealTime.MinutesPerHour;
@@ -64,7 +64,7 @@ namespace GatherBuddy.Utility
             => (uint) Hour(time) % RealTime.HoursPerDay;
 
         public static uint MinuteOfDay(DateTime time)
-            => (uint) ((RealTimestamp(time) * 36) / 105) % RealTime.SecondsPerMinute;
+            => (uint) (RealTimestamp(time) * 36 / 105) % RealTime.SecondsPerMinute;
 
         public static (long minutes, long seconds) MinutesToReal(long eorzeaMinutes)
         {

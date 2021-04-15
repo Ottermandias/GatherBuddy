@@ -2,12 +2,12 @@ using System.Collections.Generic;
 using Dalamud.Plugin;
 using Dalamud;
 using System.Linq;
-using GatherBuddy.Classes;
+using GatherBuddy.Enums;
 using GatherBuddy.Game;
 using GatherBuddy.Nodes;
 using Lumina.Excel.GeneratedSheets;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
-using GatheringType = GatherBuddy.Game.GatheringType;
+using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy.Managers
 {
@@ -22,8 +22,8 @@ namespace GatherBuddy.Managers
         public           NodeManager            Nodes       { get; }
         public           WeatherManager         Weather     { get; }
 
-        private          int                    _currentXStream = 0;
-        private          int                    _currentYStream = 0;
+        private int _currentXStream;
+        private int _currentYStream;
 
         private void AddAetherytes(Territory territory)
         {
@@ -79,20 +79,23 @@ namespace GatherBuddy.Managers
                 if (closest == null || type != null && type!.Value.ToGroup() != node.Meta!.GatheringType.ToGroup())
                     continue;
 
-                var dist    = closest.AetherDistance(_currentXStream, _currentYStream);
+                var dist = closest!.AetherDistance(_currentXStream, _currentYStream);
                 if (dist > minDist)
                     continue;
 
                 if (dist == minDist)
                 {
-                    var newWorldDist = closest.WorldDistance(node.Nodes!.Territory!.Id, (int) (node.GetX() * 100.0), (int) (node.GetY() * 100.0));
+                    var newWorldDist =
+                        closest.WorldDistance(node.Nodes!.Territory!.Id, (int) (node.GetX() * 100.0), (int) (node.GetY() * 100.0));
                     if (newWorldDist >= worldDist)
                         continue;
 
                     worldDist = newWorldDist;
                 }
                 else
+                {
                     worldDist = closest.WorldDistance(node.Nodes!.Territory!.Id, (int) (node.GetX() * 100.0), (int) (node.GetY() * 100.0));
+                }
 
                 minDist = dist;
                 minNode = node;
@@ -113,7 +116,7 @@ namespace GatherBuddy.Managers
                 if (closest == null)
                     continue;
 
-                var dist    = closest.AetherDistance(_currentXStream, _currentYStream);
+                var dist = closest.AetherDistance(_currentXStream, _currentYStream);
                 if (dist > minDist)
                     continue;
 
@@ -126,7 +129,9 @@ namespace GatherBuddy.Managers
                     worldDist = newWorldDist;
                 }
                 else
+                {
                     worldDist = closest.WorldDistance(spot.Territory!.Id, spot.XCoord, spot.YCoord);
+                }
 
                 minDist = dist;
                 minSpot = spot;
@@ -144,7 +149,7 @@ namespace GatherBuddy.Managers
             Items       = new ItemManager(pi);
             Nodes       = new NodeManager(pi, config, this, Aetherytes, Items);
             Weather     = new WeatherManager(pi, Territories);
-            Fish        = new FishManager(pi, this, Aetherytes);
+            Fish        = new FishManager(pi, this);
 
             PluginLog.Verbose("{Count} regions collected.",     Territories.Regions.Count);
             PluginLog.Verbose("{Count} territories collected.", Territories.Territories);

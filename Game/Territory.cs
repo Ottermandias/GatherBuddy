@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Dalamud;
 using GatherBuddy.Utility;
 using TerritoryType = Lumina.Excel.GeneratedSheets.TerritoryType;
 
@@ -27,11 +26,5 @@ namespace GatherBuddy.Game
 
         public override string ToString()
             => $"[{Name}][{Region}]";
-    }
-
-    public class TerritoryComparer : IComparer<Territory>
-    {
-        public int Compare(Territory x, Territory y)
-            => x.Id.CompareTo(y.Id);
     }
 }

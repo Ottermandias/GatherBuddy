@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
-using GatherBuddy.Game;
+using GatherBuddy.Enums;
 using GatherBuddy.Nodes;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
@@ -82,7 +82,7 @@ namespace GatherBuddy.Managers
                 if (!alarm.Enabled)
                     continue;
 
-                var hour = (_currentMinute + alarm.MinuteOffset) / RealTime.MinutesPerHour;
+                var hour      = (_currentMinute + alarm.MinuteOffset) / RealTime.MinutesPerHour;
                 var hourOfDay = (uint) hour % RealTime.HoursPerDay;
 
                 var newStatus = alarm.Node!.Times!.IsUp(hourOfDay);
@@ -100,14 +100,14 @@ namespace GatherBuddy.Managers
             var result = format.Replace("{Name}", alarm.Name);
             result = result.Replace("{Offset}",     alarm.MinuteOffset.ToString());
             result = result.Replace("{TimesShort}", alarm.Node!.Times!.PrintHours(true));
-            result = result.Replace("{TimesLong}", alarm.Node!.Times!.PrintHours());
-            result = result.Replace("{AllItems}", alarm.Node!.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage));
+            result = result.Replace("{TimesLong}",  alarm.Node!.Times!.PrintHours());
+            result = result.Replace("{AllItems}",   alarm.Node!.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage));
 
             var tmp = "is currently up";
             if (alarm.MinuteOffset > 0)
             {
                 var hour       = currentMinute / RealTime.MinutesPerHour;
-                var hourOfDay  = (uint) hour % RealTime.HoursPerDay;
+                var hourOfDay  = hour % RealTime.HoursPerDay;
                 var nextUptime = alarm.Node!.Times!.NextUptime(hourOfDay);
                 var offTime    = (hour + nextUptime) * RealTime.MinutesPerHour - currentMinute;
                 var (m, s) = EorzeaTime.MinutesToReal(offTime);
@@ -126,7 +126,7 @@ namespace GatherBuddy.Managers
 
             if (alarm.PrintMessage && _config.AlarmFormat.Length > 0)
             {
-                _pi.Framework.Gui.Chat.PrintError(ReplaceFormatPlaceholders(_config.AlarmFormat, alarm, currentMinute));
+                _pi.Framework.Gui.Chat.PrintError(ReplaceFormatPlaceholders(_config.AlarmFormat,         alarm, currentMinute));
                 PluginLog.Verbose(ReplaceFormatPlaceholders(GatherBuddyConfiguration.DefaultAlarmFormat, alarm, currentMinute));
             }
 
@@ -201,6 +201,7 @@ namespace GatherBuddy.Managers
         {
             var changed = false;
             for (var i = 0; i < Alarms.Count; ++i)
+            {
                 if (Alarms[i].Node == null)
                 {
                     Alarms[i].FetchNode(_nodes);
@@ -211,6 +212,7 @@ namespace GatherBuddy.Managers
                     Alarms.RemoveAt(i--);
                     changed = true;
                 }
+            }
 
             if (changed)
                 _pi.SavePluginConfig(_config);

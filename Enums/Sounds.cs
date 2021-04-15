@@ -1,4 +1,4 @@
-namespace GatherBuddy.Game
+namespace GatherBuddy.Enums
 {
     public enum Sounds : byte
     {
@@ -45,7 +45,7 @@ namespace GatherBuddy.Game
                 Sounds.Sound14 => 14,
                 Sounds.Sound15 => 15,
                 Sounds.Sound16 => 16,
-                _              => -1
+                _              => -1,
             };
         }
 

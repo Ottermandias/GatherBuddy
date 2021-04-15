@@ -7,8 +7,8 @@ namespace GatherBuddy.Classes
 {
     public readonly struct Uptime
     {
-        private const    uint _badHour      = 25;
-        private const    uint  AllHoursValue = 0x00FFFFFF;
+        private const    uint BadHour       = RealTime.HoursPerDay + 1;
+        private const    uint AllHoursValue = 0x00FFFFFF;
         private readonly uint _hours; // bitfield, 0-23 for each hour.
 
         public static Uptime AllHours { get; } = new(AllHoursValue);
@@ -38,11 +38,11 @@ namespace GatherBuddy.Classes
             var endHour   = EndHour;
             var count     = Count;
             if (startHour + count == endHour)
-                return (startHour, endHour); 
+                return (startHour, endHour);
 
             startHour = Util.HighestSetBit(~_hours & AllHoursValue) + 1;
             endHour   = Util.TrailingZeroCount(~_hours);
-            if (((startHour + count) % RealTime.HoursPerDay) == endHour)
+            if ((startHour + count) % RealTime.HoursPerDay == endHour)
                 return (startHour, endHour);
 
             return null;
@@ -60,7 +60,7 @@ namespace GatherBuddy.Classes
         private static uint NextTime(uint currentHour, uint hours)
         {
             if (hours == 0)
-                return _badHour;
+                return BadHour;
 
             var rotatedHours = currentHour == 0 ? hours : (hours >> (int) currentHour) | ((hours << (32 - (int) currentHour)) >> 8);
             return Util.TrailingZeroCount(rotatedHours);
@@ -78,10 +78,10 @@ namespace GatherBuddy.Classes
             var timeStamp    = RealTime.CurrentTimestamp();
             var hour         = (uint) (timeStamp / EorzeaTime.SecondsPerEorzeaHour) % RealTime.HoursPerDay;
             var nextUptime   = NextUptime(hour);
-            var nextDowntime = NextDowntime((uint) (hour + nextUptime) % RealTime.HoursPerDay);
-            if (nextUptime == _badHour)
+            var nextDowntime = NextDowntime((hour + nextUptime) % RealTime.HoursPerDay);
+            if (nextUptime == BadHour)
                 return RealUptime.Never;
-            if (nextDowntime == _badHour)
+            if (nextDowntime == BadHour)
                 return RealUptime.Always;
             if (nextUptime == 0)
                 return new RealUptime(now,
@@ -138,16 +138,12 @@ namespace GatherBuddy.Classes
             for (var i = 0u; i < RealTime.HoursPerDay; ++i)
             {
                 if (IsUp(i))
-                {
                     if (min < 0)
                         min = (int) i;
                     else
                         max = (int) i;
-                }
                 else
-                {
                     AddString();
-                }
             }
 
             AddString();

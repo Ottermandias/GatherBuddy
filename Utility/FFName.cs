@@ -8,9 +8,6 @@ namespace GatherBuddy.Utility
     // ReSharper disable once InconsistentNaming
     public class FFName
     {
-        public FFName()
-        { }
-
         public string this[ClientLanguage lang]
         {
             get => Name(lang);
@@ -32,7 +29,6 @@ namespace GatherBuddy.Utility
 
         public string ToWholeString()
             => $"{Name(ClientLanguage.English)}|{Name(ClientLanguage.German)}|{Name(ClientLanguage.French)}|{Name(ClientLanguage.Japanese)}";
-
 
 
         public static FFName FromPlaceName(DalamudPluginInterface pi, uint id)
@@ -57,12 +53,12 @@ namespace GatherBuddy.Utility
             _nameList[(int) lang] = Util.RemoveItalics(name);
         }
 
-        private readonly string[] _nameList = new string[4]
+        private readonly string[] _nameList = 
         {
-            "",
-            "",
-            "",
-            "",
+            string.Empty,
+            string.Empty,
+            string.Empty,
+            string.Empty,
         };
     }
 }

@@ -1,7 +1,6 @@
 using System;
 using GatherBuddy.Enums;
-using GatherBuddy.Game;
-using GatheringType = GatherBuddy.Game.GatheringType;
+using GatheringType = GatherBuddy.Enums.GatheringType;
 using PointBase = Lumina.Excel.GeneratedSheets.GatheringPointBase;
 
 namespace GatherBuddy.Nodes

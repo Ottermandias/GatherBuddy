@@ -9,7 +9,8 @@ namespace GatherBuddy.Data
 {
     public static class GroupData
     {
-        private static void Add(IDictionary<string, TimedGroup> dict, ClientLanguage lang, string name, string desc, params (Node? node, string? desc)[] nodes)
+        private static void Add(IDictionary<string, TimedGroup> dict, ClientLanguage lang, string name, string desc,
+            params (Node? node, string? desc)[] nodes)
             => dict.Add(name, new TimedGroup(lang, name, desc, nodes));
 
         public static Dictionary<string, TimedGroup> CreateGroups(ClientLanguage lang, NodeManager nodes)

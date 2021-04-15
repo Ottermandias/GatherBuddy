@@ -82,7 +82,7 @@ namespace GatherBuddy
                 const string teleporterLanguageString = "\"teleporterlanguage\":";
 
                 var content = File.ReadAllText(filePath).ToLowerInvariant();
-                var idx     = content.IndexOf(teleporterLanguageString);
+                var idx     = content.IndexOf(teleporterLanguageString, StringComparison.Ordinal);
                 if (idx < 0)
                     return;
 
@@ -124,7 +124,7 @@ namespace GatherBuddy
 
         public void Dispose()
         {
-            Alarms?.Dispose();
+            Alarms.Dispose();
             _teleporterWatcher?.Dispose();
             _world.Nodes.Records.Dispose();
         }
@@ -261,7 +261,7 @@ namespace GatherBuddy
             if (!_configuration.UseTeleport)
                 return true;
 
-            var name = node?.GetClosestAetheryte()?.Name[_teleporterLanguage] ?? "";
+            var name = node.GetClosestAetheryte()?.Name[_teleporterLanguage] ?? "";
             if (name.Length == 0)
             {
                 PluginLog.Debug("No valid aetheryte found for node {NodeId}.", node!.Meta!.PointBaseId);
@@ -297,12 +297,12 @@ namespace GatherBuddy
 
             if (node.Meta!.IsBotanist())
             {
-                _commandManager.Execute($"/gearset change {_configuration?.BotanistSetName ?? "BOT"}");
+                _commandManager.Execute($"/gearset change {_configuration.BotanistSetName}");
                 await Task.Delay(200);
             }
             else if (node.Meta!.IsMiner())
             {
-                _commandManager.Execute($"/gearset change {_configuration?.MinerSetName ?? "MIN"}");
+                _commandManager.Execute($"/gearset change {_configuration.MinerSetName}");
                 await Task.Delay(200);
             }
             else
@@ -319,7 +319,7 @@ namespace GatherBuddy
             if (!_configuration.UseGearChange)
                 return;
 
-            _commandManager.Execute($"/gearset change {_configuration?.FisherSetName ?? "FSH"}");
+            _commandManager.Execute($"/gearset change {_configuration.FisherSetName}");
             await Task.Delay(200);
         }
 
@@ -343,7 +343,7 @@ namespace GatherBuddy
 
             var xString   = node.GetX().ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
             var yString   = node.GetY().ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var territory = node.Nodes!.Territory?.Name?[_language] ?? "";
+            var territory = node.Nodes!.Territory?.Name[_language] ?? "";
 
             if (territory.Length == 0)
             {
@@ -538,7 +538,7 @@ namespace GatherBuddy
             {
                 if (loc.Value!.Locations.Count > 0)
                     PluginLog.Information("[NodeRecorder] Purged all records for node {Key} containing item {Value}.", loc.Key, loc.Value);
-                loc.Value.Clear();
+                loc.Value!.Clear();
             }
         }
 
@@ -547,7 +547,7 @@ namespace GatherBuddy
             foreach (var a in _world.Aetherytes.Aetherytes)
             {
                 PluginLog.Information(
-                    $"[AetheryteDump] |{a.Id}|{a.Name}|{a.Territory?.Id ?? 0}|{a.XCoord:F2}|{a.YCoord:F2}|{a.XStream}|{a.YStream}|");
+                    $"[AetheryteDump] |{a.Id}|{a.Name}|{a.Territory.Id}|{a.XCoord:F2}|{a.YCoord:F2}|{a.XStream}|{a.YStream}|");
             }
         }
 
@@ -589,7 +589,7 @@ namespace GatherBuddy
 
         public void DumpFish()
         {
-            foreach (var f in _world.Fish.Fish.Values.OrderBy((f,g) => f.ItemId.CompareTo(g.ItemId)))
+            foreach (var f in _world.Fish.Fish.Values.OrderBy((f, g) => f.ItemId.CompareTo(g.ItemId)))
                 PluginLog.Information($"[FishDump] |{f.ItemId}|{f.Name}|");
         }
     }

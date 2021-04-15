@@ -1,5 +1,4 @@
 using System;
-using Dalamud;
 using GatherBuddy.Utility;
 using AetheryteRow = Lumina.Excel.GeneratedSheets.Aetheryte;
 
@@ -8,7 +7,7 @@ namespace GatherBuddy.Game
     public class Aetheryte : IComparable
     {
         public AetheryteRow Data      { get; set; }
-        public FFName       Name  { get; set; }
+        public FFName       Name      { get; set; }
         public Territory    Territory { get; set; }
         public int          XCoord    { get; set; }
         public int          YCoord    { get; set; }
@@ -42,7 +41,7 @@ namespace GatherBuddy.Game
 
         public double WorldDistance(uint mapId, int x, int y)
         {
-            if (mapId != (Territory?.Id ?? 0))
+            if (mapId != Territory.Id)
                 return double.PositiveInfinity;
 
             x -= XCoord;
@@ -58,7 +57,7 @@ namespace GatherBuddy.Game
         }
 
         public double AetherDistance(Aetheryte rhs)
-            => AetherDistance(rhs?.XStream ?? 0, rhs?.YStream ?? 0);
+            => AetherDistance(rhs.XStream, rhs.YStream);
 
         public override string ToString()
             => $"{Name} - {Territory!.Name}-{XCoord / 100.0:F2}:{YCoord / 100.0:F2}";

@@ -1,5 +1,4 @@
 using System.Linq;
-using Dalamud;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -12,7 +11,7 @@ namespace GatherBuddy.Data
     {
         public static void SetCoords(Node node, AetheryteManager aetherytes)
         {
-            bool Apply(string zone, string item, double x, double y, string A, bool flag = false)
+            bool Apply(string zone, string item, double x, double y, string aetheryte, bool flag = false)
             {
                 if (zone != node.PlaceNameEn || !node.Items!.HasItems(item) || node.InitialPos != null)
                     return false;
@@ -22,7 +21,7 @@ namespace GatherBuddy.Data
                     XCoordIntegral   = (int) (x * 100.0 + 0.9),
                     YCoordIntegral   = (int) (y * 100.0 + 0.9),
                     Prefer           = flag,
-                    ClosestAetheryte = aetherytes.Aetherytes.FirstOrDefault(a => a.Name == A),
+                    ClosestAetheryte = aetherytes.Aetherytes.FirstOrDefault(a => a.Name == aetheryte),
                 };
                 return true;
             }

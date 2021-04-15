@@ -3,21 +3,6 @@ using static GatherBuddy.Classes.Uptime;
 
 namespace GatherBuddy.Classes
 {
-    public enum HookSet : byte
-    {
-        None     = 0,
-        Precise  = 1,
-        Powerful = 2,
-        Unknown  = 3,
-    }
-
-    public enum Snagging : byte
-    {
-        Unknown  = 0,
-        None     = 1,
-        Required = 2,
-    }
-
     public class CatchData
     {
         public CatchData(Patch patch = 0)
@@ -46,7 +31,7 @@ namespace GatherBuddy.Classes
             Predator = values;
             return this;
         }
-        
+
         internal CatchData Uptime(uint startHour, uint endHour)
         {
             Hours = FromHours(startHour, endHour);
@@ -79,7 +64,7 @@ namespace GatherBuddy.Classes
 
         internal CatchData Gig(GigHead gigHead)
         {
-            GigHead  = gigHead;
+            GigHead = gigHead;
             if (gigHead != GigHead.None)
             {
                 Snagging  = Snagging.None;

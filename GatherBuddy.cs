@@ -1,18 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Runtime.InteropServices;
-using Dalamud.Game.Text;
-using Dalamud.Game.Text.SeStringHandling;
+﻿using System.Linq;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
-using GatherBuddy.Classes;
 using GatherBuddy.Gui;
 using GatherBuddy.Managers;
-using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
-using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
-using GatheringType = GatherBuddy.Game.GatheringType;
+using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy
 {
@@ -32,7 +24,6 @@ namespace GatherBuddy
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             _pluginInterface = pluginInterface;
-            var sheet = _pluginInterface.Data.GetExcelSheet<Item>();
             Service<DalamudPluginInterface>.Set(_pluginInterface);
             _commandManager  = new Managers.CommandManager(pluginInterface);
             _configuration   = pluginInterface.GetPluginConfig() as GatherBuddyConfiguration ?? new GatherBuddyConfiguration();
@@ -40,8 +31,8 @@ namespace GatherBuddy
             Alarms           = Gatherer.Alarms;
             _gatherInterface = new Interface(this, pluginInterface, _configuration);
             _fishingTimer    = new FishingTimer(_pluginInterface, _configuration, Gatherer!.FishManager);
-            
-            if (!Gatherer!.FishManager.GetSaveFileName(_pluginInterface).Exists) 
+
+            if (!Gatherer!.FishManager.GetSaveFileName(_pluginInterface).Exists)
                 Gatherer!.FishManager.SaveFishRecords(_pluginInterface);
             else
                 Gatherer!.FishManager.LoadFishRecords(_pluginInterface);
@@ -74,7 +65,8 @@ namespace GatherBuddy
 
             _pluginInterface!.CommandManager.AddHandler("/gatherfish", new CommandInfo(OnGatherFish)
             {
-                HelpMessage = "Mark the nearest fishing spot containing the fish supplied, teleport to the nearest aetheryte and equip fishing gear.",
+                HelpMessage =
+                    "Mark the nearest fishing spot containing the fish supplied, teleport to the nearest aetheryte and equip fishing gear.",
                 ShowInHelp = true,
             });
 
@@ -104,8 +96,8 @@ namespace GatherBuddy
         public void Dispose()
         {
             _gatherInterface?.Dispose();
-            _pluginInterface!.UiBuilder.OnOpenConfigUi        -= OnConfigCommandHandler;
-            _pluginInterface!.UiBuilder.OnBuildUi             -= _gatherInterface!.Draw;
+            _pluginInterface!.UiBuilder.OnOpenConfigUi -= OnConfigCommandHandler;
+            _pluginInterface!.UiBuilder.OnBuildUi      -= _gatherInterface!.Draw;
             _pluginInterface!.SavePluginConfig(_configuration);
             _pluginInterface.ClientState.TerritoryChanged -= Gatherer!.OnTerritoryChange;
             _fishingTimer?.Dispose();
@@ -174,11 +166,8 @@ namespace GatherBuddy
 
         private void OnGatherBuddy(string command, string arguments)
         {
-            var chat = _pluginInterface!.Framework.Gui.Chat;
-            var argumentParts = arguments.Split(new char[]
-            {
-                ' ',
-            }, 2);
+            var chat          = _pluginInterface!.Framework.Gui.Chat;
+            var argumentParts = arguments.Split(' ', 2);
 
             if (argumentParts.Length == 0 || argumentParts[0].Length == 0)
             {
@@ -186,8 +175,8 @@ namespace GatherBuddy
                 return;
             }
 
-            string  output;
-            bool setting;
+            string output;
+            bool   setting;
             if (Util.CompareCi(argumentParts[0], "snap") || Util.CompareCi(argumentParts[0], "snapshot"))
             {
                 output = $"Recorded {Gatherer!.Snapshot()} new nearby gathering nodes.";
@@ -212,7 +201,7 @@ namespace GatherBuddy
             else if (Util.CompareCi(argumentParts[0], "switchgear"))
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
-                { 
+                {
                     chat.Print("/gatherbuddy switchgear requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
@@ -299,7 +288,7 @@ namespace GatherBuddy
         {
             var argumentParts = arguments.Split();
             if (argumentParts.Length == 0)
-                return; 
+                return;
 
             if (argumentParts.Length < 2)
                 if (Util.CompareCi(argumentParts[0], "purgeallrecords"))

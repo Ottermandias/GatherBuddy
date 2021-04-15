@@ -23,7 +23,7 @@ namespace GatherBuddy.Game
 
         public bool Spearfishing { get; set; }
 
-        private static int ConvertCoord(double val, double scale)
+        internal static int ConvertCoord(double val, double scale)
             => (int) (100.0 * (41.0 / scale * (val * scale + 1024.0) / 2048.0 + 1.0));
 
         public int CompareTo(object? obj)

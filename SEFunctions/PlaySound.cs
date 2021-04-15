@@ -1,5 +1,5 @@
 using Dalamud.Game;
-using GatherBuddy.Game;
+using GatherBuddy.Enums;
 
 namespace GatherBuddy.SeFunctions
 {

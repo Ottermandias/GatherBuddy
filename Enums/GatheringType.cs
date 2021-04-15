@@ -1,4 +1,4 @@
-namespace GatherBuddy.Game
+namespace GatherBuddy.Enums
 {
     public enum GatheringType
     {

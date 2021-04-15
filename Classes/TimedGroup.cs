@@ -10,8 +10,8 @@ namespace GatherBuddy.Classes
 {
     public class TimedGroup
     {
-        public         string         Name { get; }
-        public         string         Desc { get; }
+        public string Name { get; }
+        public string Desc { get; }
 
         private readonly (Node node, string desc)[] _nodes;
 

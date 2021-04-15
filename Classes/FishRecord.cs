@@ -11,8 +11,8 @@ namespace GatherBuddy.Classes
     {
         public HashSet<uint> SuccessfulBaits { get; }      = new();
         public ushort        EarliestCatch   { get; set; } = ushort.MaxValue;
-        public ushort        LatestCatch     { get; set; } = 0;
-        public bool          WithoutSnagging { get; set; } = false;
+        public ushort        LatestCatch     { get; set; }
+        public bool          WithoutSnagging { get; set; }
         public BiteType      BiteType        { get; set; }
 
         public bool Update(Bait bait, ushort time, bool snagging, long biteTime)
@@ -85,6 +85,7 @@ namespace GatherBuddy.Classes
                 sb.Append(bait.ToString());
                 sb.Append(" ");
             }
+
             sb.Append("]}");
             return sb.ToString();
         }

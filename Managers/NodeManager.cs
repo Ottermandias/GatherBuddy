@@ -7,13 +7,13 @@ using GatherBuddy.Enums;
 using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
 using Lumina.Excel.GeneratedSheets;
-using GatheringType = GatherBuddy.Game.GatheringType;
+using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy.Managers
 {
     public class NodeManager
     {
-        public NodeRecorder           Records     { get; }
+        public NodeRecorder           Records      { get; }
         public Dictionary<uint, Node> NodeIdToNode { get; }
 
         private static (Uptime, NodeType) GetTimes(DalamudPluginInterface pi, uint nodeId)

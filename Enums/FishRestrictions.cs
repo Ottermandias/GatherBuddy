@@ -1,6 +1,6 @@
 using System;
 
-namespace GatherBuddy.Game
+namespace GatherBuddy.Enums
 {
     [Flags]
     public enum FishRestrictions : byte

@@ -42,7 +42,6 @@ namespace GatherBuddy.Classes
 
             var diff2 = Time - rhs.Time;
             return Math.Abs(diff2.TotalSeconds) < 0.2 ? 0 : diff2.CompareTo(TimeSpan.Zero);
-
         }
     }
 }

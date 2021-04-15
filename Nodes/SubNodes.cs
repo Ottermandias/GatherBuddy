@@ -7,11 +7,11 @@ namespace GatherBuddy.Nodes
     public class SubNodes
     {
         public Territory?                      Territory        { get; set; } = null;
-        public Aetheryte?                      ClosestAetheryte { get; set; } = null;
+        public Aetheryte?                      ClosestAetheryte { get; set; }
         public Dictionary<uint, NodeLocation?> Nodes            { get; set; } = new();
 
-        public int AverageX = 0;
-        public int AverageY = 0;
+        public int AverageX;
+        public int AverageY;
 
         public double XCoord
             => AverageX / 100.0;

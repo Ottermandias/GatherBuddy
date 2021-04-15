@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Dalamud.Configuration;
 using GatherBuddy.Classes;
-using GatherBuddy.Enums;
 
 namespace GatherBuddy
 {
@@ -42,8 +41,8 @@ namespace GatherBuddy
         public string IdentifiedFishingSpotFormat { get; set; }
         public string AlarmFormat                 { get; set; }
 
-        public int       Version           { get; set; }
-        public ShowNodes ShowNodes         { get; set; }
+        public int       Version   { get; set; }
+        public ShowNodes ShowNodes { get; set; }
 
         public bool UseGearChange    { get; set; }
         public bool UseTeleport      { get; set; }

@@ -15,7 +15,7 @@ namespace GatherBuddy.Managers
         // Sorted Set so the item search uses the lexicographically first item on partial match, rather than a random one.
         public SortedSet<Gatherable> Items { get; } = new();
 
-        public Dictionary<string, Gatherable>[] FromLanguage { get; } = new Dictionary<string, Gatherable>[4]
+        public Dictionary<string, Gatherable>[] FromLanguage { get; } = new Dictionary<string, Gatherable>[]
         {
             new(),
             new(),
@@ -37,7 +37,7 @@ namespace GatherBuddy.Managers
             // There are a bunch of ids in gathering that do belong to quest or leve items.
             foreach (var item in gatheringExcel.Where(i => i != null && i.Item != 0 && i.Item < 1000000))
             {
-                var row       = defaultSheet.GetRow((uint) item.Item);
+                var row     = defaultSheet.GetRow((uint) item.Item);
                 var newItem = new Gatherable(row, item, item.GatheringItemLevel.Value.GatheringItemLevel, item.GatheringItemLevel.Value.Stars);
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                 {
@@ -49,7 +49,7 @@ namespace GatherBuddy.Managers
                     }
 
                     FromLanguage[(int) lang][it.Name] = newItem;
-                    newItem.Name[lang]            = it.Name;
+                    newItem.Name[lang]                = it.Name;
                 }
 
                 Items.Add(newItem);
