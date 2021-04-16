@@ -44,7 +44,7 @@ namespace GatherBuddy.Managers
 
             if (_spearFish == null)
             {
-                PluginLog.Error($"Requesting spearfish log completion, but pointer not set.");
+                PluginLog.Error("Requesting spearfish log completion, but pointer not set.");
                 return false;
             }
 
@@ -63,7 +63,7 @@ namespace GatherBuddy.Managers
 
             if (_fish == null)
             {
-                PluginLog.Error($"Requesting fish log completion, but pointer not set.");
+                PluginLog.Error("Requesting fish log completion, but pointer not set.");
                 return false;
             }
 
@@ -216,7 +216,7 @@ namespace GatherBuddy.Managers
                 [ClientLanguage.German] =
                     pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8,
             };
-            FishingSpotNamesWithArticle[ffName[ClientLanguage.German]] = newSpot;
+            FishingSpotNamesWithArticle[ffName[ClientLanguage.German].ToLowerInvariant()] = newSpot;
 
             return newSpot;
         }
@@ -259,7 +259,7 @@ namespace GatherBuddy.Managers
                 [ClientLanguage.German] =
                     pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8,
             };
-            FishingSpotNamesWithArticle[ffName[ClientLanguage.German]] = newSpot;
+            FishingSpotNamesWithArticle[ffName[ClientLanguage.German].ToLowerInvariant()] = newSpot;
 
             return newSpot;
         }
@@ -303,7 +303,7 @@ namespace GatherBuddy.Managers
                         .Select(a => (a.WorldDistance(spot.Territory.Id, spot.XCoord, spot.YCoord), a)).Min().a;
 
                 FishingSpots[spot.UniqueId]                                       = spot;
-                FishingSpotNames[spot!.PlaceName![pi.ClientState.ClientLanguage]] = spot;
+                FishingSpotNames[spot!.PlaceName![pi.ClientState.ClientLanguage].ToLowerInvariant()] = spot;
             }
 
             Bait = CollectBait(itemSheets);

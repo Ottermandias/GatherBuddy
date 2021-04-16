@@ -116,7 +116,7 @@ namespace GatherBuddy.Managers
                 dict            = _fish.FishingSpotNamesWithArticle;
             }
 
-            if (dict.TryGetValue(fishingSpotName, out var fishingSpot))
+            if (dict.TryGetValue(fishingSpotName.ToLowerInvariant(), out var fishingSpot))
                 BeganFishing?.Invoke(fishingSpot);
             else
                 PluginLog.Error($"Began fishing at unknown fishing spot: \"{fishingSpotName}\".");
