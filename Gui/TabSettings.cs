@@ -94,6 +94,7 @@ namespace GatherBuddy.Gui
             DrawMapMarkerBox();
 
             DrawPrintUptimesBox();
+            DrawPrintGigheadBox();
 
             DrawFishTimerBox();
             DrawFishTimerEditBox();

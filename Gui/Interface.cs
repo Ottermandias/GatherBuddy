@@ -9,6 +9,7 @@ using GatherBuddy.Managers;
 using GatherBuddy.Utility;
 using ImGuiNET;
 using ImGuiScene;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.Gui
@@ -22,7 +23,6 @@ namespace GatherBuddy.Gui
         private readonly DalamudPluginInterface           _pi;
         private readonly GatherBuddyConfiguration         _config;
         private readonly ClientLanguage                   _lang;
-        private readonly Lumina.Excel.ExcelSheet<Weather> _weatherSheet;
 
         private FishManager FishManager
             => _plugin.Gatherer!.FishManager;
@@ -30,14 +30,12 @@ namespace GatherBuddy.Gui
         private WeatherManager WeatherManager
             => _plugin.Gatherer!.WeatherManager;
 
-        private readonly Cache.Icons  _icons;
-        private          Cache.Header _headerCache;
-        private          Cache.Alarms _alarmCache;
-        private readonly Cache.Fish   _fishCache;
-        private          Cache.Node   _nodeCache;
-
-        private long _totalHourWeather = 0;
-        private long _totalHourFish    = 0;
+        private readonly Cache.Icons   _icons;
+        private          Cache.Header  _headerCache;
+        private          Cache.Alarms  _alarmCache;
+        private readonly Cache.FishTab _fishCache;
+        private readonly Cache.NodeTab _nodeTabCache;
+        private          Cache.Weather _weatherCache;
 
         public bool Visible;
 
@@ -47,6 +45,12 @@ namespace GatherBuddy.Gui
         private static float   _minXSize;
         private static Vector2 _itemSpacing  = Vector2.Zero;
         private static Vector2 _framePadding = Vector2.Zero;
+        private static float   _textHeightOffset;
+        private static Vector2 _iconSize;
+        private static Vector2 _smallIconSize;
+        private static Vector2 _fishIconSize;
+        private static Vector2 _weatherIconSize;
+        private        float   _alarmsSpacing;
 
         private void Save()
             => _pi.SavePluginConfig(_config);
@@ -58,43 +62,24 @@ namespace GatherBuddy.Gui
             _config = config;
             _lang   = pi.ClientState.ClientLanguage;
 
-            _nodeCache = new Cache.Node(_config, plugin.Gatherer!.Timeline);
+            _nodeTabCache = new Cache.NodeTab(_config, plugin.Gatherer!.Timeline);
             _headerCache.Setup();
             _alarmCache = new Cache.Alarms(_plugin.Alarms!, _lang);
 
-            _weatherSheet = _pi.Data.GetExcelSheet<Weather>();
-            _icons = Service<Cache.Icons>.Set(_pi, (int) _weatherSheet.RowCount
+            var weatherSheet = _pi.Data.GetExcelSheet<Weather>();
+            _icons = Service<Cache.Icons>.Set(_pi, (int) weatherSheet.RowCount
               + FishManager.FishByUptime.Count
               + FishManager.Bait.Count);
 
-            _fishCache = new Cache.Fish(_icons);
+            _weatherCache = new Cache.Weather(WeatherManager);
 
-
-            // Weather Setup
-            _nextWeatherTimes = WeatherManager.NextWeatherChangeTimes(NumWeathers, -WeatherManager.SecondsPerWeather * 2);
-            _nextWeatherTimeStrings = UpdateWeatherTimeStrings();
-
-            _weatherCache   = CreateWeatherCache(WeatherManager);
-            _zoneFilterSize = _weatherCache.Max(c => ImGui.CalcTextSize(c.Zone).X);
-
-            if (_config.ShowFishFromPatch >= PatchSelector.Length)
+            if (_config.ShowFishFromPatch >= Cache.FishTab.PatchSelector.Length)
             {
                 _config.ShowFishFromPatch = 0;
                 Save();
             }
 
-            _allCachedFish         = FishManager.FishByUptime.ToDictionary(f => f, f => new CachedFish(this, f));
-            _currentSelector       = PatchSelector[_config.ShowFishFromPatch];
-            _currentlyRelevantFish = new Fish[0];
-            _cachedFish            = new CachedFish[0];
-            SetCurrentlyRelevantFish();
-
-            foreach (var fish in _allCachedFish.Values)
-            {
-                _longestName = Math.Max(_longestName, ImGui.CalcTextSize(fish.Name).X / ImGui.GetIO().FontGlobalScale);
-                _longestSpot = Math.Max(_longestSpot, ImGui.CalcTextSize(fish.FishingSpot).X / ImGui.GetIO().FontGlobalScale);
-                _longestZone = Math.Max(_longestZone, ImGui.CalcTextSize(fish.Territory).X / ImGui.GetIO().FontGlobalScale);
-            }
+            _fishCache = new Cache.FishTab(WeatherManager, _config, FishManager, _icons);
         }
 
         public void Dispose()
@@ -115,7 +100,9 @@ namespace GatherBuddy.Gui
             _itemSpacing      = ImGui.GetStyle().ItemSpacing;
             _framePadding     = ImGui.GetStyle().FramePadding;
             _iconSize         = new Vector2(40, 40) * ImGui.GetIO().FontGlobalScale;
+            _smallIconSize    = _iconSize / 2;
             _weatherIconSize  = new Vector2(30, 30) * ImGui.GetIO().FontGlobalScale;
+            _fishIconSize     = new Vector2(_iconSize.X * ImGui.GetTextLineHeight() / _iconSize.Y, ImGui.GetTextLineHeight());
             _textHeightOffset = (_weatherIconSize.Y - ImGui.GetTextLineHeight()) / 2;
 
             ImGui.SetNextWindowSizeConstraints(
@@ -140,7 +127,7 @@ namespace GatherBuddy.Gui
                   + "Click on a node to do a /gather command for that node.");
             if (nodeTab)
             {
-                _nodeCache.Update(hour);
+                _nodeTabCache.Update(hour);
                 DrawNodesTab();
                 ImGui.EndTabItem();
             }
@@ -151,14 +138,14 @@ namespace GatherBuddy.Gui
                   + "You can click the fish name or the fishing spot name to execute a /gatherfish command.");
             if (fishTab)
             {
-                UpdateFish(hour);
+                _fishCache.UpdateFish(hour);
                 DrawFishTab();
                 ImGui.EndTabItem();
             }
 
             if (ImGui.BeginTabItem("Weather"))
             {
-                UpdateWeather(hour);
+                _weatherCache.Update(hour);
                 DrawWeatherTab();
                 ImGui.EndTabItem();
             }

@@ -7,44 +7,11 @@ using GatherBuddy.Enums;
 using GatherBuddy.Game;
 using GatherBuddy.Utility;
 using ImGuiNET;
-using ImGuiScene;
 
 namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private readonly Dictionary<Fish, CachedFish> _allCachedFish;
-        private          Fish[]                       _currentlyRelevantFish;
-        private          CachedFish[]                 _cachedFish;
-
-        private static readonly string[]           Patches       = PreparePatches();
-        private static readonly Func<Fish, bool>[] PatchSelector = PreparePatchSelectors();
-
-        private readonly float  _longestName         = 0f;
-        private readonly float  _longestSpot         = 0f;
-        private readonly float  _longestZone         = 0f;
-        private          string _fishFilter          = "";
-        private          string _fishFilterLower     = "";
-        private          string _fishSpotFilter      = "";
-        private          string _fishSpotFilterLower = "";
-        private          string _fishZoneFilter      = "";
-        private          string _fishZoneFilterLower = "";
-
-        private Func<Fish, bool> _currentSelector;
-
-        private static void SetTooltip(CachedFish fish)
-        {
-            ImGui.BeginTooltip();
-            ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(_itemSpacing.X, _itemSpacing.Y * 1.5f));
-            fish.PrintTime();
-            fish.PrintWeather();
-            fish.PrintBait();
-            fish.PrintPredators();
-            fish.PrintFolklore();
-            ImGui.PopStyleVar();
-            ImGui.EndTooltip();
-        }
-
         private const int NumFishColumns = 5;
 
         private static void PrintSeconds(long seconds)
@@ -57,12 +24,11 @@ namespace GatherBuddy.Gui
                 ImGui.Text($"{seconds / RealTime.SecondsPerMinute:D2}:{seconds % RealTime.SecondsPerMinute:D2} Minutes");
         }
 
-        private void DrawFish(CachedFish fish)
+        private void DrawFish(Cache.Fish fish)
         {
             ImGui.TableNextRow();
             ImGui.TableNextColumn();
-            ImGui.Image(fish.Icon.ImGuiHandle,
-                new Vector2(fish.Icon.Width * ImGui.GetTextLineHeight() / fish.Icon.Height, ImGui.GetTextLineHeight()));
+            ImGui.Image(fish.Icon.ImGuiHandle, _fishIconSize);
             if (ImGui.IsItemHovered())
             {
                 ImGui.BeginTooltip();
@@ -72,19 +38,19 @@ namespace GatherBuddy.Gui
 
             ImGui.TableNextColumn();
             if (ImGui.Selectable(fish.Name))
-                _plugin.Gatherer!.OnFishActionWithFish(fish.Fish);
+                _plugin.Gatherer!.OnFishActionWithFish(fish.Base);
             if (ImGui.IsItemHovered())
                 SetTooltip(fish);
 
-            var uptime = fish.Fish.NextUptime(_plugin.Gatherer!.WeatherManager);
+            var uptime = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager);
             ImGui.TableNextColumn();
             if (uptime.Equals(RealUptime.Always))
             {
-                ImGui.TextColored(new Vector4(0f, 0.75f, 0f, 1f), "Always Up");
+                ImGui.TextColored(Colors.FishTab.UptimeRunning, "Always Up");
             }
             else if (uptime.Equals(RealUptime.Unknown))
             {
-                ImGui.TextColored(new Vector4(0.75f, 0.75f, 0f, 1f), "Unknown");
+                ImGui.TextColored(Colors.FishTab.UptimeUnknown, "Unknown");
             }
             else
             {
@@ -92,13 +58,13 @@ namespace GatherBuddy.Gui
                 var duration = (long) (DateTime.UtcNow - uptime.EndTime).TotalSeconds;
                 if (seconds > 0)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0.75f, 0.75f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.Text, Colors.FishTab.UptimeUpcoming);
                     PrintSeconds(seconds);
                     ImGui.PopStyleColor();
                 }
                 else if (duration < 0)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, new Vector4(0f, 0.75f, 0f, 1f));
+                    ImGui.PushStyleColor(ImGuiCol.Text, Colors.FishTab.UptimeRunning);
                     PrintSeconds(-duration);
                     ImGui.PopStyleColor();
                 }
@@ -115,93 +81,13 @@ namespace GatherBuddy.Gui
 
             ImGui.TableNextColumn();
             if (ImGui.Selectable(fish.FishingSpot))
-                _plugin.Gatherer!.OnFishActionWithSpot(fish.Fish.FishingSpots.First());
+                _plugin.Gatherer!.OnFishActionWithSpot(fish.Base.FishingSpots.First());
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip(fish.Territory);
-            
+
             ImGui.TableNextColumn();
             ImGui.Text(fish.Territory);
         }
-
-        private void UpdateFish(long totalHour)
-        {
-            if (totalHour <= _totalHourFish)
-                return;
-
-            _totalHourFish = totalHour;
-            _cachedFish = _currentlyRelevantFish
-                .OrderBy(f => f.NextUptime(_plugin.Gatherer!.WeatherManager), new ComparerB())
-                .Select(f => _allCachedFish[f]).ToArray();
-        }
-
-        private void SetCurrentlyRelevantFish()
-        {
-            var weather = _plugin.Gatherer!.WeatherManager;
-            _currentlyRelevantFish = _plugin.Gatherer!.FishManager.FishByUptime
-                .Where(SelectFish)
-                .ToArray();
-            _cachedFish = _currentlyRelevantFish
-                .Select(f => _allCachedFish[f])
-                .OrderBy(f => f.Fish.NextUptime(_plugin.Gatherer!.WeatherManager), new ComparerB())
-                .ToArray();
-        }
-
-        private static string[] PreparePatches()
-        {
-            var patches = (Patch[]) Enum.GetValues(typeof(Patch));
-            var expansions = new string[]
-            {
-                "All",
-                "A Realm Reborn",
-                "Heavensward",
-                "Stormblood",
-                "Shadowbringers",
-                "Endwalker",
-            };
-            return expansions.Concat(patches
-                .Select(PatchExtensions.ToVersionString)).ToArray();
-        }
-
-        private static Func<Fish, bool>[] PreparePatchSelectors()
-        {
-            var patches = (Patch[]) Enum.GetValues(typeof(Patch));
-            var expansions = new Func<Fish, bool>[]
-            {
-                _ => true,
-                f => (f.CatchData?.Patch.ToExpansion() ?? 0) == Patch.ARealmReborn,
-                f => (f.CatchData?.Patch.ToExpansion() ?? 0) == Patch.Heavensward,
-                f => (f.CatchData?.Patch.ToExpansion() ?? 0) == Patch.Stormblood,
-                f => (f.CatchData?.Patch.ToExpansion() ?? 0) == Patch.Shadowbringers,
-                f => (f.CatchData?.Patch.ToExpansion() ?? 0) == Patch.Endwalker,
-            };
-            return expansions.Concat(patches
-                .Select(p => new Func<Fish, bool>(f => f.CatchData!.Patch == p))).ToArray();
-        }
-
-        private bool CheckFishType(Fish f)
-        {
-            if (f.IsBigFish)
-                return _config.ShowBigFish;
-
-            return f.IsSpearFish ? _config.ShowSpearFish : _config.ShowSmallFish;
-        }
-
-        private bool SelectFish(Fish f)
-        {
-            if (!_currentSelector(f))
-                return false;
-
-            if (!_config.ShowAlwaysUp && f.FishRestrictions == FishRestrictions.None)
-                return false;
-
-            if (!CheckFishType(f))
-                return false;
-
-            return true;
-        }
-
-        private bool FishUncaught(Fish f)
-            => !_plugin.Gatherer!.FishManager.FishLog.IsUnlocked(f);
 
         private void DrawAlreadyCaughtBox()
             => DrawCheckbox("Show Already Caught", "Show fish that you are already collected in your Fish Guide.",
@@ -212,7 +98,7 @@ namespace GatherBuddy.Gui
                 _config.ShowAlwaysUp,         b =>
                 {
                     _config.ShowAlwaysUp = b;
-                    SetCurrentlyRelevantFish();
+                    _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawBigFishBox()
@@ -220,7 +106,7 @@ namespace GatherBuddy.Gui
                 _config.ShowBigFish,         b =>
                 {
                     _config.ShowBigFish = b;
-                    SetCurrentlyRelevantFish();
+                    _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawSmallFishBox()
@@ -229,7 +115,7 @@ namespace GatherBuddy.Gui
                 b =>
                 {
                     _config.ShowSmallFish = b;
-                    SetCurrentlyRelevantFish();
+                    _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawSpearFishBox()
@@ -238,29 +124,23 @@ namespace GatherBuddy.Gui
                 b =>
                 {
                     _config.ShowSpearFish = b;
-                    SetCurrentlyRelevantFish();
+                    _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawReleasePatchCombo()
         {
             ImGui.SetNextItemWidth(-1);
             var tmp = (int) _config.ShowFishFromPatch;
-            if (ImGui.Combo("Release Patch", ref tmp, Patches, Patches.Length) && tmp != _config.ShowFishFromPatch)
+            if (ImGui.Combo("Release Patch", ref tmp, Cache.FishTab.Patches, Cache.FishTab.Patches.Length) && tmp != _config.ShowFishFromPatch)
             {
                 _config.ShowFishFromPatch = (byte) tmp;
-                _currentSelector          = PatchSelector[tmp];
+                _fishCache.Selector       = Cache.FishTab.PatchSelector[tmp];
                 Save();
-                SetCurrentlyRelevantFish();
+                _fishCache.SetCurrentlyRelevantFish();
             }
 
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Show either all fish, fish from a specific expansion or fish from a specific release.");
-        }
-
-        private class ComparerB : IComparer<RealUptime>
-        {
-            public int Compare(RealUptime x, RealUptime y)
-                => x.Compare(y);
         }
 
         private void DrawFishTab()
@@ -269,30 +149,24 @@ namespace GatherBuddy.Gui
             var width  = ImGui.GetWindowWidth() - 4 * _itemSpacing.X;
 
             ImGui.SetNextItemWidth(width / 3);
-            if (ImGui.InputTextWithHint("##FishFilter", "Fish Filter", ref _fishFilter, 64))
-                _fishFilterLower = _fishFilter.ToLower();
+            if (ImGui.InputTextWithHint("##FishFilter", "Fish Filter", ref _fishCache.FishFilter, 64))
+                _fishCache.UpdateFishFilter();
 
             ImGui.SameLine();
             ImGui.SetNextItemWidth(width / 3);
-            if (ImGui.InputTextWithHint("##SpotFilter", "Spot Filter", ref _fishSpotFilter, 64))
-                _fishSpotFilterLower = _fishSpotFilter.ToLower();
+            if (ImGui.InputTextWithHint("##SpotFilter", "Spot Filter", ref _fishCache.SpotFilter, 64))
+                _fishCache.UpdateSpotFilter();
 
             ImGui.SameLine();
             ImGui.SetNextItemWidth(width / 3);
-            if (ImGui.InputTextWithHint("##TerritoryFilter", "Zone Filter", ref _fishZoneFilter, 64))
-                _fishZoneFilterLower = _fishZoneFilter.ToLower();
+            if (ImGui.InputTextWithHint("##TerritoryFilter", "Zone Filter", ref _fishCache.ZoneFilter, 64))
+                _fishCache.UpdateZoneFilter();
 
 
             if (!ImGui.BeginChild("##Fish", new Vector2(-1, height), true))
                 return;
-
-            var actualFish = _config.ShowAlreadyCaught && _fishFilter.Length == 0
-                ? _cachedFish
-                : _cachedFish.Where(f => (_config.ShowAlreadyCaught
-                     || FishUncaught(f.Fish))
-                 && f.NameLower.Contains(_fishFilterLower)
-                 && f.TerritoryLower.Contains(_fishZoneFilterLower)
-                 && f.FishingSpotLower.Contains(_fishSpotFilterLower)).ToArray();
+            
+            var actualFish = _fishCache.GetFishToSettings();
 
             var lineHeight = (int) Math.Ceiling(ImGui.GetWindowHeight() / _textHeight) + 1;
 
@@ -311,7 +185,7 @@ namespace GatherBuddy.Gui
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Name");
-                ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, _longestName * _globalScale);
+                ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestFish * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Wait / Uptime");
@@ -319,11 +193,11 @@ namespace GatherBuddy.Gui
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Fishing Spot");
-                ImGui.TableSetupColumn("Fishing Spot", ImGuiTableColumnFlags.WidthFixed, _longestSpot * _globalScale);
+                ImGui.TableSetupColumn("Fishing Spot", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestSpot * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Zone");
-                ImGui.TableSetupColumn("Zone", ImGuiTableColumnFlags.WidthFixed, _longestZone * _globalScale);
+                ImGui.TableSetupColumn("Zone", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestZone * _globalScale);
                 ImGui.NextColumn();
 
                 return true;

@@ -6,8 +6,6 @@ namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private float _alarmsSpacing;
-
         private void DrawDeleteAndEnable()
         {
             ImGui.BeginGroup();

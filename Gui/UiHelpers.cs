@@ -78,7 +78,7 @@ namespace GatherBuddy.Gui
                     _config.ShowNodes |= flag;
                 else
                     _config.ShowNodes &= ~flag;
-                _nodeCache.Rebuild();
+                _nodeTabCache.Rebuild();
                 Save();
             }
 

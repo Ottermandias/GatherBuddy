@@ -55,9 +55,9 @@ namespace GatherBuddy.Gui
         private void DrawTimedNodes(float widgetHeight)
         {
             ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true);
-            foreach (var (n, i) in _nodeCache.ActiveNodeItems)
+            foreach (var (n, i) in _nodeTabCache.ActiveNodeItems)
             {
-                var colors = Colors.NodeTab.GetColor(n, _nodeCache.HourOfDay);
+                var colors = Colors.NodeTab.GetColor(n, _nodeTabCache.HourOfDay);
                 ImGui.PushStyleColor(ImGuiCol.Text, colors);
 
                 if (ImGui.Selectable(i))
@@ -74,8 +74,8 @@ namespace GatherBuddy.Gui
         private void DrawTimedSelectors(float boxHeight)
         {
             var checkBoxAdd  = _itemSpacing.X * 3 + _framePadding.X * 2 + ImGui.GetTextLineHeight();
-            var jobBoxWidth  = _nodeCache.BotanistTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
-            var typeBoxWidth = _nodeCache.NodeTypeTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
+            var jobBoxWidth  = _nodeTabCache.BotanistTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
+            var typeBoxWidth = _nodeTabCache.NodeTypeTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
 
             ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true);
             DrawMinerBox();

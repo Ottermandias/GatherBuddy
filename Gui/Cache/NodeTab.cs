@@ -8,7 +8,7 @@ using ImGuiNET;
 
 namespace GatherBuddy.Gui.Cache
 {
-    internal class Node
+    internal class NodeTab
     {
         private readonly NodeTimeLine                   _nodeTimeLine;
         private readonly GatherBuddyConfiguration       _config;
@@ -25,7 +25,7 @@ namespace GatherBuddy.Gui.Cache
         private void UpdateNodes()
             => ActiveNodeItems = ActiveNodes.Select(n => (n.Item1, _allNodeItems[n.Item1])).ToArray();
 
-        public Node(GatherBuddyConfiguration config, NodeTimeLine nodeTimeLine)
+        public NodeTab(GatherBuddyConfiguration config, NodeTimeLine nodeTimeLine)
         {
             _config         = config;
             _nodeTimeLine   = nodeTimeLine;
