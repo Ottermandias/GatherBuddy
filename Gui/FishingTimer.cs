@@ -207,7 +207,8 @@ namespace GatherBuddy.Gui
                 return;
 
             var fishing = _pi.ClientState.Condition[ConditionFlag.Fishing] && _start.IsRunning;
-            var rodOut  = _pi.ClientState.Condition[ConditionFlag.Gathering];
+            var rodOut  = _pi.ClientState.Condition[ConditionFlag.Gathering] && _pi.ClientState.LocalPlayer.ClassJob.Id == 18;
+
             if (!fishing)
                 _start.Stop();
             if (!rodOut)
@@ -226,7 +227,7 @@ namespace GatherBuddy.Gui
             _lineHeight = ImGui.GetTextLineHeightWithSpacing() * 1.4f;
             _iconSize   = new Vector2(_lineHeight, _lineHeight);
             var textLines     = 2 * ImGui.GetTextLineHeightWithSpacing();
-            var maxListHeight = 9 * (_lineHeight + 1) + textLines;
+            var maxListHeight = 10 * (_lineHeight + 1) + textLines;
             var listHeight    = EditMode ? maxListHeight : _currentFishList.Length * (_lineHeight + 1) + textLines;
 
             ImGui.SetNextWindowSizeConstraints(new Vector2(200 * ImGui.GetIO().FontGlobalScale, maxListHeight), new Vector2(30000, listHeight));
