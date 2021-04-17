@@ -125,13 +125,14 @@ namespace GatherBuddy.Game
             do
             {
                 var endTime   = startTime + duration;
-                var timestamp = (long) (endTime - RealTime.UnixEpoch).TotalSeconds;
+                var timestamp = (long) (endTime - DateTime.UtcNow).TotalSeconds + 1;
                 wl = weather.RequestForecast(FishingSpots.First().Territory!, CatchData!.CurrentWeather, CatchData.PreviousWeather,
                     CatchData.Hours, timestamp);
                 var newOverlap = wl.Uptime.Overlap(CatchData!.Hours);
-                if (wl.Time <= endTime && newOverlap.FirstHour == overlap.EndHour)
+                if (wl.Time <= endTime && newOverlap.FirstHour == overlap.EndHour % RealTime.HoursPerDay)
                 {
                     duration += TimeSpan.FromSeconds(EorzeaTime.SecondsPerEorzeaHour * (int) newOverlap.Count);
+                    overlap  =  newOverlap;
                     valid    =  true;
                 }
                 else

@@ -12,7 +12,7 @@ namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private const int NumFishColumns = 5;
+        private const int NumFishColumns = 6;
 
         private static void PrintSeconds(long seconds)
         {
@@ -78,6 +78,11 @@ namespace GatherBuddy.Gui
                     ImGui.EndTooltip();
                 }
             }
+
+            ImGui.TableNextColumn();
+            ImGui.Dummy(new Vector2(_fishCache.LongestPercentage -ImGui.CalcTextSize(fish.UptimeString).X, 0));
+            ImGui.SameLine();
+            ImGui.Text(fish.UptimeString);
 
             ImGui.TableNextColumn();
             if (ImGui.Selectable(fish.FishingSpot))
@@ -189,7 +194,11 @@ namespace GatherBuddy.Gui
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Wait / Uptime");
-                ImGui.TableSetupColumn("Wait / Uptime", ImGuiTableColumnFlags.WidthFixed, ImGui.CalcTextSize("0000:00 Minutes").X);
+                ImGui.TableSetupColumn("Wait / Uptime", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestMinutes * _globalScale);
+                ImGui.NextColumn();
+
+                ImGui.TableHeader("Avg. Uptime");
+                ImGui.TableSetupColumn("Avg. Uptime", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestPercentage * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Fishing Spot");

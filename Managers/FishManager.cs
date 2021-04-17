@@ -113,7 +113,7 @@ namespace GatherBuddy.Managers
 
             if (fishRow == null)
             {
-                PluginLog.Error($"Could not find item {fish} as a fish.");
+                PluginLog.Verbose($"Error: Could not find item {fish} as a fish.");
                 return null;
             }
 

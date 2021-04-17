@@ -36,6 +36,8 @@ namespace GatherBuddy.Gui.Cache
         public readonly float LongestFish;
         public readonly float LongestSpot;
         public readonly float LongestZone;
+        public readonly float LongestPercentage;
+        public readonly float LongestMinutes;
 
         public  string FishFilter      = "";
         public  string FishFilterLower = "";
@@ -104,10 +106,13 @@ namespace GatherBuddy.Gui.Cache
             AllCachedFish = fishManager.FishByUptime.ToDictionary(f => f, f => new Fish(this, fishManager, f));
             foreach (var fish in AllCachedFish.Values)
             {
-                LongestFish = Math.Max(LongestFish, ImGui.CalcTextSize(fish.Name).X / ImGui.GetIO().FontGlobalScale);
-                LongestSpot = Math.Max(LongestSpot, ImGui.CalcTextSize(fish.FishingSpot).X / ImGui.GetIO().FontGlobalScale);
-                LongestZone = Math.Max(LongestZone, ImGui.CalcTextSize(fish.Territory).X / ImGui.GetIO().FontGlobalScale);
+                LongestFish       = Math.Max(LongestFish, ImGui.CalcTextSize(fish.Name).X / ImGui.GetIO().FontGlobalScale);
+                LongestSpot       = Math.Max(LongestSpot, ImGui.CalcTextSize(fish.FishingSpot).X / ImGui.GetIO().FontGlobalScale);
+                LongestZone       = Math.Max(LongestZone, ImGui.CalcTextSize(fish.Territory).X / ImGui.GetIO().FontGlobalScale);
+                LongestPercentage = Math.Max(LongestPercentage, ImGui.CalcTextSize(fish.UptimeString).X / ImGui.GetIO().FontGlobalScale);
             }
+            LongestMinutes = ImGui.CalcTextSize("0000:00 Minutes").X / ImGui.GetIO().FontGlobalScale;
+
             SetCurrentlyRelevantFish();
         }
 

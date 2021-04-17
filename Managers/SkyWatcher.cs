@@ -101,6 +101,32 @@ namespace GatherBuddy.Managers
             return rates[0].Item1;
         }
 
+        public byte ChanceForWeather(uint territoryId, IEnumerable<uint> weatherId)
+        {
+            if (!_weatherRates.TryGetValue(territoryId, out var rate))
+                return 0;
+
+            var summedChance = 0;
+            foreach (var id in weatherId)
+            {
+                for (var i = 0; i < rate.Length; ++i)
+                {
+                    if (rate[i].Weather.RowId != id)
+                        continue;
+
+                    if (i == 0)
+                        summedChance += rate[i].CumulativeRate;
+                    else
+                        summedChance += rate[i].CumulativeRate - rate[i - 1].CumulativeRate;
+                }
+            }
+
+            return (byte) summedChance;
+        }
+
+        public byte ChanceForWeather(uint territoryId, params uint[] weatherIds)
+            => ChanceForWeather(territoryId, (IEnumerable<uint>) weatherIds);
+
         public WeatherListing[] GetForecast(uint territoryId, uint amount, DateTime fromWhen)
         {
             if (amount == 0)

@@ -67,17 +67,17 @@ namespace GatherBuddy.Managers
 
         public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, Uptime uptime, long offset = 0, uint increment = 32)
         {
-            var now = DateTime.UtcNow;
+            var now = DateTime.UtcNow.AddSeconds(offset);
             TrimFront();
-            var previousFit = previousWeather.Count == 0;
-            var idx         = offset == 0 ? 1 : List.FindIndex(w => w.Offset(now.AddSeconds(offset - SecondsPerWeather)) > 0) + 1;
+            var previousFit = false;
+            var idx = 1;
             while (true)
             {
                 for (--idx; idx < List.Count; ++idx)
                 {
                     var w = List[idx];
                     if (previousFit
-                     && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Count * EorzeaTime.SecondsPerEorzeaHour) >= DateTime.UtcNow
+                     && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Count * EorzeaTime.SecondsPerEorzeaHour) >= now
                      && w.Uptime.Overlaps(uptime)
                      && (weather.Count == 0 || weather.Contains(w.Weather.RowId)))
                         return w;

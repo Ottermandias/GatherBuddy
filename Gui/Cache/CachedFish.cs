@@ -1,10 +1,9 @@
-﻿using System.Linq;
-using System.Numerics;
+﻿using System.Globalization;
+using System.Linq;
 using Dalamud.Plugin;
 using GatherBuddy.Enums;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
-using ImGuiNET;
 using ImGuiScene;
 
 namespace GatherBuddy.Gui.Cache
@@ -41,27 +40,48 @@ namespace GatherBuddy.Gui.Cache
         public TextureWrap?    Snagging         { get; }
         public Predator[]      Predators        { get; }
         public string          Patch            { get; }
+        public string          UptimeString     { get; }
 
 
-        private static string SetTime(Game.Fish fish)
+        private static string SetTime(Game.Fish fish, ref ushort uptime)
         {
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Time))
                 return "Always Up";
-            if (fish.CatchData?.Hours.AlwaysUp() ?? true)
-                return "Unknown Uptime";
 
+            if (fish.CatchData?.Hours.AlwaysUp() ?? true)
+            {
+                uptime = 0;
+                return "Unknown Uptime";
+            }
+
+            uptime = (ushort) (uptime * fish.CatchData!.Hours.Count / RealTime.HoursPerDay);
             return fish.CatchData!.Hours.PrintHours();
         }
 
-        private static TextureWrap[][] SetWeather(Game.Fish fish)
+        private static TextureWrap[][] SetWeather(Game.Fish fish, ref ushort uptime)
         {
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
                 return new TextureWrap[0][];
-            if (fish.CatchData == null || fish.CatchData.PreviousWeather.Length == 0 && fish.CatchData.CurrentWeather.Length == 0)
-                return new TextureWrap[0][];
 
-            var icons = Service<Cache.Icons>.Get();
-            var sheet = Service<DalamudPluginInterface>.Get().Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>();
+            if (fish.CatchData == null || fish.CatchData.PreviousWeather.Length == 0 && fish.CatchData.CurrentWeather.Length == 0)
+            {
+                uptime = 0;
+                return new TextureWrap[0][];
+            }
+
+            var icons      = Service<Icons>.Get();
+            var sheet      = Service<DalamudPluginInterface>.Get().Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>();
+            var skyWatcher = Service<SkyWatcher>.Get();
+
+            var previousChance = skyWatcher.ChanceForWeather(fish.FishingSpots.First().Territory!.Id, fish.CatchData.PreviousWeather);
+            var currentChance  = skyWatcher.ChanceForWeather(fish.FishingSpots.First().Territory!.Id, fish.CatchData.CurrentWeather);
+            if (previousChance == 0)
+                previousChance = 100;
+            if (currentChance == 0)
+                currentChance = 100;
+
+            uptime = (ushort) ((uptime * currentChance * previousChance) / 10000);
+
             return new TextureWrap[][]
             {
                 fish.CatchData.PreviousWeather.Select(w => icons[sheet.GetRow(w).Icon]).ToArray(),
@@ -77,7 +97,7 @@ namespace GatherBuddy.Gui.Cache
             return fish.CatchData.Predator.Select(p =>
             {
                 var f    = manager.Fish[p.Item1];
-                var icon = Service<Cache.Icons>.Get()[f.ItemData.Icon];
+                var icon = Service<Icons>.Get()[f.ItemData.Icon];
                 return new Predator()
                 {
                     Amount = p.Item2.ToString(),
@@ -102,9 +122,9 @@ namespace GatherBuddy.Gui.Cache
         {
             return hook switch
             {
-                HookSet.Precise  =>cache.IconPrecisionHookSet,
-                HookSet.Powerful =>cache.IconPowerfulHookSet,
-                _                =>cache.IconHookSet,
+                HookSet.Precise  => cache.IconPrecisionHookSet,
+                HookSet.Powerful => cache.IconPowerfulHookSet,
+                _                => cache.IconHookSet,
             };
         }
 
@@ -136,7 +156,7 @@ namespace GatherBuddy.Gui.Cache
             var bait = manager.Bait[fish.CatchData.BaitOrder[0]];
             ret[0] = new BaitOrder()
             {
-                Icon = Service<Cache.Icons>.Get()[bait.Data.Icon],
+                Icon = Service<Icons>.Get()[bait.Data.Icon],
                 Name = bait.Name[GatherBuddy.Language],
                 Fish = null,
             };
@@ -149,7 +169,7 @@ namespace GatherBuddy.Gui.Cache
                 ret[idx - 1].Bite    = FromBiteType(f.CatchData?.BiteType ?? f.Record.BiteType);
                 ret[idx] = new BaitOrder()
                 {
-                    Icon = Service<Cache.Icons>.Get()[f.ItemData.Icon],
+                    Icon = Service<Icons>.Get()[f.ItemData.Icon],
                     Name = f.Name[GatherBuddy.Language],
                     Fish = f,
                 };
@@ -172,12 +192,13 @@ namespace GatherBuddy.Gui.Cache
 
         public Fish(FishTab cache, FishManager manager, Game.Fish fish)
         {
+            ushort uptime = 10000;
             Base             = fish;
-            Icon             = Service<Cache.Icons>.Get()[fish.ItemData.Icon];
+            Icon             = Service<Icons>.Get()[fish.ItemData.Icon];
             Name             = fish.Name[GatherBuddy.Language];
             NameLower        = Name.ToLowerInvariant();
-            Time             = SetTime(fish);
-            WeatherIcons     = SetWeather(fish);
+            Time             = SetTime(fish, ref uptime);
+            WeatherIcons     = SetWeather(fish, ref uptime);
             Bait             = SetBait(cache, manager, fish);
             Predators        = SetPredators(manager, fish);
             Territory        = fish.FishingSpots.First().Territory!.Name[GatherBuddy.Language];
@@ -186,6 +207,7 @@ namespace GatherBuddy.Gui.Cache
             FishingSpotLower = FishingSpot.ToLowerInvariant();
             Snagging         = SetSnagging(cache, Bait, fish);
             Patch            = $"Patch {fish.CatchData?.Patch.ToVersionString() ?? "???"}";
+            UptimeString     = $"{(uptime / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
         }
     }
 }
