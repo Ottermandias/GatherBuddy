@@ -61,7 +61,7 @@ namespace GatherBuddy.Gui.Cache
         public void UpdateSpotFilter()
         {
             SpotFilterLower = SpotFilter.ToLowerInvariant();
-            if (FishFilter.Length > 0)
+            if (SpotFilter.Length > 0)
                 _whichFilters |= 0b0100;
             else
                 _whichFilters &= 0b1010;
@@ -70,7 +70,7 @@ namespace GatherBuddy.Gui.Cache
         public void UpdateZoneFilter()
         {
             ZoneFilterLower = ZoneFilter.ToLowerInvariant();
-            if (FishFilter.Length > 0)
+            if (ZoneFilter.Length > 0)
                 _whichFilters |= 0b1000;
             else
                 _whichFilters &= 0b0110;
