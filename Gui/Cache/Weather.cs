@@ -96,7 +96,7 @@ namespace GatherBuddy.Gui.Cache
                 var ret = new CachedWeather[_weather!.UniqueZones.Count];
                 for (var i = 0; i < _weather.UniqueZones.Count; ++i)
                 {
-                    ret[i] = new CachedWeather(_weather.UniqueZones[i].Territory.Name);
+                    ret[i] = new CachedWeather(_weather.UniqueZones[i].Territory.Name[GatherBuddy.Language]);
                     ret[i].Update(i);
                 }
 

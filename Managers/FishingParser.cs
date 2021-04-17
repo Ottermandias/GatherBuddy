@@ -65,13 +65,13 @@ namespace GatherBuddy.Managers
             // French
             private Regexes(bool _, bool _2, bool _3)
             {
-                Cast           = new Regex(@"Vous commencez à pêcher. Point de pêche: (?<FishingSpot>.+)");
+                Cast           = new Regex(@"Vous commencez à pêcher\.\s*Point de pêche: (?<FishingSpot>.+)\.");
                 AreaDiscovered = new Regex(@"Vous notez le banc de poissons “(?<FishingSpot>.+)” dans votre carnet\.");
                 Undiscovered   = "Zone de pêche inconnue";
                 Bite           = "Vous avez une touche!";
                 Mooch          = new Regex(@"Vous essayez de pêcher au vif avec");
                 Catch          = new Regex(@"Vous avez pêché (?:un |une )?.+?de \d");
-                NoCatchFull    = new Regex(@"");
+                NoCatchFull    = new Regex(@"Vous avez pêché .+, mais ne pouvez en posséder davantage et l'avez donc relâché");
             }
 
             // Japanese

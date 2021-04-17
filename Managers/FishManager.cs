@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.InteropServices;
 using Dalamud;
 using Dalamud.Game;
 using Dalamud.Plugin;
@@ -123,7 +124,7 @@ namespace GatherBuddy.Managers
 
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
             {
-                var langName = itemSheets[(int) ClientLanguage.English].GetRow(fish).Name;
+                var langName = itemSheets[(int) lang].GetRow(fish).Name;
                 name[lang]                           = langName;
                 FishNameToFish[(int) lang][langName] = newFish;
             }
@@ -211,14 +212,33 @@ namespace GatherBuddy.Managers
             if (pi.ClientState.ClientLanguage != ClientLanguage.German)
                 return newSpot;
 
-            var ffName = new FFName
-            {
-                [ClientLanguage.German] =
-                    pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8,
-            };
-            FishingSpotNamesWithArticle[ffName[ClientLanguage.German].ToLowerInvariant()] = newSpot;
+            var seBytes     = pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8.RawData;
+            HandleGermanString(seBytes, newSpot);
 
             return newSpot;
+        }
+
+        private void HandleGermanString(ReadOnlySpan<byte> seBytes, FishingSpot spot)
+        {
+            if (seBytes.Length <= 0)
+                return;
+
+            var name1Length = seBytes[6] - 1;
+            var name2Start  = 9 + name1Length;
+            var name2Length = seBytes[name2Start - 1] - 1;
+            var tmp         = new byte[Math.Max(name1Length, name2Length)];
+            for (var i = 0; i < name1Length; ++i)
+                tmp[i] = seBytes[i + 7];
+            var name1 = System.Text.Encoding.UTF8.GetString(tmp, 0, name1Length);
+            for (var i = 0; i < name2Length; ++i)
+                tmp[i] = seBytes[i + name2Start];
+            var name2 = System.Text.Encoding.UTF8.GetString(tmp, 0, name2Length);
+
+            name1                              = Utility.Util.RemoveItalics(Utility.Util.RemoveSplitMarkers(name1)).ToLowerInvariant();
+            name2                              = Utility.Util.RemoveItalics(Utility.Util.RemoveSplitMarkers(name2)).ToLowerInvariant();
+            FishingSpotNamesWithArticle[name1] = spot;
+            FishingSpotNamesWithArticle[name2] = spot;
+            FishingSpotNamesWithArticle[spot.PlaceName![ClientLanguage.German]] = spot;
         }
 
         private FishingSpot? FromSpearfishingSpot(DalamudPluginInterface pi, World territories, Lumina.Excel.ExcelSheet<Item>[] itemSheets,
@@ -302,8 +322,8 @@ namespace GatherBuddy.Managers
                     spot.ClosestAetheryte = spot.Territory!.Aetherytes
                         .Select(a => (a.WorldDistance(spot.Territory.Id, spot.XCoord, spot.YCoord), a)).Min().a;
 
-                FishingSpots[spot.UniqueId]                                       = spot;
-                FishingSpotNames[spot!.PlaceName![pi.ClientState.ClientLanguage].ToLowerInvariant()] = spot;
+                FishingSpots[spot.UniqueId]                                                 = spot;
+                FishingSpotNames[spot!.PlaceName![GatherBuddy.Language].ToLowerInvariant()] = spot;
             }
 
             Bait = CollectBait(itemSheets);
