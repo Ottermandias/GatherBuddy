@@ -42,6 +42,7 @@ namespace GatherBuddy.Gui
         private          bool         _snagging;
         private          bool         _chum;
         private          bool         _intuition;
+        private          bool         _fishEyes;
         private readonly Stopwatch    _start = new();
         private readonly Stopwatch    _bite  = new();
         private          FishingSpot? _currentSpot;
@@ -66,6 +67,11 @@ namespace GatherBuddy.Gui
             public readonly  bool        Unavailable;
             public readonly  uint        SortOrder;
 
+            private void SetUnavailable()
+            {
+
+            }
+
             public FishCache(FishingTimer timer, Fish fish)
             {
                 _fish = fish;
@@ -82,25 +88,38 @@ namespace GatherBuddy.Gui
 
                 Unavailable = false;
                 Uncaught    = false;
-                if (DateTime.UtcNow < fish.NextUptime(timer._weather).Time
-                 || !timer._intuition && (fish.CatchData?.Predator.Length ?? 0) > 0
-                 || !timer._snagging && (fish.CatchData?.Snagging ?? Snagging.Unknown) == Snagging.Required)
+
+                if ((fish.CatchData?.Predator.Length ?? 0) > 0)
                 {
-                    if (!timer._intuition || (fish.CatchData?.Predator.Length ?? 0) == 0)
-                    {
-                        _color      = Colors.FishTimer.Unavailable;
+                    if (!timer._intuition)
                         Unavailable = true;
-                        SortOrder   = uint.MaxValue;
-                    }
                 }
-                else if (!timer.RecordsValid(fish.Record))
+                else if (DateTime.UtcNow < fish.NextUptime(timer._weather).Time)
+                {
+                    if (!timer._fishEyes || fish.IsBigFish || fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
+                        Unavailable = true;
+                }
+                if ((fish.CatchData?.Snagging ?? Snagging.Unknown) == Snagging.Required)
+                {
+                    if (!timer._snagging)
+                        Unavailable = true;
+                }
+
+                if (!timer.RecordsValid(fish.Record))
+                    Uncaught  = true;
+
+                if (Unavailable)
+                {
+                    _color    = Colors.FishTimer.Unavailable;
+                    SortOrder = uint.MaxValue;
+                }
+                else if (Uncaught)
                 {
                     _color    = Colors.FishTimer.Invalid;
-                    Uncaught  = true;
                     SortOrder = uint.MaxValue - 1;
                 }
 
-                Valid = !Unavailable && !Uncaught && _sizeMin > 0f && _sizeMax < 1f;
+                Valid = !Unavailable && !Uncaught && _sizeMin > 0.001f && _sizeMax < 0.999f;
             }
 
             public void Draw(FishingTimer timer, ImDrawListPtr ptr)
@@ -155,6 +174,7 @@ namespace GatherBuddy.Gui
             const short snaggingEffectId  = 761;
             const short chumEffectId      = 763;
             const short intuitionEffectId = 568;
+            const short fishEyesEffectId  = 762;
 
             _snagging  = false;
             _chum      = false;
@@ -175,6 +195,9 @@ namespace GatherBuddy.Gui
                         break;
                     case intuitionEffectId:
                         _intuition = true;
+                        break;
+                    case fishEyesEffectId:
+                        _fishEyes = true;
                         break;
                 }
             }
