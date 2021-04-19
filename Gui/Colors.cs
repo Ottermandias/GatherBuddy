@@ -9,11 +9,13 @@ namespace GatherBuddy.Gui
         public struct FishTimer
         {
             public const uint Invalid        = 0x20FFFFFF;
+            public const uint Unavailable    = 0x200000D0;
             public const uint Weak           = 0x8030D030;
             public const uint Strong         = 0x8030D0D0;
             public const uint Legendary      = 0x803030D0;
             public const uint RectBackground = 0x80000000;
-            public const uint Background     = 0xFF000020;
+            public const uint Background     = 0xFF000010;
+            public const uint Separator      = 0xFF0000D0;
             public const uint Line           = 0xFF000000;
             public const uint EditBackground = 0x20FFFFFF;
 

@@ -96,7 +96,7 @@ namespace GatherBuddy.Gui.Cache
 
             return fish.CatchData.Predator.Select(p =>
             {
-                var f    = manager.Fish[p.Item1];
+                var f    = p.Item1;
                 var icon = Service<Icons>.Get()[f.ItemData.Icon];
                 return new Predator()
                 {
@@ -128,7 +128,7 @@ namespace GatherBuddy.Gui.Cache
             };
         }
 
-        private static BaitOrder[] SetBait(FishTab cache, FishManager manager, Game.Fish fish)
+        private static BaitOrder[] SetBait(FishTab cache, Game.Fish fish)
         {
             if (fish.IsSpearFish)
                 return new BaitOrder[1]
@@ -149,25 +149,24 @@ namespace GatherBuddy.Gui.Cache
                     },
                 };
 
-            if (fish.CatchData == null || fish.CatchData.BaitOrder.Length == 0)
+            if (fish.CatchData == null || fish.CatchData.InitialBait.Equals(Game.Bait.Unknown))
                 return new BaitOrder[0];
 
-            var ret  = new BaitOrder[fish.CatchData.BaitOrder.Length];
-            var bait = manager.Bait[fish.CatchData.BaitOrder[0]];
+            var ret  = new BaitOrder[fish.CatchData.Mooches.Length + 1];
+            var bait = fish.CatchData.InitialBait;
             ret[0] = new BaitOrder()
             {
                 Icon = Service<Icons>.Get()[bait.Data.Icon],
                 Name = bait.Name[GatherBuddy.Language],
                 Fish = null,
             };
-            for (var idx = 1; idx < fish.CatchData.BaitOrder.Length; ++idx)
+            for (var idx = 0; idx < fish.CatchData.Mooches.Length; ++idx)
             {
-                var tmp  = fish.CatchData.BaitOrder[idx];
-                var f    = manager.Fish[tmp];
+                var f  = fish.CatchData.Mooches[idx];
                 var hook = f.CatchData?.HookSet ?? HookSet.Unknown;
-                ret[idx - 1].HookSet = FromHookSet(cache, hook);
-                ret[idx - 1].Bite    = FromBiteType(f.CatchData?.BiteType ?? f.Record.BiteType);
-                ret[idx] = new BaitOrder()
+                ret[idx].HookSet = FromHookSet(cache, hook);
+                ret[idx].Bite    = FromBiteType(f.CatchData?.BiteType ?? f.Record.BiteType);
+                ret[idx + 1] = new BaitOrder()
                 {
                     Icon = Service<Icons>.Get()[f.ItemData.Icon],
                     Name = f.Name[GatherBuddy.Language],
@@ -199,7 +198,7 @@ namespace GatherBuddy.Gui.Cache
             NameLower        = Name.ToLowerInvariant();
             Time             = SetTime(fish, ref uptime);
             WeatherIcons     = SetWeather(fish, ref uptime);
-            Bait             = SetBait(cache, manager, fish);
+            Bait             = SetBait(cache, fish);
             Predators        = SetPredators(manager, fish);
             Territory        = fish.FishingSpots.First().Territory!.Name[GatherBuddy.Language];
             TerritoryLower   = Territory.ToLowerInvariant();

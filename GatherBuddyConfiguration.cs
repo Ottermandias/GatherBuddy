@@ -44,16 +44,17 @@ namespace GatherBuddy
         public int       Version   { get; set; }
         public ShowNodes ShowNodes { get; set; }
 
-        public bool UseGearChange    { get; set; }
-        public bool UseTeleport      { get; set; }
-        public bool UseCoordinates   { get; set; }
-        public bool DoRecord         { get; set; }
-        public bool AlarmsEnabled    { get; set; }
-        public bool PrintUptime      { get; set; }
-        public bool PrintGighead     { get; set; }
-        public bool ShowFishTimer    { get; set; }
-        public bool FishTimerEdit    { get; set; }
-        public bool HideUncaughtFish { get; set; }
+        public bool UseGearChange       { get; set; }
+        public bool UseTeleport         { get; set; }
+        public bool UseCoordinates      { get; set; }
+        public bool DoRecord            { get; set; }
+        public bool AlarmsEnabled       { get; set; }
+        public bool PrintUptime         { get; set; }
+        public bool PrintGighead        { get; set; }
+        public bool ShowFishTimer       { get; set; }
+        public bool FishTimerEdit       { get; set; }
+        public bool HideUncaughtFish    { get; set; }
+        public bool HideUnavailableFish { get; set; }
 
         public bool ShowAlreadyCaught { get; set; }
         public bool ShowBigFish       { get; set; }

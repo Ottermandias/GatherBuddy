@@ -1,4 +1,7 @@
+using System.Linq;
 using GatherBuddy.Enums;
+using GatherBuddy.Game;
+using GatherBuddy.Managers;
 using static GatherBuddy.Classes.Uptime;
 
 namespace GatherBuddy.Classes
@@ -20,15 +23,19 @@ namespace GatherBuddy.Classes
             return this;
         }
 
-        internal CatchData Bait(params uint[] values)
+        internal CatchData Bait(FishManager fish, params uint[] values)
         {
-            BaitOrder = values;
+            if (values.Length > 0)
+                InitialBait = fish.Bait[values[0]];
+            if (values.Length > 1)
+                Mooches = values.Skip(1).Select(f => fish.Fish[f]).ToArray();
             return this;
         }
 
-        internal CatchData Predators(params (uint, int)[] values)
+        internal CatchData Predators(FishManager fish, params (uint, int)[] values)
         {
-            Predator = values;
+            if (values.Length > 0)
+                Predator = values.Select(f => (fish.Fish[f.Item1], f.Item2)).ToArray();
             return this;
         }
 
@@ -67,9 +74,10 @@ namespace GatherBuddy.Classes
             GigHead = gigHead;
             if (gigHead != GigHead.None)
             {
-                Snagging  = Snagging.None;
-                HookSet   = HookSet.None;
-                BaitOrder = new uint[0];
+                Snagging    = Snagging.None;
+                HookSet     = HookSet.None;
+                InitialBait = Game.Bait.Unknown;
+                Mooches     = new Fish[0];
             }
 
             return this;
@@ -77,9 +85,11 @@ namespace GatherBuddy.Classes
 
         public uint[] PreviousWeather { get; private set; } = new uint[0];
         public uint[] CurrentWeather  { get; private set; } = new uint[0];
-        public uint[] BaitOrder       { get; private set; } = new uint[0];
 
-        public (uint, int)[] Predator { get; private set; } = new (uint, int)[0];
+        public Bait   InitialBait { get; private set; } = Game.Bait.Unknown;
+        public Fish[] Mooches     { get; private set; } = new Fish[0];
+
+        public (Fish, int)[] Predator { get; private set; } = new (Fish, int)[0];
 
         public Uptime Hours { get; private set; } = AllHours;
 

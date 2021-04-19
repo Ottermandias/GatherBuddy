@@ -36,6 +36,11 @@ namespace GatherBuddy.Gui
                 "Hide all fish from the fish timer window that have not been recorded with the given combination of snagging and bait.",
                 _config.HideUncaughtFish, b => _config.HideUncaughtFish = b);
 
+        private void DrawFishTimerHideBox2()
+            => DrawCheckbox("Hide Unavailable Fish",
+                "Hide all fish from the fish timer window that have have known requirements that are unfulfilled, like Fisher's Intuition or Snagging.",
+                _config.HideUnavailableFish, b => _config.HideUnavailableFish = b);
+
         private void DrawPrintUptimesBox()
             => DrawCheckbox("Print Node Uptimes", "Print the uptimes of nodes you try to /gather in the chat if they are not always up.",
                 _config.PrintUptime,              b => _config.PrintUptime = b);
@@ -99,6 +104,7 @@ namespace GatherBuddy.Gui
             DrawFishTimerBox();
             DrawFishTimerEditBox();
             DrawFishTimerHideBox();
+            DrawFishTimerHideBox2();
 
             ImGuiHelpers.ScaledDummy(new Vector2(0, 20));
             DrawAlarmFormatInput();

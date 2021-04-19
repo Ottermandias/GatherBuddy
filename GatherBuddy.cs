@@ -35,7 +35,7 @@ namespace GatherBuddy
             Gatherer         = new Gatherer(pluginInterface, _configuration, _commandManager);
             Alarms           = Gatherer.Alarms;
             _gatherInterface = new Interface(this, pluginInterface, _configuration);
-            _fishingTimer    = new FishingTimer(_pluginInterface, _configuration, Gatherer!.FishManager);
+            _fishingTimer    = new FishingTimer(_pluginInterface, _configuration, Gatherer!.FishManager, Gatherer!.WeatherManager);
 
             if (!Gatherer!.FishManager.GetSaveFileName(_pluginInterface).Exists)
                 Gatherer!.FishManager.SaveFishRecords(_pluginInterface);

@@ -1,4 +1,3 @@
-using GatherBuddy.Classes;
 using GatherBuddy.Managers;
 using GatherBuddy.Enums;
 
@@ -10,37 +9,37 @@ namespace GatherBuddy.Data
         private static void ApplyDeathUntoDawn(this FishManager fish)
         {
             fish.Apply     (33219, Patch.DeathUntoDawn) // Dravanian Scallop
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33220, Patch.DeathUntoDawn) // Cloud Kelp
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33221, Patch.DeathUntoDawn) // Scarlet Frog
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33222, Patch.DeathUntoDawn) // White Clam
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33223, Patch.DeathUntoDawn) // Fragrant Sweetfish
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33316, Patch.DeathUntoDawn) // Aster Trivi
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33317, Patch.DeathUntoDawn) // Python Discus
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33318, Patch.DeathUntoDawn) // Steel Razor
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33319, Patch.DeathUntoDawn) // Shadeshifter
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33320, Patch.DeathUntoDawn) // Nabaath Saw
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33321, Patch.DeathUntoDawn) // Dammroen Herring
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33322, Patch.DeathUntoDawn) // Celestial
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33323, Patch.DeathUntoDawn) // Deephaunt
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33324, Patch.DeathUntoDawn) // Golden Pipira
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33325, Patch.DeathUntoDawn) // Mora Tecta
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (33326, Patch.DeathUntoDawn) // Maru Crab
-                .Bait      ();
+                .Bait      (fish);
         }
         // @formatter:on
     }

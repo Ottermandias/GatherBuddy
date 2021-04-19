@@ -12,6 +12,8 @@ using GatherBuddy.Managers;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
 using ImGuiNET;
+using ImGuiScene;
+using DateTime = System.DateTime;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
 
 namespace GatherBuddy.Gui
@@ -25,6 +27,7 @@ namespace GatherBuddy.Gui
         private readonly DalamudPluginInterface   _pi;
         private readonly GatherBuddyConfiguration _config;
         private readonly FishManager              _fish;
+        private readonly WeatherManager           _weather;
         private readonly ClientLanguage           _lang;
         private readonly CurrentBait              _bait;
         private readonly FishingParser            _parser;
@@ -37,17 +40,101 @@ namespace GatherBuddy.Gui
             => _config.FishTimerEdit;
 
         private          bool         _snagging;
+        private          bool         _chum;
+        private          bool         _intuition;
         private readonly Stopwatch    _start = new();
         private readonly Stopwatch    _bite  = new();
         private          FishingSpot? _currentSpot;
         private          Bait         _currentBait;
         private          Fish?        _lastFish;
 
-        private Vector2 _rectMin;
-        private Vector2 _rectSize;
-        private Vector2 _iconSize;
-        private float   _lineHeight;
-        private Fish[]  _currentFishList = new Fish[0];
+        private Vector2     _rectMin;
+        private Vector2     _rectSize;
+        private Vector2     _iconSize;
+        private float       _lineHeight;
+        private FishCache[] _currentFishList = new FishCache[0];
+
+        private readonly struct FishCache
+        {
+            private readonly Fish        _fish;
+            private readonly uint        _color;
+            private readonly TextureWrap _icon;
+            private readonly float       _sizeMin;
+            private readonly float       _sizeMax;
+            public readonly  bool        Valid;
+            public readonly  bool        Uncaught;
+            public readonly  bool        Unavailable;
+            public readonly  uint        SortOrder;
+
+            public FishCache(FishingTimer timer, Fish fish)
+            {
+                _fish = fish;
+                var bite = fish.Record.BiteType != BiteType.Unknown ? fish.Record.BiteType : fish.CatchData?.BiteType ?? BiteType.Unknown;
+                _color = Colors.FishTimer.FromBiteType(bite);
+
+                var catchMin = timer._chum ? fish.Record.EarliestCatchChum : fish.Record.EarliestCatch;
+                var catchMax = timer._chum ? fish.Record.LatestCatchChum : fish.Record.LatestCatch;
+                _sizeMin  = catchMin / MaxTimerSeconds;
+                _sizeMax  = catchMax / MaxTimerSeconds;
+                SortOrder = ((uint) catchMin << 16) | catchMax;
+
+                _icon = timer._icons[_fish.ItemData.Icon];
+
+                Unavailable = false;
+                Uncaught    = false;
+                if (DateTime.UtcNow < fish.NextUptime(timer._weather).Time
+                 || !timer._intuition && (fish.CatchData?.Predator.Length ?? 0) > 0
+                 || !timer._snagging && (fish.CatchData?.Snagging ?? Snagging.Unknown) == Snagging.Required)
+                {
+                    _color      = Colors.FishTimer.Unavailable;
+                    Unavailable = true;
+                    SortOrder   = uint.MaxValue;
+                }
+                else if (!timer.RecordsValid(fish.Record))
+                {
+                    _color    = Colors.FishTimer.Invalid;
+                    Uncaught  = true;
+                    SortOrder = uint.MaxValue - 1;
+                }
+
+                Valid = !Unavailable && !Uncaught;
+            }
+
+            public void Draw(FishingTimer timer, ImDrawListPtr ptr)
+            {
+                var pos    = ImGui.GetCursorPosY();
+                var height = ImGui.GetTextLineHeightWithSpacing() * 1.4f;
+
+                var biteMin = Vector2.Zero;
+                var biteMax = Vector2.Zero;
+                var scale   = ImGui.GetIO().FontGlobalScale;
+                if (Valid)
+                {
+                    biteMin = timer._rectMin + new Vector2(_sizeMin * timer._rectSize.X - 2 * scale, pos);
+                    biteMax = timer._rectMin + new Vector2(_sizeMax * timer._rectSize.X + 2 * scale, pos + height);
+                    ptr.AddRectFilled(biteMin, biteMax, Colors.FishTimer.Background);
+                }
+
+                ImGui.Image(_icon.ImGuiHandle, timer._iconSize);
+                ImGui.SameLine();
+
+                ImGui.PushStyleColor(ImGuiCol.Button,        _color);
+                ImGui.PushStyleColor(ImGuiCol.ButtonHovered, _color);
+                ImGui.PushStyleColor(ImGuiCol.ButtonActive,  _color);
+                ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, timer._buttonTextAlign);
+
+                ImGui.Button(_fish.Name![GatherBuddy.Language], new Vector2(timer._rectSize.X - timer._iconSize.X, height));
+
+                ImGui.PopStyleVar();
+                ImGui.PopStyleColor(3);
+
+                if (Valid)
+                {
+                    ptr.AddLine(biteMin, biteMin + new Vector2(0, height), Colors.FishTimer.Separator, 2 * scale);
+                    ptr.AddLine(biteMax, biteMax - new Vector2(0, height), Colors.FishTimer.Separator, 2 * scale);
+                }
+            }
+        }
 
         private Bait GetCurrentBait(uint id)
         {
@@ -58,30 +145,56 @@ namespace GatherBuddy.Gui
             return Bait.Unknown;
         }
 
-        private bool CheckForSnagging()
+        private void CheckBuffs()
         {
-            const uint snaggingEffectId = 761;
-            return _pi.ClientState.LocalPlayer?.StatusEffects?.Any(s => s.EffectId == snaggingEffectId) ?? false;
+            const short snaggingEffectId  = 761;
+            const short chumEffectId      = 763;
+            const short intuitionEffectId = 568;
+
+            _snagging  = false;
+            _chum      = false;
+            _intuition = false;
+
+            if (_pi.ClientState?.LocalPlayer?.StatusEffects == null)
+                return;
+
+            foreach (var buff in _pi.ClientState.LocalPlayer.StatusEffects)
+            {
+                switch (buff.EffectId)
+                {
+                    case snaggingEffectId:
+                        _snagging = true;
+                        break;
+                    case chumEffectId:
+                        _chum = true;
+                        break;
+                    case intuitionEffectId:
+                        _intuition = true;
+                        break;
+                }
+            }
         }
+
 
         private void OnBeganFishing(FishingSpot? spot)
         {
-            _currentSpot     = spot;
-            _currentBait     = GetCurrentBait(_bait.Current);
-            _snagging        = CheckForSnagging();
+            _currentSpot = spot;
+            _currentBait = GetCurrentBait(_bait.Current);
+            CheckBuffs();
             _currentFishList = SortedFish();
-            PluginLog.Verbose("Began fishing at {FishingSpot} using {Bait} {Snagging}.",
+            PluginLog.Verbose("Began fishing at {FishingSpot} using {Bait} {Snagging} and {Chum}.",
                 _currentSpot?.PlaceName ?? "Undiscovered Fishing Hole", _currentBait.Name
-                , _snagging ? "with Snagging." : "without Snagging.");
+                , _snagging ? "with Snagging" : "without Snagging"
+                , _chum ? "with Chum" : "without Chum");
             _start.Restart();
         }
 
         private void OnBite()
         {
             _start.Stop();
-            PluginLog.Verbose("Fish bit at {FishingSpot} after {Milliseconds} using {Bait} {Snagging}.",
+            PluginLog.Verbose("Fish bit at {FishingSpot} after {Milliseconds} using {Bait} {Snagging} and {Chum}.",
                 _currentSpot?.PlaceName ?? "Undiscovered Fishing Hole", _start.ElapsedMilliseconds
-                , _currentBait.Name, _snagging ? "with Snagging." : "without Snagging.");
+                , _currentBait.Name, _snagging ? "with Snagging" : "without Snagging", _chum ? "with Chum" : "without Chum");
             _bite.Restart();
         }
 
@@ -95,31 +208,33 @@ namespace GatherBuddy.Gui
         {
             _lastFish = fish;
             _bite.Stop();
-            if (_lastFish.Record.Update(_currentBait, (ushort) _start.ElapsedMilliseconds, _snagging, _bite.ElapsedMilliseconds))
+            if (_lastFish.Record.Update(_currentBait, (ushort) _start.ElapsedMilliseconds, _snagging, _chum, _bite.ElapsedMilliseconds))
                 _fish.SaveFishRecords(_pi);
-            PluginLog.Verbose("Caught {Fish} at {FishingSpot} after {Milliseconds} and {Milliseconds2} using {Bait} {Snagging}.",
+            PluginLog.Verbose("Caught {Fish} at {FishingSpot} after {Milliseconds} and {Milliseconds2} using {Bait} {Snagging} and {Chum}.",
                 _lastFish.Name, _currentSpot!.PlaceName, _start.ElapsedMilliseconds,
-                _bite.ElapsedMilliseconds, _currentBait.Name, _snagging ? "with Snagging." : "without Snagging.");
+                _bite.ElapsedMilliseconds, _currentBait.Name, _snagging ? "with Snagging" : "without Snagging",
+                _chum ? "with Chum" : "without Chum");
         }
 
         private void OnMooch()
         {
             _currentBait     = new Bait(_lastFish!.ItemData, _lastFish.Name);
             _currentFishList = SortedFish();
-            PluginLog.Verbose("Mooching with {Fish} at {FishingSpot} {Snagging}.", _lastFish!.Name,
-                _currentSpot!.PlaceName, _snagging ? "with Snagging." : "without Snagging.");
+            PluginLog.Verbose("Mooching with {Fish} at {FishingSpot} {Snagging} and {Chum}.", _lastFish!.Name,
+                _currentSpot!.PlaceName, _snagging ? "with Snagging" : "without Snagging", _chum ? "with Chum" : "without Chum");
             _start.Restart();
         }
 
-        public FishingTimer(DalamudPluginInterface pi, GatherBuddyConfiguration config, FishManager fish)
+        public FishingTimer(DalamudPluginInterface pi, GatherBuddyConfiguration config, FishManager fish, WeatherManager weather)
         {
-            _pi     = pi;
-            _config = config;
-            _lang   = pi.ClientState.ClientLanguage;
-            _fish   = fish;
-            _bait   = new CurrentBait(pi.TargetModuleScanner);
-            _parser = new FishingParser(_pi, _fish);
-            _icons  = Service<Cache.Icons>.Get();
+            _pi      = pi;
+            _config  = config;
+            _lang    = pi.ClientState.ClientLanguage;
+            _fish    = fish;
+            _weather = weather;
+            _bait    = new CurrentBait(pi.TargetModuleScanner);
+            _parser  = new FishingParser(_pi, _fish);
+            _icons   = Service<Cache.Icons>.Get();
 
             _pi.UiBuilder.OnBuildUi += Draw;
             _parser.BeganFishing    += OnBeganFishing;
@@ -144,56 +259,19 @@ namespace GatherBuddy.Gui
         private bool RecordsValid(FishRecord record)
             => record.SuccessfulBaits.Contains(_currentBait.Id) && record.WithoutSnagging || _snagging;
 
-        public void DrawFish(ImDrawListPtr drawList, Fish fish)
-        {
-            var bite  = fish.Record.BiteType != BiteType.Unknown ? fish.Record.BiteType : fish.CatchData?.BiteType ?? BiteType.Unknown;
-            var color = Colors.FishTimer.FromBiteType(bite);
-
-            var recordsValid = RecordsValid(fish.Record);
-            if (!recordsValid)
-                color = Colors.FishTimer.Invalid;
-
-            var pos    = ImGui.GetCursorPosY();
-            var height = ImGui.GetTextLineHeightWithSpacing() * 1.4f;
-
-            if (recordsValid)
-            {
-                var biteMin = _rectMin + new Vector2(fish.Record.EarliestCatch / MaxTimerSeconds * _rectSize.X - 2, pos);
-                var biteMax = _rectMin + new Vector2(fish.Record.LatestCatch / MaxTimerSeconds * _rectSize.X + 2,   pos + height);
-                drawList.AddRectFilled(biteMin, biteMax, Colors.FishTimer.Background);
-            }
-
-            ImGui.Image(_icons[fish.ItemData.Icon].ImGuiHandle, _iconSize);
-            ImGui.SameLine();
-
-            ImGui.PushStyleColor(ImGuiCol.Button,        color);
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color);
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive,  color);
-            ImGui.PushStyleVar(ImGuiStyleVar.ButtonTextAlign, _buttonTextAlign);
-
-            ImGui.Button(fish.Name![_lang], new Vector2(_rectSize.X - _iconSize.X, height));
-
-            ImGui.PopStyleVar();
-            ImGui.PopStyleColor(3);
-        }
-
-        private uint RecordOrder(Fish fish)
-        {
-            if (!RecordsValid(fish.Record))
-                return uint.MaxValue;
-
-            return ((uint) fish.Record.EarliestCatch << 16) | fish.Record.LatestCatch;
-        }
-
-        private Fish[] SortedFish()
+        private FishCache[] SortedFish()
         {
             if (_currentSpot == null)
-                return new Fish[0];
+                return new FishCache[0];
 
-            if (!_config.HideUncaughtFish)
-                return _currentSpot.Items.Where(f => f != null).Cast<Fish>().OrderBy(RecordOrder).ToArray();
+            var enumerable = _currentSpot.Items.Where(f => f != null).Cast<Fish>().Select(f => new FishCache(this, f));
 
-            return _currentSpot.Items.Where(f => f != null && RecordsValid(f.Record)).Cast<Fish>().OrderBy(RecordOrder).ToArray();
+            if (_config.HideUncaughtFish)
+                enumerable = enumerable.Where(f => !f.Uncaught);
+            if (_config.HideUnavailableFish)
+                enumerable = enumerable.Where(f => !f.Unavailable);
+
+            return enumerable.OrderBy(f => f.SortOrder).ToArray();
         }
 
         public void Draw()
@@ -213,7 +291,7 @@ namespace GatherBuddy.Gui
                 _start.Stop();
             if (!rodOut)
             {
-                _currentFishList = new Fish[0];
+                _currentFishList = new FishCache[0];
                 if (!EditMode)
                     return;
             }
@@ -263,7 +341,7 @@ namespace GatherBuddy.Gui
                 }
 
                 foreach (var fish in _currentFishList)
-                    DrawFish(drawList, fish!);
+                    fish.Draw(this, drawList);
 
                 if (displayTimer)
                     drawList.AddLine(new Vector2(diffPos, _rectMin.Y + textLines),

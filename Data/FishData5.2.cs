@@ -1,4 +1,3 @@
-using GatherBuddy.Classes;
 using GatherBuddy.Managers;
 using GatherBuddy.Enums;
 
@@ -10,208 +9,209 @@ namespace GatherBuddy.Data
         private static void ApplyEchoesOfAFallenStar(this FishManager fish)
         {
             fish.Apply     (28925, Patch.EchoesOfAFallenStar) // The Jaws of Undeath
-                .Bait      (27589)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (16, 24)
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (28926, Patch.EchoesOfAFallenStar) // White Ronso
-                .Bait      (27589)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (0, 2)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28927, Patch.EchoesOfAFallenStar) // Ambling Caltrop
-                .Bait      (27584, 27461)
+                .Bait      (fish, 27584, 27461)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (12, 16)
                 .Weather   (1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (28928, Patch.EchoesOfAFallenStar) // Fae Rainbow
-                .Bait      (27585)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Legendary)
                 .Transition(2, 1)
                 .Weather   (4)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28929, Patch.EchoesOfAFallenStar) // Black Jet
-                .Bait      (27587)
+                .Bait      (fish, 27587)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (2, 12)
                 .Transition(3, 4)
                 .Weather   (2)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28930, Patch.EchoesOfAFallenStar) // Ondo Sigh
-                .Bait      (27590)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (12, 14)
                 .Weather   (2, 1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28937, Patch.EchoesOfAFallenStar) // Galadion Goby
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (28938, Patch.EchoesOfAFallenStar) // Galadion Chovy
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (28939, Patch.EchoesOfAFallenStar) // Rosy Bream
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (28940, Patch.EchoesOfAFallenStar) // Tripod Fish
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (28941, Patch.EchoesOfAFallenStar) // Sunfly
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (28942, Patch.EchoesOfAFallenStar) // Tarnished Shark
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29673, Patch.EchoesOfAFallenStar) // Thinker's Coral
-                .Bait      (30136)
+                .Bait      (fish, 30136)
+                .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (29678, Patch.EchoesOfAFallenStar) // Dragonspine
-                .Bait      (30136)
+                .Bait      (fish, 30136)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (29718, Patch.EchoesOfAFallenStar) // Tossed Dagger
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29719, Patch.EchoesOfAFallenStar) // Jasperhead
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29720, Patch.EchoesOfAFallenStar) // Merlthor Lobster
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29721, Patch.EchoesOfAFallenStar) // Heavenswimmer
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29722, Patch.EchoesOfAFallenStar) // Ghoul Barracuda
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29723, Patch.EchoesOfAFallenStar) // Leopard Eel
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29724, Patch.EchoesOfAFallenStar) // Marine Bomb
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29725, Patch.EchoesOfAFallenStar) // Momora Mora
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29726, Patch.EchoesOfAFallenStar) // Merlthor Butterfly
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29727, Patch.EchoesOfAFallenStar) // Gladius
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29728, Patch.EchoesOfAFallenStar) // Rhotano Wahoo
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29729, Patch.EchoesOfAFallenStar) // Rhotano Sardine
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29730, Patch.EchoesOfAFallenStar) // Deep Plaice
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29731, Patch.EchoesOfAFallenStar) // Crimson Monkfish
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29732, Patch.EchoesOfAFallenStar) // Lampfish
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29733, Patch.EchoesOfAFallenStar) // Ogre Eel
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29734, Patch.EchoesOfAFallenStar) // Cyan Octopus
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29735, Patch.EchoesOfAFallenStar) // Chrome Hammerhead
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29736, Patch.EchoesOfAFallenStar) // Floefish
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29737, Patch.EchoesOfAFallenStar) // Megasquid
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29738, Patch.EchoesOfAFallenStar) // Oschon's Stone
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29739, Patch.EchoesOfAFallenStar) // La Noscean Jelly
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29740, Patch.EchoesOfAFallenStar) // Shaggy Seadragon
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29741, Patch.EchoesOfAFallenStar) // Net Crawler
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29742, Patch.EchoesOfAFallenStar) // Dark Nautilus
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29743, Patch.EchoesOfAFallenStar) // Elder Dinichthys
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29744, Patch.EchoesOfAFallenStar) // Drunkfish
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29745, Patch.EchoesOfAFallenStar) // Little Leviathan
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29746, Patch.EchoesOfAFallenStar) // Sabaton
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29747, Patch.EchoesOfAFallenStar) // Shooting Star
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29748, Patch.EchoesOfAFallenStar) // Hammerclaw
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29749, Patch.EchoesOfAFallenStar) // Heavenskey
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29750, Patch.EchoesOfAFallenStar) // Ghost Shark
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29751, Patch.EchoesOfAFallenStar) // Quicksilver Blade
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29752, Patch.EchoesOfAFallenStar) // Navigator's Print
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29753, Patch.EchoesOfAFallenStar) // Casket Oyster
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29754, Patch.EchoesOfAFallenStar) // Fishmonger
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29755, Patch.EchoesOfAFallenStar) // Mythril Sovereign
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29756, Patch.EchoesOfAFallenStar) // Nimble Dancer
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29757, Patch.EchoesOfAFallenStar) // Sea Nettle
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29758, Patch.EchoesOfAFallenStar) // Great Grandmarlin
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29759, Patch.EchoesOfAFallenStar) // Shipwreck's Sail
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29760, Patch.EchoesOfAFallenStar) // Azeyma's Sleeve
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29761, Patch.EchoesOfAFallenStar) // Hi-aetherlouse
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29762, Patch.EchoesOfAFallenStar) // Floating Saucer
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29763, Patch.EchoesOfAFallenStar) // Aetheric Seadragon
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29764, Patch.EchoesOfAFallenStar) // Coral Seadragon
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29765, Patch.EchoesOfAFallenStar) // Roguesaurus
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29766, Patch.EchoesOfAFallenStar) // Merman's Mane
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29767, Patch.EchoesOfAFallenStar) // Sweeper
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29768, Patch.EchoesOfAFallenStar) // Silencer
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29769, Patch.EchoesOfAFallenStar) // Deep-sea Eel
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29770, Patch.EchoesOfAFallenStar) // Executioner
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29771, Patch.EchoesOfAFallenStar) // Wild Urchin
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29772, Patch.EchoesOfAFallenStar) // True Barramundi
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29773, Patch.EchoesOfAFallenStar) // Mopbeard
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29774, Patch.EchoesOfAFallenStar) // Slipsnail
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29775, Patch.EchoesOfAFallenStar) // Aronnax
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29776, Patch.EchoesOfAFallenStar) // Coccosteus
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29777, Patch.EchoesOfAFallenStar) // Bartholomew the Chopper
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29778, Patch.EchoesOfAFallenStar) // Prowler
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29779, Patch.EchoesOfAFallenStar) // Charlatan Survivor
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29780, Patch.EchoesOfAFallenStar) // Prodigal Son
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29781, Patch.EchoesOfAFallenStar) // Gugrusaurus
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29782, Patch.EchoesOfAFallenStar) // Funnel Shark
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29783, Patch.EchoesOfAFallenStar) // The Fallen One
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29784, Patch.EchoesOfAFallenStar) // Spectral Megalodon
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29785, Patch.EchoesOfAFallenStar) // Spectral Discus
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29786, Patch.EchoesOfAFallenStar) // Spectral Sea Bo
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29787, Patch.EchoesOfAFallenStar) // Spectral Bass
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29788, Patch.EchoesOfAFallenStar) // Sothis
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29789, Patch.EchoesOfAFallenStar) // Coral Manta
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29790, Patch.EchoesOfAFallenStar) // Stonescale
-                .Bait      ();
+                .Bait      (fish);
             fish.Apply     (29791, Patch.EchoesOfAFallenStar) // Elasmosaurus
-                .Bait      ();
+                .Bait      (fish);
         }
         // @formatter:on
     }
