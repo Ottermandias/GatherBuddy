@@ -94,7 +94,7 @@ namespace GatherBuddy.Gui
                     if (!timer._intuition)
                         Unavailable = true;
                 }
-                else if (DateTime.UtcNow < fish.NextUptime(timer._weather).Time)
+                if (DateTime.UtcNow < fish.NextUptime(timer._weather).Time)
                 {
                     if (!timer._fishEyes || fish.IsBigFish || fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
                         Unavailable = true;
@@ -119,7 +119,7 @@ namespace GatherBuddy.Gui
                     SortOrder = uint.MaxValue - 1;
                 }
 
-                Valid = !Unavailable && !Uncaught && _sizeMin > 0.001f && _sizeMax < 0.999f;
+                Valid = !Unavailable && !Uncaught && _sizeMin > 0.001f && _sizeMax < 0.999f && _sizeMin < _sizeMax;
             }
 
             public void Draw(FishingTimer timer, ImDrawListPtr ptr)
