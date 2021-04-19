@@ -20,7 +20,7 @@ namespace GatherBuddy.Gui
 {
     public class FishingTimer : IDisposable
     {
-        private const    float   MaxTimerSeconds  = 30000f;
+        private const    float   MaxTimerSeconds  = 35000f;
         private readonly Vector2 _buttonTextAlign = new(0f, 0.1f);
         private readonly Vector2 _itemSpacing     = new(0, 1);
 
@@ -74,8 +74,8 @@ namespace GatherBuddy.Gui
 
                 var catchMin = timer._chum ? fish.Record.EarliestCatchChum : fish.Record.EarliestCatch;
                 var catchMax = timer._chum ? fish.Record.LatestCatchChum : fish.Record.LatestCatch;
-                _sizeMin  = catchMin / MaxTimerSeconds;
-                _sizeMax  = catchMax / MaxTimerSeconds;
+                _sizeMin  = Math.Max(catchMin / MaxTimerSeconds, 0.0f);
+                _sizeMax  = Math.Min(catchMax / MaxTimerSeconds, 1.0f);
                 SortOrder = ((uint) catchMin << 16) | catchMax;
 
                 _icon = timer._icons[_fish.ItemData.Icon];
@@ -86,9 +86,12 @@ namespace GatherBuddy.Gui
                  || !timer._intuition && (fish.CatchData?.Predator.Length ?? 0) > 0
                  || !timer._snagging && (fish.CatchData?.Snagging ?? Snagging.Unknown) == Snagging.Required)
                 {
-                    _color      = Colors.FishTimer.Unavailable;
-                    Unavailable = true;
-                    SortOrder   = uint.MaxValue;
+                    if (!timer._intuition || (fish.CatchData?.Predator.Length ?? 0) == 0)
+                    {
+                        _color      = Colors.FishTimer.Unavailable;
+                        Unavailable = true;
+                        SortOrder   = uint.MaxValue;
+                    }
                 }
                 else if (!timer.RecordsValid(fish.Record))
                 {
@@ -97,7 +100,7 @@ namespace GatherBuddy.Gui
                     SortOrder = uint.MaxValue - 1;
                 }
 
-                Valid = !Unavailable && !Uncaught;
+                Valid = !Unavailable && !Uncaught && _sizeMin > 0f && _sizeMax < 1f;
             }
 
             public void Draw(FishingTimer timer, ImDrawListPtr ptr)
@@ -108,10 +111,12 @@ namespace GatherBuddy.Gui
                 var biteMin = Vector2.Zero;
                 var biteMax = Vector2.Zero;
                 var scale   = ImGui.GetIO().FontGlobalScale;
+                var begin   = timer._rectMin + new Vector2(timer._iconSize.X,  0);
+                var size    = timer._rectSize - new Vector2(timer._iconSize.X, 0);
                 if (Valid)
                 {
-                    biteMin = timer._rectMin + new Vector2(_sizeMin * timer._rectSize.X - 2 * scale, pos);
-                    biteMax = timer._rectMin + new Vector2(_sizeMax * timer._rectSize.X + 2 * scale, pos + height);
+                    biteMin = begin + new Vector2(_sizeMin * size.X - 2 * scale, pos);
+                    biteMax = begin + new Vector2(_sizeMax * size.X + 2 * scale, pos + height);
                     ptr.AddRectFilled(biteMin, biteMax, Colors.FishTimer.Background);
                 }
 
