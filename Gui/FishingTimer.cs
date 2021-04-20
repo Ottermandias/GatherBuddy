@@ -119,7 +119,7 @@ namespace GatherBuddy.Gui
                     SortOrder = uint.MaxValue - 1;
                 }
 
-                Valid = !Unavailable && !Uncaught && _sizeMin > 0.001f && _sizeMax < 0.999f && _sizeMin < _sizeMax;
+                Valid = !Unavailable && !Uncaught && _sizeMin > 0.001f && _sizeMax < 0.999f && _sizeMin <= _sizeMax;
             }
 
             public void Draw(FishingTimer timer, ImDrawListPtr ptr)

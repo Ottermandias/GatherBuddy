@@ -77,6 +77,6 @@
 		</None>
 	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="if $(Configuration) == Release powershell Compress-Archive -Force $(TargetPath), $(TargetDir)$(SolutionName).json $(ProjectDir)$(SolutionName).zip" />
+	  <Exec Command="if $(Configuration) == Release powershell Compress-Archive -Force $(TargetPath), $(TargetDir)$(SolutionName).pdb, $(TargetDir)$(SolutionName).json $(ProjectDir)$(SolutionName).zip" />
 	</Target>
 </Project>
