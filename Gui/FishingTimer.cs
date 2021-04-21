@@ -67,11 +67,6 @@ namespace GatherBuddy.Gui
             public readonly  bool        Unavailable;
             public readonly  uint        SortOrder;
 
-            private void SetUnavailable()
-            {
-
-            }
-
             public FishCache(FishingTimer timer, Fish fish)
             {
                 _fish = fish;

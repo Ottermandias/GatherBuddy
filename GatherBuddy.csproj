@@ -4,8 +4,8 @@
 		<LangVersion>preview</LangVersion>
 		<RootNamespace>GatherBuddy</RootNamespace>
 		<AssemblyName>GatherBuddy</AssemblyName>
-		<FileVersion>2.0.1.0</FileVersion>
-    <AssemblyVersion>2.0.1.0</AssemblyVersion>
+		<FileVersion>2.0.2.8</FileVersion>
+    <AssemblyVersion>2.0.2.8</AssemblyVersion>
 		<Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2020</Copyright>

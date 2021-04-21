@@ -106,16 +106,18 @@ namespace GatherBuddy.Managers
             Dictionary<string, FishingSpot> dict;
             if (tmp.Success)
             {
-                fishingSpotName = tmp.Value;
+                fishingSpotName = tmp.Value.ToLowerInvariant();
                 dict            = _fish.FishingSpotNames;
             }
             else
             {
-                fishingSpotName = match.Groups["FishingSpotWithArticle"].Value;
+                fishingSpotName = match.Groups["FishingSpotWithArticle"].Value.ToLowerInvariant();
                 dict            = _fish.FishingSpotNamesWithArticle;
             }
 
-            if (dict.TryGetValue(fishingSpotName.ToLowerInvariant(), out var fishingSpot))
+            if (dict.TryGetValue(fishingSpotName, out var fishingSpot))
+                BeganFishing?.Invoke(fishingSpot);
+            else if (fishingSpotName.StartsWith("the ") && dict.TryGetValue(fishingSpotName.Substring(4), out fishingSpot))
                 BeganFishing?.Invoke(fishingSpot);
             else
                 PluginLog.Error($"Began fishing at unknown fishing spot: \"{fishingSpotName}\".");
