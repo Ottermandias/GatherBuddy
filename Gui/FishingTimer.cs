@@ -356,9 +356,9 @@ namespace GatherBuddy.Gui
             if (rodOut)
             {
                 ImGui.SetCursorPosX(fivePx);
-                ImGui.Text(_currentBait.Name);
+                ImGui.Text(_currentBait.Name[GatherBuddy.Language]);
                 ImGui.SetCursorPosX(fivePx);
-                ImGui.Text(_currentSpot?.PlaceName?[_lang] ?? "Unknown");
+                ImGui.Text(_currentSpot?.PlaceName?[GatherBuddy.Language] ?? "Unknown");
                 var displayTimer = (fishing || _bite.IsRunning) && _start.ElapsedMilliseconds > 0;
 
                 if (displayTimer)
