@@ -9,6 +9,9 @@ namespace GatherBuddy.Classes
 {
     public class FishRecord
     {
+        private const uint MinTime = 1000;
+        private const uint MaxTime = 40000;
+
         public HashSet<uint> SuccessfulBaits   { get; }      = new();
         public ushort        EarliestCatch     { get; set; } = ushort.MaxValue;
         public ushort        LatestCatch       { get; set; }
@@ -31,10 +34,65 @@ namespace GatherBuddy.Classes
             BiteType          = BiteType.Unknown;
         }
 
+        public bool Merge(FishRecord rhs)
+        {
+            var ret = false;
+            if (rhs.SuccessfulBaits.Count == 0)
+                return ret;
+
+            if (rhs.BiteType == BiteType.Unknown)
+                return ret;
+
+            if (BiteType == BiteType.Unknown)
+            {
+                BiteType = rhs.BiteType;
+                ret      = true;
+            }
+            else if (BiteType != rhs.BiteType)
+            {
+                PluginLog.Warning("Different BiteTypes in records.");
+                return ret;
+            }
+
+            if (rhs.EarliestCatch < EarliestCatch)
+            {
+                EarliestCatch = rhs.EarliestCatch;
+                ret           = true;
+            }
+
+            if (rhs.EarliestCatchChum < EarliestCatchChum)
+            {
+                EarliestCatchChum = rhs.EarliestCatchChum;
+                ret           = true;
+            }
+            
+            if (rhs.LatestCatch > LatestCatch)
+            {
+                LatestCatch = rhs.LatestCatch;
+                ret             = true;
+            }
+
+            if (rhs.LatestCatchChum > LatestCatchChum)
+            {
+                LatestCatchChum = rhs.LatestCatchChum;
+                ret               = true;
+            }
+
+
+            if (rhs.WithoutSnagging && !WithoutSnagging)
+            {
+                WithoutSnagging = rhs.WithoutSnagging;
+                ret             = true;
+            }
+
+            foreach (var bait in rhs.SuccessfulBaits)
+                ret |= SuccessfulBaits.Add(bait);
+
+            return ret;
+        }
+
         public bool Update(Bait bait, ushort time, bool snagging, bool chum, BiteType bite)
         {
-            const uint minTime = 1000;
-            const uint maxTime = 40000;
             var        ret     = false;
             if (BiteType == BiteType.Unknown)
             {
@@ -49,7 +107,7 @@ namespace GatherBuddy.Classes
             }
 
             ret |= SuccessfulBaits.Add(bait.Id);
-            if (time > minTime && time < maxTime)
+            if (time > MinTime && time < MaxTime)
             {
                 if (chum)
                 {

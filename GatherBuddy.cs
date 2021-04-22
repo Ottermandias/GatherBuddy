@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.IO;
+using System.Linq;
 using Dalamud;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
@@ -330,6 +331,30 @@ namespace GatherBuddy
                         Gatherer!.FishManager.DumpFishLog();
                         break;
                 }
+
+            if (Util.CompareCi(argumentParts[0], "mergefish"))
+            {
+                if (argumentParts.Length < 2)
+                {
+                    _pluginInterface!.Framework.Gui.Chat.PrintError("Please provide a filename to merge.");
+                    return;
+                }
+                var name = arguments.Substring(argumentParts[0].Length + 1);
+                var fish = Gatherer!.FishManager.MergeFishRecords(_pluginInterface!, new FileInfo(name));
+                switch (fish)
+                {
+                    case -1: _pluginInterface!.Framework.Gui.Chat.PrintError($"The provided file {name} does not exist.");
+                        return;
+                    case -2: _pluginInterface!.Framework.Gui.Chat.PrintError("Could not create a backup of your records, merge stopped.");
+                        return;
+                    case -3: _pluginInterface!.Framework.Gui.Chat.PrintError("Unexpected error occurred, merge stopped.");
+                        return;
+                    default:
+                        _pluginInterface!.Framework.Gui.Chat.Print($"{fish} Records updated with new data.");
+                        Gatherer!.FishManager.SaveFishRecords(_pluginInterface);
+                        return;
+                }
+            }
 
             if (Util.CompareCi(argumentParts[0], "purgefish"))
             {

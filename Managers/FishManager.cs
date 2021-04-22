@@ -443,6 +443,46 @@ namespace GatherBuddy.Managers
             }
         }
 
+        public int MergeFishRecords(DalamudPluginInterface pi, FileInfo file)
+        {
+            if (!file.Exists)
+                return -1;
+
+            try
+            {
+                var oldRecords = GetSaveFileName(pi);
+                if (oldRecords.Exists)
+                    File.Copy(oldRecords.FullName, oldRecords.FullName + ".bak", true);
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error($"Could not create a backup of fishing records:\n{e}");
+                return -2;
+            }
+
+            var sum = 0;
+            try
+            {
+                var lines = File.ReadAllLines(file.FullName);
+                foreach (var line in lines)
+                {
+                    var p = FishRecord.FromLine(line);
+                    if (p == null)
+                        continue;
+
+                    var (fishId, records) = p.Value;
+                    sum += Fish[fishId].Record.Merge(records) ? 1 : 0;
+                }
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error($"Could not read fishing records from file {file.FullName}:\n{e}");
+                return -3;
+            }
+
+            return sum;
+        }
+
         public void DumpFishLog()
         {
             foreach (var f in FishByUptime)
