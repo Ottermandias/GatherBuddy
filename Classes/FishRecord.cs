@@ -106,7 +106,7 @@ namespace GatherBuddy.Classes
                 return false;
             }
 
-            if (bait.Id == 0)
+            if (bait.Id != 0)
                 ret |= SuccessfulBaits.Add(bait.Id);
             
             if (time > MinTime && time < MaxTime)
