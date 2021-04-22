@@ -9,8 +9,8 @@ namespace GatherBuddy.Classes
 {
     public class FishRecord
     {
-        private const uint MinTime = 1000;
-        private const uint MaxTime = 40000;
+        public const uint MinTime = 1000;
+        public const uint MaxTime = 45000;
 
         public HashSet<uint> SuccessfulBaits   { get; }      = new();
         public ushort        EarliestCatch     { get; set; } = ushort.MaxValue;
@@ -63,19 +63,19 @@ namespace GatherBuddy.Classes
             if (rhs.EarliestCatchChum < EarliestCatchChum)
             {
                 EarliestCatchChum = rhs.EarliestCatchChum;
-                ret           = true;
+                ret               = true;
             }
-            
+
             if (rhs.LatestCatch > LatestCatch)
             {
                 LatestCatch = rhs.LatestCatch;
-                ret             = true;
+                ret         = true;
             }
 
             if (rhs.LatestCatchChum > LatestCatchChum)
             {
                 LatestCatchChum = rhs.LatestCatchChum;
-                ret               = true;
+                ret             = true;
             }
 
 
@@ -93,7 +93,7 @@ namespace GatherBuddy.Classes
 
         public bool Update(Bait bait, ushort time, bool snagging, bool chum, BiteType bite)
         {
-            var        ret     = false;
+            var ret = false;
             if (BiteType == BiteType.Unknown)
             {
                 BiteType = bite;
@@ -106,7 +106,9 @@ namespace GatherBuddy.Classes
                 return false;
             }
 
-            ret |= SuccessfulBaits.Add(bait.Id);
+            if (bait.Id == 0)
+                ret |= SuccessfulBaits.Add(bait.Id);
+            
             if (time > MinTime && time < MaxTime)
             {
                 if (chum)

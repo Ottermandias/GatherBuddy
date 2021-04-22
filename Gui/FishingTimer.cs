@@ -20,7 +20,7 @@ namespace GatherBuddy.Gui
 {
     public class FishingTimer : IDisposable
     {
-        private const    float   MaxTimerSeconds  = 37500f;
+        private const    float   MaxTimerSeconds  = FishRecord.MaxTime;
         private readonly Vector2 _buttonTextAlign = new(0f, 0.1f);
         private readonly Vector2 _itemSpacing     = new(0, 1);
 
@@ -335,7 +335,7 @@ namespace GatherBuddy.Gui
                 var maxListHeight = 10 * (_lineHeight + 1) + textLines;
                 var listHeight    = EditMode ? maxListHeight : _currentFishList.Length * (_lineHeight + 1) + textLines;
 
-                ImGui.SetNextWindowSizeConstraints(new Vector2(200 * ImGui.GetIO().FontGlobalScale, maxListHeight),
+                ImGui.SetNextWindowSizeConstraints(new Vector2(225 * ImGui.GetIO().FontGlobalScale, maxListHeight),
                     new Vector2(30000,                                                              listHeight));
 
                 imguiBegin = ImGui.Begin("##FishingTimer", EditMode ? editFlags : flags);
