@@ -310,8 +310,11 @@ namespace GatherBuddy.Gui
 
             try
             {
-                var fishing = _pi.ClientState.Condition[ConditionFlag.Fishing] && _start.IsRunning;
-                var rodOut  = _pi.ClientState.Condition[ConditionFlag.Gathering] && _pi.ClientState.LocalPlayer.ClassJob.Id == 18;
+                if (_pi.ClientState?.LocalPlayer == null)
+                    return;
+
+                var fishing = _start.IsRunning && _pi.ClientState.Condition[ConditionFlag.Fishing];
+                var rodOut  = _pi.ClientState.LocalPlayer.ClassJob.Id == 18 && _pi.ClientState.Condition[ConditionFlag.Gathering];
 
                 if (!fishing)
                     _start.Stop();
@@ -334,9 +337,11 @@ namespace GatherBuddy.Gui
                 var textLines     = 2 * ImGui.GetTextLineHeightWithSpacing();
                 var maxListHeight = 10 * (_lineHeight + 1) + textLines;
                 var listHeight    = EditMode ? maxListHeight : _currentFishList.Length * (_lineHeight + 1) + textLines;
+                var globalScale   = ImGui.GetIO().FontGlobalScale;
+                var fivePx        = 5 * globalScale;
 
-                ImGui.SetNextWindowSizeConstraints(new Vector2(225 * ImGui.GetIO().FontGlobalScale, maxListHeight),
-                    new Vector2(30000,                                                              listHeight));
+                ImGui.SetNextWindowSizeConstraints(new Vector2(225 * globalScale, maxListHeight),
+                    new Vector2(30000 * globalScale,                              listHeight));
 
                 imguiBegin = ImGui.Begin("##FishingTimer", EditMode ? editFlags : flags);
                 if (!imguiBegin)
@@ -349,9 +354,6 @@ namespace GatherBuddy.Gui
                     _rectMin  = ImGui.GetWindowPos();
                     _rectSize = new Vector2(ImGui.GetWindowSize().X, maxListHeight);
                 }
-
-                var globalScale = ImGui.GetIO().FontGlobalScale;
-                var fivePx      = 5 * globalScale;
 
                 drawList.AddRectFilled(_rectMin, _rectMin + new Vector2(_rectSize.X, textLines), Colors.FishTimer.RectBackground,
                     4f * globalScale);
@@ -397,6 +399,7 @@ namespace GatherBuddy.Gui
             {
                 PluginLog.Error($"Error during GatherBuddy Draw:\n{e}");
             }
+
             if (imguiBegin)
                 ImGui.End();
             ImGui.PopStyleVar(popStyle);
