@@ -92,8 +92,8 @@ namespace GatherBuddy.Gui
             var scrollY      = ImGui.GetScrollY();
             var lines        = scrollY / _textHeight;
 
-            var minY = Math.Max((int) Math.Floor(lines), 1) - 1;
-            var maxY = (int) Math.Ceiling(windowHeight / _textHeight) + 1;
+            var minY = Math.Max((int) Math.Floor(lines), 2) - 2;
+            var maxY = (int) Math.Ceiling(windowHeight / _textHeight) + 2;
 
             if (scrollY != 0)
                 ImGui.Dummy(new Vector2(-1, _textHeight * (float) Math.Floor(lines - 2)));

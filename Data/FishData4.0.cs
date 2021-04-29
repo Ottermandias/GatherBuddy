@@ -247,6 +247,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20073, Patch.Stormblood) // Meditator
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Strong)
+                .Weather   (4, 5, 3, 11)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20074, Patch.Stormblood) // Deemster
                 .Bait      (fish, 20675)
