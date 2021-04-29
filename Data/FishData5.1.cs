@@ -11,7 +11,7 @@ namespace GatherBuddy.Data
             fish.Apply     (28065, Patch.VowsOfVirtueDeedsOfCruelty) // Loose Pendant
                 .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 21)
+                .Uptime    (18, 22)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28066, Patch.VowsOfVirtueDeedsOfCruelty) // Winged Dame
                 .Bait      (fish, 27590)

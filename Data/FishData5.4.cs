@@ -43,13 +43,13 @@ namespace GatherBuddy.Data
             fish.Apply     (32053, Patch.FuturesRewritten) // Pearl Pipira
                 .Bait      (fish, 27587, 27492)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 20)
+                .Uptime    (17, 20)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (32054, Patch.FuturesRewritten) // The Ondotaker
                 .Bait      (fish, 27590)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 11)
+                .Uptime    (8, 10)
                 .Transition(1)
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);

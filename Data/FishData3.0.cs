@@ -149,7 +149,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12745, Patch.Heavensward) // Lava Crab
-                .Bait      (fish, 12709)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12746, Patch.Heavensward) // Storm Core
@@ -158,7 +158,7 @@ namespace GatherBuddy.Data
                 .Weather   (3, 4, 5)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12747, Patch.Heavensward) // Scholar Sculpin
-                .Bait      (fish, 12705)
+                .Bait      (fish, 12706)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12748, Patch.Heavensward) // Gigant Grouper
@@ -171,7 +171,7 @@ namespace GatherBuddy.Data
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12750, Patch.Heavensward) // Marble Oscar
-                .Bait      (fish, 12705)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12751, Patch.Heavensward) // Lungfish
@@ -180,7 +180,7 @@ namespace GatherBuddy.Data
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12752, Patch.Heavensward) // Tigerfish
-                .Bait      (fish, 12711)
+                .Bait      (fish, 12707, 12730)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12753, Patch.Heavensward) // Sky Faerie
@@ -204,7 +204,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12758, Patch.Heavensward) // Mogpom
-                .Bait      (fish, 12706)
+                .Bait      (fish, 29717)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12759, Patch.Heavensward) // Magma Tree
@@ -256,7 +256,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12769, Patch.Heavensward) // Shadowhisker
-                .Bait      (fish, 12711)
+                .Bait      (fish, 29717)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12770, Patch.Heavensward) // Gobbie Mask
@@ -264,7 +264,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12771, Patch.Heavensward) // Blue Medusa
-                .Bait      (fish, 12708)
+                .Bait      (fish, 12708, 12753)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12772, Patch.Heavensward) // Cindersmith
@@ -326,7 +326,7 @@ namespace GatherBuddy.Data
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12785, Patch.Heavensward) // Sky Sweeper
-                .Bait      (fish, 12712)
+                .Bait      (fish, 12708, 12753)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12786, Patch.Heavensward) // Magma Louse
@@ -365,7 +365,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12794, Patch.Heavensward) // Star Faerie
-                .Bait      (fish, 12708)
+                .Bait      (fish, 12712, 12805)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12795, Patch.Heavensward) // Gloaming Coral
@@ -379,7 +379,7 @@ namespace GatherBuddy.Data
                 .Uptime    (8, 17)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12797, Patch.Heavensward) // Dragon's Soul
-                .Bait      (fish, 12712)
+                .Bait      (fish, 29717)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12798, Patch.Heavensward) // Tornado Shark
@@ -420,11 +420,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12806, Patch.Heavensward) // Bomb Puffer
-                .Bait      (fish, 12712)
+                .Bait      (fish, 12708)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12807, Patch.Heavensward) // Mucous Minnow
-                .Bait      (fish, 12710)
+                .Bait      (fish, 12710, 12776)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12808, Patch.Heavensward) // Unidentified Flying Biomass
@@ -449,7 +449,7 @@ namespace GatherBuddy.Data
                 .Weather   (9)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12813, Patch.Heavensward) // Cobrafish
-                .Bait      (fish, 12712)
+                .Bait      (fish, 12712, 12805)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12814, Patch.Heavensward) // Moogle Spirit
@@ -471,11 +471,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12818, Patch.Heavensward) // Yalm Lobster
-                .Bait      (fish, 12707)
+                .Bait      (fish, 12711)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12819, Patch.Heavensward) // Hinterlands Perch
-                .Bait      (fish, 12707)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12820, Patch.Heavensward) // Oven Catfish

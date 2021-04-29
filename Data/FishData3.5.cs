@@ -9,7 +9,7 @@ namespace GatherBuddy.Data
         private static void ApplyTheFarEdgeOfFate(this FishManager fish)
         {
             fish.Apply     (17562, Patch.TheFarEdgeOfFate) // Thavnairian Leaf
-                .Bait      (fish, 12704)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (17563, Patch.TheFarEdgeOfFate) // Ghost Faerie
@@ -17,12 +17,12 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (17564, Patch.TheFarEdgeOfFate) // Red Sky Coral
-                .Bait      (fish, 12707)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .Snag      (Snagging.Required)
                 .HookType  (HookSet.Precise);
             fish.Apply     (17565, Patch.TheFarEdgeOfFate) // Lovers' Clam
-                .Bait      (fish, 12707)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (17566, Patch.TheFarEdgeOfFate) // River Shrimp
@@ -117,6 +117,7 @@ namespace GatherBuddy.Data
                 .Uptime    (10, 15)
                 .Snag      (Snagging.None)
                 .Predators (fish, (12800, 3), (12754, 5))
+                .Intuition (180)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (17589, Patch.TheFarEdgeOfFate) // Opabinia
@@ -124,6 +125,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Legendary)
                 .Snag      (Snagging.None)
                 .Predators (fish, (13727, 3))
+                .Intuition (105)
                 .Weather   (9)
                 .HookType  (HookSet.Precise);
             fish.Apply     (17590, Patch.TheFarEdgeOfFate) // Armor Fish
@@ -132,6 +134,7 @@ namespace GatherBuddy.Data
                 .Uptime    (1, 4)
                 .Snag      (Snagging.None)
                 .Predators (fish, (12757, 6))
+                .Intuition (160)
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (17591, Patch.TheFarEdgeOfFate) // Sea Butterfly
@@ -140,6 +143,7 @@ namespace GatherBuddy.Data
                 .Uptime    (5, 7)
                 .Snag      (Snagging.None)
                 .Predators (fish, (12810, 3), (12753, 3))
+                .Intuition (60)
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (17592, Patch.TheFarEdgeOfFate) // Charibenet
@@ -148,6 +152,7 @@ namespace GatherBuddy.Data
                 .Uptime    (0, 3)
                 .Snag      (Snagging.None)
                 .Predators (fish, (12715, 5))
+                .Intuition (120)
                 .Weather   (16)
                 .HookType  (HookSet.Precise);
             fish.Apply     (17593, Patch.TheFarEdgeOfFate) // Raimdellopterus
@@ -156,6 +161,7 @@ namespace GatherBuddy.Data
                 .Uptime    (5, 8)
                 .Snag      (Snagging.None)
                 .Predators (fish, (12805, 5))
+                .Intuition (100)
                 .Weather   (6)
                 .HookType  (HookSet.Powerful);
         }

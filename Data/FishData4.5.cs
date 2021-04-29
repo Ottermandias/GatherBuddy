@@ -13,19 +13,19 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (24558, Patch.ARequiemForHeroes) // Ruby Laver
-                .Bait      (fish, 20617)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (24559, Patch.ARequiemForHeroes) // Chakrafish
-                .Bait      (fish, 20613)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24560, Patch.ARequiemForHeroes) // Wicked Wartfish
-                .Bait      (fish, 20618)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24561, Patch.ARequiemForHeroes) // Othardian Salmon
-                .Bait      (fish, 20614)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24881, Patch.ARequiemForHeroes) // Lily of the Veil
@@ -121,6 +121,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 20619)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (23060, 2))
+                .Intuition (175)
                 .Weather   (11)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24992, Patch.ARequiemForHeroes) // Stethacanthus
@@ -128,6 +129,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Legendary)
                 .Uptime    (16, 18)
                 .Predators (fish, (20040, 2))
+                .Intuition (350)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24993, Patch.ARequiemForHeroes) // The Ruby Dragon
                 .Bait      (fish, 20676, 24214)
@@ -140,6 +142,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (23056, 3), (24203, 3), (24204, 5))
+                .Intuition (175)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24995, Patch.ARequiemForHeroes) // The Unconditional
                 .Bait      (fish, 20675)

@@ -19,27 +19,72 @@ namespace GatherBuddy.Data
             fish.Apply     (33223, Patch.DeathUntoDawn) // Fragrant Sweetfish
                 .Bait      (fish);
             fish.Apply     (33316, Patch.DeathUntoDawn) // Aster Trivi
-                .Bait      (fish);
+                .Bait      (fish, 27585)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (22, 24)
+                .Transition(1)
+                .Weather   (1)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33317, Patch.DeathUntoDawn) // Python Discus
-                .Bait      (fish);
+                .Bait      (fish, 27582)
+                .Tug       (BiteType.Legendary)
+                .Transition(7)
+                .Weather   (10)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33318, Patch.DeathUntoDawn) // Steel Razor
-                .Bait      (fish);
+                .Bait      (fish, 27583)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (6, 8)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33319, Patch.DeathUntoDawn) // Shadeshifter
-                .Bait      (fish);
+                .Bait      (fish, 27590)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (10, 14)
+                .Transition(1, 2)
+                .Weather   (6)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33320, Patch.DeathUntoDawn) // Nabaath Saw
-                .Bait      (fish);
+                .Bait      (fish, 27586, 27464)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (6, 10)
+                .Transition(1, 2, 14)
+                .Weather   (14)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (33321, Patch.DeathUntoDawn) // Dammroen Herring
-                .Bait      (fish);
+                .Bait      (fish, 27589)
+                .Tug       (BiteType.Legendary)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33322, Patch.DeathUntoDawn) // Celestial
-                .Bait      (fish);
+                .Bait      (fish, 27589)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (7, 17)
+                .Transition(10)
+                .Weather   (1)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33323, Patch.DeathUntoDawn) // Deephaunt
-                .Bait      (fish);
+                .Bait      (fish, 27589)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (2, 6)
+                .Transition(3)
+                .Weather   (4)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33324, Patch.DeathUntoDawn) // Golden Pipira
-                .Bait      (fish);
+                .Bait      (fish, 27587)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (6, 7)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (33325, Patch.DeathUntoDawn) // Mora Tecta
-                .Bait      (fish);
+                .Bait      (fish, 27588)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (22, 24)
+                .Weather   (2)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (33326, Patch.DeathUntoDawn) // Maru Crab
-                .Bait      (fish);
+                .Bait      (fish, 27588, 27506)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (16, 20)
+                .Weather   (3)
+                .HookType  (HookSet.Precise);
         }
         // @formatter:on
     }

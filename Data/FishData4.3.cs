@@ -90,17 +90,17 @@ namespace GatherBuddy.Data
                 .Weather   (5)
                 .HookType  (HookSet.Precise);
             fish.Apply     (23071, Patch.UnderTheMoonlight) // Curefish
-                .Bait      (fish, 20613)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (23072, Patch.UnderTheMoonlight) // Lake Sphairai
-                .Bait      (fish, 20613)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (23073, Patch.UnderTheMoonlight) // Warmscale Pleco
                 .Bait      (fish);
             fish.Apply     (23074, Patch.UnderTheMoonlight) // Shirogane Clam
-                .Bait      (fish, 20617)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (23075, Patch.UnderTheMoonlight) // Illuminati Mask

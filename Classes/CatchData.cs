@@ -39,6 +39,12 @@ namespace GatherBuddy.Classes
             return this;
         }
 
+        internal CatchData Intuition(int intuitionLength)
+        {
+            IntuitionLength = intuitionLength;
+            return this;
+        }
+
         internal CatchData Uptime(uint startHour, uint endHour)
         {
             Hours = FromHours(startHour, endHour);
@@ -89,7 +95,8 @@ namespace GatherBuddy.Classes
         public Bait   InitialBait { get; private set; } = Game.Bait.Unknown;
         public Fish[] Mooches     { get; private set; } = new Fish[0];
 
-        public (Fish, int)[] Predator { get; private set; } = new (Fish, int)[0];
+        public (Fish, int)[] Predator        { get; private set; } = new (Fish, int)[0];
+        public int           IntuitionLength { get; private set; }
 
         public Uptime Hours { get; private set; } = AllHours;
 

@@ -12,6 +12,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2599, 4978)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (5031, 3))
+                .Intuition (600)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8753, Patch.DreamsOfIce) // The Old Man in the Sea
                 .Bait      (fish, 2587, 4874, 4888)
@@ -23,6 +24,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2606)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (4913, 3))
+                .Intuition (600)
                 .Weather   (7, 8)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8755, Patch.DreamsOfIce) // Coelacanthus
@@ -61,6 +63,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2625)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (5008, 5))
+                .Intuition (300)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8761, Patch.DreamsOfIce) // Ninja Betta
                 .Bait      (fish, 2592, 4942, 5002)
@@ -78,11 +81,13 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2599, 4978, 5002)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (8762, 1))
+                .Intuition (1400)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8764, Patch.DreamsOfIce) // Pirate's Bane
                 .Bait      (fish, 2585, 4869, 4904)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (4904, 6))
+                .Intuition (120)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8765, Patch.DreamsOfIce) // Ndendecki
                 .Bait      (fish, 2599, 4978, 5002)
@@ -115,6 +120,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Legendary)
                 .Uptime    (19, 4)
                 .Predators (fish, (5544, 5))
+                .Intuition (120)
                 .Weather   (16, 15)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8770, Patch.DreamsOfIce) // Blue Corpse
@@ -150,6 +156,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2624)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (8774, 1))
+                .Intuition (60)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8776, Patch.DreamsOfIce) // Blood Red Bonytongue
                 .Bait      (fish, 2599, 4978)
