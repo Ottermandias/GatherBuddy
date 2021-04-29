@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Classes;
-using GatherBuddy.Enums;
-using GatherBuddy.Game;
 using GatherBuddy.Utility;
 using ImGuiNET;
 
@@ -31,9 +28,8 @@ namespace GatherBuddy.Gui
             ImGui.Image(fish.Icon.ImGuiHandle, _fishIconSize);
             if (ImGui.IsItemHovered())
             {
-                ImGui.BeginTooltip();
+                using var tt = ImGuiRaii.NewTooltip();
                 ImGui.Image(fish.Icon.ImGuiHandle, new Vector2(fish.Icon.Width, fish.Icon.Height));
-                ImGui.EndTooltip();
             }
 
             ImGui.TableNextColumn();
@@ -58,24 +54,21 @@ namespace GatherBuddy.Gui
                 var duration = (long) (DateTime.UtcNow - uptime.EndTime).TotalSeconds;
                 if (seconds > 0)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, Colors.FishTab.UptimeUpcoming);
+                    using var color = new ImGuiRaii().PushColor(ImGuiCol.Text, Colors.FishTab.UptimeUpcoming);
                     PrintSeconds(seconds);
-                    ImGui.PopStyleColor();
                 }
                 else if (duration < 0)
                 {
-                    ImGui.PushStyleColor(ImGuiCol.Text, Colors.FishTab.UptimeRunning);
+                    using var color = new ImGuiRaii().PushColor(ImGuiCol.Text, Colors.FishTab.UptimeRunning);
                     PrintSeconds(-duration);
-                    ImGui.PopStyleColor();
                 }
 
                 if (ImGui.IsItemHovered())
                 {
-                    ImGui.BeginTooltip();
+                    using var tt = ImGuiRaii.NewTooltip();
                     ImGui.Text($"{uptime.Time.ToLocalTime()} Next Uptime");
                     ImGui.Text($"{uptime.EndTime.ToLocalTime()} End Time");
                     ImGui.Text($"{uptime.Duration} Duration");
-                    ImGui.EndTooltip();
                 }
             }
 
@@ -168,7 +161,8 @@ namespace GatherBuddy.Gui
                 _fishCache.UpdateZoneFilter();
 
 
-            if (!ImGui.BeginChild("##Fish", new Vector2(-1, height), true))
+            using var child = new ImGuiRaii();
+            if (!child.Begin(() => ImGui.BeginChild("##Fish", new Vector2(-1, height), true), ImGui.EndChild))
                 return;
             
             var actualFish = _fishCache.GetFishToSettings();
@@ -180,10 +174,7 @@ namespace GatherBuddy.Gui
                 const ImGuiTableFlags flags = ImGuiTableFlags.BordersInner | ImGuiTableFlags.RowBg;
 
                 if (!ImGui.BeginTable("##FishTable", NumFishColumns, flags))
-                {
-                    ImGui.EndChild();
                     return false;
-                }
 
                 ImGui.TableHeader("");
                 ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, ImGui.GetTextLineHeight());
@@ -212,38 +203,40 @@ namespace GatherBuddy.Gui
                 return true;
             }
 
-            if (actualFish.Length < lineHeight + 5)
+            if (actualFish.Length < lineHeight + 5 && BeginTable())
             {
-                BeginTable();
-                foreach (var f in actualFish)
-                    DrawFish(f);
-                ImGui.EndTable();
+                try
+                {
+                    foreach (var f in actualFish)
+                        DrawFish(f);
+                }
+                finally
+                {
+                    ImGui.EndTable();
+                }
             }
             else
             {
                 ClippedDraw(actualFish, DrawFish, BeginTable, ImGui.EndTable);
             }
 
-            ImGui.EndChild();
-            if (!ImGui.BeginChild("##FishSelection", -Vector2.One, true))
+            child.End();
+            if (!child.Begin(() => ImGui.BeginChild("##FishSelection", -Vector2.One, true), ImGui.EndChild))
                 return;
 
-            ImGui.BeginGroup();
+            child.Group();
             DrawAlreadyCaughtBox();
             DrawAlwaysUpBox();
-            ImGui.EndGroup();
+            child.End();
             ImGui.SameLine();
-            ImGui.BeginGroup();
+            child.Group();
             DrawBigFishBox();
             DrawSmallFishBox();
-            ImGui.EndGroup();
+            child.End();
             ImGui.SameLine();
-            ImGui.BeginGroup();
+            child.Group();
             DrawSpearFishBox();
             DrawReleasePatchCombo();
-            ImGui.EndGroup();
-
-            ImGui.EndChild();
         }
     }
 }

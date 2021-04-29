@@ -54,10 +54,11 @@ namespace GatherBuddy.Gui
             public const uint LegendaryBite = 0xFF0040C0;
             public const uint UnknownBite   = 0xFF404040;
 
-            public const uint Time     = HeaderRow.EorzeaTime;
-            public const uint Weather  = HeaderRow.Weather;
-            public const uint Bait     = 0xFF0000A0;
-            public const uint Predator = LegendaryBite;
+            public const uint Time      = HeaderRow.EorzeaTime;
+            public const uint Weather   = HeaderRow.Weather;
+            public const uint Intuition = 0xFF802000;
+            public const uint Bait      = 0xFF0000A0;
+            public const uint Predator  = LegendaryBite;
 
             public const uint Patch     = 0xFFC0C0C0;
             public const uint PatchText = 0xFF000000;

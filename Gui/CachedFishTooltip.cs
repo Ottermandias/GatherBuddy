@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Numerics;
 using GatherBuddy.Enums;
 using GatherBuddy.Gui.Cache;
@@ -72,7 +73,7 @@ namespace GatherBuddy.Gui
                 return;
             }
 
-            ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, _itemSpacing / 2);
+            using var imgui = new ImGuiRaii().PushStyle(ImGuiStyleVar.ItemSpacing, _itemSpacing / 2);
 
             var startPos = ImGui.GetCursorPos();
             var size     = Vector2.Zero;
@@ -89,22 +90,17 @@ namespace GatherBuddy.Gui
 
                 if (!fish.Base.IsSpearFish)
                 {
-                    ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, Vector2.One);
+                    using var imgui2 = new ImGuiRaii()
+                        .PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
                     ImGui.SameLine();
-                    ImGui.BeginGroup();
-                    ImGui.PushStyleVar(ImGuiStyleVar.FramePadding, Vector2.Zero);
+                    imgui2.Group();
+                    imgui2.PushStyle(ImGuiStyleVar.FramePadding, Vector2.Zero);
                     ImGui.Image(bait.HookSet!.ImGuiHandle, _smallIconSize);
-                    ImGui.PushStyleColor(ImGuiCol.Button, bait.Bite.Item2);
+                    imgui2.PushColor(ImGuiCol.Button, bait.Bite.Item2);
                     ImGui.Button(bait.Bite.Item1, _smallIconSize);
-                    ImGui.PopStyleColor(1);
-                    ImGui.PopStyleVar(2);
-                    ImGui.EndGroup();
-                    ImGui.SameLine();
                 }
-                else
-                {
-                    ImGui.SameLine();
-                }
+
+                ImGui.SameLine();
 
                 var pos = ImGui.GetCursorPosY();
                 ImGui.SetCursorPosY(pos + (_iconSize.Y - ImGui.GetTextLineHeight()) / 2);
@@ -118,62 +114,72 @@ namespace GatherBuddy.Gui
                 ImGui.SetCursorPosY(pos);
             }
 
-            ImGui.PopStyleVar();
             ImGui.SetCursorPos(startPos + new Vector2(0, size.Y + _itemSpacing.Y));
         }
 
         private static void PrintPredators(Cache.Fish fish)
         {
-            if (fish.Predators.Length == 0)
+            if (fish.Predators.Length == 0 && fish.IntuitionText.Length == 0)
                 return;
 
-            ImGui.PushStyleColor(ImGuiCol.Button, Colors.FishTab.Predator);
-            ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, Vector2.One);
             var size   = _iconSize / 1.5f;
             var offset = (size.Y - _textHeight) / 2f;
-            foreach (var predator in fish.Predators)
+            var length = ImGui.CalcTextSize(fish.IntuitionText).X;
+
+            using (var imgui = new ImGuiRaii()
+                .PushColor(ImGuiCol.Button, Colors.FishTab.Predator)
+                .PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One))
             {
-                ImGui.BeginGroup();
-                ImGui.Button(predator.Amount, size);
-                ImGui.SameLine();
-                ImGui.Image(predator.Icon.ImGuiHandle, size);
-                ImGui.SameLine();
-                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset);
-                ImGui.Text(predator.Name);
-                ImGui.EndGroup();
+                
+                foreach (var predator in fish.Predators)
+                {
+                    using var group = ImGuiRaii.NewGroup();
+                    ImGui.Button(predator.Amount, size);
+                    ImGui.SameLine();
+                    ImGui.Image(predator.Icon.ImGuiHandle, size);
+                    ImGui.SameLine();
+                    ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset);
+                    ImGui.Text(predator.Name);
+                    ImGui.SameLine();
+                    length = Math.Max(length, ImGui.GetCursorPosX());
+                    ImGui.NewLine();
+                }
             }
 
-            ImGui.PopStyleColor();
-            ImGui.PopStyleVar();
+            
+            if (fish.IntuitionText.Length > 0)
+            {
+                using var intuition = new ImGuiRaii()
+                    .PushColor(ImGuiCol.Button, Colors.FishTab.Intuition);
+                ImGui.Button(fish.IntuitionText);
+            }
         }
 
         private static void PrintFolklore(Cache.Fish fish)
         {
+            using var imgui = new ImGuiRaii();
             if (fish.Base.Folklore.Length != 0)
             {
-                ImGui.PushStyleColor(ImGuiCol.Button, Colors.FishTab.Folklore);
+                imgui.PushColor(ImGuiCol.Button, Colors.FishTab.Folklore);
                 ImGui.Button(fish.Base.Folklore);
-                ImGui.PopStyleColor();
+                imgui.PopColors();
                 ImGui.SameLine();
             }
 
-            ImGui.PushStyleColor(ImGuiCol.Button, Colors.FishTab.Patch);
-            ImGui.PushStyleColor(ImGuiCol.Text,   Colors.FishTab.PatchText);
+            imgui.PushColor(ImGuiCol.Button, Colors.FishTab.Patch)
+                 .PushColor(ImGuiCol.Text,   Colors.FishTab.PatchText);
             ImGui.Button(fish.Patch);
-            ImGui.PopStyleColor(2);
         }
 
         private static void SetTooltip(Cache.Fish fish)
         {
-            ImGui.BeginTooltip();
-            ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing, new Vector2(_itemSpacing.X, _itemSpacing.Y * 1.5f));
+            using var tooltip = ImGuiRaii.NewTooltip()
+                .PushStyle(ImGuiStyleVar.ItemSpacing, new Vector2(_itemSpacing.X, _itemSpacing.Y * 1.5f));
             PrintTime(fish);
             PrintWeather(fish);
             PrintBait(fish);
             PrintPredators(fish);
             PrintFolklore(fish);
-            ImGui.PopStyleVar();
-            ImGui.EndTooltip();
         }
     }
 }

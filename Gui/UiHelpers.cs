@@ -119,49 +119,53 @@ namespace GatherBuddy.Gui
         {
             if (ImGui.BeginCombo(label, options[currentIdx]))
             {
-                ImGui.SetNextItemWidth(-1);
-                ImGui.InputTextWithHint($"{label}_filter", "Filter", ref filter, 255);
-                var isFocused = ImGui.IsItemActive();
-                if (!focus)
-                    ImGui.SetKeyboardFocusHere();
+                try
+                {
+                    ImGui.SetNextItemWidth(-1);
+                    ImGui.InputTextWithHint($"{label}_filter", "Filter", ref filter, 255);
+                    var isFocused = ImGui.IsItemActive();
+                    if (!focus)
+                        ImGui.SetKeyboardFocusHere();
 
-                if (!ImGui.BeginChild($"{label}_list", new Vector2(size, items * ImGui.GetTextLineHeightWithSpacing())))
+                    using var child = new ImGuiRaii();
+
+                    if (!child.Begin(() => ImGui.BeginChild($"{label}_list", new Vector2(size, items * ImGui.GetTextLineHeightWithSpacing())), ImGui.EndChild))
+                        return;
+
+                    if (!focus)
+                    {
+                        ImGui.SetScrollY(0);
+                        focus = true;
+                    }
+
+                    var filterLower = filter.ToLowerInvariant();
+                    var numItems    = 0;
+                    var node        = 0;
+                    for (var i = 0; i < options.Count; ++i)
+                    {
+                        if (!options[i].ToLowerInvariant().Contains(filterLower))
+                            continue;
+
+                        ++numItems;
+                        node = i;
+                        if (!ImGui.Selectable(options[i], i == currentIdx))
+                            continue;
+
+                        currentIdx = i;
+                        ImGui.CloseCurrentPopup();
+                    }
+
+                    child.End();
+                    if (!isFocused && numItems <= 1)
+                    {
+                        currentIdx = node;
+                        ImGui.CloseCurrentPopup();
+                    }
+                }
+                finally
                 {
                     ImGui.EndCombo();
-                    return;
                 }
-
-                if (!focus)
-                {
-                    ImGui.SetScrollY(0);
-                    focus = true;
-                }
-
-                var filterLower = filter.ToLowerInvariant();
-                var numItems    = 0;
-                var node        = 0;
-                for (var i = 0; i < options.Count; ++i)
-                {
-                    if (!options[i].ToLowerInvariant().Contains(filterLower))
-                        continue;
-
-                    ++numItems;
-                    node = i;
-                    if (!ImGui.Selectable(options[i], i == currentIdx))
-                        continue;
-
-                    currentIdx = i;
-                    ImGui.CloseCurrentPopup();
-                }
-
-                ImGui.EndChild();
-                if (!isFocused && numItems <= 1)
-                {
-                    currentIdx = node;
-                    ImGui.CloseCurrentPopup();
-                }
-
-                ImGui.EndCombo();
             }
             else
             {

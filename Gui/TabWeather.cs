@@ -88,8 +88,9 @@ namespace GatherBuddy.Gui
               | ImGuiTableFlags.RowBg
               | ImGuiTableFlags.BordersInner;
 
-            var pos = ImGui.GetCursorPos();
-            if (!ImGui.BeginTable("##weatherTable", Cache.Weather.NumWeathers + 1, flags, -Vector2.One))
+            var       pos   = ImGui.GetCursorPos();
+            using var imgui = new ImGuiRaii();
+            if (!imgui.Begin(() => ImGui.BeginTable("##weatherTable", Cache.Weather.NumWeathers + 1, flags, -Vector2.One), ImGui.EndTable))
                 return;
 
             var weather = _plugin.Gatherer!.WeatherManager;
@@ -102,8 +103,6 @@ namespace GatherBuddy.Gui
             else
                 foreach (var cache in _weatherCache.Weathers)
                     DrawWeatherLine(cache);
-
-            ImGui.EndTable();
         }
     }
 }

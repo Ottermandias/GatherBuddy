@@ -42,25 +42,26 @@ namespace GatherBuddy.Gui
         private void DrawHeaderRow()
         {
             var spacing = 5 * _horizontalSpace;
-            ImGui.BeginGroup();
-            DrawAlarmToggle();
-            HorizontalSpace(spacing);
-            DrawRecordBox();
-            HorizontalSpace(spacing);
-            DrawSnapshotButton();
-            ImGui.EndGroup();
+            using (var imgui = ImGuiRaii.NewGroup())
+            {
+                DrawAlarmToggle();
+                HorizontalSpace(spacing);
+                DrawRecordBox();
+                HorizontalSpace(spacing);
+                DrawSnapshotButton();
+            }
+
             ImGui.Dummy(new Vector2(0, _horizontalSpace / 2));
         }
 
         private static void DrawButtonText(string text, Vector2 size, uint color)
         {
-            ImGui.PushStyleColor(ImGuiCol.Button,        color);
-            ImGui.PushStyleColor(ImGuiCol.ButtonHovered, color);
-            ImGui.PushStyleColor(ImGuiCol.ButtonActive,  color);
+            using var imgui = new ImGuiRaii()
+                .PushColor(ImGuiCol.Button,        color)
+                .PushColor(ImGuiCol.ButtonHovered, color)
+                .PushColor(ImGuiCol.ButtonActive,  color);
 
             ImGui.Button(text, size);
-
-            ImGui.PopStyleColor(3);
         }
 
         private static void DrawEorzeaTime(string time)

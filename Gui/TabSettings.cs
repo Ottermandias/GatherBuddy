@@ -85,7 +85,8 @@ namespace GatherBuddy.Gui
 
         private void DrawSettingsTab()
         {
-            if (!ImGui.BeginChild("##settingsList", -Vector2.One, true))
+            using var imgui = new ImGuiRaii();
+            if (!imgui.Begin(() => ImGui.BeginChild("##settingsList", -Vector2.One, true), ImGui.EndChild))
                 return;
 
             var inputSize = 125 * _globalScale;
@@ -111,8 +112,6 @@ namespace GatherBuddy.Gui
             DrawItemIdentifiedFormatInput();
             DrawFishIdentifiedFormatInput();
             DrawFishingSpotIdentifiedFormatInput();
-
-            ImGui.EndChild();
         }
     }
 }

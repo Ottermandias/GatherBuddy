@@ -40,7 +40,7 @@ namespace GatherBuddy.Gui
             var tooltip = $"{n.Nodes!.Territory!.Name[_lang]}, {coords} - {n.GetClosestAetheryte()?.Name[_lang] ?? ""}\n"
               + $"{n.Meta!.NodeType}, up at {n.Times!.PrintHours()}\n"
               + $"{n.Meta!.GatheringType} at {n.Meta!.Level}";
-            ImGui.BeginTooltip();
+            using var tt = ImGuiRaii.NewTooltip();
             foreach (var item in n.Items!.ActualItems)
             {
                 var icon = _icons[item.ItemData.Icon];
@@ -49,12 +49,14 @@ namespace GatherBuddy.Gui
             }
             ImGui.NewLine();
             ImGui.Text(tooltip);
-            ImGui.EndTooltip();
         }
 
         private void DrawTimedNodes(float widgetHeight)
         {
-            ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true);
+            using var imgui = new ImGuiRaii();
+            if (!imgui.Begin(() => ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true), ImGui.EndChild))
+                return;
+
             foreach (var (n, i) in _nodeTabCache.ActiveNodeItems)
             {
                 var colors = Colors.NodeTab.GetColor(n, _nodeTabCache.HourOfDay);
@@ -67,8 +69,6 @@ namespace GatherBuddy.Gui
                 if (ImGui.IsItemHovered())
                     SetNodeTooltip(n);
             }
-
-            ImGui.EndChild();
         }
 
         private void DrawTimedSelectors(float boxHeight)
@@ -77,31 +77,38 @@ namespace GatherBuddy.Gui
             var jobBoxWidth  = _nodeTabCache.BotanistTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
             var typeBoxWidth = _nodeTabCache.NodeTypeTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
 
-            ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true);
-            DrawMinerBox();
-            DrawBotanistBox();
-            ImGui.EndChild();
+            using var imgui = new ImGuiRaii();
+
+            if (imgui.Begin(() => ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true), ImGui.EndChild))
+            {
+                DrawMinerBox();
+                DrawBotanistBox();
+                imgui.End();
+            }
+            
+            ImGui.SameLine();
+            if (imgui.Begin(() => ImGui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true), ImGui.EndChild))
+            {
+                DrawUnspoiledBox();
+                DrawEphemeralBox();
+                imgui.End();
+            }
 
             ImGui.SameLine();
-            ImGui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true);
-            DrawUnspoiledBox();
-            DrawEphemeralBox();
-            ImGui.EndChild();
+            if (!imgui.Begin(() => ImGui.BeginChild("Expansion", new Vector2(0, boxHeight), true), ImGui.EndChild))
+                return;
 
-            ImGui.SameLine();
-            ImGui.BeginChild("Expansion", new Vector2(0, boxHeight), true);
-            ImGui.BeginGroup();
+            imgui.Group();
             DrawArrBox();
             DrawHeavenswardBox();
-            ImGui.EndGroup();
+            imgui.End();
             HorizontalSpace(_horizontalSpace);
-            ImGui.BeginGroup();
+            imgui.Group();
             DrawStormbloodBox();
             DrawShadowbringersBox();
-            ImGui.EndGroup();
+            imgui.End();
             HorizontalSpace(_horizontalSpace);
             DrawEndwalkerBox();
-            ImGui.EndChild();
         }
 
         private void DrawNodesTab()

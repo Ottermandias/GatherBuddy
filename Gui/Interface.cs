@@ -1,15 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Numerics;
 using Dalamud;
 using Dalamud.Plugin;
-using GatherBuddy.Game;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
 using ImGuiNET;
-using ImGuiScene;
-using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.Gui
@@ -19,10 +14,11 @@ namespace GatherBuddy.Gui
         private const string PluginName             = "GatherBuddy";
         private const float  DefaultHorizontalSpace = 5;
 
-        private readonly GatherBuddy                      _plugin;
-        private readonly DalamudPluginInterface           _pi;
-        private readonly GatherBuddyConfiguration         _config;
-        private readonly ClientLanguage                   _lang;
+        private readonly string                   _configHeader;
+        private readonly GatherBuddy              _plugin;
+        private readonly DalamudPluginInterface   _pi;
+        private readonly GatherBuddyConfiguration _config;
+        private readonly ClientLanguage           _lang;
 
         private FishManager FishManager
             => _plugin.Gatherer!.FishManager;
@@ -57,10 +53,12 @@ namespace GatherBuddy.Gui
 
         public Interface(GatherBuddy plugin, DalamudPluginInterface pi, GatherBuddyConfiguration config)
         {
-            _pi     = pi;
-            _plugin = plugin;
-            _config = config;
-            _lang   = pi.ClientState.ClientLanguage;
+            _pi          = pi;
+            _plugin      = plugin;
+            _config      = config;
+            _lang        = pi.ClientState.ClientLanguage;
+            _configHeader = GatherBuddy.Version.Length > 0 ? $"{PluginName} v{GatherBuddy.Version}" : PluginName;
+            
 
             _nodeTabCache = new Cache.NodeTab(_config, plugin.Gatherer!.Timeline);
             _headerCache.Setup();
@@ -109,65 +107,71 @@ namespace GatherBuddy.Gui
                 new Vector2(_minXSize,     _textHeight * 17),
                 new Vector2(_minXSize * 4, ImGui.GetIO().DisplaySize.Y * 15 / 16));
 
-            if (!ImGui.Begin(PluginName, ref Visible))
+            if (!ImGui.Begin(_configHeader, ref Visible))
                 return;
 
-            var minute = EorzeaTime.CurrentMinute();
-            var hour   = minute / RealTime.MinutesPerHour;
-
-            DrawHeaderRow();
-            DrawTimeRow(hour, minute);
-
-            if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip))
-                return;
-
-            var nodeTab = ImGui.BeginTabItem("Timed Nodes");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Shows timed nodes corresponding to the selection of the checkmarks below, sorted by next uptime.\n"
-                  + "Click on a node to do a /gather command for that node.");
-            if (nodeTab)
+            try
             {
-                _nodeTabCache.Update(hour);
-                DrawNodesTab();
-                ImGui.EndTabItem();
-            }
+                var minute = EorzeaTime.CurrentMinute();
+                var hour   = minute / RealTime.MinutesPerHour;
 
-            var fishTab = ImGui.BeginTabItem("Timed Fish");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Shows all fish for the fishing log and their next uptimes.\n"
-                  + "You can click the fish name or the fishing spot name to execute a /gatherfish command.");
-            if (fishTab)
+                DrawHeaderRow();
+                DrawTimeRow(hour, minute);
+
+                if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip))
+                    return;
+
+                var nodeTab = ImGui.BeginTabItem("Timed Nodes");
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Shows timed nodes corresponding to the selection of the checkmarks below, sorted by next uptime.\n"
+                      + "Click on a node to do a /gather command for that node.");
+                if (nodeTab)
+                {
+                    _nodeTabCache.Update(hour);
+                    DrawNodesTab();
+                    ImGui.EndTabItem();
+                }
+
+                var fishTab = ImGui.BeginTabItem("Timed Fish");
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Shows all fish for the fishing log and their next uptimes.\n"
+                      + "You can click the fish name or the fishing spot name to execute a /gatherfish command.");
+                if (fishTab)
+                {
+                    _fishCache.UpdateFish(hour);
+                    DrawFishTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Weather"))
+                {
+                    _weatherCache.Update(hour);
+                    DrawWeatherTab();
+                    ImGui.EndTabItem();
+                }
+
+                var alertTab = ImGui.BeginTabItem("Alarms");
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Setup alarms for specific timed gathering nodes.\n"
+                      + "You can use [/gather alarm] to directly gather the last triggered alarm.");
+                if (alertTab)
+                {
+                    DrawAlarmsTab();
+                    ImGui.EndTabItem();
+                }
+
+                if (ImGui.BeginTabItem("Settings"))
+                {
+                    DrawSettingsTab();
+                    ImGui.EndTabItem();
+                }
+
+                ImGui.EndTabBar();
+            }
+            finally
             {
-                _fishCache.UpdateFish(hour);
-                DrawFishTab();
-                ImGui.EndTabItem();
+                ImGui.End();
             }
-
-            if (ImGui.BeginTabItem("Weather"))
-            {
-                _weatherCache.Update(hour);
-                DrawWeatherTab();
-                ImGui.EndTabItem();
-            }
-
-            var alertTab = ImGui.BeginTabItem("Alarms");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Setup alarms for specific timed gathering nodes.\n"
-                  + "You can use [/gather alarm] to directly gather the last triggered alarm.");
-            if (alertTab)
-            {
-                DrawAlarmsTab();
-                ImGui.EndTabItem();
-            }
-
-            if (ImGui.BeginTabItem("Settings"))
-            {
-                DrawSettingsTab();
-                ImGui.EndTabItem();
-            }
-
-            ImGui.EndTabBar();
-            ImGui.End();
         }
     }
 }

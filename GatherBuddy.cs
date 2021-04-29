@@ -1,5 +1,6 @@
 ﻿using System.IO;
 using System.Linq;
+using System.Reflection;
 using Dalamud;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
@@ -25,10 +26,12 @@ namespace GatherBuddy
         private FishingTimer?             _fishingTimer;
 
         public static ClientLanguage Language;
+        public static string         Version = string.Empty;
 
         public void Initialize(DalamudPluginInterface pluginInterface)
         {
             _pluginInterface = pluginInterface;
+            Version          = Assembly.GetExecutingAssembly()?.GetName().Version.ToString() ?? "";
             Language         = _pluginInterface.ClientState.ClientLanguage;
             Service<DalamudPluginInterface>.Set(_pluginInterface);
             _commandManager  = new Managers.CommandManager(pluginInterface);
@@ -339,15 +342,19 @@ namespace GatherBuddy
                     _pluginInterface!.Framework.Gui.Chat.PrintError("Please provide a filename to merge.");
                     return;
                 }
+
                 var name = arguments.Substring(argumentParts[0].Length + 1);
                 var fish = Gatherer!.FishManager.MergeFishRecords(_pluginInterface!, new FileInfo(name));
                 switch (fish)
                 {
-                    case -1: _pluginInterface!.Framework.Gui.Chat.PrintError($"The provided file {name} does not exist.");
+                    case -1:
+                        _pluginInterface!.Framework.Gui.Chat.PrintError($"The provided file {name} does not exist.");
                         return;
-                    case -2: _pluginInterface!.Framework.Gui.Chat.PrintError("Could not create a backup of your records, merge stopped.");
+                    case -2:
+                        _pluginInterface!.Framework.Gui.Chat.PrintError("Could not create a backup of your records, merge stopped.");
                         return;
-                    case -3: _pluginInterface!.Framework.Gui.Chat.PrintError("Unexpected error occurred, merge stopped.");
+                    case -3:
+                        _pluginInterface!.Framework.Gui.Chat.PrintError("Unexpected error occurred, merge stopped.");
                         return;
                     default:
                         _pluginInterface!.Framework.Gui.Chat.Print($"{fish} Records updated with new data.");

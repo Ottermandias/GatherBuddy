@@ -41,6 +41,7 @@ namespace GatherBuddy.Gui.Cache
         public Predator[]      Predators        { get; }
         public string          Patch            { get; }
         public string          UptimeString     { get; }
+        public string          IntuitionText    { get; } = "";
 
 
         private static string SetTime(Game.Fish fish, ref ushort uptime)
@@ -207,6 +208,16 @@ namespace GatherBuddy.Gui.Cache
             Snagging         = SetSnagging(cache, Bait, fish);
             Patch            = $"Patch {fish.CatchData?.Patch.ToVersionString() ?? "???"}";
             UptimeString     = $"{(uptime / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
+            var intuition    = fish.CatchData?.IntuitionLength ?? 0;
+            if (intuition > 0)
+            {
+                var minutes = intuition / RealTime.SecondsPerMinute;
+                var seconds = intuition % RealTime.SecondsPerMinute;
+                if (seconds == 0)
+                    IntuitionText = minutes == 1 ? $"Intuition for {minutes} Minute" : $"Intuition for {minutes} Minutes";
+                else
+                    IntuitionText = $"Intuition for {minutes}:{seconds:D2} Minutes";
+            }
         }
     }
 }

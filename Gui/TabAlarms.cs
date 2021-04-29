@@ -8,7 +8,7 @@ namespace GatherBuddy.Gui
     {
         private void DrawDeleteAndEnable()
         {
-            ImGui.BeginGroup();
+            using var group = ImGuiRaii.NewGroup();
             ImGui.Dummy(new Vector2(0, _textHeight));
             for (var idx = 0; idx < _plugin.Alarms!.Alarms.Count; ++idx)
             {
@@ -25,13 +25,11 @@ namespace GatherBuddy.Gui
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Enable or disable this alarm.");
             }
-
-            ImGui.EndGroup();
         }
 
         public void DrawNames()
         {
-            ImGui.BeginGroup();
+            using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Name");
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
@@ -42,13 +40,11 @@ namespace GatherBuddy.Gui
                 HorizontalSpace(_alarmsSpacing);
                 ImGui.NewLine();
             }
-
-            ImGui.EndGroup();
         }
 
         public void DrawOffsets()
         {
-            ImGui.BeginGroup();
+            using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Pre");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.");
@@ -75,13 +71,11 @@ namespace GatherBuddy.Gui
                     _plugin.Alarms.ChangeNodeOffset(idx, 0);
                 }
             }
-
-            ImGui.EndGroup();
         }
 
         private void DrawAlarms()
         {
-            ImGui.BeginGroup();
+            using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Alarm Sound");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Set an optional sound that should be played when this alarm triggers.\n"
@@ -107,13 +101,11 @@ namespace GatherBuddy.Gui
                 if (tmp != Sounds.Unknown && tmp != alert.SoundId)
                     _plugin.Alarms.ChangeNodeSound(idx, tmp);
             }
-
-            ImGui.EndGroup();
         }
 
         private void DrawPrintMessageBoxes()
         {
-            ImGui.BeginGroup();
+            using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Chat");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Toggle whether the alarm is printed to chat or not.");
@@ -128,13 +120,11 @@ namespace GatherBuddy.Gui
                 if (ImGui.Checkbox($"##print{idx}", ref print) && print != alert.PrintMessage)
                     _plugin.Alarms.ChangePrintStatus(idx, print);
             }
-
-            ImGui.EndGroup();
         }
 
         private void DrawHours()
         {
-            ImGui.BeginGroup();
+            using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Alarm Times");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("The uptimes for the node monitored in this alarm. Hover for the items.");
@@ -149,8 +139,6 @@ namespace GatherBuddy.Gui
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip(alarm.Node!.Items!.PrintItems("\n", _lang));
             }
-
-            ImGui.EndGroup();
         }
 
         private void DrawNewAlarm()
