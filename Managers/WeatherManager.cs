@@ -123,7 +123,7 @@ namespace GatherBuddy.Managers
             var dateTime           = DateTimeOffset.FromUnixTimeSeconds(currentWeatherTime).LocalDateTime;
             var ret                = new DateTime[num];
             for (var i = 0; i < num; ++i)
-                ret[i] = dateTime.AddSeconds(i * SecondsPerWeather);
+                ret[i] = dateTime.AddSeconds(i * SecondsPerWeather).ToLocalTime();
             return ret;
         }
 

@@ -59,7 +59,6 @@ namespace GatherBuddy.Gui
             _lang        = pi.ClientState.ClientLanguage;
             _configHeader = GatherBuddy.Version.Length > 0 ? $"{PluginName} v{GatherBuddy.Version}" : PluginName;
             
-
             _nodeTabCache = new Cache.NodeTab(_config, plugin.Gatherer!.Timeline);
             _headerCache.Setup();
             _alarmCache = new Cache.Alarms(_plugin.Alarms!, _lang);
