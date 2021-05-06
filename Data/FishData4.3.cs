@@ -98,7 +98,9 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (23073, Patch.UnderTheMoonlight) // Warmscale Pleco
-                .Bait      (fish);
+                .Bait      (fish, 28634)
+                .Tug       (BiteType.Strong)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (23074, Patch.UnderTheMoonlight) // Shirogane Clam
                 .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)

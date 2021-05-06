@@ -67,7 +67,7 @@ namespace GatherBuddy.Data
                 .Weather   (7)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20031, Patch.Stormblood) // Yat Goby
-                .Bait      (fish, 20615)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20032, Patch.Stormblood) // Ruby Meagre
@@ -125,7 +125,7 @@ namespace GatherBuddy.Data
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20044, Patch.Stormblood) // Tao Bitterling
-                .Bait      (fish, 20615)
+                .Bait      (fish, 29717)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20045, Patch.Stormblood) // Idle Goby
@@ -468,7 +468,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20125, Patch.Stormblood) // Brassfish
-                .Bait      (fish, 20614)
+                .Bait      (fish, 20613)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20126, Patch.Stormblood) // Othardian Trout
@@ -489,11 +489,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20130, Patch.Stormblood) // Sun Bass
-                .Bait      (fish, 20615)
+                .Bait      (fish, 20619)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20131, Patch.Stormblood) // Skytear
-                .Bait      (fish, 20615)
+                .Bait      (fish, 29717)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20132, Patch.Stormblood) // Dawn Crayfish
@@ -505,11 +505,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20134, Patch.Stormblood) // Bowfish
-                .Bait      (fish, 20615)
+                .Bait      (fish, 29717)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20135, Patch.Stormblood) // Jade Sculpin
-                .Bait      (fish, 20615)
+                .Bait      (fish, 20619)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20136, Patch.Stormblood) // Padjali Loach
