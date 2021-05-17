@@ -274,13 +274,6 @@ namespace GatherBuddy.Managers
             if (pi.ClientState.ClientLanguage != ClientLanguage.German)
                 return newSpot;
 
-            var ffName = new FFName
-            {
-                [ClientLanguage.German] =
-                    pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8,
-            };
-            FishingSpotNamesWithArticle[ffName[ClientLanguage.German].ToLowerInvariant()] = newSpot;
-
             return newSpot;
         }
 
@@ -323,7 +316,8 @@ namespace GatherBuddy.Managers
                         .Select(a => (a.WorldDistance(spot.Territory.Id, spot.XCoord, spot.YCoord), a)).Min().a;
 
                 FishingSpots[spot.UniqueId]                                                 = spot;
-                FishingSpotNames[spot!.PlaceName![GatherBuddy.Language].ToLowerInvariant()] = spot;
+                if (!spot.Spearfishing)
+                    FishingSpotNames[spot!.PlaceName![GatherBuddy.Language].ToLowerInvariant()] = spot;
             }
 
             Bait = CollectBait(itemSheets);
