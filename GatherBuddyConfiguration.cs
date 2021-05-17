@@ -69,7 +69,7 @@ namespace GatherBuddy
         public GatherBuddyConfiguration()
         {
             Version          = 2;
-            BotanistSetName  = "BOT";
+            BotanistSetName  = "BTN";
             MinerSetName     = "MIN";
             FisherSetName    = "FSH";
             UseGearChange    = true;
