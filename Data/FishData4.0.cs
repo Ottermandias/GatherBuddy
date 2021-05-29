@@ -31,7 +31,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20023, Patch.Stormblood) // Tail Mountains Minnow
-                .Bait      (fish, 20615)
+                .Bait      (fish, 20614, 20127)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20024, Patch.Stormblood) // Sweatfish
@@ -247,7 +247,8 @@ namespace GatherBuddy.Data
             fish.Apply     (20073, Patch.Stormblood) // Meditator
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Strong)
-                .Weather   (4, 5, 3, 11)
+                .Snag      (Snagging.None)
+                .Weather   (3, 5, 4, 11)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20074, Patch.Stormblood) // Deemster
                 .Bait      (fish, 20675)
@@ -466,6 +467,8 @@ namespace GatherBuddy.Data
             fish.Apply     (20124, Patch.Stormblood) // Doman Eel
                 .Bait      (fish, 29717)
                 .Tug       (BiteType.Strong)
+                .Uptime    (17, 10)
+                .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20125, Patch.Stormblood) // Brassfish
                 .Bait      (fish, 20613)

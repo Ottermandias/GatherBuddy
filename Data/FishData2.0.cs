@@ -336,6 +336,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2592)
                 .Tug       (BiteType.Weak)
                 .Uptime    (15, 10)
+                .Snag      (Snagging.None)
                 .HookType  (HookSet.Precise);
             fish.Apply     (4946, Patch.ARealmReborn) // La Noscean Perch
                 .Bait      (fish, 2611)
@@ -370,6 +371,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Strong)
                 .Uptime    (17, 10)
+                .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4954, Patch.ARealmReborn) // Pond Mussel
                 .Bait      (fish, 2594)
@@ -391,6 +393,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Strong)
                 .Uptime    (17, 10)
+                .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4959, Patch.ARealmReborn) // Dark Bass
                 .Bait      (fish, 2614)
@@ -500,6 +503,8 @@ namespace GatherBuddy.Data
             fish.Apply     (4985, Patch.ARealmReborn) // Trader Eel
                 .Bait      (fish, 2599)
                 .Tug       (BiteType.Strong)
+                .Uptime    (17, 10)
+                .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4986, Patch.ARealmReborn) // Crimson Trout
                 .Bait      (fish, 2620)
@@ -535,9 +540,10 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4994, Patch.ARealmReborn) // Oakroot
-                .Bait      (fish, 2627)
+                .Bait      (fish, 2601)
                 .Tug       (BiteType.Strong)
                 .Uptime    (17, 10)
+                .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4995, Patch.ARealmReborn) // Common Sculpin
                 .Bait      (fish, 2626)
@@ -559,6 +565,8 @@ namespace GatherBuddy.Data
             fish.Apply     (4999, Patch.ARealmReborn) // Archerfish
                 .Bait      (fish, 2618)
                 .Tug       (BiteType.Weak)
+                .Snag      (Snagging.None)
+                .Weather   (1, 2, 3, 4)
                 .HookType  (HookSet.Precise);
             fish.Apply     (5000, Patch.ARealmReborn) // Goblin Perch
                 .Bait      (fish, 2599, 4978)

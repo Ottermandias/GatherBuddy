@@ -18,6 +18,27 @@ namespace GatherBuddy.Data
                 .Bait      (fish);
             fish.Apply     (33223, Patch.DeathUntoDawn) // Fragrant Sweetfish
                 .Bait      (fish);
+            fish.Apply     (33239, Patch.DeathUntoDawn) // Listracanthus
+                .Bait      (fish);
+            fish.Apply     (33240, Patch.DeathUntoDawn) // Aquamaton
+                .Bait      (fish)
+                .Predators (fish, (33319, 1), (27452, 5))
+                .Intuition (350);
+            fish.Apply     (33241, Patch.DeathUntoDawn) // Cinder Surprise
+                .Bait      (fish)
+                .Predators (fish, (27462, 10))
+                .Intuition (350);
+            fish.Apply     (33242, Patch.DeathUntoDawn) // Ealad Skaan
+                .Bait      (fish);
+            fish.Apply     (33243, Patch.DeathUntoDawn) // Greater Serpent of Ronka
+                .Bait      (fish, 27587, 27490, 27491, 28071)
+                .Tug       (BiteType.Legendary)
+                .Uptime    (10, 12)
+                .HookType  (HookSet.Powerful);
+            fish.Apply     (33244, Patch.DeathUntoDawn) // Lancetfish
+                .Bait      (fish)
+                .Predators (fish, (33325, 2))
+                .Intuition (700);
             fish.Apply     (33316, Patch.DeathUntoDawn) // Aster Trivi
                 .Bait      (fish, 27585)
                 .Tug       (BiteType.Legendary)
