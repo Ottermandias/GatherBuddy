@@ -44,6 +44,7 @@ namespace GatherBuddy
         public int       Version   { get; set; }
         public ShowNodes ShowNodes { get; set; }
 
+        public bool OpenOnStart         { get; set; }
         public bool UseGearChange       { get; set; }
         public bool UseTeleport         { get; set; }
         public bool UseCoordinates      { get; set; }
@@ -72,6 +73,7 @@ namespace GatherBuddy
             BotanistSetName  = "BTN";
             MinerSetName     = "MIN";
             FisherSetName    = "FSH";
+            OpenOnStart      = false;
             UseGearChange    = true;
             UseTeleport      = true;
             UseCoordinates   = true;

@@ -100,6 +100,9 @@ namespace GatherBuddy
 
             if (_configuration.AlarmsEnabled)
                 Alarms!.Enable(true);
+
+            if (_configuration.OpenOnStart)
+                OnConfigCommandHandler(this, this);
         }
 
         public void Dispose()

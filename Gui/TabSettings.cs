@@ -6,6 +6,11 @@ namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
+        private void DrawOpenOnStartBox()
+            => DrawCheckbox("Open On Start",
+                "Toggle whether the GatherBuddy GUI should be visible after you start the game.",
+                _config.OpenOnStart, b => _config.OpenOnStart = b);
+
         private void DrawGearChangeBox()
             => DrawCheckbox("Gear Change",
                 "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set, Botanist Set and Fisher Set.",
@@ -90,6 +95,8 @@ namespace GatherBuddy.Gui
                 return;
 
             var inputSize = 125 * _globalScale;
+
+            DrawOpenOnStartBox();
 
             DrawMinerSetInput(inputSize);
             DrawBotanistSetInput(inputSize);
