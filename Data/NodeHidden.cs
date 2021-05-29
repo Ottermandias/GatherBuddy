@@ -150,23 +150,94 @@ namespace GatherBuddy.Data
             if (n.Meta!.NodeType != NodeType.Regular)            
                 return;
 
-            switch(n.Meta!.Level)
+            switch(n.Meta!.PointBaseId)
             {
-                case 40: n.AddItem(_maps[ 0]); return;
-                case 45: n.AddItem(_maps[ 1]); return;
-                case 50: n.AddItem(_maps[ 2]);
-                         n.AddItem(_maps[ 3]);
-                         n.AddItem(_maps[ 4]); return;
-                case 55: n.AddItem(_maps[ 5]); return;
-                case 60: n.AddItem(_maps[ 6]);
-                         n.AddItem(_maps[ 7]); return;
-                case 70: n.AddItem(_maps[ 8]);
-                         n.AddItem(_maps[ 9]); return;
-                case 80: 
-                    if (n.Items!.ActualItems.Any(g => ((string) g.Name).StartsWith("Oddly Specific")))
-                        return;
+                case 49:
+                case 180:
+                case 20:
+                case 137:
+                case 141:
+                case 140:
+                    n.AddItem(_maps[0]);
+                    return;
+                case 46:
+                case 185:
+                case 186:
+                case 142:
+                case 143:
+                    n.AddItem(_maps[1]);
+                    return;
+                case 146: 
+                case 198: 
+                case 294: 
+                case 144: 
+                case 197: 
+                case 147: 
+                case 43: 
+                case 199: 
+                case 149: 
+                case 189: 
+                case 284: 
+                case 192: 
+                case 210: 
+                case 191: 
+                case 209: 
+                case 150:
+                case 193:
+                case 151:
+                    n.AddItem(_maps[2]);
+                    n.AddItem(_maps[3]);
+                    n.AddItem(_maps[4]);
+                    return;
+                case 295: 
+                case 287:
+                case 297:
+                case 286:
+                case 298:
+                case 296:
+                case 288:
+                case 285:
+                    n.AddItem(_maps[5]);
+                    return;
+                case 391:
+                case 356:
+                case 354:
+                case 358:
+                case 352:
+                case 359:
+                case 361:
+                case 360:
+                case 300:
+                case 351:
+                case 353:
+                case 355:
+                    n.AddItem(_maps[6]);
+                    n.AddItem(_maps[7]);
+                    return;
+                case 514:
+                case 513:
+                case 517:
+                case 516:
+                case 519:
+                case 529:
+                case 493:
+                case 491:
+                case 495:
+                    n.AddItem(_maps[8]);
+                    n.AddItem(_maps[9]);
+                    return;
+                case 621:
+                case 620:
+                case 625:
+                case 623:
+                case 596:
+                case 648:
+                case 598:
+                case 600:
+                case 602:
                     n.AddItem(_maps[10]);
-                    n.AddItem(_maps[11]); return;
+                    n.AddItem(_maps[11]);
+                    return;
             }
         }
         // @formatter:on
