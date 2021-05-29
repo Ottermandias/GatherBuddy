@@ -219,7 +219,7 @@ namespace GatherBuddy.Gui.Cache
                 f => (f.CatchData?.Patch.ToExpansion() ?? 0) == Patch.Endwalker,
             };
             return expansions.Concat(patches
-                .Select(p => new Func<Game.Fish, bool>(f => f.CatchData!.Patch == p))).ToArray();
+                .Select(p => new Func<Game.Fish, bool>(f => (f.CatchData?.Patch ?? 0) == p))).ToArray();
         }
 
         private class UptimeComparer : IComparer<RealUptime>
