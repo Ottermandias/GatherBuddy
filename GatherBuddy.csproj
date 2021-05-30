@@ -4,8 +4,8 @@
 		<LangVersion>preview</LangVersion>
 		<RootNamespace>GatherBuddy</RootNamespace>
 		<AssemblyName>GatherBuddy</AssemblyName>
-		<FileVersion>2.0.3.0</FileVersion>
-    <AssemblyVersion>2.0.3.0</AssemblyVersion>
+		<FileVersion>2.0.4.0</FileVersion>
+    <AssemblyVersion>2.0.4.0</AssemblyVersion>
 		<Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2020</Copyright>
@@ -54,6 +54,9 @@
     <Reference Include="Lumina.Excel">
 			<HintPath>$(AppData)\XIVLauncher\addon\Hooks\dev\Lumina.Excel.dll</HintPath>
 		</Reference>
+    <Reference Include="FFXIVClientStructs">
+      <HintPath>$(appdata)\XIVLauncher\addon\Hooks\dev\FFXIVClientStructs.dll</HintPath>
+    </Reference>
 		<Reference Include="System" />
 		<Reference Include="System.Core" />		
 		<Reference Include="System.Numerics" />
