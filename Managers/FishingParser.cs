@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using Dalamud;
 using Dalamud.Game.Text;
@@ -128,6 +129,8 @@ namespace GatherBuddy.Managers
             var fishingSpotName = match.Groups["FishingSpot"].Value;
             if (_fish.FishingSpotNames.TryGetValue(fishingSpotName, out var fishingSpot))
                 IdentifiedSpot?.Invoke(fishingSpot);
+            else if (fishingSpotName.StartsWith("the ") && _fish.FishingSpotNames.TryGetValue(fishingSpotName.Substring(4), out fishingSpot))
+                IdentifiedSpot?.Invoke(fishingSpot);
             else
                 PluginLog.Error($"Discovered unknown fishing spot: \"{fishingSpotName}\".");
         }
@@ -141,10 +144,26 @@ namespace GatherBuddy.Managers
                 return;
             }
 
-            if (_fish.Fish.TryGetValue(item.Item.RowId, out var fish))
+            var id = 0u;
+            if (item.Item == null)
+            {
+                id = (uint) (item!.GetType().GetField("itemId", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(item) ?? 0u);
+                if (id == 0u)
+                {
+                    PluginLog.Error("Caught unknown fish with unknown id.");
+                    return;
+                }
+            }
+            else
+                id = item.Item.RowId;
+
+            if (id > 500000)
+                id -= 500000;
+
+            if (_fish.Fish.TryGetValue(id, out var fish))
                 CaughtFish?.Invoke(fish);
             else
-                PluginLog.Error($"Caught unknown fish with id {item.Item.RowId}.");
+                PluginLog.Error($"Caught unknown fish with id {id}.");
         }
 
         private void OnMessageDelegate(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)

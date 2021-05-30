@@ -5,6 +5,7 @@ using System.Numerics;
 using Dalamud;
 using Dalamud.Game.ClientState;
 using Dalamud.Plugin;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -13,6 +14,7 @@ using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
 using ImGuiNET;
 using ImGuiScene;
+using Newtonsoft.Json;
 using DateTime = System.DateTime;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
 
@@ -43,10 +45,11 @@ namespace GatherBuddy.Gui
         private          bool         _chum;
         private          bool         _intuition;
         private          bool         _fishEyes;
-        private readonly Stopwatch    _start = new();
-        private readonly Stopwatch    _bite  = new();
+        private readonly Stopwatch    _start            = new();
+        private readonly Stopwatch    _bite             = new();
+        private          long         _biteMilliseconds = 0;
         private          FishingSpot? _currentSpot;
-        private          Bait         _currentBait;
+        private          Bait         _currentBait = Bait.Unknown;
         private          Fish?        _lastFish;
 
         private Vector2     _rectMin;
@@ -223,15 +226,20 @@ namespace GatherBuddy.Gui
         private void OnCatch(Fish fish)
         {
             _lastFish = fish;
-            _bite.Stop();
-            if (_lastFish.Record.Update(_currentBait, (ushort) _start.ElapsedMilliseconds, _snagging, _chum, _bite.ElapsedMilliseconds))
+            if (_bite.IsRunning)
+            {
+                _bite.Stop();
+                _biteMilliseconds = _bite.ElapsedMilliseconds;
+            }
+
+            if (_lastFish.Record.Update(_currentBait, (ushort) _start.ElapsedMilliseconds, _snagging, _chum, _biteMilliseconds))
             {
                 _fish.SaveFishRecords(_pi);
                 _currentFishList = SortedFish();
             }
 
             PluginLog.Verbose("Caught {Fish} at {FishingSpot} after {Milliseconds} and {Milliseconds2} using {Bait} {Snagging} and {Chum}.",
-                _lastFish.Name, _currentSpot!.PlaceName, _start.ElapsedMilliseconds,
+                _lastFish.Name, _currentSpot?.PlaceName ?? "Unknown", _start.ElapsedMilliseconds,
                 _bite.ElapsedMilliseconds, _currentBait.Name, _snagging ? "with Snagging" : "without Snagging",
                 _chum ? "with Chum" : "without Chum");
         }
@@ -262,7 +270,6 @@ namespace GatherBuddy.Gui
             _parser.IdentifiedSpot  += OnIdentification;
             _parser.SomethingBit    += OnBite;
             _parser.CaughtFish      += OnCatch;
-            _currentBait            =  GetCurrentBait(0);
         }
 
         public void Dispose()
@@ -292,6 +299,21 @@ namespace GatherBuddy.Gui
                 enumerable = enumerable.Where(f => !f.Unavailable);
 
             return enumerable.OrderBy(f => f.SortOrder).ToArray();
+        }
+
+        private unsafe bool IsCollectibleYesNo()
+        {
+            for (var i = 1; i < 10; ++i)
+            {
+                var addonPtr = _pi.Framework.Gui.GetUiObjectByName("SelectYesno", i);
+                if (addonPtr == IntPtr.Zero)
+                    return false;
+                var ptr = (AddonSelectYesno*)addonPtr.ToPointer();
+                if (ptr->AtkUnitBase.UldManager.NodeList[14]->IsVisible)
+                    return true;
+            }
+
+            return false;
         }
 
         public void Draw()
@@ -369,9 +391,17 @@ namespace GatherBuddy.Gui
                     fish.Draw(this, drawList);
 
                 if (displayTimer)
+                {
+                    if (IsCollectibleYesNo())
+                    {
+                        _bite.Stop();
+                        _biteMilliseconds = _bite.ElapsedMilliseconds;
+                    }
+
                     drawList.AddLine(new Vector2(diffPos, _rectMin.Y + textLines),
                         new Vector2(diffPos,              _rectMin.Y + listHeight - 2 * globalScale),
                         Colors.FishTimer.Line, 3 * globalScale);
+                }
             }
             else if (EditMode)
             {
