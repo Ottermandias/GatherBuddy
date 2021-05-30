@@ -27,7 +27,7 @@ namespace GatherBuddy.Gui.Cache
         public Weather(WeatherManager weather)
         {
             _weather           = weather;
-            WeatherTimes       = weather.NextWeatherChangeTimes(NumWeathers, -WeatherManager.SecondsPerWeather * 2);
+            WeatherTimes       = weather.NextWeatherChangeTimes(NumWeathers, -WeatherManager.SecondsPerWeather);
             WeatherTimeStrings = new string[NumWeathers];
             _totalHour         = 0;
             Filter             = "";
@@ -41,15 +41,15 @@ namespace GatherBuddy.Gui.Cache
             if (totalHour - _totalHour < 8)
                 return;
 
-            UpdateTimes();
             UpdateWeather(totalHour);
+            UpdateTimes((totalHour - _totalHour) / 8);
         }
 
-        private void UpdateTimes()
+        private void UpdateTimes(long diff)
         {
             for(var i = 0; i < NumWeathers; ++i)
             {
-                WeatherTimes[i]       = WeatherTimes[i].AddSeconds(WeatherManager.SecondsPerWeather);
+                WeatherTimes[i]       = WeatherTimes[i].AddSeconds(diff * WeatherManager.SecondsPerWeather);
                 WeatherTimeStrings[i] = WeatherTimes[i].TimeOfDay.ToString();
             }
         }
