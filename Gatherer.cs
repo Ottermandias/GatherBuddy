@@ -413,9 +413,10 @@ namespace GatherBuddy
             }
         }
 
-        public void OnFishActionWithBait(string baitName = "")
+        public void OnBaitAction(string baitName = "")
         {
             Clipboard.SetText(baitName);
+            _chat.Print($"Copied [{baitName}] to clipboard.");
         }
 
         public void OnFishActionWithFish(Fish? fish, string fishName = "")

@@ -38,26 +38,6 @@ namespace GatherBuddy.Gui
             if (ImGui.IsItemHovered())
                 SetTooltip(fish);
 
-            ImGui.TableNextColumn();
-            if (fish.Bait.Count() > 0)
-            {
-                var baitIcon = fish.Bait[0].Icon;
-                ImGui.Image(baitIcon.ImGuiHandle, _fishIconSize);
-                if (ImGui.IsItemHovered())
-                {
-                    using var tt = ImGuiRaii.NewTooltip();
-                    ImGui.Image(baitIcon.ImGuiHandle, new Vector2(baitIcon.Width, baitIcon.Height));
-                }
-            }
-
-            ImGui.TableNextColumn();
-            if (fish.Bait.Count() > 0)
-            {
-                var baitName = fish.Bait[0].Name;
-                if (ImGui.Selectable(baitName))
-                    _plugin.Gatherer!.OnFishActionWithBait(baitName);
-            }
-
             var uptime = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager);
             ImGui.TableNextColumn();
             if (uptime.Equals(RealUptime.Always))
@@ -96,6 +76,32 @@ namespace GatherBuddy.Gui
             ImGui.Dummy(new Vector2(_fishCache.LongestPercentage -ImGui.CalcTextSize(fish.UptimeString).X, 0));
             ImGui.SameLine();
             ImGui.Text(fish.UptimeString);
+
+            ImGui.TableNextColumn();
+            if (fish.Bait.Length > 0)
+            {
+                var baitIcon = fish.Bait[0].Icon;
+                var baitName = fish.Bait[0].Name;
+
+                ImGui.Image(baitIcon.ImGuiHandle, _fishIconSize);
+                if (ImGui.IsItemHovered())
+                {
+                    using var tt = ImGuiRaii.NewTooltip();
+                    ImGui.Image(baitIcon.ImGuiHandle, new Vector2(baitIcon.Width, baitIcon.Height));
+                }
+
+                ImGui.TableNextColumn();
+                if (ImGui.Selectable(baitName))
+                    _plugin.Gatherer!.OnBaitAction(baitName);
+
+                if (ImGui.IsItemHovered())
+                    ImGui.SetTooltip("Click to copy to clipboard.");
+            }
+            else
+            {
+                ImGui.TableNextColumn();
+                ImGui.Text("Unknown Bait");
+            }
 
             ImGui.TableNextColumn();
             if (ImGui.Selectable(fish.FishingSpot))
@@ -204,20 +210,20 @@ namespace GatherBuddy.Gui
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestFish * _globalScale);
                 ImGui.NextColumn();
 
-                ImGui.TableHeader("BaitIcon");
-                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, ImGui.GetTextLineHeight());
-                ImGui.NextColumn();
-
-                ImGui.TableHeader("Bait");
-                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestBait * _globalScale);
-                ImGui.NextColumn();
-
                 ImGui.TableHeader("Wait / Uptime");
                 ImGui.TableSetupColumn("Wait / Uptime", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestMinutes * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Avg. Uptime");
                 ImGui.TableSetupColumn("Avg. Uptime", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestPercentage * _globalScale);
+                ImGui.NextColumn();
+
+                ImGui.TableHeader("BaitIcon");
+                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, ImGui.GetTextLineHeight());
+                ImGui.NextColumn();
+
+                ImGui.TableHeader("Bait");
+                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestBait * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Fishing Spot");
