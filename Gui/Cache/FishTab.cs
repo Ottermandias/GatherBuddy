@@ -36,6 +36,7 @@ namespace GatherBuddy.Gui.Cache
         public readonly float LongestFish;
         public readonly float LongestSpot;
         public readonly float LongestZone;
+        public readonly float LongestBait;
         public readonly float LongestPercentage;
         public readonly float LongestMinutes;
 
@@ -109,6 +110,10 @@ namespace GatherBuddy.Gui.Cache
                 LongestFish       = Math.Max(LongestFish, ImGui.CalcTextSize(fish.Name).X / ImGui.GetIO().FontGlobalScale);
                 LongestSpot       = Math.Max(LongestSpot, ImGui.CalcTextSize(fish.FishingSpot).X / ImGui.GetIO().FontGlobalScale);
                 LongestZone       = Math.Max(LongestZone, ImGui.CalcTextSize(fish.Territory).X / ImGui.GetIO().FontGlobalScale);
+                if (fish.Bait.Count() > 0)
+                {
+                    LongestBait   = Math.Max(LongestBait, ImGui.CalcTextSize(fish.Bait[0].Name).X / ImGui.GetIO().FontGlobalScale);
+                }
                 LongestPercentage = Math.Max(LongestPercentage, ImGui.CalcTextSize(fish.UptimeString).X / ImGui.GetIO().FontGlobalScale);
             }
             LongestMinutes = ImGui.CalcTextSize("0000:00 Minutes").X / ImGui.GetIO().FontGlobalScale;

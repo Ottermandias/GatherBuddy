@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows.Forms;
 using Dalamud;
 using Dalamud.Plugin;
 using GatherBuddy.Classes;
@@ -410,6 +411,11 @@ namespace GatherBuddy
             {
                 PluginLog.Error($"Exception caught: {e}");
             }
+        }
+
+        public void OnFishActionWithBait(string baitName = "")
+        {
+            Clipboard.SetText(baitName);
         }
 
         public void OnFishActionWithFish(Fish? fish, string fishName = "")

@@ -9,7 +9,7 @@ namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private const int NumFishColumns = 6;
+        private const int NumFishColumns = 8;
 
         private static void PrintSeconds(long seconds)
         {
@@ -37,6 +37,26 @@ namespace GatherBuddy.Gui
                 _plugin.Gatherer!.OnFishActionWithFish(fish.Base);
             if (ImGui.IsItemHovered())
                 SetTooltip(fish);
+
+            ImGui.TableNextColumn();
+            if (fish.Bait.Count() > 0)
+            {
+                var baitIcon = fish.Bait[0].Icon;
+                ImGui.Image(baitIcon.ImGuiHandle, _fishIconSize);
+                if (ImGui.IsItemHovered())
+                {
+                    using var tt = ImGuiRaii.NewTooltip();
+                    ImGui.Image(baitIcon.ImGuiHandle, new Vector2(baitIcon.Width, baitIcon.Height));
+                }
+            }
+
+            ImGui.TableNextColumn();
+            if (fish.Bait.Count() > 0)
+            {
+                var baitName = fish.Bait[0].Name;
+                if (ImGui.Selectable(baitName))
+                    _plugin.Gatherer!.OnFishActionWithBait(baitName);
+            }
 
             var uptime = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager);
             ImGui.TableNextColumn();
@@ -182,6 +202,14 @@ namespace GatherBuddy.Gui
 
                 ImGui.TableHeader("Name");
                 ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestFish * _globalScale);
+                ImGui.NextColumn();
+
+                ImGui.TableHeader("BaitIcon");
+                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, ImGui.GetTextLineHeight());
+                ImGui.NextColumn();
+
+                ImGui.TableHeader("Bait");
+                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestBait * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Wait / Uptime");
