@@ -33,6 +33,7 @@ namespace GatherBuddy.Gui.Cache
         public string          Time             { get; }
         public TextureWrap[][] WeatherIcons     { get; }
         public BaitOrder[]     Bait             { get; }
+        public string          FirstBaitLower   { get; }
         public string          Territory        { get; }
         public string          TerritoryLower   { get; }
         public string          FishingSpot      { get; }
@@ -200,6 +201,7 @@ namespace GatherBuddy.Gui.Cache
             Time             = SetTime(fish, ref uptime);
             WeatherIcons     = SetWeather(fish, ref uptime);
             Bait             = SetBait(cache, fish);
+            FirstBaitLower   = Bait.Length > 0 ? Bait[0].Name.ToLowerInvariant() : "unknown bait";
             Predators        = SetPredators(manager, fish);
             Territory        = fish.FishingSpots.First().Territory!.Name[GatherBuddy.Language];
             TerritoryLower   = Territory.ToLowerInvariant();

@@ -42,6 +42,8 @@ namespace GatherBuddy.Gui.Cache
 
         public  string FishFilter      = "";
         public  string FishFilterLower = "";
+        public  string BaitFilter      = "";
+        public  string BaitFilterLower = "";
         public  string SpotFilter      = "";
         public  string SpotFilterLower = "";
         public  string ZoneFilter      = "";
@@ -55,28 +57,36 @@ namespace GatherBuddy.Gui.Cache
         {
             FishFilterLower = FishFilter.ToLowerInvariant();
             if (FishFilter.Length > 0)
-                _whichFilters |= 0b0010;
+                _whichFilters |= 0b00010;
             else
-                _whichFilters &= 0b1100;
+                _whichFilters &= 0b11100;
         }
 
+        public void UpdateBaitFilter()
+        {
+            BaitFilterLower = BaitFilter.ToLowerInvariant();
+            if (BaitFilter.Length > 0)
+                _whichFilters |= 0b00100;
+            else
+                _whichFilters &= 0b11010;
+        }
 
         public void UpdateSpotFilter()
         {
             SpotFilterLower = SpotFilter.ToLowerInvariant();
             if (SpotFilter.Length > 0)
-                _whichFilters |= 0b0100;
+                _whichFilters |= 0b01000;
             else
-                _whichFilters &= 0b1010;
+                _whichFilters &= 0b10110;
         }
 
         public void UpdateZoneFilter()
         {
             ZoneFilterLower = ZoneFilter.ToLowerInvariant();
             if (ZoneFilter.Length > 0)
-                _whichFilters |= 0b1000;
+                _whichFilters |= 0b10000;
             else
-                _whichFilters &= 0b0110;
+                _whichFilters &= 0b01110;
         }
 
         public Func<Game.Fish, bool> Selector;
@@ -147,22 +157,38 @@ namespace GatherBuddy.Gui.Cache
             // @formatter:off
             switch (WhichFilters)
             {
-                case 0b0000: return CachedFish;
-                case 0b0001: return CachedFish.Where(f => FishUncaught(f.Base)).ToArray();
-                case 0b0010: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower)).ToArray();
-                case 0b0011: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower)).ToArray();
-                case 0b0100: return CachedFish.Where(f => f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
-                case 0b0101: return CachedFish.Where(f => FishUncaught(f.Base) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
-                case 0b0110: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
-                case 0b0111: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
-                case 0b1000: return CachedFish.Where(f => f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
-                case 0b1001: return CachedFish.Where(f => FishUncaught(f.Base) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
-                case 0b1010: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
-                case 0b1011: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
-                case 0b1100: return CachedFish.Where(f => f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
-                case 0b1101: return CachedFish.Where(f => FishUncaught(f.Base) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
-                case 0b1110: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
-                case 0b1111: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b00000: return CachedFish;
+                case 0b00001: return CachedFish.Where(f => FishUncaught(f.Base)).ToArray();
+                case 0b00010: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower)).ToArray();
+                case 0b00011: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower)).ToArray();
+                case 0b00100: return CachedFish.Where(f => f.FirstBaitLower.Contains(BaitFilterLower)).ToArray();
+                case 0b00101: return CachedFish.Where(f => FishUncaught(f.Base) && f.FirstBaitLower.Contains(BaitFilterLower)).ToArray();
+                case 0b00110: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower)).ToArray();
+                case 0b00111: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower)).ToArray();
+                case 0b01000: return CachedFish.Where(f => f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b01001: return CachedFish.Where(f => FishUncaught(f.Base) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b01010: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b01011: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b01100: return CachedFish.Where(f => f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b01101: return CachedFish.Where(f => FishUncaught(f.Base) && f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b01110: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b01111: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower)).ToArray();
+                case 0b10000: return CachedFish.Where(f => f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b10001: return CachedFish.Where(f => FishUncaught(f.Base) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b10010: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b10011: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b10100: return CachedFish.Where(f => f.FirstBaitLower.Contains(BaitFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b10101: return CachedFish.Where(f => FishUncaught(f.Base) && f.FirstBaitLower.Contains(BaitFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b10110: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b10111: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11000: return CachedFish.Where(f => f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11001: return CachedFish.Where(f => FishUncaught(f.Base) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11010: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11011: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11100: return CachedFish.Where(f => f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11101: return CachedFish.Where(f => FishUncaught(f.Base) && f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11110: return CachedFish.Where(f => f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
+                case 0b11111: return CachedFish.Where(f => FishUncaught(f.Base) && f.NameLower.Contains(FishFilterLower) && f.FirstBaitLower.Contains(BaitFilterLower) && f.FishingSpotLower.Contains(SpotFilterLower) && f.TerritoryLower.Contains(ZoneFilterLower)).ToArray();
             }
             // @formatter:on
             throw new InvalidEnumArgumentException();

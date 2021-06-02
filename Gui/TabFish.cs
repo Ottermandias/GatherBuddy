@@ -172,17 +172,22 @@ namespace GatherBuddy.Gui
             var height = -(_textHeight + _itemSpacing.Y * 3 + _framePadding.Y) * 2;
             var width  = ImGui.GetWindowWidth() - 4 * _itemSpacing.X;
 
-            ImGui.SetNextItemWidth(width / 3);
+            ImGui.SetNextItemWidth(width / 4);
             if (ImGui.InputTextWithHint("##FishFilter", "Fish Filter", ref _fishCache.FishFilter, 64))
                 _fishCache.UpdateFishFilter();
 
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(width / 3);
+            ImGui.SetNextItemWidth(width / 4);
+            if (ImGui.InputTextWithHint("##BaitFilter", "Bait Filter", ref _fishCache.BaitFilter, 64))
+                _fishCache.UpdateBaitFilter();
+
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(width / 4);
             if (ImGui.InputTextWithHint("##SpotFilter", "Spot Filter", ref _fishCache.SpotFilter, 64))
                 _fishCache.UpdateSpotFilter();
 
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(width / 3);
+            ImGui.SetNextItemWidth(width / 4);
             if (ImGui.InputTextWithHint("##TerritoryFilter", "Zone Filter", ref _fishCache.ZoneFilter, 64))
                 _fishCache.UpdateZoneFilter();
 
