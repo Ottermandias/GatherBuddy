@@ -83,13 +83,13 @@ namespace GatherBuddy.Game
             return ItemId.CompareTo(rhs?.ItemId ?? 0);
         }
 
-        public RealUptime NextUptime(WeatherManager weather)
+        public RealUptime NextUptime(WeatherManager weather, Territory? territory)
         {
             // Always or predator-based
             if (FishRestrictions == FishRestrictions.None)
             {
                 if (CatchData != null && CatchData.Predator.Length > 0)
-                    return CatchData.Predator.Select(f => f.Item1.NextUptime(weather)).ArgMin(t => t.Time);
+                    return CatchData.Predator.Select(f => f.Item1.NextUptime(weather, territory)).ArgMin(t => t.Time);
                 return RealUptime.Always;
             }
 
@@ -101,21 +101,30 @@ namespace GatherBuddy.Game
              && CatchData.CurrentWeather.Length == 0)
                 return RealUptime.Unknown;
 
-            // Update cache if necessary
-            if (_nextUptime.EndTime <= DateTime.UtcNow)
-                UpdateUptime(weather);
+            
+            // If home territory is requested
+            if (territory == null || territory.Id == FishingSpots.First().Territory!.Id)
+            {
+                // Update cache if necessary
+                if (_nextUptime.EndTime <= DateTime.UtcNow)
+                    UpdateUptime(weather);
 
-            // Cache valid
-            return _nextUptime;
+                // Cache valid
+                return _nextUptime;
+            }
+
+            // If another territory is requested
+            return GetUptime(weather, territory);
         }
 
-        private void UpdateUptime(WeatherManager weather)
+        public RealUptime NextUptime(WeatherManager weather)
+            => NextUptime(weather, FishingSpots.First().Territory!);
+
+
+        private RealUptime GetUptime(WeatherManager weather, Territory territory)
         {
             if (FishRestrictions == FishRestrictions.Time)
-            {
-                _nextUptime = CatchData!.Hours.NextRealUptime();
-                return;
-            }
+                return CatchData!.Hours.NextRealUptime();
 
             var wl = weather.RequestForecast(FishingSpots.First().Territory!, CatchData!.CurrentWeather, CatchData.PreviousWeather,
                 CatchData.Hours);
@@ -130,7 +139,7 @@ namespace GatherBuddy.Game
             {
                 var endTime   = startTime + duration;
                 var timestamp = (long) (endTime - DateTime.UtcNow).TotalSeconds + 1;
-                wl = weather.RequestForecast(FishingSpots.First().Territory!, CatchData!.CurrentWeather, CatchData.PreviousWeather,
+                wl = weather.RequestForecast(territory, CatchData!.CurrentWeather, CatchData.PreviousWeather,
                     CatchData.Hours, timestamp);
                 var newOverlap = wl.Uptime.Overlap(CatchData!.Hours);
                 if (wl.Time <= endTime && newOverlap.FirstHour == overlap.EndHour % RealTime.HoursPerDay)
@@ -145,8 +154,11 @@ namespace GatherBuddy.Game
                 }
             } while (valid);
 
-            _nextUptime = new RealUptime(startTime, duration);
+            return new RealUptime(startTime, duration);
         }
+
+        private void UpdateUptime(WeatherManager weather)
+            => _nextUptime = GetUptime(weather, FishingSpots.First().Territory!);
 
         public Fish(Fish fish)
         {

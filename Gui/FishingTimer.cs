@@ -90,7 +90,7 @@ namespace GatherBuddy.Gui
                 if ((fish.CatchData?.Predator.Length ?? 0) > 0)
                     if (!timer._intuition)
                         Unavailable = true;
-                if (DateTime.UtcNow < fish.NextUptime(timer._weather).Time)
+                if (DateTime.UtcNow < fish.NextUptime(timer._weather, timer._currentSpot?.Territory).Time)
                     if (!timer._fishEyes || fish.IsBigFish || fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
                         Unavailable = true;
                 if ((fish.CatchData?.Snagging ?? Snagging.Unknown) == Snagging.Required)
