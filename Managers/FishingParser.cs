@@ -41,7 +41,7 @@ namespace GatherBuddy.Managers
             private Regexes(bool _)
             {
                 Cast           = new Regex(@"You cast your line (?:on|in|at) (?<FishingSpot>.+)\.");
-                AreaDiscovered = new Regex(@"Data on (?<FishingSpot>.+) is added to your fishing log\.");
+                AreaDiscovered = new Regex(@".*?(on|at) (?<FishingSpot>.+) is added to your fishing log\.");
                 Undiscovered   = "undiscovered fishing hole";
                 Bite           = "Something bites!";
                 Mooch          = new Regex(@"line with the fish still hooked.");
@@ -126,7 +126,7 @@ namespace GatherBuddy.Managers
 
         private void HandleSpotDiscoveredMatch(Match match)
         {
-            var fishingSpotName = match.Groups["FishingSpot"].Value;
+            var fishingSpotName = match.Groups["FishingSpot"].Value.ToLowerInvariant();
             if (_fish.FishingSpotNames.TryGetValue(fishingSpotName, out var fishingSpot))
                 IdentifiedSpot?.Invoke(fishingSpot);
             else if (fishingSpotName.StartsWith("the ") && _fish.FishingSpotNames.TryGetValue(fishingSpotName.Substring(4), out fishingSpot))
