@@ -1,3 +1,4 @@
+using GatherBuddy.Classes;
 using GatherBuddy.Managers;
 using GatherBuddy.Enums;
 
@@ -19,9 +20,15 @@ namespace GatherBuddy.Data
             fish.Apply     (33223, Patch.DeathUntoDawn) // Fragrant Sweetfish
                 .Bait      (fish);
             fish.Apply     (33239, Patch.DeathUntoDawn) // Listracanthus
-                .Bait      (fish);
+                .Bait      (fish, 27589, 28925)
+                .Uptime    (16, 24)
+                .Tug       (BiteType.Legendary)
+                .Transition(2)
+                .Weather   (4);
             fish.Apply     (33240, Patch.DeathUntoDawn) // Aquamaton
-                .Bait      (fish)
+                .Bait      (fish, 27588)
+                .Uptime    (10, 16)
+                .Tug       (BiteType.Legendary)
                 .Predators (fish, (33319, 1), (27452, 5))
                 .Intuition (350);
             fish.Apply     (33241, Patch.DeathUntoDawn) // Cinder Surprise
@@ -36,7 +43,11 @@ namespace GatherBuddy.Data
                 .Uptime    (10, 12)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (33244, Patch.DeathUntoDawn) // Lancetfish
-                .Bait      (fish)
+                .Bait      (fish, 27590)
+                .Uptime    (0, 2)
+                .Transition(2)
+                .Weather   (3)
+                .Tug       (BiteType.Legendary)
                 .Predators (fish, (33325, 2))
                 .Intuition (700);
             fish.Apply     (33316, Patch.DeathUntoDawn) // Aster Trivi

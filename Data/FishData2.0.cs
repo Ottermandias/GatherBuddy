@@ -233,6 +233,7 @@ namespace GatherBuddy.Data
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4921, Patch.ARealmReborn) // Sunfish
                 .Bait      (fish, 2587, 4872)
+                .Weather   (3, 4, 5)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4922, Patch.ARealmReborn) // Dinichthys
