@@ -202,42 +202,46 @@ namespace GatherBuddy.Gui
 
             bool BeginTable()
             {
-                const ImGuiTableFlags flags = ImGuiTableFlags.BordersInner | ImGuiTableFlags.RowBg;
-
+                const ImGuiTableFlags       flags           = ImGuiTableFlags.BordersInner | ImGuiTableFlags.RowBg | ImGuiTableFlags.Hideable;
+                const ImGuiTableColumnFlags offColumnFlags  = ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoReorder;
+                const ImGuiTableColumnFlags mainColumnFlags = offColumnFlags | ImGuiTableColumnFlags.NoHide;
                 if (!ImGui.BeginTable("##FishTable", NumFishColumns, flags))
                     return false;
 
                 ImGui.TableHeader("");
-                ImGui.TableSetupColumn("", ImGuiTableColumnFlags.WidthFixed, ImGui.GetTextLineHeight());
+                ImGui.TableSetupColumn("", mainColumnFlags, ImGui.GetTextLineHeight());
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Name");
-                ImGui.TableSetupColumn("Name", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestFish * _globalScale);
+                ImGui.TableSetupColumn("Name", mainColumnFlags, _fishCache.LongestFish * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Wait / Uptime");
-                ImGui.TableSetupColumn("Wait / Uptime", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestMinutes * _globalScale);
+                ImGui.TableSetupColumn("Wait / Uptime", mainColumnFlags, _fishCache.LongestMinutes * _globalScale);
                 ImGui.NextColumn();
 
-                ImGui.TableHeader("Avg. Uptime");
-                ImGui.TableSetupColumn("Avg. Uptime", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestPercentage * _globalScale);
+                ImGui.TableHeader("%Uptime");
+                ImGui.TableSetupColumn("%Uptime", offColumnFlags, _fishCache.LongestPercentage * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("BaitIcon");
-                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, ImGui.GetTextLineHeight());
+                ImGui.TableSetupColumn("", offColumnFlags, ImGui.GetTextLineHeight());
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Bait");
-                ImGui.TableSetupColumn("Bait", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestBait * _globalScale);
+                ImGui.TableSetupColumn("Bait", offColumnFlags, _fishCache.LongestBait * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Fishing Spot");
-                ImGui.TableSetupColumn("Fishing Spot", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestSpot * _globalScale);
+                ImGui.TableSetupColumn("Fishing Spot", offColumnFlags, _fishCache.LongestSpot * _globalScale);
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Zone");
-                ImGui.TableSetupColumn("Zone", ImGuiTableColumnFlags.WidthFixed, _fishCache.LongestZone * _globalScale);
+                ImGui.TableSetupColumn("Zone", offColumnFlags, _fishCache.LongestZone * _globalScale);
                 ImGui.NextColumn();
+
+                ImGui.TableHeadersRow();
+                ImGui.TableNextRow();
 
                 return true;
             }
