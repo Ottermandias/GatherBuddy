@@ -32,11 +32,19 @@ namespace GatherBuddy.Data
                 .Predators (fish, (33319, 1), (27452, 5))
                 .Intuition (350);
             fish.Apply     (33241, Patch.DeathUntoDawn) // Cinder Surprise
-                .Bait      (fish)
+                .Bait      (fish, 27584)
+                .Uptime    (0, 2)
+                .Transition(11)
+                .Weather   (14)
+                .Tug       (BiteType.Legendary)
                 .Predators (fish, (27462, 10))
                 .Intuition (350);
             fish.Apply     (33242, Patch.DeathUntoDawn) // Ealad Skaan
-                .Bait      (fish);
+                .Bait      (fish, 27589)
+                .Uptime    (22, 24)
+                .Transition(10)
+                .Weather   (1)
+                .Tug       (BiteType.Legendary);
             fish.Apply     (33243, Patch.DeathUntoDawn) // Greater Serpent of Ronka
                 .Bait      (fish, 27587, 27490, 27491, 28071)
                 .Tug       (BiteType.Legendary)
