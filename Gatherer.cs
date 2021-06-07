@@ -13,6 +13,10 @@ using GatherBuddy.Game;
 using GatherBuddy.Managers;
 using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
+using Lumina.Excel.GeneratedSheets;
+using FishingSpot = GatherBuddy.Game.FishingSpot;
+using GatheringType = GatherBuddy.Enums.GatheringType;
+using World = GatherBuddy.Managers.World;
 
 namespace GatherBuddy
 {
@@ -240,7 +244,26 @@ namespace GatherBuddy
             }
 
             if (_configuration.PrintUptime && (!closestNode?.Times.AlwaysUp() ?? false))
-                _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()}.");
+            {
+                var nextUptime = closestNode!.Times!.NextRealUptime();
+                var now        = DateTime.UtcNow;
+                if (nextUptime.Time > now)
+                {
+                    var diff = nextUptime.Time - now;
+                    if (diff.Minutes > 0)
+                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Minutes} Minutes).");
+                    else
+                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Seconds} Seconds).");
+                }
+                else
+                {
+                    var diff = nextUptime.EndTime - now;
+                    if (diff.Minutes > 0)
+                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Minutes} Minutes).");
+                    else
+                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Seconds} Seconds).");
+                }
+            }
 
             return closestNode;
         }
