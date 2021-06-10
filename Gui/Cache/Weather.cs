@@ -38,11 +38,13 @@ namespace GatherBuddy.Gui.Cache
 
         public void Update(long totalHour)
         {
-            if (totalHour - _totalHour < 8)
-                return;
+            //if (totalHour - _totalHour < 8)
+            //    return;
 
-            UpdateWeather(totalHour);
-            UpdateTimes((totalHour - _totalHour) / 8);
+            UpdateWeather();
+            if (_totalHour > 0)
+                UpdateTimes((totalHour - _totalHour) / 8);
+            _totalHour = totalHour - ((totalHour % RealTime.HoursPerDay) & 0b111);
         }
 
         private void UpdateTimes(long diff)
@@ -54,11 +56,8 @@ namespace GatherBuddy.Gui.Cache
             }
         }
 
-        private void UpdateWeather(long totalHour)
+        private void UpdateWeather()
         {
-            var hour = totalHour % RealTime.HoursPerDay;
-            _totalHour = totalHour - (hour & 0b111);
-
             for (var i = 0; i < Weathers.Length; ++i)
                 Weathers[i].Update(i);
         }
