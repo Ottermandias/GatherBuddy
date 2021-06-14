@@ -24,13 +24,15 @@ namespace GatherBuddy.Data
                 .Uptime    (16, 24)
                 .Tug       (BiteType.Legendary)
                 .Transition(2)
-                .Weather   (4);
+                .Weather   (4)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (33240, Patch.DeathUntoDawn) // Aquamaton
                 .Bait      (fish, 27588)
                 .Uptime    (10, 16)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (33319, 1), (27452, 5))
-                .Intuition (350);
+                .Intuition (350)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (33241, Patch.DeathUntoDawn) // Cinder Surprise
                 .Bait      (fish, 27584)
                 .Uptime    (0, 2)
@@ -38,13 +40,15 @@ namespace GatherBuddy.Data
                 .Weather   (14)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (27462, 10))
-                .Intuition (350);
-            fish.Apply     (33242, Patch.DeathUntoDawn) // Ealad Skaan
+                .Intuition (350)
+                .HookType  (HookSet.Precise);
+            fish.Apply (33242, Patch.DeathUntoDawn) // Ealad Skaan
                 .Bait      (fish, 27589)
-                .Uptime    (22, 24)
+                .Uptime    (23, 24)
                 .Transition(10)
                 .Weather   (1)
-                .Tug       (BiteType.Legendary);
+                .Tug       (BiteType.Legendary)
+                .HookType  (HookSet.Precise);
             fish.Apply     (33243, Patch.DeathUntoDawn) // Greater Serpent of Ronka
                 .Bait      (fish, 27587, 27490, 27491, 28071)
                 .Tug       (BiteType.Legendary)
@@ -57,7 +61,8 @@ namespace GatherBuddy.Data
                 .Weather   (3)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (33325, 2))
-                .Intuition (700);
+                .Intuition (700)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (33316, Patch.DeathUntoDawn) // Aster Trivi
                 .Bait      (fish, 27585)
                 .Tug       (BiteType.Legendary)
