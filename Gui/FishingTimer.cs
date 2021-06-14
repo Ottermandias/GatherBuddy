@@ -135,9 +135,9 @@ namespace GatherBuddy.Gui
                 ImGui.SameLine();
 
                 using (var imgui = new ImGuiRaii()
-                    .PushColor(ImGuiCol.Button, _color)
+                    .PushColor(ImGuiCol.Button,        _color)
                     .PushColor(ImGuiCol.ButtonHovered, _color)
-                    .PushColor(ImGuiCol.ButtonActive, _color)
+                    .PushColor(ImGuiCol.ButtonActive,  _color)
                     .PushStyle(ImGuiStyleVar.ButtonTextAlign, timer._buttonTextAlign))
                 {
                     ImGui.Button(_fish.Name![GatherBuddy.Language], new Vector2(timer._rectSize.X - timer._iconSize.X, height));
@@ -308,8 +308,9 @@ namespace GatherBuddy.Gui
                 var addonPtr = _pi.Framework.Gui.GetUiObjectByName("SelectYesno", i);
                 if (addonPtr == IntPtr.Zero)
                     return false;
-                var ptr = (AddonSelectYesno*)addonPtr.ToPointer();
-                if (ptr->AtkUnitBase.UldManager.NodeList[14]->IsVisible)
+
+                var ptr = (AddonSelectYesno*) addonPtr.ToPointer();
+                if (ptr->AtkUnitBase.UldManager.NodeListCount > 14 && ptr->AtkUnitBase.UldManager.NodeList[14]->IsVisible)
                     return true;
             }
 
