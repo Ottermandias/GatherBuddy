@@ -88,6 +88,58 @@ namespace GatherBuddy.Data
                 .Bait      (fish);
             fish.Apply     (31134, Patch.ReflectionsInCrystal) // Allagan Hunter
                 .Bait      (fish);
+            fish.Apply     (31578, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Thunderbolt Sculpin
+                .Bait      (fish);
+            fish.Apply     (31579, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Alligator Snapping Turtle
+                .Bait      (fish);
+            fish.Apply     (31580, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Bonytongue
+                .Bait      (fish);
+            fish.Apply     (31581, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Hermit Goby
+                .Bait      (fish);
+            fish.Apply     (31582, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Mudskipper
+                .Bait      (fish);
+            fish.Apply     (31583, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Steppe Bullfrog
+                .Bait      (fish);
+            fish.Apply     (31584, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Golden Loach
+                .Bait      (fish);
+            fish.Apply     (31585, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Bass
+                .Bait      (fish);
+            fish.Apply     (31586, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Cherax
+                .Bait      (fish);
+            fish.Apply     (31587, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Marimo
+                .Bait      (fish);
+            fish.Apply     (31588, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Catfish
+                .Bait      (fish);
+            fish.Apply     (31589, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Ricefish
+                .Bait      (fish);
+            fish.Apply     (31590, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Scorpionfly
+                .Bait      (fish);
+            fish.Apply     (31591, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Whiteloom
+                .Bait      (fish);
+            fish.Apply     (31592, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Pteranodon
+                .Bait      (fish);
+            fish.Apply     (31593, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' King's Mantle
+                .Bait      (fish);
+            fish.Apply     (31594, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Blue Medusa
+                .Bait      (fish);
+            fish.Apply     (31595, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Gurnard
+                .Bait      (fish);
+            fish.Apply     (31596, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Oscar
+                .Bait      (fish);
+            fish.Apply     (31597, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Blind Manta
+                .Bait      (fish);
+            fish.Apply     (31598, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Mosasaur
+                .Bait      (fish);
+            fish.Apply     (31599, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Storm Chaser
+                .Bait      (fish);
+            fish.Apply     (31600, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Archaeopteryx
+                .Bait      (fish);
+            fish.Apply     (31601, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Wyvern
+                .Bait      (fish);
+            fish.Apply     (31602, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Cloudshark
+                .Bait      (fish);
+            fish.Apply     (31603, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Helicoprion
+                .Bait      (fish);
         }
         // @formatter:on
     }

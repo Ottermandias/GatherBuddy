@@ -12,7 +12,8 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (16, 24)
-                .Weather   (3)
+                .Transition(1, 2)
+                .Weather   (3, 4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (28926, Patch.EchoesOfAFallenStar) // White Ronso
                 .Bait      (fish, 27589)
@@ -211,6 +212,46 @@ namespace GatherBuddy.Data
             fish.Apply     (29790, Patch.EchoesOfAFallenStar) // Stonescale
                 .Bait      (fish);
             fish.Apply     (29791, Patch.EchoesOfAFallenStar) // Elasmosaurus
+                .Bait      (fish);
+            fish.Apply     (29994, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Cloudskipper
+                .Bait      (fish);
+            fish.Apply     (29995, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Meditator
+                .Bait      (fish);
+            fish.Apply     (29996, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Coeurlfish
+                .Bait      (fish);
+            fish.Apply     (29997, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Garpike
+                .Bait      (fish);
+            fish.Apply     (29998, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Pirarucu
+                .Bait      (fish);
+            fish.Apply     (29999, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Brown Bolo
+                .Bait      (fish);
+            fish.Apply     (30000, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Bitterling
+                .Bait      (fish);
+            fish.Apply     (30001, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Caiman
+                .Bait      (fish);
+            fish.Apply     (30002, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Cloud Cutter
+                .Bait      (fish);
+            fish.Apply     (30003, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Vampiric Tapestry
+                .Bait      (fish);
+            fish.Apply     (30004, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Tupuxuara
+                .Bait      (fish);
+            fish.Apply     (30005, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Blind Manta
+                .Bait      (fish);
+            fish.Apply     (30006, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Rhomaleosaurus
+                .Bait      (fish);
+            fish.Apply     (30007, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Gobbie Mask
+                .Bait      (fish);
+            fish.Apply     (30008, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Pterodactyl
+                .Bait      (fish);
+            fish.Apply     (30009, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Skyfish
+                .Bait      (fish);
+            fish.Apply     (30010, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Cometfish
+                .Bait      (fish);
+            fish.Apply     (30011, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Anomalocaris
+                .Bait      (fish);
+            fish.Apply     (30012, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Rhamphorhynchus
+                .Bait      (fish);
+            fish.Apply     (30013, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Dragon's Soul
                 .Bait      (fish);
         }
         // @formatter:on

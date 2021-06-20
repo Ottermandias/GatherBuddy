@@ -173,6 +173,58 @@ namespace GatherBuddy.Data
                 .Bait      (fish);
             fish.Apply     (32114, Patch.FuturesRewritten) // Placodus
                 .Bait      (fish);
+            fish.Apply     (32882, Patch.FuturesRewritten) // Grade 4 Skybuilders' Zagas Khaal
+                .Bait      (fish);
+            fish.Apply     (32883, Patch.FuturesRewritten) // Grade 4 Skybuilders' Goldsmith Crab
+                .Bait      (fish);
+            fish.Apply     (32884, Patch.FuturesRewritten) // Grade 4 Skybuilders' Common Bitterling
+                .Bait      (fish);
+            fish.Apply     (32885, Patch.FuturesRewritten) // Grade 4 Skybuilders' Skyloach
+                .Bait      (fish);
+            fish.Apply     (32886, Patch.FuturesRewritten) // Grade 4 Skybuilders' Glacier Core
+                .Bait      (fish);
+            fish.Apply     (32887, Patch.FuturesRewritten) // Grade 4 Skybuilders' Kissing Fish
+                .Bait      (fish);
+            fish.Apply     (32888, Patch.FuturesRewritten) // Grade 4 Skybuilders' Cavalry Catfish
+                .Bait      (fish);
+            fish.Apply     (32889, Patch.FuturesRewritten) // Grade 4 Skybuilders' Manasail
+                .Bait      (fish);
+            fish.Apply     (32890, Patch.FuturesRewritten) // Grade 4 Skybuilders' Starflower
+                .Bait      (fish);
+            fish.Apply     (32891, Patch.FuturesRewritten) // Grade 4 Skybuilders' Cyan Crab
+                .Bait      (fish);
+            fish.Apply     (32892, Patch.FuturesRewritten) // Grade 4 Skybuilders' Fickle Krait
+                .Bait      (fish);
+            fish.Apply     (32893, Patch.FuturesRewritten) // Grade 4 Skybuilders' Proto-hropken
+                .Bait      (fish);
+            fish.Apply     (32894, Patch.FuturesRewritten) // Grade 4 Skybuilders' Ghost Faerie
+                .Bait      (fish);
+            fish.Apply     (32895, Patch.FuturesRewritten) // Grade 4 Skybuilders' Ashfish
+                .Bait      (fish);
+            fish.Apply     (32896, Patch.FuturesRewritten) // Grade 4 Skybuilders' Whitehorse
+                .Bait      (fish);
+            fish.Apply     (32897, Patch.FuturesRewritten) // Grade 4 Skybuilders' Ocean Cloud
+                .Bait      (fish);
+            fish.Apply     (32898, Patch.FuturesRewritten) // Grade 4 Skybuilders' Black Fanfish
+                .Bait      (fish);
+            fish.Apply     (32899, Patch.FuturesRewritten) // Grade 4 Skybuilders' Sunfish
+                .Bait      (fish);
+            fish.Apply     (32900, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Sweatfish
+                .Bait      (fish);
+            fish.Apply     (32901, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Sculptor
+                .Bait      (fish);
+            fish.Apply     (32902, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Little Thalaos
+                .Bait      (fish);
+            fish.Apply     (32903, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Lightning Chaser
+                .Bait      (fish);
+            fish.Apply     (32904, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Marrella
+                .Bait      (fish);
+            fish.Apply     (32905, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Crimson Namitaro
+                .Bait      (fish);
+            fish.Apply     (32906, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Griffin
+                .Bait      (fish);
+            fish.Apply     (32907, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Meganeura
+                .Bait      (fish);
         }
         // @formatter:on
     }

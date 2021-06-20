@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using Dalamud;
 using Dalamud.Game;
 using Dalamud.Plugin;
@@ -182,14 +181,20 @@ namespace GatherBuddy.Managers
             Lumina.Excel.ExcelSheet<Item>[] itemSheets, Lumina.Excel.GeneratedSheets.FishingSpot spot)
         {
             var territory = spot.TerritoryType.Value;
-            if (territory == null)
+            if (territory == null && spot.RowId < 10000) // hack for diadem spots
+                return null;
+
+            var map = territory != null
+                ? territories.FindOrAddTerritory(territory)
+                : territories.Territories.Territories.Values.FirstOrDefault(t => t.Name == "The Diadem");
+            if (map == null)
                 return null;
 
             var newSpot = new FishingSpot
             {
                 Id        = spot.RowId,
                 Radius    = spot.Radius,
-                Territory = territories.FindOrAddTerritory(territory),
+                Territory = map,
                 XCoord    = spot.X,
                 YCoord    = spot.Z,
                 PlaceName = FFName.FromPlaceName(pi, spot.PlaceName.Row),
