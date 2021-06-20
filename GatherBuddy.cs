@@ -58,7 +58,7 @@ namespace GatherBuddy
                 ShowInHelp  = true,
             });
 
-            _pluginInterface!.CommandManager.AddHandler("/gatherbot", new CommandInfo(OnGatherBot)
+            _pluginInterface!.CommandManager.AddHandler("/gatherbtn", new CommandInfo(OnGatherBtn)
             {
                 HelpMessage =
                     "Mark the nearest botanist node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
@@ -116,7 +116,7 @@ namespace GatherBuddy
             Gatherer!.Dispose();
             _pluginInterface.CommandManager.RemoveHandler("/gatherdebug");
             _pluginInterface.CommandManager.RemoveHandler("/gather");
-            _pluginInterface.CommandManager.RemoveHandler("/gatherbot");
+            _pluginInterface.CommandManager.RemoveHandler("/gatherbtn");
             _pluginInterface.CommandManager.RemoveHandler("/gathermin");
             _pluginInterface.CommandManager.RemoveHandler("/gatherfish");
             _pluginInterface.CommandManager.RemoveHandler("/gathergroup");
@@ -132,7 +132,7 @@ namespace GatherBuddy
                 Gatherer!.OnGatherAction(arguments);
         }
 
-        private void OnGatherBot(string command, string arguments)
+        private void OnGatherBtn(string command, string arguments)
         {
             if (arguments.Length == 0)
                 _pluginInterface!.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gatherbot.");
