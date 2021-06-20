@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using Dalamud.Plugin;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -18,10 +19,9 @@ namespace GatherBuddy.Classes
         public ushort        EarliestCatchChum { get; set; } = ushort.MaxValue;
         public ushort        LatestCatchChum   { get; set; }
         public bool          WithoutSnagging   { get; set; }
-        public BiteType      BiteType          { get; set; }
 
         public bool Update(Bait bait, ushort time, bool snagging, bool chum, long biteTime)
-            => Update(bait, time, snagging, chum, BiteTypeExtension.FromBiteTime(biteTime));
+            => Update(bait, time, snagging, chum);
 
         public void Delete()
         {
@@ -31,7 +31,6 @@ namespace GatherBuddy.Classes
             LatestCatch       = 0;
             LatestCatchChum   = 0;
             WithoutSnagging   = false;
-            BiteType          = BiteType.Unknown;
         }
 
         public bool Merge(FishRecord rhs)
@@ -39,20 +38,6 @@ namespace GatherBuddy.Classes
             var ret = false;
             if (rhs.SuccessfulBaits.Count == 0)
                 return ret;
-
-            if (rhs.BiteType == BiteType.Unknown)
-                return ret;
-
-            if (BiteType == BiteType.Unknown)
-            {
-                BiteType = rhs.BiteType;
-                ret      = true;
-            }
-            else if (BiteType != rhs.BiteType)
-            {
-                PluginLog.Warning("Different BiteTypes in records.");
-                return ret;
-            }
 
             if (rhs.EarliestCatch < EarliestCatch)
             {
@@ -91,20 +76,9 @@ namespace GatherBuddy.Classes
             return ret;
         }
 
-        public bool Update(Bait bait, ushort time, bool snagging, bool chum, BiteType bite)
+        public bool Update(Bait bait, ushort time, bool snagging, bool chum)
         {
             var ret = false;
-            if (BiteType == BiteType.Unknown)
-            {
-                BiteType = bite;
-                ret      = bite != BiteType.Unknown;
-            }
-
-            if (bite != BiteType)
-            {
-                PluginLog.Error($"Invalid bite type for record, previously {BiteType} and now {bite}.");
-                return false;
-            }
 
             if (bait.Id != 0)
                 ret |= SuccessfulBaits.Add(bait.Id);
@@ -155,8 +129,6 @@ namespace GatherBuddy.Classes
             var sb = new StringBuilder(128);
             sb.Append(fishId.ToString());
             sb.Append(" : { ");
-            sb.Append(BiteType.ToString());
-            sb.Append(" ");
             sb.Append(EarliestCatch.ToString());
             sb.Append(" ");
             sb.Append(LatestCatch.ToString());
@@ -175,34 +147,39 @@ namespace GatherBuddy.Classes
             return sb.ToString();
         }
 
+        private static readonly Regex V3MigrationRegex = new("(Unknown|Weak|Strong|Legendary) ", RegexOptions.Compiled);
+        private static string MigrateToV3(string line)
+            => V3MigrationRegex.Replace(line, "");
+
         public static (uint, FishRecord)? FromLine(string line)
         {
+
             (uint, FishRecord)? Error()
             {
                 PluginLog.Error($"Could not create fishing record from \"{line}\".");
                 return null;
             }
 
+            line = MigrateToV3(line);
             var split  = line.Split(' ');
             var length = split.Length;
 
             const int fishIdOffset         = 0;
             const int colonOffset          = 1;
             const int openBraceOffset      = 2;
-            const int biteOffset           = 3;
-            const int earlyCatchOffset     = 4;
-            const int lateCatchOffset      = 5;
-            var       earlyCatchChumOffset = 6;
-            var       lateCatchChumOffset  = 7;
-            var       snaggingOffset       = 8;
-            var       openBracketOffset    = 9;
-            var       firstBaitOffset      = 10;
+            var       earlyCatchOffset     = 3;
+            var       lateCatchOffset      = 4;
+            var       earlyCatchChumOffset = 5;
+            var       lateCatchChumOffset  = 6;
+            var       snaggingOffset       = 7;
+            var       openBracketOffset    = 8;
+            var       firstBaitOffset      = 9;
             var       closeBracketOffset   = length - 1;
 
-            if (length < 9)
+            if (length < 8)
                 return Error();
 
-            if (length < 10 || split[openBracketOffset] != "[")
+            if (length < 9 || split[openBracketOffset] != "[")
                 if (split[openBracketOffset - 2] == "[")
                 {
                     earlyCatchChumOffset =  -1;
@@ -219,9 +196,6 @@ namespace GatherBuddy.Classes
                 return Error();
 
             if (!uint.TryParse(split[fishIdOffset], out var fishId))
-                return Error();
-
-            if (!Enum.TryParse<BiteType>(split[biteOffset], out var biteType))
                 return Error();
 
             if (!ushort.TryParse(split[earlyCatchOffset], out var earliestCatch))
@@ -248,7 +222,6 @@ namespace GatherBuddy.Classes
 
             FishRecord ret = new()
             {
-                BiteType          = biteType,
                 EarliestCatch     = earliestCatch,
                 EarliestCatchChum = earliestCatchChum,
                 LatestCatch       = latestCatch,

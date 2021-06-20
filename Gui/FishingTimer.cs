@@ -5,7 +5,6 @@ using System.Numerics;
 using Dalamud;
 using Dalamud.Game.ClientState;
 using Dalamud.Plugin;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -14,7 +13,6 @@ using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
 using ImGuiNET;
 using ImGuiScene;
-using Newtonsoft.Json;
 using DateTime = System.DateTime;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
 
@@ -45,9 +43,8 @@ namespace GatherBuddy.Gui
         private          bool         _chum;
         private          bool         _intuition;
         private          bool         _fishEyes;
-        private readonly Stopwatch    _start            = new();
-        private readonly Stopwatch    _bite             = new();
-        private          long         _biteMilliseconds = 0;
+        private readonly Stopwatch    _start = new();
+        private          bool         _catchHandled = true;
         private          FishingSpot? _currentSpot;
         private          Bait         _currentBait = Bait.Unknown;
         private          Fish?        _lastFish;
@@ -61,6 +58,7 @@ namespace GatherBuddy.Gui
         private readonly struct FishCache
         {
             private readonly Fish        _fish;
+            private readonly string      _textline;
             private readonly uint        _color;
             private readonly TextureWrap _icon;
             private readonly float       _sizeMin;
@@ -68,19 +66,18 @@ namespace GatherBuddy.Gui
             public readonly  bool        Valid;
             public readonly  bool        Uncaught;
             public readonly  bool        Unavailable;
-            public readonly  uint        SortOrder;
+            public readonly  ulong       SortOrder;
 
             public FishCache(FishingTimer timer, Fish fish)
             {
                 _fish = fish;
-                var bite = fish.Record.BiteType != BiteType.Unknown ? fish.Record.BiteType : fish.CatchData?.BiteType ?? BiteType.Unknown;
-                _color = Colors.FishTimer.FromBiteType(bite);
+                var bite = fish.CatchData?.BiteType ?? BiteType.Unknown;
 
                 var catchMin = timer._chum ? fish.Record.EarliestCatchChum : fish.Record.EarliestCatch;
                 var catchMax = timer._chum ? fish.Record.LatestCatchChum : fish.Record.LatestCatch;
                 _sizeMin  = Math.Max(catchMin / MaxTimerSeconds, 0.0f);
                 _sizeMax  = Math.Min(catchMax / MaxTimerSeconds, 1.0f);
-                SortOrder = ((uint) catchMin << 16) | catchMax;
+                SortOrder = ((ulong) catchMin << 16) | catchMax;
 
                 _icon = timer._icons[_fish.ItemData.Icon];
 
@@ -100,18 +97,20 @@ namespace GatherBuddy.Gui
                 if (!timer.RecordsValid(fish.Record))
                     Uncaught = true;
 
+                _color = Colors.FishTimer.FromBiteType(bite, Uncaught);
+
+                _textline = _fish.Name[GatherBuddy.Language];
                 if (Unavailable)
                 {
                     _color    = Colors.FishTimer.Unavailable;
-                    SortOrder = uint.MaxValue;
+                    SortOrder = ulong.MaxValue;
                 }
                 else if (Uncaught)
                 {
-                    _color    = Colors.FishTimer.Invalid;
-                    SortOrder = uint.MaxValue - 1;
+                    SortOrder |= 1ul << 33;
                 }
 
-                Valid = !Unavailable && !Uncaught && _sizeMin > 0.001f && _sizeMax < 0.999f && _sizeMin <= _sizeMax;
+                Valid = !Unavailable && _sizeMin > 0.001f && _sizeMax < 0.999f && _sizeMin <= _sizeMax;
             }
 
             public void Draw(FishingTimer timer, ImDrawListPtr ptr)
@@ -140,7 +139,7 @@ namespace GatherBuddy.Gui
                     .PushColor(ImGuiCol.ButtonActive,  _color)
                     .PushStyle(ImGuiStyleVar.ButtonTextAlign, timer._buttonTextAlign))
                 {
-                    ImGui.Button(_fish.Name![GatherBuddy.Language], new Vector2(timer._rectSize.X - timer._iconSize.X, height));
+                    ImGui.Button(_textline, new Vector2(timer._rectSize.X - timer._iconSize.X, height));
                 }
 
                 if (Valid)
@@ -206,6 +205,7 @@ namespace GatherBuddy.Gui
                 , _snagging ? "with Snagging" : "without Snagging"
                 , _chum ? "with Chum" : "without Chum");
             _start.Restart();
+            _catchHandled = false;
         }
 
         private void OnBite()
@@ -214,7 +214,6 @@ namespace GatherBuddy.Gui
             PluginLog.Verbose("Fish bit at {FishingSpot} after {Milliseconds} using {Bait} {Snagging} and {Chum}.",
                 _currentSpot?.PlaceName ?? "Undiscovered Fishing Hole", _start.ElapsedMilliseconds
                 , _currentBait.Name, _snagging ? "with Snagging" : "without Snagging", _chum ? "with Chum" : "without Chum");
-            _bite.Restart();
         }
 
         private void OnIdentification(FishingSpot spot)
@@ -226,22 +225,18 @@ namespace GatherBuddy.Gui
         private void OnCatch(Fish fish)
         {
             _lastFish = fish;
-            if (_bite.IsRunning)
-            {
-                _bite.Stop();
-                _biteMilliseconds = _bite.ElapsedMilliseconds;
-            }
 
-            if (_lastFish.Record.Update(_currentBait, (ushort) _start.ElapsedMilliseconds, _snagging, _chum, _biteMilliseconds))
+            if (_lastFish.Record.Update(_currentBait, (ushort) _start.ElapsedMilliseconds, _snagging, _chum))
             {
                 _fish.SaveFishRecords(_pi);
                 _currentFishList = SortedFish();
             }
 
-            PluginLog.Verbose("Caught {Fish} at {FishingSpot} after {Milliseconds} and {Milliseconds2} using {Bait} {Snagging} and {Chum}.",
+            PluginLog.Verbose("Caught {Fish} at {FishingSpot} after {Milliseconds} using {Bait} {Snagging} and {Chum}.",
                 _lastFish.Name, _currentSpot?.PlaceName ?? "Unknown", _start.ElapsedMilliseconds,
-                _bite.ElapsedMilliseconds, _currentBait.Name, _snagging ? "with Snagging" : "without Snagging",
+                _currentBait.Name, _snagging ? "with Snagging" : "without Snagging",
                 _chum ? "with Chum" : "without Chum");
+            _catchHandled = true;
         }
 
         private void OnMooch()
@@ -299,22 +294,6 @@ namespace GatherBuddy.Gui
                 enumerable = enumerable.Where(f => !f.Unavailable);
 
             return enumerable.OrderBy(f => f.SortOrder).ToArray();
-        }
-
-        private unsafe bool IsCollectibleYesNo()
-        {
-            for (var i = 1; i < 10; ++i)
-            {
-                var addonPtr = _pi.Framework.Gui.GetUiObjectByName("SelectYesno", i);
-                if (addonPtr == IntPtr.Zero)
-                    return false;
-
-                var ptr = (AddonSelectYesno*) addonPtr.ToPointer();
-                if (ptr->AtkUnitBase.UldManager.NodeListCount > 14 && ptr->AtkUnitBase.UldManager.NodeList[14]->IsVisible)
-                    return true;
-            }
-
-            return false;
         }
 
         public void Draw()
@@ -379,7 +358,7 @@ namespace GatherBuddy.Gui
                 ImGui.Text(_currentBait.Name[GatherBuddy.Language]);
                 ImGui.SetCursorPosX(fivePx);
                 ImGui.Text(_currentSpot?.PlaceName?[GatherBuddy.Language] ?? "Unknown");
-                var displayTimer = (fishing || _bite.IsRunning) && _start.ElapsedMilliseconds > 0;
+                var displayTimer = (fishing || !_catchHandled) && _start.ElapsedMilliseconds > 0;
 
                 if (displayTimer)
                 {
@@ -393,12 +372,6 @@ namespace GatherBuddy.Gui
 
                 if (displayTimer)
                 {
-                    if (IsCollectibleYesNo())
-                    {
-                        _bite.Stop();
-                        _biteMilliseconds = _bite.ElapsedMilliseconds;
-                    }
-
                     drawList.AddLine(new Vector2(diffPos, _rectMin.Y + textLines),
                         new Vector2(diffPos,              _rectMin.Y + listHeight - 2 * globalScale),
                         Colors.FishTimer.Line, 3 * globalScale);

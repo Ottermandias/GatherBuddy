@@ -8,24 +8,27 @@ namespace GatherBuddy.Gui
     {
         public struct FishTimer
         {
-            public const uint Invalid        = 0x20FFFFFF;
-            public const uint Unavailable    = 0x200000D0;
-            public const uint Weak           = 0x8030D030;
-            public const uint Strong         = 0x8030D0D0;
-            public const uint Legendary      = 0x803030D0;
-            public const uint RectBackground = 0x80000000;
-            public const uint Background     = 0xFF000010;
-            public const uint Separator      = 0xFF0000D0;
-            public const uint Line           = 0xFF000000;
-            public const uint EditBackground = 0x20FFFFFF;
+            public const uint Invalid           = 0x20FFFFFF;
+            public const uint Unavailable       = 0x300000D0;
+            public const uint Weak              = 0x8030D030;
+            public const uint WeakUncaught      = 0x5080FF80;
+            public const uint Strong            = 0x8030D0D0;
+            public const uint StrongUncaught    = 0x5080FFFF;
+            public const uint Legendary         = 0x803030D0;
+            public const uint LegendaryUncaught = 0x6080A0D0;
+            public const uint RectBackground    = 0x80000000;
+            public const uint Background        = 0xFF000010;
+            public const uint Separator         = 0xFF0000D0;
+            public const uint Line              = 0xFF000000;
+            public const uint EditBackground    = 0x20FFFFFF;
 
-            public static uint FromBiteType(BiteType bite)
+            public static uint FromBiteType(BiteType bite, bool uncaught)
             {
                 return bite switch
                 {
-                    BiteType.Weak      => Weak,
-                    BiteType.Strong    => Strong,
-                    BiteType.Legendary => Legendary,
+                    BiteType.Weak      => uncaught ? WeakUncaught : Weak,
+                    BiteType.Strong    => uncaught ? StrongUncaught : Strong,
+                    BiteType.Legendary => uncaught ? LegendaryUncaught : Legendary,
                     BiteType.Unknown   => Invalid,
                     _                  => Invalid,
                 };

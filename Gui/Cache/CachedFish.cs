@@ -167,7 +167,7 @@ namespace GatherBuddy.Gui.Cache
                 var f  = fish.CatchData.Mooches[idx];
                 var hook = f.CatchData?.HookSet ?? HookSet.Unknown;
                 ret[idx].HookSet = FromHookSet(cache, hook);
-                ret[idx].Bite    = FromBiteType(f.CatchData?.BiteType ?? f.Record.BiteType);
+                ret[idx].Bite    = FromBiteType(f.CatchData?.BiteType ?? BiteType.Unknown);
                 ret[idx + 1] = new BaitOrder()
                 {
                     Icon = Service<Icons>.Get()[f.ItemData.Icon],
@@ -177,7 +177,7 @@ namespace GatherBuddy.Gui.Cache
             }
 
             ret[ret.Length - 1].HookSet = FromHookSet(cache, fish.CatchData?.HookSet ?? HookSet.Unknown);
-            ret[ret.Length - 1].Bite    = FromBiteType(fish.CatchData?.BiteType ?? fish.Record.BiteType);
+            ret[ret.Length - 1].Bite    = FromBiteType(fish.CatchData?.BiteType ?? BiteType.Unknown);
             return ret;
         }
 

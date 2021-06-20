@@ -14,6 +14,8 @@ namespace GatherBuddy.Data
             fish.Apply     (33220, Patch.DeathUntoDawn) // Cloud Kelp
                 .Bait      (fish);
             fish.Apply     (33221, Patch.DeathUntoDawn) // Scarlet Frog
+                .Tug       (BiteType.Weak)
+                .HookType  (HookSet.Precise)
                 .Bait      (fish);
             fish.Apply     (33222, Patch.DeathUntoDawn) // White Clam
                 .Bait      (fish);
