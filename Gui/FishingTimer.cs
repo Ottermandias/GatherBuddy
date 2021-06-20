@@ -32,6 +32,7 @@ namespace GatherBuddy.Gui
         private readonly CurrentBait              _bait;
         private readonly FishingParser            _parser;
         private readonly Cache.Icons              _icons;
+        private readonly EventFramework           _eventFramework;
 
         private bool Visible
             => _config.ShowFishTimer;
@@ -43,7 +44,7 @@ namespace GatherBuddy.Gui
         private          bool         _chum;
         private          bool         _intuition;
         private          bool         _fishEyes;
-        private readonly Stopwatch    _start = new();
+        private readonly Stopwatch    _start        = new();
         private          bool         _catchHandled = true;
         private          FishingSpot? _currentSpot;
         private          Bait         _currentBait = Bait.Unknown;
@@ -250,14 +251,15 @@ namespace GatherBuddy.Gui
 
         public FishingTimer(DalamudPluginInterface pi, GatherBuddyConfiguration config, FishManager fish, WeatherManager weather)
         {
-            _pi      = pi;
-            _config  = config;
-            _lang    = pi.ClientState.ClientLanguage;
-            _fish    = fish;
-            _weather = weather;
-            _bait    = new CurrentBait(pi.TargetModuleScanner);
-            _parser  = new FishingParser(_pi, _fish);
-            _icons   = Service<Cache.Icons>.Get();
+            _pi             = pi;
+            _config         = config;
+            _lang           = pi.ClientState.ClientLanguage;
+            _fish           = fish;
+            _weather        = weather;
+            _bait           = new CurrentBait(pi.TargetModuleScanner);
+            _parser         = new FishingParser(_pi, _fish);
+            _icons          = Service<Cache.Icons>.Get();
+            _eventFramework = new EventFramework(_pi.TargetModuleScanner);
 
             _pi.UiBuilder.OnBuildUi += Draw;
             _parser.BeganFishing    += OnBeganFishing;
@@ -296,6 +298,21 @@ namespace GatherBuddy.Gui
             return enumerable.OrderBy(f => f.SortOrder).ToArray();
         }
 
+        private void DrawEditModeTimer(ImDrawListPtr drawList, float rounding)
+        {
+            ImGui.Text("  Bait");
+            ImGui.Text("  Place and Time");
+            drawList.AddRect(_rectMin, _rectMin + _rectSize - _itemSpacing, Colors.FishTimer.Line, rounding);
+            drawList.AddRectFilled(_rectMin, _rectMin + _rectSize, Colors.FishTimer.EditBackground, rounding);
+            ImGui.SetCursorPosY((_rectSize.Y - ImGui.GetTextLineHeightWithSpacing()) / 2);
+            DrawCenteredText(_rectSize.X, "FISH");
+            ImGui.SetCursorPosY((_rectSize.Y + ImGui.GetTextLineHeightWithSpacing()) / 2);
+            DrawCenteredText(_rectSize.X, "TIMER");
+            DrawCenteredText(_rectSize.X, "\nDisable \"Edit Fish Timer\"");
+            DrawCenteredText(_rectSize.X, "in /GatherBuddy -> Settings");
+            DrawCenteredText(_rectSize.X, "to hide this when not fishing.");
+        }
+
         public void Draw()
         {
             const ImGuiWindowFlags editFlags =
@@ -312,6 +329,13 @@ namespace GatherBuddy.Gui
             var fishing = _start.IsRunning && _pi.ClientState.Condition[ConditionFlag.Fishing];
             var rodOut  = _pi.ClientState.LocalPlayer.ClassJob.Id == 18 && _pi.ClientState.Condition[ConditionFlag.Gathering];
 
+
+            if (_eventFramework.FishingState == FishingState.Bite)
+            {
+                if (_start.IsRunning)
+                    PluginLog.Verbose("Fish bit after {Milliseconds} milliseconds.", _start.ElapsedMilliseconds);
+                _start.Stop();
+            }
             if (!fishing)
                 _start.Stop();
             if (!rodOut)
@@ -374,17 +398,7 @@ namespace GatherBuddy.Gui
             }
             else if (EditMode)
             {
-                ImGui.Text("  Bait");
-                ImGui.Text("  Place and Time");
-                drawList.AddRect(_rectMin, _rectMin + _rectSize - _itemSpacing, Colors.FishTimer.Line, fivePx);
-                drawList.AddRectFilled(_rectMin, _rectMin + _rectSize, Colors.FishTimer.EditBackground, fivePx);
-                ImGui.SetCursorPosY((_rectSize.Y - ImGui.GetTextLineHeightWithSpacing()) / 2);
-                DrawCenteredText(_rectSize.X, "FISH");
-                ImGui.SetCursorPosY((_rectSize.Y + ImGui.GetTextLineHeightWithSpacing()) / 2);
-                DrawCenteredText(_rectSize.X, "TIMER");
-                DrawCenteredText(_rectSize.X, "\nDisable \"Edit Fish Timer\"");
-                DrawCenteredText(_rectSize.X, "in /GatherBuddy -> Settings");
-                DrawCenteredText(_rectSize.X, "to hide this when not fishing.");
+                DrawEditModeTimer(drawList, fivePx);
             }
         }
 
