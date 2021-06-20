@@ -152,7 +152,7 @@ namespace GatherBuddy.Managers
             Fish        = new FishManager(pi, this);
 
             PluginLog.Verbose("{Count} regions collected.",     Territories.Regions.Count);
-            PluginLog.Verbose("{Count} territories collected.", Territories.Territories);
+            PluginLog.Verbose("{Count} territories collected.", Territories.Territories.Count);
         }
 
         public Gatherable? FindItemByName(string itemName)

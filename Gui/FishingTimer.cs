@@ -344,11 +344,8 @@ namespace GatherBuddy.Gui
 
             var drawList = ImGui.GetWindowDrawList();
 
-            if (EditMode || _rectMin.X == 0)
-            {
-                _rectMin  = ImGui.GetWindowPos();
-                _rectSize = new Vector2(ImGui.GetWindowSize().X, maxListHeight);
-            }
+            _rectSize = new Vector2(ImGui.GetWindowSize().X, maxListHeight);
+            _rectMin = ImGui.GetWindowPos();
 
             drawList.AddRectFilled(_rectMin, _rectMin + new Vector2(_rectSize.X, textLines), Colors.FishTimer.RectBackground,
                 4f * globalScale);
@@ -371,11 +368,9 @@ namespace GatherBuddy.Gui
                     fish.Draw(this, drawList);
 
                 if (displayTimer)
-                {
                     drawList.AddLine(new Vector2(diffPos, _rectMin.Y + textLines),
                         new Vector2(diffPos,              _rectMin.Y + listHeight - 2 * globalScale),
                         Colors.FishTimer.Line, 3 * globalScale);
-                }
             }
             else if (EditMode)
             {
