@@ -9,7 +9,8 @@ namespace GatherBuddy.Gui.Cache
 {
     internal struct Alarms
     {
-        public readonly Nodes.Node[]       AllTimedNodes;
+        public readonly Nodes.Node[] AllTimedNodes;
+        public readonly Game.Fish[]  AllTimedFish;
         public readonly string[]     AllTimedNodeNames;
         public readonly string[]     SoundNames;
         public readonly float        LongestNodeNameLength;
@@ -28,10 +29,12 @@ namespace GatherBuddy.Gui.Cache
         {
             Manager       = alarms;
             AllTimedNodes = Manager.AllTimedNodes;
+            AllTimedFish  = Manager.AllTimedFish;
             SoundNames    = Enum.GetNames(typeof(Sounds)).Where(s => s != "Unknown").ToArray();
 
             AllTimedNodeNames = alarms.AllTimedNodes
                 .Select(n => $"{n.Times!.PrintHours(true)}: {n.Items!.PrintItems(", ", lang)}")
+                .Concat(AllTimedFish.Select(f => f.Name[lang]))
                 .ToArray();
             LongestNodeNameLength = AllTimedNodeNames.Max(n => ImGui.CalcTextSize(n).X) / ImGui.GetIO().FontGlobalScale;
 
@@ -45,9 +48,13 @@ namespace GatherBuddy.Gui.Cache
             OffsetSize = ImGui.CalcTextSize("99999").X / ImGui.GetIO().FontGlobalScale;
         }
 
-        public void AddNode()
+        public void AddAlarm()
         {
-            Manager.AddNode(NewName, AllTimedNodes[NewIdx]);
+            if (NewIdx < AllTimedNodes.Length)
+                Manager.AddNode(NewName, AllTimedNodes[NewIdx]);
+            else
+                Manager.AddFish(NewName, AllTimedFish[NewIdx - AllTimedNodes.Length]);
+
             NewName = "";
         }
     }

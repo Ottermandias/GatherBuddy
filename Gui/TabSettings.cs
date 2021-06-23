@@ -64,11 +64,17 @@ namespace GatherBuddy.Gui
         private void DrawFisherSetInput(float width)
             => DrawSetInput(width, "Fisher", _config.FisherSetName, s => _config.FisherSetName = s);
 
-        private void DrawAlarmFormatInput()
-            => DrawFormatInput("Alarm Chat Format",
-                "Keep empty to have no chat output.\nCan replace:\n- {Name} with the alarm name.\n- {Offset} with the alarm offset.\n- {TimesShort} with the corresponding uptimes in ##-##|##-## format.\n- {TimesLong} with the corresponding uptimes in long format.\n- {AllItems} with the corresponding items, separated by comma and in client language.",
-                _config.AlarmFormat, GatherBuddyConfiguration.DefaultAlarmFormat,
-                s => _config.AlarmFormat = s);
+        private void DrawNodeAlarmFormatInput()
+            => DrawFormatInput("Node Alarm Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Name} with the alarm name.\n- {Offset} with the alarm offset.\n- {TimesShort} with the corresponding uptimes in ##-##|##-## format.\n- {TimesLong} with the corresponding uptimes in long format.\n- {AllItems} with the corresponding items, separated by comma and in client language.\n- {DelayString} with the time until the node is up.",
+                _config.NodeAlarmFormat, GatherBuddyConfiguration.DefaultNodeAlarmFormat,
+                s => _config.NodeAlarmFormat = s);
+
+        private void DrawFishAlarmFormatInput()
+            => DrawFormatInput("Fish Alarm Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Name} with the alarm name.\n- {Offset} with the alarm offset.\n- {FishName} with the name of the fish.\n- {FishingSpotName} with the name of the default fishing spot for the fish.\n- {BaitName} with the name of the initial bait to use.\n- {DelayString} with the time until the node is up.",
+                _config.FishAlarmFormat, GatherBuddyConfiguration.DefaultFishAlarmFormat,
+                s => _config.FishAlarmFormat = s);
 
         private void DrawItemIdentifiedFormatInput()
             => DrawFormatInput("Item Identification Chat Format",
@@ -115,7 +121,8 @@ namespace GatherBuddy.Gui
             DrawFishTimerHideBox2();
 
             ImGuiHelpers.ScaledDummy(new Vector2(0, 20));
-            DrawAlarmFormatInput();
+            DrawNodeAlarmFormatInput();
+            DrawFishAlarmFormatInput();
             DrawItemIdentifiedFormatInput();
             DrawFishIdentifiedFormatInput();
             DrawFishingSpotIdentifiedFormatInput();

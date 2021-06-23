@@ -13,7 +13,6 @@ using GatherBuddy.Game;
 using GatherBuddy.Managers;
 using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 using World = GatherBuddy.Managers.World;
@@ -120,7 +119,7 @@ namespace GatherBuddy
             _world          = new World(pi, _configuration);
             _groups         = GroupData.CreateGroups(_language, _world.Nodes);
             Timeline        = new NodeTimeLine(_world.Nodes);
-            Alarms          = new AlarmManager(pi, _world.Nodes, _configuration);
+            Alarms          = new AlarmManager(pi, _world.Nodes, _world.Fish, _world.Weather, _configuration);
             TryCreateTeleporterWatcher(pi, _configuration.UseTeleport);
         }
 
@@ -465,8 +464,24 @@ namespace GatherBuddy
 
         public void OnFishAction(string fishName)
         {
-            var fish = FindFishLogging(fishName);
-            OnFishActionWithFish(fish, fishName);
+            if (Utility.Util.CompareCi(fishName, "alarm"))
+            {
+                var fish = Alarms.LastFishAlarm?.Fish;
+                if (fish == null)
+                {
+                    _chat.PrintError("No active alarm was triggered, yet.");
+                }
+                else
+                {
+                    _chat.Print($"Teleporting to [Alarm {Alarms.LastFishAlarm!.Name}] ({fish.Name[GatherBuddy.Language]}):");
+                    OnFishActionWithFish(fish);
+                }
+            }
+            else
+            {
+                var fish = FindFishLogging(fishName);
+                OnFishActionWithFish(fish, fishName);
+            }
         }
 
         public void OnGatherAction(string itemName, GatheringType? type = null)
@@ -475,14 +490,14 @@ namespace GatherBuddy
             {
                 if (Utility.Util.CompareCi(itemName, "alarm"))
                 {
-                    var node = Alarms.LastAlarm?.Node;
+                    var node = Alarms.LastNodeAlarm?.Node;
                     if (node == null)
                     {
                         _chat.PrintError("No active alarm was triggered, yet.");
                     }
                     else
                     {
-                        _chat.Print($"Teleporting to [Alarm {Alarms.LastAlarm!.Name}] ({node.Times!.PrintHours()}):");
+                        _chat.Print($"Teleporting to [Alarm {Alarms.LastNodeAlarm!.Name}] ({node.Times!.PrintHours()}):");
                         _chat.Print(node.Items!.PrintItems(", ", _language) + '.');
                         OnGatherActionWithNode(node);
                     }

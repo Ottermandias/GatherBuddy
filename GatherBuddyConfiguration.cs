@@ -30,7 +30,10 @@ namespace GatherBuddy
         public const string DefaultIdentifiedItemFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
         public const string DefaultIdentifiedFishFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
         public const string DefaultIdentifiedFishingSpotFormat = "Chose fishing spot {Name} for {FishName}.";
-        public const string DefaultAlarmFormat = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+        public const string DefaultNodeAlarmFormat = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+
+        public const string DefaultFishAlarmFormat =
+            "[GatherBuddy][Alarm {Name}]: The fish {FishName} at {FishingSpotName} {DelayString}. Catch with {BaitName}.";
 
         public string BotanistSetName { get; set; }
         public string MinerSetName    { get; set; }
@@ -39,7 +42,15 @@ namespace GatherBuddy
         public string IdentifiedItemFormat        { get; set; }
         public string IdentifiedFishFormat        { get; set; }
         public string IdentifiedFishingSpotFormat { get; set; }
-        public string AlarmFormat                 { get; set; }
+        public string NodeAlarmFormat             { get; set; }
+        public string FishAlarmFormat             { get; set; }
+
+        // backwards compatibility
+        public string AlarmFormat
+        {
+            set => NodeAlarmFormat = value;
+        }
+
 
         public int       Version   { get; set; }
         public ShowNodes ShowNodes { get; set; }
@@ -97,7 +108,8 @@ namespace GatherBuddy
             IdentifiedItemFormat        = DefaultIdentifiedItemFormat;
             IdentifiedFishFormat        = DefaultIdentifiedFishFormat;
             IdentifiedFishingSpotFormat = DefaultIdentifiedFishingSpotFormat;
-            AlarmFormat                 = DefaultAlarmFormat;
+            NodeAlarmFormat             = DefaultNodeAlarmFormat;
+            FishAlarmFormat             = DefaultFishAlarmFormat;
         }
     }
 }

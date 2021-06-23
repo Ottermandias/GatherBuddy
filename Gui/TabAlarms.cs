@@ -1,4 +1,6 @@
-﻿using System.Numerics;
+﻿using System.ComponentModel;
+using System.Numerics;
+using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using ImGuiNET;
 
@@ -14,7 +16,7 @@ namespace GatherBuddy.Gui
             {
                 var alarm = _plugin.Alarms.Alarms[idx];
                 if (ImGui.Button($"  −  ##{idx}"))
-                    _plugin.Alarms.RemoveNode(idx--);
+                    _plugin.Alarms.RemoveAlarm(idx--);
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Delete this alarm.");
 
@@ -47,7 +49,8 @@ namespace GatherBuddy.Gui
             using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Pre");
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.");
+                ImGui.SetTooltip(
+                    "Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.\nFor fish, the offset is in real minutes instead of Eorzea minutes.");
 
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
@@ -125,9 +128,9 @@ namespace GatherBuddy.Gui
         private void DrawHours()
         {
             using var group = ImGuiRaii.NewGroup();
-            ImGui.Text("Alarm Times");
+            ImGui.Text("Alarm Times / Fish");
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("The uptimes for the node monitored in this alarm. Hover for the items.");
+                ImGui.SetTooltip("The uptimes for the node monitored in this alarm, or the respective fish");
 
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
@@ -135,16 +138,25 @@ namespace GatherBuddy.Gui
             foreach (var alarm in _alarmCache.Manager.Alarms)
             {
                 ImGui.AlignTextToFramePadding();
-                ImGui.Text(alarm.Node!.Times!.PrintHours(true, " | "));
-                if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip(alarm.Node!.Items!.PrintItems("\n", _lang));
+                switch (alarm.Type)
+                {
+                    case AlarmType.Node:
+                        ImGui.Text(alarm.Node!.Times!.PrintHours(true, " | "));
+                        if (ImGui.IsItemHovered())
+                            ImGui.SetTooltip(alarm.Node!.Items!.PrintItems("\n", _lang));
+                        break;
+                    case AlarmType.Fish:
+                        ImGui.Text(alarm.Fish!.Name[GatherBuddy.Language]);
+                        break;
+                    default: throw new InvalidEnumArgumentException();
+                }
             }
         }
 
         private void DrawNewAlarm()
         {
             if (ImGui.Button("  + "))
-                _alarmCache.AddNode();
+                _alarmCache.AddAlarm();
 
             ImGui.SameLine();
             ImGui.SetNextItemWidth(_alarmCache.NameSize * _globalScale);
@@ -153,7 +165,8 @@ namespace GatherBuddy.Gui
             ImGui.SetNextItemWidth(-1);
 
             var comboSize = _alarmCache.LongestNodeNameLength * _globalScale;
-            DrawComboWithFilter("##Node", _alarmCache.AllTimedNodeNames, ref _alarmCache.NewIdx, ref _alarmCache.NodeFilter, ref _alarmCache.FocusFilter, comboSize, 6);
+            DrawComboWithFilter("##Node",    _alarmCache.AllTimedNodeNames, ref _alarmCache.NewIdx, ref _alarmCache.NodeFilter,
+                ref _alarmCache.FocusFilter, comboSize,                     6);
         }
 
         private void DrawAlarmsTab()
