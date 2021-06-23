@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using GatherBuddy.Nodes;
 using ImGuiNET;
@@ -51,13 +52,25 @@ namespace GatherBuddy.Gui
             ImGui.Text(tooltip);
         }
 
+        private void DrawNodeFilter()
+        {
+            ImGui.SetNextItemWidth(-1);
+            if (ImGui.InputTextWithHint("##NodeFilter", "Filter Nodes...", ref _nodeTabCache.NodeFilter, 64))
+            {
+                _nodeTabCache.NodeFilterLower = _nodeTabCache.NodeFilter.ToLowerInvariant();
+            }
+        }
+
         private void DrawTimedNodes(float widgetHeight)
         {
             using var imgui = new ImGuiRaii();
             if (!imgui.Begin(() => ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true), ImGui.EndChild))
                 return;
 
-            foreach (var (n, i) in _nodeTabCache.ActiveNodeItems)
+            var enumerator = (_nodeTabCache.NodeFilterLower.Length == 0)
+                ? _nodeTabCache.ActiveNodeItems
+                : _nodeTabCache.ActiveNodeItems.Where(p => p.Item3.Contains(_nodeTabCache.NodeFilterLower));
+            foreach (var (n, i, _) in enumerator)
             {
                 var colors = Colors.NodeTab.GetColor(n, _nodeTabCache.HourOfDay);
                 ImGui.PushStyleColor(ImGuiCol.Text, colors);
@@ -114,6 +127,7 @@ namespace GatherBuddy.Gui
         private void DrawNodesTab()
         {
             var boxHeight = 2 * _textHeight + _itemSpacing.X + _framePadding.X * 4;
+            DrawNodeFilter();
             DrawTimedNodes(boxHeight + _framePadding.Y);
             DrawTimedSelectors(boxHeight);
         }
