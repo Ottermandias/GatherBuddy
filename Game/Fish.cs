@@ -85,11 +85,9 @@ namespace GatherBuddy.Game
 
         public RealUptime NextUptime(WeatherManager weather, Territory? territory)
         {
-            // Always or predator-based
+            // Always up
             if (FishRestrictions == FishRestrictions.None)
             {
-                if (CatchData != null && CatchData.Predator.Length > 0)
-                    return CatchData.Predator.Select(f => f.Item1.NextUptime(weather, territory)).ArgMin(t => t.Time);
                 return RealUptime.Always;
             }
 

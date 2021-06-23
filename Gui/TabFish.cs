@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Classes;
+using GatherBuddy.Game;
 using GatherBuddy.Utility;
 using ImGuiNET;
 
@@ -38,11 +39,20 @@ namespace GatherBuddy.Gui
             if (ImGui.IsItemHovered())
                 SetTooltip(fish);
 
+            static void DependencyWarning(Cache.Fish fish)
+                => ImGui.TextColored(Colors.FishTab.DependencyWarning, "!!! May be dependent on intuition or mooch availability !!!");
+
             var uptime = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager);
             ImGui.TableNextColumn();
             if (uptime.Equals(RealUptime.Always))
             {
-                ImGui.TextColored(Colors.FishTab.UptimeRunning, "Always Up");
+                ImGui.TextColored(fish.HasUptimeDependency ? Colors.FishTab.UptimeRunningDependency : Colors.FishTab.UptimeRunning,
+                    "Always Up");
+                if (fish.HasUptimeDependency && ImGui.IsItemHovered())
+                {
+                    using var tt = ImGuiRaii.NewTooltip();
+                    DependencyWarning(fish);
+                }
             }
             else if (uptime.Equals(RealUptime.Unknown))
             {
@@ -54,26 +64,28 @@ namespace GatherBuddy.Gui
                 var duration = (long) (DateTime.UtcNow - uptime.EndTime).TotalSeconds;
                 if (seconds > 0)
                 {
-                    using var color = new ImGuiRaii().PushColor(ImGuiCol.Text, Colors.FishTab.UptimeUpcoming);
+                    using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
+                        fish.HasUptimeDependency ? Colors.FishTab.UptimeUpcomingDependency : Colors.FishTab.UptimeUpcoming);
                     PrintSeconds(seconds);
                 }
                 else if (duration < 0)
                 {
-                    using var color = new ImGuiRaii().PushColor(ImGuiCol.Text, Colors.FishTab.UptimeRunning);
+                    using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
+                        fish.HasUptimeDependency ? Colors.FishTab.UptimeRunningDependency : Colors.FishTab.UptimeRunning);
                     PrintSeconds(-duration);
                 }
 
                 if (ImGui.IsItemHovered())
                 {
                     using var tt = ImGuiRaii.NewTooltip();
-                    ImGui.Text($"{uptime.Time.ToLocalTime()} Next Uptime");
-                    ImGui.Text($"{uptime.EndTime.ToLocalTime()} End Time");
-                    ImGui.Text($"{uptime.Duration} Duration");
+                    if (fish.HasUptimeDependency)
+                        DependencyWarning(fish);
+                    ImGui.Text($"{uptime.Time.ToLocalTime()} Next Uptime\n{uptime.EndTime.ToLocalTime()} End Time\n{uptime.Duration} Duration");
                 }
             }
 
             ImGui.TableNextColumn();
-            ImGui.Dummy(new Vector2(_fishCache.LongestPercentage -ImGui.CalcTextSize(fish.UptimeString).X, 0));
+            ImGui.Dummy(new Vector2(_fishCache.LongestPercentage - ImGui.CalcTextSize(fish.UptimeString).X, 0));
             ImGui.SameLine();
             ImGui.Text(fish.UptimeString);
 
@@ -195,7 +207,7 @@ namespace GatherBuddy.Gui
             using var child = new ImGuiRaii();
             if (!child.Begin(() => ImGui.BeginChild("##Fish", new Vector2(-1, height), true), ImGui.EndChild))
                 return;
-            
+
             var actualFish = _fishCache.GetFishToSettings();
 
             var lineHeight = (int) Math.Ceiling(ImGui.GetWindowHeight() / _textHeight) + 1;
@@ -247,7 +259,6 @@ namespace GatherBuddy.Gui
             }
 
             if (actualFish.Length < lineHeight + 5 && BeginTable())
-            {
                 try
                 {
                     foreach (var f in actualFish)
@@ -257,11 +268,8 @@ namespace GatherBuddy.Gui
                 {
                     ImGui.EndTable();
                 }
-            }
             else
-            {
                 ClippedDraw(actualFish, DrawFish, BeginTable, ImGui.EndTable);
-            }
 
             child.End();
             if (!child.Begin(() => ImGui.BeginChild("##FishSelection", -Vector2.One, true), ImGui.EndChild))

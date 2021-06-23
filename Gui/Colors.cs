@@ -67,10 +67,13 @@ namespace GatherBuddy.Gui
             public const uint PatchText = 0xFF000000;
             public const uint Folklore  = 0xFF802080;
 
-            public static readonly Vector4 WeatherVec4    = ImGui.ColorConvertU32ToFloat4(Weather);
-            public static readonly Vector4 UptimeRunning  = new(0f, 0.75f, 0f, 1f);
-            public static readonly Vector4 UptimeUnknown  = new(0.75f, 0.75f, 0f, 1f);
-            public static readonly Vector4 UptimeUpcoming = UptimeUnknown;
+            public static readonly Vector4 WeatherVec4              = ImGui.ColorConvertU32ToFloat4(Weather);
+            public static readonly Vector4 UptimeRunning            = new(0f, 0.75f, 0f, 1f);
+            public static readonly Vector4 UptimeRunningDependency  = new(0f, 0.4f, 0.8f, 1f);
+            public static readonly Vector4 UptimeUnknown            = new(0.75f, 0.75f, 0f, 1f);
+            public static readonly Vector4 UptimeUpcoming           = UptimeUnknown;
+            public static readonly Vector4 UptimeUpcomingDependency = new(0.6f, 0f, 0.8f, 1f);
+            public static readonly Vector4 DependencyWarning        = new(1f, 0.2f, 0.2f, 1f);
         }
 
         public struct NodeTab
