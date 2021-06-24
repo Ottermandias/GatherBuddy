@@ -40,7 +40,7 @@ namespace GatherBuddy.Managers
             // English
             private Regexes(bool _)
             {
-                Cast           = new Regex(@"You cast your line (?:on|in|at) (?<FishingSpot>.+)\.");
+                Cast           = new Regex(@"(?:You cast your|.*? casts (?:her|his)) line (?:on|in|at) (?<FishingSpot>.+)\.");
                 AreaDiscovered = new Regex(@".*?(on|at) (?<FishingSpot>.+) is added to your fishing log\.");
                 Undiscovered   = "undiscovered fishing hole";
                 Bite           = "Something bites!";
