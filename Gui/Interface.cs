@@ -117,7 +117,7 @@ namespace GatherBuddy.Gui
                 DrawHeaderRow();
                 DrawTimeRow(hour, minute);
 
-                if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip))
+                if (!ImGui.BeginTabBar("##Tabs", ImGuiTabBarFlags.NoTooltip | ImGuiTabBarFlags.Reorderable))
                     return;
 
                 var nodeTab = ImGui.BeginTabItem("Timed Nodes");
