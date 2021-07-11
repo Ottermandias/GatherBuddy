@@ -100,6 +100,15 @@ namespace GatherBuddy.Managers
         public event Action<Fish>?         CaughtFish;
         public event Action<FishingSpot>?  IdentifiedSpot;
 
+        private string FishingSpotNameHacks(string lowerName)
+        {
+            return lowerName switch
+            {
+                "flounders' floor" => "the flounders' floor",
+                _                  => lowerName,
+            };
+        }
+
         private void HandleCastMatch(Match match)
         {
             var                             tmp = match.Groups["FishingSpot"];
@@ -107,7 +116,7 @@ namespace GatherBuddy.Managers
             Dictionary<string, FishingSpot> dict;
             if (tmp.Success)
             {
-                fishingSpotName = tmp.Value.ToLowerInvariant();
+                fishingSpotName = FishingSpotNameHacks(tmp.Value.ToLowerInvariant());
                 dict            = _fish.FishingSpotNames;
             }
             else
