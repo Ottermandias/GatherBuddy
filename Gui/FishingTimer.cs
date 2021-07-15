@@ -247,6 +247,7 @@ namespace GatherBuddy.Gui
             PluginLog.Verbose("Mooching with {Fish} at {FishingSpot} {Snagging} and {Chum}.", _lastFish!.Name,
                 _currentSpot!.PlaceName, _snagging ? "with Snagging" : "without Snagging", _chum ? "with Chum" : "without Chum");
             _start.Restart();
+            _catchHandled = false;
         }
 
         public FishingTimer(DalamudPluginInterface pi, GatherBuddyConfiguration config, FishManager fish, WeatherManager weather)
