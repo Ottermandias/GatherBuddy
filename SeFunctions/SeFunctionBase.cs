@@ -58,11 +58,11 @@ namespace GatherBuddy.SeFunctions
             }
         }
 
-        public Hook<T>? CreateHook(T detour, object callback)
+        public Hook<T>? CreateHook(T detour)
         {
             if (Address != IntPtr.Zero)
             {
-                var hook = new Hook<T>(Address, (T) detour, callback);
+                var hook = new Hook<T>(Address, detour);
                 hook.Enable();
                 PluginLog.Debug($"Hooked onto {GetType().Name} at address 0x{Address.ToInt64():X16}.");
                 return hook;
