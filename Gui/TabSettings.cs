@@ -94,6 +94,25 @@ namespace GatherBuddy.Gui
                 _config.IdentifiedFishingSpotFormat,
                 GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, s => _config.IdentifiedFishingSpotFormat = s);
 
+        private void DrawColorPickerAvailableFish()
+            => DrawColorPicker("Available Fish", "The color used to display currently available uptimes in the timed fish tab.",
+                _config.AvailableFishColor,      Colors.FishTab.UptimeRunning, v => _config.AvailableFishColor = v);
+
+        private void DrawColorPickerUpcomingFish()
+            => DrawColorPicker("Upcoming Fish",
+                "The color used to display the remaining waiting time until a fish is available the next time in the timed fish tab.",
+                _config.UpcomingFishColor, Colors.FishTab.UptimeUpcoming, v => _config.UpcomingFishColor = v);
+
+        private void DrawColorPickerDepAvailableFish()
+            => DrawColorPicker("Available Fish (Dependency)",
+                "The color used to display currently available uptimes in the timed fish tab, if the fish depends on mooching or catching of fish that have their own weather or time requirements.",
+                _config.DependentAvailableFishColor, Colors.FishTab.UptimeRunningDependency, v => _config.DependentAvailableFishColor = v);
+
+        private void DrawColorPickerDepUpcomingFish()
+            => DrawColorPicker("Upcoming Fish (Dependency)",
+                "The color used to display the remaining waiting time until a fish is available the next time in the timed fish tab, if the fish depends on mooching or catching of fish that have their own weather or time requirements.",
+                _config.DependentUpcomingFishColor, Colors.FishTab.UptimeUpcomingDependency, v => _config.DependentUpcomingFishColor = v);
+
         private void DrawSettingsTab()
         {
             using var imgui = new ImGuiRaii();
@@ -119,6 +138,12 @@ namespace GatherBuddy.Gui
             DrawFishTimerEditBox();
             DrawFishTimerHideBox();
             DrawFishTimerHideBox2();
+
+            ImGuiHelpers.ScaledDummy(new Vector2(0, 20));
+            DrawColorPickerAvailableFish();
+            DrawColorPickerUpcomingFish();
+            DrawColorPickerDepAvailableFish();
+            DrawColorPickerDepUpcomingFish();
 
             ImGuiHelpers.ScaledDummy(new Vector2(0, 20));
             DrawNodeAlarmFormatInput();

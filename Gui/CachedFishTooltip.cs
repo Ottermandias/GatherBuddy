@@ -9,10 +9,10 @@ namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private static void PrintTime(Cache.Fish fish)
+        private static void PrintTime(Fish fish)
             => DrawButtonText(fish.Time, Vector2.Zero, Colors.FishTab.Time);
 
-        private static void PrintWeather(Cache.Fish fish)
+        private static void PrintWeather(Fish fish)
         {
             if (!fish.Base.FishRestrictions.HasFlag(FishRestrictions.Weather))
             {
@@ -65,7 +65,7 @@ namespace GatherBuddy.Gui
             }
         }
 
-        private static void PrintBait(Cache.Fish fish)
+        private static void PrintBait(Fish fish)
         {
             if (fish.Bait.Length == 0)
             {
@@ -117,7 +117,7 @@ namespace GatherBuddy.Gui
             ImGui.SetCursorPos(startPos + new Vector2(0, size.Y + _itemSpacing.Y));
         }
 
-        private static void PrintPredators(Cache.Fish fish)
+        private static void PrintPredators(Fish fish)
         {
             if (fish.Predators.Length == 0 && fish.IntuitionText.Length == 0)
                 return;
@@ -130,7 +130,6 @@ namespace GatherBuddy.Gui
                 .PushColor(ImGuiCol.Button, Colors.FishTab.Predator)
                 .PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One))
             {
-                
                 foreach (var predator in fish.Predators)
                 {
                     using var group = ImGuiRaii.NewGroup();
@@ -146,7 +145,7 @@ namespace GatherBuddy.Gui
                 }
             }
 
-            
+
             if (fish.IntuitionText.Length > 0)
             {
                 using var intuition = new ImGuiRaii()
@@ -155,7 +154,7 @@ namespace GatherBuddy.Gui
             }
         }
 
-        private static void PrintFolklore(Cache.Fish fish)
+        private static void PrintFolklore(Fish fish)
         {
             using var imgui = new ImGuiRaii();
             if (fish.Base.Folklore.Length != 0)
@@ -167,11 +166,11 @@ namespace GatherBuddy.Gui
             }
 
             imgui.PushColor(ImGuiCol.Button, Colors.FishTab.Patch)
-                 .PushColor(ImGuiCol.Text,   Colors.FishTab.PatchText);
+                .PushColor(ImGuiCol.Text, Colors.FishTab.PatchText);
             ImGui.Button(fish.Patch);
         }
 
-        private static void SetTooltip(Cache.Fish fish)
+        private static void SetTooltip(Fish fish)
         {
             using var tooltip = ImGuiRaii.NewTooltip()
                 .PushStyle(ImGuiStyleVar.ItemSpacing, new Vector2(_itemSpacing.X, _itemSpacing.Y * 1.5f));

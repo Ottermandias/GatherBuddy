@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Numerics;
 using Dalamud.Configuration;
 using GatherBuddy.Classes;
+using GatherBuddy.Gui;
 
 namespace GatherBuddy
 {
@@ -74,6 +76,11 @@ namespace GatherBuddy
         public bool ShowSpearFish     { get; set; }
         public bool ShowAlwaysUp      { get; set; }
         public byte ShowFishFromPatch { get; set; }
+
+        public Vector4 AvailableFishColor          { get; set; } = Colors.FishTab.UptimeRunning;
+        public Vector4 UpcomingFishColor           { get; set; } = Colors.FishTab.UptimeUpcoming;
+        public Vector4 DependentAvailableFishColor { get; set; } = Colors.FishTab.UptimeRunningDependency;
+        public Vector4 DependentUpcomingFishColor  { get; set; } = Colors.FishTab.UptimeUpcomingDependency;
 
         public Records     Records { get; set; }
         public List<Alarm> Alarms  { get; set; }

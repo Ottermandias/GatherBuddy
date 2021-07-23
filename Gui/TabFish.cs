@@ -46,7 +46,7 @@ namespace GatherBuddy.Gui
             ImGui.TableNextColumn();
             if (uptime.Equals(RealUptime.Always))
             {
-                ImGui.TextColored(fish.HasUptimeDependency ? Colors.FishTab.UptimeRunningDependency : Colors.FishTab.UptimeRunning,
+                ImGui.TextColored(fish.HasUptimeDependency ? _config.DependentAvailableFishColor : _config.AvailableFishColor,
                     "Always Up");
                 if (fish.HasUptimeDependency && ImGui.IsItemHovered())
                 {
@@ -56,7 +56,7 @@ namespace GatherBuddy.Gui
             }
             else if (uptime.Equals(RealUptime.Unknown))
             {
-                ImGui.TextColored(Colors.FishTab.UptimeUnknown, "Unknown");
+                ImGui.TextColored(_config.UpcomingFishColor, "Unknown");
             }
             else
             {
@@ -65,13 +65,13 @@ namespace GatherBuddy.Gui
                 if (seconds > 0)
                 {
                     using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
-                        fish.HasUptimeDependency ? Colors.FishTab.UptimeUpcomingDependency : Colors.FishTab.UptimeUpcoming);
+                        fish.HasUptimeDependency ? _config.DependentUpcomingFishColor : _config.UpcomingFishColor);
                     PrintSeconds(seconds);
                 }
                 else if (duration < 0)
                 {
                     using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
-                        fish.HasUptimeDependency ? Colors.FishTab.UptimeRunningDependency : Colors.FishTab.UptimeRunning);
+                        fish.HasUptimeDependency ? _config.DependentAvailableFishColor : _config.AvailableFishColor);
                     PrintSeconds(-duration);
                 }
 

@@ -86,6 +86,33 @@ namespace GatherBuddy.Gui
                 ImGui.SetTooltip(tooltip);
         }
 
+        private void DrawColorPicker(string label, string tooltip, Vector4 current, Vector4 defaultValue, Action<Vector4> setter)
+        {
+            const ImGuiColorEditFlags flags = ImGuiColorEditFlags.Float | ImGuiColorEditFlags.AlphaPreviewHalf | ImGuiColorEditFlags.NoInputs | ImGuiColorEditFlags.NoLabel;
+
+            var                       tmp   = current;
+            if (ImGui.ColorEdit4(label, ref tmp, flags) && tmp != current)
+            {
+                setter(tmp);
+                Save();
+            }
+
+            ImGui.SameLine();
+            if (ImGui.Button($"Default##{label}") && current != defaultValue)
+            {
+                setter(defaultValue);
+                Save();
+            }
+
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip($"Reset the color to its default value #{ImGui.ColorConvertFloat4ToU32(defaultValue):X8}.");
+
+            ImGui.SameLine();
+            ImGui.Text(label);
+            if (ImGui.IsItemHovered())
+                ImGui.SetTooltip(tooltip);
+        }
+
         private static void ClippedDraw<T>(IList<T> data, Action<T> func, Func<bool> pre, Action post)
         {
             var windowHeight = ImGui.GetWindowHeight();
