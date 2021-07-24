@@ -10,7 +10,7 @@ namespace GatherBuddy.SeFunctions
         {
             get
             {
-                if (Address != IntPtr.Zero)
+                if (Address == IntPtr.Zero)
                     return BiteType.Unknown;
 
                 var tug = *(byte*) Address;
