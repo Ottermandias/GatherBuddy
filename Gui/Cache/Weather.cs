@@ -27,23 +27,23 @@ namespace GatherBuddy.Gui.Cache
         public Weather(WeatherManager weather)
         {
             _weather           = weather;
-            WeatherTimes       = weather.NextWeatherChangeTimes(NumWeathers, -WeatherManager.SecondsPerWeather);
+            WeatherTimes       = weather.NextWeatherChangeTimes(NumWeathers, -2 * WeatherManager.SecondsPerWeather);
             WeatherTimeStrings = new string[NumWeathers];
-            _totalHour         = 0;
+            _totalHour         = EorzeaTime.CurrentHour() - 8;
             Filter             = "";
             FilterLower        = "";
             Weathers           = CachedWeather.CreateWeatherCache();
             FilterSize         = Weathers.Max(c => ImGui.CalcTextSize(c.Zone).X);
+            Update(EorzeaTime.CurrentHour());
         }
 
         public void Update(long totalHour)
         {
-            //if (totalHour - _totalHour < 8)
-            //    return;
+            if (totalHour - _totalHour < 8)
+                return;
 
             UpdateWeather();
-            if (_totalHour > 0)
-                UpdateTimes((totalHour - _totalHour) / 8);
+            UpdateTimes((totalHour - _totalHour) / 8);
             _totalHour = totalHour - ((totalHour % RealTime.HoursPerDay) & 0b111);
         }
 
