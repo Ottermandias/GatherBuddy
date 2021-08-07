@@ -134,7 +134,8 @@ namespace GatherBuddy.Gui
                 var fishTab = ImGui.BeginTabItem("Timed Fish");
                 if (ImGui.IsItemHovered())
                     ImGui.SetTooltip("Shows all fish for the fishing log and their next uptimes.\n"
-                      + "You can click the fish name or the fishing spot name to execute a /gatherfish command.");
+                      + "You can click the fish name or the fishing spot name to execute a /gatherfish command.\n"
+                      + "You can right-click a fish name to fix (or unfix) this fish at the top of the list.");
                 if (fishTab)
                 {
                     _fishCache.UpdateFish(hour);

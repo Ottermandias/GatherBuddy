@@ -44,6 +44,7 @@ namespace GatherBuddy.Gui.Cache
         public string          UptimeString        { get; }
         public string          IntuitionText       { get; } = "";
         public bool            HasUptimeDependency { get; }
+        public bool            IsFixed             { get; set; } = false;
 
 
         private static string SetTime(Game.Fish fish, ref ushort uptime)

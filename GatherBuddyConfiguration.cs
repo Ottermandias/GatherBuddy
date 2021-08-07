@@ -85,6 +85,8 @@ namespace GatherBuddy
         public Records     Records { get; set; }
         public List<Alarm> Alarms  { get; set; }
 
+        public List<uint> FixedFish { get; set; } = new();
+
         public GatherBuddyConfiguration()
         {
             Version          = 2;

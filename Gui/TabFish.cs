@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Classes;
-using GatherBuddy.Game;
 using GatherBuddy.Utility;
 using ImGuiNET;
 
@@ -34,10 +33,17 @@ namespace GatherBuddy.Gui
             }
 
             ImGui.TableNextColumn();
+            if (fish.IsFixed)
+                ImGui.PushStyleColor(ImGuiCol.Text, _config.AvailableFishColor);
             if (ImGui.Selectable(fish.Name))
                 _plugin.Gatherer!.OnFishActionWithFish(fish.Base);
+            if (fish.IsFixed)
+                ImGui.PopStyleColor();
             if (ImGui.IsItemHovered())
                 SetTooltip(fish);
+            if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                _fishCache.ToggleFishFix(fish);;
+
 
             static void DependencyWarning(Cache.Fish fish)
                 => ImGui.TextColored(Colors.FishTab.DependencyWarning, "!!! May be dependent on intuition or mooch availability !!!");
@@ -258,9 +264,13 @@ namespace GatherBuddy.Gui
                 return true;
             }
 
-            if (actualFish.Length < lineHeight + 5 && BeginTable())
+            var num = actualFish.Length + _fishCache.FixedFish.Count;
+            if (num < lineHeight + 5 && BeginTable())
                 try
                 {
+                    foreach (var f in _fishCache.FixedFish)
+                        DrawFish(f);
+
                     foreach (var f in actualFish)
                         DrawFish(f);
                 }
@@ -269,7 +279,7 @@ namespace GatherBuddy.Gui
                     ImGui.EndTable();
                 }
             else
-                ClippedDraw(actualFish, DrawFish, BeginTable, ImGui.EndTable);
+                ClippedDraw(new FusedList<Cache.Fish>(_fishCache.FixedFish, actualFish), DrawFish, BeginTable, ImGui.EndTable);
 
             child.End();
             if (!child.Begin(() => ImGui.BeginChild("##FishSelection", -Vector2.One, true), ImGui.EndChild))
