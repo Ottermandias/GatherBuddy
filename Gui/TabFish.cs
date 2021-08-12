@@ -268,7 +268,8 @@ namespace GatherBuddy.Gui
             if (num < lineHeight + 5 && BeginTable())
                 try
                 {
-                    foreach (var f in _fishCache.FixedFish)
+                    // FixedFish might be changed
+                    foreach (var f in _fishCache.FixedFish.ToArray())
                         DrawFish(f);
 
                     foreach (var f in actualFish)
@@ -279,7 +280,7 @@ namespace GatherBuddy.Gui
                     ImGui.EndTable();
                 }
             else
-                ClippedDraw(new FusedList<Cache.Fish>(_fishCache.FixedFish, actualFish), DrawFish, BeginTable, ImGui.EndTable);
+                ClippedDraw(new FusedList<Cache.Fish>(_fishCache.FixedFish.ToArray(), actualFish), DrawFish, BeginTable, ImGui.EndTable);
 
             child.End();
             if (!child.Begin(() => ImGui.BeginChild("##FishSelection", -Vector2.One, true), ImGui.EndChild))
