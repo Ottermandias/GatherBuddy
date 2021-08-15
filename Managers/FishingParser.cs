@@ -82,7 +82,7 @@ namespace GatherBuddy.Managers
                 Undiscovered   = "未知の釣り場";
                 Bite           = "魚をフッキングした！";
                 Mooch          = new Regex(@"は釣り上げた.+を慎重に投げ込み、泳がせ釣りを試みた。");
-                Catch          = new Regex(@".+?（?:\d+\.\dイルム）を釣り上げた。");
+                Catch          = new Regex(@".+?（\d+\.\dイルム）を釣り上げた。");
                 NoCatchFull    = new Regex(@".+を釣り上げたが、これ以上持てないためリリースした。");
             }
         }
