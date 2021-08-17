@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Classes;
@@ -124,8 +125,12 @@ namespace GatherBuddy.Gui
             ImGui.TableNextColumn();
             if (ImGui.Selectable(fish.FishingSpot))
                 _plugin.Gatherer!.OnFishActionWithSpot(fish.Base.FishingSpots.First());
+
             if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(fish.Territory);
+                ImGui.SetTooltip($"{fish.Territory}\nRight-click to open TeamCraft site for this spot.");
+
+            if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                Process.Start(fish.FishingSpotTCAddress);
 
             ImGui.TableNextColumn();
             ImGui.Text(fish.Territory);

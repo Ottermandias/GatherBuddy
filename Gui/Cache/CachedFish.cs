@@ -1,5 +1,6 @@
 ﻿using System.Globalization;
 using System.Linq;
+using Dalamud;
 using Dalamud.Plugin;
 using GatherBuddy.Enums;
 using GatherBuddy.Managers;
@@ -26,25 +27,26 @@ namespace GatherBuddy.Gui.Cache
             public string      Amount { get; set; }
         }
 
-        public Game.Fish       Base                { get; }
-        public TextureWrap     Icon                { get; }
-        public string          Name                { get; }
-        public string          NameLower           { get; }
-        public string          Time                { get; }
-        public TextureWrap[][] WeatherIcons        { get; }
-        public BaitOrder[]     Bait                { get; }
-        public string          FirstBaitLower      { get; }
-        public string          Territory           { get; }
-        public string          TerritoryLower      { get; }
-        public string          FishingSpot         { get; }
-        public string          FishingSpotLower    { get; }
-        public TextureWrap?    Snagging            { get; }
-        public Predator[]      Predators           { get; }
-        public string          Patch               { get; }
-        public string          UptimeString        { get; }
-        public string          IntuitionText       { get; } = "";
-        public bool            HasUptimeDependency { get; }
-        public bool            IsFixed             { get; set; } = false;
+        public Game.Fish       Base                 { get; }
+        public TextureWrap     Icon                 { get; }
+        public string          Name                 { get; }
+        public string          NameLower            { get; }
+        public string          Time                 { get; }
+        public TextureWrap[][] WeatherIcons         { get; }
+        public BaitOrder[]     Bait                 { get; }
+        public string          FirstBaitLower       { get; }
+        public string          Territory            { get; }
+        public string          TerritoryLower       { get; }
+        public string          FishingSpot          { get; }
+        public string          FishingSpotTCAddress { get; }
+        public string          FishingSpotLower     { get; }
+        public TextureWrap?    Snagging             { get; }
+        public Predator[]      Predators            { get; }
+        public string          Patch                { get; }
+        public string          UptimeString         { get; }
+        public string          IntuitionText        { get; } = "";
+        public bool            HasUptimeDependency  { get; }
+        public bool            IsFixed              { get; set; } = false;
 
 
         private static string SetTime(Game.Fish fish, ref ushort uptime)
@@ -201,26 +203,41 @@ namespace GatherBuddy.Gui.Cache
             return f.CatchData?.Predator.Any(p => p.Item1.FishRestrictions != FishRestrictions.None) ?? false;
         }
 
+        private static string GetFishingSpotTcAddress(uint fishingSpotId)
+        {
+            var lang = GatherBuddy.Language switch
+            {
+                ClientLanguage.English  => "en",
+                ClientLanguage.German   => "de",
+                ClientLanguage.French   => "fr",
+                ClientLanguage.Japanese => "ja",
+                _                       => "en",
+            };
+            var s = $"https://ffxivteamcraft.com/db/{lang}/fishing-spot/{fishingSpotId}";
+            return s;
+        }
+
         public Fish(FishTab cache, FishManager manager, Game.Fish fish)
         {
             ushort uptime = 10000;
-            Base                = fish;
-            Icon                = Service<Icons>.Get()[fish.ItemData.Icon];
-            Name                = fish.Name[GatherBuddy.Language];
-            NameLower           = Name.ToLowerInvariant();
-            Time                = SetTime(fish, ref uptime);
-            WeatherIcons        = SetWeather(fish, ref uptime);
-            Bait                = SetBait(cache, fish);
-            FirstBaitLower      = Bait.Length > 0 ? Bait[0].Name.ToLowerInvariant() : "unknown bait";
-            Predators           = SetPredators(manager, fish);
-            Territory           = fish.FishingSpots.First().Territory!.Name[GatherBuddy.Language];
-            TerritoryLower      = Territory.ToLowerInvariant();
-            FishingSpot         = fish.FishingSpots.First().PlaceName![GatherBuddy.Language];
-            FishingSpotLower    = FishingSpot.ToLowerInvariant();
-            Snagging            = SetSnagging(cache, Bait, fish);
-            Patch               = $"Patch {fish.CatchData?.Patch.ToVersionString() ?? "???"}";
-            UptimeString        = $"{(uptime / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
-            HasUptimeDependency = SetUptimeDependency(fish, Bait);
+            Base                 = fish;
+            Icon                 = Service<Icons>.Get()[fish.ItemData.Icon];
+            Name                 = fish.Name[GatherBuddy.Language];
+            NameLower            = Name.ToLowerInvariant();
+            Time                 = SetTime(fish, ref uptime);
+            WeatherIcons         = SetWeather(fish, ref uptime);
+            Bait                 = SetBait(cache, fish);
+            FirstBaitLower       = Bait.Length > 0 ? Bait[0].Name.ToLowerInvariant() : "unknown bait";
+            Predators            = SetPredators(manager, fish);
+            Territory            = fish.FishingSpots.First().Territory!.Name[GatherBuddy.Language];
+            TerritoryLower       = Territory.ToLowerInvariant();
+            FishingSpot          = fish.FishingSpots.First().PlaceName![GatherBuddy.Language];
+            FishingSpotTCAddress = GetFishingSpotTcAddress(fish.FishingSpots.First().Id);
+            FishingSpotLower     = FishingSpot.ToLowerInvariant();
+            Snagging             = SetSnagging(cache, Bait, fish);
+            Patch                = $"Patch {fish.CatchData?.Patch.ToVersionString() ?? "???"}";
+            UptimeString         = $"{(uptime / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
+            HasUptimeDependency  = SetUptimeDependency(fish, Bait);
             var intuition = fish.CatchData?.IntuitionLength ?? 0;
             if (intuition > 0)
             {

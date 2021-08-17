@@ -1,12 +1,14 @@
 ﻿using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Windows.Forms;
 using Dalamud;
 using Dalamud.Game.Command;
 using Dalamud.Plugin;
 using GatherBuddy.Gui;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
+using Newtonsoft.Json;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 using Util = GatherBuddy.Utility.Util;
 
@@ -380,6 +382,18 @@ namespace GatherBuddy
             {
                 var weather = Service<SkyWatcher>.Get().GetForecast(_pluginInterface!.ClientState.TerritoryType);
                 _pluginInterface.Framework.Gui.Chat.Print(weather.Weather.Name);
+            }
+
+            if (Util.CompareCi(argumentParts[0], "export"))
+            {
+                if (argumentParts.Length >= 2 && Util.CompareCi(argumentParts[1], "fish"))
+                {
+                    var ids = Gatherer!.FishManager.Fish.Values.Where(Gatherer.FishManager.FishLog.IsUnlocked).Select(i => i.ItemId).ToArray();
+                    var output = $"Exported caught fish to clipboard ({ids.Length}/{Gatherer.FishManager.Fish.Count} caught).";
+                    PluginLog.Information(output);
+                    _pluginInterface!.Framework.Gui.Chat.Print(output);
+                    Clipboard.SetText(JsonConvert.SerializeObject(ids, Formatting.Indented));
+                }
             }
 
             if (!Util.CompareCi(argumentParts[0], "purge"))
