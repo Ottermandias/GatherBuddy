@@ -69,6 +69,7 @@ namespace GatherBuddy
         public bool FishTimerEdit       { get; set; }
         public bool HideUncaughtFish    { get; set; }
         public bool HideUnavailableFish { get; set; }
+        public bool ShowWindowTimers    { get; set; }
 
         public bool ShowAlreadyCaught { get; set; }
         public bool ShowBigFish       { get; set; }
@@ -102,6 +103,7 @@ namespace GatherBuddy
             PrintUptime      = true;
             ShowFishTimer    = true;
             FishTimerEdit    = true;
+            ShowWindowTimers = true;
             HideUncaughtFish = false;
             ShowNodes        = ShowNodes.AllNodes;
             Records          = new Records();

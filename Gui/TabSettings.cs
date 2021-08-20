@@ -41,6 +41,11 @@ namespace GatherBuddy.Gui
                 "Hide all fish from the fish timer window that have not been recorded with the given combination of snagging and bait.",
                 _config.HideUncaughtFish, b => _config.HideUncaughtFish = b);
 
+        private void DrawFishWindowTimersBox()
+            => DrawCheckbox("Show Window Timers",
+                "Show the the times for fishing windows for restricted fish in the fish timer window.",
+                _config.ShowWindowTimers, b => _config.ShowWindowTimers = b);
+
         private void DrawFishTimerHideBox2()
             => DrawCheckbox("Hide Unavailable Fish",
                 "Hide all fish from the fish timer window that have have known requirements that are unfulfilled, like Fisher's Intuition or Snagging.",
@@ -136,6 +141,7 @@ namespace GatherBuddy.Gui
 
             DrawFishTimerBox();
             DrawFishTimerEditBox();
+            DrawFishWindowTimersBox();
             DrawFishTimerHideBox();
             DrawFishTimerHideBox2();
 

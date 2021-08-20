@@ -22,6 +22,8 @@ namespace GatherBuddy.Gui
             public const uint Line              = 0xFF000000;
             public const uint EditBackground    = 0x20FFFFFF;
 
+            public static readonly Vector4 WindowTimes = new(0.8f, 0.8f, 0.8f, 1.0f);
+
             public static uint FromBiteType(BiteType bite, bool uncaught)
             {
                 return bite switch

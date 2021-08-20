@@ -12,14 +12,26 @@ namespace GatherBuddy.Gui
     {
         private const int NumFishColumns = 8;
 
+        public static string TimeString(long seconds, bool shortString)
+        {
+            return seconds switch
+            {
+                > RealTime.SecondsPerDay => shortString
+                    ? $">{seconds / (float) RealTime.SecondsPerDay:F0}d"
+                    : $"{seconds / (float) RealTime.SecondsPerDay:F2} Days",
+                > RealTime.SecondsPerHour => shortString
+                    ? $">{seconds / RealTime.SecondsPerHour}h"
+                    : $"{seconds / RealTime.SecondsPerHour:D2}:{seconds / RealTime.SecondsPerMinute % RealTime.MinutesPerHour:D2} Hours",
+                _ => shortString
+                    ? $"{seconds / RealTime.SecondsPerMinute}:{seconds % RealTime.SecondsPerMinute:D2}m"
+                    : $"{seconds / RealTime.SecondsPerMinute:D2}:{seconds % RealTime.SecondsPerMinute:D2} Minutes",
+            };
+        }
+
         private static void PrintSeconds(long seconds)
         {
-            if (seconds > RealTime.SecondsPerDay)
-                ImGui.Text($"{seconds / (float) RealTime.SecondsPerDay:F2} Days");
-            else if (seconds > RealTime.SecondsPerHour)
-                ImGui.Text($"{seconds / RealTime.SecondsPerHour:D2}:{seconds / RealTime.SecondsPerMinute % RealTime.MinutesPerHour:D2} Hours");
-            else
-                ImGui.Text($"{seconds / RealTime.SecondsPerMinute:D2}:{seconds % RealTime.SecondsPerMinute:D2} Minutes");
+            var t = TimeString(seconds, false);
+            ImGui.Text(t);
         }
 
         private void DrawFish(Cache.Fish fish)
@@ -43,7 +55,8 @@ namespace GatherBuddy.Gui
             if (ImGui.IsItemHovered())
                 SetTooltip(fish);
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
-                _fishCache.ToggleFishFix(fish);;
+                _fishCache.ToggleFishFix(fish);
+            ;
 
 
             static void DependencyWarning(Cache.Fish fish)

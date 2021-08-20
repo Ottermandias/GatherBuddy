@@ -59,6 +59,7 @@ namespace GatherBuddy.Gui
         private readonly struct FishCache
         {
             private readonly Fish        _fish;
+            private readonly RealUptime  _nextUptime;
             private readonly string      _textline;
             private readonly uint        _color;
             private readonly TextureWrap _icon;
@@ -112,6 +113,11 @@ namespace GatherBuddy.Gui
                 }
 
                 Valid = !Unavailable && _sizeMin > 0.001f && _sizeMax < 0.999f && _sizeMin <= _sizeMax;
+                _nextUptime = timer._config.ShowWindowTimers
+                    ? fish.NextUptime(timer._weather, timer._currentSpot?.Territory)
+                    : RealUptime.Always;
+                if (_nextUptime.Equals(RealUptime.Unknown) || _nextUptime.Equals(RealUptime.Never))
+                    _nextUptime = RealUptime.Always;
             }
 
             public void Draw(FishingTimer timer, ImDrawListPtr ptr)
@@ -134,13 +140,34 @@ namespace GatherBuddy.Gui
                 ImGui.Image(_icon.ImGuiHandle, timer._iconSize);
                 ImGui.SameLine();
 
+                var buttonWidth = timer._rectSize.X - timer._iconSize.X;
                 using (var imgui = new ImGuiRaii()
                     .PushColor(ImGuiCol.Button,        _color)
                     .PushColor(ImGuiCol.ButtonHovered, _color)
                     .PushColor(ImGuiCol.ButtonActive,  _color)
                     .PushStyle(ImGuiStyleVar.ButtonTextAlign, timer._buttonTextAlign))
                 {
-                    ImGui.Button(_textline, new Vector2(timer._rectSize.X - timer._iconSize.X, height));
+                    ImGui.Button(_textline, new Vector2(buttonWidth, height));
+                }
+
+                if (!_nextUptime.Equals(RealUptime.Always))
+                {
+                    var now = DateTime.UtcNow;
+                    var time = (int) (_nextUptime.Time < now
+                        ? (_nextUptime.EndTime - now).TotalSeconds
+                        : (_nextUptime.Time - now).TotalSeconds);
+                    var s         = Interface.TimeString(time, true);
+                    var t         = ImGui.CalcTextSize(s);
+                    var width     = t.X;
+                    var fishWidth = ImGui.CalcTextSize(_textline).X;
+                    if (buttonWidth - width - fishWidth >= 5 * ImGui.GetIO().FontGlobalScale)
+                    {
+                        var oldPos = ImGui.GetCursorPos();
+                        ImGui.SetCursorScreenPos(begin + new Vector2(size.X - width - 2.5f * ImGui.GetIO().FontGlobalScale, pos));
+                        ImGui.AlignTextToFramePadding();
+                        ImGui.TextColored(Colors.FishTimer.WindowTimes, s);
+                        ImGui.SetCursorPos(oldPos);
+                    }
                 }
 
                 if (Valid)
@@ -337,6 +364,7 @@ namespace GatherBuddy.Gui
                     PluginLog.Verbose("Fish bit after {Milliseconds} milliseconds.", _start.ElapsedMilliseconds);
                 _start.Stop();
             }
+
             if (!fishing)
                 _start.Stop();
             if (!rodOut)
@@ -370,7 +398,7 @@ namespace GatherBuddy.Gui
             var drawList = ImGui.GetWindowDrawList();
 
             _rectSize = new Vector2(ImGui.GetWindowSize().X, maxListHeight);
-            _rectMin = ImGui.GetWindowPos();
+            _rectMin  = ImGui.GetWindowPos();
 
             drawList.AddRectFilled(_rectMin, _rectMin + new Vector2(_rectSize.X, textLines), Colors.FishTimer.RectBackground,
                 4f * globalScale);
