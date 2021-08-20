@@ -10,17 +10,25 @@ namespace GatherBuddy.Data
         private static void ApplyDeathUntoDawn(this FishManager fish)
         {
             fish.Apply     (33219, Patch.DeathUntoDawn) // Dravanian Scallop
-                .Bait      (fish);
+                .Tug       (BiteType.Weak)
+                .HookType  (HookSet.Precise)
+                .Bait      (fish, 28634);
             fish.Apply     (33220, Patch.DeathUntoDawn) // Cloud Kelp
-                .Bait      (fish);
+                .Tug       (BiteType.Weak)
+                .HookType  (HookSet.Precise)
+                .Bait      (fish, 28634);
             fish.Apply     (33221, Patch.DeathUntoDawn) // Scarlet Frog
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise)
-                .Bait      (fish);
+                .Bait      (fish, 28634);
             fish.Apply     (33222, Patch.DeathUntoDawn) // White Clam
-                .Bait      (fish);
+                .Tug       (BiteType.Weak)
+                .HookType  (HookSet.Precise)
+                .Bait      (fish, 28634);
             fish.Apply     (33223, Patch.DeathUntoDawn) // Fragrant Sweetfish
-                .Bait      (fish);
+                .Tug       (BiteType.Weak)
+                .HookType  (HookSet.Precise)
+                .Bait      (fish, 28634);
             fish.Apply     (33239, Patch.DeathUntoDawn) // Listracanthus
                 .Bait      (fish, 27589, 28925)
                 .Uptime    (16, 24)
