@@ -11,8 +11,8 @@ namespace GatherBuddy.Managers
 
         private class NodeComparer : IComparer<Node>
         {
-            public int Compare(Node lhs, Node rhs)
-                => rhs!.Meta!.Level - lhs!.Meta!.Level;
+            public int Compare(Node? lhs, Node? rhs)
+                => (rhs?.Meta?.Level ?? 0) - (lhs?.Meta?.Level ?? 0);
         }
 
         public NodeTimeLine(NodeManager nodes)

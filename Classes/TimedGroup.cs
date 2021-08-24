@@ -1,8 +1,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud;
-using Dalamud.Game.Internal.Gui;
-using Dalamud.Plugin;
+using Dalamud.Game.Gui;
+using Dalamud.Logging;
 using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
 
@@ -13,7 +13,7 @@ namespace GatherBuddy.Classes
         public string Name { get; }
         public string Desc { get; }
 
-        private readonly (Node node, string desc)[] _nodes;
+        private readonly (Node? node, string desc)[] _nodes;
 
         private static string? CorrectItemName(ClientLanguage lang, Node? node, string? itemName)
         {
@@ -28,14 +28,14 @@ namespace GatherBuddy.Classes
             return null;
         }
 
-        public TimedGroup(ClientLanguage lang, string name, string desc, params (Node? node, string? desc)[] nodes)
+        public TimedGroup(string name, string desc, params (Node? node, string? desc)[] nodes)
         {
             Name   = name;
             Desc   = desc;
-            _nodes = new (Node Node, string desc)[24];
+            _nodes = new (Node? Node, string desc)[24];
 
             nodes = nodes.Where(n => n.node != null)
-                .Select(n => (n.node, CorrectItemName(lang, n.node!, n.desc!)))
+                .Select(n => (n.node, CorrectItemName(GatherBuddy.Language, n.node!, n.desc!)))
                 .ToArray();
 
             for (var i = 0; i < _nodes.Length; ++i)

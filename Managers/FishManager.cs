@@ -4,13 +4,14 @@ using System.IO;
 using System.Linq;
 using Dalamud;
 using Dalamud.Game;
-using Dalamud.Plugin;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Data;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Utility;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
 
@@ -103,7 +104,7 @@ namespace GatherBuddy.Managers
 
         public FishLog FishLog { get; }
 
-        public Fish? FindOrAddFish(Lumina.Excel.ExcelSheet<FishParameter> fishList, Lumina.Excel.ExcelSheet<Item>[] itemSheets, uint fish)
+        public Fish? FindOrAddFish(ExcelSheet<FishParameter> fishList, ExcelSheet<Item>[] itemSheets, uint fish)
         {
             if (Fish.TryGetValue(fish, out var newFish))
                 return newFish;
@@ -118,12 +119,12 @@ namespace GatherBuddy.Managers
 
             var name = new FFName();
 
-            var item = itemSheets[(int) ClientLanguage.English].GetRow(fish);
+            var item = itemSheets[(int) ClientLanguage.English].GetRow(fish)!;
             newFish = new Fish(item, fishRow, name);
 
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
             {
-                var langName = itemSheets[(int) lang].GetRow(fish).Name;
+                var langName = itemSheets[(int) lang].GetRow(fish)!.Name;
                 name[lang]                           = langName;
                 FishNameToFish[(int) lang][langName] = newFish;
             }
@@ -133,7 +134,7 @@ namespace GatherBuddy.Managers
             return newFish;
         }
 
-        public Fish FindOrAddSpearFish(SpearfishingItem fish, Lumina.Excel.ExcelSheet<Item>[] itemSheets)
+        public Fish FindOrAddSpearFish(SpearfishingItem fish, ExcelSheet<Item>[] itemSheets)
         {
             if (Fish.TryGetValue(fish.Item.Row, out var newFish))
                 return newFish;
@@ -146,7 +147,7 @@ namespace GatherBuddy.Managers
 
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
             {
-                var langName = itemSheets[(int) lang].GetRow(fish.Item.Row).Name;
+                var langName = itemSheets[(int) lang].GetRow(fish.Item.Row)!.Name;
                 name[lang]                           = langName;
                 FishNameToFish[(int) lang][langName] = newFish;
             }
@@ -155,7 +156,7 @@ namespace GatherBuddy.Managers
             return newFish;
         }
 
-        private static Dictionary<uint, Bait> CollectBait(Lumina.Excel.ExcelSheet<Item>[] items)
+        private static Dictionary<uint, Bait> CollectBait(IReadOnlyList<ExcelSheet<Item>> items)
         {
             const uint fishingTackleRow = 30;
 
@@ -167,7 +168,7 @@ namespace GatherBuddy.Managers
             {
                 FFName name = new();
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
-                    name[lang] = items[(int) lang].GetRow(item.RowId).Name;
+                    name[lang] = items[(int) lang].GetRow(item.RowId)!.Name;
                 ret.Add(item.RowId, new Bait(item, name));
             }
 
@@ -177,8 +178,8 @@ namespace GatherBuddy.Managers
         private static int ConvertCoord(int val, double scale)
             => (int) (100.0 * (41.0 / scale * val / 2048.0 + 1.0) + 0.5);
 
-        private FishingSpot? FromFishingSpot(DalamudPluginInterface pi, World territories, Lumina.Excel.ExcelSheet<FishParameter> fishSheet,
-            Lumina.Excel.ExcelSheet<Item>[] itemSheets, Lumina.Excel.GeneratedSheets.FishingSpot spot)
+        private FishingSpot? FromFishingSpot(World territories, ExcelSheet<FishParameter> fishSheet,
+            ExcelSheet<Item>[] itemSheets, Lumina.Excel.GeneratedSheets.FishingSpot spot)
         {
             var territory = spot.TerritoryType.Value;
             if (territory == null && spot.RowId < 10000) // hack for diadem spots
@@ -197,7 +198,7 @@ namespace GatherBuddy.Managers
                 Territory = map,
                 XCoord    = spot.X,
                 YCoord    = spot.Z,
-                PlaceName = FFName.FromPlaceName(pi, spot.PlaceName.Row),
+                PlaceName = FFName.FromPlaceName(spot.PlaceName.Row),
             };
 
             for (var i = 0; i < spot.Item.Length; ++i)
@@ -214,10 +215,10 @@ namespace GatherBuddy.Managers
                 newSpot.Items[i] = fish;
             }
 
-            if (pi.ClientState.ClientLanguage != ClientLanguage.German)
+            if (GatherBuddy.Language != ClientLanguage.German)
                 return newSpot;
 
-            var seBytes     = pi.Data.GetExcelSheet<PlaceName>(ClientLanguage.German).GetRow(spot.PlaceName.Row).Unknown8.RawData;
+            var seBytes = GatherBuddy.GameData.GetExcelSheet<PlaceName>(ClientLanguage.German)!.GetRow(spot.PlaceName.Row)!.Unknown8.RawData;
             HandleGermanString(seBytes, newSpot);
 
             return newSpot;
@@ -239,15 +240,15 @@ namespace GatherBuddy.Managers
                 tmp[i] = seBytes[i + name2Start];
             var name2 = System.Text.Encoding.UTF8.GetString(tmp, 0, name2Length);
 
-            name1                              = Utility.Util.RemoveItalics(Utility.Util.RemoveSplitMarkers(name1)).ToLowerInvariant();
-            name2                              = Utility.Util.RemoveItalics(Utility.Util.RemoveSplitMarkers(name2)).ToLowerInvariant();
+            name1 = Util.RemoveItalics(Util.RemoveSplitMarkers(name1)).ToLowerInvariant();
+            name2 = Util.RemoveItalics(Util.RemoveSplitMarkers(name2)).ToLowerInvariant();
             FishingSpotNamesWithArticle[name1] = spot;
             FishingSpotNamesWithArticle[name2] = spot;
             FishingSpotNamesWithArticle[spot.PlaceName![ClientLanguage.German]] = spot;
         }
 
-        private FishingSpot? FromSpearfishingSpot(DalamudPluginInterface pi, World territories, Lumina.Excel.ExcelSheet<Item>[] itemSheets,
-            Lumina.Excel.ExcelSheet<SpearfishingItem> fishSheet, SpearfishingNotebook spot)
+        private FishingSpot? FromSpearfishingSpot(World territories, ExcelSheet<Item>[] itemSheets,
+            ExcelSheet<SpearfishingItem> fishSheet, SpearfishingNotebook spot)
         {
             var territory = spot.TerritoryType.Value;
             if (territory == null)
@@ -260,31 +261,31 @@ namespace GatherBuddy.Managers
                 Territory    = territories.FindOrAddTerritory(territory),
                 XCoord       = spot.X,
                 YCoord       = spot.Y,
-                PlaceName    = FFName.FromPlaceName(pi, spot.PlaceName.Row),
+                PlaceName    = FFName.FromPlaceName(spot.PlaceName.Row),
                 Spearfishing = true,
             };
 
-            var items = spot.GatheringPointBase.Value.Item;
+            var items = spot.GatheringPointBase.Value!.Item;
             for (var i = 0; i < items.Length; ++i)
             {
                 if (items[i] == 0)
                     continue;
 
-                var gatherFish = fishSheet.GetRow((uint) items[i]);
+                var gatherFish = fishSheet.GetRow((uint) items[i])!;
                 var fish       = FindOrAddSpearFish(gatherFish, itemSheets);
                 fish.FishingSpots.Add(newSpot);
                 newSpot.Items[i] = fish;
             }
 
-            if (pi.ClientState.ClientLanguage != ClientLanguage.German)
+            if (GatherBuddy.Language != ClientLanguage.German)
                 return newSpot;
 
             return newSpot;
         }
 
-        private void SetupGigHeads(DalamudPluginInterface pi)
+        private void SetupGigHeads()
         {
-            var records = pi.Data.Excel.GetSheet<SpearfishingRecordPage>();
+            var records = GatherBuddy.GameData.Excel.GetSheet<SpearfishingRecordPage>()!;
             foreach (var record in records)
             {
                 GigHeadFromRecord[record.Unknown0] = GigHead.Small;
@@ -293,23 +294,23 @@ namespace GatherBuddy.Managers
             }
         }
 
-        public FishManager(DalamudPluginInterface pi, World territories)
+        public FishManager(World territories)
         {
-            var fishingSpots      = pi.Data.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishingSpot>();
-            var spearfishingSpots = pi.Data.Excel.GetSheet<SpearfishingNotebook>();
-            var itemSheets        = new Lumina.Excel.ExcelSheet<Item>[4];
-            var spearfishingItems = pi.Data.Excel.GetSheet<SpearfishingItem>();
-            var fishSheet         = pi.Data.Excel.GetSheet<FishParameter>();
+            var fishingSpots      = GatherBuddy.GameData.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishingSpot>()!;
+            var spearfishingSpots = GatherBuddy.GameData.Excel.GetSheet<SpearfishingNotebook>()!;
+            var spearfishingItems = GatherBuddy.GameData.Excel.GetSheet<SpearfishingItem>()!;
+            var fishSheet         = GatherBuddy.GameData.Excel.GetSheet<FishParameter>()!;
+            var itemSheets        = new ExcelSheet<Item>[4];
 
-            SetupGigHeads(pi);
+            SetupGigHeads();
 
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
-                itemSheets[(int) lang] = pi.Data.GetExcelSheet<Item>(lang);
+                itemSheets[(int) lang] = GatherBuddy.GameData.GetExcelSheet<Item>(lang)!;
 
             foreach (var spot in fishingSpots
-                .Select(s => FromFishingSpot(pi, territories, fishSheet, itemSheets, s))
+                .Select(s => FromFishingSpot(territories, fishSheet, itemSheets, s))
                 .Concat(spearfishingSpots
-                    .Select(s => FromSpearfishingSpot(pi, territories, itemSheets, spearfishingItems, s)))
+                    .Select(s => FromSpearfishingSpot(territories, itemSheets, spearfishingItems, s)))
                 .Where(s => s != null))
             {
                 var scale = spot!.Territory!.SizeFactor;
@@ -320,7 +321,7 @@ namespace GatherBuddy.Managers
                     spot.ClosestAetheryte = spot.Territory!.Aetherytes
                         .Select(a => (a.WorldDistance(spot.Territory.Id, spot.XCoord, spot.YCoord), a)).Min().a;
 
-                FishingSpots[spot.UniqueId]                                                 = spot;
+                FishingSpots[spot.UniqueId] = spot;
                 if (!spot.Spearfishing)
                     FishingSpotNames[spot!.PlaceName![GatherBuddy.Language].ToLowerInvariant()] = spot;
             }
@@ -332,7 +333,7 @@ namespace GatherBuddy.Managers
             this.Apply();
             FishByUptime = Fish.Values.Where(f => f.InLog && !f.OceanFish).ToList();
 
-            FishLog = new FishLog(pi.TargetModuleScanner, fishSheet.Count(f => f.IsInLog), (int) spearfishingItems.RowCount);
+            FishLog = new FishLog(GatherBuddy.SigScanner, fishSheet.Count(f => f.IsInLog), (int) spearfishingItems.RowCount);
 
             PluginLog.Verbose("{Count} Fishing Spots collected.", FishingSpots.Count);
             PluginLog.Verbose("{Count} Fish collected.",          Fish.Count);
@@ -384,9 +385,9 @@ namespace GatherBuddy.Managers
             return minDist > 4 ? null : minFish;
         }
 
-        public void SaveFishRecords(DalamudPluginInterface pi)
+        public void SaveFishRecords()
         {
-            var dir = new DirectoryInfo(pi.GetPluginConfigDirectory());
+            var dir = new DirectoryInfo(GatherBuddy.PluginInterface.GetPluginConfigDirectory());
             if (!dir.Exists)
                 try
                 {
@@ -409,11 +410,11 @@ namespace GatherBuddy.Managers
             }
         }
 
-        public FileInfo GetSaveFileName(DalamudPluginInterface pi)
-            => new(Path.Combine(new DirectoryInfo(pi.GetPluginConfigDirectory()).FullName, SaveFileName));
+        public static FileInfo GetSaveFileName()
+            => new(Path.Combine(new DirectoryInfo(GatherBuddy.PluginInterface.GetPluginConfigDirectory()).FullName, SaveFileName));
 
-        public void LoadFishRecords(DalamudPluginInterface pi)
-            => LoadFishRecords(GetSaveFileName(pi));
+        public void LoadFishRecords()
+            => LoadFishRecords(GetSaveFileName());
 
         public void LoadFishRecords(FileInfo file)
         {
@@ -442,14 +443,14 @@ namespace GatherBuddy.Managers
             }
         }
 
-        public int MergeFishRecords(DalamudPluginInterface pi, FileInfo file)
+        public int MergeFishRecords(FileInfo file)
         {
             if (!file.Exists)
                 return -1;
 
             try
             {
-                var oldRecords = GetSaveFileName(pi);
+                var oldRecords = GetSaveFileName();
                 if (oldRecords.Exists)
                     File.Copy(oldRecords.FullName, oldRecords.FullName + ".bak", true);
             }
@@ -469,8 +470,8 @@ namespace GatherBuddy.Managers
                     if (p == null)
                         continue;
 
-                    var (fishId, records) = p.Value;
-                    sum += Fish[fishId].Record.Merge(records) ? 1 : 0;
+                    var (fishId, records) =  p.Value;
+                    sum                   += Fish[fishId].Record.Merge(records) ? 1 : 0;
                 }
             }
             catch (Exception e)

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using GatherBuddy.Nodes;
 using ImGuiNET;
@@ -38,7 +37,7 @@ namespace GatherBuddy.Gui
         private void SetNodeTooltip(Node n)
         {
             var coords = n.GetX() != 0 ? $"({n.GetX()}|{n.GetY()})" : "(Unknown Location)";
-            var tooltip = $"{n.Nodes!.Territory!.Name[_lang]}, {coords} - {n.GetClosestAetheryte()?.Name[_lang] ?? ""}\n"
+            var tooltip = $"{n.Nodes!.Territory!.Name[GatherBuddy.Language]}, {coords} - {n.GetClosestAetheryte()?.Name[GatherBuddy.Language] ?? ""}\n"
               + $"{n.Meta!.NodeType}, up at {n.Times!.PrintHours()}\n"
               + $"{n.Meta!.GatheringType} at {n.Meta!.Level}";
             using var tt = ImGuiRaii.NewTooltip();
@@ -48,6 +47,7 @@ namespace GatherBuddy.Gui
                 ImGui.Image(icon.ImGuiHandle, _iconSize);
                 ImGui.SameLine();
             }
+
             ImGui.NewLine();
             ImGui.Text(tooltip);
         }
@@ -56,9 +56,7 @@ namespace GatherBuddy.Gui
         {
             ImGui.SetNextItemWidth(-1);
             if (ImGui.InputTextWithHint("##NodeFilter", "Filter Nodes...", ref _nodeTabCache.NodeFilter, 64))
-            {
                 _nodeTabCache.NodeFilterLower = _nodeTabCache.NodeFilter.ToLowerInvariant();
-            }
         }
 
         private void DrawTimedNodes(float widgetHeight)
@@ -67,7 +65,7 @@ namespace GatherBuddy.Gui
             if (!imgui.Begin(() => ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true), ImGui.EndChild))
                 return;
 
-            var enumerator = (_nodeTabCache.NodeFilterLower.Length == 0)
+            var enumerator = _nodeTabCache.NodeFilterLower.Length == 0
                 ? _nodeTabCache.ActiveNodeItems
                 : _nodeTabCache.ActiveNodeItems.Where(p => p.Item3.Contains(_nodeTabCache.NodeFilterLower));
             foreach (var (n, i, _) in enumerator)
@@ -98,7 +96,7 @@ namespace GatherBuddy.Gui
                 DrawBotanistBox();
                 imgui.End();
             }
-            
+
             ImGui.SameLine();
             if (imgui.Begin(() => ImGui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true), ImGui.EndChild))
             {

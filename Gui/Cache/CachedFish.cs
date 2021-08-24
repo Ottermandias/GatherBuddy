@@ -1,7 +1,7 @@
-﻿using System.Globalization;
+﻿using System;
+using System.Globalization;
 using System.Linq;
 using Dalamud;
-using Dalamud.Plugin;
 using GatherBuddy.Enums;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
@@ -38,7 +38,7 @@ namespace GatherBuddy.Gui.Cache
         public string          Territory            { get; }
         public string          TerritoryLower       { get; }
         public string          FishingSpot          { get; }
-        public string          FishingSpotTCAddress { get; }
+        public string          FishingSpotTcAddress { get; }
         public string          FishingSpotLower     { get; }
         public TextureWrap?    Snagging             { get; }
         public Predator[]      Predators            { get; }
@@ -72,11 +72,11 @@ namespace GatherBuddy.Gui.Cache
             if (fish.CatchData == null || fish.CatchData.PreviousWeather.Length == 0 && fish.CatchData.CurrentWeather.Length == 0)
             {
                 uptime = 0;
-                return new TextureWrap[0][];
+                return Array.Empty<TextureWrap[]>();
             }
 
             var icons      = Service<Icons>.Get();
-            var sheet      = Service<DalamudPluginInterface>.Get().Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>();
+            var sheet      = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!;
             var skyWatcher = Service<SkyWatcher>.Get();
 
             var previousChance = skyWatcher.ChanceForWeather(fish.FishingSpots.First().Territory!.Id, fish.CatchData.PreviousWeather);
@@ -88,14 +88,14 @@ namespace GatherBuddy.Gui.Cache
 
             uptime = (ushort) (uptime * currentChance * previousChance / 10000);
 
-            return new TextureWrap[][]
+            return new []
             {
-                fish.CatchData.PreviousWeather.Select(w => icons[sheet.GetRow(w).Icon]).ToArray(),
-                fish.CatchData.CurrentWeather.Select(w => icons[sheet.GetRow(w).Icon]).ToArray(),
+                fish.CatchData.PreviousWeather.Select(w => icons[sheet.GetRow(w)!.Icon]).ToArray(),
+                fish.CatchData.CurrentWeather.Select(w => icons[sheet.GetRow(w)!.Icon]).ToArray(),
             };
         }
 
-        private static Predator[] SetPredators(FishManager manager, Game.Fish fish)
+        private static Predator[] SetPredators(Game.Fish fish)
         {
             if (fish.CatchData == null || fish.CatchData.Predator.Length == 0)
                 return new Predator[0];
@@ -137,7 +137,7 @@ namespace GatherBuddy.Gui.Cache
         private static BaitOrder[] SetBait(FishTab cache, Game.Fish fish)
         {
             if (fish.IsSpearFish)
-                return new BaitOrder[1]
+                return new BaitOrder[]
                 {
                     new()
                     {
@@ -217,7 +217,7 @@ namespace GatherBuddy.Gui.Cache
             return s;
         }
 
-        public Fish(FishTab cache, FishManager manager, Game.Fish fish)
+        public Fish(FishTab cache, Game.Fish fish)
         {
             ushort uptime = 10000;
             Base                 = fish;
@@ -228,26 +228,26 @@ namespace GatherBuddy.Gui.Cache
             WeatherIcons         = SetWeather(fish, ref uptime);
             Bait                 = SetBait(cache, fish);
             FirstBaitLower       = Bait.Length > 0 ? Bait[0].Name.ToLowerInvariant() : "unknown bait";
-            Predators            = SetPredators(manager, fish);
+            Predators            = SetPredators(fish);
             Territory            = fish.FishingSpots.First().Territory!.Name[GatherBuddy.Language];
             TerritoryLower       = Territory.ToLowerInvariant();
             FishingSpot          = fish.FishingSpots.First().PlaceName![GatherBuddy.Language];
-            FishingSpotTCAddress = GetFishingSpotTcAddress(fish.FishingSpots.First().Id);
+            FishingSpotTcAddress = GetFishingSpotTcAddress(fish.FishingSpots.First().Id);
             FishingSpotLower     = FishingSpot.ToLowerInvariant();
             Snagging             = SetSnagging(cache, Bait, fish);
             Patch                = $"Patch {fish.CatchData?.Patch.ToVersionString() ?? "???"}";
             UptimeString         = $"{(uptime / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
             HasUptimeDependency  = SetUptimeDependency(fish, Bait);
             var intuition = fish.CatchData?.IntuitionLength ?? 0;
-            if (intuition > 0)
-            {
-                var minutes = intuition / RealTime.SecondsPerMinute;
-                var seconds = intuition % RealTime.SecondsPerMinute;
-                if (seconds == 0)
-                    IntuitionText = minutes == 1 ? $"Intuition for {minutes} Minute" : $"Intuition for {minutes} Minutes";
-                else
-                    IntuitionText = $"Intuition for {minutes}:{seconds:D2} Minutes";
-            }
+            if (intuition <= 0)
+                return;
+
+            var minutes = intuition / RealTime.SecondsPerMinute;
+            var seconds = intuition % RealTime.SecondsPerMinute;
+            if (seconds == 0)
+                IntuitionText = minutes == 1 ? $"Intuition for {minutes} Minute" : $"Intuition for {minutes} Minutes";
+            else
+                IntuitionText = $"Intuition for {minutes}:{seconds:D2} Minutes";
         }
     }
 }

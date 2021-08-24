@@ -27,7 +27,7 @@ namespace GatherBuddy.Gui.Cache
         public Weather(WeatherManager weather)
         {
             _weather           = weather;
-            WeatherTimes       = weather.NextWeatherChangeTimes(NumWeathers, -2 * WeatherManager.SecondsPerWeather);
+            WeatherTimes       = WeatherManager.NextWeatherChangeTimes(NumWeathers, -2 * WeatherManager.SecondsPerWeather);
             WeatherTimeStrings = new string[NumWeathers];
             _totalHour         = EorzeaTime.CurrentHour() - 8;
             Filter             = "";
@@ -49,7 +49,7 @@ namespace GatherBuddy.Gui.Cache
 
         private void UpdateTimes(long diff)
         {
-            for(var i = 0; i < NumWeathers; ++i)
+            for (var i = 0; i < NumWeathers; ++i)
             {
                 WeatherTimes[i]       = WeatherTimes[i].AddSeconds(diff * WeatherManager.SecondsPerWeather);
                 WeatherTimeStrings[i] = WeatherTimes[i].TimeOfDay.ToString();
@@ -82,7 +82,7 @@ namespace GatherBuddy.Gui.Cache
             {
                 var timeline = _weather!.UniqueZones[idx];
                 timeline.Update(NumWeathers);
-                var icons = Service<Cache.Icons>.Get();
+                var icons = Service<Icons>.Get();
                 for (var i = 0; i < NumWeathers; ++i)
                 {
                     WeatherNames[i] = timeline.List[i].Weather.Name;

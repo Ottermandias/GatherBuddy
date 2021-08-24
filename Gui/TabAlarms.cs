@@ -143,7 +143,7 @@ namespace GatherBuddy.Gui
                     case AlarmType.Node:
                         ImGui.Text(alarm.Node!.Times!.PrintHours(true, " | "));
                         if (ImGui.IsItemHovered())
-                            ImGui.SetTooltip(alarm.Node!.Items!.PrintItems("\n", _lang));
+                            ImGui.SetTooltip(alarm.Node!.Items!.PrintItems("\n", GatherBuddy.Language));
                         break;
                     case AlarmType.Fish:
                         ImGui.Text(alarm.Fish!.Name[GatherBuddy.Language]);

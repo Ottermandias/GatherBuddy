@@ -16,9 +16,9 @@ namespace GatherBuddy.Utility
         public static void Set(T obj)
             => _object = obj;
 
-        public static T Set(params dynamic[] args)
+        public static T? Set(params dynamic[] args)
         {
-            _object = (T) Activator.CreateInstance(typeof(T), args);
+            _object = (T?) Activator.CreateInstance(typeof(T), args);
             return _object;
         }
 

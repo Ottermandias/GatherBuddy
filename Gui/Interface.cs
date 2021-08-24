@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Dalamud;
-using Dalamud.Plugin;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
 using ImGuiNET;
@@ -14,11 +12,8 @@ namespace GatherBuddy.Gui
         private const string PluginName             = "GatherBuddy";
         private const float  DefaultHorizontalSpace = 5;
 
-        private readonly string                   _configHeader;
-        private readonly GatherBuddy              _plugin;
-        private readonly DalamudPluginInterface   _pi;
-        private readonly GatherBuddyConfiguration _config;
-        private readonly ClientLanguage           _lang;
+        private readonly string      _configHeader;
+        private readonly GatherBuddy _plugin;
 
         private FishManager FishManager
             => _plugin.Gatherer!.FishManager;
@@ -48,35 +43,27 @@ namespace GatherBuddy.Gui
         private static Vector2 _weatherIconSize;
         private        float   _alarmsSpacing;
 
-        private void Save()
-            => _pi.SavePluginConfig(_config);
-
-        public Interface(GatherBuddy plugin, DalamudPluginInterface pi, GatherBuddyConfiguration config)
+        public Interface(GatherBuddy plugin)
         {
-            _pi          = pi;
-            _plugin      = plugin;
-            _config      = config;
-            _lang        = pi.ClientState.ClientLanguage;
+            _plugin       = plugin;
             _configHeader = GatherBuddy.Version.Length > 0 ? $"{PluginName} v{GatherBuddy.Version}###GatherBuddyMain" : PluginName;
-            
-            _nodeTabCache = new Cache.NodeTab(_config, plugin.Gatherer!.Timeline);
-            _headerCache.Setup();
-            _alarmCache = new Cache.Alarms(_plugin.Alarms!, _lang);
 
-            var weatherSheet = _pi.Data.GetExcelSheet<Weather>();
-            _icons = Service<Cache.Icons>.Set(_pi, (int) weatherSheet.RowCount
-              + FishManager.FishByUptime.Count
-              + FishManager.Bait.Count);
+            _nodeTabCache = new Cache.NodeTab(plugin.Gatherer!.Timeline);
+            _headerCache.Setup();
+            _alarmCache = new Cache.Alarms(_plugin.Alarms!, GatherBuddy.Language);
+
+            var weatherSheet = GatherBuddy.GameData.GetExcelSheet<Weather>()!;
+            _icons = Service<Cache.Icons>.Set((int) weatherSheet.RowCount + FishManager.FishByUptime.Count + FishManager.Bait.Count)!;
 
             _weatherCache = new Cache.Weather(WeatherManager);
 
-            if (_config.ShowFishFromPatch >= Cache.FishTab.PatchSelector.Length)
+            if (GatherBuddy.Config.ShowFishFromPatch >= Cache.FishTab.PatchSelector.Length)
             {
-                _config.ShowFishFromPatch = 0;
-                Save();
+                GatherBuddy.Config.ShowFishFromPatch = 0;
+                GatherBuddy.Config.Save();
             }
 
-            _fishCache = new Cache.FishTab(WeatherManager, _config, FishManager, _icons);
+            _fishCache = new Cache.FishTab(WeatherManager, FishManager, _icons);
         }
 
         public void Dispose()

@@ -30,7 +30,7 @@ namespace GatherBuddy.Nodes
         public bool IsBotanist()
             => GatheringType.ToGroup() == GatheringType.Botanist;
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             var rhs = obj as NodeMeta;
             return PointBaseId.CompareTo(rhs?.PointBaseId ?? 0);

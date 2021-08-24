@@ -1,14 +1,23 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Windows.Forms;
 using Dalamud;
+using Dalamud.Data;
+using Dalamud.Game;
+using Dalamud.Game.ClientState;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.Command;
+using Dalamud.Game.Gui;
+using Dalamud.Logging;
 using Dalamud.Plugin;
 using GatherBuddy.Gui;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
+using ImGuiNET;
 using Newtonsoft.Json;
+using CommandManager = Dalamud.Game.Command.CommandManager;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 using Util = GatherBuddy.Utility.Util;
 
@@ -19,117 +28,135 @@ namespace GatherBuddy
         public string Name
             => "GatherBuddy";
 
-        private DalamudPluginInterface?   _pluginInterface;
-        public  Gatherer?                 Gatherer { get; set; }
-        public  AlarmManager?             Alarms   { get; set; }
-        private Managers.CommandManager?  _commandManager;
-        private GatherBuddyConfiguration? _configuration;
-        private Interface?                _gatherInterface;
-        private FishingTimer?             _fishingTimer;
+        public static DalamudPluginInterface   PluginInterface { get; private set; } = null!;
+        public static ClientState              ClientState     { get; private set; } = null!;
+        public static Condition                Conditions      { get; private set; } = null!;
+        public static DataManager              GameData        { get; private set; } = null!;
+        public static Framework                Framework       { get; private set; } = null!;
+        public static ObjectTable              Objects         { get; private set; } = null!;
+        public static CommandManager           Commands        { get; private set; } = null!;
+        public static GatherBuddyConfiguration Config          { get; private set; } = null!;
+        public static ChatGui                  Chat            { get; private set; } = null!;
+        public static SigScanner               SigScanner      { get; private set; } = null!;
+        public static ClientLanguage           Language        { get; private set; } = ClientLanguage.English;
 
-        public static ClientLanguage Language;
-        public static string         Version = string.Empty;
 
-        public void Initialize(DalamudPluginInterface pluginInterface)
+        public readonly  Gatherer     Gatherer;
+        public readonly  AlarmManager Alarms;
+        private readonly Interface    _gatherInterface;
+        private readonly FishingTimer _fishingTimer;
+
+
+        public static string Version = string.Empty;
+
+        public GatherBuddy(DalamudPluginInterface pluginInterface, ClientState clientState, Condition conditions, DataManager gameData,
+            Framework framework, ObjectTable objects, CommandManager commands, ChatGui chat, SigScanner sigScanner)
         {
-            _pluginInterface = pluginInterface;
-            Version          = Assembly.GetExecutingAssembly()?.GetName().Version.ToString() ?? "";
-            Language         = _pluginInterface.ClientState.ClientLanguage;
-            Service<DalamudPluginInterface>.Set(_pluginInterface);
-            _commandManager  = new Managers.CommandManager(pluginInterface);
-            _configuration   = pluginInterface.GetPluginConfig() as GatherBuddyConfiguration ?? new GatherBuddyConfiguration();
-            Gatherer         = new Gatherer(pluginInterface, _configuration, _commandManager);
+            PluginInterface = pluginInterface;
+            ClientState     = clientState;
+            Conditions      = conditions;
+            GameData        = gameData;
+            Framework       = framework;
+            Objects         = objects;
+            Commands        = commands;
+            Chat            = chat;
+            SigScanner      = sigScanner;
+
+            Version  = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
+            Config   = GatherBuddyConfiguration.Load();
+            Language = ClientState.ClientLanguage;
+
+            var commandManager = new Managers.CommandManager(SigScanner);
+            Gatherer         = new Gatherer(commandManager);
             Alarms           = Gatherer.Alarms;
-            _gatherInterface = new Interface(this, pluginInterface, _configuration);
-            _fishingTimer    = new FishingTimer(_pluginInterface, _configuration, Gatherer!.FishManager, Gatherer!.WeatherManager);
+            _gatherInterface = new Interface(this);
+            _fishingTimer    = new FishingTimer(Gatherer!.FishManager, Gatherer!.WeatherManager);
 
-            if (!Gatherer!.FishManager.GetSaveFileName(_pluginInterface).Exists)
-                Gatherer!.FishManager.SaveFishRecords(_pluginInterface);
+            if (!FishManager.GetSaveFileName().Exists)
+                Gatherer!.FishManager.SaveFishRecords();
             else
-                Gatherer!.FishManager.LoadFishRecords(_pluginInterface);
+                Gatherer!.FishManager.LoadFishRecords();
 
-            _pluginInterface!.CommandManager.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
+            Commands.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
             {
                 HelpMessage = "Use for settings. Use without arguments for interface.",
                 ShowInHelp  = true,
             });
 
-            _pluginInterface!.CommandManager.AddHandler("/gather", new CommandInfo(OnGather)
+            Commands.AddHandler("/gather", new CommandInfo(OnGather)
             {
                 HelpMessage = "Mark the nearest node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
                 ShowInHelp  = true,
             });
 
-            _pluginInterface!.CommandManager.AddHandler("/gatherbtn", new CommandInfo(OnGatherBtn)
+            Commands.AddHandler("/gatherbtn", new CommandInfo(OnGatherBtn)
             {
                 HelpMessage =
                     "Mark the nearest botanist node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
                 ShowInHelp = true,
             });
 
-            _pluginInterface!.CommandManager.AddHandler("/gathermin", new CommandInfo(OnGatherMin)
+            Commands.AddHandler("/gathermin", new CommandInfo(OnGatherMin)
             {
                 HelpMessage =
                     "Mark the nearest miner node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
                 ShowInHelp = true,
             });
 
-            _pluginInterface!.CommandManager.AddHandler("/gatherfish", new CommandInfo(OnGatherFish)
+            Commands.AddHandler("/gatherfish", new CommandInfo(OnGatherFish)
             {
                 HelpMessage =
                     "Mark the nearest fishing spot containing the fish supplied, teleport to the nearest aetheryte and equip fishing gear.",
                 ShowInHelp = true,
             });
 
-            _pluginInterface!.CommandManager.AddHandler("/gathergroup", new CommandInfo(OnGatherGroup)
+            Commands.AddHandler("/gathergroup", new CommandInfo(OnGatherGroup)
             {
                 HelpMessage = "Teleport to the node of a group corresponding to current time. Use /gathergroup for more details.",
                 ShowInHelp  = true,
             });
 
-            _pluginInterface!.CommandManager.AddHandler("/gatherdebug", new CommandInfo(OnGatherDebug)
+            Commands.AddHandler("/gatherdebug", new CommandInfo(OnGatherDebug)
             {
                 HelpMessage = "Dump some collected information.",
                 ShowInHelp  = false,
             });
 
-            pluginInterface.ClientState.TerritoryChanged += Gatherer!.OnTerritoryChange;
-            pluginInterface.UiBuilder.OnBuildUi          += _gatherInterface!.Draw;
-            pluginInterface.UiBuilder.OnOpenConfigUi     += OnConfigCommandHandler;
+            ClientState.TerritoryChanged           += Gatherer!.OnTerritoryChange;
+            PluginInterface.UiBuilder.Draw         += _gatherInterface!.Draw;
+            PluginInterface.UiBuilder.OpenConfigUi += OnConfigCommandHandler;
 
-            if (_configuration!.DoRecord)
+            if (Config!.DoRecord)
                 Gatherer.StartRecording();
 
-            if (_configuration.AlarmsEnabled)
+            if (Config.AlarmsEnabled)
                 Alarms!.Enable(true);
 
-            if (_configuration.OpenOnStart)
-                OnConfigCommandHandler(this, this);
+            if (Config.OpenOnStart)
+                OnConfigCommandHandler();
         }
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
-            _gatherInterface?.Dispose();
-            _pluginInterface!.UiBuilder.OnOpenConfigUi -= OnConfigCommandHandler;
-            _pluginInterface!.UiBuilder.OnBuildUi      -= _gatherInterface!.Draw;
-            _pluginInterface!.SavePluginConfig(_configuration);
-            _pluginInterface.ClientState.TerritoryChanged -= Gatherer!.OnTerritoryChange;
-            _fishingTimer?.Dispose();
-            Gatherer!.Dispose();
-            _pluginInterface.CommandManager.RemoveHandler("/gatherdebug");
-            _pluginInterface.CommandManager.RemoveHandler("/gather");
-            _pluginInterface.CommandManager.RemoveHandler("/gatherbtn");
-            _pluginInterface.CommandManager.RemoveHandler("/gathermin");
-            _pluginInterface.CommandManager.RemoveHandler("/gatherfish");
-            _pluginInterface.CommandManager.RemoveHandler("/gathergroup");
-            _pluginInterface.CommandManager.RemoveHandler("/gatherbuddy");
-            _pluginInterface.Dispose();
+            _gatherInterface.Dispose();
+            _fishingTimer.Dispose();
+            PluginInterface.UiBuilder.OpenConfigUi -= OnConfigCommandHandler;
+            PluginInterface.UiBuilder.Draw         -= _gatherInterface!.Draw;
+            ClientState.TerritoryChanged           -= Gatherer!.OnTerritoryChange;
+            (Gatherer as IDisposable).Dispose();
+            Commands.RemoveHandler("/gatherdebug");
+            Commands.RemoveHandler("/gather");
+            Commands.RemoveHandler("/gatherbtn");
+            Commands.RemoveHandler("/gathermin");
+            Commands.RemoveHandler("/gatherfish");
+            Commands.RemoveHandler("/gathergroup");
+            Commands.RemoveHandler("/gatherbuddy");
         }
 
         private void OnGather(string command, string arguments)
         {
             if (arguments.Length == 0)
-                _pluginInterface!.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gather.");
+                Chat.Print("Please supply a (partial) item name for /gather.");
             else
                 Gatherer!.OnGatherAction(arguments);
         }
@@ -137,7 +164,7 @@ namespace GatherBuddy
         private void OnGatherBtn(string command, string arguments)
         {
             if (arguments.Length == 0)
-                _pluginInterface!.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gatherbot.");
+                Chat.Print("Please supply a (partial) item name for /gatherbot.");
             else
                 Gatherer!.OnGatherAction(arguments, GatheringType.Botanist);
         }
@@ -145,7 +172,7 @@ namespace GatherBuddy
         private void OnGatherMin(string command, string arguments)
         {
             if (arguments.Length == 0)
-                _pluginInterface!.Framework.Gui.Chat.Print("Please supply a (partial) item name for /gathermin.");
+                Chat.Print("Please supply a (partial) item name for /gathermin.");
             else
                 Gatherer!.OnGatherAction(arguments, GatheringType.Miner);
         }
@@ -153,34 +180,33 @@ namespace GatherBuddy
         private void OnGatherFish(string command, string arguments)
         {
             if (arguments.Length == 0)
-                _pluginInterface!.Framework.Gui.Chat.Print("Please supply a (partial) fish name for /gatherfish.");
+                Chat.Print("Please supply a (partial) fish name for /gatherfish.");
             else
                 Gatherer!.OnFishAction(arguments);
         }
 
-        private void OnConfigCommandHandler(object a, object b)
+        private void OnConfigCommandHandler()
             => _gatherInterface!.Visible = true;
 
         private void PrintHelp()
         {
-            _pluginInterface!.Framework.Gui.Chat.Print("Please use with [setting] [value], where setting can be");
-            _pluginInterface.Framework.Gui.Chat.Print(
+            Chat.Print("Please use with [setting] [value], where setting can be");
+            Chat.Print(
                 "        -- SwitchGear [0|off|false|1|on|true]: do change the gear set to the correct one for the node.");
-            _pluginInterface.Framework.Gui.Chat.Print("        -- Miner [string]: the name of your miner gear set of choice.");
-            _pluginInterface.Framework.Gui.Chat.Print("        -- Botanist [string]: the name of your botanist gear set of choice.");
-            _pluginInterface.Framework.Gui.Chat.Print(
+            Chat.Print("        -- Miner [string]: the name of your miner gear set of choice.");
+            Chat.Print("        -- Botanist [string]: the name of your botanist gear set of choice.");
+            Chat.Print(
                 "        -- Teleport [0|off|false|1|on|true]: Teleport to the nearest aetheryte to the node. Requires Teleporter plugin.");
-            _pluginInterface.Framework.Gui.Chat.Print(
+            Chat.Print(
                 "        -- SetFlag [0|off|false|1|on|true]: Set a map marker on the approximate location of the node. Requires ChatCoordinates plugin.");
-            _pluginInterface.Framework.Gui.Chat.Print(
+            Chat.Print(
                 "        -- Record [0|off|false|1|on|true]: Start recording encountered nodes for more accurate positions.");
-            _pluginInterface.Framework.Gui.Chat.Print(
+            Chat.Print(
                 "        -- Snapshot: Records currently visible nodes a single time for more accurate positions.");
         }
 
         private void OnGatherBuddy(string command, string arguments)
         {
-            var chat = _pluginInterface!.Framework.Gui.Chat;
             var argumentParts = arguments.Split(new[]
             {
                 ' ',
@@ -205,64 +231,64 @@ namespace GatherBuddy
             }
             else if (Util.CompareCi(argumentParts[0], "miner"))
             {
-                var earlierName = _configuration!.MinerSetName;
-                _configuration.MinerSetName = argumentParts[1];
-                output                      = $"Set the Gearset for Miner from '{earlierName}' to '{_configuration.MinerSetName}'.";
+                var earlierName = Config.MinerSetName;
+                Config.MinerSetName = argumentParts[1];
+                output              = $"Set the Gearset for Miner from '{earlierName}' to '{Config.MinerSetName}'.";
             }
             else if (Util.CompareCi(argumentParts[0], "botanist"))
             {
-                var earlierName = _configuration!.BotanistSetName;
-                _configuration.BotanistSetName = argumentParts[1];
-                output                         = $"Set the Gearset for Botanist from '{earlierName}' to '{_configuration.BotanistSetName}'.";
+                var earlierName = Config.BotanistSetName;
+                Config.BotanistSetName = argumentParts[1];
+                output                 = $"Set the Gearset for Botanist from '{earlierName}' to '{Config.BotanistSetName}'.";
             }
             else if (Util.CompareCi(argumentParts[0], "switchgear"))
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    chat.Print("/gatherbuddy switchgear requires an argument of [0|off|false|1|on|true].");
+                    Chat.Print("/gatherbuddy switchgear requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
-                var oldSetting = _configuration!.UseGearChange;
-                _configuration.UseGearChange = setting;
-                output                       = $"Set the value of SwitchGear from {oldSetting} to {setting}.";
+                var oldSetting = Config.UseGearChange;
+                Config.UseGearChange = setting;
+                output               = $"Set the value of SwitchGear from {oldSetting} to {setting}.";
             }
             else if (Util.CompareCi(argumentParts[0], "teleport"))
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    chat.Print("/gatherbuddy teleport requires an argument of [0|off|false|1|on|true].");
+                    Chat.Print("/gatherbuddy teleport requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
-                var oldSetting = _configuration!.UseTeleport;
-                _configuration.UseTeleport = setting;
-                Gatherer!.TryCreateTeleporterWatcher(_pluginInterface, setting);
+                var oldSetting = Config.UseTeleport;
+                Config.UseTeleport = setting;
+                Gatherer!.TryCreateTeleporterWatcher(setting);
                 output = $"Set the value of Teleport from {oldSetting} to {setting}.";
             }
             else if (Util.CompareCi(argumentParts[0], "setflag"))
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    chat.Print("/gatherbuddy SetFlag requires an argument of [0|off|false|1|on|true].");
+                    Chat.Print("/gatherbuddy SetFlag requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
-                var oldSetting = _configuration!.UseCoordinates;
-                _configuration.UseCoordinates = setting;
-                output                        = $"Set the value of SetFlag from {oldSetting} to {setting}.";
+                var oldSetting = Config.UseCoordinates;
+                Config.UseCoordinates = setting;
+                output                = $"Set the value of SetFlag from {oldSetting} to {setting}.";
             }
             else if (Util.CompareCi(argumentParts[0], "record"))
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    chat.Print("/gatherbuddy record requires an argument of [0|off|false|1|on|true].");
+                    Chat.Print("/gatherbuddy record requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
-                var oldSetting = _configuration!.DoRecord;
-                _configuration.DoRecord = setting;
-                output                  = $"Set the value of DoRecord from {oldSetting} to {setting}.";
+                var oldSetting = Config.DoRecord;
+                Config.DoRecord = setting;
+                output          = $"Set the value of DoRecord from {oldSetting} to {setting}.";
                 if (setting == oldSetting)
                     return;
 
@@ -277,8 +303,8 @@ namespace GatherBuddy
                 return;
             }
 
-            _pluginInterface.SavePluginConfig(_configuration);
-            chat.Print(output);
+            Config.Save();
+            Chat.Print(output);
             PluginLog.Information(output);
         }
 
@@ -344,26 +370,26 @@ namespace GatherBuddy
             {
                 if (argumentParts.Length < 2)
                 {
-                    _pluginInterface!.Framework.Gui.Chat.PrintError("Please provide a filename to merge.");
+                    Chat.PrintError("Please provide a filename to merge.");
                     return;
                 }
 
                 var name = arguments.Substring(argumentParts[0].Length + 1);
-                var fish = Gatherer!.FishManager.MergeFishRecords(_pluginInterface!, new FileInfo(name));
+                var fish = Gatherer!.FishManager.MergeFishRecords(new FileInfo(name));
                 switch (fish)
                 {
                     case -1:
-                        _pluginInterface!.Framework.Gui.Chat.PrintError($"The provided file {name} does not exist.");
+                        Chat.PrintError($"The provided file {name} does not exist.");
                         return;
                     case -2:
-                        _pluginInterface!.Framework.Gui.Chat.PrintError("Could not create a backup of your records, merge stopped.");
+                        Chat.PrintError("Could not create a backup of your records, merge stopped.");
                         return;
                     case -3:
-                        _pluginInterface!.Framework.Gui.Chat.PrintError("Unexpected error occurred, merge stopped.");
+                        Chat.PrintError("Unexpected error occurred, merge stopped.");
                         return;
                     default:
-                        _pluginInterface!.Framework.Gui.Chat.Print($"{fish} Records updated with new data.");
-                        Gatherer!.FishManager.SaveFishRecords(_pluginInterface);
+                        Chat.Print($"{fish} Records updated with new data.");
+                        Gatherer!.FishManager.SaveFishRecords();
                         return;
                 }
             }
@@ -371,30 +397,28 @@ namespace GatherBuddy
             if (Util.CompareCi(argumentParts[0], "purgefish"))
             {
                 var name = arguments.Substring(argumentParts[0].Length + 1);
-                var fish = Gatherer!.FishManager.FindFishByName(name, _pluginInterface!.ClientState.ClientLanguage);
+                var fish = Gatherer!.FishManager.FindFishByName(name, Language);
                 if (fish == null)
-                    _pluginInterface.Framework.Gui.Chat.PrintError($"No fish found for [{name}].");
+                    Chat.PrintError($"No fish found for [{name}].");
                 else
                     fish.Record.Delete();
             }
 
             if (Util.CompareCi(argumentParts[0], "weather"))
             {
-                var weather = Service<SkyWatcher>.Get().GetForecast(_pluginInterface!.ClientState.TerritoryType);
-                _pluginInterface.Framework.Gui.Chat.Print(weather.Weather.Name);
+                var weather = Service<SkyWatcher>.Get().GetForecast(ClientState.TerritoryType);
+                Chat.Print(weather.Weather.Name);
             }
 
             if (Util.CompareCi(argumentParts[0], "export"))
-            {
                 if (argumentParts.Length >= 2 && Util.CompareCi(argumentParts[1], "fish"))
                 {
                     var ids = Gatherer!.FishManager.Fish.Values.Where(Gatherer.FishManager.FishLog.IsUnlocked).Select(i => i.ItemId).ToArray();
                     var output = $"Exported caught fish to clipboard ({ids.Length}/{Gatherer.FishManager.Fish.Count} caught).";
                     PluginLog.Information(output);
-                    _pluginInterface!.Framework.Gui.Chat.Print(output);
-                    Clipboard.SetText(JsonConvert.SerializeObject(ids, Formatting.Indented));
+                    Chat.Print(output);
+                    ImGui.SetClipboardText(JsonConvert.SerializeObject(ids, Formatting.Indented));
                 }
-            }
 
             if (!Util.CompareCi(argumentParts[0], "purge"))
                 return;

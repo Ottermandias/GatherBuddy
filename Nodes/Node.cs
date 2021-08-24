@@ -1,6 +1,6 @@
 using System;
 using System.Linq;
-using Dalamud.Plugin;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Game;
 
@@ -57,8 +57,8 @@ namespace GatherBuddy.Nodes
             return ret;
         }
 
-        public int CompareTo(object obj)
-            => Meta?.CompareTo(obj) ?? 1;
+        public int CompareTo(object? obj)
+            => obj == null ? -1 : Meta?.CompareTo(obj) ?? 1;
 
         public void AddItem(Gatherable item)
         {

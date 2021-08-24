@@ -7,12 +7,12 @@ namespace GatherBuddy.Gui
 {
     public sealed class ImGuiRaii : IDisposable
     {
-        private int   _colorStack  = 0;
-        private int   _fontStack   = 0;
-        private int   _styleStack  = 0;
-        private float _indentation = 0f;
+        private int   _colorStack;
+        private int   _fontStack;
+        private int   _styleStack;
+        private float _indentation;
 
-        private Stack<Action>? _onDispose = null;
+        private Stack<Action>? _onDispose;
 
         public ImGuiRaii()
         { }
@@ -51,6 +51,7 @@ namespace GatherBuddy.Gui
                 ImGui.PopStyleColor(actualN);
                 _colorStack -= actualN;
             }
+
             return this;
         }
 
@@ -76,6 +77,7 @@ namespace GatherBuddy.Gui
                 ImGui.PopStyleVar(actualN);
                 _styleStack -= actualN;
             }
+
             return this;
         }
 
@@ -95,6 +97,7 @@ namespace GatherBuddy.Gui
                 ImGui.PopFont();
                 --_fontStack;
             }
+
             return this;
         }
 
@@ -105,6 +108,7 @@ namespace GatherBuddy.Gui
                 ImGui.Indent(width);
                 _indentation += width;
             }
+
             return this;
         }
 
@@ -134,7 +138,7 @@ namespace GatherBuddy.Gui
         public void End(int n = 1)
         {
             var actualN = Math.Min(n, _onDispose?.Count ?? 0);
-            while(actualN-- > 0)
+            while (actualN-- > 0)
                 _onDispose!.Pop()();
         }
 

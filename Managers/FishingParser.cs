@@ -8,7 +8,7 @@ using Dalamud;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Plugin;
+using Dalamud.Logging;
 using GatherBuddy.Game;
 
 namespace GatherBuddy.Managers
@@ -91,8 +91,7 @@ namespace GatherBuddy.Managers
         private const    XivChatType FishingCatchMessage = (XivChatType) 2115;
         private readonly Regexes     _regexes;
 
-        private readonly DalamudPluginInterface _pi;
-        private readonly FishManager            _fish;
+        private readonly FishManager _fish;
 
         public event Action<FishingSpot?>? BeganFishing;
         public event Action?               BeganMooching;
@@ -156,7 +155,9 @@ namespace GatherBuddy.Managers
             var id = 0u;
             if (item.Item == null)
             {
-                id = (uint) (item!.GetType().GetField("itemId", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)?.GetValue(item) ?? 0u);
+                id = (uint) (item!.GetType().GetField("itemId", BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
+                        ?.GetValue(item)
+                 ?? 0u);
                 if (id == 0u)
                 {
                     PluginLog.Error("Caught unknown fish with unknown id.");
@@ -164,7 +165,9 @@ namespace GatherBuddy.Managers
                 }
             }
             else
+            {
                 id = item.Item.RowId;
+            }
 
             if (id > 500000)
                 id -= 500000;
@@ -220,18 +223,15 @@ namespace GatherBuddy.Managers
         }
 
 
-        public FishingParser(DalamudPluginInterface pi, FishManager fish)
+        public FishingParser(FishManager fish)
         {
-            _pi      = pi;
             _fish    = fish;
-            _regexes = Regexes.FromLanguage(pi.ClientState.ClientLanguage);
+            _regexes = Regexes.FromLanguage(GatherBuddy.Language);
 
-            _pi.Framework.Gui.Chat.OnChatMessage += OnMessageDelegate;
+            GatherBuddy.Chat.ChatMessage += OnMessageDelegate;
         }
 
         public void Dispose()
-        {
-            _pi.Framework.Gui.Chat.OnChatMessage -= OnMessageDelegate;
-        }
+            => GatherBuddy.Chat.ChatMessage -= OnMessageDelegate;
     }
 }

@@ -1,10 +1,11 @@
 ﻿{
     "Author": "Ottermandias",
     "Name": "GatherBuddy",
-    "Description": "Adds commands to simplify gathering by finding nodes and their locations via item name and a UI to keep track of special node uptimes.",
+    "Punchline": "Adds commands to simplify gathering by finding nodes and fish and their locations via item name and a UI to keep track of special uptime and weather conditions.",
+    "Description":  "",
     "InternalName": "GatherBuddy",
-    "AssemblyVersion": "2.0.7.2",
+    "AssemblyVersion": "2.1.0.0",
     "RepoUrl": "https://github.com/Ottermandias/GatherBuddy",
     "ApplicableVersion": "any",
-    "DalamudApiLevel": 3
+    "DalamudApiLevel": 4
 }

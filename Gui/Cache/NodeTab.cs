@@ -10,7 +10,6 @@ namespace GatherBuddy.Gui.Cache
     internal class NodeTab
     {
         private readonly NodeTimeLine                   _nodeTimeLine;
-        private readonly GatherBuddyConfiguration       _config;
         private readonly Dictionary<Nodes.Node, string> _allNodeItems;
 
         public List<(Nodes.Node, uint)>       ActiveNodes;
@@ -25,13 +24,13 @@ namespace GatherBuddy.Gui.Cache
         public string NodeFilterLower = "";
 
         private void UpdateNodes()
-            => ActiveNodeItems = ActiveNodes.Select(n => (n.Item1, _allNodeItems[n.Item1], _allNodeItems[n.Item1].ToLowerInvariant())).ToArray();
+            => ActiveNodeItems = ActiveNodes.Select(n => (n.Item1, _allNodeItems[n.Item1], _allNodeItems[n.Item1].ToLowerInvariant()))
+                .ToArray();
 
-        public NodeTab(GatherBuddyConfiguration config, NodeTimeLine nodeTimeLine)
+        public NodeTab(NodeTimeLine nodeTimeLine)
         {
-            _config         = config;
             _nodeTimeLine   = nodeTimeLine;
-            ActiveNodes     = _nodeTimeLine.GetNewList(_config.ShowNodes);
+            ActiveNodes     = _nodeTimeLine.GetNewList(GatherBuddy.Config.ShowNodes);
             ActiveNodeItems = Array.Empty<(Nodes.Node, string, string)>();
             HourOfDay       = EorzeaTime.CurrentHourOfDay();
             _allNodeItems = _nodeTimeLine.GetNewList(ShowNodes.AllNodes)
@@ -46,7 +45,7 @@ namespace GatherBuddy.Gui.Cache
         public bool Rebuild()
         {
             HourOfDay   = EorzeaTime.CurrentHourOfDay();
-            ActiveNodes = _nodeTimeLine.GetNewList(_config.ShowNodes);
+            ActiveNodes = _nodeTimeLine.GetNewList(GatherBuddy.Config.ShowNodes);
             if (ActiveNodes.Count > 0)
                 NodeTimeLine.SortByUptime(HourOfDay, ActiveNodes);
             UpdateNodes();

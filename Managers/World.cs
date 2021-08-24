@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Dalamud.Plugin;
-using Dalamud;
 using System.Linq;
+using Dalamud.Logging;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
 using GatherBuddy.Nodes;
@@ -13,8 +12,6 @@ namespace GatherBuddy.Managers
 {
     public class World
     {
-        private readonly DalamudPluginInterface _pi;
-        public           ClientLanguage         Language    { get; }
         public           TerritoryManager       Territories { get; }
         public           AetheryteManager       Aetherytes  { get; }
         public           ItemManager            Items       { get; }
@@ -52,7 +49,7 @@ namespace GatherBuddy.Managers
 
         public Territory? FindOrAddTerritory(TerritoryType territory)
         {
-            var newTerritory = Territories.FindOrAddTerritory(_pi, territory);
+            var newTerritory = Territories.FindOrAddTerritory(territory);
             if (newTerritory != null)
                 AddAetherytes(newTerritory);
             return newTerritory;
@@ -60,7 +57,7 @@ namespace GatherBuddy.Managers
 
         public void SetPlayerStreamCoords(ushort territory)
         {
-            var rawT = _pi.Data.GetExcelSheet<TerritoryType>().GetRow(territory);
+            var rawT = GatherBuddy.GameData.GetExcelSheet<TerritoryType>()!.GetRow(territory);
             var rawA = rawT?.Aetheryte?.Value;
 
             _currentXStream = rawA?.AetherstreamX ?? 0;
@@ -140,26 +137,24 @@ namespace GatherBuddy.Managers
             return minSpot;
         }
 
-        public World(DalamudPluginInterface pi, GatherBuddyConfiguration config)
+        public World()
         {
-            _pi         = pi;
-            Language    = pi.ClientState.ClientLanguage;
             Territories = new TerritoryManager();
-            Aetherytes  = new AetheryteManager(pi, Territories);
-            Items       = new ItemManager(pi);
-            Nodes       = new NodeManager(pi, config, this, Aetherytes, Items);
-            Weather     = new WeatherManager(pi, Territories);
-            Fish        = new FishManager(pi, this);
+            Aetherytes  = new AetheryteManager(Territories);
+            Items       = new ItemManager();
+            Nodes       = new NodeManager(this, Aetherytes, Items);
+            Weather     = new WeatherManager(Territories);
+            Fish        = new FishManager(this);
 
             PluginLog.Verbose("{Count} regions collected.",     Territories.Regions.Count);
             PluginLog.Verbose("{Count} territories collected.", Territories.Territories.Count);
         }
 
         public Gatherable? FindItemByName(string itemName)
-            => Items.FindItemByName(itemName, Language);
+            => Items.FindItemByName(itemName, GatherBuddy.Language);
 
         public Fish? FindFishByName(string fishName)
-            => Fish.FindFishByName(fishName, Language);
+            => Fish.FindFishByName(fishName, GatherBuddy.Language);
 
         public Node? ClosestNodeForItem(Gatherable? item, GatheringType? type = null)
             => item == null ? null : ClosestNodeFromNodeList(item.NodeList, type);

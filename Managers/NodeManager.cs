@@ -1,6 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Plugin;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Data;
 using GatherBuddy.Enums;
@@ -16,10 +16,10 @@ namespace GatherBuddy.Managers
         public NodeRecorder           Records      { get; }
         public Dictionary<uint, Node> NodeIdToNode { get; }
 
-        private static (Uptime, NodeType) GetTimes(DalamudPluginInterface pi, uint nodeId)
+        private static (Uptime, NodeType) GetTimes(uint nodeId)
         {
-            var timeSheet = pi.Data.GetExcelSheet<GatheringPointTransient>();
-            var hours     = timeSheet.GetRow(nodeId);
+            var timeSheet = GatherBuddy.GameData.GetExcelSheet<GatheringPointTransient>()!;
+            var hours     = timeSheet.GetRow(nodeId)!;
 
             // Check for ephemeral nodes
             if (hours.GatheringRarePopTimeTable.Row == 0)
@@ -30,7 +30,7 @@ namespace GatherBuddy.Managers
             // and for unspoiled
             else
             {
-                var time = new Uptime(hours.GatheringRarePopTimeTable.Value);
+                var time = new Uptime(hours.GatheringRarePopTimeTable.Value!);
                 return time.AlwaysUp() ? (time, NodeType.Regular) : (time, NodeType.Unspoiled);
             }
         }
@@ -39,21 +39,20 @@ namespace GatherBuddy.Managers
             Dictionary<uint, Node> baseIdToNode)
         {
             var hidden = new NodeHidden(gatherables);
-            foreach (var node in baseIdToNode)
+            foreach (var (_, node) in baseIdToNode)
             {
-                NodeCoords.SetCoords(node.Value, aetherytes);
-                hidden.SetHiddenItems(node.Value);
+                NodeCoords.SetCoords(node, aetherytes);
+                hidden.SetHiddenItems(node);
             }
         }
 
         public IEnumerable<Node> BaseNodes()
             => NodeIdToNode.Values.Distinct();
 
-        public NodeManager(DalamudPluginInterface pi, GatherBuddyConfiguration config, World territories,
-            AetheryteManager aetherytes, ItemManager gatherables)
+        public NodeManager(World territories, AetheryteManager aetherytes, ItemManager gatherables)
         {
-            var baseSheet = pi.Data.GetExcelSheet<GatheringPointBase>();
-            var nodeSheet = pi.Data.GetExcelSheet<GatheringPoint>();
+            var baseSheet = GatherBuddy.GameData.GetExcelSheet<GatheringPointBase>()!;
+            var nodeSheet = GatherBuddy.GameData.GetExcelSheet<GatheringPoint>()!;
 
             Dictionary<uint, Node> baseIdToNode = new((int) baseSheet.RowCount);
             NodeIdToNode = new Dictionary<uint, Node>((int) nodeSheet.RowCount);
@@ -80,20 +79,20 @@ namespace GatherBuddy.Managers
 
                 node = new Node
                 {
-                    PlaceNameEn = FFName.FromPlaceName(pi, nodeRow.PlaceName.Row),
+                    PlaceNameEn = FFName.FromPlaceName(nodeRow.PlaceName.Row),
                     Nodes = new SubNodes()
                     {
-                        Territory = territories.FindOrAddTerritory(nodeRow.TerritoryType.Value),
+                        Territory = territories.FindOrAddTerritory(nodeRow.TerritoryType.Value!),
                     },
                 };
                 node.Nodes.Nodes[nodeRow.RowId] = null;
                 if (node.Nodes.Territory == null)
                     continue;
 
-                var (times, type) = GetTimes(pi, nodeRow.RowId);
+                var (times, type) = GetTimes(nodeRow.RowId);
                 node.Times        = times;
 
-                var baseRow = baseSheet.GetRow(baseId);
+                var baseRow = baseSheet.GetRow(baseId)!;
                 node.Meta = new NodeMeta(baseRow, type);
 
                 if (node.Meta.GatheringType >= GatheringType.Spearfishing)
@@ -110,7 +109,7 @@ namespace GatherBuddy.Managers
                 NodeIdToNode[nodeRow.RowId] = node;
             }
 
-            Records = new NodeRecorder(pi, this, config.Records);
+            Records = new NodeRecorder(this, GatherBuddy.Config.Records);
 
             PluginLog.Verbose("{Count} unique gathering nodes collected.", NodeIdToNode.Count);
             PluginLog.Verbose("{Count} base gathering nodes collected.",   baseIdToNode.Count);

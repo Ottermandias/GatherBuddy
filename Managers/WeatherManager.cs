@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Plugin;
 using GatherBuddy.Classes;
 using GatherBuddy.Game;
 using GatherBuddy.Utility;
@@ -61,8 +60,8 @@ namespace GatherBuddy.Managers
             List      = RequestData(cache, -SecondsPerWeather).ToList();
         }
 
-        public int CompareTo(WeatherTimeline other)
-            => Territory.Id.CompareTo(other.Territory.Id);
+        public int CompareTo(WeatherTimeline? other)
+            => Territory.Id.CompareTo(other?.Territory.Id ?? 0);
 
 
         public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, Uptime uptime, long offset = 0, uint increment = 32)
@@ -98,14 +97,14 @@ namespace GatherBuddy.Managers
         public List<WeatherTimeline>             UniqueZones { get; } = new();
 
 
-        public WeatherManager(DalamudPluginInterface pi, TerritoryManager territories)
+        public WeatherManager(TerritoryManager territories)
         {
-            var skyWatcher     = Service<SkyWatcher>.Set(pi);
-            var territoryTypes = pi.Data.GetExcelSheet<TerritoryType>();
+            var skyWatcher     = Service<SkyWatcher>.Set(GatherBuddy.GameData, GatherBuddy.Language)!;
+            var territoryTypes = GatherBuddy.GameData.GetExcelSheet<TerritoryType>()!;
 
             foreach (var t in territoryTypes.Where(t => skyWatcher.GetRates(t.RowId).Length > 1))
             {
-                var territory = territories.FindOrAddTerritory(pi, t);
+                var territory = territories.FindOrAddTerritory(t);
                 if (territory == null)
                     continue;
 
@@ -116,7 +115,7 @@ namespace GatherBuddy.Managers
             }
         }
 
-        public DateTime[] NextWeatherChangeTimes(int num, long offset = 0)
+        public static DateTime[] NextWeatherChangeTimes(int num, long offset = 0)
         {
             var timeStamp          = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + offset;
             var currentWeatherTime = timeStamp - timeStamp % SecondsPerWeather;
@@ -129,7 +128,7 @@ namespace GatherBuddy.Managers
 
         private WeatherTimeline FindOrCreateForecast(Territory territory, uint increment)
         {
-            if (!Forecast.TryGetValue(territory.Id, out var values))
+            if (Forecast.TryGetValue(territory.Id, out var values))
                 return values;
 
             var timeline = new WeatherTimeline(territory, increment);

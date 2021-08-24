@@ -1,6 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
+using Dalamud.Game;
+using Dalamud.Logging;
 using Dalamud.Plugin;
 using GatherBuddy.SeFunctions;
 
@@ -13,16 +15,16 @@ namespace GatherBuddy.Managers
 
         private readonly IntPtr _uiModulePtr;
 
-        public CommandManager(DalamudPluginInterface pi, BaseUiObject baseUiObject, GetUiModule getUiModule, ProcessChatBox processChatBox)
+        public CommandManager(SeAddressBase baseUiObject, GetUiModule getUiModule, ProcessChatBox processChatBox)
         {
-            _dalamudCommands = pi.CommandManager;
+            _dalamudCommands = GatherBuddy.Commands;
             _processChatBox  = processChatBox;
             _uiModulePtr     = getUiModule.Invoke(Marshal.ReadIntPtr(baseUiObject.Address));
         }
 
-        public CommandManager(DalamudPluginInterface pi)
-            : this(pi, new BaseUiObject(pi.TargetModuleScanner), new GetUiModule(pi.TargetModuleScanner),
-                new ProcessChatBox(pi.TargetModuleScanner))
+        public CommandManager(SigScanner sigScanner)
+            : this(new BaseUiObject(sigScanner), new GetUiModule(sigScanner),
+                new ProcessChatBox(sigScanner))
         { }
 
         public bool Execute(string message)

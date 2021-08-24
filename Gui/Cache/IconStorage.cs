@@ -1,49 +1,42 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dalamud.Data.LuminaExtensions;
 using Dalamud.Plugin;
+using Dalamud.Utility;
 using ImGuiScene;
 using Lumina.Data.Files;
+using Lumina.Extensions;
 
 namespace GatherBuddy.Gui.Cache
 {
     internal class Icons : IDisposable
     {
-        private readonly DalamudPluginInterface _pi;
+        private readonly SortedList<uint, TextureWrap> _icons;
 
-        private readonly SortedList<int, TextureWrap> _icons;
+        public Icons(int size = 0)
+            => _icons = new SortedList<uint, TextureWrap>(size);
 
-        public Icons(DalamudPluginInterface pi, int size = 0)
-        {
-            _pi   = pi;
-            _icons = new SortedList<int, TextureWrap>(size);
-        }
-
-        public TextureWrap this[int id]
+        public TextureWrap this[uint id]
             => LoadIcon(id);
 
-        private TexFile? LoadIconHq(int id)
-        {
-            var path = $"ui/icon/{id / 1000 * 1000:000000}/{id:000000}_hr1.tex";
-            return _pi.Data.GetFile<TexFile>(path);
-        }
+        public TextureWrap this[int id]
+            => LoadIcon((uint) id);
 
-        public TextureWrap LoadIcon(int id)
+        public TextureWrap LoadIcon(uint id)
         {
             if (_icons.TryGetValue(id, out var ret))
                 return ret;
 
-            var icon = LoadIconHq(id) ?? _pi.Data.GetIcon(id);
+            var icon     = GatherBuddy.GameData.GetHqIcon(id) ?? GatherBuddy.GameData.GetIcon(id)!;
             var iconData = icon.GetRgbaImageData();
 
-            ret        = _pi.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);
+            ret        = GatherBuddy.PluginInterface.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);
             _icons[id] = ret;
             return ret;
         }
 
         public void Dispose()
         {
-            foreach(var icon in _icons.Values)
+            foreach (var icon in _icons.Values)
                 icon.Dispose();
         }
     }

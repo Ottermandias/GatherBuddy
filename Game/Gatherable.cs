@@ -41,7 +41,7 @@ namespace GatherBuddy.Game
         public override string ToString()
             => $"{Name} ({Level}{StarsString()})";
 
-        public int CompareTo(object obj)
+        public int CompareTo(object? obj)
         {
             var rhs = obj as Gatherable;
             return ItemId.CompareTo(rhs?.ItemId ?? 0);

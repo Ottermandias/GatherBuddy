@@ -47,7 +47,7 @@ namespace GatherBuddy.Gui
 
             ImGui.TableNextColumn();
             if (fish.IsFixed)
-                ImGui.PushStyleColor(ImGuiCol.Text, _config.AvailableFishColor);
+                ImGui.PushStyleColor(ImGuiCol.Text, GatherBuddy.Config.AvailableFishColor);
             if (ImGui.Selectable(fish.Name))
                 _plugin.Gatherer!.OnFishActionWithFish(fish.Base);
             if (fish.IsFixed)
@@ -56,27 +56,26 @@ namespace GatherBuddy.Gui
                 SetTooltip(fish);
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
                 _fishCache.ToggleFishFix(fish);
-            ;
 
-
-            static void DependencyWarning(Cache.Fish fish)
+            static void DependencyWarning()
                 => ImGui.TextColored(Colors.FishTab.DependencyWarning, "!!! May be dependent on intuition or mooch availability !!!");
 
             var uptime = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager);
             ImGui.TableNextColumn();
             if (uptime.Equals(RealUptime.Always))
             {
-                ImGui.TextColored(fish.HasUptimeDependency ? _config.DependentAvailableFishColor : _config.AvailableFishColor,
+                ImGui.TextColored(
+                    fish.HasUptimeDependency ? GatherBuddy.Config.DependentAvailableFishColor : GatherBuddy.Config.AvailableFishColor,
                     "Always Up");
                 if (fish.HasUptimeDependency && ImGui.IsItemHovered())
                 {
                     using var tt = ImGuiRaii.NewTooltip();
-                    DependencyWarning(fish);
+                    DependencyWarning();
                 }
             }
             else if (uptime.Equals(RealUptime.Unknown))
             {
-                ImGui.TextColored(_config.UpcomingFishColor, "Unknown");
+                ImGui.TextColored(GatherBuddy.Config.UpcomingFishColor, "Unknown");
             }
             else
             {
@@ -85,13 +84,13 @@ namespace GatherBuddy.Gui
                 if (seconds > 0)
                 {
                     using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
-                        fish.HasUptimeDependency ? _config.DependentUpcomingFishColor : _config.UpcomingFishColor);
+                        fish.HasUptimeDependency ? GatherBuddy.Config.DependentUpcomingFishColor : GatherBuddy.Config.UpcomingFishColor);
                     PrintSeconds(seconds);
                 }
                 else if (duration < 0)
                 {
                     using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
-                        fish.HasUptimeDependency ? _config.DependentAvailableFishColor : _config.AvailableFishColor);
+                        fish.HasUptimeDependency ? GatherBuddy.Config.DependentAvailableFishColor : GatherBuddy.Config.AvailableFishColor);
                     PrintSeconds(-duration);
                 }
 
@@ -99,7 +98,7 @@ namespace GatherBuddy.Gui
                 {
                     using var tt = ImGuiRaii.NewTooltip();
                     if (fish.HasUptimeDependency)
-                        DependencyWarning(fish);
+                        DependencyWarning();
                     ImGui.Text($"{uptime.Time.ToLocalTime()} Next Uptime\n{uptime.EndTime.ToLocalTime()} End Time\n{uptime.Duration} Duration");
                 }
             }
@@ -143,59 +142,60 @@ namespace GatherBuddy.Gui
                 ImGui.SetTooltip($"{fish.Territory}\nRight-click to open TeamCraft site for this spot.");
 
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
-                Process.Start(fish.FishingSpotTCAddress);
+                Process.Start(fish.FishingSpotTcAddress);
 
             ImGui.TableNextColumn();
             ImGui.Text(fish.Territory);
         }
 
         private void DrawAlreadyCaughtBox()
-            => DrawCheckbox("Show Already Caught", "Show fish that you are already collected in your Fish Guide.",
-                _config.ShowAlreadyCaught,         b => _config.ShowAlreadyCaught = b);
+            => DrawCheckbox("Show Already Caught",    "Show fish that you are already collected in your Fish Guide.",
+                GatherBuddy.Config.ShowAlreadyCaught, b => GatherBuddy.Config.ShowAlreadyCaught = b);
 
         private void DrawAlwaysUpBox()
-            => DrawCheckbox("Show Always Up", "Show fish that have neither weather nor time restrictions.",
-                _config.ShowAlwaysUp,         b =>
+            => DrawCheckbox("Show Always Up",    "Show fish that have neither weather nor time restrictions.",
+                GatherBuddy.Config.ShowAlwaysUp, b =>
                 {
-                    _config.ShowAlwaysUp = b;
+                    GatherBuddy.Config.ShowAlwaysUp = b;
                     _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawBigFishBox()
-            => DrawCheckbox("Show Big Fish", "Show fish that are categorized as Big Fish.",
-                _config.ShowBigFish,         b =>
+            => DrawCheckbox("Show Big Fish",    "Show fish that are categorized as Big Fish.",
+                GatherBuddy.Config.ShowBigFish, b =>
                 {
-                    _config.ShowBigFish = b;
+                    GatherBuddy.Config.ShowBigFish = b;
                     _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawSmallFishBox()
             => DrawCheckbox("Show Small Fish", "Show fish that are not categorized as Big Fish.",
-                _config.ShowSmallFish,
+                GatherBuddy.Config.ShowSmallFish,
                 b =>
                 {
-                    _config.ShowSmallFish = b;
+                    GatherBuddy.Config.ShowSmallFish = b;
                     _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawSpearFishBox()
             => DrawCheckbox("Show Spearfishing", "Show fish that are caught via Spearfishing.",
-                _config.ShowSpearFish,
+                GatherBuddy.Config.ShowSpearFish,
                 b =>
                 {
-                    _config.ShowSpearFish = b;
+                    GatherBuddy.Config.ShowSpearFish = b;
                     _fishCache.SetCurrentlyRelevantFish();
                 });
 
         private void DrawReleasePatchCombo()
         {
             ImGui.SetNextItemWidth(-1);
-            var tmp = (int) _config.ShowFishFromPatch;
-            if (ImGui.Combo("Release Patch", ref tmp, Cache.FishTab.Patches, Cache.FishTab.Patches.Length) && tmp != _config.ShowFishFromPatch)
+            var tmp = (int) GatherBuddy.Config.ShowFishFromPatch;
+            if (ImGui.Combo("Release Patch", ref tmp, Cache.FishTab.Patches, Cache.FishTab.Patches.Length)
+             && tmp != GatherBuddy.Config.ShowFishFromPatch)
             {
-                _config.ShowFishFromPatch = (byte) tmp;
-                _fishCache.Selector       = Cache.FishTab.PatchSelector[tmp];
-                Save();
+                GatherBuddy.Config.ShowFishFromPatch = (byte) tmp;
+                _fishCache.Selector                  = Cache.FishTab.PatchSelector[tmp];
+                GatherBuddy.Config.Save();
                 _fishCache.SetCurrentlyRelevantFish();
             }
 

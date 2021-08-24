@@ -57,7 +57,7 @@ namespace GatherBuddy.Game
 
         public Fish(SpearFishRow fishRow, GigHead gig, FFName name)
         {
-            ItemData         = fishRow.Item.Value;
+            ItemData         = fishRow.Item.Value!;
             _fishData        = fishRow;
             Name             = name;
             FishRestrictions = FishRestrictions.None;
@@ -87,9 +87,7 @@ namespace GatherBuddy.Game
         {
             // Always up
             if (FishRestrictions == FishRestrictions.None)
-            {
                 return RealUptime.Always;
-            }
 
             // Unknown
             if (CatchData == null
@@ -99,20 +97,19 @@ namespace GatherBuddy.Game
              && CatchData.CurrentWeather.Length == 0)
                 return RealUptime.Unknown;
 
-            
-            // If home territory is requested
-            if (territory == null || territory.Id == FishingSpots.First().Territory!.Id)
-            {
-                // Update cache if necessary
-                if (_nextUptime.EndTime <= DateTime.UtcNow)
-                    UpdateUptime(weather);
 
-                // Cache valid
-                return _nextUptime;
-            }
+            // If home territory is requested
+            if (territory != null && territory.Id != FishingSpots.First().Territory!.Id)
+                return GetUptime(weather, territory);
+
+            // Update cache if necessary
+            if (_nextUptime.EndTime <= DateTime.UtcNow)
+                UpdateUptime(weather);
+
+            // Cache valid
+            return _nextUptime;
 
             // If another territory is requested
-            return GetUptime(weather, territory);
         }
 
         public RealUptime NextUptime(WeatherManager weather)
