@@ -76,6 +76,12 @@
 			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
 		</None>
 	</ItemGroup>
+
+	<ItemGroup>
+	  <None Update="Icon.png">
+	    <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+	  </None>
+	</ItemGroup>
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 	  <Exec Command="if $(Configuration) == Release powershell Compress-Archive -Force $(TargetPath), $(TargetDir)$(SolutionName).pdb, $(TargetDir)$(SolutionName).json $(ProjectDir)$(SolutionName).zip" />
 	</Target>
