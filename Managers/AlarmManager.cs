@@ -36,7 +36,7 @@ namespace GatherBuddy.Managers
             _nodes   = nodes;
             _fish    = fish;
             _weather = weather;
-            _sounds  = new PlaySound(GatherBuddy.SigScanner);
+            _sounds  = new PlaySound(Dalamud.SigScanner);
             _status  = Enumerable.Repeat(false, Alarms.Count).ToList();
             UpdateNodes();
             AllTimedNodes = nodes.BaseNodes().Where(n => !n.Times!.AlwaysUp()).ToArray();
@@ -46,7 +46,7 @@ namespace GatherBuddy.Managers
         public void Dispose()
         {
             if (GatherBuddy.Config.AlarmsEnabled)
-                GatherBuddy.Framework.Update -= OnUpdate;
+                Dalamud.Framework.Update -= OnUpdate;
         }
 
         public void Enable(bool force = false)
@@ -56,7 +56,7 @@ namespace GatherBuddy.Managers
 
             UpdateNodes();
             GatherBuddy.Config.AlarmsEnabled =  true;
-            GatherBuddy.Framework.Update     += OnUpdate;
+            Dalamud.Framework.Update         += OnUpdate;
             GatherBuddy.Config.Save();
         }
 
@@ -66,7 +66,7 @@ namespace GatherBuddy.Managers
                 return;
 
             GatherBuddy.Config.AlarmsEnabled =  false;
-            GatherBuddy.Framework.Update     -= OnUpdate;
+            Dalamud.Framework.Update         -= OnUpdate;
             GatherBuddy.Config.Save();
         }
 
@@ -86,7 +86,7 @@ namespace GatherBuddy.Managers
         public void OnUpdate(object framework)
         {
             // Skip if the player isn't loaded in a territory.
-            if (GatherBuddy.ClientState.TerritoryType == 0)
+            if (Dalamud.ClientState.TerritoryType == 0)
                 return;
 
             var minute = EorzeaTime.CurrentMinuteOfDay();
@@ -170,12 +170,12 @@ namespace GatherBuddy.Managers
             {
                 if (alarm.Type == AlarmType.Node && GatherBuddy.Config.NodeAlarmFormat.Length > 0)
                 {
-                    GatherBuddy.Chat.PrintError(ReplaceNodeFormatPlaceholders(GatherBuddy.Config.NodeAlarmFormat,    alarm, currentMinute));
+                    Dalamud.Chat.PrintError(ReplaceNodeFormatPlaceholders(GatherBuddy.Config.NodeAlarmFormat,        alarm, currentMinute));
                     PluginLog.Verbose(ReplaceNodeFormatPlaceholders(GatherBuddyConfiguration.DefaultNodeAlarmFormat, alarm, currentMinute));
                 }
                 else if (alarm.Type == AlarmType.Fish && GatherBuddy.Config.FishAlarmFormat.Length > 0)
                 {
-                    GatherBuddy.Chat.PrintError(ReplaceFishFormatPlaceholders(GatherBuddy.Config.FishAlarmFormat,    alarm));
+                    Dalamud.Chat.PrintError(ReplaceFishFormatPlaceholders(GatherBuddy.Config.FishAlarmFormat,        alarm));
                     PluginLog.Verbose(ReplaceFishFormatPlaceholders(GatherBuddyConfiguration.DefaultFishAlarmFormat, alarm));
                 }
             }

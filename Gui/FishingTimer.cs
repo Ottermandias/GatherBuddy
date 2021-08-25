@@ -194,10 +194,10 @@ namespace GatherBuddy.Gui
             _chum      = false;
             _intuition = false;
 
-            if (GatherBuddy.ClientState.LocalPlayer?.StatusList == null)
+            if (Dalamud.ClientState.LocalPlayer?.StatusList == null)
                 return;
 
-            foreach (var buff in GatherBuddy.ClientState.LocalPlayer.StatusList)
+            foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
             {
                 switch (buff.StatusId)
                 {
@@ -277,27 +277,27 @@ namespace GatherBuddy.Gui
         {
             _fish           = fish;
             _weather        = weather;
-            _bait           = new CurrentBait(GatherBuddy.SigScanner);
+            _bait           = new CurrentBait(Dalamud.SigScanner);
             _parser         = new FishingParser(_fish);
             _icons          = Service<Cache.Icons>.Get();
-            _eventFramework = new EventFramework(GatherBuddy.SigScanner);
+            _eventFramework = new EventFramework(Dalamud.SigScanner);
 
-            GatherBuddy.PluginInterface.UiBuilder.Draw += Draw;
-            _parser.BeganFishing                       += OnBeganFishing;
-            _parser.BeganMooching                      += OnMooch;
-            _parser.IdentifiedSpot                     += OnIdentification;
-            _parser.SomethingBit                       += OnBite;
-            _parser.CaughtFish                         += OnCatch;
+            Dalamud.PluginInterface.UiBuilder.Draw += Draw;
+            _parser.BeganFishing                   += OnBeganFishing;
+            _parser.BeganMooching                  += OnMooch;
+            _parser.IdentifiedSpot                 += OnIdentification;
+            _parser.SomethingBit                   += OnBite;
+            _parser.CaughtFish                     += OnCatch;
         }
 
         public void Dispose()
         {
-            GatherBuddy.PluginInterface.UiBuilder.Draw -= Draw;
-            _parser.BeganFishing                       -= OnBeganFishing;
-            _parser.BeganMooching                      -= OnMooch;
-            _parser.IdentifiedSpot                     -= OnIdentification;
-            _parser.SomethingBit                       -= OnBite;
-            _parser.CaughtFish                         -= OnCatch;
+            Dalamud.PluginInterface.UiBuilder.Draw -= Draw;
+            _parser.BeganFishing                   -= OnBeganFishing;
+            _parser.BeganMooching                  -= OnMooch;
+            _parser.IdentifiedSpot                 -= OnIdentification;
+            _parser.SomethingBit                   -= OnBite;
+            _parser.CaughtFish                     -= OnCatch;
             _parser.Dispose();
         }
 
@@ -344,11 +344,11 @@ namespace GatherBuddy.Gui
             if (!Visible)
                 return;
 
-            if (GatherBuddy.ClientState.LocalPlayer?.ClassJob == null || !GatherBuddy.Conditions.Any())
+            if (Dalamud.ClientState.LocalPlayer?.ClassJob == null || !Dalamud.Conditions.Any())
                 return;
 
-            var fishing = _start.IsRunning && GatherBuddy.Conditions[ConditionFlag.Fishing];
-            var rodOut  = GatherBuddy.ClientState.LocalPlayer.ClassJob.Id == 18 && GatherBuddy.Conditions[ConditionFlag.Gathering];
+            var fishing = _start.IsRunning && Dalamud.Conditions[ConditionFlag.Fishing];
+            var rodOut  = Dalamud.ClientState.LocalPlayer.ClassJob.Id == 18 && Dalamud.Conditions[ConditionFlag.Gathering];
 
 
             if (_eventFramework.FishingState == FishingState.Bite)

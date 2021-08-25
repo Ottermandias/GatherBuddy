@@ -3,13 +3,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using Dalamud;
-using Dalamud.Data;
-using Dalamud.Game;
-using Dalamud.Game.ClientState;
-using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.Command;
-using Dalamud.Game.Gui;
 using Dalamud.Logging;
 using Dalamud.Plugin;
 using GatherBuddy.Gui;
@@ -17,7 +11,6 @@ using GatherBuddy.Managers;
 using GatherBuddy.Utility;
 using ImGuiNET;
 using Newtonsoft.Json;
-using CommandManager = Dalamud.Game.Command.CommandManager;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 using Util = GatherBuddy.Utility.Util;
 
@@ -28,16 +21,7 @@ namespace GatherBuddy
         public string Name
             => "GatherBuddy";
 
-        public static DalamudPluginInterface   PluginInterface { get; private set; } = null!;
-        public static ClientState              ClientState     { get; private set; } = null!;
-        public static Condition                Conditions      { get; private set; } = null!;
-        public static DataManager              GameData        { get; private set; } = null!;
-        public static Framework                Framework       { get; private set; } = null!;
-        public static ObjectTable              Objects         { get; private set; } = null!;
-        public static CommandManager           Commands        { get; private set; } = null!;
         public static GatherBuddyConfiguration Config          { get; private set; } = null!;
-        public static ChatGui                  Chat            { get; private set; } = null!;
-        public static SigScanner               SigScanner      { get; private set; } = null!;
         public static ClientLanguage           Language        { get; private set; } = ClientLanguage.English;
 
 
@@ -49,24 +33,14 @@ namespace GatherBuddy
 
         public static string Version = string.Empty;
 
-        public GatherBuddy(DalamudPluginInterface pluginInterface, ClientState clientState, Condition conditions, DataManager gameData,
-            Framework framework, ObjectTable objects, CommandManager commands, ChatGui chat, SigScanner sigScanner)
+        public GatherBuddy(DalamudPluginInterface pluginInterface)
         {
-            PluginInterface = pluginInterface;
-            ClientState     = clientState;
-            Conditions      = conditions;
-            GameData        = gameData;
-            Framework       = framework;
-            Objects         = objects;
-            Commands        = commands;
-            Chat            = chat;
-            SigScanner      = sigScanner;
-
+            Dalamud.Initialize(pluginInterface);
             Version  = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             Config   = GatherBuddyConfiguration.Load();
-            Language = ClientState.ClientLanguage;
+            Language = Dalamud.ClientState.ClientLanguage;
 
-            var commandManager = new Managers.CommandManager(SigScanner);
+            var commandManager = new Managers.CommandManager(Dalamud.SigScanner);
             Gatherer         = new Gatherer(commandManager);
             Alarms           = Gatherer.Alarms;
             _gatherInterface = new Interface(this);
@@ -77,54 +51,54 @@ namespace GatherBuddy
             else
                 Gatherer!.FishManager.LoadFishRecords();
 
-            Commands.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
+            Dalamud.Commands.AddHandler("/gatherbuddy", new CommandInfo(OnGatherBuddy)
             {
                 HelpMessage = "Use for settings. Use without arguments for interface.",
                 ShowInHelp  = true,
             });
 
-            Commands.AddHandler("/gather", new CommandInfo(OnGather)
+            Dalamud.Commands.AddHandler("/gather", new CommandInfo(OnGather)
             {
                 HelpMessage = "Mark the nearest node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
                 ShowInHelp  = true,
             });
 
-            Commands.AddHandler("/gatherbtn", new CommandInfo(OnGatherBtn)
+            Dalamud.Commands.AddHandler("/gatherbtn", new CommandInfo(OnGatherBtn)
             {
                 HelpMessage =
                     "Mark the nearest botanist node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
                 ShowInHelp = true,
             });
 
-            Commands.AddHandler("/gathermin", new CommandInfo(OnGatherMin)
+            Dalamud.Commands.AddHandler("/gathermin", new CommandInfo(OnGatherMin)
             {
                 HelpMessage =
                     "Mark the nearest miner node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
                 ShowInHelp = true,
             });
 
-            Commands.AddHandler("/gatherfish", new CommandInfo(OnGatherFish)
+            Dalamud.Commands.AddHandler("/gatherfish", new CommandInfo(OnGatherFish)
             {
                 HelpMessage =
                     "Mark the nearest fishing spot containing the fish supplied, teleport to the nearest aetheryte and equip fishing gear.",
                 ShowInHelp = true,
             });
 
-            Commands.AddHandler("/gathergroup", new CommandInfo(OnGatherGroup)
+            Dalamud.Commands.AddHandler("/gathergroup", new CommandInfo(OnGatherGroup)
             {
                 HelpMessage = "Teleport to the node of a group corresponding to current time. Use /gathergroup for more details.",
                 ShowInHelp  = true,
             });
 
-            Commands.AddHandler("/gatherdebug", new CommandInfo(OnGatherDebug)
+            Dalamud.Commands.AddHandler("/gatherdebug", new CommandInfo(OnGatherDebug)
             {
                 HelpMessage = "Dump some collected information.",
                 ShowInHelp  = false,
             });
 
-            ClientState.TerritoryChanged           += Gatherer!.OnTerritoryChange;
-            PluginInterface.UiBuilder.Draw         += _gatherInterface!.Draw;
-            PluginInterface.UiBuilder.OpenConfigUi += OnConfigCommandHandler;
+            Dalamud.ClientState.TerritoryChanged           += Gatherer!.OnTerritoryChange;
+            Dalamud.PluginInterface.UiBuilder.Draw         += _gatherInterface!.Draw;
+            Dalamud.PluginInterface.UiBuilder.OpenConfigUi += OnConfigCommandHandler;
 
             if (Config!.DoRecord)
                 Gatherer.StartRecording();
@@ -140,23 +114,23 @@ namespace GatherBuddy
         {
             _gatherInterface.Dispose();
             _fishingTimer.Dispose();
-            PluginInterface.UiBuilder.OpenConfigUi -= OnConfigCommandHandler;
-            PluginInterface.UiBuilder.Draw         -= _gatherInterface!.Draw;
-            ClientState.TerritoryChanged           -= Gatherer!.OnTerritoryChange;
+            Dalamud.PluginInterface.UiBuilder.OpenConfigUi -= OnConfigCommandHandler;
+            Dalamud.PluginInterface.UiBuilder.Draw         -= _gatherInterface!.Draw;
+            Dalamud.ClientState.TerritoryChanged           -= Gatherer!.OnTerritoryChange;
             (Gatherer as IDisposable).Dispose();
-            Commands.RemoveHandler("/gatherdebug");
-            Commands.RemoveHandler("/gather");
-            Commands.RemoveHandler("/gatherbtn");
-            Commands.RemoveHandler("/gathermin");
-            Commands.RemoveHandler("/gatherfish");
-            Commands.RemoveHandler("/gathergroup");
-            Commands.RemoveHandler("/gatherbuddy");
+            Dalamud.Commands.RemoveHandler("/gatherdebug");
+            Dalamud.Commands.RemoveHandler("/gather");
+            Dalamud.Commands.RemoveHandler("/gatherbtn");
+            Dalamud.Commands.RemoveHandler("/gathermin");
+            Dalamud.Commands.RemoveHandler("/gatherfish");
+            Dalamud.Commands.RemoveHandler("/gathergroup");
+            Dalamud.Commands.RemoveHandler("/gatherbuddy");
         }
 
         private void OnGather(string command, string arguments)
         {
             if (arguments.Length == 0)
-                Chat.Print("Please supply a (partial) item name for /gather.");
+                Dalamud.Chat.Print("Please supply a (partial) item name for /gather.");
             else
                 Gatherer!.OnGatherAction(arguments);
         }
@@ -164,7 +138,7 @@ namespace GatherBuddy
         private void OnGatherBtn(string command, string arguments)
         {
             if (arguments.Length == 0)
-                Chat.Print("Please supply a (partial) item name for /gatherbot.");
+                Dalamud.Chat.Print("Please supply a (partial) item name for /gatherbot.");
             else
                 Gatherer!.OnGatherAction(arguments, GatheringType.Botanist);
         }
@@ -172,7 +146,7 @@ namespace GatherBuddy
         private void OnGatherMin(string command, string arguments)
         {
             if (arguments.Length == 0)
-                Chat.Print("Please supply a (partial) item name for /gathermin.");
+                Dalamud.Chat.Print("Please supply a (partial) item name for /gathermin.");
             else
                 Gatherer!.OnGatherAction(arguments, GatheringType.Miner);
         }
@@ -180,7 +154,7 @@ namespace GatherBuddy
         private void OnGatherFish(string command, string arguments)
         {
             if (arguments.Length == 0)
-                Chat.Print("Please supply a (partial) fish name for /gatherfish.");
+                Dalamud.Chat.Print("Please supply a (partial) fish name for /gatherfish.");
             else
                 Gatherer!.OnFishAction(arguments);
         }
@@ -190,18 +164,18 @@ namespace GatherBuddy
 
         private void PrintHelp()
         {
-            Chat.Print("Please use with [setting] [value], where setting can be");
-            Chat.Print(
+            Dalamud.Chat.Print("Please use with [setting] [value], where setting can be");
+            Dalamud.Chat.Print(
                 "        -- SwitchGear [0|off|false|1|on|true]: do change the gear set to the correct one for the node.");
-            Chat.Print("        -- Miner [string]: the name of your miner gear set of choice.");
-            Chat.Print("        -- Botanist [string]: the name of your botanist gear set of choice.");
-            Chat.Print(
+            Dalamud.Chat.Print("        -- Miner [string]: the name of your miner gear set of choice.");
+            Dalamud.Chat.Print("        -- Botanist [string]: the name of your botanist gear set of choice.");
+            Dalamud.Chat.Print(
                 "        -- Teleport [0|off|false|1|on|true]: Teleport to the nearest aetheryte to the node. Requires Teleporter plugin.");
-            Chat.Print(
+            Dalamud.Chat.Print(
                 "        -- SetFlag [0|off|false|1|on|true]: Set a map marker on the approximate location of the node. Requires ChatCoordinates plugin.");
-            Chat.Print(
+            Dalamud.Chat.Print(
                 "        -- Record [0|off|false|1|on|true]: Start recording encountered nodes for more accurate positions.");
-            Chat.Print(
+            Dalamud.Chat.Print(
                 "        -- Snapshot: Records currently visible nodes a single time for more accurate positions.");
         }
 
@@ -245,7 +219,7 @@ namespace GatherBuddy
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    Chat.Print("/gatherbuddy switchgear requires an argument of [0|off|false|1|on|true].");
+                    Dalamud.Chat.Print("/gatherbuddy switchgear requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
@@ -257,7 +231,7 @@ namespace GatherBuddy
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    Chat.Print("/gatherbuddy teleport requires an argument of [0|off|false|1|on|true].");
+                    Dalamud.Chat.Print("/gatherbuddy teleport requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
@@ -270,7 +244,7 @@ namespace GatherBuddy
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    Chat.Print("/gatherbuddy SetFlag requires an argument of [0|off|false|1|on|true].");
+                    Dalamud.Chat.Print("/gatherbuddy SetFlag requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
@@ -282,7 +256,7 @@ namespace GatherBuddy
             {
                 if (!Util.TryParseBoolean(argumentParts[1], out setting))
                 {
-                    Chat.Print("/gatherbuddy record requires an argument of [0|off|false|1|on|true].");
+                    Dalamud.Chat.Print("/gatherbuddy record requires an argument of [0|off|false|1|on|true].");
                     return;
                 }
 
@@ -304,7 +278,7 @@ namespace GatherBuddy
             }
 
             Config.Save();
-            Chat.Print(output);
+            Dalamud.Chat.Print(output);
             PluginLog.Information(output);
         }
 
@@ -370,7 +344,7 @@ namespace GatherBuddy
             {
                 if (argumentParts.Length < 2)
                 {
-                    Chat.PrintError("Please provide a filename to merge.");
+                    Dalamud.Chat.PrintError("Please provide a filename to merge.");
                     return;
                 }
 
@@ -379,16 +353,16 @@ namespace GatherBuddy
                 switch (fish)
                 {
                     case -1:
-                        Chat.PrintError($"The provided file {name} does not exist.");
+                        Dalamud.Chat.PrintError($"The provided file {name} does not exist.");
                         return;
                     case -2:
-                        Chat.PrintError("Could not create a backup of your records, merge stopped.");
+                        Dalamud.Chat.PrintError("Could not create a backup of your records, merge stopped.");
                         return;
                     case -3:
-                        Chat.PrintError("Unexpected error occurred, merge stopped.");
+                        Dalamud.Chat.PrintError("Unexpected error occurred, merge stopped.");
                         return;
                     default:
-                        Chat.Print($"{fish} Records updated with new data.");
+                        Dalamud.Chat.Print($"{fish} Records updated with new data.");
                         Gatherer!.FishManager.SaveFishRecords();
                         return;
                 }
@@ -399,15 +373,15 @@ namespace GatherBuddy
                 var name = arguments.Substring(argumentParts[0].Length + 1);
                 var fish = Gatherer!.FishManager.FindFishByName(name, Language);
                 if (fish == null)
-                    Chat.PrintError($"No fish found for [{name}].");
+                    Dalamud.Chat.PrintError($"No fish found for [{name}].");
                 else
                     fish.Record.Delete();
             }
 
             if (Util.CompareCi(argumentParts[0], "weather"))
             {
-                var weather = Service<SkyWatcher>.Get().GetForecast(ClientState.TerritoryType);
-                Chat.Print(weather.Weather.Name);
+                var weather = Service<SkyWatcher>.Get().GetForecast(Dalamud.ClientState.TerritoryType);
+                Dalamud.Chat.Print(weather.Weather.Name);
             }
 
             if (Util.CompareCi(argumentParts[0], "export"))
@@ -416,7 +390,7 @@ namespace GatherBuddy
                     var ids = Gatherer!.FishManager.Fish.Values.Where(Gatherer.FishManager.FishLog.IsUnlocked).Select(i => i.ItemId).ToArray();
                     var output = $"Exported caught fish to clipboard ({ids.Length}/{Gatherer.FishManager.Fish.Count} caught).";
                     PluginLog.Information(output);
-                    Chat.Print(output);
+                    Dalamud.Chat.Print(output);
                     ImGui.SetClipboardText(JsonConvert.SerializeObject(ids, Formatting.Indented));
                 }
 

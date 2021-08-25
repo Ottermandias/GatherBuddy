@@ -228,10 +228,10 @@ namespace GatherBuddy.Managers
             _fish    = fish;
             _regexes = Regexes.FromLanguage(GatherBuddy.Language);
 
-            GatherBuddy.Chat.ChatMessage += OnMessageDelegate;
+            Dalamud.Chat.ChatMessage += OnMessageDelegate;
         }
 
         public void Dispose()
-            => GatherBuddy.Chat.ChatMessage -= OnMessageDelegate;
+            => Dalamud.Chat.ChatMessage -= OnMessageDelegate;
     }
 }

@@ -21,15 +21,21 @@ namespace GatherBuddy.Gui.Cache
         public TextureWrap this[int id]
             => LoadIcon((uint) id);
 
+        private TexFile? GetHdIcon(uint id)
+        {
+            var path = $"ui/icon/{id / 1000 * 1000:000000}/{id:000000}_hr1.tex";
+            return Dalamud.GameData.GetFile<TexFile>(path);
+        }
+
         public TextureWrap LoadIcon(uint id)
         {
             if (_icons.TryGetValue(id, out var ret))
                 return ret;
 
-            var icon     = GatherBuddy.GameData.GetHqIcon(id) ?? GatherBuddy.GameData.GetIcon(id)!;
+            var icon     = GetHdIcon(id) ?? Dalamud.GameData.GetIcon(id)!;
             var iconData = icon.GetRgbaImageData();
 
-            ret        = GatherBuddy.PluginInterface.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);
+            ret        = Dalamud.PluginInterface.UiBuilder.LoadImageRaw(iconData, icon.Header.Width, icon.Header.Height, 4);
             _icons[id] = ret;
             return ret;
         }

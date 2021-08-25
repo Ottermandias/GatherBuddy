@@ -90,11 +90,11 @@ namespace GatherBuddy
         public List<uint> FixedFish { get; set; } = new();
 
         public void Save()
-            => GatherBuddy.PluginInterface.SavePluginConfig(this);
+            => Dalamud.PluginInterface.SavePluginConfig(this);
 
         public static GatherBuddyConfiguration Load()
         {
-            if (GatherBuddy.PluginInterface.GetPluginConfig() is GatherBuddyConfiguration config)
+            if (Dalamud.PluginInterface.GetPluginConfig() is GatherBuddyConfiguration config)
                 return config;
 
             config = new GatherBuddyConfiguration();

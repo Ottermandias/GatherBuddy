@@ -52,7 +52,7 @@ namespace GatherBuddy.Gui
             _headerCache.Setup();
             _alarmCache = new Cache.Alarms(_plugin.Alarms!, GatherBuddy.Language);
 
-            var weatherSheet = GatherBuddy.GameData.GetExcelSheet<Weather>()!;
+            var weatherSheet = Dalamud.GameData.GetExcelSheet<Weather>()!;
             _icons = Service<Cache.Icons>.Set((int) weatherSheet.RowCount + FishManager.FishByUptime.Count + FishManager.Bait.Count)!;
 
             _weatherCache = new Cache.Weather(WeatherManager);

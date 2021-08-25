@@ -57,7 +57,7 @@ namespace GatherBuddy.Managers
 
         public void SetPlayerStreamCoords(ushort territory)
         {
-            var rawT = GatherBuddy.GameData.GetExcelSheet<TerritoryType>()!.GetRow(territory);
+            var rawT = Dalamud.GameData.GetExcelSheet<TerritoryType>()!.GetRow(territory);
             var rawA = rawT?.Aetheryte?.Value;
 
             _currentXStream = rawA?.AetherstreamX ?? 0;

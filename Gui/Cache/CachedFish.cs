@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Dalamud;
@@ -76,7 +77,7 @@ namespace GatherBuddy.Gui.Cache
             }
 
             var icons      = Service<Icons>.Get();
-            var sheet      = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!;
+            var sheet      = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!;
             var skyWatcher = Service<SkyWatcher>.Get();
 
             var previousChance = skyWatcher.ChanceForWeather(fish.FishingSpots.First().Territory!.Id, fish.CatchData.PreviousWeather);
@@ -88,7 +89,7 @@ namespace GatherBuddy.Gui.Cache
 
             uptime = (ushort) (uptime * currentChance * previousChance / 10000);
 
-            return new []
+            return new[]
             {
                 fish.CatchData.PreviousWeather.Select(w => icons[sheet.GetRow(w)!.Icon]).ToArray(),
                 fish.CatchData.CurrentWeather.Select(w => icons[sheet.GetRow(w)!.Icon]).ToArray(),
@@ -98,7 +99,7 @@ namespace GatherBuddy.Gui.Cache
         private static Predator[] SetPredators(Game.Fish fish)
         {
             if (fish.CatchData == null || fish.CatchData.Predator.Length == 0)
-                return new Predator[0];
+                return Array.Empty<Predator>();
 
             return fish.CatchData.Predator.Select(p =>
             {
@@ -180,12 +181,12 @@ namespace GatherBuddy.Gui.Cache
                 };
             }
 
-            ret[ret.Length - 1].HookSet = FromHookSet(cache, fish.CatchData?.HookSet ?? HookSet.Unknown);
-            ret[ret.Length - 1].Bite    = FromBiteType(fish.CatchData?.BiteType ?? BiteType.Unknown);
+            ret[^1].HookSet = FromHookSet(cache, fish.CatchData?.HookSet ?? HookSet.Unknown);
+            ret[^1].Bite    = FromBiteType(fish.CatchData?.BiteType ?? BiteType.Unknown);
             return ret;
         }
 
-        private static TextureWrap? SetSnagging(FishTab cache, BaitOrder[] baitOrder, Game.Fish fish)
+        private static TextureWrap? SetSnagging(FishTab cache, IEnumerable<BaitOrder> baitOrder, Game.Fish fish)
         {
             if ((fish.CatchData?.Snagging ?? Enums.Snagging.Unknown) == Enums.Snagging.Required)
                 return cache.IconSnagging;

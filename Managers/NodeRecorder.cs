@@ -24,10 +24,10 @@ namespace GatherBuddy.Managers
         }
 
         public void ActivateScanning()
-            => GatherBuddy.Framework.Update += OnUpdateEvent;
+            => Dalamud.Framework.Update += OnUpdateEvent;
 
         public void DeactivateScanning()
-            => GatherBuddy.Framework.Update -= OnUpdateEvent;
+            => Dalamud.Framework.Update -= OnUpdateEvent;
 
         public void Dispose()
             => DeactivateScanning();
@@ -57,14 +57,14 @@ namespace GatherBuddy.Managers
         public int Scan()
         {
             var numNodes = 0;
-            foreach (var a in GatherBuddy.Objects.Where(a
+            foreach (var a in Dalamud.Objects.Where(a
                 => a.ObjectKind == ObjectKind.GatheringPoint && a.Address != IntPtr.Zero))
             {
                 var id = (uint) Marshal.ReadInt32(a.Address + 0x80);
                 if (_skipList.Contains(id))
                     continue;
 
-                var mapId = GatherBuddy.ClientState.TerritoryType;
+                var mapId = Dalamud.ClientState.TerritoryType;
                 if (!_nodes.NodeIdToNode.TryGetValue(id, out var node))
                 {
                     // Apparently there are many Gathering Node actors left in the world that are not used anymore.
@@ -131,8 +131,8 @@ namespace GatherBuddy.Managers
 
         private static double GetMapScale(uint rowId)
         {
-            var map = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.TerritoryType>()!.GetRow(rowId)?.Map.Row ?? 0;
-            var row = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Map>()!.GetRow(map);
+            var map = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.TerritoryType>()!.GetRow(rowId)?.Map.Row ?? 0;
+            var row = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Map>()!.GetRow(map);
             return row?.SizeFactor / 100.0 ?? 1.0;
         }
 

@@ -28,10 +28,10 @@ namespace GatherBuddy.Managers
 
         public ItemManager()
         {
-            var gatheringExcel = GatherBuddy.GameData.GetExcelSheet<GatheringItem>()!;
+            var gatheringExcel = Dalamud.GameData.GetExcelSheet<GatheringItem>()!;
             var itemSheets     = new ExcelSheet<Item>[4];
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
-                itemSheets[(int) lang] = GatherBuddy.GameData.GetExcelSheet<Item>(lang)!;
+                itemSheets[(int) lang] = Dalamud.GameData.GetExcelSheet<Item>(lang)!;
 
             var defaultSheet = itemSheets[(int) GatherBuddy.Language];
             // Skip invalid items.

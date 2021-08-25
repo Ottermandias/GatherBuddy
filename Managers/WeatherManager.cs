@@ -99,8 +99,8 @@ namespace GatherBuddy.Managers
 
         public WeatherManager(TerritoryManager territories)
         {
-            var skyWatcher     = Service<SkyWatcher>.Set(GatherBuddy.GameData, GatherBuddy.Language)!;
-            var territoryTypes = GatherBuddy.GameData.GetExcelSheet<TerritoryType>()!;
+            var skyWatcher     = Service<SkyWatcher>.Set(Dalamud.GameData, GatherBuddy.Language)!;
+            var territoryTypes = Dalamud.GameData.GetExcelSheet<TerritoryType>()!;
 
             foreach (var t in territoryTypes.Where(t => skyWatcher.GetRates(t.RowId).Length > 1))
             {

@@ -35,7 +35,7 @@ namespace GatherBuddy.Utility
             var name = new FFName();
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
             {
-                var row = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.PlaceName>(lang)!.GetRow(id);
+                var row = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.PlaceName>(lang)!.GetRow(id);
                 name[lang] = row?.Name ?? "";
             }
 
@@ -52,7 +52,7 @@ namespace GatherBuddy.Utility
             _nameList[(int) lang] = Util.RemoveItalics(name);
         }
 
-        private readonly string[] _nameList = 
+        private readonly string[] _nameList =
         {
             string.Empty,
             string.Empty,

@@ -218,7 +218,7 @@ namespace GatherBuddy.Managers
             if (GatherBuddy.Language != ClientLanguage.German)
                 return newSpot;
 
-            var seBytes = GatherBuddy.GameData.GetExcelSheet<PlaceName>(ClientLanguage.German)!.GetRow(spot.PlaceName.Row)!.Unknown8.RawData;
+            var seBytes = Dalamud.GameData.GetExcelSheet<PlaceName>(ClientLanguage.German)!.GetRow(spot.PlaceName.Row)!.Unknown8.RawData;
             HandleGermanString(seBytes, newSpot);
 
             return newSpot;
@@ -285,7 +285,7 @@ namespace GatherBuddy.Managers
 
         private void SetupGigHeads()
         {
-            var records = GatherBuddy.GameData.Excel.GetSheet<SpearfishingRecordPage>()!;
+            var records = Dalamud.GameData.Excel.GetSheet<SpearfishingRecordPage>()!;
             foreach (var record in records)
             {
                 GigHeadFromRecord[record.Unknown0] = GigHead.Small;
@@ -296,16 +296,16 @@ namespace GatherBuddy.Managers
 
         public FishManager(World territories)
         {
-            var fishingSpots      = GatherBuddy.GameData.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishingSpot>()!;
-            var spearfishingSpots = GatherBuddy.GameData.Excel.GetSheet<SpearfishingNotebook>()!;
-            var spearfishingItems = GatherBuddy.GameData.Excel.GetSheet<SpearfishingItem>()!;
-            var fishSheet         = GatherBuddy.GameData.Excel.GetSheet<FishParameter>()!;
+            var fishingSpots      = Dalamud.GameData.Excel.GetSheet<Lumina.Excel.GeneratedSheets.FishingSpot>()!;
+            var spearfishingSpots = Dalamud.GameData.Excel.GetSheet<SpearfishingNotebook>()!;
+            var spearfishingItems = Dalamud.GameData.Excel.GetSheet<SpearfishingItem>()!;
+            var fishSheet         = Dalamud.GameData.Excel.GetSheet<FishParameter>()!;
             var itemSheets        = new ExcelSheet<Item>[4];
 
             SetupGigHeads();
 
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
-                itemSheets[(int) lang] = GatherBuddy.GameData.GetExcelSheet<Item>(lang)!;
+                itemSheets[(int) lang] = Dalamud.GameData.GetExcelSheet<Item>(lang)!;
 
             foreach (var spot in fishingSpots
                 .Select(s => FromFishingSpot(territories, fishSheet, itemSheets, s))
@@ -333,7 +333,7 @@ namespace GatherBuddy.Managers
             this.Apply();
             FishByUptime = Fish.Values.Where(f => f.InLog && !f.OceanFish).ToList();
 
-            FishLog = new FishLog(GatherBuddy.SigScanner, fishSheet.Count(f => f.IsInLog), (int) spearfishingItems.RowCount);
+            FishLog = new FishLog(Dalamud.SigScanner, fishSheet.Count(f => f.IsInLog), (int) spearfishingItems.RowCount);
 
             PluginLog.Verbose("{Count} Fishing Spots collected.", FishingSpots.Count);
             PluginLog.Verbose("{Count} Fish collected.",          Fish.Count);
@@ -387,7 +387,7 @@ namespace GatherBuddy.Managers
 
         public void SaveFishRecords()
         {
-            var dir = new DirectoryInfo(GatherBuddy.PluginInterface.GetPluginConfigDirectory());
+            var dir = new DirectoryInfo(Dalamud.PluginInterface.GetPluginConfigDirectory());
             if (!dir.Exists)
                 try
                 {
@@ -411,7 +411,7 @@ namespace GatherBuddy.Managers
         }
 
         public static FileInfo GetSaveFileName()
-            => new(Path.Combine(new DirectoryInfo(GatherBuddy.PluginInterface.GetPluginConfigDirectory()).FullName, SaveFileName));
+            => new(Path.Combine(new DirectoryInfo(Dalamud.PluginInterface.GetPluginConfigDirectory()).FullName, SaveFileName));
 
         public void LoadFishRecords()
             => LoadFishRecords(GetSaveFileName());

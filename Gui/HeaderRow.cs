@@ -34,7 +34,7 @@ namespace GatherBuddy.Gui
         private void DrawSnapshotButton()
         {
             if (ImGui.Button("Snapshot", new Vector2(-1, 0)))
-                GatherBuddy.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
+                Dalamud.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
             if (ImGui.IsItemHovered())
                 ImGui.SetTooltip("Record currently available nodes around you once.");
         }
@@ -110,7 +110,7 @@ namespace GatherBuddy.Gui
             var width = -(ImGui.CalcTextSize(nextWeatherString).X
               + (_weatherIconSize.X + _itemSpacing.X * 1.5f + ImGui.GetStyle().FramePadding.X) * 2);
 
-            var territory = GatherBuddy.ClientState.TerritoryType;
+            var territory = Dalamud.ClientState.TerritoryType;
             _headerCache.Update(eorzeaHour, territory);
 
             DrawEorzeaTime($"ET {hourOfDay:D2}:{minuteOfHour:D2}");

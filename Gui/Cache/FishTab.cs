@@ -121,6 +121,7 @@ namespace GatherBuddy.Gui.Cache
                 }
 
                 ret.Add(cachedFish);
+                cachedFish.IsFixed = true;
             }
 
             if (bad)

@@ -21,13 +21,13 @@ namespace GatherBuddy
 {
     public class Gatherer : IDisposable
     {
-        private          ClientLanguage                    _teleporterLanguage;
-        private          FileSystemWatcher?                _teleporterWatcher;
-        private readonly CommandManager                    _commandManager;
-        private readonly World                             _world;
-        private readonly Dictionary<string, TimedGroup>    _groups;
-        public           NodeTimeLine                      Timeline { get; }
-        public           AlarmManager                      Alarms   { get; }
+        private          ClientLanguage                 _teleporterLanguage;
+        private          FileSystemWatcher?             _teleporterWatcher;
+        private readonly CommandManager                 _commandManager;
+        private readonly World                          _world;
+        private readonly Dictionary<string, TimedGroup> _groups;
+        public           NodeTimeLine                   Timeline { get; }
+        public           AlarmManager                   Alarms   { get; }
 
         public FishManager FishManager
             => _world.Fish;
@@ -47,7 +47,7 @@ namespace GatherBuddy
                 return;
             }
 
-            var dir = new DirectoryInfo(GatherBuddy.PluginInterface.GetPluginConfigDirectory());
+            var dir = new DirectoryInfo(Dalamud.PluginInterface.GetPluginConfigDirectory());
             if (!dir.Exists || (dir.Parent?.Exists ?? false))
                 return;
 
@@ -177,13 +177,13 @@ namespace GatherBuddy
             if (item == null)
             {
                 string output = $"Could not find corresponding item to \"{itemName}\".";
-                GatherBuddy.Chat.Print(output);
+                Dalamud.Chat.Print(output);
                 PluginLog.Verbose(output);
                 return null;
             }
 
             if (GatherBuddy.Config.IdentifiedItemFormat.Length > 0)
-                GatherBuddy.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedItemFormat, itemName, item));
+                Dalamud.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedItemFormat, itemName, item));
             PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedItemFormat, item.ItemId, item.Name[GatherBuddy.Language], itemName);
             return item;
         }
@@ -194,13 +194,13 @@ namespace GatherBuddy
             if (fish == null)
             {
                 string output = $"Could not find corresponding item to \"{fishName}\".";
-                GatherBuddy.Chat.Print(output);
+                Dalamud.Chat.Print(output);
                 PluginLog.Verbose(output);
                 return null;
             }
 
             if (GatherBuddy.Config.IdentifiedFishFormat.Length > 0)
-                GatherBuddy.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedFishFormat, fishName, fish));
+                Dalamud.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedFishFormat, fishName, fish));
             PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishFormat, fish.ItemId, fish!.Name![GatherBuddy.Language], fishName);
             return fish;
         }
@@ -214,7 +214,7 @@ namespace GatherBuddy
             if (item.NodeList.Count == 0)
             {
                 var output = $"Found no gathering nodes for item {item.ItemId}.";
-                GatherBuddy.Chat.PrintError(output);
+                Dalamud.Chat.PrintError(output);
                 PluginLog.Debug(output);
                 return null;
             }
@@ -224,14 +224,14 @@ namespace GatherBuddy
             {
                 if (type == null)
                 {
-                    GatherBuddy.Chat.PrintError(
+                    Dalamud.Chat.PrintError(
                         $"No nodes containing {item.Name[GatherBuddy.Language]} have associated coordinates or aetheryte.");
-                    GatherBuddy.Chat.PrintError(
+                    Dalamud.Chat.PrintError(
                         "They will become available after encountering the respective node while having recording enabled.");
                 }
                 else
                 {
-                    GatherBuddy.Chat.PrintError(
+                    Dalamud.Chat.PrintError(
                         $"No nodes containing {item.Name[GatherBuddy.Language]} for the specified job have been found.");
                 }
             }
@@ -244,17 +244,17 @@ namespace GatherBuddy
                 {
                     var diff = nextUptime.Time - now;
                     if (diff.Minutes > 0)
-                        GatherBuddy.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Minutes} Minutes).");
+                        Dalamud.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Minutes} Minutes).");
                     else
-                        GatherBuddy.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Seconds} Seconds).");
+                        Dalamud.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Seconds} Seconds).");
                 }
                 else
                 {
                     var diff = nextUptime.EndTime - now;
                     if (diff.Minutes > 0)
-                        GatherBuddy.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Minutes} Minutes).");
+                        Dalamud.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Minutes} Minutes).");
                     else
-                        GatherBuddy.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Seconds} Seconds).");
+                        Dalamud.Chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Seconds} Seconds).");
                 }
             }
 
@@ -265,9 +265,9 @@ namespace GatherBuddy
         {
             if (!_commandManager.Execute("/tp " + name))
             {
-                GatherBuddy.Chat.PrintError(
+                Dalamud.Chat.PrintError(
                     "It seems like you have activated teleporting, but you have not installed the required plugin Teleporter by Pohky.");
-                GatherBuddy.Chat.PrintError("Please either deactivate teleporting or install the plugin.");
+                Dalamud.Chat.PrintError("Please either deactivate teleporting or install the plugin.");
             }
 
             await Task.Delay(100);
@@ -344,9 +344,9 @@ namespace GatherBuddy
         {
             if (!_commandManager.Execute($"/coord {x}, {y} : {territory}"))
             {
-                GatherBuddy.Chat.PrintError(
+                Dalamud.Chat.PrintError(
                     "It seems like you have activated map markers, but you have not installed the required plugin ChatCoordinates by kij.");
-                GatherBuddy.Chat.PrintError("Please either deactivate map markers or install the plugin.");
+                Dalamud.Chat.PrintError("Please either deactivate map markers or install the plugin.");
             }
 
             await Task.Delay(100);
@@ -432,7 +432,7 @@ namespace GatherBuddy
         public void OnBaitAction(string baitName = "")
         {
             ImGui.SetClipboardText(baitName);
-            GatherBuddy.Chat.Print($"Copied [{baitName}] to clipboard.");
+            Dalamud.Chat.Print($"Copied [{baitName}] to clipboard.");
         }
 
         public void OnFishActionWithFish(Fish? fish, string fishName = "")
@@ -441,15 +441,15 @@ namespace GatherBuddy
             if (closestSpot == null)
             {
                 var outputError = $"Could not find fishing spot for \"{fish!.Name![GatherBuddy.Language]}\".";
-                GatherBuddy.Chat.PrintError(outputError);
+                Dalamud.Chat.PrintError(outputError);
                 PluginLog.Error(outputError);
                 return;
             }
 
             if (GatherBuddy.Config.IdentifiedFishingSpotFormat.Length > 0)
-                GatherBuddy.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
+                Dalamud.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
             if (GatherBuddy.Config.PrintGigHead && fish!.IsSpearFish)
-                GatherBuddy.Chat.Print($"Use {(fish.Gig != GigHead.Unknown ? fish.Gig : fish.CatchData?.GigHead ?? GigHead.Unknown)} gig head.");
+                Dalamud.Chat.Print($"Use {(fish.Gig != GigHead.Unknown ? fish.Gig : fish.CatchData?.GigHead ?? GigHead.Unknown)} gig head.");
             PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![GatherBuddy.Language],
                 fish!.Name![GatherBuddy.Language]);
 
@@ -463,11 +463,11 @@ namespace GatherBuddy
                 var fish = Alarms.LastFishAlarm?.Fish;
                 if (fish == null)
                 {
-                    GatherBuddy.Chat.PrintError("No active alarm was triggered, yet.");
+                    Dalamud.Chat.PrintError("No active alarm was triggered, yet.");
                 }
                 else
                 {
-                    GatherBuddy.Chat.Print($"Teleporting to [Alarm {Alarms.LastFishAlarm!.Name}] ({fish.Name[GatherBuddy.Language]}):");
+                    Dalamud.Chat.Print($"Teleporting to [Alarm {Alarms.LastFishAlarm!.Name}] ({fish.Name[GatherBuddy.Language]}):");
                     OnFishActionWithFish(fish);
                 }
             }
@@ -487,12 +487,12 @@ namespace GatherBuddy
                     var node = Alarms.LastNodeAlarm?.Node;
                     if (node == null)
                     {
-                        GatherBuddy.Chat.PrintError("No active alarm was triggered, yet.");
+                        Dalamud.Chat.PrintError("No active alarm was triggered, yet.");
                     }
                     else
                     {
-                        GatherBuddy.Chat.Print($"Teleporting to [Alarm {Alarms.LastNodeAlarm!.Name}] ({node.Times!.PrintHours()}):");
-                        GatherBuddy.Chat.Print(node.Items!.PrintItems(", ", GatherBuddy.Language) + '.');
+                        Dalamud.Chat.Print($"Teleporting to [Alarm {Alarms.LastNodeAlarm!.Name}] ({node.Times!.PrintHours()}):");
+                        Dalamud.Chat.Print(node.Items!.PrintItems(", ", GatherBuddy.Language) + '.');
                         OnGatherActionWithNode(node);
                     }
                 }
@@ -517,13 +517,13 @@ namespace GatherBuddy
             {
                 if (groupName.Length == 0)
                 {
-                    TimedGroup.PrintHelp(GatherBuddy.Chat, _groups);
+                    TimedGroup.PrintHelp(Dalamud.Chat, _groups);
                     return;
                 }
 
                 if (!_groups.TryGetValue(groupName, out var group))
                 {
-                    GatherBuddy.Chat.PrintError($"\"{groupName}\" is not a valid group.");
+                    Dalamud.Chat.PrintError($"\"{groupName}\" is not a valid group.");
                     return;
                 }
 
@@ -546,10 +546,10 @@ namespace GatherBuddy
                     return;
 
                 if (!GatherBuddy.Config.UseCoordinates && node.Meta!.NodeType == NodeType.Regular)
-                    GatherBuddy.Chat.Print(
+                    Dalamud.Chat.Print(
                         $"Gather [{desc}] at coordinates ({node.GetX():F2} | {node.GetY():F2}).");
                 else
-                    GatherBuddy.Chat.Print($"Gather [{desc}].");
+                    Dalamud.Chat.Print($"Gather [{desc}].");
             }
             catch (Exception e)
             {
@@ -566,7 +566,7 @@ namespace GatherBuddy
             if (item.NodeList.Count == 0)
             {
                 var output = $"Found no gathering nodes for item {item.ItemId}.";
-                GatherBuddy.Chat.PrintError(output);
+                Dalamud.Chat.PrintError(output);
                 PluginLog.Debug(output);
                 return;
             }

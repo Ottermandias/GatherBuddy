@@ -18,7 +18,7 @@ namespace GatherBuddy.Managers
 
         private static (Uptime, NodeType) GetTimes(uint nodeId)
         {
-            var timeSheet = GatherBuddy.GameData.GetExcelSheet<GatheringPointTransient>()!;
+            var timeSheet = Dalamud.GameData.GetExcelSheet<GatheringPointTransient>()!;
             var hours     = timeSheet.GetRow(nodeId)!;
 
             // Check for ephemeral nodes
@@ -51,8 +51,8 @@ namespace GatherBuddy.Managers
 
         public NodeManager(World territories, AetheryteManager aetherytes, ItemManager gatherables)
         {
-            var baseSheet = GatherBuddy.GameData.GetExcelSheet<GatheringPointBase>()!;
-            var nodeSheet = GatherBuddy.GameData.GetExcelSheet<GatheringPoint>()!;
+            var baseSheet = Dalamud.GameData.GetExcelSheet<GatheringPointBase>()!;
+            var nodeSheet = Dalamud.GameData.GetExcelSheet<GatheringPoint>()!;
 
             Dictionary<uint, Node> baseIdToNode = new((int) baseSheet.RowCount);
             NodeIdToNode = new Dictionary<uint, Node>((int) nodeSheet.RowCount);

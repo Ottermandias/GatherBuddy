@@ -13,14 +13,14 @@ namespace GatherBuddy.Managers
 
         private static double GetMapScale(uint rowId)
         {
-            var row = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Map>()!.GetRow(rowId);
+            var row = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Map>()!.GetRow(rowId);
             return row?.SizeFactor / 100.0 ?? 1.0;
         }
 
         public AetheryteManager(TerritoryManager territories)
         {
-            var aetheryteExcel = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()!;
-            var mapMarkerList  = GatherBuddy.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.MapMarker>()!.Where(m => m.DataType == 3).ToList();
+            var aetheryteExcel = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()!;
+            var mapMarkerList  = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.MapMarker>()!.Where(m => m.DataType == 3).ToList();
 
             foreach (var a in aetheryteExcel.Where(a => a.IsAetheryte && a.RowId > 0))
             {
