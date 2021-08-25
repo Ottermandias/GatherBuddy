@@ -1,7 +1,6 @@
 ﻿using System;
 using Dalamud.Game;
 using Dalamud.Logging;
-using Dalamud.Plugin;
 
 namespace GatherBuddy.SeFunctions
 {
