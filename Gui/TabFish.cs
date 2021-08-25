@@ -105,7 +105,7 @@ namespace GatherBuddy.Gui
             }
 
             ImGui.TableNextColumn();
-            ImGui.Dummy(new Vector2(_fishCache.LongestPercentage - ImGui.CalcTextSize(fish.UptimeString).X, 0));
+            ImGui.Dummy(new Vector2(_fishCache.LongestPercentage * _globalScale - ImGui.CalcTextSize(fish.UptimeString).X, 0));
             ImGui.SameLine();
             ImGui.Text(fish.UptimeString);
 
