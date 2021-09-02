@@ -215,7 +215,7 @@ namespace GatherBuddy.Data
             fish.Apply     (27456, Patch.Shadowbringers) // Henodus
                 .Bait      (fish, 27588, 27457)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 24)
+                .Uptime    (960, 1440)
                 .Weather   (4, 3)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27457, Patch.Shadowbringers) // Spearhead Squid
@@ -261,7 +261,7 @@ namespace GatherBuddy.Data
             fish.Apply     (27467, Patch.Shadowbringers) // Thorned Lizard
                 .Bait      (fish, 27584, 27461)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (10, 18)
+                .Uptime    (600, 1080)
                 .Weather   (14, 1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27468, Patch.Shadowbringers) // Spotted Blue-eye
@@ -364,7 +364,7 @@ namespace GatherBuddy.Data
             fish.Apply     (27492, Patch.Shadowbringers) // Diamond Pipira
                 .Bait      (fish, 27587)
                 .Tug       (BiteType.Strong)
-                .Uptime    (12, 20)
+                .Uptime    (720, 1200)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27493, Patch.Shadowbringers) // Silver Kitten
                 .Bait      (fish, 27587)
@@ -373,7 +373,7 @@ namespace GatherBuddy.Data
             fish.Apply     (27494, Patch.Shadowbringers) // Darkdweller
                 .Bait      (fish, 27589)
                 .Tug       (BiteType.Weak)
-                .Uptime    (0, 8)
+                .Uptime    (0, 480)
                 .Weather   (4)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27495, Patch.Shadowbringers) // Deep Purple Coral
@@ -434,7 +434,7 @@ namespace GatherBuddy.Data
             fish.Apply     (27508, Patch.Shadowbringers) // Aapoak
                 .Bait      (fish, 27588, 27506)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 16)
+                .Uptime    (720, 960)
                 .Weather   (1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27509, Patch.Shadowbringers) // Cyan Sea Devil

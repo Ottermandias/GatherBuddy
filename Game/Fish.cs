@@ -83,51 +83,60 @@ namespace GatherBuddy.Game
             return ItemId.CompareTo(rhs?.ItemId ?? 0);
         }
 
-        public RealUptime NextUptime(WeatherManager weather, Territory? territory)
+        public RealUptime NextUptime(WeatherManager weather, Territory? territory, out bool cacheUpdated)
         {
+            cacheUpdated = false;
             // Always up
             if (FishRestrictions == FishRestrictions.None)
                 return RealUptime.Always;
 
             // Unknown
             if (CatchData == null
-             || FishRestrictions.HasFlag(FishRestrictions.Time) && CatchData.Hours.AlwaysUp()
+             || FishRestrictions.HasFlag(FishRestrictions.Time) && CatchData.Minutes.AlwaysUp()
              || FishRestrictions.HasFlag(FishRestrictions.Weather)
              && CatchData.PreviousWeather.Length == 0
              && CatchData.CurrentWeather.Length == 0)
                 return RealUptime.Unknown;
 
 
-            // If home territory is requested
+            // If different from home territory is requested
             if (territory != null && territory.Id != FishingSpots.First().Territory!.Id)
+            {
+                cacheUpdated = true;
                 return GetUptime(weather, territory);
-
-            // Update cache if necessary
-            if (_nextUptime.EndTime <= DateTime.UtcNow)
-                UpdateUptime(weather);
+            }
 
             // Cache valid
-            return _nextUptime;
+            if (_nextUptime.EndTime > DateTime.UtcNow)
+                return _nextUptime;
 
-            // If another territory is requested
+            // Update cache if necessary
+            cacheUpdated = true;
+            UpdateUptime(weather);
+            return _nextUptime;
         }
 
         public RealUptime NextUptime(WeatherManager weather)
-            => NextUptime(weather, FishingSpots.First().Territory!);
+            => NextUptime(weather, FishingSpots.First().Territory!, out _);
 
+        public RealUptime NextUptime(WeatherManager weather, Territory? territory)
+            => NextUptime(weather, territory, out _);
+
+        public RealUptime NextUptime(WeatherManager weather, out bool cacheUpdated)
+            => NextUptime(weather, FishingSpots.First().Territory!, out cacheUpdated);
 
         private RealUptime GetUptime(WeatherManager weather, Territory territory)
         {
             if (FishRestrictions == FishRestrictions.Time)
-                return CatchData!.Hours.NextRealUptime();
+                return CatchData!.Minutes.NextRealUptime();
 
             var wl = weather.RequestForecast(FishingSpots.First().Territory!, CatchData!.CurrentWeather, CatchData.PreviousWeather,
-                CatchData.Hours);
+                CatchData.Minutes);
 
-            var overlap   = wl.Uptime.Overlap(CatchData!.Hours);
-            var offset    = overlap.FirstHour - wl.Uptime.FirstHour;
-            var startTime = wl.Time.AddSeconds(EorzeaTime.SecondsPerEorzeaHour * offset);
-            var duration  = TimeSpan.FromSeconds(EorzeaTime.SecondsPerEorzeaHour * (int) overlap.Count);
+            var overlap   = wl.Uptime.Overlap(CatchData!.Minutes);
+            var offset    = overlap.StartMinute - wl.Uptime.StartMinute;
+            var startTime = wl.Time.AddSeconds(EorzeaTime.SecondsPerEorzeaMinute * offset);
+            var duration  = TimeSpan.FromSeconds(EorzeaTime.SecondsPerEorzeaMinute * overlap.Duration);
 
             bool valid;
             do
@@ -135,11 +144,11 @@ namespace GatherBuddy.Game
                 var endTime   = startTime + duration;
                 var timestamp = (long) (endTime - DateTime.UtcNow).TotalSeconds + 1;
                 wl = weather.RequestForecast(territory, CatchData!.CurrentWeather, CatchData.PreviousWeather,
-                    CatchData.Hours, timestamp);
-                var newOverlap = wl.Uptime.Overlap(CatchData!.Hours);
-                if (wl.Time <= endTime && newOverlap.FirstHour == overlap.EndHour % RealTime.HoursPerDay)
+                    CatchData.Minutes, timestamp);
+                var newOverlap = wl.Uptime.Overlap(CatchData!.Minutes);
+                if (wl.Time <= endTime && newOverlap.StartMinute == overlap.EndMinute % RealTime.HoursPerDay)
                 {
-                    duration += TimeSpan.FromSeconds(EorzeaTime.SecondsPerEorzeaHour * (int) newOverlap.Count);
+                    duration += TimeSpan.FromSeconds(EorzeaTime.SecondsPerEorzeaMinute * newOverlap.Duration);
                     overlap  =  newOverlap;
                     valid    =  true;
                 }

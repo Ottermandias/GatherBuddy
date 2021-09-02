@@ -11,7 +11,7 @@ namespace GatherBuddy.Data
             fish.Apply     (30432, Patch.ReflectionsInCrystal) // The Sinsteeped
                 .Bait      (fish, 27582)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (22, 24)
+                .Uptime    (1320, 1440)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Precise);
             fish.Apply     (30433, Patch.ReflectionsInCrystal) // Sweetheart
@@ -27,7 +27,7 @@ namespace GatherBuddy.Data
             fish.Apply     (30435, Patch.ReflectionsInCrystal) // Leannisg
                 .Bait      (fish, 27585)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (6, 8)
+                .Uptime    (360, 480)
                 .Weather   (7)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (30436, Patch.ReflectionsInCrystal) // Gold Hammer
@@ -39,21 +39,21 @@ namespace GatherBuddy.Data
             fish.Apply     (30437, Patch.ReflectionsInCrystal) // Recordkiller
                 .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 24)
+                .Uptime    (1080, 1440)
                 .Transition(1, 2)
                 .Weather   (4)
                 .HookType  (HookSet.Precise);
             fish.Apply     (30438, Patch.ReflectionsInCrystal) // The Mother of All Pancakes
                 .Bait      (fish, 27590)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (0, 3)
+                .Uptime    (0, 180)
                 .Transition(3)
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (30439, Patch.ReflectionsInCrystal) // Opal Shrimp
                 .Bait      (fish, 27590)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 20)
+                .Uptime    (1080, 1200)
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (30487, Patch.ReflectionsInCrystal) // Blue Crab

@@ -122,7 +122,7 @@ namespace GatherBuddy.Gui
               + "You can right-click a fish name to fix (or unfix) this fish at the top of the list.");
             if (fishTab)
             {
-                _fishCache.UpdateFish(hour);
+                _fishCache.UpdateFish();
                 DrawFishTab();
                 raii.End();
             }

@@ -11,19 +11,19 @@ namespace GatherBuddy.Data
             fish.Apply     (28925, Patch.EchoesOfAFallenStar) // The Jaws of Undeath
                 .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 24)
+                .Uptime    (960, 1440)
                 .Transition(1, 2)
                 .Weather   (3, 4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (28926, Patch.EchoesOfAFallenStar) // White Ronso
                 .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (0, 2)
+                .Uptime    (0, 120)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28927, Patch.EchoesOfAFallenStar) // Ambling Caltrop
                 .Bait      (fish, 27584, 27461)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 16)
+                .Uptime    (720, 960)
                 .Weather   (1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (28928, Patch.EchoesOfAFallenStar) // Fae Rainbow
@@ -35,14 +35,14 @@ namespace GatherBuddy.Data
             fish.Apply     (28929, Patch.EchoesOfAFallenStar) // Black Jet
                 .Bait      (fish, 27587)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (2, 12)
+                .Uptime    (120, 720)
                 .Transition(3, 4)
                 .Weather   (2)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28930, Patch.EchoesOfAFallenStar) // Ondo Sigh
                 .Bait      (fish, 27590)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 14)
+                .Uptime    (720, 840)
                 .Weather   (2, 1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (28937, Patch.EchoesOfAFallenStar) // Galadion Goby

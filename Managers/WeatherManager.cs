@@ -64,19 +64,20 @@ namespace GatherBuddy.Managers
             => Territory.Id.CompareTo(other?.Territory.Id ?? 0);
 
 
-        public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, Uptime uptime, long offset = 0, uint increment = 32)
+        public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, FishUptime uptime, long offset = 0, uint increment = 32)
         {
             var now = DateTime.UtcNow.AddSeconds(offset);
             TrimFront();
             var previousFit = false;
-            var idx = 1;
+            var idx         = 1;
+
             while (true)
             {
                 for (--idx; idx < List.Count; ++idx)
                 {
                     var w = List[idx];
                     if (previousFit
-                     && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Count * EorzeaTime.SecondsPerEorzeaHour) >= now
+                     && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Duration * EorzeaTime.SecondsPerEorzeaMinute) >= now
                      && w.Uptime.Overlaps(uptime)
                      && (weather.Count == 0 || weather.Contains(w.Weather.RowId)))
                         return w;
@@ -143,14 +144,14 @@ namespace GatherBuddy.Managers
         }
 
         public WeatherListing RequestForecast(Territory territory, IList<uint> weather, long offset = 0, uint increment = 32)
-            => RequestForecast(territory, weather, Array.Empty<uint>(), Uptime.AllHours, offset, increment);
+            => RequestForecast(territory, weather, Array.Empty<uint>(), FishUptime.AllTime, offset, increment);
 
-        public WeatherListing RequestForecast(Territory territory, IList<uint> weather, Uptime uptime, long offset = 0, uint increment = 32)
+        public WeatherListing RequestForecast(Territory territory, IList<uint> weather, FishUptime uptime, long offset = 0, uint increment = 32)
             => RequestForecast(territory, weather, Array.Empty<uint>(), uptime, offset, increment);
 
 
         public WeatherListing RequestForecast(Territory territory, IList<uint> weather, IList<uint> previousWeather,
-            Uptime uptime, long offset = 0, uint increment = 32)
+            FishUptime uptime, long offset = 0, uint increment = 32)
         {
             var values = FindOrCreateForecast(territory, increment);
             return values.Find(weather, previousWeather, uptime, offset, increment);

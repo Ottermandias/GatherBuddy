@@ -15,12 +15,12 @@ namespace GatherBuddy.Data
             fish.Apply     (23055, Patch.UnderTheMoonlight) // White Goldfish
                 .Bait      (fish, 20675, 22397)
                 .Tug       (BiteType.Strong)
-                .Uptime    (4, 8)
+                .Uptime    (240, 480)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (23056, Patch.UnderTheMoonlight) // Firelight Goldfish
                 .Bait      (fish, 20675, 22397)
                 .Tug       (BiteType.Weak)
-                .Uptime    (4, 8)
+                .Uptime    (240, 480)
                 .HookType  (HookSet.Precise);
             fish.Apply     (23057, Patch.UnderTheMoonlight) // Hookstealer
                 .Bait      (fish, 20615, 20056)
@@ -34,7 +34,7 @@ namespace GatherBuddy.Data
             fish.Apply     (23059, Patch.UnderTheMoonlight) // The Archbishop
                 .Bait      (fish, 20619)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 16)
+                .Uptime    (720, 960)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (23060, Patch.UnderTheMoonlight) // Bondsplitter
                 .Bait      (fish, 20619)
@@ -44,7 +44,7 @@ namespace GatherBuddy.Data
             fish.Apply     (23061, Patch.UnderTheMoonlight) // The Undecided
                 .Bait      (fish, 20615, 20056)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 12)
+                .Uptime    (480, 720)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (23062, Patch.UnderTheMoonlight) // Diamond-eye
                 .Bait      (fish, 20616, 20025)
@@ -62,7 +62,7 @@ namespace GatherBuddy.Data
             fish.Apply     (23065, Patch.UnderTheMoonlight) // The Winter Queen
                 .Bait      (fish, 20676)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 20)
+                .Uptime    (960, 1200)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (23066, Patch.UnderTheMoonlight) // Rakshasa
                 .Bait      (fish, 20617, 20112)
@@ -72,7 +72,7 @@ namespace GatherBuddy.Data
             fish.Apply     (23067, Patch.UnderTheMoonlight) // Bokuden
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 14)
+                .Uptime    (720, 840)
                 .HookType  (HookSet.Precise);
             fish.Apply     (23068, Patch.UnderTheMoonlight) // Hagoromo Koi
                 .Bait      (fish, 20675)
@@ -82,7 +82,7 @@ namespace GatherBuddy.Data
             fish.Apply     (23069, Patch.UnderTheMoonlight) // The Word of God
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (20, 24)
+                .Uptime    (1200, 1440)
                 .HookType  (HookSet.Precise);
             fish.Apply     (23070, Patch.UnderTheMoonlight) // Yat Khan
                 .Bait      (fish, 20675)

@@ -61,7 +61,8 @@ namespace GatherBuddy.Gui
             static void DependencyWarning()
                 => ImGui.TextColored(Colors.FishTab.DependencyWarning, "!!! May be dependent on intuition or mooch availability !!!");
 
-            var uptime = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager);
+            var uptime   = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager, out var newCache);
+            _fishCache.ResortFish |= newCache;
             ImGui.TableNextColumn();
             if (uptime.Equals(RealUptime.Always))
             {
@@ -93,6 +94,10 @@ namespace GatherBuddy.Gui
                     using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
                         fish.HasUptimeDependency ? GatherBuddy.Config.DependentAvailableFishColor : GatherBuddy.Config.AvailableFishColor);
                     PrintSeconds(-duration);
+                }
+                else
+                {
+                    ImGui.Text("         ");
                 }
 
                 if (ImGui.IsItemHovered())
@@ -141,7 +146,6 @@ namespace GatherBuddy.Gui
             ImGuiHelper.HoverTooltip($"{fish.Territory}\nRight-click to open TeamCraft site for this spot.");
 
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
-            {
                 try
                 {
                     Process.Start(new ProcessStartInfo(fish.FishingSpotTcAddress) { UseShellExecute = true });
@@ -150,7 +154,6 @@ namespace GatherBuddy.Gui
                 {
                     PluginLog.Error($"Could not open teamcraft:\n{e.Message}");
                 }
-            }
 
             ImGui.TableNextColumn();
             ImGui.Text(fish.Territory);
@@ -302,7 +305,9 @@ namespace GatherBuddy.Gui
                 child.End();
             }
             else
+            {
                 ClippedDraw(new FusedList<Cache.Fish>(_fishCache.FixedFish.ToArray(), actualFish), DrawFish, BeginTable, ImGui.EndTable);
+            }
 
             child.End();
             if (!child.BeginChild("##FishSelection", -Vector2.One, true))

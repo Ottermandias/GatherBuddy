@@ -21,7 +21,8 @@ namespace GatherBuddy.Classes
 
         public bool IsUp(uint hour)
         {
-            hour %= RealTime.HoursPerDay;
+            if (hour >= RealTime.HoursPerDay)
+                hour %= RealTime.HoursPerDay;
             return ((_hours >> (int) hour) & 1) == 1;
         }
 
@@ -199,21 +200,6 @@ namespace GatherBuddy.Classes
 
             return new Uptime(hours);
         }
-
-
-        // For Weather.
-        public Uptime(DateTime time)
-        {
-            var hour = EorzeaTime.HourOfDay(time);
-            _hours = (hour / 8) switch
-            {
-                0 => 0x000000FF,
-                1 => 0x0000FF00,
-                2 => 0x00FF0000,
-                _ => 0x00000000,
-            };
-        }
-
 
         // Convert the rare pop time given by the table to a bitfield.
         public Uptime(GatheringRarePopTimeTable table)

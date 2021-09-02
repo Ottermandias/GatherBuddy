@@ -6,6 +6,7 @@ using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Managers;
+using GatherBuddy.Utility;
 using ImGuiNET;
 using ImGuiScene;
 
@@ -51,6 +52,7 @@ namespace GatherBuddy.Gui.Cache
         public  string ZoneFilter      = "";
         public  string ZoneFilterLower = "";
         private byte   _whichFilters;
+        public  bool   ResortFish = false;
 
         public byte WhichFilters
             => (byte) (_whichFilters | (GatherBuddy.Config.ShowAlreadyCaught ? 0 : 1));
@@ -93,7 +95,6 @@ namespace GatherBuddy.Gui.Cache
 
         public Func<Game.Fish, bool> Selector;
 
-        private          long           _totalHour;
         private readonly WeatherManager _weather;
         private readonly FishManager    _fishManager;
         private readonly UptimeComparer _uptimeComparer = new();
@@ -199,12 +200,12 @@ namespace GatherBuddy.Gui.Cache
             }
         }
 
-        public void UpdateFish(long totalHour)
+        public void UpdateFish()
         {
-            if (totalHour <= _totalHour)
+            if (!ResortFish)
                 return;
 
-            _totalHour = totalHour;
+            ResortFish = false;
             CachedFish = RelevantFish
                 .OrderBy(f => f.NextUptime(_weather), _uptimeComparer)
                 .Select(f => AllCachedFish[f]).ToArray();
@@ -299,7 +300,7 @@ namespace GatherBuddy.Gui.Cache
             };
         }
 
-        private bool CheckFishType(Game.Fish f)
+        private static bool CheckFishType(Game.Fish f)
         {
             if (f.IsBigFish)
                 return GatherBuddy.Config.ShowBigFish;

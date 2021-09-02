@@ -32,36 +32,36 @@ namespace GatherBuddy.Data
             fish.Apply     (21174, Patch.TheLegendReturns) // Cardinalfish
                 .Bait      (fish, 20619)
                 .Tug       (BiteType.Strong)
-                .Uptime    (19, 23)
+                .Uptime    (1140, 1380)
                 .Weather   (3, 4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (21175, Patch.TheLegendReturns) // Rockfish
                 .Bait      (fish, 20619)
                 .Tug       (BiteType.Weak)
-                .Uptime    (12, 16)
+                .Uptime    (720, 960)
                 .Snag      (Snagging.None)
                 .Weather   (3, 4, 5, 11)
                 .HookType  (HookSet.Precise);
             fish.Apply     (21176, Patch.TheLegendReturns) // Ukiki
                 .Bait      (fish, 20676)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 12)
+                .Uptime    (480, 720)
                 .Weather   (5)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (21177, Patch.TheLegendReturns) // Violet Prismfish
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Strong)
-                .Uptime    (0, 4)
+                .Uptime    (0, 240)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (21178, Patch.TheLegendReturns) // Guppy
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Weak)
-                .Uptime    (16, 20)
+                .Uptime    (960, 1200)
                 .Weather   (2, 1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (21179, Patch.TheLegendReturns) // Ichimonji
                 .Gig       (GigHead.Large)
-                .Uptime    (2, 12)
+                .Uptime    (120, 720)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.None);
             fish.Apply     (21180, Patch.TheLegendReturns) // Snailfish

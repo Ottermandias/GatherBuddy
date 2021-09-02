@@ -24,7 +24,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20021, Patch.Stormblood) // Seraphim
                 .Bait      (fish, 20619)
                 .Tug       (BiteType.Strong)
-                .Uptime    (16, 24)
+                .Uptime    (960, 1440)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20022, Patch.Stormblood) // Blackfin Snake Eel
                 .Bait      (fish, 20676)
@@ -50,7 +50,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20027, Patch.Stormblood) // Doman Grass Carp
                 .Bait      (fish, 20615)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (20, 4)
+                .Uptime    (1200, 240)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20028, Patch.Stormblood) // Samurai Fish
                 .Bait      (fish, 29717)
@@ -63,7 +63,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20030, Patch.Stormblood) // Hak Bitterling
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Strong)
-                .Uptime    (0, 4)
+                .Uptime    (0, 240)
                 .Weather   (7)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20031, Patch.Stormblood) // Yat Goby
@@ -81,7 +81,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20034, Patch.Stormblood) // Tawny Wench Shark
                 .Bait      (fish, 20676)
                 .Tug       (BiteType.Strong)
-                .Uptime    (10, 19)
+                .Uptime    (600, 1080)
                 .Weather   (1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20035, Patch.Stormblood) // Whitehorse
@@ -108,7 +108,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20040, Patch.Stormblood) // Sculptor
                 .Bait      (fish, 20616, 20025)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 18)
+                .Uptime    (720, 1080)
                 .Weather   (10)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20041, Patch.Stormblood) // Pearl-eye
@@ -300,7 +300,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20085, Patch.Stormblood) // Capsized Squeaker
                 .Bait      (fish, 20613)
                 .Tug       (BiteType.Weak)
-                .Uptime    (16, 19)
+                .Uptime    (960, 1140)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20086, Patch.Stormblood) // Nirvana Crab
                 .Bait      (fish, 20613)
@@ -365,7 +365,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20100, Patch.Stormblood) // Swordfish
                 .Bait      (fish, 20676)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 16)
+                .Uptime    (480, 960)
                 .Weather   (3, 5)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20101, Patch.Stormblood) // Leaf Tatsunoko
@@ -457,7 +457,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20122, Patch.Stormblood) // Pandamoth
                 .Bait      (fish, 20615)
                 .Tug       (BiteType.Strong)
-                .Uptime    (10, 18)
+                .Uptime    (600, 1080)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20123, Patch.Stormblood) // Doman Trout
                 .Bait      (fish, 20619)
@@ -466,7 +466,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20124, Patch.Stormblood) // Doman Eel
                 .Bait      (fish, 29717)
                 .Tug       (BiteType.Strong)
-                .Uptime    (17, 10)
+                .Uptime    (1020, 600)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20125, Patch.Stormblood) // Brassfish
@@ -538,7 +538,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20142, Patch.Stormblood) // Wraithfish
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Strong)
-                .Uptime    (0, 4)
+                .Uptime    (0, 240)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20143, Patch.Stormblood) // Little Perykos
@@ -941,7 +941,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20524, Patch.Stormblood) // Castaway Chocobo Chick
                 .Bait      (fish, 2585, 4869, 4904)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 16)
+                .Uptime    (480, 960)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20528, Patch.Stormblood) // Tiny Tatsunoko
                 .Gig       (GigHead.Large)

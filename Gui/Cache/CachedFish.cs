@@ -55,14 +55,14 @@ namespace GatherBuddy.Gui.Cache
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Time))
                 return "Always Up";
 
-            if (fish.CatchData?.Hours.AlwaysUp() ?? true)
+            if (fish.CatchData?.Minutes.AlwaysUp() ?? true)
             {
                 uptime = 0;
                 return "Unknown Uptime";
             }
 
-            uptime = (ushort) (uptime * fish.CatchData!.Hours.Count / RealTime.HoursPerDay);
-            return fish.CatchData!.Hours.PrintHours();
+            uptime = (ushort) (uptime * fish.CatchData!.Minutes.Duration / RealTime.MinutesPerDay);
+            return fish.CatchData!.Minutes.PrintHours();
         }
 
         private static TextureWrap[][] SetWeather(Game.Fish fish, ref ushort uptime)

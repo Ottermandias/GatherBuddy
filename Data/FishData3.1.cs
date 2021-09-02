@@ -16,7 +16,7 @@ namespace GatherBuddy.Data
             fish.Apply     (13728, Patch.AsGoesLightSoGoesDarkness) // Coerthan Clione
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Weak)
-                .Uptime    (0, 2)
+                .Uptime    (0, 120)
                 .Weather   (16)
                 .HookType  (HookSet.Precise);
             fish.Apply     (13729, Patch.AsGoesLightSoGoesDarkness) // Dravanian Smelt
@@ -26,26 +26,26 @@ namespace GatherBuddy.Data
             fish.Apply     (13730, Patch.AsGoesLightSoGoesDarkness) // Heavens Coral
                 .Bait      (fish, 12712)
                 .Tug       (BiteType.Weak)
-                .Uptime    (0, 6)
+                .Uptime    (0, 360)
                 .Snag      (Snagging.Required)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Precise);
             fish.Apply     (13731, Patch.AsGoesLightSoGoesDarkness) // Sunsail
                 .Bait      (fish, 12712)
                 .Tug       (BiteType.Strong)
-                .Uptime    (15, 17)
+                .Uptime    (900, 1020)
                 .Weather   (2, 1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (13732, Patch.AsGoesLightSoGoesDarkness) // Goblin Bass
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Strong)
-                .Uptime    (0, 5)
+                .Uptime    (0, 300)
                 .Weather   (3, 4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (14211, Patch.AsGoesLightSoGoesDarkness) // Amber Salamander
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (6, 12)
+                .Uptime    (360, 720)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (14212, Patch.AsGoesLightSoGoesDarkness) // Gnomefish
                 .Bait      (fish, 12705)
@@ -78,7 +78,7 @@ namespace GatherBuddy.Data
             fish.Apply     (14218, Patch.AsGoesLightSoGoesDarkness) // Oliphant's Trunk
                 .Bait      (fish, 12710)
                 .Tug       (BiteType.Weak)
-                .Uptime    (18, 23)
+                .Uptime    (1080, 1380)
                 .Weather   (9)
                 .HookType  (HookSet.Precise);
             fish.Apply     (14219, Patch.AsGoesLightSoGoesDarkness) // Mountain Kraken

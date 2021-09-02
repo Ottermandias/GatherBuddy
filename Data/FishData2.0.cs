@@ -135,7 +135,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4898, Patch.ARealmReborn) // Fullmoon Sardine
                 .Bait      (fish, 2596)
                 .Tug       (BiteType.Weak)
-                .Uptime    (18, 6)
+                .Uptime    (1080, 360)
                 .HookType  (HookSet.Precise);
             fish.Apply     (4899, Patch.ARealmReborn) // Haraldr Haddock
                 .Bait      (fish, 2619)
@@ -189,7 +189,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4911, Patch.ARealmReborn) // Rock Lobster
                 .Bait      (fish, 2606)
                 .Tug       (BiteType.Strong)
-                .Uptime    (17, 21)
+                .Uptime    (1020, 1320)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4912, Patch.ARealmReborn) // Goosefish
                 .Bait      (fish, 2585, 4869, 4904)
@@ -207,7 +207,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4915, Patch.ARealmReborn) // Mahi-Mahi
                 .Bait      (fish, 2628)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (10, 18)
+                .Uptime    (600, 1080)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4916, Patch.ARealmReborn) // Halibut
                 .Bait      (fish, 2606)
@@ -220,7 +220,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4918, Patch.ARealmReborn) // Coelacanth
                 .Bait      (fish, 2616, 4898)
                 .Tug       (BiteType.Strong)
-                .Uptime    (18, 5)
+                .Uptime    (1080, 360)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4919, Patch.ARealmReborn) // Giant Squid
                 .Bait      (fish, 2585, 4869, 4904)
@@ -247,7 +247,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4924, Patch.ARealmReborn) // Titanic Sawfish
                 .Bait      (fish, 2585, 4869, 4904)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 15)
+                .Uptime    (540, 900)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4925, Patch.ARealmReborn) // Crayfish
@@ -336,7 +336,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4945, Patch.ARealmReborn) // Dark Sleeper
                 .Bait      (fish, 2592)
                 .Tug       (BiteType.Weak)
-                .Uptime    (15, 10)
+                .Uptime    (900, 600)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Precise);
             fish.Apply     (4946, Patch.ARealmReborn) // La Noscean Perch
@@ -371,7 +371,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4953, Patch.ARealmReborn) // Jade Eel
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Strong)
-                .Uptime    (17, 10)
+                .Uptime    (1020, 600)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4954, Patch.ARealmReborn) // Pond Mussel
@@ -393,7 +393,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4958, Patch.ARealmReborn) // Black Eel
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Strong)
-                .Uptime    (17, 10)
+                .Uptime    (1020, 600)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4959, Patch.ARealmReborn) // Dark Bass
@@ -504,7 +504,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4985, Patch.ARealmReborn) // Trader Eel
                 .Bait      (fish, 2599)
                 .Tug       (BiteType.Strong)
-                .Uptime    (17, 10)
+                .Uptime    (1020, 600)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4986, Patch.ARealmReborn) // Crimson Trout
@@ -543,7 +543,7 @@ namespace GatherBuddy.Data
             fish.Apply     (4994, Patch.ARealmReborn) // Oakroot
                 .Bait      (fish, 2601)
                 .Tug       (BiteType.Strong)
-                .Uptime    (17, 10)
+                .Uptime    (1020, 600)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (4995, Patch.ARealmReborn) // Common Sculpin
@@ -639,12 +639,12 @@ namespace GatherBuddy.Data
             fish.Apply     (5016, Patch.ARealmReborn) // Giant Donko
                 .Bait      (fish, 2626)
                 .Tug       (BiteType.Strong)
-                .Uptime    (4, 9)
+                .Uptime    (240, 540)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (5017, Patch.ARealmReborn) // Sundisc
                 .Bait      (fish, 2607)
                 .Tug       (BiteType.Strong)
-                .Uptime    (10, 15)
+                .Uptime    (600, 900)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (5018, Patch.ARealmReborn) // Alligator Garfish
@@ -689,7 +689,7 @@ namespace GatherBuddy.Data
             fish.Apply     (5027, Patch.ARealmReborn) // Heliobatis
                 .Bait      (fish, 2607)
                 .Tug       (BiteType.Strong)
-                .Uptime    (17, 9)
+                .Uptime    (1020, 540)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (5028, Patch.ARealmReborn) // Takitaro
                 .Bait      (fish, 2627)
