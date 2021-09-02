@@ -2,6 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Utility;
 using ImGuiNET;
@@ -125,8 +126,7 @@ namespace GatherBuddy.Gui
                 if (ImGui.Selectable(baitName))
                     _plugin.Gatherer!.OnBaitAction(baitName);
 
-                if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Click to copy to clipboard.");
+                ImGuiHelper.HoverTooltip("Click to copy to clipboard.");
             }
             else
             {
@@ -138,17 +138,25 @@ namespace GatherBuddy.Gui
             if (ImGui.Selectable(fish.FishingSpot))
                 _plugin.Gatherer!.OnFishActionWithSpot(fish.Base.FishingSpots.First());
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip($"{fish.Territory}\nRight-click to open TeamCraft site for this spot.");
+            ImGuiHelper.HoverTooltip($"{fish.Territory}\nRight-click to open TeamCraft site for this spot.");
 
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
-                Process.Start(fish.FishingSpotTcAddress);
+            {
+                try
+                {
+                    Process.Start(new ProcessStartInfo(fish.FishingSpotTcAddress) { UseShellExecute = true });
+                }
+                catch (Exception e)
+                {
+                    PluginLog.Error($"Could not open teamcraft:\n{e.Message}");
+                }
+            }
 
             ImGui.TableNextColumn();
             ImGui.Text(fish.Territory);
         }
 
-        private void DrawAlreadyCaughtBox()
+        private static void DrawAlreadyCaughtBox()
             => DrawCheckbox("Show Already Caught",    "Show fish that you are already collected in your Fish Guide.",
                 GatherBuddy.Config.ShowAlreadyCaught, b => GatherBuddy.Config.ShowAlreadyCaught = b);
 
@@ -229,7 +237,7 @@ namespace GatherBuddy.Gui
 
 
             using var child = new ImGuiRaii();
-            if (!child.Begin(() => ImGui.BeginChild("##Fish", new Vector2(-1, height), true), ImGui.EndChild))
+            if (!child.BeginChild("##Fish", new Vector2(-1, height), true))
                 return;
 
             var actualFish = _fishCache.GetFishToSettings();
@@ -283,25 +291,21 @@ namespace GatherBuddy.Gui
             }
 
             var num = actualFish.Length + _fishCache.FixedFish.Count;
-            if (num < lineHeight + 5 && BeginTable())
-                try
-                {
-                    // FixedFish might be changed
-                    foreach (var f in _fishCache.FixedFish.ToArray())
-                        DrawFish(f);
+            if (num < lineHeight + 5 && child.Begin(BeginTable, ImGui.EndTable))
+            {
+                // FixedFish might be changed
+                foreach (var f in _fishCache.FixedFish.ToArray())
+                    DrawFish(f);
 
-                    foreach (var f in actualFish)
-                        DrawFish(f);
-                }
-                finally
-                {
-                    ImGui.EndTable();
-                }
+                foreach (var f in actualFish)
+                    DrawFish(f);
+                child.End();
+            }
             else
                 ClippedDraw(new FusedList<Cache.Fish>(_fishCache.FixedFish.ToArray(), actualFish), DrawFish, BeginTable, ImGui.EndTable);
 
             child.End();
-            if (!child.Begin(() => ImGui.BeginChild("##FishSelection", -Vector2.One, true), ImGui.EndChild))
+            if (!child.BeginChild("##FishSelection", -Vector2.One, true))
                 return;
 
             child.Group();

@@ -1,10 +1,20 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 
 namespace GatherBuddy.Gui
 {
+    public static class ImGuiHelper
+    {
+        public static void HoverTooltip(string tooltip)
+        {
+            if (tooltip.Any() && ImGui.IsItemHovered())
+                ImGui.SetTooltip(tooltip);
+        }
+    }
+
     public sealed class ImGuiRaii : IDisposable
     {
         private int   _colorStack;
@@ -131,6 +141,38 @@ namespace GatherBuddy.Gui
             _onDispose.Push(end);
             return this;
         }
+
+        public bool BeginWindow(string name, ref bool open, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+        {
+            var ret = ImGui.Begin(name, ref open, flags);
+            _onDispose ??= new Stack<Action>();
+            _onDispose.Push(ImGui.End);
+
+            return ret;
+        }
+
+        public bool BeginWindow(string name, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+        {
+            var ret = ImGui.Begin(name, flags);
+            _onDispose ??= new Stack<Action>();
+            _onDispose.Push(ImGui.End);
+
+            return ret;
+        }
+
+        public bool BeginChild(string name, Vector2 size, bool border = false, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+        {
+            var ret = ImGui.BeginChild(name, size, border, flags);
+            _onDispose ??= new Stack<Action>();
+            _onDispose.Push(ImGui.EndChild);
+            return ret;
+        }
+
+        public bool BeginTabItem(string label)
+            => Begin(() => ImGui.BeginTabItem(label), ImGui.EndTabItem);
+
+        public bool BeginTabBar(string id, ImGuiTabBarFlags flags = ImGuiTabBarFlags.None)
+            => Begin(() => ImGui.BeginTabBar(id, flags), ImGui.EndTabBar);
 
         public void End(int n = 1)
         {

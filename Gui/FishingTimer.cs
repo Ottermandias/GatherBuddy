@@ -4,7 +4,6 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Logging;
-using Dalamud.Plugin;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -385,7 +384,7 @@ namespace GatherBuddy.Gui
             ImGui.SetNextWindowSizeConstraints(new Vector2(225 * globalScale, maxListHeight),
                 new Vector2(30000 * globalScale,                              listHeight));
 
-            if (!imgui.Begin(() => ImGui.Begin("##FishingTimer", EditMode ? editFlags : flags), ImGui.End))
+            if (!imgui.BeginWindow("##FishingTimer", EditMode ? editFlags : flags))
                 return;
 
             var drawList = ImGui.GetWindowDrawList();

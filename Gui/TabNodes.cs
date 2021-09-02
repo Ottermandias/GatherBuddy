@@ -37,7 +37,8 @@ namespace GatherBuddy.Gui
         private void SetNodeTooltip(Node n)
         {
             var coords = n.GetX() != 0 ? $"({n.GetX()}|{n.GetY()})" : "(Unknown Location)";
-            var tooltip = $"{n.Nodes!.Territory!.Name[GatherBuddy.Language]}, {coords} - {n.GetClosestAetheryte()?.Name[GatherBuddy.Language] ?? ""}\n"
+            var tooltip =
+                $"{n.Nodes!.Territory!.Name[GatherBuddy.Language]}, {coords} - {n.GetClosestAetheryte()?.Name[GatherBuddy.Language] ?? ""}\n"
               + $"{n.Meta!.NodeType}, up at {n.Times!.PrintHours()}\n"
               + $"{n.Meta!.GatheringType} at {n.Meta!.Level}";
             using var tt = ImGuiRaii.NewTooltip();
@@ -62,7 +63,7 @@ namespace GatherBuddy.Gui
         private void DrawTimedNodes(float widgetHeight)
         {
             using var imgui = new ImGuiRaii();
-            if (!imgui.Begin(() => ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true), ImGui.EndChild))
+            if (!imgui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true))
                 return;
 
             var enumerator = _nodeTabCache.NodeFilterLower.Length == 0
@@ -71,11 +72,11 @@ namespace GatherBuddy.Gui
             foreach (var (n, i, _) in enumerator)
             {
                 var colors = Colors.NodeTab.GetColor(n, _nodeTabCache.HourOfDay);
-                ImGui.PushStyleColor(ImGuiCol.Text, colors);
+                imgui.PushColor(ImGuiCol.Text, colors);
 
                 if (ImGui.Selectable(i))
                     _plugin.Gatherer!.OnGatherActionWithNode(n);
-                ImGui.PopStyleColor();
+                imgui.PopColors();
 
                 if (ImGui.IsItemHovered())
                     SetNodeTooltip(n);
@@ -90,23 +91,25 @@ namespace GatherBuddy.Gui
 
             using var imgui = new ImGuiRaii();
 
-            if (imgui.Begin(() => ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true), ImGui.EndChild))
+            if (imgui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true))
             {
                 DrawMinerBox();
                 DrawBotanistBox();
-                imgui.End();
             }
 
+            imgui.End();
+
             ImGui.SameLine();
-            if (imgui.Begin(() => ImGui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true), ImGui.EndChild))
+            if (imgui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true))
             {
                 DrawUnspoiledBox();
                 DrawEphemeralBox();
-                imgui.End();
             }
 
+            imgui.End();
+
             ImGui.SameLine();
-            if (!imgui.Begin(() => ImGui.BeginChild("Expansion", new Vector2(0, boxHeight), true), ImGui.EndChild))
+            if (!imgui.BeginChild("Expansion", new Vector2(0, boxHeight), true))
                 return;
 
             imgui.Group();

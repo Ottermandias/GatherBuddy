@@ -21,7 +21,7 @@ namespace GatherBuddy.Gui
                 });
 
         private void DrawAlarmToggle()
-            => DrawCheckbox("Alarms",  "Toggle all alarms on or off.",
+            => DrawCheckbox("Alarms",             "Toggle all alarms on or off.",
                 GatherBuddy.Config.AlarmsEnabled, b =>
                 {
                     if (b)
@@ -35,8 +35,7 @@ namespace GatherBuddy.Gui
         {
             if (ImGui.Button("Snapshot", new Vector2(-1, 0)))
                 Dalamud.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Record currently available nodes around you once.");
+            ImGuiHelper.HoverTooltip("Record currently available nodes around you once.");
         }
 
         private void DrawHeaderRow()

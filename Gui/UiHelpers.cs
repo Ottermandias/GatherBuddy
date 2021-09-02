@@ -22,8 +22,7 @@ namespace GatherBuddy.Gui
                 GatherBuddy.Config.Save();
             }
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(tooltip);
+            ImGuiHelper.HoverTooltip(tooltip);
         }
 
         private static void DrawSetInput(float width, string jobName, string oldName, Action<string> setName)
@@ -36,8 +35,7 @@ namespace GatherBuddy.Gui
                 GatherBuddy.Config.Save();
             }
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip($"Set the name of your {jobName.ToLowerInvariant()} set. Can also be the numerical id instead.");
+            ImGuiHelper.HoverTooltip($"Set the name of your {jobName.ToLowerInvariant()} set. Can also be the numerical id instead.");
         }
 
         private static void DrawFormatInput(string label, string tooltip, string oldValue, string defaultValue, Action<string> setValue)
@@ -50,8 +48,7 @@ namespace GatherBuddy.Gui
                 GatherBuddy.Config.Save();
             }
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(defaultValue);
+            ImGuiHelper.HoverTooltip(defaultValue);
 
             HorizontalSpace(10);
             ImGui.AlignTextToFramePadding();
@@ -64,8 +61,7 @@ namespace GatherBuddy.Gui
                 GatherBuddy.Config.Save();
             }
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(tooltip);
+            ImGuiHelper.HoverTooltip(tooltip);
         }
 
         private void DrawVisibilityBox(ShowNodes flag, string label, string tooltip)
@@ -81,11 +77,10 @@ namespace GatherBuddy.Gui
                 GatherBuddy.Config.Save();
             }
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(tooltip);
+            ImGuiHelper.HoverTooltip(tooltip);
         }
 
-        private void DrawColorPicker(string label, string tooltip, Vector4 current, Vector4 defaultValue, Action<Vector4> setter)
+        private static void DrawColorPicker(string label, string tooltip, Vector4 current, Vector4 defaultValue, Action<Vector4> setter)
         {
             const ImGuiColorEditFlags flags = ImGuiColorEditFlags.Float
               | ImGuiColorEditFlags.AlphaPreviewHalf
@@ -106,13 +101,11 @@ namespace GatherBuddy.Gui
                 GatherBuddy.Config.Save();
             }
 
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip($"Reset the color to its default value #{ImGui.ColorConvertFloat4ToU32(defaultValue):X8}.");
+            ImGuiHelper.HoverTooltip($"Reset the color to its default value #{ImGui.ColorConvertFloat4ToU32(defaultValue):X8}.");
 
             ImGui.SameLine();
             ImGui.Text(label);
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(tooltip);
+            ImGuiHelper.HoverTooltip(tooltip);
         }
 
         private static void ClippedDraw<T>(IList<T> data, Action<T> func, Func<bool> pre, Action post)
@@ -158,8 +151,7 @@ namespace GatherBuddy.Gui
 
                     using var child = new ImGuiRaii();
 
-                    if (!child.Begin(() => ImGui.BeginChild($"{label}_list", new Vector2(size, items * ImGui.GetTextLineHeightWithSpacing())),
-                        ImGui.EndChild))
+                    if (!child.BeginChild($"{label}_list", new Vector2(size, items * ImGui.GetTextLineHeightWithSpacing())))
                         return;
 
                     if (!focus)
