@@ -15,7 +15,7 @@ namespace GatherBuddy.Data
                 .Weather   (6)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (16743, Patch.SoulSurrender) // Basking Shark
-                .Bait      (fish, 12708, 12753)
+                .Bait      (fish, 28634, 12753)
                 .Tug       (BiteType.Legendary)
                 .Transition(4)
                 .Weather   (1)
@@ -29,7 +29,7 @@ namespace GatherBuddy.Data
             fish.Apply     (16745, Patch.SoulSurrender) // Hailfinder
                 .Bait      (fish, 12708, 12724)
                 .Tug       (BiteType.Legendary)
-                .Transition(15)
+                .Transition(16, 15)
                 .Weather   (16)
                 .HookType  (HookSet.Precise);
             fish.Apply     (16746, Patch.SoulSurrender) // Flarefish

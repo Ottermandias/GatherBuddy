@@ -9,11 +9,11 @@ namespace GatherBuddy.Data
         private static void ApplyTheLegendReturns(this FishManager fish)
         {
             fish.Apply     (20785, Patch.TheLegendReturns) // Gyr Abanian Chub
-                .Bait      (fish, 20613)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20786, Patch.TheLegendReturns) // Coral Horse
-                .Bait      (fish, 20617)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Precise);
@@ -22,7 +22,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20788, Patch.TheLegendReturns) // Velodyna Salmon
-                .Bait      (fish, 20614)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20789, Patch.TheLegendReturns) // Purple Buckler

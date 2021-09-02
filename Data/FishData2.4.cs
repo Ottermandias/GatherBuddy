@@ -24,7 +24,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2606)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (4913, 3))
-                .Intuition (600)
+                .Intuition (350)
                 .Weather   (7, 8)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8755, Patch.DreamsOfIce) // Coelacanthus

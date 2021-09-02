@@ -29,7 +29,7 @@ namespace GatherBuddy.Data
             fish.Apply     (7682, Patch.ThroughTheMaelstrom) // Crystal Perch
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Legendary)
-                .Weather   (4, 3)
+                .Weather   (4, 3, 5)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7683, Patch.ThroughTheMaelstrom) // Moldva
                 .Bait      (fish, 2592, 4942)

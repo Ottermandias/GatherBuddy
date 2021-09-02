@@ -34,23 +34,23 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27412, Patch.Shadowbringers) // Asteroidea
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27587)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27413, Patch.Shadowbringers) // Jacketed Snail
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27414, Patch.Shadowbringers) // Lover's Flower
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27415, Patch.Shadowbringers) // Sinspitter
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27416, Patch.Shadowbringers) // Wandering Catfish
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27417, Patch.Shadowbringers) // Crystal Knife
@@ -58,7 +58,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27418, Patch.Shadowbringers) // Skeletonfish
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27419, Patch.Shadowbringers) // Milky Coral
@@ -84,7 +84,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27424, Patch.Shadowbringers) // Red Hammerhead
-                .Bait      (fish, 27583)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27425, Patch.Shadowbringers) // Hard Candy
@@ -92,11 +92,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27426, Patch.Shadowbringers) // Water Ball
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27427, Patch.Shadowbringers) // Abyssal Snail
-                .Bait      (fish, 27582)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27428, Patch.Shadowbringers) // Clean Saucer
@@ -112,7 +112,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27431, Patch.Shadowbringers) // Albino Caiman
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27587)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27432, Patch.Shadowbringers) // Platinum Guppy
@@ -121,23 +121,23 @@ namespace GatherBuddy.Data
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27433, Patch.Shadowbringers) // Misty Killifish
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27587)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27434, Patch.Shadowbringers) // Albino Rock Crab
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27435, Patch.Shadowbringers) // Snakeskin Discus
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27436, Patch.Shadowbringers) // Albino Garfish
-                .Bait      (fish, 27587)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27437, Patch.Shadowbringers) // Vicejaw
-                .Bait      (fish, 27587)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27438, Patch.Shadowbringers) // Skulleater
@@ -153,7 +153,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27441, Patch.Shadowbringers) // Hucho Taimen
-                .Bait      (fish, 27587)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27442, Patch.Shadowbringers) // Winged Hatchetfish
@@ -161,15 +161,15 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27443, Patch.Shadowbringers) // Noble's Fan
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27444, Patch.Shadowbringers) // Zebra Catfish
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27445, Patch.Shadowbringers) // Sepia Sole
-                .Bait      (fish, 27582)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27446, Patch.Shadowbringers) // Shellfracture Kelp
@@ -189,7 +189,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27450, Patch.Shadowbringers) // Razorfish
-                .Bait      (fish, 27583)
+                .Bait      (fish, 27588)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27451, Patch.Shadowbringers) // Rose Shrimp
@@ -201,7 +201,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27453, Patch.Shadowbringers) // Minstrelfish
-                .Bait      (fish, 27583)
+                .Bait      (fish, 27588)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27454, Patch.Shadowbringers) // Kholusian Wrasse
@@ -209,7 +209,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27455, Patch.Shadowbringers) // Weedy Seadragon
-                .Bait      (fish, 27583)
+                .Bait      (fish, 27588)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27456, Patch.Shadowbringers) // Henodus
@@ -251,7 +251,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27465, Patch.Shadowbringers) // Garik Crab
-                .Bait      (fish, 27584)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27466, Patch.Shadowbringers) // Nabaath Manta
@@ -289,7 +289,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27474, Patch.Shadowbringers) // Wimple Carp
-                .Bait      (fish, 27585)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27475, Patch.Shadowbringers) // Lemonfish
@@ -301,7 +301,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27477, Patch.Shadowbringers) // Wild Red Betta
-                .Bait      (fish, 27585)
+                .Bait      (fish, 27589)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27478, Patch.Shadowbringers) // Spotted Ctenopoma
@@ -313,7 +313,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27480, Patch.Shadowbringers) // Golden Lobster
-                .Bait      (fish, 27587)
+                .Bait      (fish, 27585)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27481, Patch.Shadowbringers) // Toadhead
@@ -404,15 +404,15 @@ namespace GatherBuddy.Data
                 .Weather   (2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27501, Patch.Shadowbringers) // Bubble Angler
-                .Bait      (fish, 27588)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27502, Patch.Shadowbringers) // Ondo Harpoon
-                .Bait      (fish, 27588)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27503, Patch.Shadowbringers) // Ondobane
-                .Bait      (fish, 27588)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27504, Patch.Shadowbringers) // Stippled Eel
@@ -420,7 +420,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27505, Patch.Shadowbringers) // Seatrap
-                .Bait      (fish, 27588)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27506, Patch.Shadowbringers) // Ancient Shrimp
@@ -442,7 +442,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27510, Patch.Shadowbringers) // Pancake Octopus
-                .Bait      (fish, 27588)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27511, Patch.Shadowbringers) // Maneater Clam
@@ -451,7 +451,7 @@ namespace GatherBuddy.Data
                 .Snag      (Snagging.Required)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27512, Patch.Shadowbringers) // Stargazer
-                .Bait      (fish, 27588)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27513, Patch.Shadowbringers) // Sweetflesh Oyster
@@ -464,7 +464,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27515, Patch.Shadowbringers) // Predator
-                .Bait      (fish, 27588)
+                .Bait      (fish, 27590)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (27516, Patch.Shadowbringers) // Grey Carp

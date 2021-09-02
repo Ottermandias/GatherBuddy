@@ -30,7 +30,7 @@ namespace GatherBuddy.Data
                 .Weather   (3, 4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (22393, Patch.RiseOfANewSun) // Usuginu Octopus
-                .Bait      (fish, 20617, 20112)
+                .Bait      (fish, 20617)
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (22394, Patch.RiseOfANewSun) // Saltmill

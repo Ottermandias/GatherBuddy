@@ -18,11 +18,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20020, Patch.Stormblood) // Yanxian Barramundi
-                .Bait      (fish, 20614)
+                .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20021, Patch.Stormblood) // Seraphim
-                .Bait      (fish, 20619)
+                .Bait      (fish, 20675)
                 .Tug       (BiteType.Strong)
                 .Uptime    (960, 1440)
                 .HookType  (HookSet.Powerful);
@@ -120,7 +120,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20043, Patch.Stormblood) // Steelshark
-                .Bait      (fish, 20619)
+                .Bait      (fish, 20675)
                 .Tug       (BiteType.Weak)
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
@@ -293,7 +293,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20084, Patch.Stormblood) // Falling Star
-                .Bait      (fish, 20613)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .Weather   (3, 4)
                 .HookType  (HookSet.Precise);
@@ -303,7 +303,7 @@ namespace GatherBuddy.Data
                 .Uptime    (960, 1140)
                 .HookType  (HookSet.Precise);
             fish.Apply     (20086, Patch.Stormblood) // Nirvana Crab
-                .Bait      (fish, 20613)
+                .Bait      (fish, 20619)
                 .Tug       (BiteType.Strong)
                 .Weather   (3, 4)
                 .HookType  (HookSet.Powerful);
@@ -381,11 +381,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20104, Patch.Stormblood) // Daio Squid
-                .Bait      (fish, 20617, 20112)
+                .Bait      (fish, 20618)
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20105, Patch.Stormblood) // Koromo Octopus
-                .Bait      (fish, 20617, 20112)
+                .Bait      (fish, 20618)
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20106, Patch.Stormblood) // Gliding Fish

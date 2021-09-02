@@ -16,8 +16,8 @@ namespace GatherBuddy.Data
             fish.Apply     (7903, Patch.DefendersOfEorzea) // Meteor Survivor
                 .Bait      (fish, 2591)
                 .Tug       (BiteType.Legendary)
-                .Weather   (3, 5)
                 .Uptime    (180, 300)
+                .Weather   (3, 4, 5)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7904, Patch.DefendersOfEorzea) // Joan of Trout
                 .Bait      (fish, 2614)

@@ -1,4 +1,3 @@
-using GatherBuddy.Classes;
 using GatherBuddy.Managers;
 using GatherBuddy.Enums;
 
@@ -32,8 +31,8 @@ namespace GatherBuddy.Data
             fish.Apply     (33239, Patch.DeathUntoDawn) // Listracanthus
                 .Bait      (fish, 27589, 28925)
                 .Tug       (BiteType.Legendary)
-                .Transition(2)
                 .Uptime    (960, 1440)
+                .Transition(1, 2)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (33240, Patch.DeathUntoDawn) // Aquamaton
@@ -45,19 +44,19 @@ namespace GatherBuddy.Data
                 .HookType  (HookSet.Powerful);
             fish.Apply     (33241, Patch.DeathUntoDawn) // Cinder Surprise
                 .Bait      (fish, 27584)
-                .Transition(11)
-                .Weather   (14)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (0, 120)
                 .Predators (fish, (27462, 10))
                 .Intuition (350)
+                .Transition(11)
+                .Weather   (14)
                 .HookType  (HookSet.Precise);
-            fish.Apply (33242, Patch.DeathUntoDawn) // Ealad Skaan
+            fish.Apply     (33242, Patch.DeathUntoDawn) // Ealad Skaan
                 .Bait      (fish, 27589)
+                .Tug       (BiteType.Legendary)
                 .Uptime    (1410, 1440)
                 .Transition(10)
                 .Weather   (1)
-                .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Precise);
             fish.Apply     (33243, Patch.DeathUntoDawn) // Greater Serpent of Ronka
                 .Bait      (fish, 27587, 27490, 27491, 28071)
@@ -66,12 +65,12 @@ namespace GatherBuddy.Data
                 .HookType  (HookSet.Powerful);
             fish.Apply     (33244, Patch.DeathUntoDawn) // Lancetfish
                 .Bait      (fish, 27590)
-                .Transition(2)
-                .Weather   (3)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (0, 120)
                 .Predators (fish, (33325, 2))
                 .Intuition (700)
+                .Transition(2)
+                .Weather   (3)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (33316, Patch.DeathUntoDawn) // Aster Trivi
                 .Bait      (fish, 27585)
