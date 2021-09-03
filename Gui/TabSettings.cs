@@ -18,13 +18,18 @@ namespace GatherBuddy.Gui
 
         private static void DrawTeleportBox()
             => DrawCheckbox("Teleport",
-                "Toggle whether to automatically teleport to a chosen node.\nRequires the Teleporter plugin and uses /tp.",
+                "Toggle whether to automatically teleport to a chosen node.",
                 GatherBuddy.Config.UseTeleport, b => GatherBuddy.Config.UseTeleport = b);
 
-        private static void DrawMapMarkerBox()
-            => DrawCheckbox("Map Marker",
-                "Toggle whether to automatically set a map marker on the approximate location of the chosen node.\nRequires the ChatCoordinates plugin and uses /coord.",
+        private static void DrawMapMarkerOpenBox()
+            => DrawCheckbox("Map Marker (Open)",
+                "Toggle whether to automatically set a map marker on the approximate location of the chosen node and open the map.",
                 GatherBuddy.Config.UseCoordinates, b => GatherBuddy.Config.UseCoordinates = b);
+
+        private static void DrawMapMarkerPrintBox()
+            => DrawCheckbox("Map Marker (Print)",
+                "Toggle whether to automatically write a map link to the approximate location of the chosen node to chat.",
+                GatherBuddy.Config.WriteCoordinates, b => GatherBuddy.Config.WriteCoordinates = b);
 
         private static void DrawFishTimerBox()
             => DrawCheckbox("Show Fish Timer",
@@ -136,7 +141,8 @@ namespace GatherBuddy.Gui
 
             DrawGearChangeBox();
             DrawTeleportBox();
-            DrawMapMarkerBox();
+            DrawMapMarkerOpenBox();
+            DrawMapMarkerPrintBox();
 
             DrawPrintUptimesBox();
             DrawPrintGigHeadBox();

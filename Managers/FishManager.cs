@@ -164,7 +164,7 @@ namespace GatherBuddy.Managers
             {
                 { 0, Game.Bait.Unknown },
             };
-            foreach (var item in items[0].Where(i => i.ItemSearchCategory.Row == fishingTackleRow))
+            foreach (var item in items[(int) GatherBuddy.Language].Where(i => i.ItemSearchCategory.Row == fishingTackleRow))
             {
                 FFName name = new();
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))

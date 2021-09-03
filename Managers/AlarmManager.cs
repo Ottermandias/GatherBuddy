@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
@@ -117,48 +119,80 @@ namespace GatherBuddy.Managers
             }
         }
 
-        private string ReplaceNodeFormatPlaceholders(string format, Alarm alarm, uint currentMinute)
+        private static SeString ReplaceNodeFormatPlaceholders(string format, Alarm alarm, uint currentMinute)
         {
-            var result = format.Replace("{Name}", alarm.Name);
-            result = result.Replace("{Offset}",     alarm.MinuteOffset.ToString());
-            result = result.Replace("{TimesShort}", alarm.Node!.Times!.PrintHours(true));
-            result = result.Replace("{TimesLong}",  alarm.Node!.Times!.PrintHours());
-            result = result.Replace("{AllItems}",   alarm.Node!.Items!.PrintItems(", ", GatherBuddy.Language));
-
-            var tmp = "is currently up";
-            if (alarm.MinuteOffset > 0)
+            IReadOnlyList<Payload>? Replace(string s)
             {
-                var hour       = currentMinute / RealTime.MinutesPerHour;
-                var hourOfDay  = hour % RealTime.HoursPerDay;
-                var nextUptime = alarm.Node!.Times!.NextUptime(hourOfDay);
-                var offTime    = (hour + nextUptime) * RealTime.MinutesPerHour - currentMinute;
-                var (m, s) = EorzeaTime.MinutesToReal(offTime);
-                if (offTime > 0)
-                    tmp = $"will be up in {m}:{s:D2} minutes";
+                if (!(s.StartsWith('{') && s.EndsWith('}')))
+                    return null;
+
+                return s switch
+                {
+                    "{Name}"        => ChatUtil.GetPayloadsFromString(alarm.Name),
+                    "{Offset}"      => ChatUtil.GetPayloadsFromString(alarm.MinuteOffset.ToString()),
+                    "{DelayString}" => ChatUtil.GetPayloadsFromString(DelayStringNode(alarm, currentMinute)),
+                    "{TimesShort}"  => ChatUtil.GetPayloadsFromString(alarm.Node!.Times!.PrintHours(true)),
+                    "{TimesLong}"   => ChatUtil.GetPayloadsFromString(alarm.Node!.Times!.PrintHours()),
+                    "{Location}"    => ChatUtil.CreateNodeLink(alarm.Node!).Payloads,
+                    "{AllItems}" => alarm.Node!.Items!.ActualItems
+                        .SelectMany(i => ChatUtil.CreateLink(i.ItemData).Prepend(new TextPayload(", "))).Skip(1).ToList(),
+                    _ => null,
+                };
             }
 
-            result = result.Replace("{DelayString}", tmp);
-            return result;
+            return ChatUtil.Format(format, Replace);
         }
 
-        private string ReplaceFishFormatPlaceholders(string format, Alarm alarm)
+        private string DelayStringFish(Alarm alarm)
         {
-            var result = format.Replace("{Name}", alarm.Name);
-            result = result.Replace("{Offset}",          alarm.MinuteOffset.ToString());
-            result = result.Replace("{FishName}",        alarm.Fish!.Name[GatherBuddy.Language]);
-            result = result.Replace("{FishingSpotName}", alarm.Fish!.FishingSpots.First().PlaceName?[GatherBuddy.Language] ?? "Unknown");
-            result = result.Replace("{BaitName}",        alarm.Fish!.CatchData?.InitialBait.Name[GatherBuddy.Language] ?? "Unknown");
-
             var uptime = alarm.Fish!.NextUptime(_weather);
-            var tmp    = "is currently up";
-            if (uptime.Time > _currentTime)
+            var ret    = "is currently up";
+            if (uptime.Time <= _currentTime)
+                return ret;
+
+            var diff = uptime.Time - _currentTime;
+            ret = $"will be up in {(int) diff.TotalSeconds / 60}:{(int) diff.TotalSeconds % 60:D2} minutes";
+
+            return ret;
+        }
+
+        private static string DelayStringNode(Alarm alarm, uint currentMinute)
+        {
+            var ret = "is currently up";
+            if (alarm.MinuteOffset <= 0)
+                return ret;
+
+            var hour       = currentMinute / RealTime.MinutesPerHour;
+            var hourOfDay  = hour % RealTime.HoursPerDay;
+            var nextUptime = alarm.Node!.Times!.NextUptime(hourOfDay);
+            var offTime    = (hour + nextUptime) * RealTime.MinutesPerHour - currentMinute;
+            var (m, s) = EorzeaTime.MinutesToReal(offTime);
+            if (offTime > 0)
+                ret = $"will be up in {m}:{s:D2} minutes";
+
+            return ret;
+        }
+
+        private SeString ReplaceFishFormatPlaceholders(string format, Alarm alarm)
+        {
+            IReadOnlyList<Payload>? Replace(string s)
             {
-                var diff = uptime.Time - _currentTime;
-                tmp = $"will be up in {(int) diff.TotalSeconds / 60}:{(int) diff.TotalSeconds % 60:D2} minutes";
+                if (!(s.StartsWith('{') && s.EndsWith('}')))
+                    return null;
+
+                return s switch
+                {
+                    "{Name}"            => ChatUtil.GetPayloadsFromString(alarm.Name),
+                    "{Offset}"          => ChatUtil.GetPayloadsFromString(alarm.MinuteOffset.ToString()),
+                    "{DelayString}"     => ChatUtil.GetPayloadsFromString(DelayStringFish(alarm)),
+                    "{FishingSpotName}" => ChatUtil.CreateMapLink(alarm.Fish!.FishingSpots.First()).Payloads,
+                    "{BaitName}"        => ChatUtil.CreateLink(alarm.Fish!.CatchData!.InitialBait.Data),
+                    "{FishName}"        => ChatUtil.CreateLink(alarm.Fish!.ItemData),
+                    _                   => null,
+                };
             }
 
-            result = result.Replace("{DelayString}", tmp);
-            return result;
+            return ChatUtil.Format(format, Replace);
         }
 
         private void Ring(Alarm alarm, uint currentMinute)
@@ -170,13 +204,14 @@ namespace GatherBuddy.Managers
             {
                 if (alarm.Type == AlarmType.Node && GatherBuddy.Config.NodeAlarmFormat.Length > 0)
                 {
-                    Dalamud.Chat.PrintError(ReplaceNodeFormatPlaceholders(GatherBuddy.Config.NodeAlarmFormat,        alarm, currentMinute));
-                    PluginLog.Verbose(ReplaceNodeFormatPlaceholders(GatherBuddyConfiguration.DefaultNodeAlarmFormat, alarm, currentMinute));
+                    Dalamud.Chat.PrintError(ReplaceNodeFormatPlaceholders(GatherBuddy.Config.NodeAlarmFormat, alarm, currentMinute));
+                    PluginLog.Verbose(ReplaceNodeFormatPlaceholders(GatherBuddyConfiguration.DefaultNodeAlarmFormat, alarm, currentMinute)
+                        .ToString());
                 }
                 else if (alarm.Type == AlarmType.Fish && GatherBuddy.Config.FishAlarmFormat.Length > 0)
                 {
                     Dalamud.Chat.PrintError(ReplaceFishFormatPlaceholders(GatherBuddy.Config.FishAlarmFormat,        alarm));
-                    PluginLog.Verbose(ReplaceFishFormatPlaceholders(GatherBuddyConfiguration.DefaultFishAlarmFormat, alarm));
+                    PluginLog.Verbose(ReplaceFishFormatPlaceholders(GatherBuddyConfiguration.DefaultFishAlarmFormat, alarm).ToString());
                 }
             }
 

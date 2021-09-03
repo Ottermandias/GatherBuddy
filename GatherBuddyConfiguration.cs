@@ -29,10 +29,28 @@ namespace GatherBuddy
     [Serializable]
     public class GatherBuddyConfiguration : IPluginConfiguration
     {
-        public const string DefaultIdentifiedItemFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
-        public const string DefaultIdentifiedFishFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
+        public void MigrateV2ToV3()
+        {
+            if (Version > 2)
+                return;
+
+            const string oldDefaultNodeAlarmFormat      = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+
+            if (NodeAlarmFormat == oldDefaultNodeAlarmFormat)
+                NodeAlarmFormat = DefaultNodeAlarmFormat;
+
+            WriteCoordinates = UseCoordinates;
+
+            Version = 3;
+        }
+
+
+        public const string DefaultIdentifiedItemFormat        = "Identified [{Id}: {Name}] at {Location} for \"{Input}\".";
+        public const string DefaultIdentifiedFishFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
         public const string DefaultIdentifiedFishingSpotFormat = "Chose fishing spot {Name} for {FishName}.";
-        public const string DefaultNodeAlarmFormat = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+
+        public const string DefaultNodeAlarmFormat =
+            "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString} at {Location}.";
 
         public const string DefaultFishAlarmFormat =
             "[GatherBuddy][Alarm {Name}]: The fish {FishName} at {FishingSpotName} {DelayString}. Catch with {BaitName}.";
@@ -55,13 +73,14 @@ namespace GatherBuddy
         }
 
 
-        public int       Version   { get; set; } = 2;
+        public int       Version   { get; set; } = 3;
         public ShowNodes ShowNodes { get; set; } = ShowNodes.AllNodes;
 
         public bool OpenOnStart         { get; set; } = false;
         public bool UseGearChange       { get; set; } = true;
         public bool UseTeleport         { get; set; } = true;
         public bool UseCoordinates      { get; set; } = true;
+        public bool WriteCoordinates    { get; set; } = true;
         public bool DoRecord            { get; set; } = true;
         public bool AlarmsEnabled       { get; set; } = false;
         public bool PrintUptime         { get; set; } = true;
@@ -95,7 +114,10 @@ namespace GatherBuddy
         public static GatherBuddyConfiguration Load()
         {
             if (Dalamud.PluginInterface.GetPluginConfig() is GatherBuddyConfiguration config)
+            {
+                config.MigrateV2ToV3();
                 return config;
+            }
 
             config = new GatherBuddyConfiguration();
             config.Save();

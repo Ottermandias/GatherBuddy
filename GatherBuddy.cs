@@ -21,9 +21,8 @@ namespace GatherBuddy
         public string Name
             => "GatherBuddy";
 
-        public static GatherBuddyConfiguration Config          { get; private set; } = null!;
-        public static ClientLanguage           Language        { get; private set; } = ClientLanguage.English;
-
+        public static GatherBuddyConfiguration Config   { get; private set; } = null!;
+        public static ClientLanguage           Language { get; private set; } = ClientLanguage.English;
 
         public readonly  Gatherer     Gatherer;
         public readonly  AlarmManager Alarms;
@@ -162,7 +161,7 @@ namespace GatherBuddy
         private void OnConfigCommandHandler()
             => _gatherInterface!.Visible = true;
 
-        private void PrintHelp()
+        private static void PrintHelp()
         {
             Dalamud.Chat.Print("Please use with [setting] [value], where setting can be");
             Dalamud.Chat.Print(
@@ -170,9 +169,9 @@ namespace GatherBuddy
             Dalamud.Chat.Print("        -- Miner [string]: the name of your miner gear set of choice.");
             Dalamud.Chat.Print("        -- Botanist [string]: the name of your botanist gear set of choice.");
             Dalamud.Chat.Print(
-                "        -- Teleport [0|off|false|1|on|true]: Teleport to the nearest aetheryte to the node. Requires Teleporter plugin.");
+                "        -- Teleport [0|off|false|1|on|true]: Teleport to the nearest aetheryte to the node.");
             Dalamud.Chat.Print(
-                "        -- SetFlag [0|off|false|1|on|true]: Set a map marker on the approximate location of the node. Requires ChatCoordinates plugin.");
+                "        -- SetFlag [0|off|false|1|on|true]: Set a map marker on the approximate location of the node.");
             Dalamud.Chat.Print(
                 "        -- Record [0|off|false|1|on|true]: Start recording encountered nodes for more accurate positions.");
             Dalamud.Chat.Print(
@@ -237,8 +236,7 @@ namespace GatherBuddy
 
                 var oldSetting = Config.UseTeleport;
                 Config.UseTeleport = setting;
-                Gatherer!.TryCreateTeleporterWatcher(setting);
-                output = $"Set the value of Teleport from {oldSetting} to {setting}.";
+                output             = $"Set the value of Teleport from {oldSetting} to {setting}.";
             }
             else if (Util.CompareCi(argumentParts[0], "setflag"))
             {
