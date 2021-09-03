@@ -136,10 +136,15 @@ namespace GatherBuddy.Gui
                 {
                     case AlarmType.Node:
                         ImGui.Text(alarm.Node!.Times!.PrintHours(true, " | "));
-                        ImGuiHelper.HoverTooltip(alarm.Node!.Items!.PrintItems("\n", GatherBuddy.Language));
+                        ImGuiHelper.HoverTooltip($"Click to /gather.\n{alarm.Node!.Items!.PrintItems("\n", GatherBuddy.Language)}");
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                            _plugin.Gatherer.OnGatherActionWithNode(alarm.Node!);
                         break;
                     case AlarmType.Fish:
                         ImGui.Text(alarm.Fish!.Name[GatherBuddy.Language]);
+                        ImGuiHelper.HoverTooltip("Click to /gather.");
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                            _plugin.Gatherer.OnFishActionWithFish(alarm.Fish!);
                         break;
                     default: throw new InvalidEnumArgumentException();
                 }
