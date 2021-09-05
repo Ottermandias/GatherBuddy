@@ -7,6 +7,9 @@ namespace GatherBuddy.Utility
     {
         public static bool Teleport(uint aetheryte)
         {
+            if (Dalamud.ClientState.LocalPlayer == null)
+                return false;
+
             var teleport = Telepo.Instance();
             if (teleport == null)
             {
@@ -17,13 +20,11 @@ namespace GatherBuddy.Utility
             if (teleport->TeleportList.Size() == 0)
                 teleport->UpdateAetheryteList();
 
-            var infoPtr = teleport->TeleportList.First;
-            var endPtr  = teleport->TeleportList.End;
-            while (infoPtr != endPtr)
+            var endPtr  = teleport->TeleportList.Last;
+            for (var it = teleport->TeleportList.First; it != endPtr; ++it)
             {
-                if (infoPtr->AetheryteId == aetheryte)
+                if (it->AetheryteId == aetheryte)
                     return teleport->Teleport(aetheryte, 0);
-                ++infoPtr;
             }
             Dalamud.Chat.PrintError("Could not teleport, not attuned.");
             return false;
