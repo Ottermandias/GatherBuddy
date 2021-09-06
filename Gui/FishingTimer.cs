@@ -265,6 +265,7 @@ namespace GatherBuddy.Gui
         private void OnMooch()
         {
             _currentBait     = new Bait(_lastFish!.ItemData, _lastFish.Name);
+            CheckBuffs();
             _currentFishList = SortedFish();
             PluginLog.Verbose("Mooching with {Fish} at {FishingSpot} {Snagging} and {Chum}.", _lastFish!.Name,
                 _currentSpot!.PlaceName ?? "Unknown", _snagging ? "with Snagging" : "without Snagging", _chum ? "with Chum" : "without Chum");
