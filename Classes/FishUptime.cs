@@ -52,11 +52,9 @@ namespace GatherBuddy.Classes
             var end2   = start2 + rhs.Duration;
             start1 = Math.Max(start1, start2);
             end1   = Math.Min(end1, end2);
-            if (end1 < start1)
+            if (end1 <= start1)
                 return NoHours;
 
-            if (end1 > RealTime.MinutesPerDay)
-                end1 -= RealTime.MinutesPerDay;
             return new FishUptime(start1, end1 - start1);
         }
 

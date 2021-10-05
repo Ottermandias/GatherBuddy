@@ -142,8 +142,7 @@ namespace GatherBuddy.Gui
             ImGui.TableNextColumn();
             if (ImGui.Selectable(fish.FishingSpot))
                 _plugin.Gatherer!.OnFishActionWithSpot(fish.Base.FishingSpots.First());
-
-            ImGuiHelper.HoverTooltip($"{fish.Territory}\nRight-click to open TeamCraft site for this spot.");
+            ImGuiHelper.HoverTooltip(fish.FishingSpotTooltip);
 
             if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
                 try
@@ -157,6 +156,7 @@ namespace GatherBuddy.Gui
 
             ImGui.TableNextColumn();
             ImGui.Text(fish.Territory);
+            ImGuiHelper.HoverTooltip(fish.TerritoryTooltip);
         }
 
         private static void DrawAlreadyCaughtBox()
