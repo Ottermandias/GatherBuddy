@@ -75,12 +75,12 @@ namespace GatherBuddy.Managers
 
                 var scale = GetMapScale(mapId);
                 var x     = ConvertCoord(a.Position.X, scale);
-                var y     = ConvertCoord(a.Position.Y, scale);
+                var y     = ConvertCoord(a.Position.Z, scale);
                 if (!FindOrAddNodeLocation(node, mapId, id, x, y))
                     continue;
 
                 PluginLog.Verbose("[NodeRecorder] {Name} on map {MapId} - {RawX}|{RawY} -> {FloatX:F2}|{FloatY:F2}", a.Name, mapId,
-                    a.Position.X, a.Position.Y, x / 100.0, y / 100.0);
+                    a.Position.X, a.Position.Z, x / 100.0, y / 100.0);
                 ++numNodes;
             }
 
