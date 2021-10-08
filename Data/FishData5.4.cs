@@ -17,7 +17,7 @@ namespace GatherBuddy.Data
             fish.Apply     (32049, Patch.FuturesRewritten) // Moonlight Guppy
                 .Bait      (fish, 27589)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (6, 8)
+                .Uptime    (360, 480)
                 .Transition(1)
                 .Weather   (2)
                 .HookType  (HookSet.Precise);
@@ -30,26 +30,26 @@ namespace GatherBuddy.Data
             fish.Apply     (32051, Patch.FuturesRewritten) // Henodus Grandis
                 .Bait      (fish, 27588, 27457)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (22, 24)
+                .Uptime    (1320, 1440)
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (32052, Patch.FuturesRewritten) // Sunken Tome
                 .Bait      (fish, 27585)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 16)
+                .Uptime    (720, 960)
                 .Transition(2)
                 .Weather   (10)
                 .HookType  (HookSet.Precise);
             fish.Apply     (32053, Patch.FuturesRewritten) // Pearl Pipira
                 .Bait      (fish, 27587, 27492)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (17, 20)
+                .Uptime    (1020, 1200)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (32054, Patch.FuturesRewritten) // The Ondotaker
                 .Bait      (fish, 27590)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 10)
+                .Uptime    (480, 600)
                 .Transition(1)
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);

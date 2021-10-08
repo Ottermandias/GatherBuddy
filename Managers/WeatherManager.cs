@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Plugin;
 using GatherBuddy.Classes;
 using GatherBuddy.Game;
 using GatherBuddy.Utility;
@@ -61,23 +60,24 @@ namespace GatherBuddy.Managers
             List      = RequestData(cache, -SecondsPerWeather).ToList();
         }
 
-        public int CompareTo(WeatherTimeline other)
-            => Territory.Id.CompareTo(other.Territory.Id);
+        public int CompareTo(WeatherTimeline? other)
+            => Territory.Id.CompareTo(other?.Territory.Id ?? 0);
 
 
-        public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, Uptime uptime, long offset = 0, uint increment = 32)
+        public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, FishUptime uptime, long offset = 0, uint increment = 32)
         {
             var now = DateTime.UtcNow.AddSeconds(offset);
             TrimFront();
             var previousFit = false;
-            var idx = 1;
+            var idx         = 1;
+
             while (true)
             {
                 for (--idx; idx < List.Count; ++idx)
                 {
                     var w = List[idx];
                     if (previousFit
-                     && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Count * EorzeaTime.SecondsPerEorzeaHour) >= now
+                     && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Duration * EorzeaTime.SecondsPerEorzeaMinute) >= now
                      && w.Uptime.Overlaps(uptime)
                      && (weather.Count == 0 || weather.Contains(w.Weather.RowId)))
                         return w;
@@ -98,14 +98,14 @@ namespace GatherBuddy.Managers
         public List<WeatherTimeline>             UniqueZones { get; } = new();
 
 
-        public WeatherManager(DalamudPluginInterface pi, TerritoryManager territories)
+        public WeatherManager(TerritoryManager territories)
         {
-            var skyWatcher     = Service<SkyWatcher>.Set(pi);
-            var territoryTypes = pi.Data.GetExcelSheet<TerritoryType>();
+            var skyWatcher     = Service<SkyWatcher>.Set(Dalamud.GameData, GatherBuddy.Language)!;
+            var territoryTypes = Dalamud.GameData.GetExcelSheet<TerritoryType>()!;
 
             foreach (var t in territoryTypes.Where(t => skyWatcher.GetRates(t.RowId).Length > 1))
             {
-                var territory = territories.FindOrAddTerritory(pi, t);
+                var territory = territories.FindOrAddTerritory(t);
                 if (territory == null)
                     continue;
 
@@ -116,7 +116,7 @@ namespace GatherBuddy.Managers
             }
         }
 
-        public DateTime[] NextWeatherChangeTimes(int num, long offset = 0)
+        public static DateTime[] NextWeatherChangeTimes(int num, long offset = 0)
         {
             var timeStamp          = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + offset;
             var currentWeatherTime = timeStamp - timeStamp % SecondsPerWeather;
@@ -129,7 +129,7 @@ namespace GatherBuddy.Managers
 
         private WeatherTimeline FindOrCreateForecast(Territory territory, uint increment)
         {
-            if (!Forecast.TryGetValue(territory.Id, out var values))
+            if (Forecast.TryGetValue(territory.Id, out var values))
                 return values;
 
             var timeline = new WeatherTimeline(territory, increment);
@@ -144,14 +144,14 @@ namespace GatherBuddy.Managers
         }
 
         public WeatherListing RequestForecast(Territory territory, IList<uint> weather, long offset = 0, uint increment = 32)
-            => RequestForecast(territory, weather, Array.Empty<uint>(), Uptime.AllHours, offset, increment);
+            => RequestForecast(territory, weather, Array.Empty<uint>(), FishUptime.AllTime, offset, increment);
 
-        public WeatherListing RequestForecast(Territory territory, IList<uint> weather, Uptime uptime, long offset = 0, uint increment = 32)
+        public WeatherListing RequestForecast(Territory territory, IList<uint> weather, FishUptime uptime, long offset = 0, uint increment = 32)
             => RequestForecast(territory, weather, Array.Empty<uint>(), uptime, offset, increment);
 
 
         public WeatherListing RequestForecast(Territory territory, IList<uint> weather, IList<uint> previousWeather,
-            Uptime uptime, long offset = 0, uint increment = 32)
+            FishUptime uptime, long offset = 0, uint increment = 32)
         {
             var values = FindOrCreateForecast(territory, increment);
             return values.Find(weather, previousWeather, uptime, offset, increment);

@@ -15,8 +15,8 @@ namespace GatherBuddy.Classes
 
         public void Merge(Records rhs)
         {
-            foreach (var p in rhs.Nodes.Where(p => p.Value != null))
-                Nodes[p.Key].AddLocation(p.Value);
+            foreach (var (id, location) in rhs.Nodes)
+                Nodes[id].AddLocation(location);
         }
 
         public byte[] SerializeCompressed()
@@ -26,10 +26,10 @@ namespace GatherBuddy.Classes
             using var writer = new BinaryWriter(c);
 
             writer.Write(Nodes.Count);
-            foreach (var n in Nodes)
+            foreach (var (id, node) in Nodes)
             {
-                writer.Write(n.Key);
-                n.Value.Write(writer);
+                writer.Write(id);
+                node.Write(writer);
             }
 
             c.Close();
@@ -63,6 +63,6 @@ namespace GatherBuddy.Classes
         { }
 
         public Records(SerializationInfo info, StreamingContext context)
-            => DeserializeCompressed(Convert.FromBase64String((string) info.GetValue("nodes", typeof(string))));
+            => DeserializeCompressed(Convert.FromBase64String((string) info.GetValue("nodes", typeof(string))!));
     }
 }

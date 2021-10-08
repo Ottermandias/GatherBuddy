@@ -11,12 +11,12 @@ namespace GatherBuddy.Data
             fish.Apply     (7678, Patch.ThroughTheMaelstrom) // Zalera
                 .Bait      (fish, 2591)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 14)
+                .Uptime    (540, 840)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7679, Patch.ThroughTheMaelstrom) // Beguiler Chub
                 .Bait      (fish, 2586)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 14)
+                .Uptime    (540, 840)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7680, Patch.ThroughTheMaelstrom) // Oschon's Print
                 .Bait      (fish, 2589)
@@ -29,22 +29,22 @@ namespace GatherBuddy.Data
             fish.Apply     (7682, Patch.ThroughTheMaelstrom) // Crystal Perch
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Legendary)
-                .Weather   (4, 3)
+                .Weather   (4, 3, 5)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7683, Patch.ThroughTheMaelstrom) // Moldva
                 .Bait      (fish, 2592, 4942)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 2)
+                .Uptime    (1080, 120)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7684, Patch.ThroughTheMaelstrom) // Junkmonger
                 .Bait      (fish, 2585, 4869, 4904)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 2)
+                .Uptime    (960, 120)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7685, Patch.ThroughTheMaelstrom) // Goldenfin
                 .Bait      (fish, 2587)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 14)
+                .Uptime    (540, 840)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7686, Patch.ThroughTheMaelstrom) // Gigantshark
                 .Bait      (fish, 2585, 4869)
@@ -54,7 +54,7 @@ namespace GatherBuddy.Data
             fish.Apply     (7687, Patch.ThroughTheMaelstrom) // Armorer
                 .Bait      (fish, 2606)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (19, 3)
+                .Uptime    (1140, 180)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7688, Patch.ThroughTheMaelstrom) // Great Gudgeon
                 .Bait      (fish, 2588)
@@ -72,28 +72,28 @@ namespace GatherBuddy.Data
             fish.Apply     (7691, Patch.ThroughTheMaelstrom) // Sabertooth Cod
                 .Bait      (fish, 2589)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 22)
+                .Uptime    (960, 1320)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7692, Patch.ThroughTheMaelstrom) // Dream Goby
                 .Bait      (fish, 2588)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (17, 3)
+                .Uptime    (1020, 180)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7693, Patch.ThroughTheMaelstrom) // Navigator's Brand
                 .Bait      (fish, 2628)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 14)
+                .Uptime    (540, 840)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7694, Patch.ThroughTheMaelstrom) // Dark Ambusher
                 .Bait      (fish, 2586, 4927)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (21, 3)
+                .Uptime    (1260, 180)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7695, Patch.ThroughTheMaelstrom) // Judgeray
                 .Bait      (fish, 2623)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (17, 21)
+                .Uptime    (1020, 1260)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7696, Patch.ThroughTheMaelstrom) // Bloody Brewer
                 .Bait      (fish, 2588)
@@ -107,40 +107,40 @@ namespace GatherBuddy.Data
             fish.Apply     (7698, Patch.ThroughTheMaelstrom) // Slime King
                 .Bait      (fish, 2588)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (19, 24)
+                .Uptime    (1140, 1440)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7699, Patch.ThroughTheMaelstrom) // Blue Widow
                 .Bait      (fish, 2611)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 14)
+                .Uptime    (540, 840)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7700, Patch.ThroughTheMaelstrom) // Ghost Carp
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (21, 3)
+                .Uptime    (1260, 180)
                 .Weather   (7)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7701, Patch.ThroughTheMaelstrom) // Carp Diem
                 .Bait      (fish, 2614)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 14)
+                .Uptime    (540, 840)
                 .Weather   (4, 3)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7702, Patch.ThroughTheMaelstrom) // Mud Pilgrim
                 .Bait      (fish, 2592)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (17, 8)
+                .Uptime    (1020, 420)
                 .Weather   (7, 8)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7703, Patch.ThroughTheMaelstrom) // Old Softie
                 .Bait      (fish, 2590)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (17, 21)
+                .Uptime    (1020, 1260)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7704, Patch.ThroughTheMaelstrom) // Marrow Sucker
                 .Bait      (fish, 2597)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (20, 3)
+                .Uptime    (1200, 180)
                 .Weather   (7, 8)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7705, Patch.ThroughTheMaelstrom) // Chirurgeon
@@ -150,22 +150,22 @@ namespace GatherBuddy.Data
             fish.Apply     (7706, Patch.ThroughTheMaelstrom) // Mud Golem
                 .Bait      (fish, 2594)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (21, 3)
+                .Uptime    (1260, 180)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7707, Patch.ThroughTheMaelstrom) // Octomammoth
                 .Bait      (fish, 2587, 4874)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 17)
+                .Uptime    (540, 1020)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7708, Patch.ThroughTheMaelstrom) // Matron Carp
                 .Bait      (fish, 2590)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (15, 21)
+                .Uptime    (900, 1260)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7709, Patch.ThroughTheMaelstrom) // High Perch
                 .Bait      (fish, 2617)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (5, 8)
+                .Uptime    (300, 480)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7710, Patch.ThroughTheMaelstrom) // Syldra
                 .Bait      (fish, 2596)
@@ -179,12 +179,12 @@ namespace GatherBuddy.Data
             fish.Apply     (7712, Patch.ThroughTheMaelstrom) // Jacques the Snipper
                 .Bait      (fish, 2589)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (21, 3)
+                .Uptime    (1260, 180)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7713, Patch.ThroughTheMaelstrom) // Stormdancer
                 .Bait      (fish, 2601)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (17, 2)
+                .Uptime    (1020, 120)
                 .Weather   (7, 15)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (7714, Patch.ThroughTheMaelstrom) // Glimmerscale

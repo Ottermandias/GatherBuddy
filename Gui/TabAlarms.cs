@@ -17,15 +17,13 @@ namespace GatherBuddy.Gui
                 var alarm = _plugin.Alarms.Alarms[idx];
                 if (ImGui.Button($"  −  ##{idx}"))
                     _plugin.Alarms.RemoveAlarm(idx--);
-                if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Delete this alarm.");
+                ImGuiHelper.HoverTooltip("Delete this alarm.");
 
                 HorizontalSpace(_alarmsSpacing);
                 var enabled = alarm.Enabled;
                 if (ImGui.Checkbox($"##enabled_{idx}", ref enabled) && enabled != alarm.Enabled)
                     _plugin.Alarms.ChangeNodeStatus(idx, enabled);
-                if (ImGui.IsItemHovered())
-                    ImGui.SetTooltip("Enable or disable this alarm.");
+                ImGuiHelper.HoverTooltip("Enable or disable this alarm.");
             }
         }
 
@@ -48,9 +46,8 @@ namespace GatherBuddy.Gui
         {
             using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Pre");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip(
-                    "Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.\nFor fish, the offset is in real minutes instead of Eorzea minutes.");
+            ImGuiHelper.HoverTooltip(
+                "Trigger the respective alarm the given number (0-1439) of Eorzea Minutes earlier.\nFor fish, the offset is in real minutes instead of Eorzea minutes.");
 
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
@@ -80,9 +77,8 @@ namespace GatherBuddy.Gui
         {
             using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Alarm Sound");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Set an optional sound that should be played when this alarm triggers.\n"
-                  + "The sounds are the same as in the character configuration -> log window -> notification sounds.");
+            ImGuiHelper.HoverTooltip("Set an optional sound that should be played when this alarm triggers.\n"
+              + "The sounds are the same as in the character configuration -> log window -> notification sounds.");
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
 
@@ -110,8 +106,7 @@ namespace GatherBuddy.Gui
         {
             using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Chat");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Toggle whether the alarm is printed to chat or not.");
+            ImGuiHelper.HoverTooltip("Toggle whether the alarm is printed to chat or not.");
 
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
@@ -129,8 +124,7 @@ namespace GatherBuddy.Gui
         {
             using var group = ImGuiRaii.NewGroup();
             ImGui.Text("Alarm Times / Fish");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("The uptimes for the node monitored in this alarm, or the respective fish");
+            ImGuiHelper.HoverTooltip("The uptimes for the node monitored in this alarm, or the respective fish");
 
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
@@ -142,11 +136,15 @@ namespace GatherBuddy.Gui
                 {
                     case AlarmType.Node:
                         ImGui.Text(alarm.Node!.Times!.PrintHours(true, " | "));
-                        if (ImGui.IsItemHovered())
-                            ImGui.SetTooltip(alarm.Node!.Items!.PrintItems("\n", _lang));
+                        ImGuiHelper.HoverTooltip($"Click to /gather.\n{alarm.Node!.Items!.PrintItems("\n", GatherBuddy.Language)}");
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                            _plugin.Gatherer.OnGatherActionWithNode(alarm.Node!);
                         break;
                     case AlarmType.Fish:
                         ImGui.Text(alarm.Fish!.Name[GatherBuddy.Language]);
+                        ImGuiHelper.HoverTooltip("Click to /gather.");
+                        if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                            _plugin.Gatherer.OnFishActionWithFish(alarm.Fish!);
                         break;
                     default: throw new InvalidEnumArgumentException();
                 }
@@ -173,8 +171,9 @@ namespace GatherBuddy.Gui
         {
             _alarmsSpacing = _itemSpacing.X / 2;
 
-            var listSize = new Vector2(-1, -_textHeight - 2 * _framePadding.X);
-            if (ImGui.BeginChild("##alarmlist", listSize, true))
+            var       listSize = new Vector2(-1, -_textHeight - 2 * _framePadding.X);
+            using var raii     = new ImGuiRaii();
+            if (raii.BeginChild("##alarmlist", listSize, true))
             {
                 DrawDeleteAndEnable();
                 ImGui.SameLine();
@@ -187,8 +186,9 @@ namespace GatherBuddy.Gui
                 DrawPrintMessageBoxes();
                 ImGui.SameLine();
                 DrawHours();
-                ImGui.EndChild();
             }
+
+            raii.End();
 
             DrawNewAlarm();
         }

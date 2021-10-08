@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using Dalamud;
-using Dalamud.Plugin;
 
 namespace GatherBuddy.Utility
 {
@@ -31,12 +30,12 @@ namespace GatherBuddy.Utility
             => $"{Name(ClientLanguage.English)}|{Name(ClientLanguage.German)}|{Name(ClientLanguage.French)}|{Name(ClientLanguage.Japanese)}";
 
 
-        public static FFName FromPlaceName(DalamudPluginInterface pi, uint id)
+        public static FFName FromPlaceName(uint id)
         {
             var name = new FFName();
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
             {
-                var row = pi.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.PlaceName>(lang).GetRow(id);
+                var row = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.PlaceName>(lang)!.GetRow(id);
                 name[lang] = row?.Name ?? "";
             }
 
@@ -53,7 +52,7 @@ namespace GatherBuddy.Utility
             _nameList[(int) lang] = Util.RemoveItalics(name);
         }
 
-        private readonly string[] _nameList = 
+        private readonly string[] _nameList =
         {
             string.Empty,
             string.Empty,

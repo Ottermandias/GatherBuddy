@@ -5,6 +5,7 @@ using Dalamud.Plugin;
 using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using Dalamud;
+using Dalamud.Logging;
 using GatherBuddy.Game;
 using GatherBuddy.Utility;
 
@@ -25,20 +26,21 @@ namespace GatherBuddy.Managers
 
         public Dictionary<int, Gatherable> GatheringToItem { get; } = new();
 
-        public ItemManager(DalamudPluginInterface pi)
+        public ItemManager()
         {
-            var gatheringExcel = pi.Data.GetExcelSheet<GatheringItem>();
+            var gatheringExcel = Dalamud.GameData.GetExcelSheet<GatheringItem>()!;
             var itemSheets     = new ExcelSheet<Item>[4];
             foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
-                itemSheets[(int) lang] = pi.Data.GetExcelSheet<Item>(lang);
+                itemSheets[(int) lang] = Dalamud.GameData.GetExcelSheet<Item>(lang)!;
 
-            var defaultSheet = itemSheets[(int) pi.ClientState.ClientLanguage];
+            var defaultSheet = itemSheets[(int) GatherBuddy.Language];
             // Skip invalid items.
             // There are a bunch of ids in gathering that do belong to quest or leve items.
-            foreach (var item in gatheringExcel.Where(i => i != null && i.Item != 0 && i.Item < 1000000))
+            foreach (var item in gatheringExcel.Where(i => i.Item != 0 && i.Item < 1000000))
             {
-                var row     = defaultSheet.GetRow((uint) item.Item);
-                var newItem = new Gatherable(row, item, item.GatheringItemLevel.Value.GatheringItemLevel, item.GatheringItemLevel.Value.Stars);
+                var row = defaultSheet.GetRow((uint) item.Item)!;
+                var newItem = new Gatherable(row, item, item.GatheringItemLevel.Value!.GatheringItemLevel,
+                    item.GatheringItemLevel.Value!.Stars);
                 foreach (ClientLanguage lang in Enum.GetValues(typeof(ClientLanguage)))
                 {
                     var it = itemSheets[(int) lang].GetRow((uint) item.Item);

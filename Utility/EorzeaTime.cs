@@ -19,9 +19,10 @@ namespace GatherBuddy.Utility
 
     public static class EorzeaTime
     {
-        public const int    SecondsPerEorzeaHour = 175;
-        public const int    SecondsPerEorzeaDay  = RealTime.HoursPerDay * SecondsPerEorzeaHour;
-        public const double ConversionFactor     = 7.0 / 144.0;
+        public const int    SecondsPerEorzeaHour   = 175;
+        public const float  SecondsPerEorzeaMinute = SecondsPerEorzeaHour / (float) RealTime.MinutesPerHour;
+        public const int    SecondsPerEorzeaDay    = RealTime.HoursPerDay * SecondsPerEorzeaHour;
+        public const double ConversionFactor       = 7.0 / 144.0;
 
         public static long CurrentTimestamp()
             => RealTime.CurrentTimestamp() * 144 / 7;
@@ -72,6 +73,13 @@ namespace GatherBuddy.Utility
             var m    = (long) time;
             var s    = (long) ((time - m) * RealTime.SecondsPerMinute);
             return (m, s);
+        }
+
+        public static DateTime SyncToEorzeaDay(DateTime now)
+        {
+            var stamp = RealTimestamp(now);
+            var diff  = stamp % SecondsPerEorzeaDay;
+            return now.AddSeconds(-diff);
         }
     }
 }

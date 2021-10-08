@@ -1,5 +1,4 @@
 ﻿using System.Collections.Generic;
-using Dalamud.Plugin;
 using GatherBuddy.Game;
 using GatherBuddy.Utility;
 
@@ -11,12 +10,12 @@ namespace GatherBuddy.Managers
         public Dictionary<uint, Territory> Territories { get; } = new();
 
         // Add region name if it does not exist.
-        private FFName? FindOrAddRegionName(DalamudPluginInterface pi, uint regionNameRowId)
+        private FFName? FindOrAddRegionName(uint regionNameRowId)
         {
             if (Regions.TryGetValue(regionNameRowId, out var names))
                 return names;
 
-            names = FFName.FromPlaceName(pi, regionNameRowId);
+            names = FFName.FromPlaceName(regionNameRowId);
             if (names.AnyEmpty())
                 return null;
 
@@ -24,17 +23,17 @@ namespace GatherBuddy.Managers
             return names;
         }
 
-        public Territory? FindOrAddTerritory(DalamudPluginInterface pi, Lumina.Excel.GeneratedSheets.TerritoryType t)
+        public Territory? FindOrAddTerritory(Lumina.Excel.GeneratedSheets.TerritoryType t)
         {
             // Create territory if it does not exist. Otherwise add the aetheryte to its list.
             if (Territories.TryGetValue(t.RowId, out var territory))
                 return territory;
 
-            var names = FFName.FromPlaceName(pi, t.PlaceName.Row);
+            var names = FFName.FromPlaceName(t.PlaceName.Row);
             if (names.AnyEmpty())
                 return null;
 
-            territory = new Territory(t, FindOrAddRegionName(pi, t.PlaceNameRegion.Row)!, names)
+            territory = new Territory(t, FindOrAddRegionName(t.PlaceNameRegion.Row)!, names)
             {
                 XStream    = t.Aetheryte.Value?.AetherstreamX ?? 0,
                 YStream    = t.Aetheryte.Value?.AetherstreamY ?? 0,

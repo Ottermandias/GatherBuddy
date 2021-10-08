@@ -37,20 +37,20 @@ namespace GatherBuddy.Data
             fish.Apply     (24882, Patch.ARequiemForHeroes) // The Vegetarian
                 .Bait      (fish, 20617, 20112)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (20, 24)
+                .Uptime    (1200, 1440)
                 .Weather   (9)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24883, Patch.ARequiemForHeroes) // Seven Stars
                 .Bait      (fish, 20676)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (10, 18)
+                .Uptime    (600, 1080)
                 .Transition(9)
                 .Weather   (2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24884, Patch.ARequiemForHeroes) // Pinhead
                 .Bait      (fish, 20617)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 24)
+                .Uptime    (960, 1440)
                 .Transition(2, 1)
                 .Weather   (9)
                 .HookType  (HookSet.Powerful);
@@ -68,54 +68,54 @@ namespace GatherBuddy.Data
             fish.Apply     (24887, Patch.ARequiemForHeroes) // Hermit's End
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (20, 24)
+                .Uptime    (1200, 1440)
                 .Weather   (1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24888, Patch.ARequiemForHeroes) // Suiten Ippeki
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 24)
+                .Uptime    (960, 1440)
                 .Transition(2)
                 .Weather   (8)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24889, Patch.ARequiemForHeroes) // Axelrod
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (0, 8)
+                .Uptime    (0, 480)
                 .Transition(3)
                 .Weather   (2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24890, Patch.ARequiemForHeroes) // The Unraveled Bow
                 .Bait      (fish, 20619)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (12, 16)
+                .Uptime    (720, 960)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24891, Patch.ARequiemForHeroes) // Nhaama's Treasure
                 .Bait      (fish, 20619)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (4, 8)
+                .Uptime    (240, 480)
                 .Transition(7)
                 .Weather   (2, 1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24892, Patch.ARequiemForHeroes) // Garden Skipper
                 .Bait      (fish, 20615)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 12)
+                .Uptime    (480, 720)
                 .Transition(2)
                 .Weather   (1)
                 .HookType  (HookSet.Precise);
             fish.Apply     (24893, Patch.ARequiemForHeroes) // Banderole
                 .Bait      (fish, 20614, 20127)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (0, 8)
+                .Uptime    (0, 480)
                 .Transition(2)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24990, Patch.ARequiemForHeroes) // Xenacanthus
                 .Bait      (fish, 20675, 24207)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 20)
+                .Uptime    (960, 1200)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24991, Patch.ARequiemForHeroes) // Drepanaspis
                 .Bait      (fish, 20619)
@@ -127,14 +127,14 @@ namespace GatherBuddy.Data
             fish.Apply     (24992, Patch.ARequiemForHeroes) // Stethacanthus
                 .Bait      (fish, 20616, 20025)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (16, 18)
+                .Uptime    (960, 1080)
                 .Predators (fish, (20040, 2))
                 .Intuition (350)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (24993, Patch.ARequiemForHeroes) // The Ruby Dragon
                 .Bait      (fish, 20676, 24214)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (4, 8)
+                .Uptime    (240, 480)
                 .Transition(9)
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);
@@ -147,7 +147,7 @@ namespace GatherBuddy.Data
             fish.Apply     (24995, Patch.ARequiemForHeroes) // The Unconditional
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (5, 7)
+                .Uptime    (330, 390)
                 .Transition(7)
                 .Weather   (1)
                 .HookType  (HookSet.Precise);

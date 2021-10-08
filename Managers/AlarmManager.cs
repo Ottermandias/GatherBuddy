@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Plugin;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -13,35 +15,30 @@ namespace GatherBuddy.Managers
 {
     public class AlarmManager : IDisposable
     {
-        private readonly DalamudPluginInterface   _pi;
-        private readonly NodeManager              _nodes;
-        private readonly FishManager              _fish;
-        private readonly WeatherManager           _weather;
-        private readonly GatherBuddyConfiguration _config;
-        private readonly PlaySound                _sounds;
-        public           Node[]                   AllTimedNodes { get; }
-        public           Fish[]                   AllTimedFish  { get; }
+        private readonly NodeManager    _nodes;
+        private readonly FishManager    _fish;
+        private readonly WeatherManager _weather;
+        private readonly PlaySound      _sounds;
+        public           Node[]         AllTimedNodes { get; }
+        public           Fish[]         AllTimedFish  { get; }
 
         private uint     _currentMinute;
         private DateTime _currentTime;
 
         public List<Alarm> Alarms
-            => _config.Alarms;
+            => GatherBuddy.Config.Alarms;
 
         private readonly List<bool> _status;
 
         public Alarm? LastNodeAlarm { get; set; }
         public Alarm? LastFishAlarm { get; set; }
 
-        public AlarmManager(DalamudPluginInterface pi, NodeManager nodes, FishManager fish, WeatherManager weather,
-            GatherBuddyConfiguration config)
+        public AlarmManager(NodeManager nodes, FishManager fish, WeatherManager weather)
         {
-            _pi      = pi;
             _nodes   = nodes;
             _fish    = fish;
             _weather = weather;
-            _config  = config;
-            _sounds  = new PlaySound(_pi.TargetModuleScanner);
+            _sounds  = new PlaySound(Dalamud.SigScanner);
             _status  = Enumerable.Repeat(false, Alarms.Count).ToList();
             UpdateNodes();
             AllTimedNodes = nodes.BaseNodes().Where(n => !n.Times!.AlwaysUp()).ToArray();
@@ -50,29 +47,29 @@ namespace GatherBuddy.Managers
 
         public void Dispose()
         {
-            if (_config.AlarmsEnabled)
-                _pi.Framework.OnUpdateEvent -= OnUpdate;
+            if (GatherBuddy.Config.AlarmsEnabled)
+                Dalamud.Framework.Update -= OnUpdate;
         }
 
         public void Enable(bool force = false)
         {
-            if (!force && _config.AlarmsEnabled)
+            if (!force && GatherBuddy.Config.AlarmsEnabled)
                 return;
 
             UpdateNodes();
-            _config.AlarmsEnabled       =  true;
-            _pi.Framework.OnUpdateEvent += OnUpdate;
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.AlarmsEnabled =  true;
+            Dalamud.Framework.Update         += OnUpdate;
+            GatherBuddy.Config.Save();
         }
 
         public void Disable()
         {
-            if (!_config.AlarmsEnabled)
+            if (!GatherBuddy.Config.AlarmsEnabled)
                 return;
 
-            _config.AlarmsEnabled       =  false;
-            _pi.Framework.OnUpdateEvent -= OnUpdate;
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.AlarmsEnabled =  false;
+            Dalamud.Framework.Update         -= OnUpdate;
+            GatherBuddy.Config.Save();
         }
 
         private bool NewStatusNode(Alarm nodeAlarm)
@@ -91,7 +88,7 @@ namespace GatherBuddy.Managers
         public void OnUpdate(object framework)
         {
             // Skip if the player isn't loaded in a territory.
-            if (_pi.ClientState.TerritoryType == 0)
+            if (Dalamud.ClientState.TerritoryType == 0)
                 return;
 
             var minute = EorzeaTime.CurrentMinuteOfDay();
@@ -122,48 +119,80 @@ namespace GatherBuddy.Managers
             }
         }
 
-        private string ReplaceNodeFormatPlaceholders(string format, Alarm alarm, uint currentMinute)
+        private static SeString ReplaceNodeFormatPlaceholders(string format, Alarm alarm, uint currentMinute)
         {
-            var result = format.Replace("{Name}", alarm.Name);
-            result = result.Replace("{Offset}",     alarm.MinuteOffset.ToString());
-            result = result.Replace("{TimesShort}", alarm.Node!.Times!.PrintHours(true));
-            result = result.Replace("{TimesLong}",  alarm.Node!.Times!.PrintHours());
-            result = result.Replace("{AllItems}",   alarm.Node!.Items!.PrintItems(", ", _pi.ClientState.ClientLanguage));
-
-            var tmp = "is currently up";
-            if (alarm.MinuteOffset > 0)
+            IReadOnlyList<Payload>? Replace(string s)
             {
-                var hour       = currentMinute / RealTime.MinutesPerHour;
-                var hourOfDay  = hour % RealTime.HoursPerDay;
-                var nextUptime = alarm.Node!.Times!.NextUptime(hourOfDay);
-                var offTime    = (hour + nextUptime) * RealTime.MinutesPerHour - currentMinute;
-                var (m, s) = EorzeaTime.MinutesToReal(offTime);
-                if (offTime > 0)
-                    tmp = $"will be up in {m}:{s:D2} minutes";
+                if (!(s.StartsWith('{') && s.EndsWith('}')))
+                    return null;
+
+                return s switch
+                {
+                    "{Name}"        => ChatUtil.GetPayloadsFromString(alarm.Name),
+                    "{Offset}"      => ChatUtil.GetPayloadsFromString(alarm.MinuteOffset.ToString()),
+                    "{DelayString}" => ChatUtil.GetPayloadsFromString(DelayStringNode(alarm, currentMinute)),
+                    "{TimesShort}"  => ChatUtil.GetPayloadsFromString(alarm.Node!.Times!.PrintHours(true)),
+                    "{TimesLong}"   => ChatUtil.GetPayloadsFromString(alarm.Node!.Times!.PrintHours()),
+                    "{Location}"    => ChatUtil.CreateNodeLink(alarm.Node!).Payloads,
+                    "{AllItems}" => alarm.Node!.Items!.ActualItems
+                        .SelectMany(i => ChatUtil.CreateLink(i.ItemData).Prepend(new TextPayload(", "))).Skip(1).ToList(),
+                    _ => null,
+                };
             }
 
-            result = result.Replace("{DelayString}", tmp);
-            return result;
+            return ChatUtil.Format(format, Replace);
         }
 
-        private string ReplaceFishFormatPlaceholders(string format, Alarm alarm, uint currentMinute)
+        private string DelayStringFish(Alarm alarm)
         {
-            var result = format.Replace("{Name}", alarm.Name);
-            result = result.Replace("{Offset}",          alarm.MinuteOffset.ToString());
-            result = result.Replace("{FishName}",        alarm.Fish!.Name[GatherBuddy.Language]);
-            result = result.Replace("{FishingSpotName}", alarm.Fish!.FishingSpots.First()?.PlaceName?[GatherBuddy.Language] ?? "Unknown");
-            result = result.Replace("{BaitName}",        alarm.Fish!.CatchData?.InitialBait.Name[GatherBuddy.Language] ?? "Unknown");
-
             var uptime = alarm.Fish!.NextUptime(_weather);
-            var tmp    = "is currently up";
-            if (uptime.Time > _currentTime)
+            var ret    = "is currently up";
+            if (uptime.Time <= _currentTime)
+                return ret;
+
+            var diff = uptime.Time - _currentTime;
+            ret = $"will be up in {(int) diff.TotalSeconds / 60}:{(int) diff.TotalSeconds % 60:D2} minutes";
+
+            return ret;
+        }
+
+        private static string DelayStringNode(Alarm alarm, uint currentMinute)
+        {
+            var ret = "is currently up";
+            if (alarm.MinuteOffset <= 0)
+                return ret;
+
+            var hour       = currentMinute / RealTime.MinutesPerHour;
+            var hourOfDay  = hour % RealTime.HoursPerDay;
+            var nextUptime = alarm.Node!.Times!.NextUptime(hourOfDay);
+            var offTime    = (hour + nextUptime) * RealTime.MinutesPerHour - currentMinute;
+            var (m, s) = EorzeaTime.MinutesToReal(offTime);
+            if (offTime > 0)
+                ret = $"will be up in {m}:{s:D2} minutes";
+
+            return ret;
+        }
+
+        private SeString ReplaceFishFormatPlaceholders(string format, Alarm alarm)
+        {
+            IReadOnlyList<Payload>? Replace(string s)
             {
-                var diff = uptime.Time - _currentTime;
-                tmp = $"will be up in {(int) diff.TotalSeconds / 60}:{(int) diff.TotalSeconds % 60:D2} minutes";
+                if (!(s.StartsWith('{') && s.EndsWith('}')))
+                    return null;
+
+                return s switch
+                {
+                    "{Name}"            => ChatUtil.GetPayloadsFromString(alarm.Name),
+                    "{Offset}"          => ChatUtil.GetPayloadsFromString(alarm.MinuteOffset.ToString()),
+                    "{DelayString}"     => ChatUtil.GetPayloadsFromString(DelayStringFish(alarm)),
+                    "{FishingSpotName}" => ChatUtil.CreateMapLink(alarm.Fish!.FishingSpots.First()).Payloads,
+                    "{BaitName}"        => ChatUtil.CreateLink(alarm.Fish!.CatchData!.InitialBait.Data),
+                    "{FishName}"        => ChatUtil.CreateLink(alarm.Fish!.ItemData),
+                    _                   => null,
+                };
             }
 
-            result = result.Replace("{DelayString}", tmp);
-            return result;
+            return ChatUtil.Format(format, Replace);
         }
 
         private void Ring(Alarm alarm, uint currentMinute)
@@ -173,15 +202,16 @@ namespace GatherBuddy.Managers
 
             if (alarm.PrintMessage)
             {
-                if (alarm.Type == AlarmType.Node && _config.NodeAlarmFormat.Length > 0)
+                if (alarm.Type == AlarmType.Node && GatherBuddy.Config.NodeAlarmFormat.Length > 0)
                 {
-                    _pi.Framework.Gui.Chat.PrintError(ReplaceNodeFormatPlaceholders(_config.NodeAlarmFormat,         alarm, currentMinute));
-                    PluginLog.Verbose(ReplaceNodeFormatPlaceholders(GatherBuddyConfiguration.DefaultNodeAlarmFormat, alarm, currentMinute));
+                    Dalamud.Chat.PrintError(ReplaceNodeFormatPlaceholders(GatherBuddy.Config.NodeAlarmFormat, alarm, currentMinute));
+                    PluginLog.Verbose(ReplaceNodeFormatPlaceholders(GatherBuddyConfiguration.DefaultNodeAlarmFormat, alarm, currentMinute)
+                        .ToString());
                 }
-                else if (alarm.Type == AlarmType.Fish && _config.FishAlarmFormat.Length > 0)
+                else if (alarm.Type == AlarmType.Fish && GatherBuddy.Config.FishAlarmFormat.Length > 0)
                 {
-                    _pi.Framework.Gui.Chat.PrintError(ReplaceFishFormatPlaceholders(_config.FishAlarmFormat,         alarm, currentMinute));
-                    PluginLog.Verbose(ReplaceFishFormatPlaceholders(GatherBuddyConfiguration.DefaultFishAlarmFormat, alarm, currentMinute));
+                    Dalamud.Chat.PrintError(ReplaceFishFormatPlaceholders(GatherBuddy.Config.FishAlarmFormat,        alarm));
+                    PluginLog.Verbose(ReplaceFishFormatPlaceholders(GatherBuddyConfiguration.DefaultFishAlarmFormat, alarm).ToString());
                 }
             }
 
@@ -204,7 +234,7 @@ namespace GatherBuddy.Managers
 
             Alarms.Add(alarm);
             _status.Add(false);
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void AddFish(string name, uint fishId)
@@ -215,21 +245,21 @@ namespace GatherBuddy.Managers
 
             Alarms.Add(alarm);
             _status.Add(false);
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void AddNode(string name, Node node)
         {
             Alarms.Add(new Alarm(name, node));
             _status.Add(false);
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void AddFish(string name, Fish fish)
         {
             Alarms.Add(new Alarm(name, fish));
             _status.Add(false);
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void RemoveAlarm(int idx)
@@ -239,7 +269,7 @@ namespace GatherBuddy.Managers
 
             Alarms.RemoveAt(idx);
             _status.RemoveAt(idx);
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void ChangeNodeSound(int idx, Sounds sound)
@@ -248,7 +278,7 @@ namespace GatherBuddy.Managers
                 return;
 
             Alarms[idx].SoundId = sound;
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void ChangeNodeOffset(int idx, int offset)
@@ -257,7 +287,7 @@ namespace GatherBuddy.Managers
                 return;
 
             Alarms[idx].MinuteOffset = offset;
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void ChangeNodeStatus(int idx, bool enabled)
@@ -266,7 +296,7 @@ namespace GatherBuddy.Managers
                 return;
 
             Alarms[idx].Enabled = enabled;
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void ChangePrintStatus(int idx, bool print)
@@ -275,7 +305,7 @@ namespace GatherBuddy.Managers
                 return;
 
             Alarms[idx].PrintMessage = print;
-            _pi.SavePluginConfig(_config);
+            GatherBuddy.Config.Save();
         }
 
         public void UpdateNodes()
@@ -311,7 +341,7 @@ namespace GatherBuddy.Managers
             }
 
             if (changed)
-                _pi.SavePluginConfig(_config);
+                GatherBuddy.Config.Save();
         }
     }
 }

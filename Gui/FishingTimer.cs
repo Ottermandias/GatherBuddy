@@ -2,9 +2,8 @@
 using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
-using Dalamud;
-using Dalamud.Game.ClientState;
-using Dalamud.Plugin;
+using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Game;
@@ -24,21 +23,18 @@ namespace GatherBuddy.Gui
         private readonly Vector2 _buttonTextAlign = new(0f, 0.1f);
         private readonly Vector2 _itemSpacing     = new(0, 1);
 
-        private readonly DalamudPluginInterface   _pi;
-        private readonly GatherBuddyConfiguration _config;
-        private readonly FishManager              _fish;
-        private readonly WeatherManager           _weather;
-        private readonly ClientLanguage           _lang;
-        private readonly CurrentBait              _bait;
-        private readonly FishingParser            _parser;
-        private readonly Cache.Icons              _icons;
-        private readonly EventFramework           _eventFramework;
+        private readonly FishManager    _fish;
+        private readonly WeatherManager _weather;
+        private readonly CurrentBait    _bait;
+        private readonly FishingParser  _parser;
+        private readonly Cache.Icons    _icons;
+        private readonly EventFramework _eventFramework;
 
-        private bool Visible
-            => _config.ShowFishTimer;
+        private static bool Visible
+            => GatherBuddy.Config.ShowFishTimer;
 
-        private bool EditMode
-            => _config.FishTimerEdit;
+        private static bool EditMode
+            => GatherBuddy.Config.FishTimerEdit;
 
         private          bool         _snagging;
         private          bool         _chum;
@@ -58,9 +54,8 @@ namespace GatherBuddy.Gui
 
         private readonly struct FishCache
         {
-            private readonly Fish        _fish;
             private readonly RealUptime  _nextUptime;
-            private readonly string      _textline;
+            private readonly string      _textLine;
             private readonly uint        _color;
             private readonly TextureWrap _icon;
             private readonly float       _sizeMin;
@@ -72,8 +67,8 @@ namespace GatherBuddy.Gui
 
             public FishCache(FishingTimer timer, Fish fish)
             {
-                _fish = fish;
-                var bite = fish.CatchData?.BiteType ?? BiteType.Unknown;
+                var fishBase = fish;
+                var bite     = fish.CatchData?.BiteType ?? BiteType.Unknown;
 
                 var catchMin = timer._chum ? fish.Record.EarliestCatchChum : fish.Record.EarliestCatch;
                 var catchMax = timer._chum ? fish.Record.LatestCatchChum : fish.Record.LatestCatch;
@@ -81,7 +76,7 @@ namespace GatherBuddy.Gui
                 _sizeMax  = Math.Min(catchMax / MaxTimerSeconds, 1.0f);
                 SortOrder = ((ulong) catchMin << 16) | catchMax;
 
-                _icon = timer._icons[_fish.ItemData.Icon];
+                _icon = timer._icons[fishBase.ItemData.Icon];
 
                 Unavailable = false;
                 Uncaught    = false;
@@ -101,7 +96,7 @@ namespace GatherBuddy.Gui
 
                 _color = Colors.FishTimer.FromBiteType(bite, Uncaught);
 
-                _textline = _fish.Name[GatherBuddy.Language];
+                _textLine = fishBase.Name[GatherBuddy.Language];
                 if (Unavailable)
                 {
                     _color    = Colors.FishTimer.Unavailable;
@@ -113,7 +108,7 @@ namespace GatherBuddy.Gui
                 }
 
                 Valid = !Unavailable && _sizeMin > 0.001f && _sizeMax < 0.999f && _sizeMin <= _sizeMax;
-                _nextUptime = timer._config.ShowWindowTimers
+                _nextUptime = GatherBuddy.Config.ShowWindowTimers
                     ? fish.NextUptime(timer._weather, timer._currentSpot?.Territory)
                     : RealUptime.Always;
                 if (_nextUptime.Equals(RealUptime.Unknown) || _nextUptime.Equals(RealUptime.Never))
@@ -141,13 +136,13 @@ namespace GatherBuddy.Gui
                 ImGui.SameLine();
 
                 var buttonWidth = timer._rectSize.X - timer._iconSize.X;
-                using (var imgui = new ImGuiRaii()
+                using (var _ = new ImGuiRaii()
                     .PushColor(ImGuiCol.Button,        _color)
                     .PushColor(ImGuiCol.ButtonHovered, _color)
                     .PushColor(ImGuiCol.ButtonActive,  _color)
                     .PushStyle(ImGuiStyleVar.ButtonTextAlign, timer._buttonTextAlign))
                 {
-                    ImGui.Button(_textline, new Vector2(buttonWidth, height));
+                    ImGui.Button(_textLine, new Vector2(buttonWidth, height));
                 }
 
                 if (!_nextUptime.Equals(RealUptime.Always))
@@ -159,7 +154,7 @@ namespace GatherBuddy.Gui
                     var s         = Interface.TimeString(time, true);
                     var t         = ImGui.CalcTextSize(s);
                     var width     = t.X;
-                    var fishWidth = ImGui.CalcTextSize(_textline).X;
+                    var fishWidth = ImGui.CalcTextSize(_textLine).X;
                     if (buttonWidth - width - fishWidth >= 5 * ImGui.GetIO().FontGlobalScale)
                     {
                         var oldPos = ImGui.GetCursorPos();
@@ -170,11 +165,11 @@ namespace GatherBuddy.Gui
                     }
                 }
 
-                if (Valid)
-                {
-                    ptr.AddLine(biteMin, biteMin + new Vector2(0, height), Colors.FishTimer.Separator, 2 * scale);
-                    ptr.AddLine(biteMax, biteMax - new Vector2(0, height), Colors.FishTimer.Separator, 2 * scale);
-                }
+                if (!Valid)
+                    return;
+
+                ptr.AddLine(biteMin, biteMin + new Vector2(0, height), Colors.FishTimer.Separator, 2 * scale);
+                ptr.AddLine(biteMax, biteMax - new Vector2(0, height), Colors.FishTimer.Separator, 2 * scale);
             }
         }
 
@@ -189,21 +184,21 @@ namespace GatherBuddy.Gui
 
         private void CheckBuffs()
         {
-            const short snaggingEffectId  = 761;
-            const short chumEffectId      = 763;
-            const short intuitionEffectId = 568;
-            const short fishEyesEffectId  = 762;
+            const uint snaggingEffectId  = 761;
+            const uint chumEffectId      = 763;
+            const uint intuitionEffectId = 568;
+            const uint fishEyesEffectId  = 762;
 
             _snagging  = false;
             _chum      = false;
             _intuition = false;
 
-            if (_pi.ClientState?.LocalPlayer?.StatusEffects == null)
+            if (Dalamud.ClientState.LocalPlayer?.StatusList == null)
                 return;
 
-            foreach (var buff in _pi.ClientState.LocalPlayer.StatusEffects)
+            foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
             {
-                switch (buff.EffectId)
+                switch (buff.StatusId)
                 {
                     case snaggingEffectId:
                         _snagging = true;
@@ -247,7 +242,7 @@ namespace GatherBuddy.Gui
         private void OnIdentification(FishingSpot spot)
         {
             _currentSpot = spot;
-            PluginLog.Verbose("Identified previously unknown fishing spot as {FishingSpot}.", _currentSpot.PlaceName);
+            PluginLog.Verbose("Identified previously unknown fishing spot as {FishingSpot}.", _currentSpot.PlaceName ?? "Unknown");
         }
 
         private void OnCatch(Fish fish)
@@ -256,7 +251,7 @@ namespace GatherBuddy.Gui
 
             if (_lastFish.Record.Update(_currentBait, (ushort) _start.ElapsedMilliseconds, _snagging, _chum))
             {
-                _fish.SaveFishRecords(_pi);
+                _fish.SaveFishRecords();
                 _currentFishList = SortedFish();
             }
 
@@ -270,41 +265,39 @@ namespace GatherBuddy.Gui
         private void OnMooch()
         {
             _currentBait     = new Bait(_lastFish!.ItemData, _lastFish.Name);
+            CheckBuffs();
             _currentFishList = SortedFish();
             PluginLog.Verbose("Mooching with {Fish} at {FishingSpot} {Snagging} and {Chum}.", _lastFish!.Name,
-                _currentSpot!.PlaceName, _snagging ? "with Snagging" : "without Snagging", _chum ? "with Chum" : "without Chum");
+                _currentSpot!.PlaceName ?? "Unknown", _snagging ? "with Snagging" : "without Snagging", _chum ? "with Chum" : "without Chum");
             _start.Restart();
             _catchHandled = false;
         }
 
-        public FishingTimer(DalamudPluginInterface pi, GatherBuddyConfiguration config, FishManager fish, WeatherManager weather)
+        public FishingTimer(FishManager fish, WeatherManager weather)
         {
-            _pi             = pi;
-            _config         = config;
-            _lang           = pi.ClientState.ClientLanguage;
             _fish           = fish;
             _weather        = weather;
-            _bait           = new CurrentBait(pi.TargetModuleScanner);
-            _parser         = new FishingParser(_pi, _fish);
+            _bait           = new CurrentBait(Dalamud.SigScanner);
+            _parser         = new FishingParser(_fish);
             _icons          = Service<Cache.Icons>.Get();
-            _eventFramework = new EventFramework(_pi.TargetModuleScanner);
+            _eventFramework = new EventFramework(Dalamud.SigScanner);
 
-            _pi.UiBuilder.OnBuildUi += Draw;
-            _parser.BeganFishing    += OnBeganFishing;
-            _parser.BeganMooching   += OnMooch;
-            _parser.IdentifiedSpot  += OnIdentification;
-            _parser.SomethingBit    += OnBite;
-            _parser.CaughtFish      += OnCatch;
+            Dalamud.PluginInterface.UiBuilder.Draw += Draw;
+            _parser.BeganFishing                   += OnBeganFishing;
+            _parser.BeganMooching                  += OnMooch;
+            _parser.IdentifiedSpot                 += OnIdentification;
+            _parser.SomethingBit                   += OnBite;
+            _parser.CaughtFish                     += OnCatch;
         }
 
         public void Dispose()
         {
-            _pi.UiBuilder.OnBuildUi -= Draw;
-            _parser.BeganFishing    -= OnBeganFishing;
-            _parser.BeganMooching   -= OnMooch;
-            _parser.IdentifiedSpot  -= OnIdentification;
-            _parser.SomethingBit    -= OnBite;
-            _parser.CaughtFish      -= OnCatch;
+            Dalamud.PluginInterface.UiBuilder.Draw -= Draw;
+            _parser.BeganFishing                   -= OnBeganFishing;
+            _parser.BeganMooching                  -= OnMooch;
+            _parser.IdentifiedSpot                 -= OnIdentification;
+            _parser.SomethingBit                   -= OnBite;
+            _parser.CaughtFish                     -= OnCatch;
             _parser.Dispose();
         }
 
@@ -316,11 +309,11 @@ namespace GatherBuddy.Gui
             if (_currentSpot == null)
                 return new FishCache[0];
 
-            var enumerable = _currentSpot.Items.Where(f => f != null).Cast<Fish>().Select(f => new FishCache(this, f));
+            var enumerable = _currentSpot.Items.Where(f => f != null).Select(f => new FishCache(this, f!));
 
-            if (_config.HideUncaughtFish)
+            if (GatherBuddy.Config.HideUncaughtFish)
                 enumerable = enumerable.Where(f => !f.Uncaught);
-            if (_config.HideUnavailableFish)
+            if (GatherBuddy.Config.HideUnavailableFish)
                 enumerable = enumerable.Where(f => !f.Unavailable);
 
             return enumerable.OrderBy(f => f.SortOrder).ToArray();
@@ -351,11 +344,11 @@ namespace GatherBuddy.Gui
             if (!Visible)
                 return;
 
-            if (_pi.ClientState?.LocalPlayer?.ClassJob == null || _pi.ClientState.Condition == null)
+            if (Dalamud.ClientState.LocalPlayer?.ClassJob == null || !Dalamud.Conditions.Any())
                 return;
 
-            var fishing = _start.IsRunning && _pi.ClientState.Condition[ConditionFlag.Fishing];
-            var rodOut  = _pi.ClientState.LocalPlayer.ClassJob.Id == 18 && _pi.ClientState.Condition[ConditionFlag.Gathering];
+            var fishing = _start.IsRunning && Dalamud.Conditions[ConditionFlag.Fishing];
+            var rodOut  = Dalamud.ClientState.LocalPlayer.ClassJob.Id == 18 && Dalamud.Conditions[ConditionFlag.Gathering];
 
 
             if (_eventFramework.FishingState == FishingState.Bite)
@@ -369,7 +362,7 @@ namespace GatherBuddy.Gui
                 _start.Stop();
             if (!rodOut)
             {
-                _currentFishList = new FishCache[0];
+                _currentFishList = Array.Empty<FishCache>();
                 if (!EditMode)
                     return;
             }
@@ -392,7 +385,7 @@ namespace GatherBuddy.Gui
             ImGui.SetNextWindowSizeConstraints(new Vector2(225 * globalScale, maxListHeight),
                 new Vector2(30000 * globalScale,                              listHeight));
 
-            if (!imgui.Begin(() => ImGui.Begin("##FishingTimer", EditMode ? editFlags : flags), ImGui.End))
+            if (!imgui.BeginWindow("##FishingTimer", EditMode ? editFlags : flags))
                 return;
 
             var drawList = ImGui.GetWindowDrawList();

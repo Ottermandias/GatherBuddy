@@ -65,10 +65,10 @@ namespace GatherBuddy.Data
             fish.Apply     (12726, Patch.Heavensward) // Sorcerer Fish
                 .Bait      (fish, 2599, 4937)
                 .Tug       (BiteType.Strong)
-                .Uptime    (8, 20)
+                .Uptime    (480, 1200)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12727, Patch.Heavensward) // Hotrod
-                .Bait      (fish, 12711)
+                .Bait      (fish, 12705, 12715)
                 .Tug       (BiteType.Strong)
                 .Weather   (15, 16)
                 .HookType  (HookSet.Powerful);
@@ -122,7 +122,7 @@ namespace GatherBuddy.Data
             fish.Apply     (12739, Patch.Heavensward) // Bubble Eye
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Strong)
-                .Uptime    (10, 18)
+                .Uptime    (600, 1080)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12740, Patch.Heavensward) // Grass Carp
                 .Bait      (fish, 12707)
@@ -137,12 +137,12 @@ namespace GatherBuddy.Data
             fish.Apply     (12742, Patch.Heavensward) // Dravanian Squeaker
                 .Bait      (fish, 12704)
                 .Tug       (BiteType.Weak)
-                .Uptime    (16, 19)
+                .Uptime    (960, 1140)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12743, Patch.Heavensward) // Kissing Fish
-                .Bait      (fish, 12704)
+                .Bait      (fish, 12711)
                 .Tug       (BiteType.Weak)
-                .Uptime    (9, 2)
+                .Uptime    (540, 120)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12744, Patch.Heavensward) // Mitre Slug
                 .Bait      (fish, 12708)
@@ -184,11 +184,11 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12753, Patch.Heavensward) // Sky Faerie
-                .Bait      (fish, 12708)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12754, Patch.Heavensward) // Granite Crab
-                .Bait      (fish, 12709)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12755, Patch.Heavensward) // Aithon's Colt
@@ -200,7 +200,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12757, Patch.Heavensward) // Hedgemole Cricket
-                .Bait      (fish, 12704)
+                .Bait      (fish, 12705)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12758, Patch.Heavensward) // Mogpom
@@ -219,7 +219,7 @@ namespace GatherBuddy.Data
             fish.Apply     (12761, Patch.Heavensward) // Dravanian Bass
                 .Bait      (fish, 12704, 12722)
                 .Tug       (BiteType.Strong)
-                .Uptime    (0, 6)
+                .Uptime    (0, 360)
                 .Weather   (11, 3, 4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12762, Patch.Heavensward) // Coerthan Puffer
@@ -228,7 +228,7 @@ namespace GatherBuddy.Data
                 .Weather   (15, 16)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12763, Patch.Heavensward) // Snowcaller
-                .Bait      (fish, 12711)
+                .Bait      (fish, 2607, 12715)
                 .Tug       (BiteType.Strong)
                 .Weather   (15, 16)
                 .HookType  (HookSet.Powerful);
@@ -247,9 +247,9 @@ namespace GatherBuddy.Data
                 .Weather   (15, 16)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12767, Patch.Heavensward) // Warmwater Bichir
-                .Bait      (fish, 12705)
+                .Bait      (fish, 12711)
                 .Tug       (BiteType.Strong)
-                .Uptime    (21, 3)
+                .Uptime    (1260, 180)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12768, Patch.Heavensward) // Noontide Oscar
                 .Bait      (fish, 12711)
@@ -264,7 +264,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12771, Patch.Heavensward) // Blue Medusa
-                .Bait      (fish, 12708, 12753)
+                .Bait      (fish, 28634, 12753)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12772, Patch.Heavensward) // Cindersmith
@@ -278,7 +278,7 @@ namespace GatherBuddy.Data
             fish.Apply     (12774, Patch.Heavensward) // Tiny Axolotl
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Weak)
-                .Uptime    (21, 24)
+                .Uptime    (1260, 1440)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12775, Patch.Heavensward) // High Allagan Helmet
                 .Bait      (fish, 12710, 12776)
@@ -320,22 +320,22 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12784, Patch.Heavensward) // Manasail
-                .Bait      (fish, 12708, 12753, 12805)
+                .Bait      (fish, 28634, 12753, 12805)
                 .Tug       (BiteType.Strong)
-                .Uptime    (10, 14)
+                .Uptime    (600, 840)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12785, Patch.Heavensward) // Sky Sweeper
-                .Bait      (fish, 12708, 12753)
+                .Bait      (fish, 28634, 12753)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12786, Patch.Heavensward) // Magma Louse
                 .Bait      (fish, 12709, 12754)
                 .Tug       (BiteType.Strong)
-                .Uptime    (18, 5)
+                .Uptime    (1080, 300)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12787, Patch.Heavensward) // Cometoise
-                .Bait      (fish, 12709, 12754)
+                .Bait      (fish, 28634, 12754)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12788, Patch.Heavensward) // Aetherochemical Compound #123
@@ -358,7 +358,7 @@ namespace GatherBuddy.Data
             fish.Apply     (12792, Patch.Heavensward) // Weston Bowfin
                 .Bait      (fish, 12706)
                 .Tug       (BiteType.Strong)
-                .Uptime    (8, 12)
+                .Uptime    (480, 720)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12793, Patch.Heavensward) // Letter Puffer
                 .Bait      (fish, 12712)
@@ -374,9 +374,9 @@ namespace GatherBuddy.Data
                 .Snag      (Snagging.Required)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12796, Patch.Heavensward) // Albino Octopus
-                .Bait      (fish, 12711)
+                .Bait      (fish, 28634, 12715)
                 .Tug       (BiteType.Strong)
-                .Uptime    (8, 17)
+                .Uptime    (480, 1020)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12797, Patch.Heavensward) // Dragon's Soul
                 .Bait      (fish, 29717)
@@ -403,12 +403,12 @@ namespace GatherBuddy.Data
             fish.Apply     (12802, Patch.Heavensward) // Caiman
                 .Bait      (fish, 12707, 12730)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 21)
+                .Uptime    (1080, 1230)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12803, Patch.Heavensward) // Euphotic Pirarucu
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 2)
+                .Uptime    (1080, 120)
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12804, Patch.Heavensward) // Illuminati Perch
@@ -436,7 +436,7 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12810, Patch.Heavensward) // Scorpionfly
-                .Bait      (fish, 12712)
+                .Bait      (fish, 28634)
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12811, Patch.Heavensward) // Rockclimber
@@ -464,7 +464,7 @@ namespace GatherBuddy.Data
             fish.Apply     (12816, Patch.Heavensward) // Jeweled Jellyfish
                 .Bait      (fish, 12710, 12776)
                 .Tug       (BiteType.Weak)
-                .Uptime    (20, 3)
+                .Uptime    (1200, 180)
                 .HookType  (HookSet.Precise);
             fish.Apply     (12817, Patch.Heavensward) // Battle Galley
                 .Bait      (fish, 12705, 12715)
@@ -479,13 +479,13 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12820, Patch.Heavensward) // Oven Catfish
-                .Bait      (fish, 12709, 12754)
+                .Bait      (fish, 28634, 12754)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12821, Patch.Heavensward) // Pteranodon
                 .Bait      (fish, 12712)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 16)
+                .Uptime    (540, 1020)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12822, Patch.Heavensward) // Winged Gurnard
                 .Bait      (fish, 12712)
@@ -516,7 +516,7 @@ namespace GatherBuddy.Data
             fish.Apply     (12828, Patch.Heavensward) // Thunderbolt Eel
                 .Bait      (fish, 12704, 12722)
                 .Tug       (BiteType.Strong)
-                .Uptime    (22, 4)
+                .Uptime    (1320, 210)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12829, Patch.Heavensward) // Catkiller
                 .Bait      (fish, 12711)
@@ -526,23 +526,23 @@ namespace GatherBuddy.Data
             fish.Apply     (12830, Patch.Heavensward) // Loosetongue
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (13, 20)
+                .Uptime    (780, 1200)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12831, Patch.Heavensward) // Thaliak Caiman
                 .Bait      (fish, 12707, 12730)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (15, 18)
+                .Uptime    (900, 1080)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12832, Patch.Heavensward) // Lavalord
                 .Bait      (fish, 12709, 12754)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (9, 16)
+                .Uptime    (540, 960)
                 .Weather   (2, 1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12833, Patch.Heavensward) // Tupuxuara
                 .Bait      (fish, 12708)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (15, 18)
+                .Uptime    (900, 1080)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12834, Patch.Heavensward) // Vampiric Tapestry
                 .Bait      (fish, 12712)
@@ -558,9 +558,9 @@ namespace GatherBuddy.Data
                 .Weather   (2, 1)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (12837, Patch.Heavensward) // Capelin
-                .Bait      (fish, 12704)
+                .Bait      (fish, 12711)
                 .Tug       (BiteType.Weak)
-                .Uptime    (0, 6)
+                .Uptime    (0, 360)
                 .HookType  (HookSet.Precise);
         }
         // @formatter:on

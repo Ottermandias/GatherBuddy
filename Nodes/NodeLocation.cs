@@ -17,7 +17,7 @@ namespace GatherBuddy.Nodes
         public double YCoord
             => AverageY / 100.0;
 
-        public int CompareTo(object r)
+        public int CompareTo(object? r)
         {
             if (!(r is NodeLocation rhs))
                 return 1;

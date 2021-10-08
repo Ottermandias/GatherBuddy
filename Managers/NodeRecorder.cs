@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Dalamud.Game.Internal;
-using Dalamud.Plugin;
+using Dalamud.Game.ClientState.Objects.Enums;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Nodes;
 
@@ -11,29 +11,23 @@ namespace GatherBuddy.Managers
 {
     public class NodeRecorder : IDisposable
     {
-        private readonly NodeManager                                _nodes;
-        private readonly Records                                    _records;
-        private readonly HashSet<uint>                              _skipList = new();
-        private readonly Dalamud.Game.ClientState.ClientState       _clientState;
-        private readonly Dalamud.Game.ClientState.Actors.ActorTable _actors;
-        private readonly DalamudPluginInterface                     _pluginInterface;
-        private          int                                        _frameCounter;
+        private readonly NodeManager   _nodes;
+        private readonly Records       _records;
+        private readonly HashSet<uint> _skipList = new();
+        private          int           _frameCounter;
 
-        public NodeRecorder(DalamudPluginInterface pi, NodeManager manager, Records records)
+        public NodeRecorder(NodeManager manager, Records records)
         {
-            _nodes           = manager;
-            _records         = records;
-            _pluginInterface = pi;
-            _clientState     = pi.ClientState;
-            _actors          = pi.ClientState.Actors;
+            _nodes   = manager;
+            _records = records;
             ApplyRecords();
         }
 
         public void ActivateScanning()
-            => _pluginInterface.Framework.OnUpdateEvent += OnUpdateEvent;
+            => Dalamud.Framework.Update += OnUpdateEvent;
 
         public void DeactivateScanning()
-            => _pluginInterface.Framework.OnUpdateEvent -= OnUpdateEvent;
+            => Dalamud.Framework.Update -= OnUpdateEvent;
 
         public void Dispose()
             => DeactivateScanning();
@@ -63,14 +57,14 @@ namespace GatherBuddy.Managers
         public int Scan()
         {
             var numNodes = 0;
-            foreach (var a in _actors.Where(a
-                => a.ObjectKind == Dalamud.Game.ClientState.Actors.ObjectKind.GatheringPoint && a.Address != IntPtr.Zero))
+            foreach (var a in Dalamud.Objects.Where(a
+                => a.ObjectKind == ObjectKind.GatheringPoint && a.Address != IntPtr.Zero))
             {
                 var id = (uint) Marshal.ReadInt32(a.Address + 0x80);
                 if (_skipList.Contains(id))
                     continue;
 
-                var mapId = _clientState.TerritoryType;
+                var mapId = Dalamud.ClientState.TerritoryType;
                 if (!_nodes.NodeIdToNode.TryGetValue(id, out var node))
                 {
                     // Apparently there are many Gathering Node actors left in the world that are not used anymore.
@@ -79,14 +73,14 @@ namespace GatherBuddy.Managers
                     continue;
                 }
 
-                var scale = GetMapScale(_pluginInterface, mapId);
+                var scale = GetMapScale(mapId);
                 var x     = ConvertCoord(a.Position.X, scale);
-                var y     = ConvertCoord(a.Position.Y, scale);
+                var y     = ConvertCoord(a.Position.Z, scale);
                 if (!FindOrAddNodeLocation(node, mapId, id, x, y))
                     continue;
 
                 PluginLog.Verbose("[NodeRecorder] {Name} on map {MapId} - {RawX}|{RawY} -> {FloatX:F2}|{FloatY:F2}", a.Name, mapId,
-                    a.Position.X, a.Position.Y, x / 100.0, y / 100.0);
+                    a.Position.X, a.Position.Z, x / 100.0, y / 100.0);
                 ++numNodes;
             }
 
@@ -95,10 +89,10 @@ namespace GatherBuddy.Managers
 
         public void PrintToLog()
         {
-            foreach (var n in _records.Nodes.Where(n => n.Value != null && n.Value.Locations.Count > 0))
+            foreach (var (id, node) in _records.Nodes.Where(n => n.Value.Locations.Count > 0))
             {
-                var locations = string.Join(", ", n.Value.Locations.Select(loc => $"({loc.Item1 / 100.0}, {loc.Item2 / 100.0})"));
-                PluginLog.Information($"[NodeRecorder] [Dump] {n.Key}: Average ({n.Value.XCoord}, {n.Value.YCoord}) | {locations}");
+                var locations = string.Join(", ", node.Locations.Select(loc => $"({loc.Item1 / 100.0}, {loc.Item2 / 100.0})"));
+                PluginLog.Information($"[NodeRecorder] [Dump] {id}: Average ({node.XCoord}, {node.YCoord}) | {locations}");
             }
         }
 
@@ -126,7 +120,7 @@ namespace GatherBuddy.Managers
             _records.Merge(newRec);
         }
 
-        private void OnUpdateEvent(Framework f)
+        private void OnUpdateEvent(object? _)
         {
             if (_frameCounter++ <= 600)
                 return;
@@ -135,10 +129,10 @@ namespace GatherBuddy.Managers
             Scan();
         }
 
-        private static double GetMapScale(DalamudPluginInterface pi, uint rowId)
+        private static double GetMapScale(uint rowId)
         {
-            var map = pi.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.TerritoryType>().GetRow(rowId).Map.Row;
-            var row = pi.Data.GetExcelSheet<Lumina.Excel.GeneratedSheets.Map>().GetRow(map);
+            var map = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.TerritoryType>()!.GetRow(rowId)?.Map.Row ?? 0;
+            var row = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Map>()!.GetRow(map);
             return row?.SizeFactor / 100.0 ?? 1.0;
         }
 
@@ -147,8 +141,8 @@ namespace GatherBuddy.Managers
 
         private void ApplyRecords()
         {
-            foreach (var n in _records.Nodes.Where(n => n.Value != null))
-                _nodes.NodeIdToNode[n.Key].Nodes!.AddNodeLocation(n.Key, n.Value);
+            foreach (var (id, node) in _records.Nodes)
+                _nodes.NodeIdToNode[id].Nodes!.AddNodeLocation(id, node);
         }
     }
 }

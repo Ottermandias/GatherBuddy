@@ -34,7 +34,7 @@ namespace GatherBuddy.Data
             fish.Apply     (15630, Patch.RevengeOfTheHorde) // The Dreamweaver
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (22, 2)
+                .Uptime    (1320, 120)
                 .Weather   (11, 4, 3)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (15631, Patch.RevengeOfTheHorde) // Meteortoise
@@ -48,18 +48,18 @@ namespace GatherBuddy.Data
             fish.Apply     (15633, Patch.RevengeOfTheHorde) // Vidofnir
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 10)
+                .Uptime    (480, 600)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (15634, Patch.RevengeOfTheHorde) // The Soul of the Martyr
                 .Bait      (fish, 12712)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (4, 6)
+                .Uptime    (240, 360)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Precise);
             fish.Apply     (15635, Patch.RevengeOfTheHorde) // Inkfish
                 .Bait      (fish, 12711)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (14, 16)
+                .Uptime    (840, 960)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (15636, Patch.RevengeOfTheHorde) // The Second One
                 .Bait      (fish, 12712)
@@ -73,7 +73,7 @@ namespace GatherBuddy.Data
             fish.Apply     (15638, Patch.RevengeOfTheHorde) // Aphotic Pirarucu
                 .Bait      (fish, 12705, 12777)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (22, 2)
+                .Uptime    (1320, 120)
                 .Weather   (3)
                 .HookType  (HookSet.Powerful);
         }

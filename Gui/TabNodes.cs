@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using GatherBuddy.Nodes;
 using ImGuiNET;
@@ -38,7 +37,8 @@ namespace GatherBuddy.Gui
         private void SetNodeTooltip(Node n)
         {
             var coords = n.GetX() != 0 ? $"({n.GetX()}|{n.GetY()})" : "(Unknown Location)";
-            var tooltip = $"{n.Nodes!.Territory!.Name[_lang]}, {coords} - {n.GetClosestAetheryte()?.Name[_lang] ?? ""}\n"
+            var tooltip =
+                $"{n.Nodes!.Territory!.Name[GatherBuddy.Language]}, {coords} - {n.GetClosestAetheryte()?.Name[GatherBuddy.Language] ?? ""}\n"
               + $"{n.Meta!.NodeType}, up at {n.Times!.PrintHours()}\n"
               + $"{n.Meta!.GatheringType} at {n.Meta!.Level}";
             using var tt = ImGuiRaii.NewTooltip();
@@ -48,6 +48,7 @@ namespace GatherBuddy.Gui
                 ImGui.Image(icon.ImGuiHandle, _iconSize);
                 ImGui.SameLine();
             }
+
             ImGui.NewLine();
             ImGui.Text(tooltip);
         }
@@ -56,28 +57,26 @@ namespace GatherBuddy.Gui
         {
             ImGui.SetNextItemWidth(-1);
             if (ImGui.InputTextWithHint("##NodeFilter", "Filter Nodes...", ref _nodeTabCache.NodeFilter, 64))
-            {
                 _nodeTabCache.NodeFilterLower = _nodeTabCache.NodeFilter.ToLowerInvariant();
-            }
         }
 
         private void DrawTimedNodes(float widgetHeight)
         {
             using var imgui = new ImGuiRaii();
-            if (!imgui.Begin(() => ImGui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true), ImGui.EndChild))
+            if (!imgui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true))
                 return;
 
-            var enumerator = (_nodeTabCache.NodeFilterLower.Length == 0)
+            var enumerator = _nodeTabCache.NodeFilterLower.Length == 0
                 ? _nodeTabCache.ActiveNodeItems
                 : _nodeTabCache.ActiveNodeItems.Where(p => p.Item3.Contains(_nodeTabCache.NodeFilterLower));
             foreach (var (n, i, _) in enumerator)
             {
                 var colors = Colors.NodeTab.GetColor(n, _nodeTabCache.HourOfDay);
-                ImGui.PushStyleColor(ImGuiCol.Text, colors);
+                imgui.PushColor(ImGuiCol.Text, colors);
 
                 if (ImGui.Selectable(i))
                     _plugin.Gatherer!.OnGatherActionWithNode(n);
-                ImGui.PopStyleColor();
+                imgui.PopColors();
 
                 if (ImGui.IsItemHovered())
                     SetNodeTooltip(n);
@@ -92,23 +91,25 @@ namespace GatherBuddy.Gui
 
             using var imgui = new ImGuiRaii();
 
-            if (imgui.Begin(() => ImGui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true), ImGui.EndChild))
+            if (imgui.BeginChild("Jobs", new Vector2(jobBoxWidth, boxHeight), true))
             {
                 DrawMinerBox();
                 DrawBotanistBox();
-                imgui.End();
             }
-            
+
+            imgui.End();
+
             ImGui.SameLine();
-            if (imgui.Begin(() => ImGui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true), ImGui.EndChild))
+            if (imgui.BeginChild("Types", new Vector2(typeBoxWidth, boxHeight), true))
             {
                 DrawUnspoiledBox();
                 DrawEphemeralBox();
-                imgui.End();
             }
 
+            imgui.End();
+
             ImGui.SameLine();
-            if (!imgui.Begin(() => ImGui.BeginChild("Expansion", new Vector2(0, boxHeight), true), ImGui.EndChild))
+            if (!imgui.BeginChild("Expansion", new Vector2(0, boxHeight), true))
                 return;
 
             imgui.Group();

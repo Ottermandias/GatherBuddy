@@ -45,9 +45,9 @@ namespace GatherBuddy.Classes
             return this;
         }
 
-        internal CatchData Uptime(uint startHour, uint endHour)
+        internal CatchData Uptime(uint startMinute, uint endMinute)
         {
-            Hours = FromHours(startHour, endHour);
+            Minutes = FishUptime.FromStartEnd(startMinute, endMinute);
             return this;
         }
 
@@ -78,27 +78,27 @@ namespace GatherBuddy.Classes
         internal CatchData Gig(GigHead gigHead)
         {
             GigHead = gigHead;
-            if (gigHead != GigHead.None)
-            {
-                Snagging    = Snagging.None;
-                HookSet     = HookSet.None;
-                InitialBait = Game.Bait.Unknown;
-                Mooches     = new Fish[0];
-            }
+            if (gigHead == GigHead.None)
+                return this;
+
+            Snagging    = Snagging.None;
+            HookSet     = HookSet.None;
+            InitialBait = Game.Bait.Unknown;
+            Mooches     = System.Array.Empty<Fish>();
 
             return this;
         }
 
-        public uint[] PreviousWeather { get; private set; } = new uint[0];
-        public uint[] CurrentWeather  { get; private set; } = new uint[0];
+        public uint[] PreviousWeather { get; private set; } = System.Array.Empty<uint>();
+        public uint[] CurrentWeather  { get; private set; } = System.Array.Empty<uint>();
 
         public Bait   InitialBait { get; private set; } = Game.Bait.Unknown;
-        public Fish[] Mooches     { get; private set; } = new Fish[0];
+        public Fish[] Mooches     { get; private set; } = System.Array.Empty<Fish>();
 
-        public (Fish, int)[] Predator        { get; private set; } = new (Fish, int)[0];
+        public (Fish, int)[] Predator        { get; private set; } = System.Array.Empty<(Fish, int)>();
         public int           IntuitionLength { get; private set; }
 
-        public Uptime Hours { get; private set; } = AllHours;
+        public FishUptime Minutes { get; private set; } = FishUptime.AllTime;
 
         public Patch    Patch    { get; }
         public Snagging Snagging { get; private set; } = Snagging.Unknown;

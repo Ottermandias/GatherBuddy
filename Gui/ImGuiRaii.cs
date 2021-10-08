@@ -1,21 +1,28 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using ImGuiNET;
 
 namespace GatherBuddy.Gui
 {
+    public static class ImGuiHelper
+    {
+        public static void HoverTooltip(string tooltip)
+        {
+            if (tooltip.Any() && ImGui.IsItemHovered())
+                ImGui.SetTooltip(tooltip);
+        }
+    }
+
     public sealed class ImGuiRaii : IDisposable
     {
-        private int   _colorStack  = 0;
-        private int   _fontStack   = 0;
-        private int   _styleStack  = 0;
-        private float _indentation = 0f;
+        private int   _colorStack;
+        private int   _fontStack;
+        private int   _styleStack;
+        private float _indentation;
 
-        private Stack<Action>? _onDispose = null;
-
-        public ImGuiRaii()
-        { }
+        private Stack<Action>? _onDispose;
 
         public static ImGuiRaii NewGroup()
             => new ImGuiRaii().Group();
@@ -51,6 +58,7 @@ namespace GatherBuddy.Gui
                 ImGui.PopStyleColor(actualN);
                 _colorStack -= actualN;
             }
+
             return this;
         }
 
@@ -76,6 +84,7 @@ namespace GatherBuddy.Gui
                 ImGui.PopStyleVar(actualN);
                 _styleStack -= actualN;
             }
+
             return this;
         }
 
@@ -95,6 +104,7 @@ namespace GatherBuddy.Gui
                 ImGui.PopFont();
                 --_fontStack;
             }
+
             return this;
         }
 
@@ -105,6 +115,7 @@ namespace GatherBuddy.Gui
                 ImGui.Indent(width);
                 _indentation += width;
             }
+
             return this;
         }
 
@@ -131,10 +142,42 @@ namespace GatherBuddy.Gui
             return this;
         }
 
+        public bool BeginWindow(string name, ref bool open, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+        {
+            var ret = ImGui.Begin(name, ref open, flags);
+            _onDispose ??= new Stack<Action>();
+            _onDispose.Push(ImGui.End);
+
+            return ret;
+        }
+
+        public bool BeginWindow(string name, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+        {
+            var ret = ImGui.Begin(name, flags);
+            _onDispose ??= new Stack<Action>();
+            _onDispose.Push(ImGui.End);
+
+            return ret;
+        }
+
+        public bool BeginChild(string name, Vector2 size, bool border = false, ImGuiWindowFlags flags = ImGuiWindowFlags.None)
+        {
+            var ret = ImGui.BeginChild(name, size, border, flags);
+            _onDispose ??= new Stack<Action>();
+            _onDispose.Push(ImGui.EndChild);
+            return ret;
+        }
+
+        public bool BeginTabItem(string label)
+            => Begin(() => ImGui.BeginTabItem(label), ImGui.EndTabItem);
+
+        public bool BeginTabBar(string id, ImGuiTabBarFlags flags = ImGuiTabBarFlags.None)
+            => Begin(() => ImGui.BeginTabBar(id, flags), ImGui.EndTabBar);
+
         public void End(int n = 1)
         {
             var actualN = Math.Min(n, _onDispose?.Count ?? 0);
-            while(actualN-- > 0)
+            while (actualN-- > 0)
                 _onDispose!.Pop()();
         }
 

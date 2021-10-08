@@ -1,11 +1,10 @@
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using Dalamud;
-using Dalamud.Plugin;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Data;
 using GatherBuddy.Enums;
@@ -13,6 +12,7 @@ using GatherBuddy.Game;
 using GatherBuddy.Managers;
 using GatherBuddy.Nodes;
 using GatherBuddy.Utility;
+using ImGuiNET;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 using World = GatherBuddy.Managers.World;
@@ -21,16 +21,11 @@ namespace GatherBuddy
 {
     public class Gatherer : IDisposable
     {
-        private          ClientLanguage                    _teleporterLanguage;
-        private          FileSystemWatcher?                _teleporterWatcher;
-        private readonly ClientLanguage                    _language;
-        private readonly Dalamud.Game.Internal.Gui.ChatGui _chat;
-        private readonly CommandManager                    _commandManager;
-        private readonly World                             _world;
-        private readonly Dictionary<string, TimedGroup>    _groups;
-        private readonly GatherBuddyConfiguration          _configuration;
-        public           NodeTimeLine                      Timeline { get; }
-        public           AlarmManager                      Alarms   { get; }
+        private readonly CommandManager                 _commandManager;
+        private readonly World                          _world;
+        private readonly Dictionary<string, TimedGroup> _groups;
+        public           NodeTimeLine                   Timeline { get; }
+        public           AlarmManager                   Alarms   { get; }
 
         public FishManager FishManager
             => _world.Fish;
@@ -38,98 +33,21 @@ namespace GatherBuddy
         public WeatherManager WeatherManager
             => _world.Weather;
 
-        public void TryCreateTeleporterWatcher(DalamudPluginInterface pi, bool useTeleport)
-        {
-            const string teleporterPluginConfigFile = "TeleporterPlugin.json";
-
-            _teleporterLanguage = _language;
-            if (!useTeleport || _teleporterWatcher != null)
-            {
-                _teleporterWatcher?.Dispose();
-                _teleporterWatcher = null;
-                return;
-            }
-
-            var dir = new DirectoryInfo(pi.GetPluginConfigDirectory());
-            if (!dir.Exists || (dir.Parent?.Exists ?? false))
-                return;
-
-            dir = dir.Parent;
-
-            var file = new FileInfo(Path.Combine(dir!.FullName, teleporterPluginConfigFile));
-            if (file.Exists)
-                ParseTeleporterFile(file.FullName);
-
-            void OnTeleporterConfigChange(object source, FileSystemEventArgs args)
-            {
-                PluginLog.Verbose("Reloading Teleporter Config.");
-                if (args.ChangeType != WatcherChangeTypes.Changed && args.ChangeType != WatcherChangeTypes.Created)
-                    return;
-
-                ParseTeleporterFile(args.FullPath);
-            }
-
-            _teleporterWatcher = new FileSystemWatcher
-            {
-                Path         = dir.FullName,
-                NotifyFilter = NotifyFilters.LastWrite,
-                Filter       = teleporterPluginConfigFile,
-            };
-            _teleporterWatcher.Changed              += OnTeleporterConfigChange;
-            _teleporterWatcher!.EnableRaisingEvents =  true;
-        }
-
-        private void ParseTeleporterFile(string filePath)
-        {
-            try
-            {
-                const string teleporterLanguageString = "\"teleporterlanguage\":";
-
-                var content = File.ReadAllText(filePath).ToLowerInvariant();
-                var idx     = content.IndexOf(teleporterLanguageString, StringComparison.Ordinal);
-                if (idx < 0)
-                    return;
-
-                content = content.Substring(idx + teleporterLanguageString.Length).Trim();
-                if (content.Length < 1)
-                    return;
-
-                _teleporterLanguage = content[0] switch
-                {
-                    '0' => ClientLanguage.Japanese,
-                    '1' => ClientLanguage.English,
-                    '2' => ClientLanguage.German,
-                    '3' => ClientLanguage.French,
-                    _   => _language,
-                };
-            }
-            catch (Exception e)
-            {
-                PluginLog.Error($"Could not read Teleporter Config:\n{e}");
-                _teleporterLanguage = _language;
-            }
-        }
-
-        public Gatherer(DalamudPluginInterface pi, GatherBuddyConfiguration config, CommandManager commandManager)
+        public Gatherer(CommandManager commandManager)
         {
             _commandManager = commandManager;
-            _chat           = pi.Framework.Gui.Chat;
-            _language       = pi.ClientState.ClientLanguage;
-            _configuration  = config;
-            _world          = new World(pi, _configuration);
-            _groups         = GroupData.CreateGroups(_language, _world.Nodes);
+            _world          = new World();
+            _groups         = GroupData.CreateGroups(_world.Nodes);
             Timeline        = new NodeTimeLine(_world.Nodes);
-            Alarms          = new AlarmManager(pi, _world.Nodes, _world.Fish, _world.Weather, _configuration);
-            TryCreateTeleporterWatcher(pi, _configuration.UseTeleport);
+            Alarms          = new AlarmManager(_world.Nodes, _world.Fish, _world.Weather);
         }
 
-        public void OnTerritoryChange(object sender, ushort territory)
+        public void OnTerritoryChange(object? _, ushort territory)
             => _world.SetPlayerStreamCoords(territory);
 
-        public void Dispose()
+        void IDisposable.Dispose()
         {
             Alarms.Dispose();
-            _teleporterWatcher?.Dispose();
             _world.Nodes.Records.Dispose();
         }
 
@@ -151,30 +69,64 @@ namespace GatherBuddy
         public void PurgeAllRecords()
             => _world.Nodes.Records.PurgeRecords();
 
-        private string ReplaceFormatPlaceholders(string format, string input, Gatherable item)
+        private static SeString ReplaceFormatPlaceholders(string format, string input, Gatherable item)
         {
-            var result = format.Replace("{Id}", item.ItemId.ToString());
-            result = result.Replace("{Name}",  item.Name[_language]);
-            result = result.Replace("{Input}", input);
-            return result;
+            IReadOnlyList<Payload>? Replace(string s)
+            {
+                if (!(s.StartsWith('{') && s.EndsWith('}')))
+                    return null;
+
+                return s switch
+                {
+                    "{Id}"    => ChatUtil.GetPayloadsFromString(item.ItemId.ToString()),
+                    "{Name}"  => ChatUtil.CreateLink(item.ItemData),
+                    "{Input}" => ChatUtil.GetPayloadsFromString(input),
+                    _         => null,
+                };
+            }
+
+            return ChatUtil.Format(format, Replace);
         }
 
-        private string ReplaceFormatPlaceholders(string format, string input, Fish fish)
+        private static SeString ReplaceFormatPlaceholders(string format, string input, Fish fish)
         {
-            var result = format.Replace("{Id}", fish.ItemId.ToString());
-            result = result.Replace("{Name}",  fish.Name![_language]);
-            result = result.Replace("{Input}", input);
-            return result;
+            IReadOnlyList<Payload>? Replace(string s)
+            {
+                if (!(s.StartsWith('{') && s.EndsWith('}')))
+                    return null;
+
+                return s switch
+                {
+                    "{Id}"    => ChatUtil.GetPayloadsFromString(fish.ItemId.ToString()),
+                    "{Name}"  => ChatUtil.CreateLink(fish.ItemData),
+                    "{Input}" => ChatUtil.GetPayloadsFromString(input),
+                    _         => null,
+                };
+            }
+
+            return ChatUtil.Format(format, Replace);
         }
 
-        private string ReplaceFormatPlaceholders(string format, string input, Fish fish, FishingSpot spot)
+
+        private static SeString ReplaceFormatPlaceholders(string format, string input, Fish fish, FishingSpot spot)
         {
-            var result = format.Replace("{Id}", spot.Id.ToString());
-            result = result.Replace("{Name}",     spot.PlaceName![_language]);
-            result = result.Replace("{FishName}", fish.Name![_language]);
-            result = result.Replace("{FishId}",   fish.ItemId.ToString());
-            result = result.Replace("{Input}",    input);
-            return result;
+            IReadOnlyList<Payload>? Replace(string s)
+            {
+                if (!(s.StartsWith('{') && s.EndsWith('}')))
+                    return null;
+
+                return s switch
+                {
+                    "{Id}"       => ChatUtil.GetPayloadsFromString(spot.Id.ToString()),
+                    "{Name}"     => ChatUtil.CreateMapLink(spot).Payloads,
+                    "{FishId}"   => ChatUtil.GetPayloadsFromString(fish.ItemId.ToString()),
+                    "{FishName}" => ChatUtil.CreateLink(fish.ItemData),
+                    "{Input}"    => ChatUtil.GetPayloadsFromString(input),
+                    _            => null,
+                };
+            }
+
+            return ChatUtil.Format(format, Replace);
         }
 
         private Gatherable? FindItemLogging(string itemName)
@@ -183,14 +135,14 @@ namespace GatherBuddy
             if (item == null)
             {
                 string output = $"Could not find corresponding item to \"{itemName}\".";
-                _chat.Print(output);
+                Dalamud.Chat.Print(output);
                 PluginLog.Verbose(output);
                 return null;
             }
 
-            if (_configuration.IdentifiedItemFormat.Length > 0)
-                _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedItemFormat, itemName, item));
-            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedItemFormat, item.ItemId, item.Name[_language], itemName);
+            if (GatherBuddy.Config.IdentifiedItemFormat.Length > 0)
+                Dalamud.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedItemFormat, itemName, item));
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedItemFormat, item.ItemId, item.Name[GatherBuddy.Language], itemName);
             return item;
         }
 
@@ -200,14 +152,14 @@ namespace GatherBuddy
             if (fish == null)
             {
                 string output = $"Could not find corresponding item to \"{fishName}\".";
-                _chat.Print(output);
+                Dalamud.Chat.Print(output);
                 PluginLog.Verbose(output);
                 return null;
             }
 
-            if (_configuration.IdentifiedFishFormat.Length > 0)
-                _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishFormat, fishName, fish));
-            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishFormat, fish.ItemId, fish!.Name![_language], fishName);
+            if (GatherBuddy.Config.IdentifiedFishFormat.Length > 0)
+                Dalamud.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedFishFormat, fishName, fish));
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishFormat, fish.ItemId, fish!.Name![GatherBuddy.Language], fishName);
             return fish;
         }
 
@@ -220,7 +172,7 @@ namespace GatherBuddy
             if (item.NodeList.Count == 0)
             {
                 var output = $"Found no gathering nodes for item {item.ItemId}.";
-                _chat.PrintError(output);
+                Dalamud.Chat.PrintError(output);
                 PluginLog.Debug(output);
                 return null;
             }
@@ -230,102 +182,95 @@ namespace GatherBuddy
             {
                 if (type == null)
                 {
-                    _chat.PrintError(
-                        $"No nodes containing {item.Name[_language]} have associated coordinates or aetheryte.");
-                    _chat.PrintError(
+                    Dalamud.Chat.PrintError(
+                        $"No nodes containing {item.Name[GatherBuddy.Language]} have associated coordinates or aetheryte.");
+                    Dalamud.Chat.PrintError(
                         "They will become available after encountering the respective node while having recording enabled.");
                 }
                 else
                 {
-                    _chat.PrintError(
-                        $"No nodes containing {item.Name[_language]} for the specified job have been found.");
+                    Dalamud.Chat.PrintError(
+                        $"No nodes containing {item.Name[GatherBuddy.Language]} for the specified job have been found.");
                 }
             }
 
-            if (_configuration.PrintUptime && (!closestNode?.Times.AlwaysUp() ?? false))
+            if (!GatherBuddy.Config.PrintUptime || (!(!closestNode?.Times.AlwaysUp() ?? false)))
+                return closestNode;
+
+            var nextUptime = closestNode!.Times!.NextRealUptime();
+            var now        = DateTime.UtcNow;
+            if (nextUptime.Time > now)
             {
-                var nextUptime = closestNode!.Times!.NextRealUptime();
-                var now        = DateTime.UtcNow;
-                if (nextUptime.Time > now)
-                {
-                    var diff = nextUptime.Time - now;
-                    if (diff.Minutes > 0)
-                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Minutes} Minutes).");
-                    else
-                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Seconds} Seconds).");
-                }
-                else
-                {
-                    var diff = nextUptime.EndTime - now;
-                    if (diff.Minutes > 0)
-                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Minutes} Minutes).");
-                    else
-                        _chat.Print($"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Seconds} Seconds).");
-                }
+                var diff = nextUptime.Time - now;
+                Dalamud.Chat.Print(diff.Minutes > 0
+                    ? $"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Minutes} Minutes)."
+                    : $"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Seconds} Seconds).");
+            }
+            else
+            {
+                var diff = nextUptime.EndTime - now;
+                Dalamud.Chat.Print(diff.Minutes > 0
+                    ? $"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Minutes} Minutes)."
+                    : $"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Seconds} Seconds).");
             }
 
             return closestNode;
         }
 
-        private async Task ExecuteTeleport(string name)
+        private static async Task ExecuteTeleport(uint id)
         {
-            if (!_commandManager.Execute("/tp " + name))
-            {
-                _chat.PrintError(
-                    "It seems like you have activated teleporting, but you have not installed the required plugin Teleporter by Pohky.");
-                _chat.PrintError("Please either deactivate teleporting or install the plugin.");
-            }
-
+            Teleporter.Teleport(id);
             await Task.Delay(100);
         }
 
-        private async Task<bool> TeleportToNode(Node node)
+        private static async Task<bool> TeleportToNode(Node node)
         {
-            if (!_configuration.UseTeleport)
+            if (!GatherBuddy.Config.UseTeleport)
                 return true;
 
-            var name = node.GetClosestAetheryte()?.Name[_teleporterLanguage] ?? "";
-            if (name.Length == 0)
+            var aetheryte = node.GetClosestAetheryte();
+            if (aetheryte == null)
             {
                 PluginLog.Debug("No valid aetheryte found for node {NodeId}.", node!.Meta!.PointBaseId);
                 return false;
             }
 
-            await ExecuteTeleport(name);
+
+            await ExecuteTeleport(aetheryte.Id);
 
             return true;
         }
 
-        private async Task<bool> TeleportToFishingSpot(FishingSpot spot)
+        private static async Task<bool> TeleportToFishingSpot(FishingSpot spot)
         {
-            if (!_configuration.UseTeleport)
+            if (!GatherBuddy.Config.UseTeleport)
                 return true;
 
-            var name = spot.ClosestAetheryte?.Name[_teleporterLanguage] ?? "";
-            if (name.Length == 0)
+            var aetheryte = spot.ClosestAetheryte;
+            if (aetheryte == null)
             {
                 PluginLog.Debug("No valid aetheryte found for fishing spot {SpotId}.", spot.Id);
                 return false;
             }
 
-            await ExecuteTeleport(name);
+            await ExecuteTeleport(aetheryte.Id);
 
             return true;
         }
 
         private async Task<bool> EquipForNode(Node node)
         {
-            if (!_configuration.UseGearChange)
+            if (!GatherBuddy.Config.UseGearChange)
                 return true;
 
             if (node.Meta!.IsBotanist())
             {
-                _commandManager.Execute($"/gearset change {_configuration.BotanistSetName}");
+                _commandManager.Execute($"/gearset change {GatherBuddy.Config.BotanistSetName}");
                 await Task.Delay(200);
             }
             else if (node.Meta!.IsMiner())
             {
-                _commandManager.Execute($"/gearset change {_configuration.MinerSetName}");
+                _commandManager.Execute($"/gearset change {GatherBuddy.Config.MinerSetName}");
                 await Task.Delay(200);
             }
             else
@@ -339,65 +284,45 @@ namespace GatherBuddy
 
         private async Task EquipFisher()
         {
-            if (!_configuration.UseGearChange)
+            if (!GatherBuddy.Config.UseGearChange)
                 return;
 
-            _commandManager.Execute($"/gearset change {_configuration.FisherSetName}");
+            _commandManager.Execute($"/gearset change {GatherBuddy.Config.FisherSetName}");
             await Task.Delay(200);
         }
 
-        private async Task ExecuteMapMarker(string x, string y, string territory)
-        {
-            if (!_commandManager.Execute($"/coord {x}, {y} : {territory}"))
-            {
-                _chat.PrintError(
-                    "It seems like you have activated map markers, but you have not installed the required plugin ChatCoordinates by kij.");
-                _chat.PrintError("Please either deactivate map markers or install the plugin.");
-            }
-
-            await Task.Delay(100);
-        }
-
-        private async Task<bool> SetNodeFlag(Node node)
+        private static async Task<bool> SetNodeFlag(Node node)
         {
             // Coordinates = 0.0 are acceptable because of the diadem, so no error message.
-            if (!_configuration.UseCoordinates || node.GetX() == 0.0 || node.GetY() == 0.0)
+            if (!(GatherBuddy.Config.WriteCoordinates || GatherBuddy.Config.UseCoordinates) || node.GetX() == 0.0 || node.GetY() == 0.0)
                 return true;
 
-            var xString   = node.GetX().ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var yString   = node.GetY().ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var territory = node.Nodes!.Territory?.Name[_language] ?? "";
-
-            if (territory.Length == 0)
+            if (node.Nodes!.Territory == null)
             {
                 PluginLog.Debug("No territory set for node {NodeId}.", node.Meta!.PointBaseId);
                 return false;
             }
 
-            await ExecuteMapMarker(xString, yString, territory);
-
+            var link = ChatUtil.CreateNodeLink(node, GatherBuddy.Config.UseCoordinates);
+            if (GatherBuddy.Config.WriteCoordinates)
+                Dalamud.Chat.Print(link);
             await Task.Delay(100);
             return true;
         }
 
-        private async Task<bool> SetFishingSpotFlag(FishingSpot spot)
+        private static async Task<bool> SetFishingSpotFlag(FishingSpot spot)
         {
-            if (!_configuration.UseCoordinates)
+            if (!GatherBuddy.Config.UseCoordinates)
                 return true;
 
-
-            var xString   = (spot.XCoord / 100.0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var yString   = (spot.YCoord / 100.0).ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
-            var territory = spot.Territory?.Name[_language] ?? "";
-
-            if (territory.Length == 0)
+            if (spot.Territory == null)
             {
                 PluginLog.Debug("No territory set for node {SpotId}.", spot.Id);
                 return false;
             }
 
-            await ExecuteMapMarker(xString, yString, territory);
-
+            ChatUtil.CreateMapLink(spot, GatherBuddy.Config.UseCoordinates);
+            await Task.Delay(100);
             return true;
         }
 
@@ -437,8 +362,8 @@ namespace GatherBuddy
 
         public void OnBaitAction(string baitName = "")
         {
-            Clipboard.SetText(baitName);
-            _chat.Print($"Copied [{baitName}] to clipboard.");
+            ImGui.SetClipboardText(baitName);
+            Dalamud.Chat.Print($"Copied [{baitName}] to clipboard.");
         }
 
         public void OnFishActionWithFish(Fish? fish, string fishName = "")
@@ -446,34 +371,38 @@ namespace GatherBuddy
             var closestSpot = _world.ClosestSpotForItem(fish);
             if (closestSpot == null)
             {
-                var outputError = $"Could not find fishing spot for \"{fish!.Name![_language]}\".";
-                _chat.PrintError(outputError);
+                var outputError = $"Could not find fishing spot for \"{fish!.Name![GatherBuddy.Language]}\".";
+                Dalamud.Chat.PrintError(outputError);
                 PluginLog.Error(outputError);
                 return;
             }
 
-            if (_configuration.IdentifiedFishingSpotFormat.Length > 0)
-                _chat.Print(ReplaceFormatPlaceholders(_configuration.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
-            if (_configuration.PrintGighead && fish!.IsSpearFish)
-                _chat.Print($"Use {(fish.Gig != GigHead.Unknown ? fish.Gig : fish.CatchData?.GigHead ?? GigHead.Unknown)} gig head.");
-            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![_language],
-                fish!.Name![_language]);
+            if (GatherBuddy.Config.IdentifiedFishingSpotFormat.Length > 0)
+                Dalamud.Chat.Print(ReplaceFormatPlaceholders(GatherBuddy.Config.IdentifiedFishingSpotFormat, fishName, fish!, closestSpot));
+            if (GatherBuddy.Config.PrintGigHead && fish!.IsSpearFish)
+                Dalamud.Chat.Print($"Use {(fish.Gig != GigHead.Unknown ? fish.Gig : fish.CatchData?.GigHead ?? GigHead.Unknown)} gig head.");
+            PluginLog.Verbose(GatherBuddyConfiguration.DefaultIdentifiedFishingSpotFormat, closestSpot.PlaceName![GatherBuddy.Language],
+                fish!.Name![GatherBuddy.Language]);
 
             OnFishActionWithSpot(closestSpot);
         }
 
         public void OnFishAction(string fishName)
         {
-            if (Utility.Util.CompareCi(fishName, "alarm"))
+            if (Util.CompareCi(fishName, "alarm"))
             {
                 var fish = Alarms.LastFishAlarm?.Fish;
                 if (fish == null)
                 {
-                    _chat.PrintError("No active alarm was triggered, yet.");
+                    Dalamud.Chat.PrintError("No active alarm was triggered, yet.");
                 }
                 else
                 {
-                    _chat.Print($"Teleporting to [Alarm {Alarms.LastFishAlarm!.Name}] ({fish.Name[GatherBuddy.Language]}):");
+                    var itemLink = ChatUtil.CreateLink(fish.ItemData);
+                    itemLink.Insert(0, new TextPayload($"Teleporting to [Alarm {Alarms.LastFishAlarm!.Name}] ("));
+                    itemLink.Add(new TextPayload(")."));
+
+                    Dalamud.Chat.Print(new SeString(itemLink));
                     OnFishActionWithFish(fish);
                 }
             }
@@ -488,17 +417,27 @@ namespace GatherBuddy
         {
             try
             {
-                if (Utility.Util.CompareCi(itemName, "alarm"))
+                if (Util.CompareCi(itemName, "alarm"))
                 {
                     var node = Alarms.LastNodeAlarm?.Node;
                     if (node == null)
                     {
-                        _chat.PrintError("No active alarm was triggered, yet.");
+                        Dalamud.Chat.PrintError("No active alarm was triggered, yet.");
                     }
                     else
                     {
-                        _chat.Print($"Teleporting to [Alarm {Alarms.LastNodeAlarm!.Name}] ({node.Times!.PrintHours()}):");
-                        _chat.Print(node.Items!.PrintItems(", ", _language) + '.');
+                        List<Payload> text = new(2)
+                        {
+                            new TextPayload($"Teleporting to [Alarm {Alarms.LastNodeAlarm!.Name}] ({node.Times!.PrintHours()}):\n")
+                        };
+                        foreach (var item in node.Items!.ActualItems)
+                        {
+                            text.AddRange(ChatUtil.CreateLink(item.ItemData));
+                            text.Add(new TextPayload(", "));
+                        }
+
+                        ((TextPayload) text.Last())!.Text = ".";
+                        Dalamud.Chat.Print(new SeString(text));
                         OnGatherActionWithNode(node);
                     }
                 }
@@ -523,13 +462,13 @@ namespace GatherBuddy
             {
                 if (groupName.Length == 0)
                 {
-                    TimedGroup.PrintHelp(_chat, _groups);
+                    TimedGroup.PrintHelp(Dalamud.Chat, _groups);
                     return;
                 }
 
                 if (!_groups.TryGetValue(groupName, out var group))
                 {
-                    _chat.PrintError($"\"{groupName}\" is not a valid group.");
+                    Dalamud.Chat.PrintError($"\"{groupName}\" is not a valid group.");
                     return;
                 }
 
@@ -551,11 +490,11 @@ namespace GatherBuddy
                 if (desc == null)
                     return;
 
-                if (!_configuration.UseCoordinates && node.Meta!.NodeType == NodeType.Regular)
-                    _chat.Print(
+                if (!GatherBuddy.Config.UseCoordinates && node.Meta!.NodeType == NodeType.Regular)
+                    Dalamud.Chat.Print(
                         $"Gather [{desc}] at coordinates ({node.GetX():F2} | {node.GetY():F2}).");
                 else
-                    _chat.Print($"Gather [{desc}].");
+                    Dalamud.Chat.Print($"Gather [{desc}].");
             }
             catch (Exception e)
             {
@@ -571,19 +510,22 @@ namespace GatherBuddy
 
             if (item.NodeList.Count == 0)
             {
-                var output = $"Found no gathering nodes for item {item.ItemId}.";
-                _chat.PrintError(output);
-                PluginLog.Debug(output);
+                var text   = ChatUtil.CreateLink(item.ItemData);
+                text.Insert(0, new TextPayload("Found no gathering nodes for item "));
+                text.Add(new TextPayload("."));
+                var output = new SeString(text);
+                Dalamud.Chat.PrintError(output);
+                PluginLog.Debug(output.ToString());
                 return;
             }
 
-            foreach (var loc in item.NodeList
+            foreach (var (id, location) in item.NodeList
                 .SelectMany(baseNode => baseNode.Nodes!.Nodes
                     .Where(loc => loc.Value != null)))
             {
-                if (loc.Value!.Locations.Count > 0)
-                    PluginLog.Information("[NodeRecorder] Purged all records for node {Key} containing item {Value}.", loc.Key, loc.Value);
-                loc.Value!.Clear();
+                if (location!.Locations.Count > 0)
+                    PluginLog.Information("[NodeRecorder] Purged all records for node {Key} containing item {Value}.", id, location);
+                location!.Clear();
             }
         }
 

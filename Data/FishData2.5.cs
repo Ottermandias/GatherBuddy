@@ -11,7 +11,7 @@ namespace GatherBuddy.Data
             fish.Apply     (10123, Patch.BeforeTheFall) // Gigant Clam
                 .Bait      (fish, 2619)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (23, 2)
+                .Uptime    (1380, 120)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Powerful);
         }

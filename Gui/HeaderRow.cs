@@ -11,38 +11,37 @@ namespace GatherBuddy.Gui
                 "Toggle whether to record all encountered nodes in regular intervals.\n"
               + "Recorded node coordinates are more accurate than pre-programmed ones and will be used for map markers and aetherytes instead.\n"
               + "Records are saved in compressed form in the plugin configuration.",
-                _config.DoRecord, b =>
+                GatherBuddy.Config.DoRecord, b =>
                 {
                     if (b)
                         _plugin.Gatherer!.StartRecording();
                     else
                         _plugin.Gatherer!.StopRecording();
-                    _config.DoRecord = b;
+                    GatherBuddy.Config.DoRecord = b;
                 });
 
         private void DrawAlarmToggle()
-            => DrawCheckbox("Alarms",  "Toggle all alarms on or off.",
-                _config.AlarmsEnabled, b =>
+            => DrawCheckbox("Alarms",             "Toggle all alarms on or off.",
+                GatherBuddy.Config.AlarmsEnabled, b =>
                 {
                     if (b)
                         _plugin.Alarms!.Enable();
                     else
                         _plugin.Alarms!.Disable();
-                    _config.AlarmsEnabled = b;
+                    GatherBuddy.Config.AlarmsEnabled = b;
                 });
 
         private void DrawSnapshotButton()
         {
             if (ImGui.Button("Snapshot", new Vector2(-1, 0)))
-                _pi.Framework.Gui.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
-            if (ImGui.IsItemHovered())
-                ImGui.SetTooltip("Record currently available nodes around you once.");
+                Dalamud.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
+            ImGuiHelper.HoverTooltip("Record currently available nodes around you once.");
         }
 
         private void DrawHeaderRow()
         {
             var spacing = 5 * _horizontalSpace;
-            using (var imgui = ImGuiRaii.NewGroup())
+            using (var _ = ImGuiRaii.NewGroup())
             {
                 DrawAlarmToggle();
                 HorizontalSpace(spacing);
@@ -110,7 +109,7 @@ namespace GatherBuddy.Gui
             var width = -(ImGui.CalcTextSize(nextWeatherString).X
               + (_weatherIconSize.X + _itemSpacing.X * 1.5f + ImGui.GetStyle().FramePadding.X) * 2);
 
-            var territory = _pi.ClientState?.TerritoryType ?? 0;
+            var territory = Dalamud.ClientState.TerritoryType;
             _headerCache.Update(eorzeaHour, territory);
 
             DrawEorzeaTime($"ET {hourOfDay:D2}:{minuteOfHour:D2}");

@@ -1,9 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
-using Dalamud.Plugin;
-using GatherBuddy.Enums;
+using Dalamud.Logging;
 using GatherBuddy.Game;
 
 namespace GatherBuddy.Classes
@@ -82,7 +80,7 @@ namespace GatherBuddy.Classes
 
             if (bait.Id != 0)
                 ret |= SuccessfulBaits.Add(bait.Id);
-            
+
             if (time > MinTime && time < MaxTime)
             {
                 if (chum)
@@ -148,12 +146,12 @@ namespace GatherBuddy.Classes
         }
 
         private static readonly Regex V3MigrationRegex = new("(Unknown|Weak|Strong|Legendary) ", RegexOptions.Compiled);
+
         private static string MigrateToV3(string line)
             => V3MigrationRegex.Replace(line, "");
 
         public static (uint, FishRecord)? FromLine(string line)
         {
-
             (uint, FishRecord)? Error()
             {
                 PluginLog.Error($"Could not create fishing record from \"{line}\".");

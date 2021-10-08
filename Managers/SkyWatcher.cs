@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
-using Dalamud.Plugin;
+using Dalamud;
+using Dalamud.Data;
+using Dalamud.Logging;
 using GatherBuddy.Game;
 using GatherBuddy.Utility;
 using Lumina.Excel.GeneratedSheets;
@@ -15,11 +17,11 @@ namespace GatherBuddy.Managers
 
         private readonly Dictionary<uint, (Weather Weather, byte CumulativeRate)[]> _weatherRates;
 
-        public SkyWatcher(DalamudPluginInterface pi)
+        public SkyWatcher(DataManager gameData, ClientLanguage clientLanguage)
         {
-            var weathers    = pi.Data.GetExcelSheet<Weather>(pi.ClientState.ClientLanguage);
-            var rates       = pi.Data.GetExcelSheet<WeatherRate>();
-            var territories = pi.Data.GetExcelSheet<TerritoryType>();
+            var weathers    = gameData.GetExcelSheet<Weather>(clientLanguage)!;
+            var rates       = gameData.GetExcelSheet<WeatherRate>()!;
+            var territories = gameData.GetExcelSheet<TerritoryType>()!;
 
             _weatherRates = new Dictionary<uint, (Weather Weather, byte CumulativeRate)[]>((int) territories.RowCount);
             var weatherRates = new Dictionary<uint, (Weather Weather, byte CumulativeRate)[]>((int) rates.RowCount);
@@ -52,7 +54,7 @@ namespace GatherBuddy.Managers
                     continue;
                 }
 
-                weatherRates.Add(rate.RowId, value);
+                weatherRates.Add(rate.RowId, value!);
             }
 
             foreach (var territory in territories)
@@ -130,12 +132,12 @@ namespace GatherBuddy.Managers
         public WeatherListing[] GetForecast(uint territoryId, uint amount, DateTime fromWhen)
         {
             if (amount == 0)
-                return new WeatherListing[0];
+                return Array.Empty<WeatherListing>();
 
             if (!_weatherRates.TryGetValue(territoryId, out var rates))
             {
                 PluginLog.Error($"Trying to get forecast for unknown territory {territoryId}.");
-                return new WeatherListing[0];
+                return Array.Empty<WeatherListing>();
             }
 
             var ret  = new WeatherListing[amount];

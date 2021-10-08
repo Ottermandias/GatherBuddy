@@ -24,26 +24,26 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2606)
                 .Tug       (BiteType.Legendary)
                 .Predators (fish, (4913, 3))
-                .Intuition (600)
+                .Intuition (350)
                 .Weather   (7, 8)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8755, Patch.DreamsOfIce) // Coelacanthus
                 .Bait      (fish, 2596, 4898)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (22, 3)
+                .Uptime    (1320, 180)
                 .Weather   (4, 3, 5)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8756, Patch.DreamsOfIce) // Endoceras
                 .Bait      (fish, 2596, 4898)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (20, 5)
+                .Uptime    (1200, 240)
                 .Transition(1, 2)
                 .Weather   (4, 3, 5)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8757, Patch.DreamsOfIce) // Seahag
                 .Bait      (fish, 2585, 4869, 4904)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (19, 2)
+                .Uptime    (1140, 120)
                 .Transition(1, 2)
                 .Weather   (1, 2)
                 .HookType  (HookSet.Powerful);
@@ -68,13 +68,13 @@ namespace GatherBuddy.Data
             fish.Apply     (8761, Patch.DreamsOfIce) // Ninja Betta
                 .Bait      (fish, 2592, 4942, 5002)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 9)
+                .Uptime    (1080, 540)
                 .Weather   (17)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8762, Patch.DreamsOfIce) // Canavan
                 .Bait      (fish, 2599, 4978, 5011)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 18)
+                .Uptime    (480, 1080)
                 .Weather   (17)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8763, Patch.DreamsOfIce) // Kuno the Killer
@@ -92,7 +92,7 @@ namespace GatherBuddy.Data
             fish.Apply     (8765, Patch.DreamsOfIce) // Ndendecki
                 .Bait      (fish, 2599, 4978, 5002)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (18, 5)
+                .Uptime    (1080, 300)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8766, Patch.DreamsOfIce) // Bat-o'-Nine-Tails
@@ -104,21 +104,21 @@ namespace GatherBuddy.Data
             fish.Apply     (8767, Patch.DreamsOfIce) // Wootz Knifefish Zenith
                 .Bait      (fish, 2599, 4978)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (1, 4)
+                .Uptime    (60, 240)
                 .Transition(1, 2)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8768, Patch.DreamsOfIce) // Helicoprion
                 .Bait      (fish, 2600, 5035)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (8, 20)
+                .Uptime    (480, 1200)
                 .Transition(4, 3)
                 .Weather   (14)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (8769, Patch.DreamsOfIce) // Darkstar
                 .Bait      (fish, 2599, 4937)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (19, 4)
+                .Uptime    (1140, 240)
                 .Predators (fish, (5544, 5))
                 .Intuition (120)
                 .Weather   (16, 15)
@@ -161,7 +161,7 @@ namespace GatherBuddy.Data
             fish.Apply     (8776, Patch.DreamsOfIce) // Blood Red Bonytongue
                 .Bait      (fish, 2599, 4978)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (4, 12)
+                .Uptime    (240, 720)
                 .Transition(1, 2)
                 .Weather   (4)
                 .HookType  (HookSet.Powerful);

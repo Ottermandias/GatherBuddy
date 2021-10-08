@@ -29,23 +29,42 @@ namespace GatherBuddy
     [Serializable]
     public class GatherBuddyConfiguration : IPluginConfiguration
     {
-        public const string DefaultIdentifiedItemFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
-        public const string DefaultIdentifiedFishFormat = "Identified [{Id}: {Name}] for \"{Input}\".";
+        public void MigrateV2ToV3()
+        {
+            if (Version > 2)
+                return;
+
+            const string oldDefaultNodeAlarmFormat      = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+
+            if (NodeAlarmFormat == oldDefaultNodeAlarmFormat)
+                NodeAlarmFormat = DefaultNodeAlarmFormat;
+
+            WriteCoordinates = UseCoordinates;
+
+            Version = 3;
+        }
+
+
+        public const string DefaultIdentifiedItemFormat        = "Identified [{Id}: {Name}] at {Location} for \"{Input}\".";
+        public const string DefaultIdentifiedFishFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
         public const string DefaultIdentifiedFishingSpotFormat = "Chose fishing spot {Name} for {FishName}.";
-        public const string DefaultNodeAlarmFormat = "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString}.";
+
+        public const string DefaultNodeAlarmFormat =
+            "[GatherBuddy][Alarm {Name}]: The gathering node for {AllItems} {DelayString} at {Location}.";
 
         public const string DefaultFishAlarmFormat =
             "[GatherBuddy][Alarm {Name}]: The fish {FishName} at {FishingSpotName} {DelayString}. Catch with {BaitName}.";
 
-        public string BotanistSetName { get; set; }
-        public string MinerSetName    { get; set; }
-        public string FisherSetName   { get; set; }
 
-        public string IdentifiedItemFormat        { get; set; }
-        public string IdentifiedFishFormat        { get; set; }
-        public string IdentifiedFishingSpotFormat { get; set; }
-        public string NodeAlarmFormat             { get; set; }
-        public string FishAlarmFormat             { get; set; }
+        public string BotanistSetName { get; set; } = "BTN";
+        public string MinerSetName    { get; set; } = "MIN";
+        public string FisherSetName   { get; set; } = "FSH";
+
+        public string IdentifiedItemFormat        { get; set; } = DefaultIdentifiedItemFormat;
+        public string IdentifiedFishFormat        { get; set; } = DefaultIdentifiedFishFormat;
+        public string IdentifiedFishingSpotFormat { get; set; } = DefaultIdentifiedFishingSpotFormat;
+        public string NodeAlarmFormat             { get; set; } = DefaultNodeAlarmFormat;
+        public string FishAlarmFormat             { get; set; } = DefaultFishAlarmFormat;
 
         // backwards compatibility
         public string AlarmFormat
@@ -54,73 +73,55 @@ namespace GatherBuddy
         }
 
 
-        public int       Version   { get; set; }
-        public ShowNodes ShowNodes { get; set; }
+        public int       Version   { get; set; } = 3;
+        public ShowNodes ShowNodes { get; set; } = ShowNodes.AllNodes;
 
-        public bool OpenOnStart         { get; set; }
-        public bool UseGearChange       { get; set; }
-        public bool UseTeleport         { get; set; }
-        public bool UseCoordinates      { get; set; }
-        public bool DoRecord            { get; set; }
-        public bool AlarmsEnabled       { get; set; }
-        public bool PrintUptime         { get; set; }
-        public bool PrintGighead        { get; set; }
-        public bool ShowFishTimer       { get; set; }
-        public bool FishTimerEdit       { get; set; }
-        public bool HideUncaughtFish    { get; set; }
-        public bool HideUnavailableFish { get; set; }
-        public bool ShowWindowTimers    { get; set; }
+        public bool OpenOnStart         { get; set; } = false;
+        public bool UseGearChange       { get; set; } = true;
+        public bool UseTeleport         { get; set; } = true;
+        public bool UseCoordinates      { get; set; } = true;
+        public bool WriteCoordinates    { get; set; } = true;
+        public bool DoRecord            { get; set; } = true;
+        public bool AlarmsEnabled       { get; set; } = false;
+        public bool PrintUptime         { get; set; } = true;
+        public bool PrintGigHead        { get; set; } = true;
+        public bool ShowFishTimer       { get; set; } = true;
+        public bool FishTimerEdit       { get; set; } = true;
+        public bool HideUncaughtFish    { get; set; } = false;
+        public bool HideUnavailableFish { get; set; } = false;
+        public bool ShowWindowTimers    { get; set; } = true;
 
-        public bool ShowAlreadyCaught { get; set; }
-        public bool ShowBigFish       { get; set; }
-        public bool ShowSmallFish     { get; set; }
-        public bool ShowSpearFish     { get; set; }
-        public bool ShowAlwaysUp      { get; set; }
-        public byte ShowFishFromPatch { get; set; }
+        public bool ShowAlreadyCaught { get; set; } = false;
+        public bool ShowBigFish       { get; set; } = true;
+        public bool ShowSmallFish     { get; set; } = true;
+        public bool ShowSpearFish     { get; set; } = true;
+        public bool ShowAlwaysUp      { get; set; } = true;
+        public byte ShowFishFromPatch { get; set; } = 0;
 
         public Vector4 AvailableFishColor          { get; set; } = Colors.FishTab.UptimeRunning;
         public Vector4 UpcomingFishColor           { get; set; } = Colors.FishTab.UptimeUpcoming;
         public Vector4 DependentAvailableFishColor { get; set; } = Colors.FishTab.UptimeRunningDependency;
         public Vector4 DependentUpcomingFishColor  { get; set; } = Colors.FishTab.UptimeUpcomingDependency;
 
-        public Records     Records { get; set; }
-        public List<Alarm> Alarms  { get; set; }
+        public Records     Records { get; set; } = new();
+        public List<Alarm> Alarms  { get; set; } = new();
 
         public List<uint> FixedFish { get; set; } = new();
 
-        public GatherBuddyConfiguration()
+        public void Save()
+            => Dalamud.PluginInterface.SavePluginConfig(this);
+
+        public static GatherBuddyConfiguration Load()
         {
-            Version          = 2;
-            BotanistSetName  = "BTN";
-            MinerSetName     = "MIN";
-            FisherSetName    = "FSH";
-            OpenOnStart      = false;
-            UseGearChange    = true;
-            UseTeleport      = true;
-            UseCoordinates   = true;
-            DoRecord         = true;
-            AlarmsEnabled    = false;
-            PrintUptime      = true;
-            ShowFishTimer    = true;
-            FishTimerEdit    = true;
-            ShowWindowTimers = true;
-            HideUncaughtFish = false;
-            ShowNodes        = ShowNodes.AllNodes;
-            Records          = new Records();
-            Alarms           = new List<Alarm>();
+            if (Dalamud.PluginInterface.GetPluginConfig() is GatherBuddyConfiguration config)
+            {
+                config.MigrateV2ToV3();
+                return config;
+            }
 
-            ShowAlreadyCaught = false;
-            ShowBigFish       = true;
-            ShowSmallFish     = true;
-            ShowSpearFish     = true;
-            ShowAlwaysUp      = true;
-            ShowFishFromPatch = 0;
-
-            IdentifiedItemFormat        = DefaultIdentifiedItemFormat;
-            IdentifiedFishFormat        = DefaultIdentifiedFishFormat;
-            IdentifiedFishingSpotFormat = DefaultIdentifiedFishingSpotFormat;
-            NodeAlarmFormat             = DefaultNodeAlarmFormat;
-            FishAlarmFormat             = DefaultFishAlarmFormat;
+            config = new GatherBuddyConfiguration();
+            config.Save();
+            return config;
         }
     }
 }

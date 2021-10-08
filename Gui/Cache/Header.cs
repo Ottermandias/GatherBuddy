@@ -30,7 +30,7 @@ namespace GatherBuddy.Gui.Cache
 
             Territory = territory;
             var weathers = Service<SkyWatcher>.Get().GetForecast(Territory, 2);
-            var icons    = Service<Cache.Icons>.Get();
+            var icons    = Service<Icons>.Get();
             CurrentWeather = icons[weathers[0].Weather.Icon];
             NextWeather    = icons[weathers[1].Weather.Icon];
         }

@@ -1,7 +1,8 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Text;
-using Dalamud.Plugin;
+using Dalamud.Game;
+using Dalamud.Logging;
 using GatherBuddy.SeFunctions;
 
 namespace GatherBuddy.Managers
@@ -9,26 +10,24 @@ namespace GatherBuddy.Managers
     public class CommandManager
     {
         private readonly ProcessChatBox                      _processChatBox;
-        private readonly Dalamud.Game.Command.CommandManager _dalamudCommands;
 
         private readonly IntPtr _uiModulePtr;
 
-        public CommandManager(DalamudPluginInterface pi, BaseUiObject baseUiObject, GetUiModule getUiModule, ProcessChatBox processChatBox)
+        public CommandManager(SeAddressBase baseUiObject, GetUiModule getUiModule, ProcessChatBox processChatBox)
         {
-            _dalamudCommands = pi.CommandManager;
             _processChatBox  = processChatBox;
             _uiModulePtr     = getUiModule.Invoke(Marshal.ReadIntPtr(baseUiObject.Address));
         }
 
-        public CommandManager(DalamudPluginInterface pi)
-            : this(pi, new BaseUiObject(pi.TargetModuleScanner), new GetUiModule(pi.TargetModuleScanner),
-                new ProcessChatBox(pi.TargetModuleScanner))
+        public CommandManager(SigScanner sigScanner)
+            : this(new BaseUiObject(sigScanner), new GetUiModule(sigScanner),
+                new ProcessChatBox(sigScanner))
         { }
 
         public bool Execute(string message)
         {
             // First try to process the command through Dalamud.
-            if (_dalamudCommands.ProcessCommand(message))
+            if (Dalamud.Commands.ProcessCommand(message))
             {
                 PluginLog.Verbose("Executed Dalamud command \"{Message:l}\".", message);
                 return true;

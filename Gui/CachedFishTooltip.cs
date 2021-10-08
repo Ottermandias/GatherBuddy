@@ -126,7 +126,7 @@ namespace GatherBuddy.Gui
             var offset = (size.Y - _textHeight) / 2f;
             var length = ImGui.CalcTextSize(fish.IntuitionText).X;
 
-            using (var imgui = new ImGuiRaii()
+            using (var _ = new ImGuiRaii()
                 .PushColor(ImGuiCol.Button, Colors.FishTab.Predator)
                 .PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One))
             {
@@ -146,12 +146,12 @@ namespace GatherBuddy.Gui
             }
 
 
-            if (fish.IntuitionText.Length > 0)
-            {
-                using var intuition = new ImGuiRaii()
-                    .PushColor(ImGuiCol.Button, Colors.FishTab.Intuition);
-                ImGui.Button(fish.IntuitionText);
-            }
+            if (fish.IntuitionText.Length == 0)
+                return;
+
+            using var intuition = new ImGuiRaii()
+                .PushColor(ImGuiCol.Button, Colors.FishTab.Intuition);
+            ImGui.Button(fish.IntuitionText);
         }
 
         private static void PrintFolklore(Fish fish)

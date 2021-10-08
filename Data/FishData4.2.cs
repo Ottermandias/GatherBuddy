@@ -11,12 +11,12 @@ namespace GatherBuddy.Data
             fish.Apply     (22389, Patch.RiseOfANewSun) // Mirage Mahi
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (4, 8)
+                .Uptime    (240, 480)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (22390, Patch.RiseOfANewSun) // Triplespine
                 .Bait      (fish, 20676)
                 .Tug       (BiteType.Weak)
-                .Uptime    (5, 7)
+                .Uptime    (300, 420)
                 .Snag      (Snagging.None)
                 .HookType  (HookSet.Precise);
             fish.Apply     (22391, Patch.RiseOfANewSun) // Alligator Snapping Turtle
@@ -30,7 +30,7 @@ namespace GatherBuddy.Data
                 .Weather   (3, 4)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (22393, Patch.RiseOfANewSun) // Usuginu Octopus
-                .Bait      (fish, 20617, 20112)
+                .Bait      (fish, 20617)
                 .Tug       (BiteType.Legendary)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (22394, Patch.RiseOfANewSun) // Saltmill
@@ -49,7 +49,7 @@ namespace GatherBuddy.Data
             fish.Apply     (22397, Patch.RiseOfANewSun) // Red Prismfish
                 .Bait      (fish, 20675)
                 .Tug       (BiteType.Strong)
-                .Uptime    (4, 8)
+                .Uptime    (240, 480)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (22398, Patch.RiseOfANewSun) // Elder Gourami
                 .Bait      (fish, 20614, 20127)
