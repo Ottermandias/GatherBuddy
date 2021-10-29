@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -385,6 +385,30 @@ namespace GatherBuddy
                 fish!.Name![GatherBuddy.Language]);
 
             OnFishActionWithSpot(closestSpot);
+        }
+
+        public void OnFindBaitAction(string fishName)
+        {
+            var fish = FindFishLogging(fishName);
+            if (fish == null)
+                return;
+
+            var catchData = fish.CatchData!;
+
+            var payloads = new List<Payload>();
+
+            payloads.Add(new TextPayload("Initial Bait: "));
+            payloads.AddRange(ChatUtil.CreateLink(catchData.InitialBait.Data));
+            
+            foreach (var moochFish in catchData.Mooches)
+            {
+                payloads.Add(new TextPayload(" 》 "));
+                payloads.AddRange(ChatUtil.CreateLink(moochFish.ItemData));
+            }
+
+            var seString = new SeString(payloads);
+
+            Dalamud.Chat.Print(seString);
         }
 
         public void OnFishAction(string fishName)

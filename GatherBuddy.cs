@@ -83,6 +83,13 @@ namespace GatherBuddy
                 ShowInHelp = true,
             });
 
+            Dalamud.Commands.AddHandler("/gatherbait", new CommandInfo(OnGatherBait)
+            {
+                HelpMessage =
+                    "Look up bait information for a specific fish.",
+                ShowInHelp = true,
+            });
+
             Dalamud.Commands.AddHandler("/gathergroup", new CommandInfo(OnGatherGroup)
             {
                 HelpMessage = "Teleport to the node of a group corresponding to current time. Use /gathergroup for more details.",
@@ -156,6 +163,14 @@ namespace GatherBuddy
                 Dalamud.Chat.Print("Please supply a (partial) fish name for /gatherfish.");
             else
                 Gatherer!.OnFishAction(arguments);
+        }
+
+        private void OnGatherBait(string command, string arguments)
+        {
+            if (arguments.Length == 0)
+                Dalamud.Chat.Print("Please supply a (partial) fish name for /gatherbait.");
+            else
+                Gatherer!.OnFindBaitAction(arguments);
         }
 
         private void OnConfigCommandHandler()
