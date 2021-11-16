@@ -11,7 +11,7 @@ namespace GatherBuddy.Data
     {
         private readonly Gatherable[] _maps;
 
-        private readonly (string seed, Gatherable fruit)[] _seeds;
+        private readonly (Gatherable seed, string fruit)[] _seeds;
 
         private readonly Gatherable[] _otherHidden;
 
@@ -41,42 +41,42 @@ namespace GatherBuddy.Data
             _unaspectedCrystal = from["Unaspected Crystal" ];
 
             _seeds = new[]
-            { ("Paprika Seeds"           , from["Paprika"                   ])
-            , ("Wild Onion Set"          , from["Wild Onion"                ])
-            , ("Coerthan Carrot Seeds"   , from["Coerthan Carrot"           ])
-            , ("La Noscean Lettuce Seeds", from["La Noscean Lettuce"        ])
-            , ("Olive Seeds"             , from["Cinderfoot Olive"          ])
-            , ("Popoto Set"              , from["Popoto"                    ])
-            , ("Millioncorn Seeds"       , from["Millioncorn"               ])
-            , ("Wizard Eggplant Seeds"   , from["Wizard Eggplant"           ])
-            , ("Midland Cabbage Seeds"   , from["Midland Cabbage"           ])
-            , ("La Noscean Orange Seeds" , from["La Noscean Orange"         ])
-            , ("Lowland Grape Seeds"     , from["Lowland Grapes"            ])
-            , ("Faerie Apple Seeds"      , from["Faerie Apple"              ])
-            , ("Sun Lemon Seeds"         , from["Sun Lemon"                 ])
-            , ("Pixie Plum Seeds"        , from["Pixie Plums"               ])
-            , ("Blood Currant Seeds"     , from["Blood Currants"            ])
-            , ("Mirror Apple Seeds"      , from["Mirror Apple"              ])
-            , ("Rolanberry Seeds"        , from["Rolanberry"                ])
-            , ("Garlic Cloves"           , from["Garlean Garlic"            ])
-            , ("Lavender Seeds"          , from["Lavender"                  ])
-            , ("Black Pepper Seeds"      , from["Black Pepper"              ])
-            , ("Ala Mhigan Mustard Seeds", from["Ala Mhigan Mustard"        ])
-            , ("Pearl Ginger Root"       , from["Pearl Ginger"              ])
-            , ("Chamomile Seeds"         , from["Chamomile"                 ])
-            , ("Linseed"                 , from["Flax"                      ])
-            , ("Midland Basil Seeds"     , from["Midland Basil"             ])
-            , ("Mandrake Seeds"          , from["Mandrake"                  ])
-            , ("Almond Seeds"            , from["Almonds"                   ])
+            { (from["Paprika Seeds"           ], "Paprika"                   )
+            , (from["Wild Onion Set"          ], "Wild Onion"                )
+            , (from["Coerthan Carrot Seeds"   ], "Coerthan Carrot"           )
+            , (from["La Noscean Lettuce Seeds"], "La Noscean Lettuce"        )
+            , (from["Olive Seeds"             ], "Cinderfoot Olive"          )
+            , (from["Popoto Set"              ], "Popoto"                    )
+            , (from["Millioncorn Seeds"       ], "Millioncorn"               )
+            , (from["Wizard Eggplant Seeds"   ], "Wizard Eggplant"           )
+            , (from["Midland Cabbage Seeds"   ], "Midland Cabbage"           )
+            , (from["La Noscean Orange Seeds" ], "La Noscean Orange"         )
+            , (from["Lowland Grape Seeds"     ], "Lowland Grapes"            )
+            , (from["Faerie Apple Seeds"      ], "Faerie Apple"              )
+            , (from["Sun Lemon Seeds"         ], "Sun Lemon"                 )
+            , (from["Pixie Plum Seeds"        ], "Pixie Plums"               )
+            , (from["Blood Currant Seeds"     ], "Blood Currants"            )
+            , (from["Mirror Apple Seeds"      ], "Mirror Apple"              )
+            , (from["Rolanberry Seeds"        ], "Rolanberry"                )
+            , (from["Garlic Cloves"           ], "Garlean Garlic"            )
+            , (from["Lavender Seeds"          ], "Lavender"                  )
+            , (from["Black Pepper Seeds"      ], "Black Pepper"              )
+            , (from["Ala Mhigan Mustard Seeds"], "Ala Mhigan Mustard"        )
+            , (from["Pearl Ginger Root"       ], "Pearl Ginger"              )
+            , (from["Chamomile Seeds"         ], "Chamomile"                 )
+            , (from["Linseed"                 ], "Flax"                      )
+            , (from["Midland Basil Seeds"     ], "Midland Basil"             )
+            , (from["Mandrake Seeds"          ], "Mandrake"                  )
+            , (from["Almond Seeds"            ], "Almonds"                   )
             // Not really seeds, but same mechanism.
-            , ("Oddly Specific Fossil Dust"      , from["Oddly Specific Latex"               ])
-            , ("Oddly Specific Mineral Sand"     , from["Oddly Specific Obsidian"            ])
-            , ("Oddly Specific Bauble"           , from["Oddly Specific Amber"               ])
-            , ("Oddly Specific Striking Stone"   , from["Oddly Specific Dark Matter"         ])
-            , ("Oddly Specific Dark Chestnut Log", from["Oddly Specific Leafborne Aethersand"])
-            , ("Oddly Specific Primordial Log"   , from["Oddly Specific Primordial Resin"    ])
-            , ("Oddly Specific Schorl"           , from["Oddly Specific Landborne Aethersand"])
-            , ("Oddly Specific Primordial Ore"   , from["Oddly Specific Primordial Asphaltum"]),
+            , (from["Oddly Specific Fossil Dust"      ], "Oddly Specific Latex"               )
+            , (from["Oddly Specific Mineral Sand"     ], "Oddly Specific Obsidian"            )
+            , (from["Oddly Specific Bauble"           ], "Oddly Specific Amber"               )
+            , (from["Oddly Specific Striking Stone"   ], "Oddly Specific Dark Matter"         )
+            , (from["Oddly Specific Dark Chestnut Log"], "Oddly Specific Leafborne Aethersand")
+            , (from["Oddly Specific Primordial Log"   ], "Oddly Specific Primordial Resin"    )
+            , (from["Oddly Specific Schorl"           ], "Oddly Specific Landborne Aethersand")
+            , (from["Oddly Specific Primordial Ore"   ], "Oddly Specific Primordial Asphaltum"),
             };
 
             _otherHidden = new[]
@@ -110,8 +110,8 @@ namespace GatherBuddy.Data
         {
             foreach (var (seed, fruit) in _seeds)
             {
-                if (n.Items!.HasItems(seed))
-                    n.AddItem(fruit);
+                if (n.Items!.HasItems(fruit))
+                    n.AddItem(seed);
             }
         }
 
