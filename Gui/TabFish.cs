@@ -250,14 +250,14 @@ namespace GatherBuddy.Gui
 
             bool BeginTable()
             {
-                const ImGuiTableFlags       flags           = ImGuiTableFlags.BordersInner | ImGuiTableFlags.RowBg | ImGuiTableFlags.Hideable;
+                const ImGuiTableFlags       flags           = ImGuiTableFlags.BordersInner | ImGuiTableFlags.RowBg | ImGuiTableFlags.Hideable | ImGuiTableFlags.Sortable;
                 const ImGuiTableColumnFlags offColumnFlags  = ImGuiTableColumnFlags.WidthFixed | ImGuiTableColumnFlags.NoReorder;
                 const ImGuiTableColumnFlags mainColumnFlags = offColumnFlags | ImGuiTableColumnFlags.NoHide;
                 if (!ImGui.BeginTable("##FishTable", NumFishColumns, flags))
                     return false;
 
                 ImGui.TableHeader("");
-                ImGui.TableSetupColumn("", mainColumnFlags, ImGui.GetTextLineHeight());
+                ImGui.TableSetupColumn("", mainColumnFlags | ImGuiTableColumnFlags.NoSort, ImGui.GetTextLineHeight());
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Name");
@@ -273,7 +273,7 @@ namespace GatherBuddy.Gui
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("BaitIcon");
-                ImGui.TableSetupColumn("", offColumnFlags, ImGui.GetTextLineHeight());
+                ImGui.TableSetupColumn("", offColumnFlags | ImGuiTableColumnFlags.NoSort, ImGui.GetTextLineHeight());
                 ImGui.NextColumn();
 
                 ImGui.TableHeader("Bait");
@@ -289,7 +289,37 @@ namespace GatherBuddy.Gui
                 ImGui.NextColumn();
 
                 ImGui.TableHeadersRow();
+                ImGui.TableSetupScrollFreeze(0, 1);
                 ImGui.TableNextRow();
+
+                var sortFlags = ImGui.TableGetSortSpecs().Specs.SortDirection switch
+                {
+                    ImGuiSortDirection.Ascending => ImGui.TableGetSortSpecs().Specs.ColumnIndex switch
+                    {
+                        1 => FishSortOrder.Name,
+                        3 => FishSortOrder.Uptime,
+                        5 => FishSortOrder.BaitName,
+                        6 => FishSortOrder.FishingSpotName,
+                        7 => FishSortOrder.ZoneName,
+                        _ => FishSortOrder.EndTime,
+                    },
+                    ImGuiSortDirection.Descending => ImGui.TableGetSortSpecs().Specs.ColumnIndex switch
+                    {
+                        1 => FishSortOrder.InverseName,
+                        3 => FishSortOrder.InverseUptime,
+                        5 => FishSortOrder.InverseBaitName,
+                        6 => FishSortOrder.InverseFishingSpotName,
+                        7 => FishSortOrder.InverseZoneName,
+                        _ => FishSortOrder.InverseEndTime,
+                    },
+                    _ => FishSortOrder.EndTime,
+                };
+                if (sortFlags == GatherBuddy.Config.FishSortOder)
+                    return true;
+
+                GatherBuddy.Config.FishSortOder = sortFlags;
+                GatherBuddy.Config.Save();
+                _fishCache.ResortFish = true;
 
                 return true;
             }

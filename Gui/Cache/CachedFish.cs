@@ -50,6 +50,7 @@ namespace GatherBuddy.Gui.Cache
         public string             IntuitionText          { get; } = "";
         public bool               HasUptimeDependency    { get; }
         public bool               IsFixed                { get; set; } = false;
+        public ushort             Uptime = 10000;
 
         public string FishingSpotTooltip { get; }
         public string TerritoryTooltip   { get; }
@@ -224,13 +225,12 @@ namespace GatherBuddy.Gui.Cache
 
         public Fish(FishTab cache, Game.Fish fish)
         {
-            ushort uptime = 10000;
             Base           = fish;
             Icon           = Service<Icons>.Get()[fish.ItemData.Icon];
             Name           = fish.Name[GatherBuddy.Language];
             NameLower      = Name.ToLowerInvariant();
-            Time           = SetTime(fish, ref uptime);
-            WeatherIcons   = SetWeather(fish, ref uptime);
+            Time           = SetTime(fish, ref Uptime);
+            WeatherIcons   = SetWeather(fish, ref Uptime);
             Bait           = SetBait(cache, fish);
             FirstBaitLower = Bait.Length > 0 ? Bait[0].Name.ToLowerInvariant() : "unknown bait";
             Predators      = SetPredators(fish);
@@ -247,7 +247,7 @@ namespace GatherBuddy.Gui.Cache
                 FishingSpotLower += '\0' + string.Join('\0', AdditionalFishingSpots.Select(s => s.Item1.ToLowerInvariant()));
             Snagging            = SetSnagging(cache, Bait, fish);
             Patch               = $"Patch {fish.CatchData?.Patch.ToVersionString() ?? "???"}";
-            UptimeString        = $"{(uptime / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
+            UptimeString        = $"{(Uptime / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
             HasUptimeDependency = SetUptimeDependency(fish, Bait);
 
             FishingSpotTooltip = $"{Territory}\nRight-click to open TeamCraft site for this spot.";

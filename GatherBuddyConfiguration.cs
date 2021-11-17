@@ -26,6 +26,23 @@ namespace GatherBuddy
         AllNodes = 0x01FF,
     }
 
+    public enum FishSortOrder
+    {
+        EndTime,
+        Name,
+        BaitName,
+        FishingSpotName,
+        ZoneName,
+        Uptime,
+        InverseEndTime,
+        InverseName,
+        InverseBaitName,
+        InverseFishingSpotName,
+        InverseZoneName,
+        InverseUptime,
+    };
+
+
     [Serializable]
     public class GatherBuddyConfiguration : IPluginConfiguration
     {
@@ -106,7 +123,8 @@ namespace GatherBuddy
         public Records     Records { get; set; } = new();
         public List<Alarm> Alarms  { get; set; } = new();
 
-        public List<uint> FixedFish { get; set; } = new();
+        public List<uint>    FixedFish    { get; set; } = new();
+        public FishSortOrder FishSortOder { get; set; } = FishSortOrder.EndTime;
 
         public void Save()
             => Dalamud.PluginInterface.SavePluginConfig(this);
