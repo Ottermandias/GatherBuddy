@@ -5,170 +5,164 @@ using System.Linq;
 using Dalamud;
 using Dalamud.Data;
 using Dalamud.Logging;
+using GatherBuddy.Classes;
 using GatherBuddy.Game;
-using GatherBuddy.Utility;
 using Lumina.Excel.GeneratedSheets;
 
-namespace GatherBuddy.Managers
+namespace GatherBuddy.Managers;
+
+public class SkyWatcher
 {
-    public class SkyWatcher
+    private readonly Dictionary<uint, (Weather Weather, byte CumulativeRate)[]> _weatherRates;
+
+    public SkyWatcher(DataManager gameData, ClientLanguage clientLanguage)
     {
-        public const int SecondsPerWeather = 8 * EorzeaTime.SecondsPerEorzeaHour;
+        var weathers    = gameData.GetExcelSheet<Weather>(clientLanguage)!;
+        var rates       = gameData.GetExcelSheet<WeatherRate>()!;
+        var territories = gameData.GetExcelSheet<TerritoryType>()!;
 
-        private readonly Dictionary<uint, (Weather Weather, byte CumulativeRate)[]> _weatherRates;
+        _weatherRates = new Dictionary<uint, (Weather Weather, byte CumulativeRate)[]>((int)territories.RowCount);
+        var weatherRates = new Dictionary<uint, (Weather Weather, byte CumulativeRate)[]>((int)rates.RowCount);
 
-        public SkyWatcher(DataManager gameData, ClientLanguage clientLanguage)
+        foreach (var rate in rates)
         {
-            var weathers    = gameData.GetExcelSheet<Weather>(clientLanguage)!;
-            var rates       = gameData.GetExcelSheet<WeatherRate>()!;
-            var territories = gameData.GetExcelSheet<TerritoryType>()!;
+            var value = rate.UnkStruct0.Where(w => w.Rate > 0).Select(w => (weathers.GetRow((uint)w.Weather), w.Rate)).ToArray();
 
-            _weatherRates = new Dictionary<uint, (Weather Weather, byte CumulativeRate)[]>((int) territories.RowCount);
-            var weatherRates = new Dictionary<uint, (Weather Weather, byte CumulativeRate)[]>((int) rates.RowCount);
-
-            foreach (var rate in rates)
+            var  bad            = false;
+            byte cumulativeRate = 0;
+            for (var i = 0; i < value.Length; ++i)
             {
-                var value = rate.UnkStruct0.Where(w => w.Rate > 0).Select(w => (weathers.GetRow((uint) w.Weather), w.Rate)).ToArray();
-
-                var  bad            = false;
-                byte cumulativeRate = 0;
-                for (var i = 0; i < value.Length; ++i)
+                if (value[i].Item1 == null)
                 {
-                    if (value[i].Item1 == null)
-                    {
-                        PluginLog.Error($"Could not find Weather {rate.UnkStruct0[i].Weather} for WeatherRate {rate.RowId}.");
-                        bad = true;
-                        break;
-                    }
-
-                    cumulativeRate += value[i].Rate;
-                    value[i].Rate  =  cumulativeRate;
+                    PluginLog.Error($"Could not find Weather {rate.UnkStruct0[i].Weather} for WeatherRate {rate.RowId}.");
+                    bad = true;
+                    break;
                 }
 
-                if (bad)
-                    continue;
-
-                if (value.Last().Rate != 100)
-                {
-                    PluginLog.Error($"Cumulative Rates for WeatherRate {rate.RowId} do not end up at 100.");
-                    continue;
-                }
-
-                weatherRates.Add(rate.RowId, value!);
+                cumulativeRate += value[i].Rate;
+                value[i].Rate  =  cumulativeRate;
             }
 
-            foreach (var territory in territories)
+            if (bad)
+                continue;
+
+            if (value.Last().Rate != 100)
             {
-                if (!weatherRates.TryGetValue(territory.WeatherRate, out var value))
-                {
-                    PluginLog.Error($"Could not find WeatherRate {territory.WeatherRate} for Territory {territory.RowId}.");
-                    continue;
-                }
-
-                _weatherRates.Add(territory.RowId, value);
+                PluginLog.Error($"Cumulative Rates for WeatherRate {rate.RowId} do not end up at 100.");
+                continue;
             }
+
+            weatherRates.Add(rate.RowId, value!);
         }
 
-        private static DateTime GetRootTime(DateTime fromWhen)
+        foreach (var territory in territories)
         {
-            var seconds = (long) (fromWhen.ToUniversalTime() - RealTime.UnixEpoch).TotalSeconds % SecondsPerWeather;
-            return fromWhen.AddTicks(-(fromWhen.Ticks % TimeSpan.TicksPerSecond) - seconds * TimeSpan.TicksPerSecond);
-        }
-
-        private static byte CalculateTarget(DateTime fromWhen)
-        {
-            var timeStamp   = (long) (fromWhen - RealTime.UnixEpoch).TotalSeconds;
-            var hour        = timeStamp / EorzeaTime.SecondsPerEorzeaHour;
-            var shiftedHour = (uint) (hour + 8 - hour % 8) % 24;
-            var day         = (uint) timeStamp / EorzeaTime.SecondsPerEorzeaDay;
-
-            var ret = day * 100 + shiftedHour;
-            ret =  (ret << 11) ^ ret;
-            ret =  (ret >> 8) ^ ret;
-            ret %= 100;
-            return (byte) ret;
-        }
-
-        private static Weather GetWeather(byte target, IList<(Weather, byte)> rates)
-        {
-            Debug.Assert(target < 100);
-            foreach (var (w, r) in rates)
+            if (!weatherRates.TryGetValue(territory.WeatherRate, out var value))
             {
-                if (r > target)
-                    return w;
+                PluginLog.Error($"Could not find WeatherRate {territory.WeatherRate} for Territory {territory.RowId}.");
+                continue;
             }
 
-            // Should never be reached.
-            Debug.Assert(false);
-            return rates[0].Item1;
+            _weatherRates.Add(territory.RowId, value);
         }
-
-        public byte ChanceForWeather(uint territoryId, IEnumerable<uint> weatherId)
-        {
-            if (!_weatherRates.TryGetValue(territoryId, out var rate))
-                return 0;
-
-            var summedChance = 0;
-            foreach (var id in weatherId)
-            {
-                for (var i = 0; i < rate.Length; ++i)
-                {
-                    if (rate[i].Weather.RowId != id)
-                        continue;
-
-                    if (i == 0)
-                        summedChance += rate[i].CumulativeRate;
-                    else
-                        summedChance += rate[i].CumulativeRate - rate[i - 1].CumulativeRate;
-                }
-            }
-
-            return (byte) summedChance;
-        }
-
-        public byte ChanceForWeather(uint territoryId, params uint[] weatherIds)
-            => ChanceForWeather(territoryId, (IEnumerable<uint>) weatherIds);
-
-        public WeatherListing[] GetForecast(uint territoryId, uint amount, DateTime fromWhen)
-        {
-            if (amount == 0)
-                return Array.Empty<WeatherListing>();
-
-            if (!_weatherRates.TryGetValue(territoryId, out var rates))
-            {
-                PluginLog.Error($"Trying to get forecast for unknown territory {territoryId}.");
-                return Array.Empty<WeatherListing>();
-            }
-
-            var ret  = new WeatherListing[amount];
-            var root = GetRootTime(fromWhen);
-            for (var i = 0; i < amount; ++i)
-            {
-                var target  = CalculateTarget(root);
-                var weather = GetWeather(target, rates);
-                ret[i] = new WeatherListing(weather, root);
-                root   = root.AddSeconds(SecondsPerWeather);
-            }
-
-            return ret;
-        }
-
-        public WeatherListing[] GetForecast(uint territoryId, uint amount, long secondOffset)
-            => GetForecast(territoryId, amount, DateTime.UtcNow.AddSeconds(secondOffset));
-
-        public WeatherListing[] GetForecast(uint territoryId, uint amount)
-            => GetForecast(territoryId, amount, DateTime.UtcNow);
-
-        public WeatherListing GetForecast(uint territoryId)
-            => GetForecast(territoryId, 1, DateTime.UtcNow)[0];
-
-        public WeatherListing GetForecast(uint territoryId, DateTime fromWhen)
-            => GetForecast(territoryId, 1, fromWhen)[0];
-
-        public WeatherListing GetForecast(uint territoryId, long secondOffset)
-            => GetForecast(territoryId, 1, DateTime.UtcNow.AddSeconds(secondOffset))[0];
-
-        public (Weather, byte)[] GetRates(uint territoryId)
-            => _weatherRates[territoryId];
     }
+
+    private static TimeStamp GetRootTime(TimeStamp timestamp)
+        => timestamp.SyncToEorzeaWeather();
+
+    private static byte CalculateTarget(TimeStamp timestamp)
+    {
+        var seconds     = timestamp.TotalSeconds;
+        var hour        = seconds / EorzeaTimeStampExtensions.SecondsPerEorzeaHour;
+        var shiftedHour = (uint)(hour + 8 - hour % 8) % RealTime.HoursPerDay;
+        var day         = seconds / EorzeaTimeStampExtensions.SecondsPerEorzeaDay;
+
+        var ret = (uint) day * 100 + shiftedHour;
+        ret =  (ret << 11) ^ ret;
+        ret =  (ret >> 8) ^ ret;
+        ret %= 100;
+        return (byte)ret;
+    }
+
+    private static Weather GetWeather(byte target, IList<(Weather, byte)> rates)
+    {
+        Debug.Assert(target < 100);
+        foreach (var (w, r) in rates)
+        {
+            if (r > target)
+                return w;
+        }
+
+        // Should never be reached.
+        Debug.Assert(false);
+        return rates[0].Item1;
+    }
+
+    public byte ChanceForWeather(uint territoryId, IEnumerable<uint> weatherId)
+    {
+        if (!_weatherRates.TryGetValue(territoryId, out var rate))
+            return 0;
+
+        var summedChance = 0;
+        foreach (var id in weatherId)
+        {
+            for (var i = 0; i < rate.Length; ++i)
+            {
+                if (rate[i].Weather.RowId != id)
+                    continue;
+
+                if (i == 0)
+                    summedChance += rate[i].CumulativeRate;
+                else
+                    summedChance += rate[i].CumulativeRate - rate[i - 1].CumulativeRate;
+            }
+        }
+
+        return (byte)summedChance;
+    }
+
+    public byte ChanceForWeather(uint territoryId, params uint[] weatherIds)
+        => ChanceForWeather(territoryId, (IEnumerable<uint>)weatherIds);
+
+    public WeatherListing[] GetForecast(uint territoryId, uint amount, TimeStamp timestamp)
+    {
+        if (amount == 0)
+            return Array.Empty<WeatherListing>();
+
+        if (!_weatherRates.TryGetValue(territoryId, out var rates))
+        {
+            PluginLog.Error($"Trying to get forecast for unknown territory {territoryId}.");
+            return Array.Empty<WeatherListing>();
+        }
+
+        var ret  = new WeatherListing[amount];
+        var root = GetRootTime(timestamp);
+        for (var i = 0; i < amount; ++i)
+        {
+            var target  = CalculateTarget(root);
+            var weather = GetWeather(target, rates);
+            ret[i] =  new WeatherListing(weather, root);
+            root = root.AddEorzeaHours(8);
+        }
+
+        return ret;
+    }
+
+    public WeatherListing[] GetForecastOffset(uint territoryId, uint amount, long millisecondOffset)
+        => GetForecast(territoryId, amount, TimeStamp.UtcNow.AddMilliseconds(millisecondOffset));
+
+    public WeatherListing[] GetForecast(uint territoryId, uint amount)
+        => GetForecast(territoryId, amount, TimeStamp.UtcNow);
+
+    public WeatherListing GetForecast(uint territoryId)
+        => GetForecast(territoryId, 1, TimeStamp.UtcNow)[0];
+
+    public WeatherListing GetForecast(uint territoryId, TimeStamp timestamp)
+        => GetForecast(territoryId, 1, timestamp)[0];
+
+    public WeatherListing GetForecastOffset(uint territoryId, long millisecondOffset)
+        => GetForecastOffset(territoryId, 1, millisecondOffset)[0];
+
+    public (Weather, byte)[] GetRates(uint territoryId)
+        => _weatherRates[territoryId];
 }

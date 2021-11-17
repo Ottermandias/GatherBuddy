@@ -96,13 +96,13 @@ namespace GatherBuddy.Managers
             }
         }
 
-        private static void UpdateUptimes(uint currentHour, IList<(Node, uint)> nodes)
+        private static void UpdateUptimes(int currentHour, IList<(Node, uint)> nodes)
         {
             for (var i = 0; i < nodes.Count; ++i)
                 nodes[i] = (nodes[i].Item1, nodes[i].Item1.Times!.NextUptime(currentHour));
         }
 
-        public static void SortByUptime(uint currentHour, List<(Node, uint)> nodes)
+        public static void SortByUptime(int currentHour, List<(Node, uint)> nodes)
         {
             UpdateUptimes(currentHour, nodes);
             nodes.Sort(new Comparer());

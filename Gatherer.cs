@@ -134,7 +134,7 @@ namespace GatherBuddy
             var item = _world.FindItemByName(itemName);
             if (item == null)
             {
-                string output = $"Could not find corresponding item to \"{itemName}\".";
+                var output = $"Could not find corresponding item to \"{itemName}\".";
                 Dalamud.Chat.Print(output);
                 PluginLog.Verbose(output);
                 return null;
@@ -151,7 +151,7 @@ namespace GatherBuddy
             var fish = _world.FindFishByName(fishName);
             if (fish == null)
             {
-                string output = $"Could not find corresponding item to \"{fishName}\".";
+                var output = $"Could not find corresponding item to \"{fishName}\".";
                 Dalamud.Chat.Print(output);
                 PluginLog.Verbose(output);
                 return null;
@@ -194,24 +194,28 @@ namespace GatherBuddy
                 }
             }
 
-            if (!GatherBuddy.Config.PrintUptime || (!(!closestNode?.Times.AlwaysUp() ?? false)))
+            if (!GatherBuddy.Config.PrintUptime || !(!closestNode?.Times.AlwaysUp() ?? false))
                 return closestNode;
 
-            var nextUptime = closestNode!.Times!.NextRealUptime();
-            var now        = DateTime.UtcNow;
-            if (nextUptime.Time > now)
+            var nextUptime = closestNode!.Times!.NextUptime();
+            var now        = TimeStamp.UtcNow;
+            if (nextUptime.Start > now)
             {
-                var diff = nextUptime.Time - now;
-                Dalamud.Chat.Print(diff.Minutes > 0
-                    ? $"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Minutes} Minutes)."
-                    : $"Node is up at {closestNode!.Times!.PrintHours()} (in {diff.Seconds} Seconds).");
+                var diff    = nextUptime.Start.AddMilliseconds(-now);
+                var minutes = diff.CurrentMinuteOfDay;
+                var seconds = diff.CurrentSecond;
+                Dalamud.Chat.Print(minutes > 0
+                    ? $"Node is up at {closestNode!.Times!.PrintHours()} (in {minutes}:{seconds:D2} Minutes)."
+                    : $"Node is up at {closestNode!.Times!.PrintHours()} (in {seconds} Seconds).");
             }
             else
             {
-                var diff = nextUptime.EndTime - now;
-                Dalamud.Chat.Print(diff.Minutes > 0
-                    ? $"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Minutes} Minutes)."
-                    : $"Node is up at {closestNode!.Times!.PrintHours()} (for the next {diff.Seconds} Seconds).");
+                var diff    = nextUptime.End.AddMilliseconds(-now);
+                var minutes = diff.CurrentMinuteOfDay;
+                var seconds = diff.CurrentSecond;
+                Dalamud.Chat.Print(minutes > 0
+                    ? $"Node is up at {closestNode!.Times!.PrintHours()} (for the next {minutes}:{seconds:D2} Minutes)."
+                    : $"Node is up at {closestNode!.Times!.PrintHours()} (for the next {seconds} Seconds).");
             }
 
             return closestNode;
@@ -428,7 +432,7 @@ namespace GatherBuddy
                     {
                         List<Payload> text = new(2)
                         {
-                            new TextPayload($"Teleporting to [Alarm {Alarms.LastNodeAlarm!.Name}] ({node.Times!.PrintHours()}):\n")
+                            new TextPayload($"Teleporting to [Alarm {Alarms.LastNodeAlarm!.Name}] ({node.Times!.PrintHours()}):\n"),
                         };
                         foreach (var item in node.Items!.ActualItems)
                         {
@@ -436,7 +440,7 @@ namespace GatherBuddy
                             text.Add(new TextPayload(", "));
                         }
 
-                        ((TextPayload) text.Last())!.Text = ".";
+                        ((TextPayload)text.Last())!.Text = ".";
                         Dalamud.Chat.Print(new SeString(text));
                         OnGatherActionWithNode(node);
                     }
@@ -472,8 +476,8 @@ namespace GatherBuddy
                     return;
                 }
 
-                var currentHour = EorzeaTime.CurrentHourOfDay(minuteOffset);
-                var (node, desc) = group.CurrentNode(currentHour);
+                var currentHour = TimeStamp.UtcNow.AddEorzeaMinutes(minuteOffset).CurrentEorzeaHour();
+                var (node, desc) = group.CurrentNode((uint) currentHour);
                 if (node == null)
                 {
                     PluginLog.Debug("No node for hour {CurrentHour} set in group {Name}.", currentHour, group.Name);
@@ -510,7 +514,7 @@ namespace GatherBuddy
 
             if (item.NodeList.Count == 0)
             {
-                var text   = ChatUtil.CreateLink(item.ItemData);
+                var text = ChatUtil.CreateLink(item.ItemData);
                 text.Insert(0, new TextPayload("Found no gathering nodes for item "));
                 text.Add(new TextPayload("."));
                 var output = new SeString(text);
@@ -520,8 +524,8 @@ namespace GatherBuddy
             }
 
             foreach (var (id, location) in item.NodeList
-                .SelectMany(baseNode => baseNode.Nodes!.Nodes
-                    .Where(loc => loc.Value != null)))
+                         .SelectMany(baseNode => baseNode.Nodes!.Nodes
+                             .Where(loc => loc.Value != null)))
             {
                 if (location!.Locations.Count > 0)
                     PluginLog.Information("[NodeRecorder] Purged all records for node {Key} containing item {Value}.", id, location);

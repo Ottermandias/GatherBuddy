@@ -64,7 +64,7 @@ namespace GatherBuddy.Gui
             var uptime   = fish.Base.NextUptime(_plugin.Gatherer!.WeatherManager, out var newCache);
             _fishCache.ResortFish |= newCache;
             ImGui.TableNextColumn();
-            if (uptime.Equals(RealUptime.Always))
+            if (uptime == TimeInterval.Always)
             {
                 ImGui.TextColored(
                     fish.HasUptimeDependency ? GatherBuddy.Config.DependentAvailableFishColor : GatherBuddy.Config.AvailableFishColor,
@@ -75,14 +75,15 @@ namespace GatherBuddy.Gui
                     DependencyWarning();
                 }
             }
-            else if (uptime.Equals(RealUptime.Unknown))
+            else if (uptime == TimeInterval.Invalid)
             {
                 ImGui.TextColored(GatherBuddy.Config.UpcomingFishColor, "Unknown");
             }
             else
             {
-                var seconds  = (long) (uptime.Time - DateTime.UtcNow).TotalSeconds;
-                var duration = (long) (DateTime.UtcNow - uptime.EndTime).TotalSeconds;
+                var timestamp = TimeStamp.UtcNow;
+                var seconds   = uptime.Start.AddMilliseconds(-timestamp).TotalSeconds;
+                var duration  = timestamp.AddMilliseconds(-uptime.End).TotalSeconds;
                 if (seconds > 0)
                 {
                     using var color = new ImGuiRaii().PushColor(ImGuiCol.Text,
@@ -105,7 +106,7 @@ namespace GatherBuddy.Gui
                     using var tt = ImGuiRaii.NewTooltip();
                     if (fish.HasUptimeDependency)
                         DependencyWarning();
-                    ImGui.Text($"{uptime.Time.ToLocalTime()} Next Uptime\n{uptime.EndTime.ToLocalTime()} End Time\n{uptime.Duration} Duration");
+                    ImGui.Text($"{uptime.Start.LocalTime} Next Uptime\n{uptime.End.LocalTime} End Time\n{TimeSpan.FromSeconds(uptime.SecondDuration)} Duration");
                 }
             }
 

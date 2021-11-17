@@ -12,7 +12,7 @@ namespace GatherBuddy.Nodes
         public SubNodes?            Nodes       { get; set; }
         public InitialNodePosition? InitialPos  { get; set; }
         public NodeItems?           Items       { get; set; }
-        public Uptime               Times       { get; set; } = Uptime.AllHours;
+        public NodeUptime               Times       { get; set; } = NodeUptime.AllHours;
         public string?              PlaceNameEn { get; set; }
 
         private static double CoordinateCap(double input)

@@ -16,7 +16,7 @@ namespace GatherBuddy.Managers
         public NodeRecorder           Records      { get; }
         public Dictionary<uint, Node> NodeIdToNode { get; }
 
-        private static (Uptime, NodeType) GetTimes(uint nodeId)
+        private static (NodeUptime, NodeType) GetTimes(uint nodeId)
         {
             var timeSheet = Dalamud.GameData.GetExcelSheet<GatheringPointTransient>()!;
             var hours     = timeSheet.GetRow(nodeId)!;
@@ -24,13 +24,13 @@ namespace GatherBuddy.Managers
             // Check for ephemeral nodes
             if (hours.GatheringRarePopTimeTable.Row == 0)
             {
-                var time = new Uptime(hours.EphemeralStartTime, hours.EphemeralEndTime);
+                var time = new NodeUptime(hours.EphemeralStartTime, hours.EphemeralEndTime);
                 return time.AlwaysUp() ? (time, NodeType.Regular) : (time, NodeType.Ephemeral);
             }
             // and for unspoiled
             else
             {
-                var time = new Uptime(hours.GatheringRarePopTimeTable.Value!);
+                var time = new NodeUptime(hours.GatheringRarePopTimeTable.Value!);
                 return time.AlwaysUp() ? (time, NodeType.Regular) : (time, NodeType.Unspoiled);
             }
         }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Linq;
+using GatherBuddy.Classes;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
 using ImGuiNET;
@@ -26,15 +27,16 @@ namespace GatherBuddy.Gui.Cache
 
         public Weather(WeatherManager weather)
         {
+            var hour = TimeStamp.UtcNow.TotalEorzeaHours();
             _weather           = weather;
-            WeatherTimes       = WeatherManager.NextWeatherChangeTimes(NumWeathers, -2 * WeatherManager.SecondsPerWeather);
+            WeatherTimes       = WeatherManager.NextWeatherChangeTimes(NumWeathers, TimeStamp.Epoch.AddEorzeaHours(-16));
             WeatherTimeStrings = new string[NumWeathers];
-            _totalHour         = EorzeaTime.CurrentHour() - 8;
+            _totalHour         = hour - 8;
             Filter             = "";
             FilterLower        = "";
             Weathers           = CachedWeather.CreateWeatherCache();
             FilterSize         = Weathers.Max(c => ImGui.CalcTextSize(c.Zone).X);
-            Update(EorzeaTime.CurrentHour());
+            Update(hour);
         }
 
         public void Update(long totalHour)
@@ -51,7 +53,7 @@ namespace GatherBuddy.Gui.Cache
         {
             for (var i = 0; i < NumWeathers; ++i)
             {
-                WeatherTimes[i]       = WeatherTimes[i].AddSeconds(diff * WeatherManager.SecondsPerWeather);
+                WeatherTimes[i]       = WeatherTimes[i].AddMilliseconds(TimeStamp.Epoch.AddEorzeaHours(8 * diff));
                 WeatherTimeStrings[i] = WeatherTimes[i].TimeOfDay.ToString();
             }
         }

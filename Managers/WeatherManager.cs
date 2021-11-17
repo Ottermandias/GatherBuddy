@@ -10,7 +10,7 @@ namespace GatherBuddy.Managers
 {
     public class WeatherTimeline : IComparable<WeatherTimeline>
     {
-        private const int SecondsPerWeather = WeatherManager.SecondsPerWeather;
+        public const int MillisecondsPerWeather = EorzeaTimeStampExtensions.MillisecondsPerEorzeaWeather;
 
         public Territory            Territory { get; }
         public List<WeatherListing> List      { get; }
@@ -31,18 +31,19 @@ namespace GatherBuddy.Managers
 
         public void TrimFront()
         {
-            var remove = List.FindIndex(w => w.Offset(DateTime.UtcNow) < 2 * SecondsPerWeather);
+            var now    = TimeStamp.UtcNow;
+            var remove = List.FindIndex(w => w.Offset(now) < 2 * MillisecondsPerWeather);
             if (remove > 0)
                 List.RemoveRange(0, remove);
         }
 
-        private IEnumerable<WeatherListing> RequestData(uint amount, long offset)
+        private IEnumerable<WeatherListing> RequestData(uint amount, long millisecondOffset)
             => Service<SkyWatcher>.Get()
-                .GetForecast(Territory.Id, amount, offset);
+                .GetForecastOffset(Territory.Id, amount, millisecondOffset);
 
         public void Append(uint amount)
         {
-            var offset = List.Count > 0 ? SecondsPerWeather - List.Last().Offset(DateTime.UtcNow) : -SecondsPerWeather;
+            var offset = List.Count > 0 ? MillisecondsPerWeather - (int) List.Last().Offset(TimeStamp.UtcNow) : -MillisecondsPerWeather;
             List.AddRange(RequestData(amount, offset));
         }
 
@@ -57,16 +58,16 @@ namespace GatherBuddy.Managers
         public WeatherTimeline(Territory territory, uint cache = 32)
         {
             Territory = territory;
-            List      = RequestData(cache, -SecondsPerWeather).ToList();
+            List      = RequestData(cache, -MillisecondsPerWeather).ToList();
         }
 
         public int CompareTo(WeatherTimeline? other)
             => Territory.Id.CompareTo(other?.Territory.Id ?? 0);
 
 
-        public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, FishUptime uptime, long offset = 0, uint increment = 32)
+        public WeatherListing Find(IList<uint> weather, IList<uint> previousWeather, RepeatingInterval eorzeanHours, long offset = 0, uint increment = 32)
         {
-            var now = DateTime.UtcNow.AddSeconds(offset);
+            var now = TimeStamp.UtcNow + offset;
             TrimFront();
             var previousFit = false;
             var idx         = 1;
@@ -75,12 +76,16 @@ namespace GatherBuddy.Managers
             {
                 for (--idx; idx < List.Count; ++idx)
                 {
-                    var w = List[idx];
-                    if (previousFit
-                     && w.Time.AddSeconds(w.Uptime.Overlap(uptime).Duration * EorzeaTime.SecondsPerEorzeaMinute) >= now
-                     && w.Uptime.Overlaps(uptime)
-                     && (weather.Count == 0 || weather.Contains(w.Weather.RowId)))
-                        return w;
+                    if (previousFit)
+                    {
+                        var w       = List[idx];
+                        if (weather.Count == 0 || weather.Contains(w.Weather.RowId))
+                        {
+                            var overlap = w.Uptime.FirstOverlap(eorzeanHours).Duration;
+                            if (overlap > 0 && w.Timestamp + overlap > now)
+                                return w;
+                        }
+                    }
 
                     previousFit = previousWeather.Count == 0 || previousWeather.Contains(List[idx].Weather.RowId);
                 }
@@ -88,12 +93,13 @@ namespace GatherBuddy.Managers
                 Append(increment);
             }
         }
+
+        public int FindIndex(WeatherListing listing)
+            => List.FindIndex(w => w.Timestamp == listing.Timestamp);
     }
 
     public class WeatherManager
     {
-        public const int SecondsPerWeather = SkyWatcher.SecondsPerWeather;
-
         public SortedList<uint, WeatherTimeline> Forecast    { get; } = new();
         public List<WeatherTimeline>             UniqueZones { get; } = new();
 
@@ -118,12 +124,10 @@ namespace GatherBuddy.Managers
 
         public static DateTime[] NextWeatherChangeTimes(int num, long offset = 0)
         {
-            var timeStamp          = DateTimeOffset.UtcNow.ToUnixTimeSeconds() + offset;
-            var currentWeatherTime = timeStamp - timeStamp % SecondsPerWeather;
-            var dateTime           = DateTimeOffset.FromUnixTimeSeconds(currentWeatherTime).LocalDateTime;
+            var currentWeatherTime = (TimeStamp.UtcNow + offset).SyncToEorzeaWeather();
             var ret                = new DateTime[num];
             for (var i = 0; i < num; ++i)
-                ret[i] = dateTime.AddSeconds(i * SecondsPerWeather).ToLocalTime();
+                ret[i] = currentWeatherTime.AddEorzeaHours(i * 8).LocalTime;
             return ret;
         }
 
@@ -144,17 +148,50 @@ namespace GatherBuddy.Managers
         }
 
         public WeatherListing RequestForecast(Territory territory, IList<uint> weather, long offset = 0, uint increment = 32)
-            => RequestForecast(territory, weather, Array.Empty<uint>(), FishUptime.AllTime, offset, increment);
+            => RequestForecast(territory, weather, Array.Empty<uint>(), RepeatingInterval.Always, offset, increment);
 
-        public WeatherListing RequestForecast(Territory territory, IList<uint> weather, FishUptime uptime, long offset = 0, uint increment = 32)
-            => RequestForecast(territory, weather, Array.Empty<uint>(), uptime, offset, increment);
+        public WeatherListing RequestForecast(Territory territory, IList<uint> weather, RepeatingInterval eorzeanHours, long offset = 0, uint increment = 32)
+            => RequestForecast(territory, weather, Array.Empty<uint>(), eorzeanHours, offset, increment);
 
 
         public WeatherListing RequestForecast(Territory territory, IList<uint> weather, IList<uint> previousWeather,
-            FishUptime uptime, long offset = 0, uint increment = 32)
+            RepeatingInterval eorzeanHours, long offset = 0, uint increment = 32)
         {
             var values = FindOrCreateForecast(territory, increment);
-            return values.Find(weather, previousWeather, uptime, offset, increment);
+            return values.Find(weather, previousWeather, eorzeanHours, offset, increment);
+        }
+
+        public TimeStamp ExtendedDuration(Territory territory, IList<uint> weather, IList<uint> previousWeather, WeatherListing listing, uint increment = 32)
+        {
+            var checkWeathers = weather.Any();
+            var checkPrevious = previousWeather.Any();
+            if (!checkWeathers && !checkPrevious)
+                return TimeStamp.MaxValue;
+
+            var duration = listing.End;
+            if (checkPrevious && !previousWeather.Contains(listing.Weather.RowId))
+                return duration;
+
+            var values = FindOrCreateForecast(territory, increment);
+            values.TrimFront();
+            var idx    = values.FindIndex(listing);
+            if (idx < 0)
+                return duration;
+
+            for(var sanityStop = 0; sanityStop < 24; ++sanityStop)
+            {
+                if (checkPrevious && !previousWeather.Contains(listing.Weather.RowId))
+                    return duration;
+
+                if (idx == values.List.Count - 1)
+                    values.Append(increment);
+                listing = values.List[++idx];
+                if (checkWeathers && !weather.Contains(listing.Weather.RowId))
+                    return duration;
+
+                duration = duration.AddEorzeaHours(8);
+            };
+            return duration;
         }
     }
 }

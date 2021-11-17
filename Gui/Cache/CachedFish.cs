@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Dalamud;
+using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
@@ -58,20 +59,20 @@ namespace GatherBuddy.Gui.Cache
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Time))
                 return "Always Up";
 
-            if (fish.CatchData?.Minutes.AlwaysUp() ?? true)
+            if (fish.CatchData?.Interval.AlwaysUp() ?? true)
             {
                 uptime = 0;
                 return "Unknown Uptime";
             }
 
-            uptime = (ushort) (uptime * fish.CatchData!.Minutes.Duration / RealTime.MinutesPerDay);
-            return fish.CatchData!.Minutes.PrintHours();
+            uptime = (ushort) ((long) uptime * fish.CatchData!.Interval.OnTime / EorzeaTimeStampExtensions.MillisecondsPerEorzeaHour / RealTime.HoursPerDay);
+            return fish.CatchData!.Interval.PrintHours();
         }
 
         private static TextureWrap[][] SetWeather(Game.Fish fish, ref ushort uptime)
         {
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
-                return new TextureWrap[0][];
+                return Array.Empty<TextureWrap[]>();
 
             if (fish.CatchData == null || fish.CatchData.PreviousWeather.Length == 0 && fish.CatchData.CurrentWeather.Length == 0)
             {
@@ -160,7 +161,7 @@ namespace GatherBuddy.Gui.Cache
                 };
 
             if (fish.CatchData == null || fish.CatchData.InitialBait.Equals(Game.Bait.Unknown))
-                return new BaitOrder[0];
+                return Array.Empty<BaitOrder>();
 
             var ret  = new BaitOrder[fish.CatchData.Mooches.Length + 1];
             var bait = fish.CatchData.InitialBait;

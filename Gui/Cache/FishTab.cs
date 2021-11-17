@@ -354,10 +354,10 @@ namespace GatherBuddy.Gui.Cache
                 .Select(p => new Func<Game.Fish, bool>(f => (f.CatchData?.Patch ?? 0) == p))).ToArray();
         }
 
-        private class UptimeComparer : IComparer<RealUptime>
+        private class UptimeComparer : IComparer<TimeInterval>
         {
-            public int Compare(RealUptime x, RealUptime y)
-                => x.Compare(y);
+            public int Compare(TimeInterval x, TimeInterval y)
+                => (int) x.Compare(y);
         }
     }
 }
