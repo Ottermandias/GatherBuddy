@@ -85,9 +85,13 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (31129, Patch.ReflectionsInCrystal) // Petal Shell
-                .Bait      (fish);
+                .Bait      (fish, 30136)
+                .Tug       (BiteType.Weak)
+                .HookType  (HookSet.Precise);
             fish.Apply     (31134, Patch.ReflectionsInCrystal) // Allagan Hunter
-                .Bait      (fish);
+                .Bait      (fish, 30136)
+                .Tug       (BiteType.Strong)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (31578, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Thunderbolt Sculpin
                 .Bait      (fish);
             fish.Apply     (31579, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Alligator Snapping Turtle

@@ -41,7 +41,13 @@ public class Fish : IComparable
 
     private TimeInterval _nextUptime = TimeInterval.Invalid;
 
-    public GigHead Gig { get; set; } = GigHead.None;
+    private GigHead _gig = GigHead.None;
+
+    public GigHead Gig
+    {
+        get => _gig != GigHead.Unknown ? _gig : CatchData?.GigHead ?? _gig;
+        set => _gig = value;
+    }
 
     public bool IsSpearFish
         => Gig != GigHead.None;
@@ -61,7 +67,7 @@ public class Fish : IComparable
         _fishData        = fishRow;
         Name             = name;
         FishRestrictions = FishRestrictions.None;
-        Gig              = gig;
+        _gig             = gig;
     }
 
     public Fish(ItemRow item, FishRow fishRow, FFName name)

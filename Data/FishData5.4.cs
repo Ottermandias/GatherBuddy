@@ -9,7 +9,9 @@ namespace GatherBuddy.Data
         private static void ApplyFuturesRewritten(this FishManager fish)
         {
             fish.Apply     (31770, Patch.FuturesRewritten) // Flintstrike
-                .Bait      (fish);
+                .Bait      (fish, 30136)
+                .Tug       (BiteType.Strong)
+                .HookType  (HookSet.Powerful);
             fish.Apply     (31771, Patch.FuturesRewritten) // Pickled Pom
                 .Bait      (fish, 30136)
                 .Tug       (BiteType.Weak)

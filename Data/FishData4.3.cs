@@ -106,7 +106,9 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (23075, Patch.UnderTheMoonlight) // Illuminati Mask
-                .Bait      (fish);
+                .Bait      (fish, 28634)
+                .Tug       (BiteType.Strong)
+                .HookType  (HookSet.Powerful);
         }
         // @formatter:on
     }
