@@ -56,7 +56,7 @@ namespace GatherBuddy.Gui
             {
                 var alarm  = _plugin.Alarms.Alarms[idx];
                 var offset = alarm.MinuteOffset.ToString();
-                ImGui.SetNextItemWidth(_alarmCache.OffsetSize * _globalScale);
+                ImGui.SetNextItemWidth(_alarmCache!.OffsetSize * _globalScale);
                 if (!ImGui.InputText($"##Offset{idx}", ref offset, 4, ImGuiInputTextFlags.CharsDecimal))
                     continue;
 
@@ -92,7 +92,7 @@ namespace GatherBuddy.Gui
                     sound = 0;
                 }
 
-                ImGui.SetNextItemWidth(_alarmCache.SoundSize * _globalScale);
+                ImGui.SetNextItemWidth(_alarmCache!.SoundSize * _globalScale);
                 if (!ImGui.Combo($"##sound{idx}", ref sound, _alarmCache.SoundNames, _alarmCache.SoundNames.Length))
                     continue;
 
@@ -129,7 +129,7 @@ namespace GatherBuddy.Gui
             ImGui.SameLine();
             ImGui.Dummy(new Vector2(0, _textHeight));
 
-            foreach (var alarm in _alarmCache.Manager.Alarms)
+            foreach (var alarm in _alarmCache!.Manager.Alarms)
             {
                 ImGui.AlignTextToFramePadding();
                 switch (alarm.Type)
@@ -154,10 +154,10 @@ namespace GatherBuddy.Gui
         private void DrawNewAlarm()
         {
             if (ImGui.Button("  + "))
-                _alarmCache.AddAlarm();
+                _alarmCache!.AddAlarm();
 
             ImGui.SameLine();
-            ImGui.SetNextItemWidth(_alarmCache.NameSize * _globalScale);
+            ImGui.SetNextItemWidth(_alarmCache!.NameSize * _globalScale);
             ImGui.InputTextWithHint("##Name", "New Alarm Name", ref _alarmCache.NewName, 64);
             ImGui.SameLine();
             ImGui.SetNextItemWidth(-1);

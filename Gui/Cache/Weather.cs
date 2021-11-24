@@ -8,7 +8,7 @@ using ImGuiScene;
 
 namespace GatherBuddy.Gui.Cache
 {
-    internal struct Weather
+    internal class Weather
     {
         private static WeatherManager? _weather;
 

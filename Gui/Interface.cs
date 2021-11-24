@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Dalamud.Interface;
 using GatherBuddy.Classes;
 using GatherBuddy.Managers;
 using GatherBuddy.Utility;
@@ -22,12 +23,13 @@ public partial class Interface : IDisposable
     private WeatherManager WeatherManager
         => _plugin.Gatherer!.WeatherManager;
 
-    private readonly Cache.Icons   _icons;
-    private          Cache.Header  _headerCache;
-    private          Cache.Alarms  _alarmCache;
-    private readonly Cache.FishTab _fishCache;
-    private readonly Cache.NodeTab _nodeTabCache;
-    private          Cache.Weather _weatherCache;
+    private readonly Cache.Icons  _icons;
+    private readonly Cache.Header _headerCache;
+
+    private Cache.Alarms?  _alarmCache;
+    private Cache.FishTab? _fishCache;
+    private Cache.NodeTab? _nodeTabCache;
+    private Cache.Weather? _weatherCache;
 
     public bool Visible;
 
@@ -48,23 +50,16 @@ public partial class Interface : IDisposable
     {
         _plugin       = plugin;
         _configHeader = GatherBuddy.Version.Length > 0 ? $"{PluginName} v{GatherBuddy.Version}###GatherBuddyMain" : PluginName;
-
-        _nodeTabCache = new Cache.NodeTab(plugin.Gatherer!.Timeline);
         _headerCache.Setup();
-        _alarmCache = new Cache.Alarms(_plugin.Alarms!, GatherBuddy.Language);
 
         var weatherSheet = Dalamud.GameData.GetExcelSheet<Weather>()!;
         _icons = Service<Cache.Icons>.Set((int)weatherSheet.RowCount + FishManager.FishByUptime.Count + FishManager.Bait.Count)!;
 
-        _weatherCache = new Cache.Weather(WeatherManager);
+        if (GatherBuddy.Config.ShowFishFromPatch < Cache.FishTab.PatchSelector.Length)
+            return;
 
-        if (GatherBuddy.Config.ShowFishFromPatch >= Cache.FishTab.PatchSelector.Length)
-        {
-            GatherBuddy.Config.ShowFishFromPatch = 0;
-            GatherBuddy.Config.Save();
-        }
-
-        _fishCache = new Cache.FishTab(WeatherManager, FishManager, _icons);
+        GatherBuddy.Config.ShowFishFromPatch = 0;
+        GatherBuddy.Config.Save();
     }
 
     public void Dispose()
@@ -84,9 +79,9 @@ public partial class Interface : IDisposable
         _textHeight       = ImGui.GetTextLineHeightWithSpacing();
         _itemSpacing      = ImGui.GetStyle().ItemSpacing;
         _framePadding     = ImGui.GetStyle().FramePadding;
-        _iconSize         = new Vector2(40, 40) * ImGui.GetIO().FontGlobalScale;
+        _iconSize         = ImGuiHelpers.ScaledVector2(40, 40);
         _smallIconSize    = _iconSize / 2;
-        _weatherIconSize  = new Vector2(30, 30) * ImGui.GetIO().FontGlobalScale;
+        _weatherIconSize  = ImGuiHelpers.ScaledVector2(30, 30);
         _fishIconSize     = new Vector2(_iconSize.X * ImGui.GetTextLineHeight() / _iconSize.Y, ImGui.GetTextLineHeight());
         _textHeightOffset = (_weatherIconSize.Y - ImGui.GetTextLineHeight()) / 2;
 
@@ -112,6 +107,7 @@ public partial class Interface : IDisposable
           + "Click on a node to do a /gather command for that node.");
         if (nodeTab)
         {
+            _nodeTabCache ??= new Cache.NodeTab(_plugin.Gatherer!.Timeline);
             _nodeTabCache.Update(hour);
             DrawNodesTab();
             raii.End();
@@ -123,6 +119,7 @@ public partial class Interface : IDisposable
           + "You can right-click a fish name to fix (or unfix) this fish at the top of the list.");
         if (fishTab)
         {
+            _fishCache ??= new Cache.FishTab(WeatherManager, FishManager, _icons);
             _fishCache.UpdateFish();
             DrawFishTab();
             raii.End();
@@ -130,6 +127,7 @@ public partial class Interface : IDisposable
 
         if (raii.BeginTabItem("Weather"))
         {
+            _weatherCache ??= new Cache.Weather(WeatherManager);
             _weatherCache.Update(hour);
             DrawWeatherTab();
             raii.End();
@@ -140,6 +138,7 @@ public partial class Interface : IDisposable
           + "You can use [/gather alarm] to directly gather the last triggered alarm.");
         if (alertTab)
         {
+            _alarmCache ??= new Cache.Alarms(_plugin.Alarms!, GatherBuddy.Language);
             DrawAlarmsTab();
             raii.End();
         }

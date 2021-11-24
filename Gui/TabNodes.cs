@@ -56,7 +56,7 @@ public partial class Interface
     private void DrawNodeFilter()
     {
         ImGui.SetNextItemWidth(-1);
-        if (ImGui.InputTextWithHint("##NodeFilter", "Filter Nodes...", ref _nodeTabCache.NodeFilter, 64))
+        if (ImGui.InputTextWithHint("##NodeFilter", "Filter Nodes...", ref _nodeTabCache!.NodeFilter, 64))
             _nodeTabCache.NodeFilterLower = _nodeTabCache.NodeFilter.ToLowerInvariant();
     }
 
@@ -66,7 +66,7 @@ public partial class Interface
         if (!imgui.BeginChild("Nodes", new Vector2(-1, -widgetHeight - _framePadding.Y), true))
             return;
 
-        var enumerator = _nodeTabCache.NodeFilterLower.Length == 0
+        var enumerator = _nodeTabCache!.NodeFilterLower.Length == 0
             ? _nodeTabCache.ActiveNodeItems
             : _nodeTabCache.ActiveNodeItems.Where(p => p.Item3.Contains(_nodeTabCache.NodeFilterLower));
         foreach (var (n, i, _) in enumerator)
@@ -86,7 +86,7 @@ public partial class Interface
     private void DrawTimedSelectors(float boxHeight)
     {
         var checkBoxAdd  = _itemSpacing.X * 3 + _framePadding.X * 2 + ImGui.GetTextLineHeight();
-        var jobBoxWidth  = _nodeTabCache.BotanistTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
+        var jobBoxWidth  = _nodeTabCache!.BotanistTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
         var typeBoxWidth = _nodeTabCache.NodeTypeTextSize * ImGui.GetIO().FontGlobalScale + checkBoxAdd;
 
         using var imgui = new ImGuiRaii();

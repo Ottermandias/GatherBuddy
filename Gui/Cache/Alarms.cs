@@ -7,7 +7,7 @@ using ImGuiNET;
 
 namespace GatherBuddy.Gui.Cache
 {
-    internal struct Alarms
+    internal class Alarms
     {
         public readonly Nodes.Node[] AllTimedNodes;
         public readonly Game.Fish[]  AllTimedFish;
