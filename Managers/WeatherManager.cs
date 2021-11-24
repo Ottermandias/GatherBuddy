@@ -81,8 +81,9 @@ namespace GatherBuddy.Managers
                         var w       = List[idx];
                         if (weather.Count == 0 || weather.Contains(w.Weather.RowId))
                         {
-                            var overlap = w.Uptime.FirstOverlap(eorzeanHours).Duration;
-                            if (overlap > 0 && w.Timestamp + overlap > now)
+                            var overlap = w.Uptime.FirstOverlap(eorzeanHours);
+                            var duration = overlap.Duration;
+                            if (duration > 0 && overlap.End > now)
                                 return w;
                         }
                     }
