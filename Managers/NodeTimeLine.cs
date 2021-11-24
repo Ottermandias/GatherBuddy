@@ -51,20 +51,29 @@ namespace GatherBuddy.Managers
             TimedNodes[NodeType.Ephemeral][GatheringType.Botanist].Sort(new NodeComparer());
         }
 
+        private ShowNodes ExpansionForNode(Node n)
+        {
+            var addon = n.Nodes?.Territory?.Data.ExVersion.Row ?? uint.MaxValue;
+            if (addon == 0 && n.Meta!.Level <= 50)
+                return ShowNodes.ARealmReborn;
+            if (addon <= 1 && n.Meta!.Level <= 60)
+                return ShowNodes.Heavensward;
+            if (addon <= 2 && n.Meta!.Level <= 70)
+                return ShowNodes.Stormblood;
+            if (addon <= 3 && n.Meta!.Level <= 80)
+                return ShowNodes.Shadowbringers;
+            if (addon <= 4 && n.Meta!.Level <= 90)
+                return ShowNodes.Endwalker;
+
+            return ShowNodes.AllNodes;
+        }
+
         public List<(Node, uint)> GetNewList(ShowNodes which)
         {
             var list = Enumerable.Empty<Node>();
 
             bool LevelCheck(Node n)
-                => n.Meta!.Level switch
-                {
-                    <= 50 => which.HasFlag(ShowNodes.ARealmReborn),
-                    <= 60 => which.HasFlag(ShowNodes.Heavensward),
-                    <= 70 => which.HasFlag(ShowNodes.Stormblood),
-                    <= 80 => which.HasFlag(ShowNodes.Shadowbringers),
-                    <= 90 => which.HasFlag(ShowNodes.Endwalker),
-                    _     => false,
-                };
+                => which.HasFlag(ExpansionForNode(n));
 
             if (which.HasFlag(ShowNodes.Unspoiled))
             {
