@@ -49,7 +49,7 @@ namespace GatherBuddy.Gui
         private Vector2     _rectSize;
         private Vector2     _iconSize;
         private float       _lineHeight;
-        private FishCache[] _currentFishList = new FishCache[0];
+        private FishCache[] _currentFishList = Array.Empty<FishCache>();
 
         private readonly struct FishCache
         {
@@ -305,7 +305,7 @@ namespace GatherBuddy.Gui
         private FishCache[] SortedFish()
         {
             if (_currentSpot == null)
-                return new FishCache[0];
+                return Array.Empty<FishCache>();
 
             var enumerable = _currentSpot.Items.Where(f => f != null).Select(f => new FishCache(this, f!));
 

@@ -39,6 +39,7 @@ namespace GatherBuddy.Data
             fish.ApplyReflectionsInCrystal();
             fish.ApplyFuturesRewritten();
             fish.ApplyDeathUntoDawn();
+            fish.ApplyEndwalker();
         }
     }
 }

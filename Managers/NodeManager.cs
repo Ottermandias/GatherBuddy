@@ -51,8 +51,9 @@ namespace GatherBuddy.Managers
 
         public NodeManager(World territories, AetheryteManager aetherytes, ItemManager gatherables)
         {
-            var baseSheet = Dalamud.GameData.GetExcelSheet<GatheringPointBase>()!;
-            var nodeSheet = Dalamud.GameData.GetExcelSheet<GatheringPoint>()!;
+            var baseSheet  = Dalamud.GameData.GetExcelSheet<GatheringPointBase>()!;
+            var nodeSheet  = Dalamud.GameData.GetExcelSheet<GatheringPoint>()!;
+            var coordSheet = Dalamud.GameData.GetExcelSheet<ExportedGatheringPoint>()!;
 
             Dictionary<uint, Node> baseIdToNode = new((int) baseSheet.RowCount);
             NodeIdToNode = new Dictionary<uint, Node>((int) nodeSheet.RowCount);
@@ -103,6 +104,22 @@ namespace GatherBuddy.Managers
                 {
                     PluginLog.Debug("Gathering node {RowId} has no items, skipped.", nodeRow.RowId);
                     continue;
+                }
+
+                var coords = coordSheet.GetRow(baseId);
+                if (coords != null)
+                {
+                    var x = 41 * coords.X / node.Nodes.Territory.SizeFactor / 2048 + 21.5;
+                    var y = 41 * coords.Y / node.Nodes.Territory.SizeFactor / 2048 + 21.5;
+                    node.InitialPos = new InitialNodePosition()
+                    {
+                        XCoordIntegral   = (int)(x * 100.0 + 0.9),
+                        YCoordIntegral   = (int)(y * 100.0 + 0.9),
+                        Prefer           = false,
+                        
+                    };
+                    node.InitialPos.ClosestAetheryte = node.Nodes.Territory!.Aetherytes
+                        .Select(a => (a.WorldDistance(node.Nodes.Territory.Id, node.InitialPos.XCoordIntegral, node.InitialPos.YCoordIntegral), a)).Min().a;
                 }
 
                 baseIdToNode[baseId]        = node;
