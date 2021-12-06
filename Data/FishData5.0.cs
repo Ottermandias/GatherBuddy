@@ -36,6 +36,7 @@ namespace GatherBuddy.Data
             fish.Apply     (27412, Patch.Shadowbringers) // Asteroidea
                 .Bait      (fish, 27587)
                 .Tug       (BiteType.Weak)
+                .Snag      (Snagging.None)
                 .HookType  (HookSet.Precise);
             fish.Apply     (27413, Patch.Shadowbringers) // Jacketed Snail
                 .Bait      (fish, 27585)

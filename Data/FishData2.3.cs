@@ -177,7 +177,7 @@ namespace GatherBuddy.Data
             fish.Apply     (7933, Patch.DefendersOfEorzea) // Charon's Lantern
                 .Bait      (fish, 2603)
                 .Tug       (BiteType.Legendary)
-                .Uptime    (0, 240)
+                .Uptime    (1320, 240)
                 .HookType  (HookSet.Precise);
             fish.Apply     (7934, Patch.DefendersOfEorzea) // The Green Jester
                 .Bait      (fish, 2599)

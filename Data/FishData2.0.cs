@@ -204,7 +204,7 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 2606)
                 .Tug       (BiteType.Strong)
                 .HookType  (HookSet.Powerful);
-            fish.Apply     (4915, Patch.ARealmReborn) // Mahi-Mahi
+            fish.Apply     (4915, Patch.ARealmReborn) // Mahi-mahi
                 .Bait      (fish, 2628)
                 .Tug       (BiteType.Legendary)
                 .Uptime    (600, 1080)

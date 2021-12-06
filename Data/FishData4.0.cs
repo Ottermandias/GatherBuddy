@@ -399,6 +399,7 @@ namespace GatherBuddy.Data
             fish.Apply     (20108, Patch.Stormblood) // Fan Clam
                 .Bait      (fish, 20617)
                 .Tug       (BiteType.Strong)
+                .Snag      (Snagging.Required)
                 .HookType  (HookSet.Powerful);
             fish.Apply     (20109, Patch.Stormblood) // Blockhead
                 .Bait      (fish, 20617, 20112)
