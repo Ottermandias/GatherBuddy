@@ -141,8 +141,21 @@ namespace GatherBuddy.Managers
 
         private void ApplyRecords()
         {
-            foreach (var (id, node) in _records.Nodes)
-                _nodes.NodeIdToNode[id].Nodes!.AddNodeLocation(id, node);
+            var changes = false;
+            foreach (var (id, node) in _records.Nodes.ToArray())
+            {
+                if (_nodes.NodeIdToNode.TryGetValue(id, out var n))
+                {
+                    _records.Nodes.Remove(id);
+                    changes = true;
+                    continue;
+                }
+
+                n?.Nodes!.AddNodeLocation(id, node);
+            }
+
+            if (changes)
+                GatherBuddy.Config.Save();
         }
     }
 }
