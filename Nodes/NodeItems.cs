@@ -8,8 +8,8 @@ namespace GatherBuddy.Nodes
 {
     public class NodeItems
     {
-        // One extra item for multiple overlapping hidden items (esp. maps)
-        public Gatherable?[] Items { get; } = new Gatherable[9];
+        // Two extra items for multiple overlapping hidden items (esp. maps)
+        public Gatherable?[] Items { get; } = new Gatherable[10];
 
         // Print all items that are not null separated by '|'.
         public string PrintItems(string separator = "|", ClientLanguage lang = ClientLanguage.English)

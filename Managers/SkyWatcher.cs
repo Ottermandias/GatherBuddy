@@ -26,7 +26,7 @@ public class SkyWatcher
 
         foreach (var rate in rates)
         {
-            var value = rate.UnkStruct0.Where(w => w.Rate > 0).Select(w => (weathers.GetRow((uint)w.Weather), w.Rate)).ToArray();
+            var value = rate.UnkData0.Where(w => w.Rate > 0).Select(w => (weathers.GetRow((uint)w.Weather), w.Rate)).ToArray();
 
             var  bad            = false;
             byte cumulativeRate = 0;
@@ -34,7 +34,7 @@ public class SkyWatcher
             {
                 if (value[i].Item1 == null)
                 {
-                    PluginLog.Error($"Could not find Weather {rate.UnkStruct0[i].Weather} for WeatherRate {rate.RowId}.");
+                    PluginLog.Error($"Could not find Weather {rate.UnkData0[i].Weather} for WeatherRate {rate.RowId}.");
                     bad = true;
                     break;
                 }
@@ -164,5 +164,5 @@ public class SkyWatcher
         => GetForecastOffset(territoryId, 1, millisecondOffset)[0];
 
     public (Weather, byte)[] GetRates(uint territoryId)
-        => _weatherRates[territoryId];
+        => _weatherRates.TryGetValue(territoryId, out var ret) ? ret : Array.Empty<(Weather, byte)>();
 }

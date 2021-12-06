@@ -205,7 +205,7 @@ public readonly struct NodeUptime
         _hours = 0;
 
         // Convert the time slots to ephemeral format to reuse that function.
-        foreach (var time in table.UnkStruct0)
+        foreach (var time in table.UnkData0)
         {
             if (time.Durationm == 0)
                 continue;

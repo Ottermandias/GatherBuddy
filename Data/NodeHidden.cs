@@ -88,7 +88,7 @@ namespace GatherBuddy.Data
             , from["Grade 2 Thanalan Topsoil"  ]
             , from["Black Limestone"           ]
             , from["Little Worm"               ]
-            , from["Yafaem Wildgrass"          ]
+            , from["Yafaemi Wildgrass"         ]
             , from["Dark Chestnut"             ]
             , from["Firelight Seeds"           ]
             , from["Icelight Seeds"            ]
