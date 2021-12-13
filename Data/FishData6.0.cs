@@ -20,7 +20,8 @@ namespace GatherBuddy.Data
                 .Tug       (BiteType.Weak)
                 .HookType  (HookSet.Precise);
             fish.Apply     (35607, Patch.Endwalker) // Smaragdos
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Strong);
             fish.Apply     (36385, Patch.Endwalker) // Pecten
                 .Bait      (fish, 36592)
                 .Tug       (BiteType.Weak)
@@ -144,7 +145,8 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 36592)
                 .Tug       (BiteType.Strong);
             fish.Apply     (36430, Patch.Endwalker) // Golden Barramundi
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Strong);
             fish.Apply     (36431, Patch.Endwalker) // Kadjaya's Castaway
                 .Bait      (fish, 36589)
                 .Tug       (BiteType.Weak);
@@ -152,7 +154,8 @@ namespace GatherBuddy.Data
                 .Bait      (fish, 36589)
                 .Tug       (BiteType.Strong);
             fish.Apply     (36434, Patch.Endwalker) // Bluegill
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Strong);
             fish.Apply     (36435, Patch.Endwalker) // Bronze Pipira
                 .Bait      (fish, 36588)
                 .Tug       (BiteType.Strong);
@@ -223,7 +226,8 @@ namespace GatherBuddy.Data
             fish.Apply     (36470, Patch.Endwalker) // Calicia
                 .Bait      (fish);
             fish.Apply     (36471, Patch.Endwalker) // Protomyke #987
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Strong);
             fish.Apply     (36472, Patch.Endwalker) // Lunar Deathworm
                 .Bait      (fish);
             fish.Apply     (36473, Patch.Endwalker) // Fleeting Brand
@@ -231,9 +235,11 @@ namespace GatherBuddy.Data
             fish.Apply     (36475, Patch.Endwalker) // Regotoise
                 .Bait      (fish);
             fish.Apply     (36476, Patch.Endwalker) // Isle Skipper
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Weak);
             fish.Apply     (36477, Patch.Endwalker) // Iribainion
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Strong);
             fish.Apply     (36478, Patch.Endwalker) // Albino Loach
                 .Bait      (fish);
             fish.Apply     (36479, Patch.Endwalker) // Golden Shiner
@@ -243,9 +249,11 @@ namespace GatherBuddy.Data
             fish.Apply     (36481, Patch.Endwalker) // Dermogenys
                 .Bait      (fish);
             fish.Apply     (36484, Patch.Endwalker) // Antheia
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Weak);
             fish.Apply     (36485, Patch.Endwalker) // Colossoma
-                .Bait      (fish);
+                .Bait      (fish)
+                .Tug       (BiteType.Strong);
             fish.Apply     (36487, Patch.Endwalker) // Superstring
                 .Bait      (fish);
             fish.Apply     (36488, Patch.Endwalker) // Star Eater

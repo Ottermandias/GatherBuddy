@@ -43,6 +43,7 @@ namespace GatherBuddy.Data
             if (node.Meta!.NodeType == NodeType.Ephemeral)
                 switch (node.Meta.Level + node.Meta.GatheringType)
                 {
+                    // Endwalker
                     // Shadowbringers
                     case 80 + GatheringType.Harvesting:
                         if (Apply("Weed"         , "Bog Sage"      , 25.2, 29.8, "Fort Jobb")) return;
@@ -93,6 +94,9 @@ namespace GatherBuddy.Data
             if (node.Meta!.NodeType == NodeType.Unspoiled)
                 switch(node.Meta.Level + node.Meta.GatheringType)
                 {
+                    case 90 + GatheringType.Mining:
+                        if (Apply("Juturna Platform G", "Rime Dolomite", 32.2, 34.9, "Camp Broken Glass", true)) return;
+                        break;
                     case 80 + GatheringType.Harvesting:
                         if (Apply("The Dragging Tail"    , "Russet Popoto"        , 19.0, 16.0, "Mord Souq"                )) return;
                         if (Apply("Bowrest"              , "Mist Spinach"         , 34.0, 21.0, "Fanow"                    )) return;
