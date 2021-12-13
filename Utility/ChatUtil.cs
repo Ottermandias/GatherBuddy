@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Logging;
 using GatherBuddy.Nodes;
 using Lumina.Excel.GeneratedSheets;
 using FishingSpot = GatherBuddy.Game.FishingSpot;
@@ -92,30 +94,57 @@ namespace GatherBuddy.Utility
             return new SeString(payloads);
         }
 
-        public static SeString CreateMapLink(string name, TerritoryType territory, float xCoord, float yCoord, bool openMapLink = false, float fudgeFactor = 0.05f)
+        public static SeString CreateMapLink(string name, TerritoryType territory, float xCoord, float yCoord, bool openMapLink = false,
+            float fudgeFactor = 0.05f)
         {
-            var mapPayload = new MapLinkPayload(territory.RowId, territory.Map.Row, xCoord, yCoord, fudgeFactor);
-            if (openMapLink)
-                Dalamud.GameGui.OpenMapWithMapLink(mapPayload);
-            name = $"{name} {mapPayload.CoordinateString}";
-            var payloads = new List<Payload>
+            try
             {
-                mapPayload,
-                new UIForegroundPayload( 500 ),
-                new UIGlowPayload( 501 ),
-                new TextPayload( $"{( char )SeIconChar.LinkMarker}" ),
-                new UIForegroundPayload( 0 ),
-                new UIGlowPayload( 0 ),
-                new TextPayload(name),
-                RawPayload.LinkTerminator,
-            };
-            return new SeString(payloads);
+                var mapPayload = new MapLinkPayload(territory.RowId, territory.Map.Row, xCoord, yCoord, fudgeFactor);
+                if (openMapLink)
+                    Dalamud.GameGui.OpenMapWithMapLink(mapPayload);
+                name = $"{name} {mapPayload.CoordinateString}";
+                var payloads = new List<Payload>
+                {
+                    mapPayload,
+                    new UIForegroundPayload(500),
+                    new UIGlowPayload(501),
+                    new TextPayload($"{(char)SeIconChar.LinkMarker}"),
+                    new UIForegroundPayload(0),
+                    new UIGlowPayload(0),
+                    new TextPayload(name),
+                    RawPayload.LinkTerminator,
+                };
+                return new SeString(payloads);
+            }
+            catch (Exception e)
+            {
+                PluginLog.Error($"Exception while creating map link:\n{e}");
+            }
+
+            return SeString.Empty;
         }
 
         public static SeString CreateMapLink(FishingSpot spot, bool openMapLink = false)
             => CreateMapLink(spot.PlaceName?[GatherBuddy.Language] ?? "Unknown", spot.Territory!.Data, spot.XCoord / 100.0f, spot.YCoord / 100.0f, openMapLink);
 
         public static SeString CreateNodeLink(Node node, bool openMapLink = false)
-            => CreateMapLink(node.Nodes!.Territory!.Name[GatherBuddy.Language], node.Nodes!.Territory!.Data, (float) node.GetX(), (float) node.GetY(), openMapLink);
+        {
+            
+            var x = (float)node.GetX();
+            var y = (float)node.GetY();
+            if (x is < 0 or > 42)
+            {
+                PluginLog.Debug($"{x} X-coordinate invalid.");
+                x = 0;
+            }
+
+            if (y is < 0 or > 42)
+            {
+                PluginLog.Debug($"{y} Y-coordinate invalid.");
+                y = 0;
+            }
+
+            return CreateMapLink(node.Nodes!.Territory!.Name[GatherBuddy.Language], node.Nodes!.Territory!.Data, x, y, openMapLink);
+        }
     }
 }
