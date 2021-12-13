@@ -76,13 +76,7 @@
     </PackageReference>
 	</ItemGroup>
 
-	<ItemGroup>
-		<None Include="GatherBuddy.json">
-			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-		</None>
-	</ItemGroup>
-
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
-	  <Exec Command="if $(Configuration) == Release powershell Compress-Archive -Force $(TargetPath), $(TargetDir)$(SolutionName).pdb, $(TargetDir)$(SolutionName).json $(ProjectDir)$(SolutionName).zip" />
+	  <Exec Command="if $(Configuration) == Release powershell Compress-Archive -Force $(TargetPath), $(TargetDir)$(SolutionName).pdb, $(SolutionDir)$(SolutionName).json $(SolutionDir)$(SolutionName).zip" />
 	</Target>
 </Project>
