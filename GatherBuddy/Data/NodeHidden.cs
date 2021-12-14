@@ -23,18 +23,20 @@ namespace GatherBuddy.Data
             // @formatter:off
             var from = items.FromLanguage[(int) ClientLanguage.English];
             _maps = new[]
-            { from["Timeworn Leather Map"    ]
-            , from["Timeworn Goatskin Map"   ]
-            , from["Timeworn Toadskin Map"   ]
-            , from["Timeworn Boarskin Map"   ]
-            , from["Timeworn Peisteskin Map" ]
-            , from["Timeworn Archaeoskin Map"]
-            , from["Timeworn Wyvernskin Map" ]
-            , from["Timeworn Dragonskin Map" ]
-            , from["Timeworn Gaganaskin Map" ]
-            , from["Timeworn Gazelleskin Map"]
-            , from["Timeworn Gliderskin Map" ]
-            , from["Timeworn Zonureskin Map" ],
+            { from["Timeworn Leather Map"      ]
+            , from["Timeworn Goatskin Map"     ]
+            , from["Timeworn Toadskin Map"     ]
+            , from["Timeworn Boarskin Map"     ]
+            , from["Timeworn Peisteskin Map"   ]
+            , from["Timeworn Archaeoskin Map"  ]
+            , from["Timeworn Wyvernskin Map"   ]
+            , from["Timeworn Dragonskin Map"   ]
+            , from["Timeworn Gaganaskin Map"   ]
+            , from["Timeworn Gazelleskin Map"  ]
+            , from["Timeworn Gliderskin Map"   ]
+            , from["Timeworn Zonureskin Map"   ]
+            , from["Timeworn Saigaskin Map"    ]
+            , from["Timeworn Kumbhiraskin Map" ],
             };
 
             _darkMatterCluster = from["Dark Matter Cluster"];
@@ -237,6 +239,17 @@ namespace GatherBuddy.Data
                 case 602:
                     n.AddItem(_maps[10]);
                     n.AddItem(_maps[11]);
+                    return;
+                case 823:
+                case 824:
+                case 825:
+                case 826:
+                case 844:
+                case 846:
+                case 847:
+                case 848:
+                    n.AddItem(_maps[12]);
+                    n.AddItem(_maps[13]);
                     return;
             }
         }
