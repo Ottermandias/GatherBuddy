@@ -76,6 +76,11 @@
     </PackageReference>
 	</ItemGroup>
 
+	<ItemGroup>
+	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
+	  <ProjectReference Include="..\ImGuiRaii\ImGuiOtter.csproj" />
+	</ItemGroup>
+
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">
 	  <Exec Command="if $(Configuration) == Release powershell Compress-Archive -Force $(TargetPath), $(TargetDir)$(SolutionName).pdb, $(SolutionDir)$(SolutionName).json $(SolutionDir)$(SolutionName).zip" />
 	</Target>
