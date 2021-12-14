@@ -297,6 +297,8 @@ namespace GatherBuddy
 
         private static async Task<bool> SetNodeFlag(Node node)
         {
+            Dalamud.Chat.Print($"Coordinate Flags temporarily disabled: {node.GetX():00.00} - {node.GetY():00.00}");
+            return true;
             // Coordinates = 0.0 are acceptable because of the diadem, so no error message.
             if (!(GatherBuddy.Config.WriteCoordinates || GatherBuddy.Config.UseCoordinates) || node.GetX() == 0.0 || node.GetY() == 0.0)
                 return true;
