@@ -99,9 +99,6 @@ namespace GatherBuddy
             Dalamud.PluginInterface.UiBuilder.Draw         += _gatherInterface!.Draw;
             Dalamud.PluginInterface.UiBuilder.OpenConfigUi += OnConfigCommandHandler;
 
-            if (Config!.DoRecord)
-                Gatherer.StartRecording();
-
             if (Config.AlarmsEnabled)
                 Alarms!.Enable(true);
 
@@ -193,11 +190,7 @@ namespace GatherBuddy
 
             string output;
             bool   setting;
-            if (Util.CompareCi(argumentParts[0], "snap") || Util.CompareCi(argumentParts[0], "snapshot"))
-            {
-                output = $"Recorded {Gatherer!.Snapshot()} new nearby gathering nodes.";
-            }
-            else if (argumentParts.Length < 2 || argumentParts[1].Length == 0)
+            if (argumentParts.Length < 2 || argumentParts[1].Length == 0)
             {
                 PrintHelp();
                 return;
@@ -250,25 +243,6 @@ namespace GatherBuddy
                 Config.UseCoordinates = setting;
                 output                = $"Set the value of SetFlag from {oldSetting} to {setting}.";
             }
-            else if (Util.CompareCi(argumentParts[0], "record"))
-            {
-                if (!Util.TryParseBoolean(argumentParts[1], out setting))
-                {
-                    Dalamud.Chat.Print("/gatherbuddy record requires an argument of [0|off|false|1|on|true].");
-                    return;
-                }
-
-                var oldSetting = Config.DoRecord;
-                Config.DoRecord = setting;
-                output          = $"Set the value of DoRecord from {oldSetting} to {setting}.";
-                if (setting == oldSetting)
-                    return;
-
-                if (setting)
-                    Gatherer!.StartRecording();
-                else
-                    Gatherer!.StopRecording();
-            }
             else
             {
                 PrintHelp();
@@ -305,10 +279,6 @@ namespace GatherBuddy
             if (argumentParts.Length == 0)
                 return;
 
-            if (argumentParts.Length < 2)
-                if (Util.CompareCi(argumentParts[0], "purgeallrecords"))
-                    Gatherer!.PurgeAllRecords();
-
             if (Util.CompareCi(argumentParts[0], "dump"))
                 switch (argumentParts[1].ToLowerInvariant())
                 {
@@ -329,9 +299,6 @@ namespace GatherBuddy
                         break;
                     case "fishingspots":
                         Gatherer!.DumpFishingSpots();
-                        break;
-                    case "records":
-                        Gatherer!.PrintRecords();
                         break;
                     case "fishlog":
                         Gatherer!.FishManager.DumpFishLog();
@@ -391,14 +358,6 @@ namespace GatherBuddy
                     Dalamud.Chat.Print(output);
                     ImGui.SetClipboardText(JsonConvert.SerializeObject(ids, Formatting.Indented));
                 }
-
-            if (!Util.CompareCi(argumentParts[0], "purge"))
-                return;
-
-            if (uint.TryParse(argumentParts[1], out var id))
-                Gatherer!.PurgeRecord(id);
-            else
-                Gatherer!.PurgeRecords(string.Join(" ", argumentParts.Skip(1)));
         }
     }
 }

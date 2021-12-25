@@ -6,20 +6,6 @@ namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
-    private void DrawRecordBox()
-        => DrawCheckbox("Record",
-            "Toggle whether to record all encountered nodes in regular intervals.\n"
-          + "Recorded node coordinates are more accurate than pre-programmed ones and will be used for map markers and aetherytes instead.\n"
-          + "Records are saved in compressed form in the plugin configuration.",
-            GatherBuddy.Config.DoRecord, b =>
-            {
-                if (b)
-                    _plugin.Gatherer!.StartRecording();
-                else
-                    _plugin.Gatherer!.StopRecording();
-                GatherBuddy.Config.DoRecord = b;
-            });
-
     private void DrawAlarmToggle()
         => DrawCheckbox("Alarms",             "Toggle all alarms on or off.",
             GatherBuddy.Config.AlarmsEnabled, b =>
@@ -31,23 +17,12 @@ public partial class Interface
                 GatherBuddy.Config.AlarmsEnabled = b;
             });
 
-    private void DrawSnapshotButton()
-    {
-        if (ImGui.Button("Snapshot", new Vector2(-1, 0)))
-            Dalamud.Chat.Print($"Recorded {_plugin.Gatherer!.Snapshot()} new nearby gathering nodes.");
-        ImGuiHelper.HoverTooltip("Record currently available nodes around you once.");
-    }
-
     private void DrawHeaderRow()
     {
         var spacing = 5 * _horizontalSpace;
         using (var _ = ImGuiRaii.NewGroup())
         {
             DrawAlarmToggle();
-            HorizontalSpace(spacing);
-            DrawRecordBox();
-            HorizontalSpace(spacing);
-            DrawSnapshotButton();
         }
 
         ImGui.Dummy(new Vector2(0, _horizontalSpace / 2));

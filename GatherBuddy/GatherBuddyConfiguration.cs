@@ -62,7 +62,7 @@ namespace GatherBuddy
         }
 
 
-        public const string DefaultIdentifiedItemFormat        = "Identified [{Id}: {Name}] at {Location} for \"{Input}\".";
+        public const string DefaultIdentifiedItemFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
         public const string DefaultIdentifiedFishFormat        = "Identified [{Id}: {Name}] for \"{Input}\".";
         public const string DefaultIdentifiedFishingSpotFormat = "Chose fishing spot {Name} for {FishName}.";
 
@@ -98,7 +98,6 @@ namespace GatherBuddy
         public bool UseTeleport         { get; set; } = true;
         public bool UseCoordinates      { get; set; } = true;
         public bool WriteCoordinates    { get; set; } = true;
-        public bool DoRecord            { get; set; } = true;
         public bool AlarmsEnabled       { get; set; } = false;
         public bool PrintUptime         { get; set; } = true;
         public bool PrintGigHead        { get; set; } = true;
@@ -120,7 +119,6 @@ namespace GatherBuddy
         public Vector4 DependentAvailableFishColor { get; set; } = Colors.FishTab.UptimeRunningDependency;
         public Vector4 DependentUpcomingFishColor  { get; set; } = Colors.FishTab.UptimeUpcomingDependency;
 
-        public Records     Records { get; set; } = new();
         public List<Alarm> Alarms  { get; set; } = new();
 
         public List<uint>    FixedFish    { get; set; } = new();
@@ -134,6 +132,8 @@ namespace GatherBuddy
             if (Dalamud.PluginInterface.GetPluginConfig() is GatherBuddyConfiguration config)
             {
                 config.MigrateV2ToV3();
+                if (config.IdentifiedItemFormat.Contains("{Location}"))
+                    config.IdentifiedItemFormat = DefaultIdentifiedItemFormat;
                 return config;
             }
 

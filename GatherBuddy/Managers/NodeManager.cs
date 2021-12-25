@@ -13,7 +13,6 @@ namespace GatherBuddy.Managers
 {
     public class NodeManager
     {
-        public NodeRecorder           Records      { get; }
         public Dictionary<uint, Node> NodeIdToNode { get; }
 
         private static (NodeUptime, NodeType) GetTimes(uint nodeId)
@@ -125,8 +124,6 @@ namespace GatherBuddy.Managers
                 baseIdToNode[baseId]        = node;
                 NodeIdToNode[nodeRow.RowId] = node;
             }
-
-            Records = new NodeRecorder(this, GatherBuddy.Config.Records);
 
             PluginLog.Verbose("{Count} unique gathering nodes collected.", NodeIdToNode.Count);
             PluginLog.Verbose("{Count} base gathering nodes collected.",   baseIdToNode.Count);

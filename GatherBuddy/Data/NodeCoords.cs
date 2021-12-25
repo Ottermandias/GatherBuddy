@@ -13,7 +13,7 @@ namespace GatherBuddy.Data
         {
             bool Apply(string zone, string item, double x, double y, string aetheryte, bool flag = false)
             {
-                if (zone != node.PlaceNameEn || !node.Items!.HasItems(item) || node.InitialPos != null)
+                if (zone != node.PlaceNameEn || !node.Items!.HasItems(item) || (node.InitialPos != null && !flag))
                     return false;
 
                 node.InitialPos = new InitialNodePosition()
@@ -43,7 +43,6 @@ namespace GatherBuddy.Data
             if (node.Meta!.NodeType == NodeType.Ephemeral)
                 switch (node.Meta.Level + node.Meta.GatheringType)
                 {
-                    // Endwalker
                     // Shadowbringers
                     case 80 + GatheringType.Harvesting:
                         if (Apply("Weed"         , "Bog Sage"      , 25.2, 29.8, "Fort Jobb")) return;

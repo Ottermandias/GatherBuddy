@@ -240,12 +240,8 @@ namespace GatherBuddy.Data
                     n.AddItem(_maps[10]);
                     n.AddItem(_maps[11]);
                     return;
-                case 823:
-                case 824:
                 case 825:
                 case 826:
-                case 844:
-                case 846:
                 case 847:
                 case 848:
                     n.AddItem(_maps[12]);
