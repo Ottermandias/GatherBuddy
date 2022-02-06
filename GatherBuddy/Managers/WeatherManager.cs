@@ -43,7 +43,7 @@ namespace GatherBuddy.Managers
 
         public void Append(uint amount)
         {
-            var offset = List.Count > 0 ? MillisecondsPerWeather - (int) List.Last().Offset(TimeStamp.UtcNow) : -MillisecondsPerWeather;
+            var offset = List.Count > 0 ? MillisecondsPerWeather - List.Last().Offset(TimeStamp.UtcNow) : -MillisecondsPerWeather;
             List.AddRange(RequestData(amount, offset));
         }
 
