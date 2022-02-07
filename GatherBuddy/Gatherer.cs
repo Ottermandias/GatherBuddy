@@ -144,7 +144,7 @@ namespace GatherBuddy
             return fish;
         }
 
-        private Node? GetClosestNode(string itemName, GatheringType? type = null)
+        private Node? GetClosestNode(string itemName, bool force, GatheringType? type = null)
         {
             var item = FindItemLogging(itemName);
             if (item == null)
@@ -185,9 +185,19 @@ namespace GatherBuddy
                 var diff    = nextUptime.Start.AddMilliseconds(-now);
                 var minutes = diff.CurrentMinuteOfDay;
                 var seconds = diff.CurrentSecond;
-                Dalamud.Chat.Print(minutes > 0
+                var logMessage = minutes > 0
                     ? $"Node is up at {closestNode!.Times!.PrintHours()} (in {minutes}:{seconds:D2} Minutes)."
-                    : $"Node is up at {closestNode!.Times!.PrintHours()} (in {seconds} Seconds).");
+                    : $"Node is up at {closestNode!.Times!.PrintHours()} (in {seconds} Seconds).";
+                if (force)
+                {
+                    Dalamud.Chat.Print(logMessage);
+                }
+                else
+                {
+                    logMessage += " If you would like to teleport and commence gathering anyways, use the /gatherf command.";
+                    Dalamud.Chat.Print(logMessage);
+                    return null;
+                }
             }
             else
             {
@@ -398,7 +408,7 @@ namespace GatherBuddy
             }
         }
 
-        public void OnGatherAction(string itemName, GatheringType? type = null)
+        public void OnGatherAction(string itemName, GatheringType? type = null, bool force = false)
         {
             try
             {
@@ -428,7 +438,7 @@ namespace GatherBuddy
                 }
                 else
                 {
-                    var closestNode = GetClosestNode(itemName, type);
+                    var closestNode = GetClosestNode(itemName, force, type);
                     if (closestNode == null)
                         return;
 

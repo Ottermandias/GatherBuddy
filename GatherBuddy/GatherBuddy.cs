@@ -58,8 +58,14 @@ namespace GatherBuddy
 
             Dalamud.Commands.AddHandler("/gather", new CommandInfo(OnGather)
             {
-                HelpMessage = "Mark the nearest node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.",
+                HelpMessage = "Mark the nearest node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear. Does not execute for timed nodes that are unavailabe.",
                 ShowInHelp  = true,
+            });
+
+            Dalamud.Commands.AddHandler("/gatherf", new CommandInfo(OnGatherForce)
+            {
+                HelpMessage = "Mark the nearest node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear. Still executes for timed nodes that are unavailable.",
+                ShowInHelp = true,
             });
 
             Dalamud.Commands.AddHandler("/gatherbtn", new CommandInfo(OnGatherBtn)
@@ -116,6 +122,7 @@ namespace GatherBuddy
             (Gatherer as IDisposable).Dispose();
             Dalamud.Commands.RemoveHandler("/gatherdebug");
             Dalamud.Commands.RemoveHandler("/gather");
+            Dalamud.Commands.RemoveHandler("/gatherf");
             Dalamud.Commands.RemoveHandler("/gatherbtn");
             Dalamud.Commands.RemoveHandler("/gathermin");
             Dalamud.Commands.RemoveHandler("/gatherfish");
@@ -129,6 +136,14 @@ namespace GatherBuddy
                 Dalamud.Chat.Print("Please supply a (partial) item name for /gather.");
             else
                 Gatherer!.OnGatherAction(arguments);
+        }
+
+        private void OnGatherForce(string command, string arguments)
+        {
+            if (arguments.Length == 0)
+                Dalamud.Chat.Print("Please supply a (partial) item name for /gather.");
+            else
+                Gatherer!.OnGatherAction(arguments, null, true);
         }
 
         private void OnGatherBtn(string command, string arguments)
