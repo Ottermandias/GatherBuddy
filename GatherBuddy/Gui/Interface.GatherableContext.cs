@@ -15,7 +15,6 @@ public partial class Interface
 {
     private const string AutomaticallyGenerated = "Automatically generated from context menu.";
 
-    // TODO  Drag'n Drop alarm items.
     private void DrawAddAlarm(IGatherable item)
     {
         // Only timed items.

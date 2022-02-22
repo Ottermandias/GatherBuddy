@@ -39,29 +39,13 @@ public class Executor
     private void FindGatherableLogged(string itemName)
     {
         _item = Identificator.IdentifyGatherable(itemName);
-        if (_item == null)
-        {
-            Communicator.ItemNotFound(itemName);
-            return;
-        }
-
-        if (GatherBuddy.Config.IdentifiedItemFormat.Length > 0)
-            Communicator.Print(Communicator.FormatIdentifiedItemMessage(GatherBuddy.Config.IdentifiedItemFormat, itemName, _item));
-        PluginLog.Verbose(Configuration.DefaultIdentifiedItemFormat, _item.ItemId, _item.Name[GatherBuddy.Language], itemName);
+        Communicator.PrintIdentifiedItem(itemName, _item);
     }
 
     private void FindFishLogged(string fishName)
     {
         _item = Identificator.IdentifyFish(fishName);
-        if (_item == null)
-        {
-            Communicator.ItemNotFound(fishName);
-            return;
-        }
-
-        if (GatherBuddy.Config.IdentifiedFishFormat.Length > 0)
-            Communicator.Print(Communicator.FormatIdentifiedItemMessage(GatherBuddy.Config.IdentifiedFishFormat, fishName, _item));
-        PluginLog.Verbose(Configuration.DefaultIdentifiedFishFormat, _item.ItemId, _item.Name[GatherBuddy.Language], fishName);
+        Communicator.PrintIdentifiedItem(fishName, _item);
     }
 
     private void DoIdentify()
@@ -160,22 +144,14 @@ public class Executor
         if (_location.IntegralXCoord == 100 || _location.IntegralYCoord == 100)
             return;
 
-        var link = Communicator
-            .AddFullMapLink(new SeStringBuilder(), _location.Name, _location.Territory, _location.IntegralXCoord / 100f,
+        var link = new SeStringBuilder().AddFullMapLink(_location.Name, _location.Territory, _location.IntegralXCoord / 100f,
                 _location.IntegralYCoord / 100f,   true).BuiltString;
-        if (GatherBuddy.Config.WriteCoordinates)
-            Communicator.Print(link);
+        Communicator.PrintCoordinates(link);
     }
 
     private void DoAdditionalInfo()
     {
-        if (!GatherBuddy.Config.PrintUptime || _uptime.Equals(TimeInterval.Always))
-            return;
-
-        if (_uptime.Start > GatherBuddy.Time.ServerTime)
-            Communicator.Print("Next up in ", TimeInterval.DurationString(_uptime.Start, GatherBuddy.Time.ServerTime, false), GatherBuddy.Config.SeColorArguments, ".");
-        else
-            Communicator.Print("Currently up for the next ", TimeInterval.DurationString(_uptime.End, GatherBuddy.Time.ServerTime, false), GatherBuddy.Config.SeColorArguments, ".");
+        Communicator.PrintUptime(_uptime);
     }
 
     public bool DoCommand(string argument)

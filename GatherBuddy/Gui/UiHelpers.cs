@@ -1,4 +1,5 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Numerics;
 using GatherBuddy.Config;
 using GatherBuddy.Time;
 using ImGuiNET;
@@ -50,119 +51,29 @@ public partial class Interface
         ImGui.NewLine();
     }
 
-    //
-    // private static void DrawFormatInput(string label, string tooltip, string oldValue, string defaultValue, Action<string> setValue)
-    // {
-    //     var tmp = oldValue;
-    //
-    //     if (ImGui.Button($"Default##{label}"))
-    //     {
-    //         setValue(defaultValue);
-    //         GatherBuddy.Config.Save();
-    //     }
-    //
-    //     ImGuiHelper.HoverTooltip(defaultValue);
-    //
-    //     HorizontalSpace(10);
-    //     ImGui.AlignTextToFramePadding();
-    //     ImGui.Text(label);
-    //
-    //     ImGui.SetNextItemWidth(-ImGui.GetStyle().FramePadding.X);
-    //     if (ImGui.InputText($"##{label}", ref tmp, 256) && tmp != oldValue)
-    //     {
-    //         setValue(tmp);
-    //         GatherBuddy.Config.Save();
-    //     }
-    //
-    //     ImGuiHelper.HoverTooltip(tooltip);
-    // }
+    
+    private static void DrawFormatInput(string label, string tooltip, string oldValue, string defaultValue, Action<string> setValue)
+    {
+        var       tmp = oldValue;
+        using var id  = ImGuiRaii.PushId(label);
 
-    //private static void DrawColorPicker(string label, string tooltip, Vector4 current, Vector4 defaultValue, Action<Vector4> setter)
-    //{
-    //    const ImGuiColorEditFlags flags = ImGuiColorEditFlags.Float
-    //      | ImGuiColorEditFlags.AlphaPreviewHalf
-    //      | ImGuiColorEditFlags.NoInputs
-    //      | ImGuiColorEditFlags.NoLabel;
-    //
-    //    var tmp = current;
-    //    if (ImGui.ColorEdit4(label, ref tmp, flags) && tmp != current)
-    //    {
-    //        setter(tmp);
-    //        GatherBuddy.Config.Save();
-    //    }
-    //
-    //    ImGui.SameLine();
-    //    if (ImGui.Button($"Default##{label}") && current != defaultValue)
-    //    {
-    //        setter(defaultValue);
-    //        GatherBuddy.Config.Save();
-    //    }
-    //
-    //    ImGuiHelper.HoverTooltip($"Reset the color to its default value #{ImGui.ColorConvertFloat4ToU32(defaultValue):X8}.");
-    //
-    //    ImGui.SameLine();
-    //    ImGui.Text(label);
-    //    ImGuiHelper.HoverTooltip(tooltip);
-    //}
+        ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 50 * Scale);
+        if (ImGui.InputText(string.Empty, ref tmp, 256) && tmp != oldValue)
+        {
+            setValue(tmp);
+            GatherBuddy.Config.Save();
+        }
+        
+        ImGuiUtil.HoverTooltip(tooltip);
 
-
-    //private static void DrawComboWithFilter(string label, IList<string> options, ref int currentIdx, ref string filter, ref bool focus,
-    //    float size, int items)
-    //{
-    //    if (ImGui.BeginCombo(label, options[currentIdx]))
-    //    {
-    //        try
-    //        {
-    //            ImGui.SetNextItemWidth(-1);
-    //            ImGui.InputTextWithHint($"{label}_filter", "Filter", ref filter, 255);
-    //            var isFocused = ImGui.IsItemActive();
-    //            if (!focus)
-    //                ImGui.SetKeyboardFocusHere();
-    //
-    //            using var child = new ImGuiRaii();
-    //
-    //            if (!child.BeginChild($"{label}_list", new Vector2(size, items * ImGui.GetTextLineHeightWithSpacing())))
-    //                return;
-    //
-    //            if (!focus)
-    //            {
-    //                ImGui.SetScrollY(0);
-    //                focus = true;
-    //            }
-    //
-    //            var filterLower = filter.ToLowerInvariant();
-    //            var numItems    = 0;
-    //            var node        = 0;
-    //            for (var i = 0; i < options.Count; ++i)
-    //            {
-    //                if (!options[i].ToLowerInvariant().Contains(filterLower))
-    //                    continue;
-    //
-    //                ++numItems;
-    //                node = i;
-    //                if (!ImGui.Selectable(options[i], i == currentIdx))
-    //                    continue;
-    //
-    //                currentIdx = i;
-    //                ImGui.CloseCurrentPopup();
-    //            }
-    //
-    //            child.End();
-    //            if (!isFocused && numItems <= 1)
-    //            {
-    //                currentIdx = node;
-    //                ImGui.CloseCurrentPopup();
-    //            }
-    //        }
-    //        finally
-    //        {
-    //            ImGui.EndCombo();
-    //        }
-    //    }
-    //    else
-    //    {
-    //        focus  = false;
-    //        filter = "";
-    //    }
-    //}
+        if (ImGuiUtil.DrawDisabledButton("Default", Vector2.Zero, defaultValue, defaultValue == oldValue))
+        {
+            setValue(defaultValue);
+            GatherBuddy.Config.Save();
+        }
+    
+        ImGui.SameLine();
+        ImGui.AlignTextToFramePadding();
+        ImGui.Text(label);
+    }
 }

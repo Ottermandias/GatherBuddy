@@ -122,13 +122,11 @@ public partial class Interface
             {
                 var s = new GatherWindowPreset.Config(preset).ToBase64();
                 ImGui.SetClipboardText(s);
-                Communicator.Print("Gather window preset ", preset.Name, GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
+                Communicator.PrintClipboardMessage("Gather window preset ", preset.Name);
             }
             catch (Exception e)
             {
-                PluginLog.Error($"Could not write gather window preset {preset.Name} to Clipboard:\n{e}");
-                Communicator.PrintError("Could not write gather window preset ", preset.Name, GatherBuddy.Config.SeColorNames,
-                    " to Clipboard.");
+                Communicator.PrintClipboardMessage("Gather window preset ", preset.Name, e);
             }
         }
 

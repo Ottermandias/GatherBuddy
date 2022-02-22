@@ -1,4 +1,5 @@
-﻿using Dalamud.Logging;
+﻿using System;
+using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using GatherBuddy.Time;
 using Action = System.Action;
@@ -31,10 +32,21 @@ public class SeTime
     public void Dispose()
         => Dalamud.Framework.Update -= Update;
 
+    private unsafe TimeStamp GetEorzeaTime()
+    {
+        var framework = Framework.Instance();
+        if (framework == null)
+            return ServerTime.ConvertToEorzea();
+
+        return Math.Abs(new TimeStamp(framework->ServerTime * 1000) - ServerTime) < 5000
+            ? new TimeStamp(framework->EorzeaTime * 1000)
+            : ServerTime.ConvertToEorzea();
+    }
+
     private void Update(global::Dalamud.Game.Framework _)
     {
         ServerTime = GetServerTime();
-        EorzeaTime = ServerTime.ConvertToEorzea();
+        EorzeaTime = GetEorzeaTime();
         var minute = EorzeaTime.TotalMinutes;
         if (minute != EorzeaTotalMinute)
         {

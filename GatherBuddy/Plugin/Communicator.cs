@@ -1,15 +1,17 @@
-﻿using System.Collections.Generic;
+﻿using System;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using Dalamud;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Logging;
+using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
+using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
-using GatherBuddy.Structs;
 using GatherBuddy.Time;
 
 namespace GatherBuddy.Plugin;
@@ -20,6 +22,49 @@ internal static class SeStringBuilderExtension
         => builder.AddUiForeground((ushort)colorId)
             .AddText(text)
             .AddUiForegroundOff();
+
+    public static SeStringBuilder AddFullMapLink(this SeStringBuilder builder, string name, Territory territory, float xCoord, float yCoord,
+        bool openMapLink = false, bool withCoordinates = true, float fudgeFactor = 0.05f)
+    {
+        var mapPayload = new MapLinkPayload(territory.Id, territory.Data.Map.Row, xCoord, yCoord, fudgeFactor);
+        if (openMapLink)
+            Dalamud.GameGui.OpenMapWithMapLink(mapPayload);
+        if (withCoordinates)
+            name = $"{name} ({xCoord.ToString("00.0", CultureInfo.InvariantCulture)}, {yCoord.ToString("00.0", CultureInfo.InvariantCulture)})";
+        return builder.Add(mapPayload)
+            .AddUiForeground(500)
+            .AddUiGlow(501)
+            .AddText($"{(char)SeIconChar.LinkMarker}")
+            .AddUiGlowOff()
+            .AddUiForegroundOff()
+            .AddText(name)
+            .Add(RawPayload.LinkTerminator);
+    }
+
+    public static SeStringBuilder AddFullItemLink(this SeStringBuilder builder, uint itemId, string itemName)
+        => builder.AddUiForeground(0x0225)
+            .AddUiGlow(0x0226)
+            .AddItemLink(itemId, false)
+            .AddUiForeground(0x01F4)
+            .AddUiGlow(0x01F5)
+            .AddText($"{(char)SeIconChar.LinkMarker}")
+            .AddUiGlowOff()
+            .AddUiForegroundOff()
+            .AddText(itemName)
+            .Add(RawPayload.LinkTerminator)
+            .AddUiGlowOff()
+            .AddUiForegroundOff();
+
+    public static SeStringBuilder DelayString(this SeStringBuilder builder, TimeInterval uptime)
+    {
+        if (uptime.Start > GatherBuddy.Time.ServerTime)
+            return builder.AddText("will be up in ")
+                .AddColoredText(TimeInterval.DurationString(uptime.Start, GatherBuddy.Time.ServerTime, false),
+                    GatherBuddy.Config.SeColorArguments);
+
+        return builder.AddText("will be up for the next ")
+            .AddColoredText(TimeInterval.DurationString(uptime.End, GatherBuddy.Time.ServerTime, false), GatherBuddy.Config.SeColorArguments);
+    }
 }
 
 public static class Communicator
@@ -68,6 +113,39 @@ public static class Communicator
         PrintError(builder.BuiltString);
     }
 
+    public static void PrintClipboardMessage(string objectType, string name, Exception? e = null)
+    {
+        if (e != null)
+        {
+            name = name.Any() ? name : "<Unnamed>";
+            PluginLog.Error($"Could not save {objectType} {name} to Clipboard:\n{e}");
+            PrintError($"Could not save {objectType} ", name, GatherBuddy.Config.SeColorNames, " to Clipboard.");
+        }
+        else if (GatherBuddy.Config.PrintClipboardMessages)
+        {
+            Print($"{objectType} ", name.Any() ? name : "<Unnamed>", GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
+        }
+    }
+
+    public static void PrintUptime(TimeInterval uptime)
+    {
+        if (!GatherBuddy.Config.PrintUptime || uptime.Equals(TimeInterval.Always))
+            return;
+
+        if (uptime.Start > GatherBuddy.Time.ServerTime)
+            Print("Next up in ",                     TimeInterval.DurationString(uptime.Start, GatherBuddy.Time.ServerTime, false),
+                GatherBuddy.Config.SeColorArguments, ".");
+        else
+            Print("Currently up for the next ",      TimeInterval.DurationString(uptime.End, GatherBuddy.Time.ServerTime, false),
+                GatherBuddy.Config.SeColorArguments, ".");
+    }
+
+    public static void PrintCoordinates(SeString link)
+    {
+        if (GatherBuddy.Config.WriteCoordinates)
+            Print(link);
+    }
+
 
     // Split a format string with '{text}' placeholders into a SeString with Payloads, 
     // and replace all placeholders by the returned payloads.
@@ -98,92 +176,29 @@ public static class Communicator
         return builder.BuiltString;
     }
 
-    public static SeStringBuilder AddFullMapLink(SeStringBuilder builder, string name, Territory territory, float xCoord, float yCoord,
-        bool openMapLink = false, bool withCoordinates = true, float fudgeFactor = 0.05f)
+
+    public static void PrintIdentifiedItem(string name, IGatherable? item)
     {
-        var mapPayload = new MapLinkPayload(territory.Id, territory.Data.Map.Row, xCoord, yCoord, fudgeFactor);
-        if (openMapLink)
-            Dalamud.GameGui.OpenMapWithMapLink(mapPayload);
-        if (withCoordinates)
-            name = $"{name} ({xCoord.ToString("00.0", CultureInfo.InvariantCulture)}, {yCoord.ToString("00.0", CultureInfo.InvariantCulture)})";
-        return builder.Add(mapPayload)
-            .AddUiForeground(500)
-            .AddUiGlow(501)
-            .AddText($"{(char)SeIconChar.LinkMarker}")
-            .AddUiGlowOff()
-            .AddUiForegroundOff()
-            .AddText(name)
-            .Add(RawPayload.LinkTerminator);
-    }
-
-    public static SeStringBuilder AddFullItemLink(SeStringBuilder builder, uint itemId, string itemName)
-        => builder.AddUiForeground(0x0225)
-            .AddUiGlow(0x0226)
-            .AddItemLink(itemId, false)
-            .AddUiForeground(0x01F4)
-            .AddUiGlow(0x01F5)
-            .AddText($"{(char)SeIconChar.LinkMarker}")
-            .AddUiGlowOff()
-            .AddUiForegroundOff()
-            .AddText(itemName)
-            .Add(RawPayload.LinkTerminator)
-            .AddUiGlowOff()
-            .AddUiForegroundOff();
-
-    public static SeString FormatIdentifiedItemMessage(string format, string input, IGatherable item)
-    {
-        SeStringBuilder Replace(SeStringBuilder builder, string s)
-            => s.ToLowerInvariant() switch
-            {
-                "{name}"  => AddFullItemLink(builder, item.ItemId, item.Name[GatherBuddy.Language]),
-                "{input}" => builder.AddColoredText(input, GatherBuddy.Config.SeColorArguments),
-                _         => builder.AddText(s),
-            };
-
-        return Format(format, Replace);
-    }
-
-    public static SeString FormatChoseFishingSpotMessage(string format, FishingSpot spot, Fish fish, Bait bait)
-    {
-        SeStringBuilder Replace(SeStringBuilder builder, string s)
-            => s.ToLowerInvariant() switch
-            {
-                "{id}"       => builder.AddText(spot.Id.ToString()),
-                "{name}"     => AddFullMapLink(builder, spot.Name, spot.Territory, spot.IntegralXCoord / 100f, spot.IntegralYCoord / 100f),
-                "{fishid}"   => builder.AddText(fish.ItemId.ToString()),
-                "{fishname}" => AddFullItemLink(builder, fish.ItemId, fish.Name[GatherBuddy.Language]),
-                "{input}"    => builder.AddText(s),
-                "{baitname}" => AddFullItemLink(builder, bait.Id, bait.Name),
-                _            => builder.AddText(s),
-            };
-
-        return Format(format, Replace);
-    }
-
-    private static SeStringBuilder AddItemLinks(SeStringBuilder builder, IList<Gatherable> items)
-    {
-        for (var i = 0; i < items.Count - 1; ++i)
+        if (item == null)
         {
-            AddFullItemLink(builder, items[i].ItemId, items[i].Name[GatherBuddy.Language]);
-            builder.AddText(", ");
+            Print("Could not find item corresponding to \"", name, GatherBuddy.Config.SeColorNames, "\".");
+            PluginLog.Verbose("Could not find item corresponding to \"{ItemName}\".", name);
+            return;
         }
 
-        if (items.Count > 0)
-            AddFullItemLink(builder, items.Last().ItemId, items.Last().Name[GatherBuddy.Language]);
-        return builder;
+        if (GatherBuddy.Config.IdentifiedGatherableFormat.Length > 0)
+            Print(FormatIdentifiedItemMessage(GatherBuddy.Config.IdentifiedGatherableFormat, name, item));
+        PluginLog.Verbose(Configuration.DefaultIdentifiedGatherableFormat, item.ItemId, item.Name[ClientLanguage.English], name);
     }
 
-    public static void ItemNotFound(string itemName)
+    public static void PrintAlarmMessage(Alarm alarm, ILocation location, TimeInterval uptime)
     {
-        SeStringBuilder sb = new();
-        sb.AddText("Could not find corresponding item to \"")
-            .AddUiForeground((ushort)GatherBuddy.Config.SeColorNames)
-            .AddText(itemName)
-            .AddUiForegroundOff()
-            .AddText("\".");
-        Print(sb.BuiltString);
-        PluginLog.Verbose(sb.BuiltString.TextValue);
+        if (GatherBuddy.Config.AlarmFormat.Length > 0)
+            Print(FormatAlarmMessage(GatherBuddy.Config.AlarmFormat, alarm, location, uptime));
+        PluginLog.Verbose(Configuration.DefaultAlarmFormat, alarm.Name, alarm.Item.Name[ClientLanguage.English], string.Empty,
+            location.Name); // Duration string too ugly.
     }
+
 
     public static void LocationNotFound(IGatherable? item, GatheringType? type)
     {
@@ -205,12 +220,12 @@ public static class Communicator
         => PrintError($"please supply a (partial) {itemType} name for ", command, GatherBuddy.Config.SeColorCommands, ".");
 
     public static void NoGatherGroup(string groupName)
-        => PrintError("The group ", groupName, GatherBuddy.Config.SeColorNames, " does not exist.");
+        => PrintError("The gather group ", groupName, GatherBuddy.Config.SeColorNames, " does not exist.");
 
     public static void NoGatherGroupItem(string groupName, int minute)
     {
         SeStringBuilder sb = new();
-        sb.AddText("The group ")
+        sb.AddText("The gather group ")
             .AddColoredText(groupName, GatherBuddy.Config.SeColorNames)
             .AddText(" has no item corresponding to the eorzea time ")
             .AddColoredText($"{minute / RealTime.MinutesPerHour:D2}:{minute % RealTime.MinutesPerHour:D2}",
@@ -219,43 +234,37 @@ public static class Communicator
         PrintError(sb.BuiltString);
     }
 
-    //public static SeString FormatNodeAlarmMessage(string format, NodeAlarm alarm, long timeDiff)
-    //{
-    //    SeStringBuilder NodeReplace(SeStringBuilder builder, string s)
-    //        => s.ToLowerInvariant() switch
-    //        {
-    //            "{name}"        => builder.AddText(alarm.Name),
-    //            "{offset}"      => builder.AddText(alarm.SecondOffset.ToString()),
-    //            "{delaystring}" => builder.AddText(DelayString(timeDiff)),
-    //            "{timesshort}"  => builder.AddText(alarm.Node!.Times.PrintHours(true)),
-    //            "{timeslong}"   => builder.AddText(alarm.Node!.Times.PrintHours()),
-    //            "{location}" => AddFullMapLink(builder, alarm.Node!.Name, alarm.Node.Territory, (float)alarm.Node.XCoord,
-    //                (float)alarm.Node.YCoord),
-    //            "{allitems}" => AddItemLinks(builder, alarm.Node!.Items),
-    //            _            => builder.AddText(s),
-    //        };
-    //
-    //    return Format(format, NodeReplace);
-    //}
+    private static SeString FormatIdentifiedItemMessage(string format, string input, IGatherable item)
+    {
+        SeStringBuilder Replace(SeStringBuilder builder, string s)
+            => s.ToLowerInvariant() switch
+            {
+                "{item}"  => builder.AddFullItemLink(item.ItemId, item.Name[GatherBuddy.Language]),
+                "{input}" => builder.AddColoredText(input, GatherBuddy.Config.SeColorArguments),
+                _         => builder.AddText(s),
+            };
 
-    //public static SeString FormatFishAlarmMessage(string format, FishAlarm alarm, long timeDiff)
-    //{
-    //    SeStringBuilder FishReplace(SeStringBuilder builder, string s)
-    //        => s.ToLowerInvariant() switch
-    //        {
-    //            "{name}"        => builder.AddText(alarm.Name),
-    //            "{offset}"      => builder.AddText(alarm.SecondOffset.ToString()),
-    //            "{delaystring}" => builder.AddText(DelayString(timeDiff)),
-    //            "{fishingspotname}" => AddFullMapLink(builder, alarm.Fish.Fish.FishingSpots.First().Name, alarm.Fish.Fish.FishingSpots.First().Territory,
-    //                alarm.Fish.Fish.FishingSpots.First().XCoord,
-    //                alarm.Fish.Fish.FishingSpots.First().YCoord),
-    //            "{baitname}" => alarm.Fish.Fish.InitialBait.Id == 0
-    //                ? builder.AddText("Unknown Bait")
-    //                : builder.AddItemLink(alarm.Fish.Fish.InitialBait.Id, false),
-    //            "{fishname}" => builder.AddItemLink(alarm.Fish.Fish.ItemId, false),
-    //            _            => builder.AddText(s),
-    //        };
-    //
-    //    return Format(format, FishReplace);
-    //}
+        return Format(format, Replace);
+    }
+
+
+    private static SeString FormatAlarmMessage(string format, Alarm alarm, ILocation location, TimeInterval uptime)
+    {
+        SeStringBuilder NodeReplace(SeStringBuilder builder, string s)
+            => s.ToLowerInvariant() switch
+            {
+                "{alarm}"       => builder.AddColoredText(alarm.Name.Any() ? $"[{alarm.Name}]" : "[Alarm]", GatherBuddy.Config.SeColorNames),
+                "{item}"        => builder.AddFullItemLink(alarm.Item.ItemId, alarm.Item.Name[GatherBuddy.Language]),
+                "{offset}"      => builder.AddText(alarm.SecondOffset.ToString()),
+                "{delaystring}" => builder.DelayString(uptime),
+                "{location}" => builder.AddFullMapLink(location.Name, location.Territory, location.IntegralXCoord / 100f,
+                    location.IntegralYCoord / 100f),
+                _ => builder.AddText(s),
+            };
+
+        var msg = Format(format, NodeReplace);
+        msg.Payloads.Insert(0, new UIForegroundPayload((ushort)GatherBuddy.Config.SeColorAlarm));
+        msg.Payloads.Add(UIForegroundPayload.UIForegroundOff);
+        return msg;
+    }
 }

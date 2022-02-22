@@ -1,11 +1,14 @@
 ﻿using System.IO;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using GatherBuddy.Config;
 using GatherBuddy.FishTimer;
+using GatherBuddy.Plugin;
 using ImGuiNET;
 using ImGuiOtter;
 using ImGuiOtter.Table;
+using Newtonsoft.Json;
 
 namespace GatherBuddy.Gui;
 
@@ -305,24 +308,69 @@ public partial class Interface
           + "Use at your own risk, no backup will be created automatically.");
 
         ImGui.SameLine();
-        if (ImGui.Button("Copy to Clipboard"))
-            ImGui.SetClipboardText(_plugin.FishRecorder.ExportBase64(0, _plugin.FishRecorder.Records.Count));
-        ImGuiUtil.HoverTooltip("Export all fish records to your clipboard, to share them with other people.");
+        try
+        {
+            if (ImGui.Button("Copy to Clipboard"))
+                ImGui.SetClipboardText(_plugin.FishRecorder.ExportBase64(0, _plugin.FishRecorder.Records.Count));
+            ImGuiUtil.HoverTooltip("Export all fish records to your clipboard, to share them with other people. This may be a lot");
+        }
+        catch
+        {
+            // ignored
+        }
 
         ImGui.SameLine();
-        if (ImGui.Button("Import from Clipboard"))
-            _plugin.FishRecorder.ImportBase64(ImGui.GetClipboardText());
-        ImGuiUtil.HoverTooltip("Import a set of fish records shared with you from your clipboard. Should automatically skip duplicates.");
+        try
+        {
+            if (ImGui.Button("Import from Clipboard"))
+                _plugin.FishRecorder.ImportBase64(ImGui.GetClipboardText());
+            ImGuiUtil.HoverTooltip("Import a set of fish records shared with you from your clipboard. Should automatically skip duplicates.");
+        }
+        catch
+        {
+            // ignored
+        }
 
         ImGui.SameLine();
-        if (ImGui.Button("Export JSON"))
-            ImGui.OpenPopup(RecordTable.FileNamePopup);
+        try
+        {
+            if (ImGui.Button("Export JSON"))
+                ImGui.OpenPopup(RecordTable.FileNamePopup);
+            ImGuiUtil.HoverTooltip("Given a path, export all records as a single JSON file.");
+        }
+        catch
+        {
+            // ignored
+        }
+
+        ImGui.SameLine();
+        try
+        {
+            if (ImGui.Button("Copy Caught Fish JSON"))
+            {
+                var logFish = GatherBuddy.GameData.Fishes.Values.Where(f => f.InLog && f.FishingSpots.Count > 0).ToArray();
+                var ids     = logFish.Where(f => GatherBuddy.FishLog.IsUnlocked(f)).Select(f => f.ItemId).ToArray();
+                Communicator.PrintClipboardMessage("List of ", $"{ids.Length}/{logFish.Length} caught fish");
+                ImGui.SetClipboardText(JsonConvert.SerializeObject(ids, Formatting.Indented));
+            }
+        }
+        catch
+        {
+            // ignored
+        }
 
         var name = string.Empty;
-        if (ImGuiUtil.OpenNameField(RecordTable.FileNamePopup, ref name) && name.Length > 0)
+        if (!ImGuiUtil.OpenNameField(RecordTable.FileNamePopup, ref name) || name.Length <= 0)
+            return;
+
+        try
         {
             var file = new FileInfo(name);
             _plugin.FishRecorder.ExportJson(file);
+        }
+        catch
+        {
+            // ignored
         }
     }
 }

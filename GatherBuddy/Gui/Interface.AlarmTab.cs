@@ -93,7 +93,7 @@ public partial class Interface
                 };
 
                 if (group.Alarms.Count < configGroup.Alarms.Count())
-                    PluginLog.Warning("Stuff happened"); // TODO
+                    PluginLog.Warning("Invalid alarms skipped");
 
                 _manager.AddGroup(group);
                 return true;
@@ -308,12 +308,12 @@ public partial class Interface
             {
                 var s = new AlarmGroup.Config(group).ToBase64();
                 ImGui.SetClipboardText(s);
-                Communicator.Print("Alarm Group ", group.Name, GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
+                Communicator.PrintClipboardMessage("Alarm Group ", group.Name);
             }
             catch (Exception e)
             {
                 PluginLog.Error($"Could not write Alarm Group {group.Name} to Clipboard:\n{e}");
-                Communicator.Print("Could not write Alarm Group ", group.Name, GatherBuddy.Config.SeColorNames, " to Clipboard.");
+                Communicator.PrintClipboardMessage("Alarm Group ", group.Name, e);
             }
         }
 

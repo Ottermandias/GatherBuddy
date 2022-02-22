@@ -11,16 +11,14 @@ public partial class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 4;
 
-    // set names
+    // Set Names
     public string BotanistSetName { get; set; } = "BTN";
     public string MinerSetName    { get; set; } = "MIN";
     public string FisherSetName   { get; set; } = "FSH";
 
     // formats
-    public string IdentifiedItemFormat { get; set; } = DefaultIdentifiedItemFormat;
-    public string IdentifiedFishFormat { get; set; } = DefaultIdentifiedFishFormat;
-    public string NodeAlarmFormat      { get; set; } = DefaultNodeAlarmFormat;
-    public string FishAlarmFormat      { get; set; } = DefaultFishAlarmFormat;
+    public string IdentifiedGatherableFormat { get; set; } = DefaultIdentifiedGatherableFormat;
+    public string AlarmFormat                { get; set; } = DefaultAlarmFormat;
 
 
     // Interface
@@ -33,17 +31,18 @@ public partial class Configuration : IPluginConfiguration
 
 
     // General Config
-    public bool        OpenOnStart           { get; set; } = false;
-    public bool        UseGearChange         { get; set; } = true;
-    public bool        UseTeleport           { get; set; } = true;
-    public bool        UseCoordinates        { get; set; } = true;
-    public bool        WriteCoordinates      { get; set; } = true;
-    public bool        PrintUptime           { get; set; } = true;
-    public bool        SkipTeleportIfClose   { get; set; } = true;
-    public XivChatType ChatTypeMessage       { get; set; } = XivChatType.Echo;
-    public XivChatType ChatTypeError         { get; set; } = XivChatType.ErrorMessage;
-    public bool        AddIngameContextMenus { get; set; } = true;
-    public bool        StoreFishRecords      { get; set; } = true;
+    public bool        OpenOnStart            { get; set; } = false;
+    public bool        UseGearChange          { get; set; } = true;
+    public bool        UseTeleport            { get; set; } = true;
+    public bool        UseCoordinates         { get; set; } = true;
+    public bool        WriteCoordinates       { get; set; } = true;
+    public bool        PrintUptime            { get; set; } = true;
+    public bool        SkipTeleportIfClose    { get; set; } = true;
+    public XivChatType ChatTypeMessage        { get; set; } = XivChatType.Echo;
+    public XivChatType ChatTypeError          { get; set; } = XivChatType.ErrorMessage;
+    public bool        AddIngameContextMenus  { get; set; } = true;
+    public bool        StoreFishRecords       { get; set; } = true;
+    public bool        PrintClipboardMessages { get; set; } = true;
 
     // Weather tab
     public bool ShowWeatherNames { get; set; } = true;
@@ -59,6 +58,7 @@ public partial class Configuration : IPluginConfiguration
     public int SeColorNames     = DefaultSeColorNames;
     public int SeColorCommands  = DefaultSeColorCommands;
     public int SeColorArguments = DefaultSeColorArguments;
+    public int SeColorAlarm     = DefaultSeColorAlarm;
 
     // Fish Timer
     public bool   ShowFishTimer        { get; set; } = true;

@@ -205,9 +205,6 @@ public partial class Interface
         ImGui.Text(" Eorzea Time");
     }
 
-    private void DropGatherGroupNodeFunc(GatherGroupDragDropData data)
-    { }
-
     private void DrawGatherGroupNode(TimedGroup group, ref int idx, int minutes)
     {
         var       node           = group.Nodes[idx];
@@ -363,12 +360,11 @@ public partial class Interface
             {
                 var s = group.ToConfig().ToBase64();
                 ImGui.SetClipboardText(s);
-                Communicator.Print("Gather Group ", group.Name, GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
+                Communicator.PrintClipboardMessage("Gather Group ", group.Name);
             }
             catch (Exception e)
             {
-                PluginLog.Error($"Could not write Gather Group {group.Name} to Clipboard:\n{e}");
-                Communicator.PrintError("Could not write Gather Group ", group.Name, GatherBuddy.Config.SeColorNames, " to Clipboard.");
+                Communicator.PrintClipboardMessage("Gather Group ", group.Name, e);
             }
         }
 

@@ -103,6 +103,11 @@ public partial class Interface
                         _plugin.ContextMenu.Disable();
                 });
 
+        public static void DrawPrintClipboardBox()
+            => DrawCheckbox("Print Clipboard Information",
+                "Print to the chat whenever you save an object to the clipboard. Failures will be printed regardless.",
+                GatherBuddy.Config.PrintClipboardMessages, b => GatherBuddy.Config.PrintClipboardMessages = b);
+
         // Weather Tab
         public static void DrawWeatherTabNamesBox()
             => DrawCheckbox("Show Names in Weather Tab",
@@ -274,6 +279,17 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+
+        public static void DrawAlarmFormatInput()
+            => DrawFormatInput("Alarm Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Alarm} with the alarm name in brackets.\n- {Item} with the item link.\n- {Offset} with the alarm offset in seconds.\n- {DurationString} with 'will be up for the next ...' or 'is currently up for ...'.\n- {Location} with the map flag link and location name.",
+                GatherBuddy.Config.AlarmFormat, Configuration.DefaultAlarmFormat, s => GatherBuddy.Config.AlarmFormat = s);
+
+        public static void DrawIdentifiedGatherableFormatInput()
+            => DrawFormatInput("Identified Gatherable Chat Format",
+                "Keep empty to have no chat output.\nCan replace:\n- {Input} with the entered search text.\n- {Item} with the item link.",
+                GatherBuddy.Config.IdentifiedGatherableFormat, Configuration.DefaultIdentifiedGatherableFormat,
+                s => GatherBuddy.Config.IdentifiedGatherableFormat = s);
     }
 
     private static void DrawConfigTab()
@@ -326,6 +342,9 @@ public partial class Interface
                 ConfigFunctions.DrawErrorTypeSelector();
                 ConfigFunctions.DrawMapMarkerPrintBox();
                 ConfigFunctions.DrawPrintUptimesBox();
+                ConfigFunctions.DrawPrintClipboardBox();
+                ConfigFunctions.DrawAlarmFormatInput();
+                ConfigFunctions.DrawIdentifiedGatherableFormatInput();
                 ImGui.TreePop();
             }
 
@@ -401,6 +420,9 @@ public partial class Interface
             if (ImGuiUtil.PaletteColorPicker("Arguments in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorArguments,
                     Configuration.DefaultSeColorArguments, Configuration.ForegroundColors, out idx))
                 GatherBuddy.Config.SeColorArguments = idx;
+            if (ImGuiUtil.PaletteColorPicker("Alarm Message in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorAlarm,
+                    Configuration.DefaultSeColorAlarm, Configuration.ForegroundColors, out idx))
+                GatherBuddy.Config.SeColorAlarm = idx;
 
             ImGui.NewLine();
         }

@@ -11,7 +11,7 @@ namespace GatherBuddy.Gui;
 public partial class Interface : Window, IDisposable
 {
     private const string PluginName = "GatherBuddy";
-    private const float  MinSize    = 550;
+    private const float  MinSize    = 700;
 
     private static GatherBuddy _plugin = null!;
 

@@ -10,7 +10,7 @@ public static class EorzeaTimeStampExtensions
     public const int SecondsPerEorzeaDay          = MillisecondsPerEorzeaDay / RealTime.MillisecondsPerSecond;
 
     public static TimeStamp ConvertToEorzea(this TimeStamp t)
-        => new(t.Time * 72 / 35);
+        => new(t.Time * 144 / 7);
 
     public static TimeStamp AddEorzeaSeconds(this TimeStamp t, long value)
         => new(t.Time + value * 875 / 18);

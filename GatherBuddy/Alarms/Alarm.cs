@@ -38,26 +38,7 @@ public class Alarm
         if (!Dalamud.Conditions.Any())
             return;
 
-        switch (Item.Type)
-        {
-            // TODO Alarm Messages
-            case ObjectType.Invalid:
-                PluginLog.Error($"Invalid item for Alarm {Name}.");
-                break;
-            case ObjectType.Gatherable:
-            //    if (PrintMessage && GatherBuddy.Config.NodeAlarmFormat.Length > 0)
-            //        Dalamud.Chat.PrintError(Communicator.FormatNodeAlarmMessage(GatherBuddy.Config.NodeAlarmFormat, this, timeDiff));
-            //    PluginLog.Verbose(Communicator.FormatNodeAlarmMessage(GatherBuddyConfiguration.DefaultNodeAlarmFormat, this, timeDiff)
-            //        .ToString());
-               break;
-            case ObjectType.Fish:
-            //    if (PrintMessage && GatherBuddy.Config.FishAlarmFormat.Length > 0)
-            //        Dalamud.Chat.PrintError(Communicator.FormatFishAlarmMessage(GatherBuddy.Config.FishAlarmFormat, this, timeDiff));
-            //    PluginLog.Verbose(Communicator.FormatFishAlarmMessage(GatherBuddyConfiguration.DefaultFishAlarmFormat, this, timeDiff)
-            //        .ToString());
-                break;
-            default: throw new ArgumentOutOfRangeException();
-        }
+        Communicator.PrintAlarmMessage(this, location, uptime);
     }
 
     internal struct Config
