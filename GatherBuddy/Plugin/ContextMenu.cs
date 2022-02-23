@@ -1,9 +1,8 @@
 ﻿using System;
 using Dalamud.Game.Gui.ContextMenus;
 using Dalamud.Logging;
-using GatherBuddy.Plugin;
 
-namespace GatherBuddy;
+namespace GatherBuddy.Plugin;
 
 public class ContextMenu : IDisposable
 {
