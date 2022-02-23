@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using GatherBuddy.GatherGroup;
+using GatherBuddy.GatherHelper;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
 
@@ -16,6 +18,9 @@ public class AlarmGroup
 
     public bool Enabled { get; set; }
 
+    public AlarmGroup()
+    { }
+
     public AlarmGroup Clone()
         => new()
         {
@@ -24,6 +29,37 @@ public class AlarmGroup
             Alarms      = Alarms.Select(a => a.Clone()).ToList(),
             Enabled     = false,
         };
+
+    public AlarmGroup(TimedGroup group)
+    {
+        Name        = group.Name;
+        Description = group.Description;
+        Alarms      = new List<Alarm>(group.Nodes.Count);
+        foreach (var node in group.Nodes.Where(n => n.Item.InternalLocationId > 0))
+        {
+            if (Alarms.Any(a => a.Item.ItemId == node.Item.ItemId))
+                continue;
+
+            Alarms.Add(new Alarm(node.Item)
+            {
+                Enabled      = true,
+                Name         = node.Annotation,
+                PrintMessage = true,
+            });
+        }
+    }
+
+    public AlarmGroup(GatherWindowPreset preset)
+    {
+        Name        = preset.Name;
+        Description = preset.Description;
+        Alarms = preset.Items.Where(i => i.InternalLocationId > 0).Select(i => new Alarm(i)
+        {
+            Enabled      = true,
+            Name         = string.Empty,
+            PrintMessage = true,
+        }).ToList();
+    }
 
     internal struct Config
     {

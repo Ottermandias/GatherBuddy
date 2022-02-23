@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using GatherBuddy.Alarms;
+using GatherBuddy.GatherGroup;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
@@ -113,7 +114,8 @@ public class GatherWindowPreset
     public GatherWindowPreset()
     { }
 
-    public GatherWindowPreset(GatherGroup.TimedGroup group)
+
+    public GatherWindowPreset(TimedGroup group)
     {
         Name        = group.Name;
         Description = group.Description;

@@ -10,8 +10,10 @@ using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Logging;
+using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.GatherGroup;
+using GatherBuddy.GatherHelper;
 using GatherBuddy.Plugin;
 
 namespace GatherBuddy.Gui;
@@ -366,6 +368,18 @@ public partial class Interface
             {
                 Communicator.PrintClipboardMessage("Gather Group ", group.Name, e);
             }
+        }
+
+        if (ImGuiUtil.DrawDisabledButton("Create Preset", Vector2.Zero, "Create a new Gather Window Preset from this gather group.", _gatherGroupCache.Selector.Current == null))
+        {
+            var preset = new GatherWindowPreset(_gatherGroupCache.Selector.Current!);
+            _plugin.GatherWindowManager.AddPreset(preset);
+        }
+
+        if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this gather group.", _gatherGroupCache.Selector.Current == null))
+        {
+            var preset = new AlarmGroup(_gatherGroupCache.Selector.Current!);
+            _plugin.AlarmManager.AddGroup(preset);
         }
 
         var       holdingCtrl = ImGui.GetIO().KeyCtrl;

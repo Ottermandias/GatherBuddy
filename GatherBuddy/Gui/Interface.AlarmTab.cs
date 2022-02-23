@@ -6,6 +6,7 @@ using Dalamud.Interface.Components;
 using Dalamud.Logging;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
+using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
@@ -315,6 +316,13 @@ public partial class Interface
                 PluginLog.Error($"Could not write Alarm Group {group.Name} to Clipboard:\n{e}");
                 Communicator.PrintClipboardMessage("Alarm Group ", group.Name, e);
             }
+        }
+
+        if (ImGuiUtil.DrawDisabledButton("Create Preset", Vector2.Zero, "Create a new Gather Window Preset from this alarm group.",
+                _alarmCache.Selector.Current == null))
+        {
+            var preset = new GatherWindowPreset(_alarmCache.Selector.Current!);
+            _plugin.GatherWindowManager.AddPreset(preset);
         }
 
         ImGui.SameLine();

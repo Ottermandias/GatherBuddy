@@ -3,6 +3,7 @@ using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Logging;
+using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
@@ -128,6 +129,12 @@ public partial class Interface
             {
                 Communicator.PrintClipboardMessage("Gather window preset ", preset.Name, e);
             }
+        }
+
+        if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this gather window preset.", _gatherWindowCache.Selector.Current == null))
+        {
+            var preset = new AlarmGroup(_gatherWindowCache.Selector.Current!);
+            _plugin.AlarmManager.AddGroup(preset);
         }
 
         ImGuiComponents.HelpMarker(
