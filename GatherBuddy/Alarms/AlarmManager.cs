@@ -24,7 +24,8 @@ public partial class AlarmManager : IDisposable
     public   (Alarm, ILocation, TimeInterval)? LastItemAlarm { get; private set; }
     public   (Alarm, ILocation, TimeInterval)? LastFishAlarm { get; private set; }
 
-    public TimeStamp NextChange = TimeStamp.Epoch;
+    public TimeStamp NextChange  = TimeStamp.Epoch;
+    public TimeStamp LastMessage = TimeStamp.Epoch;
 
     public AlarmManager()
         => _sounds = new PlaySound(Dalamud.SigScanner);
@@ -86,7 +87,7 @@ public partial class AlarmManager : IDisposable
 
     private void OnLogin(object? _, EventArgs _2)
         => SetDirty();
-    
+
     private static bool AlarmActive(Alarm a, TimeInterval i)
         => GatherBuddy.Time.ServerTime >= i.Start.AddSeconds(-a.SecondOffset) && GatherBuddy.Time.ServerTime < i.End;
 
@@ -122,6 +123,12 @@ public partial class AlarmManager : IDisposable
             if (shiftedStart > st)
                 continue;
 
+            // Do not spam messages and sounds when changing values.
+            if (LastMessage.AddSeconds(1) >= st
+             && (ReferenceEquals(alarm, LastItemAlarm?.Item1) || ReferenceEquals(alarm, LastFishAlarm?.Item1)))
+                continue;
+
+            LastMessage = st;
             if (alarm.Item.Type == ObjectType.Fish)
                 LastFishAlarm = (alarm, location, uptime);
             else if (alarm.Item.Type == ObjectType.Gatherable)

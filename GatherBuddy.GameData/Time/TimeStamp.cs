@@ -44,6 +44,12 @@ public readonly struct TimeStamp : IComparable<TimeStamp>, IEquatable<TimeStamp>
     public TimeStamp AddDays(long value)
         => new(Time + RealTime.MillisecondsPerDay * value);
 
+    public TimeStamp RoundToSecond()
+    {
+        var ms = Time % RealTime.MillisecondsPerSecond;
+        return new TimeStamp(Time - ms + (ms * 2 >= RealTime.MillisecondsPerSecond ? 1000 : 0));
+    }
+
     public long TotalSeconds
         => Time / RealTime.MillisecondsPerSecond;
 

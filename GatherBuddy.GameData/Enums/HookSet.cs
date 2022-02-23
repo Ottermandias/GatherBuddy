@@ -1,3 +1,5 @@
+using System;
+
 namespace GatherBuddy.Enums;
 
 public enum HookSet : byte
@@ -9,4 +11,20 @@ public enum HookSet : byte
     DoubleHook = 4,
     TripleHook = 5,
     None       = 255,
+}
+
+public static class HookSetExtensions
+{
+    public static string ToName(this HookSet value)
+        => value switch
+        {
+            HookSet.Unknown    => "Unknown",
+            HookSet.Precise    => "Precise",
+            HookSet.Powerful   => "Powerful",
+            HookSet.Hook       => "Regular",
+            HookSet.DoubleHook => "Double",
+            HookSet.TripleHook => "Triple",
+            HookSet.None       => "None",
+            _                  => "Invalid",
+        };
 }

@@ -65,11 +65,7 @@ public partial class GatherBuddy
             ShowInHelp  = true,
         };
 
-        _commands["/gatherdebug"] = new CommandInfo(OnGatherDebug)
-        {
-            HelpMessage = "Dump some collected information.",
-            ShowInHelp  = false,
-        };
+        _commands["/gatherdebug"] = new CommandInfo(OnGatherDebug);
 
         foreach (var (command, info) in _commands)
             Dalamud.Commands.AddHandler(command, info);
@@ -139,10 +135,15 @@ public partial class GatherBuddy
         if (node == null)
             Communicator.NoGatherGroupItem(argumentParts[0], minute);
         else
+        {
+            if (node.Annotation.Any())
+                Communicator.Print(node.Annotation);
             Executor.GatherItem(node.Item);
+        }
     }
 
-    private void OnGatherDebug(string command, string arguments)
+    private static void OnGatherDebug(string command, string arguments)
     {
+        DebugMode = !DebugMode;
     }
 }

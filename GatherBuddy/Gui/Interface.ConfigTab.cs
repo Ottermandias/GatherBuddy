@@ -294,8 +294,12 @@ public partial class Interface
 
     private static void DrawConfigTab()
     {
-        using var id = ImGuiRaii.PushId("Config");
-        if (!ImGui.BeginTabItem("Config"))
+        using var id  = ImGuiRaii.PushId("Config");
+        var       ret = ImGui.BeginTabItem("Config");
+        ImGuiUtil.HoverTooltip("Set up your very own GatherBuddy to your meticulous specifications.\n"
+          + "If you treat him well, he might even become a real boy.");
+
+        if (!ret)
             return;
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);

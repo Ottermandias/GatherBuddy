@@ -32,38 +32,17 @@ public partial class Interface : Window, IDisposable
         IsOpen = GatherBuddy.Config.OpenOnStart;
     }
 
-    private static void VerifyTabOrder()
-    {
-        if (Enum.IsDefined(GatherBuddy.Config.TabSortOrder))
-            return;
-
-        GatherBuddy.Config.TabSortOrder = TabSortOrder.ItemFishWeather;
-        GatherBuddy.Config.Save();
-    }
-
     public override void Draw()
     {
         SetupValues();
         DrawHeader();
-        if (!ImGui.BeginTabBar("ConfigTabs"))
+        if (!ImGui.BeginTabBar("ConfigTabs###GatherBuddyConfigTabs", ImGuiTabBarFlags.Reorderable))
             return;
 
-
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabBar);
-        VerifyTabOrder();
-        (Action, Action, Action) tabs = GatherBuddy.Config.TabSortOrder switch
-        {
-            TabSortOrder.ItemFishWeather => (DrawItemTab, DrawFishTab, DrawWeatherTab),
-            TabSortOrder.ItemWeatherFish => (DrawItemTab, DrawWeatherTab, DrawFishTab),
-            TabSortOrder.FishNodeWeather => (DrawFishTab, DrawItemTab, DrawWeatherTab),
-            TabSortOrder.FishWeatherItem => (DrawFishTab, DrawWeatherTab, DrawItemTab),
-            TabSortOrder.WeatherFishItem => (DrawWeatherTab, DrawFishTab, DrawItemTab),
-            TabSortOrder.WeatherItemFish => (DrawWeatherTab, DrawItemTab, DrawFishTab),
-            _                            => throw new ArgumentOutOfRangeException(),
-        };
-        tabs.Item1();
-        tabs.Item2();
-        tabs.Item3();
+        DrawItemTab();
+        DrawFishTab();
+        DrawWeatherTab();
         DrawAlarmTab();
         DrawGatherGroupTab();
         DrawGatherWindowTab();

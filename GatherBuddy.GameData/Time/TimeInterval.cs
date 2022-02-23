@@ -109,7 +109,7 @@ public readonly struct TimeInterval : IEquatable<TimeInterval>
     public static string DurationString(TimeStamp a, TimeStamp b, bool shortString)
     {
         (a, b) = a < b ? (a, b) : (b, a);
-        var tmp = new TimeStamp(b - a);
+        var tmp = new TimeStamp(b - a).RoundToSecond();
         return tmp.Time switch
         {
             > RealTime.MillisecondsPerDay => shortString

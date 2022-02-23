@@ -11,7 +11,6 @@ public partial class Interface
 {
     internal static void DrawTimeInterval(TimeInterval uptime, bool uptimeDependency = false)
     {
-
         var active = uptime.ToTimeString(GatherBuddy.Time.ServerTime, false, out var timeString);
         var colorId = (active, fish: uptimeDependency) switch
         {
@@ -51,7 +50,7 @@ public partial class Interface
         ImGui.NewLine();
     }
 
-    
+
     private static void DrawFormatInput(string label, string tooltip, string oldValue, string defaultValue, Action<string> setValue)
     {
         var       tmp = oldValue;
@@ -63,7 +62,7 @@ public partial class Interface
             setValue(tmp);
             GatherBuddy.Config.Save();
         }
-        
+
         ImGuiUtil.HoverTooltip(tooltip);
 
         if (ImGuiUtil.DrawDisabledButton("Default", Vector2.Zero, defaultValue, defaultValue == oldValue))
@@ -71,7 +70,7 @@ public partial class Interface
             setValue(defaultValue);
             GatherBuddy.Config.Save();
         }
-    
+
         ImGui.SameLine();
         ImGui.AlignTextToFramePadding();
         ImGui.Text(label);

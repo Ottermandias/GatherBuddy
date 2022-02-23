@@ -84,6 +84,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn($"{s.Territory.Name} ({s.Territory.Id})");
         ImGuiUtil.DrawTableColumn(s.ClosestAetheryte?.Name ?? "Unknown");
         ImGuiUtil.DrawTableColumn($"{s.IntegralXCoord / 100f:00.00}-{s.IntegralYCoord / 100f:00.00}");
+        ImGuiUtil.DrawTableColumn($"{s.SpearfishingSpotData?.IsShadowNode ?? false}");
         ImGuiUtil.DrawTableColumn(string.Join('|', s.Items.Select(fish => fish.Name)));
     }
 
@@ -302,11 +303,21 @@ public partial class Interface
         if (!GatherBuddy.DebugMode)
             return;
 
-        using var id = ImGuiRaii.PushId("Debug");
-        if (!ImGui.BeginTabItem("Debug"))
+        using var id  = ImGuiRaii.PushId("Debug");
+        var       ret = ImGui.BeginTabItem("Debug");
+        ImGuiUtil.HoverTooltip("I really hope there is a good reason for you seeing this.");
+
+        if (!ret)
             return;
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        if (!ImGui.BeginChild(string.Empty))
+        {
+            ImGui.EndChild();
+            return;
+        }
+
+        end.Push(ImGui.EndChild);
 
         const ImGuiTableFlags flags = ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit;
 
@@ -330,7 +341,7 @@ public partial class Interface
         ImGuiTable.DrawTabbedTable($"Fish ({GatherBuddy.GameData.Fishes.Count})", GatherBuddy.GameData.Fishes.Values,
             DrawFishDebug, flags, "ItemId", "FishId", "Name", "Restrictions", "Folklore", "InLog", "Big", "Fishing Spots");
         ImGuiTable.DrawTabbedTable($"Fishing Spots ({GatherBuddy.GameData.FishingSpots.Count})", GatherBuddy.GameData.FishingSpots.Values,
-            DrawFishingSpotDebug, flags, "Id", "Name", "Territory", "Aetheryte", "Coords", "Fishes");
+            DrawFishingSpotDebug, flags, "Id", "Name", "Territory", "Aetheryte", "Coords", "Shadow", "Fishes");
         DrawUptimeManagerTable();
         if (ImGui.CollapsingHeader("GatheringTree"))
         {

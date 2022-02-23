@@ -23,7 +23,6 @@ public partial class Configuration : IPluginConfiguration
 
     // Interface
     public AetherytePreference AetherytePreference { get; set; } = AetherytePreference.Distance;
-    public TabSortOrder        TabSortOrder        { get; set; } = TabSortOrder.ItemFishWeather;
     public ItemFilter          ShowItems           { get; set; } = ItemFilter.All;
     public FishFilter          ShowFish            { get; set; } = FishFilter.All;
     public PatchFlag           HideFishPatch       { get; set; } = 0;

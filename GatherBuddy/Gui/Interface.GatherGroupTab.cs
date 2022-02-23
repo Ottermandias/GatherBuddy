@@ -388,8 +388,8 @@ public partial class Interface
 
     private void DrawGatherGroupTab()
     {
-        using var id  = ImGuiRaii.PushId("Groups");
-        var       tab = ImGui.BeginTabItem("Groups");
+        using var id  = ImGuiRaii.PushId("Gather Groups");
+        var       tab = ImGui.BeginTabItem("Gather Groups");
 
         ImGuiUtil.HoverTooltip(
             "Do you really need to catch a Dirty Herry from 8PM to 10PM but gather mythril ore otherwise?\n"

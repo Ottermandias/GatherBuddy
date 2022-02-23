@@ -31,14 +31,18 @@ internal static class SeStringBuilderExtension
             Dalamud.GameGui.OpenMapWithMapLink(mapPayload);
         if (withCoordinates)
             name = $"{name} ({xCoord.ToString("00.0", CultureInfo.InvariantCulture)}, {yCoord.ToString("00.0", CultureInfo.InvariantCulture)})";
-        return builder.Add(mapPayload)
+        return builder.AddUiForeground(0x0225)
+            .AddUiGlow(0x0226)
+            .Add(mapPayload)
             .AddUiForeground(500)
             .AddUiGlow(501)
             .AddText($"{(char)SeIconChar.LinkMarker}")
             .AddUiGlowOff()
             .AddUiForegroundOff()
             .AddText(name)
-            .Add(RawPayload.LinkTerminator);
+            .Add(RawPayload.LinkTerminator)
+            .AddUiGlowOff()
+            .AddUiForegroundOff();
     }
 
     public static SeStringBuilder AddFullItemLink(this SeStringBuilder builder, uint itemId, string itemName)

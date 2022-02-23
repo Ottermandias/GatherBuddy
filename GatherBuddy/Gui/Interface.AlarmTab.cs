@@ -325,8 +325,12 @@ public partial class Interface
 
     private void DrawAlarmTab()
     {
-        using var id = ImGuiRaii.PushId("Alarms");
-        if (!ImGui.BeginTabItem("Alarms"))
+        using var id  = ImGuiRaii.PushId("Alarms");
+        var       ret = ImGui.BeginTabItem("Alarms");
+        ImGuiUtil.HoverTooltip("Do you often find yourself late for a very important date with no time to say hello or goodbye?\n"
+          + "Set up your very own alarm clock. Viera might even be able to wear it around their neck.");
+
+        if (!ret)
             return;
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);

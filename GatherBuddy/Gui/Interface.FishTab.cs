@@ -18,22 +18,6 @@ namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
-    public static string FishingSpotTcAddress(FishingSpot s)
-    {
-        var lang = GatherBuddy.Language switch
-        {
-            ClientLanguage.English  => "en",
-            ClientLanguage.German   => "de",
-            ClientLanguage.French   => "fr",
-            ClientLanguage.Japanese => "ja",
-            _                       => "en",
-        };
-
-        return s.Spearfishing
-            ? $"https://ffxivteamcraft.com/db/{lang}/spearfishing-spot/{s.Id}"
-            : $"https://ffxivteamcraft.com/db/{lang}/fishing-spot/{s.Id}";
-    }
-
     private sealed class FishTable : Table<ExtendedFish>, IDisposable
     {
         private static float _nameColumnWidth             = 0;
@@ -77,13 +61,13 @@ public partial class Interface
             : base("##FishTable",
                 GatherBuddy.GameData.Fishes.Values
                     .Where(f => f.FishingSpots.Count > 0)
-                    .Select(f => new ExtendedFish(f)).ToList(), TextHeight,_nameColumn, _caughtColumn, _nextUptimeColumn, _uptimeColumn,
+                    .Select(f => new ExtendedFish(f)).ToList(), TextHeight, _nameColumn, _caughtColumn, _nextUptimeColumn, _uptimeColumn,
                 _baitColumn, _bestSpotColumn, _typeColumn, _patchColumn, _folkloreColumn, _aetheryteColumn, _bestZoneColumn, _itemIdColumn,
                 _fishIdColumn)
         {
-            Sortable                                      =  true;
+            Sortable                               =  true;
             GatherBuddy.UptimeManager.UptimeChange += OnUptimeChange;
-            Flags                                         |= ImGuiTableFlags.Hideable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Resizable;
+            Flags                                  |= ImGuiTableFlags.Hideable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Resizable;
             GatherBuddy.FishLog.Change             += OnLogChange;
         }
 
@@ -161,7 +145,7 @@ public partial class Interface
                 var hovered  = ImGui.IsItemHovered();
                 _plugin.Interface.CreateContextMenu(item.Data);
 
-                if(selected)
+                if (selected)
                     _plugin.Executor.GatherItem(item.Data);
                 if (hovered)
                     item.SetTooltip(IconSize, SmallIconSize, WeatherIconSize);
@@ -264,9 +248,8 @@ public partial class Interface
                 using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
                 ImGuiUtil.HoverIcon(item.Bait.First().Icon, LineIconSize);
                 ImGui.SameLine();
-                if (ImGui.Selectable(item.Bait.First().Name))
-                    Communicator.Print(SeString.CreateItemLink(item.Data.InitialBait.Id));
-                ImGuiUtil.HoverTooltip("Click to link bait to chat.");
+                ImGui.Selectable(item.Bait.First().Name);
+                CreateContextMenu(item.Data.InitialBait);
             }
         }
 
@@ -427,6 +410,7 @@ public partial class Interface
             {
                 if (ImGui.Selectable(ToName(item)))
                     _plugin.Executor.GatherLocation(item.Uptime.Item1);
+                CreateContextMenu(item.Uptime.Item1 as FishingSpot);
                 HoverTooltip(item.SpotNames);
             }
 
@@ -519,8 +503,12 @@ public partial class Interface
 
     private void DrawFishTab()
     {
-        using var id = ImGuiRaii.PushId("Fish");
-        if (!ImGui.BeginTabItem("Fish"))
+        using var id  = ImGuiRaii.PushId("Fish");
+        var       ret = ImGui.BeginTabItem("Fish");
+        ImGuiUtil.HoverTooltip("There are plenty of fish in the sea. And the air. And the sand. And the lava. And space, for some reason.\n"
+          + " Gotta catch'em all!\n"
+          + "Enough information about fish to get you started, and for everything else there's TeamCraft!");
+        if (!ret)
             return;
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);

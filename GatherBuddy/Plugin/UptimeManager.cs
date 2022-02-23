@@ -34,7 +34,7 @@ public class UptimeManager : IDisposable
     {
         // Set an array of available timed gatherables.
         TimedGatherables = new IGatherable[gameData.TimedGatherables];
-        foreach(var gatherable in gameData.Gatherables.Values.Where(g => g.InternalLocationId > 0))
+        foreach (var gatherable in gameData.Gatherables.Values.Where(g => g.InternalLocationId > 0))
             TimedGatherables[gatherable.InternalLocationId - 1] = gatherable;
         foreach (var gatherable in gameData.Fishes.Values.Where(g => g.InternalLocationId > 0))
             TimedGatherables[gatherable.InternalLocationId - 1] = gatherable;
@@ -69,11 +69,10 @@ public class UptimeManager : IDisposable
         if (reset >= _lastReset)
             return loc;
 
-        var closest = FindClosestAetheryte(item)
-         ?? item.Locations.FirstOrDefault(l =>
+        var closest = item.Locations.FirstOrDefault(l =>
                 l is FishingSpot f && (!f.Spearfishing || !f.SpearfishingSpotData!.IsShadowNode)
              || l is GatheringNode n && n.Times.AlwaysUp())
-         ?? item.Locations.FirstOrDefault();
+         ?? FindClosestAetheryte(item) ?? item.Locations.FirstOrDefault();
         Debug.Assert(closest != null);
         _bestLocation[idx] = (closest, _lastReset);
         return closest;
@@ -112,9 +111,10 @@ public class UptimeManager : IDisposable
         if (fish.FishRestrictions == FishRestrictions.Time)
             return fish.Interval.NextRealUptime(now);
 
-        var wl      = GatherBuddy.WeatherManager.RequestForecast(territory, fish.CurrentWeather, fish.PreviousWeather, fish.Interval, now);
+        var wl = GatherBuddy.WeatherManager.RequestForecast(territory, fish.CurrentWeather, fish.PreviousWeather, fish.Interval, now);
         if (wl.Timestamp == TimeStamp.Epoch)
             return TimeInterval.Invalid;
+
         var end     = GatherBuddy.WeatherManager.ExtendedDuration(territory, fish.CurrentWeather, fish.PreviousWeather, wl);
         var overlap = new TimeInterval(wl.Timestamp, end).FirstOverlap(fish.Interval);
         return overlap;

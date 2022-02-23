@@ -71,7 +71,7 @@ public class ContextMenu : IDisposable
             {
                 "ContentsInfoDetail" => AddEntry(args, "ContentsInfo",     0x1764),
                 "RecipeNote"         => AddEntry(args, "RecipeNote",       0x398),
-                "GatheringNote"      => AddEntry(args, "GatheringNote",    0x398),
+                "GatheringNote"      => AddEntry(args, "GatheringNote",    0xA0),
                 "ItemSearch"         => AddEntry(args, (IntPtr)args.Agent, 0x398),
                 "ChatLog"            => AddEntry(args, "ChatLog",          0x940),
                 _                    => false,
