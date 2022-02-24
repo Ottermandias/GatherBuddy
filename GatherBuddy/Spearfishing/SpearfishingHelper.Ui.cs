@@ -13,16 +13,18 @@ namespace GatherBuddy.Spearfishing;
 
 public partial class SpearfishingHelper
 {
-    private static unsafe void DrawFish(FishingSpot? spot, SpearfishWindow.Info info, AtkResNode* node, float yOffset)
+    private float _uiScale = 1;
+
+    private unsafe void DrawFish(FishingSpot? spot, SpearfishWindow.Info info, AtkResNode* node, float yOffset)
     {
         if (!info.Available)
             return;
 
         var text = Identify(spot, info);
         var size = ImGui.CalcTextSize(text);
-        var f1 = new Vector2(node->X + node->ScaleX * node->Width / 2f - size.X / 2,
-            node->Y + yOffset + (node->ScaleY * node->Height - size.Y - ImGui.GetStyle().FramePadding.Y) / 2f);
-        ImGui.SetCursorPos(f1);
+        var x    = node->X * _uiScale + node->Width * node->ScaleX * _uiScale / 2f - size.X / 2f;
+        var y    = (node->Y + yOffset + node->Height / 2f) * _uiScale - (size.Y + ImGui.GetStyle().FramePadding.Y) / 2f;
+        ImGui.SetCursorPos(new Vector2(x, y));
         ImGuiUtil.DrawTextButton(text, Vector2.Zero, ColorId.SpearfishHelperBackgroundFish.Value(), ColorId.SpearfishHelperTextFish.Value());
 
         if (GatherBuddy.Config.ShowSpearfishSpeed)
@@ -96,8 +98,8 @@ public partial class SpearfishingHelper
 
             if (GatherBuddy.Config.ShowSpearfishCenterLine)
             {
-                var lineStart = pos + new Vector2(size.X / 2, addon->FishLines->Y * addon->FishLines->ScaleY);
-                var lineEnd   = lineStart + new Vector2(0,    addon->FishLines->ScaleY * addon->FishLines->Height);
+                var lineStart = pos + new Vector2(size.X / 2, addon->FishLines->Y * _uiScale);
+                var lineEnd   = lineStart + new Vector2(0,    addon->FishLines->Height * _uiScale);
                 var list      = ImGui.GetWindowDrawList();
                 list.AddLine(lineStart, lineEnd, ColorId.SpearfishHelperCenterLine.Value(), 3 * ImGuiHelpers.GlobalScale);
             }
@@ -118,9 +120,10 @@ public partial class SpearfishingHelper
         if (_isOpen != oldOpen)
             _currentSpot = GetTargetFishingSpot();
 
+        _uiScale = addon->Base.Scale;
         var pos = new Vector2(addon->Base.X, addon->Base.Y);
-        var size = new Vector2(addon->Base.WindowNode->AtkResNode.Width * addon->Base.WindowNode->AtkResNode.ScaleX,
-            addon->Base.WindowNode->AtkResNode.Height * addon->Base.WindowNode->AtkResNode.ScaleY);
+        var size = new Vector2(addon->Base.WindowNode->AtkResNode.Width * _uiScale,
+            addon->Base.WindowNode->AtkResNode.Height * _uiScale);
 
         DrawFishOverlay(addon, pos, size);
         DrawList(pos, size);

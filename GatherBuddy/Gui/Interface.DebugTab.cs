@@ -1,10 +1,7 @@
 ﻿using System;
-using System.Diagnostics;
 using System.Globalization;
-using System.IO;
 using System.Linq;
 using Dalamud;
-using FFXIVClientStructs.FFXIV.Client.Game.Character;
 using GatherBuddy.Classes;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
