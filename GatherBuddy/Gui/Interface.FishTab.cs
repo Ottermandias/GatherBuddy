@@ -304,11 +304,11 @@ public partial class Interface
                 => _patchColumnWidth * ImGuiHelpers.GlobalScale;
 
             public override PatchFlag FilterValue
-                => GatherBuddy.Config.HideFishPatch;
+                => ~GatherBuddy.Config.HideFishPatch;
 
             protected override void SetValue(PatchFlag f, bool v)
             {
-                var tmp = v ? GatherBuddy.Config.HideFishPatch | f : GatherBuddy.Config.HideFishPatch & ~f;
+                var tmp = v ? GatherBuddy.Config.HideFishPatch & ~f : GatherBuddy.Config.HideFishPatch | f;
                 if (tmp == GatherBuddy.Config.HideFishPatch)
                     return;
 
