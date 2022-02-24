@@ -13,17 +13,22 @@ namespace GatherBuddy.Spearfishing;
 
 public partial class SpearfishingHelper
 {
-    private float _uiScale = 1;
+    private float   _uiScale = 1;
+    private Vector2 _uiPos   = Vector2.Zero;
+    private Vector2 _uiSize  = Vector2.Zero;
 
-    private unsafe void DrawFish(FishingSpot? spot, SpearfishWindow.Info info, AtkResNode* node, float yOffset)
+    private unsafe void DrawFish(FishingSpot? spot, SpearfishWindow.Info info, AtkResNode* node, AtkResNode* fishLines, int idx)
     {
         if (!info.Available)
             return;
 
         var text = Identify(spot, info);
         var size = ImGui.CalcTextSize(text);
-        var x    = node->X * _uiScale + node->Width * node->ScaleX * _uiScale / 2f - size.X / 2f;
-        var y    = (node->Y + yOffset + node->Height / 2f) * _uiScale - (size.Y + ImGui.GetStyle().FramePadding.Y) / 2f;
+        var (x, y) = GatherBuddy.Config.FixNamesOnPosition
+            ? (_uiSize.X * GatherBuddy.Config.FixNamesPercentage / 100,
+                fishLines->Y + fishLines->Height * _uiScale * idx / 7 - ImGui.GetFrameHeight() / 2)
+            : (node->X * _uiScale + node->Width * node->ScaleX * _uiScale / 2f - size.X / 2f,
+                (node->Y + fishLines->Y + node->Height / 2f) * _uiScale - (size.Y + ImGui.GetStyle().FramePadding.Y) / 2f);
         ImGui.SetCursorPos(new Vector2(x, y));
         ImGuiUtil.DrawTextButton(text, Vector2.Zero, ColorId.SpearfishHelperBackgroundFish.Value(), ColorId.SpearfishHelperTextFish.Value());
 
@@ -34,14 +39,14 @@ public partial class SpearfishingHelper
         }
     }
 
-    private void DrawList(Vector2 pos, Vector2 size)
+    private void DrawList()
     {
         if (!GatherBuddy.Config.ShowAvailableSpearfish || _currentSpot == null || _currentSpot.Items.Length == 0)
             return;
 
         ImGuiHelpers.ForceNextWindowMainViewport();
         using var color = ImGuiRaii.PushColor(ImGuiCol.WindowBg, ColorId.SpearfishHelperBackgroundList.Value());
-        ImGui.SetNextWindowPos(size * Vector2.UnitX + pos);
+        ImGui.SetNextWindowPos(_uiSize * Vector2.UnitX + _uiPos);
         if (!ImGui.Begin("SpearfishingHelperList",
                 ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.AlwaysAutoResize))
         {
@@ -74,13 +79,13 @@ public partial class SpearfishingHelper
         }
     }
 
-    private unsafe void DrawFishOverlay(SpearfishWindow* addon, Vector2 pos, Vector2 size)
+    private unsafe void DrawFishOverlay(SpearfishWindow* addon)
     {
         if (!GatherBuddy.Config.ShowSpearfishNames && !GatherBuddy.Config.ShowSpearfishCenterLine)
             return;
 
-        ImGui.SetNextWindowSize(size);
-        ImGui.SetNextWindowPos(pos);
+        ImGui.SetNextWindowSize(_uiSize);
+        ImGui.SetNextWindowPos(_uiPos);
         ImGuiHelpers.ForceNextWindowMainViewport();
         if (!ImGui.Begin("SpearfishingHelper", ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoInputs))
         {
@@ -91,15 +96,15 @@ public partial class SpearfishingHelper
             using var end = ImGuiRaii.DeferredEnd(ImGui.End);
             if (GatherBuddy.Config.ShowSpearfishNames)
             {
-                DrawFish(_currentSpot, addon->Fish1, addon->Fish1Node, addon->FishLines->Y);
-                DrawFish(_currentSpot, addon->Fish2, addon->Fish2Node, addon->FishLines->Y);
-                DrawFish(_currentSpot, addon->Fish3, addon->Fish3Node, addon->FishLines->Y);
+                DrawFish(_currentSpot, addon->Fish1, addon->Fish1Node, addon->FishLines, 5);
+                DrawFish(_currentSpot, addon->Fish2, addon->Fish2Node, addon->FishLines, 3);
+                DrawFish(_currentSpot, addon->Fish3, addon->Fish3Node, addon->FishLines, 1);
             }
 
             if (GatherBuddy.Config.ShowSpearfishCenterLine)
             {
-                var lineStart = pos + new Vector2(size.X / 2, addon->FishLines->Y * _uiScale);
-                var lineEnd   = lineStart + new Vector2(0,    addon->FishLines->Height * _uiScale);
+                var lineStart = _uiPos + new Vector2(_uiSize.X / 2, addon->FishLines->Y * _uiScale);
+                var lineEnd   = lineStart + new Vector2(0,          addon->FishLines->Height * _uiScale);
                 var list      = ImGui.GetWindowDrawList();
                 list.AddLine(lineStart, lineEnd, ColorId.SpearfishHelperCenterLine.Value(), 3 * ImGuiHelpers.GlobalScale);
             }
@@ -121,11 +126,11 @@ public partial class SpearfishingHelper
             _currentSpot = GetTargetFishingSpot();
 
         _uiScale = addon->Base.Scale;
-        var pos = new Vector2(addon->Base.X, addon->Base.Y);
-        var size = new Vector2(addon->Base.WindowNode->AtkResNode.Width * _uiScale,
+        _uiPos   = new Vector2(addon->Base.X, addon->Base.Y);
+        _uiSize = new Vector2(addon->Base.WindowNode->AtkResNode.Width * _uiScale,
             addon->Base.WindowNode->AtkResNode.Height * _uiScale);
 
-        DrawFishOverlay(addon, pos, size);
-        DrawList(pos, size);
+        DrawFishOverlay(addon);
+        DrawList();
     }
 }

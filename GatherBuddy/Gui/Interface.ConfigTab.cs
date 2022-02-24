@@ -215,6 +215,29 @@ public partial class Interface
                 "Toggle whether to show the speed and size of available fish as text instead of icons.",
                 GatherBuddy.Config.ShowSpearfishListIconsAsText, b => GatherBuddy.Config.ShowSpearfishListIconsAsText = b);
 
+        public static void DrawSpearfishFishNameFixed()
+            => DrawCheckbox("Show Fish Names in Fixed Position",
+                "Toggle whether to show the identified names of fish on the moving fish themselves or in a fixed position.",
+                GatherBuddy.Config.FixNamesOnPosition, b => GatherBuddy.Config.FixNamesOnPosition = b);
+
+        public static void DrawSpearfishFishNamePercentage()
+        {
+            if (!GatherBuddy.Config.FixNamesOnPosition)
+                return;
+
+            var tmp = (int) GatherBuddy.Config.FixNamesPercentage;
+            ImGui.SetNextItemWidth(SetInputWidth);
+            if (!ImGui.DragInt("Fish Name Position Percentage", ref tmp, 0.1f, 0, 100, "%i%%"))
+                return;
+
+            tmp = Math.Clamp(tmp, 0, 100);
+            if (tmp == GatherBuddy.Config.FixNamesPercentage)
+                return;
+
+            GatherBuddy.Config.FixNamesPercentage = (byte) tmp;
+            GatherBuddy.Config.Save();
+        }
+
         // Gather Window
         public static void DrawShowGatherWindowBox()
             => DrawCheckbox("Show Gather Window",
@@ -397,6 +420,8 @@ public partial class Interface
                 ConfigFunctions.DrawAvailableSpearfishBox();
                 ConfigFunctions.DrawSpearfishIconsAsTextBox();
                 ConfigFunctions.DrawSpearfishCenterLineBox();
+                ConfigFunctions.DrawSpearfishFishNameFixed();
+                ConfigFunctions.DrawSpearfishFishNamePercentage();
                 ImGui.TreePop();
             }
 

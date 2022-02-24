@@ -74,6 +74,8 @@ public partial class Configuration : IPluginConfiguration
     public bool ShowSpearfishSpeed           { get; set; } = false;
     public bool ShowSpearfishCenterLine      { get; set; } = true;
     public bool ShowSpearfishListIconsAsText { get; set; } = false;
+    public bool FixNamesOnPosition           { get; set; } = false;
+    public byte FixNamesPercentage           { get; set; } = 55;
 
 
     // Gather Window
