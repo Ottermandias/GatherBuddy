@@ -141,7 +141,8 @@ public partial class Interface
             "If not sorting the Gather Window by uptimes, items are uniquely added in order of enabled preset, then order of item in preset.\n"
           + "You can drag and draw presets in the list to move them.\n"
           + "You can drag and draw items in a specific preset to move them.\n"
-          + "You can drag and draw an item onto a different preset from the selector to add it to that preset and remove it from the current.");
+          + "You can drag and draw an item onto a different preset from the selector to add it to that preset and remove it from the current.\n"
+          + "In the Gather Window itself, you can hold Control and Right-Click an item to delete it from the preset it comes from. If this removes the last item in a preset, the preset will also be removed.");
     }
 
     private void DrawGatherWindowPreset(GatherWindowPreset preset)

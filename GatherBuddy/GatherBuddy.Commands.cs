@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Command;
+using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
 using GatherBuddy.Enums;
 using GatherBuddy.Plugin;
@@ -65,6 +66,12 @@ public partial class GatherBuddy
             ShowInHelp  = true,
         };
 
+        _commands["/gbc"] = new CommandInfo(OnGatherBuddyShort)
+        {
+            HelpMessage = "Some quick toggles for config options. Use without argument for help.",
+            ShowInHelp  = true,
+        };
+
         _commands["/gatherdebug"] = new CommandInfo(OnGatherDebug);
 
         foreach (var (command, info) in _commands)
@@ -124,7 +131,8 @@ public partial class GatherBuddy
         }
 
         var argumentParts = arguments.Split();
-        var minute = (Time.EorzeaMinuteOfDay + (argumentParts.Length < 2 ? 0 : int.TryParse(argumentParts[1], out var offset) ? offset : 0)) % RealTime.MinutesPerDay;
+        var minute = (Time.EorzeaMinuteOfDay + (argumentParts.Length < 2 ? 0 : int.TryParse(argumentParts[1], out var offset) ? offset : 0))
+          % RealTime.MinutesPerDay;
         if (!GatherGroupManager.TryGetValue(argumentParts[0], out var group))
         {
             Communicator.NoGatherGroup(argumentParts[0]);
@@ -133,13 +141,57 @@ public partial class GatherBuddy
 
         var node = group.CurrentNode((uint)minute);
         if (node == null)
+        {
             Communicator.NoGatherGroupItem(argumentParts[0], minute);
+        }
         else
         {
             if (node.Annotation.Any())
                 Communicator.Print(node.Annotation);
             Executor.GatherItem(node.Item);
         }
+    }
+
+    private static void OnGatherBuddyShort(string command, string arguments)
+    {
+        switch (arguments.ToLowerInvariant())
+        {
+            case "window":
+                Config.ShowGatherWindow = !Config.ShowGatherWindow;
+                break;
+            case "alarm":
+                Config.AlarmsEnabled = !Config.AlarmsEnabled;
+                break;
+            case "spear":
+                Config.ShowSpearfishHelper = !Config.ShowSpearfishHelper;
+                break;
+            case "fish":
+                Config.ShowFishTimer = !Config.ShowFishTimer;
+                break;
+            case "edit":
+                if (!Config.FishTimerEdit)
+                {
+                    Config.ShowFishTimer = true;
+                    Config.FishTimerEdit = true;
+                }
+                else
+                {
+                    Config.FishTimerEdit = false;
+                }
+
+                break;
+            default:
+                var shortHelpString = new SeStringBuilder().AddText("Use ").AddColoredText(command, Config.SeColorCommands).AddText(" with one of the following arguments:\n")
+                    .AddColoredText("        window", Config.SeColorArguments).AddText(" - Toggle the Gather Window on or off.\n")
+                    .AddColoredText("        alarm",  Config.SeColorArguments).AddText(" - Toggle Alarms on or off.\n")
+                    .AddColoredText("        spear",  Config.SeColorArguments).AddText(" - Toggle the Spearfishing Helper on or off.\n")
+                    .AddColoredText("        fish",   Config.SeColorArguments).AddText(" - Toggle the Fish Timer window on or off.\n")
+                    .AddColoredText("        edit",   Config.SeColorArguments).AddText(" - Toggle edit mode for the fish timer.\n").BuiltString;
+                Communicator.Print(shortHelpString);
+                return;
+        }
+
+        Config.Save();
     }
 
     private static void OnGatherDebug(string command, string arguments)

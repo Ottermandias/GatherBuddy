@@ -1,4 +1,4 @@
-﻿using System.ComponentModel.Design;
+﻿using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using GatherBuddy.Alarms;
@@ -9,13 +9,15 @@ using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
 using ImGuiOtter;
-using Lumina.Data.Parsing.Layer;
 
 namespace GatherBuddy.GatherHelper;
 
 public class GatherWindow
 {
     private readonly GatherBuddy _plugin;
+
+    private int _deleteSet     = -1;
+    private int _deleteItemIdx = -1;
 
     public GatherWindow(GatherBuddy plugin)
         => _plugin = plugin;
@@ -105,8 +107,25 @@ public class GatherWindow
             using var color = ImGuiRaii.PushColor(ImGuiCol.Text, colorId.Value());
             if (ImGui.Selectable(item.Name[GatherBuddy.Language], false))
                 _plugin.Executor.GatherItem(item);
+            var clicked = ImGui.IsItemClicked(ImGuiMouseButton.Right);
             color.Pop();
             CreateTooltip(loc, time);
+
+            if (clicked && ImGui.GetIO().KeyCtrl)
+                for (var i = 0; i < _plugin.GatherWindowManager.Presets.Count; ++i)
+                {
+                    var preset = _plugin.GatherWindowManager.Presets[i];
+                    if (!preset.Enabled)
+                        continue;
+
+                    var idx = preset.Items.IndexOf(item);
+                    if (idx < 0)
+                        continue;
+
+                    _deleteSet     = i;
+                    _deleteItemIdx = idx;
+                    break;
+                }
         }
 
         DrawTime(loc, time);
@@ -119,6 +138,19 @@ public class GatherWindow
 
         DrawAlarm(_plugin.AlarmManager.LastItemAlarm);
         DrawAlarm(_plugin.AlarmManager.LastFishAlarm);
+    }
+
+    private void DeleteItem()
+    {
+        if (_deleteSet < 0 || _deleteItemIdx < 0)
+            return;
+
+        var preset = _plugin.GatherWindowManager.Presets[_deleteSet];
+        _plugin.GatherWindowManager.RemoveItem(preset, _deleteItemIdx);
+        if (preset.Items.Count == 0)
+            _plugin.GatherWindowManager.DeletePreset(_deleteSet);
+        _deleteSet     = -1;
+        _deleteItemIdx = -1;
     }
 
 
@@ -157,5 +189,7 @@ public class GatherWindow
         DrawAlarms();
         foreach (var item in _plugin.GatherWindowManager.GetList())
             DrawItem(item);
+
+        DeleteItem();
     }
 }
