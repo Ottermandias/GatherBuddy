@@ -96,6 +96,7 @@ public partial class GatherBuddy : IDalamudPlugin
         Interface    = new Interface(this);
         GatherWindow = new GatherWindow(this);
         WindowSystem.AddWindow(Interface);
+        Dalamud.PluginInterface.UiBuilder.Draw         += Interface.ToggleHotkey;
         Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
         Dalamud.PluginInterface.UiBuilder.Draw         += SpearfishingHelper.Draw;
         Dalamud.PluginInterface.UiBuilder.Draw         += GatherWindow.Draw;

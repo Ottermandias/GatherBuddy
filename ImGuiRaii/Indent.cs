@@ -15,7 +15,7 @@ public static partial class ImGuiRaii
 
     public sealed class Indent : IDisposable
     {
-        private float _indentation;
+        public float Indentation { get; private set; }
 
         public Indent Push(float indent, bool scaled = true, bool condition = true)
         {
@@ -26,7 +26,7 @@ public static partial class ImGuiRaii
                     indent *= ImGuiHelpers.GlobalScale;
 
                 ImGui.Indent(indent);
-                _indentation += indent;
+                Indentation += indent;
             }
 
             return this;
@@ -39,7 +39,7 @@ public static partial class ImGuiRaii
                 var spacing = i * ImGui.GetStyle().IndentSpacing * (scaled ? ImGuiHelpers.GlobalScale : 1f);
                 Debug.Assert(spacing >= 0);
                 ImGui.Indent(spacing);
-                _indentation += spacing;
+                Indentation += spacing;
             }
 
             return this;
@@ -52,7 +52,7 @@ public static partial class ImGuiRaii
 
             Debug.Assert(indent >= 0f);
             ImGui.Unindent(indent);
-            _indentation -= indent;
+            Indentation -= indent;
         }
 
         public void Pop(int i, bool scaled = true)
@@ -60,10 +60,10 @@ public static partial class ImGuiRaii
             var spacing = i * ImGui.GetStyle().IndentSpacing * (scaled ? ImGuiHelpers.GlobalScale : 1f);
             Debug.Assert(spacing >= 0);
             ImGui.Unindent(spacing);
-            _indentation -= spacing;
+            Indentation -= spacing;
         }
 
         public void Dispose()
-            => Pop(_indentation, false);
+            => Pop(Indentation, false);
     }
 }

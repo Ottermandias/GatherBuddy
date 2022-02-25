@@ -34,7 +34,7 @@ public partial class Interface
         IconSize          = ImGuiHelpers.ScaledVector2(40, 40);
         WeatherIconSize   = ImGuiHelpers.ScaledVector2(30, 30);
         SmallIconSize     = ImGuiHelpers.ScaledVector2(20, 20);
-        LineIconSize      = new Vector2(TextHeight,                    TextHeight);
+        LineIconSize      = new Vector2(TextHeight,             TextHeight);
         IconButtonSize    = new Vector2(ImGui.GetFrameHeight(), 0);
     }
 

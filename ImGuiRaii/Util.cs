@@ -1,7 +1,9 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using ImGuiNET;
@@ -20,7 +22,8 @@ public static partial class ImGuiUtil
         HoverTooltip(description);
     }
 
-    public static bool PaletteColorPicker(string label, Vector2 iconSize, int currentColorIdx, int defaultColorIdx, IDictionary<int, uint> colors, out int newColorIdx)
+    public static bool PaletteColorPicker(string label, Vector2 iconSize, int currentColorIdx, int defaultColorIdx,
+        IDictionary<int, uint> colors, out int newColorIdx)
     {
         newColorIdx = -1;
         using var group = ImGuiRaii.NewGroup();
@@ -40,7 +43,8 @@ public static partial class ImGuiUtil
         if (colors.TryGetValue(defaultColorIdx, out var def))
         {
             ImGui.SameLine();
-            if (DrawDisabledButton("Default", Vector2.Zero, $"Reset this color to {defaultColorIdx} ({ColorBytes(def)}).", currentColorIdx == defaultColorIdx))
+            if (DrawDisabledButton("Default", Vector2.Zero, $"Reset this color to {defaultColorIdx} ({ColorBytes(def)}).",
+                    currentColorIdx == defaultColorIdx))
             {
                 newColorIdx = defaultColorIdx;
                 return true;
@@ -57,7 +61,7 @@ public static partial class ImGuiUtil
         {
             using var end     = ImGuiRaii.DeferredEnd(ImGui.EndPopup);
             var       counter = 0;
-            foreach(var (idx, value) in colors)
+            foreach (var (idx, value) in colors)
             {
                 var text = $"{idx} - {ColorBytes(value)}";
                 DrawColorBox(text, value, iconSize, text, true);
@@ -172,7 +176,8 @@ public static partial class ImGuiUtil
         return ret;
     }
 
-    public static bool DrawEditButtonText(int id, string current, out string newText, ref bool edit, Vector2 buttonSize, float inputWidth, uint maxLength = 256)
+    public static bool DrawEditButtonText(int id, string current, out string newText, ref bool edit, Vector2 buttonSize, float inputWidth,
+        uint maxLength = 256)
     {
         newText = current;
         var       tmpEdit = edit;
@@ -187,6 +192,7 @@ public static partial class ImGuiUtil
             DrawTextButton(current, Vector2.Zero, ImGui.GetColorU32(ImGuiCol.FrameBg));
             return false;
         }
+
         ImGui.SetNextItemWidth(inputWidth);
         if (edit != tmpEdit)
         {
@@ -305,5 +311,62 @@ public static partial class ImGuiUtil
         }
 
         return ret;
+    }
+
+    public static bool KeySelector(string label, string description, VirtualKey currentValue, Action<VirtualKey> setter,
+        IReadOnlyList<VirtualKey> keys)
+    {
+        using var id  = ImGuiRaii.PushId(label);
+        var       ret = ImGui.BeginCombo(label, currentValue.GetFancyName());
+        using var end = ImGuiRaii.DeferredEnd(ImGui.EndCombo, ret);
+        HoverTooltip(description);
+        if (ret)
+            ret = false;
+        else
+            return false;
+
+        foreach (var key in keys)
+        {
+            if (!ImGui.Selectable(key.GetFancyName(), currentValue == key) || currentValue == key)
+                continue;
+
+            setter(key);
+            ret = true;
+        }
+
+        return ret;
+    }
+
+    public static bool ModifierSelector(string label, string description, ModifierHotkey currentValue, Action<ModifierHotkey> setter)
+        => KeySelector(label, description, currentValue, k => setter(k), ModifierHotkey.ValidKeys);
+
+    public static bool ModifiableKeySelector(string label, string description, float width, ModifiableHotkey currentValue,
+        Action<ModifiableHotkey> setter,
+        IReadOnlyList<VirtualKey> keys)
+    {
+        using var id   = ImGuiRaii.PushId(label);
+        var       copy = currentValue;
+        ImGui.SetNextItemWidth(width);
+        var changes = KeySelector(label, description, currentValue.Hotkey, k => copy.SetHotkey(k), keys);
+
+        if (currentValue.Hotkey != VirtualKey.NO_KEY)
+        {
+            using var indent = ImGuiRaii.PushIndent();
+            ImGui.SetNextItemWidth(width - indent.Indentation);
+            changes |= ModifierSelector("Modifier", "Set an optional modifier key to be used in conjunction with the selected hotkey.",
+                currentValue.Modifier1,             k => copy.SetModifier1(k));
+
+            if (currentValue.Modifier1 != VirtualKey.NO_KEY)
+            {
+                ImGui.SetNextItemWidth(width - indent.Indentation);
+                changes |= ModifierSelector("Additional Modifier",
+                    "Set another optional modifier key to be used in conjunction with the selected hotkey and the first modifier.",
+                    currentValue.Modifier2, k => copy.SetModifier2(k));
+            }
+        }
+
+        if (changes)
+            setter(copy);
+        return changes;
     }
 }

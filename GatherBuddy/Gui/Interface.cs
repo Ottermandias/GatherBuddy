@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Numerics;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
-using GatherBuddy.Config;
+using GatherBuddy.Plugin;
+using GatherBuddy.Time;
 using ImGuiNET;
 using ImGuiOtter;
 
@@ -13,7 +15,8 @@ public partial class Interface : Window, IDisposable
     private const string PluginName = "GatherBuddy";
     private const float  MinSize    = 700;
 
-    private static GatherBuddy _plugin = null!;
+    private static GatherBuddy _plugin                 = null!;
+    private        TimeStamp   _earliestKeyboardToggle = TimeStamp.Epoch;
 
     public Interface(GatherBuddy plugin)
         : base(GatherBuddy.Version.Length > 0 ? $"{PluginName} v{GatherBuddy.Version}###GatherBuddyMain" : PluginName)
@@ -50,6 +53,15 @@ public partial class Interface : Window, IDisposable
         DrawLocationsTab();
         DrawRecordTab();
         DrawDebugTab();
+    }
+
+    public void ToggleHotkey()
+    {
+        if (_earliestKeyboardToggle > GatherBuddy.Time.ServerTime || !Functions.CheckKeyState(GatherBuddy.Config.MainInterfaceHotkey, false))
+            return;
+
+        _earliestKeyboardToggle = GatherBuddy.Time.ServerTime.AddMilliseconds(500);
+        Toggle();
     }
 
     public void Dispose()

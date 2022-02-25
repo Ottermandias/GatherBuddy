@@ -4,9 +4,11 @@ using System.IO;
 using System.IO.Compression;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
+using ImGuiOtter;
 
 namespace GatherBuddy.Plugin;
 
@@ -137,5 +139,23 @@ public static class Functions
                 list[i] = list[i - 1];
         list[idx2] = tmp;
         return true;
+    }
+
+    public static bool CheckModifier(ModifierHotkey key, bool noKey)
+        => key.Modifier switch
+        {
+            VirtualKey.CONTROL  => Dalamud.Keys[VirtualKey.CONTROL],
+            VirtualKey.SHIFT    => Dalamud.Keys[VirtualKey.SHIFT],
+            VirtualKey.MENU     => Dalamud.Keys[VirtualKey.MENU],
+            VirtualKey.NO_KEY   => noKey,
+            _                   => false,
+        };
+
+    public static bool CheckKeyState(ModifiableHotkey key, bool noKey)
+    {
+        if (key.Hotkey == VirtualKey.NO_KEY)
+            return noKey;
+
+        return Dalamud.Keys[key.Hotkey] && CheckModifier(key.Modifier1, true) && CheckModifier(key.Modifier2, true);
     }
 }

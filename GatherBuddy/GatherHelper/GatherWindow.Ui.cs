@@ -1,5 +1,5 @@
-﻿using System.Linq;
-using System.Numerics;
+﻿using System.Numerics;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
@@ -16,8 +16,9 @@ public class GatherWindow
 {
     private readonly GatherBuddy _plugin;
 
-    private int _deleteSet     = -1;
-    private int _deleteItemIdx = -1;
+    private int       _deleteSet              = -1;
+    private int       _deleteItemIdx          = -1;
+    private TimeStamp _earliestKeyboardToggle = TimeStamp.Epoch;
 
     public GatherWindow(GatherBuddy plugin)
         => _plugin = plugin;
@@ -111,7 +112,7 @@ public class GatherWindow
             color.Pop();
             CreateTooltip(loc, time);
 
-            if (clicked && ImGui.GetIO().KeyCtrl)
+            if (clicked && Functions.CheckModifier(GatherBuddy.Config.GatherWindowDeleteModifier, false))
                 for (var i = 0; i < _plugin.GatherWindowManager.Presets.Count; ++i)
                 {
                     var preset = _plugin.GatherWindowManager.Presets[i];
@@ -153,12 +154,32 @@ public class GatherWindow
         _deleteItemIdx = -1;
     }
 
+    private bool CheckHotkeys()
+    {
+        if (_earliestKeyboardToggle > GatherBuddy.Time.ServerTime || !Functions.CheckKeyState(GatherBuddy.Config.GatherWindowHotkey, false))
+            return !GatherBuddy.Config.ShowGatherWindow;
+
+        _earliestKeyboardToggle             = GatherBuddy.Time.ServerTime.AddMilliseconds(500);
+        GatherBuddy.Config.ShowGatherWindow = !GatherBuddy.Config.ShowGatherWindow;
+        GatherBuddy.Config.Save();
+
+        return !GatherBuddy.Config.ShowGatherWindow;
+    }
+
+    private static bool CheckHoldKey()
+    {
+        if (!GatherBuddy.Config.OnlyShowGatherWindowHoldingKey || GatherBuddy.Config.GatherWindowHoldKey == VirtualKey.NO_KEY)
+            return false;
+
+        return !Dalamud.Keys[GatherBuddy.Config.GatherWindowHoldKey];
+    }
+
+    private static bool CheckDuty()
+        => GatherBuddy.Config.HideGatherWindowInDuty && Functions.BoundByDuty();
 
     public void Draw()
     {
-        if (!GatherBuddy.Config.ShowGatherWindow
-         || GatherBuddy.Config.OnlyShowGatherWindowHoldingCtrl && !ImGui.GetIO().KeyCtrl
-         || GatherBuddy.Config.HideGatherWindowInDuty && Functions.BoundByDuty())
+        if (CheckHotkeys() || CheckHoldKey() || CheckDuty())
             return;
 
         var alarmTimers = GatherBuddy.Config.ShowGatherWindowAlarms

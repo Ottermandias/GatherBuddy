@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Configuration;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using GatherBuddy.Enums;
+using ImGuiOtter;
 
 namespace GatherBuddy.Config;
 
@@ -30,18 +32,19 @@ public partial class Configuration : IPluginConfiguration
 
 
     // General Config
-    public bool        OpenOnStart            { get; set; } = false;
-    public bool        UseGearChange          { get; set; } = true;
-    public bool        UseTeleport            { get; set; } = true;
-    public bool        UseCoordinates         { get; set; } = true;
-    public bool        WriteCoordinates       { get; set; } = true;
-    public bool        PrintUptime            { get; set; } = true;
-    public bool        SkipTeleportIfClose    { get; set; } = true;
-    public XivChatType ChatTypeMessage        { get; set; } = XivChatType.Echo;
-    public XivChatType ChatTypeError          { get; set; } = XivChatType.ErrorMessage;
-    public bool        AddIngameContextMenus  { get; set; } = true;
-    public bool        StoreFishRecords       { get; set; } = true;
-    public bool        PrintClipboardMessages { get; set; } = true;
+    public bool             OpenOnStart            { get; set; } = false;
+    public bool             UseGearChange          { get; set; } = true;
+    public bool             UseTeleport            { get; set; } = true;
+    public bool             UseCoordinates         { get; set; } = true;
+    public bool             WriteCoordinates       { get; set; } = true;
+    public bool             PrintUptime            { get; set; } = true;
+    public bool             SkipTeleportIfClose    { get; set; } = true;
+    public XivChatType      ChatTypeMessage        { get; set; } = XivChatType.Echo;
+    public XivChatType      ChatTypeError          { get; set; } = XivChatType.ErrorMessage;
+    public bool             AddIngameContextMenus  { get; set; } = true;
+    public bool             StoreFishRecords       { get; set; } = true;
+    public bool             PrintClipboardMessages { get; set; } = true;
+    public ModifiableHotkey MainInterfaceHotkey    { get; set; } = new();
 
     // Weather tab
     public bool ShowWeatherNames { get; set; } = true;
@@ -79,14 +82,17 @@ public partial class Configuration : IPluginConfiguration
 
 
     // Gather Window
-    public bool ShowGatherWindow                { get; set; } = true;
-    public bool ShowGatherWindowTimers          { get; set; } = true;
-    public bool ShowGatherWindowAlarms          { get; set; } = true;
-    public bool SortGatherWindowByUptime        { get; set; } = false;
-    public bool ShowGatherWindowOnlyAvailable   { get; set; } = false;
-    public bool HideGatherWindowInDuty          { get; set; } = true;
-    public bool OnlyShowGatherWindowHoldingCtrl { get; set; } = false;
-    public bool LockGatherWindow                { get; set; } = false;
+    public bool             ShowGatherWindow               { get; set; } = true;
+    public bool             ShowGatherWindowTimers         { get; set; } = true;
+    public bool             ShowGatherWindowAlarms         { get; set; } = true;
+    public bool             SortGatherWindowByUptime       { get; set; } = false;
+    public bool             ShowGatherWindowOnlyAvailable  { get; set; } = false;
+    public bool             HideGatherWindowInDuty         { get; set; } = true;
+    public bool             OnlyShowGatherWindowHoldingKey { get; set; } = false;
+    public bool             LockGatherWindow               { get; set; } = false;
+    public ModifiableHotkey GatherWindowHotkey             { get; set; } = new(VirtualKey.G, VirtualKey.CONTROL);
+    public ModifierHotkey   GatherWindowDeleteModifier     { get; set; } = VirtualKey.CONTROL;
+    public VirtualKey       GatherWindowHoldKey            { get; set; } = VirtualKey.MENU;
 
     public void Save()
         => Dalamud.PluginInterface.SavePluginConfig(this);

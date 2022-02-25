@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using GatherBuddy.Config;
 using GatherBuddy.FishTimer;
@@ -225,7 +227,7 @@ public partial class Interface
             if (!GatherBuddy.Config.FixNamesOnPosition)
                 return;
 
-            var tmp = (int) GatherBuddy.Config.FixNamesPercentage;
+            var tmp = (int)GatherBuddy.Config.FixNamesPercentage;
             ImGui.SetNextItemWidth(SetInputWidth);
             if (!ImGui.DragInt("Fish Name Position Percentage", ref tmp, 0.1f, 0, 100, "%i%%"))
                 return;
@@ -234,7 +236,7 @@ public partial class Interface
             if (tmp == GatherBuddy.Config.FixNamesPercentage)
                 return;
 
-            GatherBuddy.Config.FixNamesPercentage = (byte) tmp;
+            GatherBuddy.Config.FixNamesPercentage = (byte)tmp;
             GatherBuddy.Config.Save();
         }
 
@@ -269,15 +271,52 @@ public partial class Interface
                 "Hide the gather window when bound by any duty.",
                 GatherBuddy.Config.HideGatherWindowInDuty, b => GatherBuddy.Config.HideGatherWindowInDuty = b);
 
-        public static void DrawGatherWindowHoldCtrlBox()
-            => DrawCheckbox("Only Show Gather Window if Holding Control",
-                "Only show the gather window if you are holding your control key.",
-                GatherBuddy.Config.OnlyShowGatherWindowHoldingCtrl, b => GatherBuddy.Config.OnlyShowGatherWindowHoldingCtrl = b);
+        public static void DrawGatherWindowHoldKey()
+        {
+            DrawCheckbox("Only Show Gather Window if Holding Key",
+                "Only show the gather window if you are holding your selected key.",
+                GatherBuddy.Config.OnlyShowGatherWindowHoldingKey, b => GatherBuddy.Config.OnlyShowGatherWindowHoldingKey = b);
+
+            if (!GatherBuddy.Config.OnlyShowGatherWindowHoldingKey)
+                return;
+
+            ImGui.SetNextItemWidth(SetInputWidth);
+            ImGuiUtil.KeySelector("Hotkey to Hold", "Set the hotkey to hold to keep the window visible.",
+                GatherBuddy.Config.GatherWindowHoldKey,
+                k => GatherBuddy.Config.GatherWindowHoldKey = k, Configuration.ValidKeys);
+        }
 
         public static void DrawGatherWindowLockBox()
             => DrawCheckbox("Lock Gather Window Position",
                 "Prevent moving the gather window by dragging it around.",
                 GatherBuddy.Config.LockGatherWindow, b => GatherBuddy.Config.LockGatherWindow = b);
+
+
+        public static void DrawGatherWindowHotkeyInput()
+        {
+            if (ImGuiUtil.ModifiableKeySelector("Hotkey to Open Gather Window", "Set a hotkey to open the Gather Window.", SetInputWidth,
+                    GatherBuddy.Config.GatherWindowHotkey, k => GatherBuddy.Config.GatherWindowHotkey = k, Configuration.ValidKeys))
+                GatherBuddy.Config.Save();
+        }
+
+        public static void DrawMainInterfaceHotkeyInput()
+        {
+            if (ImGuiUtil.ModifiableKeySelector("Hotkey to Open Main Interface", "Set a hotkey to open the main GatherBuddy interface.",
+                    SetInputWidth,
+                    GatherBuddy.Config.MainInterfaceHotkey, k => GatherBuddy.Config.MainInterfaceHotkey = k, Configuration.ValidKeys))
+                GatherBuddy.Config.Save();
+        }
+
+
+        public static void DrawGatherWindowDeleteModifierInput()
+        {
+            ImGui.SetNextItemWidth(SetInputWidth);
+            if (ImGuiUtil.ModifierSelector("Modifier to Delete Items on Right-Click",
+                    "Set the modifier key to be used while right-clicking items in the gather window to delete them.",
+                    GatherBuddy.Config.GatherWindowDeleteModifier, k => GatherBuddy.Config.GatherWindowDeleteModifier = k))
+                GatherBuddy.Config.Save();
+        }
+
 
         public static void DrawAetherytePreference()
         {
@@ -384,6 +423,7 @@ public partial class Interface
             {
                 ConfigFunctions.DrawOpenOnStartBox();
                 ConfigFunctions.DrawWeatherTabNamesBox();
+                ConfigFunctions.DrawMainInterfaceHotkeyInput();
                 ImGui.TreePop();
             }
 
@@ -407,8 +447,10 @@ public partial class Interface
                 ConfigFunctions.DrawSortGatherWindowBox();
                 ConfigFunctions.DrawGatherWindowShowOnlyAvailableBox();
                 ConfigFunctions.DrawHideGatherWindowInDutyBox();
-                ConfigFunctions.DrawGatherWindowHoldCtrlBox();
+                ConfigFunctions.DrawGatherWindowHoldKey();
                 ConfigFunctions.DrawGatherWindowLockBox();
+                ConfigFunctions.DrawGatherWindowHotkeyInput();
+                ConfigFunctions.DrawGatherWindowDeleteModifierInput();
                 ImGui.TreePop();
             }
 
