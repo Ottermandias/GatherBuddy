@@ -48,6 +48,7 @@ public class Alarm
         [JsonConverter(typeof(StringEnumConverter))]
         public ObjectType Type;
 
+        public string Name;
         public int    SecondOffset;
         public Sounds SoundId;
         public bool   Enabled;
@@ -55,6 +56,7 @@ public class Alarm
 
         public Config(Alarm a)
         {
+            Name         = a.Name;
             Id           = a.Item.ItemId;
             Type         = a.Item.Type;
             SecondOffset = a.SecondOffset;
@@ -78,6 +80,7 @@ public class Alarm
 
         alarm = new Alarm(item)
         {
+            Name         = config.Name,
             Enabled      = config.Enabled,
             PrintMessage = config.PrintMessage,
             SecondOffset = config.SecondOffset,
