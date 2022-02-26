@@ -191,7 +191,7 @@ public class GatherWindow
         using var color = ImGuiRaii.PushColor(ImGuiCol.WindowBg, ColorId.GatherWindowBackground.Value());
         using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.WindowPadding, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
         ImGui.SetNextWindowSizeConstraints(Vector2.Zero, Vector2.One * 10000);
-        var flags = ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar;
+        var flags = ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus;
         if (GatherBuddy.Config.LockGatherWindow)
             flags |= ImGuiWindowFlags.NoMove;
 

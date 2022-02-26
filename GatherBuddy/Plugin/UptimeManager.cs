@@ -205,6 +205,19 @@ public class UptimeManager : IDisposable
         return GetUptime(fish, territory, now);
     }
 
+    public (ILocation? Location, TimeInterval interval) NextUptime(IGatherable item, TimeStamp now)
+    {
+        if (item.InternalLocationId < 0)
+            return (FindClosestAetheryte(item), TimeInterval.Always);
+
+        return item switch
+        {
+            Gatherable g => GetBestUptime(g.NodeList, now),
+            Fish f       => GetBestUptime(f,          f.FishingSpots, now),
+            _            => throw new ArgumentException(),
+        };
+    }
+
     public (ILocation? Location, TimeInterval interval) NextUptime(Gatherable item, GatheringType type, TimeStamp now)
     {
         if (item.InternalLocationId < 0)

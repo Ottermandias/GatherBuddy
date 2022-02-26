@@ -48,7 +48,7 @@ public partial class SpearfishingHelper
         using var color = ImGuiRaii.PushColor(ImGuiCol.WindowBg, ColorId.SpearfishHelperBackgroundList.Value());
         ImGui.SetNextWindowPos(_uiSize * Vector2.UnitX + _uiPos);
         if (!ImGui.Begin("SpearfishingHelperList",
-                ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.AlwaysAutoResize))
+                ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus))
         {
             ImGui.End();
             return;

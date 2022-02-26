@@ -277,18 +277,20 @@ public partial class Interface
 
         ImGuiUtil.DrawTableColumn("Enabled");
         ImGuiUtil.DrawTableColumn(GatherBuddy.Config.AlarmsEnabled.ToString());
+        ImGuiUtil.DrawTableColumn("Dirty");
+        ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.Dirty.ToString());
         ImGuiUtil.DrawTableColumn("Next Change (Absolute)");
-        ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.NextChange.LocalTime.ToString(CultureInfo.InvariantCulture));
+        ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.ActiveAlarms[0].Item2.LocalTime.ToString(CultureInfo.InvariantCulture));
         ImGuiUtil.DrawTableColumn("Next Change (Relative)");
-        ImGuiUtil.DrawTableColumn(TimeInterval.DurationString(_plugin.AlarmManager.NextChange, GatherBuddy.Time.ServerTime, false));
+        ImGuiUtil.DrawTableColumn(TimeInterval.DurationString(_plugin.AlarmManager.ActiveAlarms[0].Item2, GatherBuddy.Time.ServerTime, false));
         ImGuiUtil.DrawTableColumn("#Alarm Groups");
         ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.Alarms.Count.ToString());
         ImGuiUtil.DrawTableColumn("#Enabled Alarms");
         ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.ActiveAlarms.Count.ToString());
         foreach (var (alarm, state) in _plugin.AlarmManager.ActiveAlarms)
         {
-            ImGuiUtil.DrawTableColumn(alarm.Name);
-            ImGuiUtil.DrawTableColumn(state.ToString());
+            ImGuiUtil.DrawTableColumn(alarm.Name.Any() ? alarm.Name : alarm.Item.Name[ClientLanguage.English]);
+            ImGuiUtil.DrawTableColumn($"{state} ({TimeInterval.DurationString(state, GatherBuddy.Time.ServerTime, false)})");
         }
     }
 

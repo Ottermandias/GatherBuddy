@@ -15,7 +15,7 @@ public partial class FishTimerWindow : IDisposable
     private const ImGuiWindowFlags EditFlags =
         ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoTitleBar;
 
-    private const ImGuiWindowFlags Flags = EditFlags | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoInputs;
+    private const ImGuiWindowFlags Flags = EditFlags | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoNavFocus;
 
     private          FishingSpot? _spot;
     private          FishCache[]  _availableFish = Array.Empty<FishCache>();

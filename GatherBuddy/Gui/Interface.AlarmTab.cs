@@ -144,6 +144,9 @@ public partial class Interface
         public int    NewSoundIdx     = 0;
         public int    NewSecondOffset = 0;
 
+        public int ChangedSecondOffset = 0;
+        public int ChangedAlarmIdx  = -1;
+
         public Alarm CreateAlarm()
             => new(GatherBuddy.UptimeManager.TimedGatherables[NewItemIdx])
             {
@@ -186,10 +189,15 @@ public partial class Interface
         _alarmCache.Selector.CreateDropTarget<AlarmWindowDragDropData>(d => _plugin.AlarmManager.MoveAlarm(group, d.AlarmIdx, localIdx));
 
         ImGui.TableNextColumn();
-        var secondOffset = alarm.SecondOffset;
+        var secondOffset = _alarmCache.ChangedAlarmIdx == alarmIdx ? _alarmCache.ChangedSecondOffset : alarm.SecondOffset;
         ImGui.SetNextItemWidth(SetInputWidth / 2);
         if (ImGui.DragInt("##Offset", ref secondOffset, 0.1f, 0, RealTime.SecondsPerDay))
-            _plugin.AlarmManager.ChangeAlarmOffset(group, alarmIdx, Math.Clamp(secondOffset, 0, RealTime.SecondsPerDay));
+        {
+            _alarmCache.ChangedAlarmIdx     = alarmIdx;
+            _alarmCache.ChangedSecondOffset = secondOffset;
+        }
+        if (ImGui.IsItemDeactivated())
+            _plugin.AlarmManager.ChangeAlarmOffset(group, alarmIdx, Math.Clamp(_alarmCache.ChangedSecondOffset, 0, RealTime.SecondsPerDay));
         ImGuiUtil.HoverTooltip("Trigger this alarm this many seconds before the item in question is next available.");
 
         ImGui.TableNextColumn();

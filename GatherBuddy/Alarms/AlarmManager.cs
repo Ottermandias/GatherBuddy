@@ -1,15 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Dalamud.Game;
-using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Logging;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
+using ImGuiOtter.Table;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.Alarms;
@@ -20,12 +19,47 @@ public partial class AlarmManager : IDisposable
     private readonly PlaySound _sounds;
 
     public   List<AlarmGroup>                  Alarms        { get; init; } = new();
-    internal Dictionary<Alarm, TimeStamp>      ActiveAlarms  { get; init; } = new();
+    internal List<(Alarm, TimeStamp)>          ActiveAlarms  { get; init; } = new();
     public   (Alarm, ILocation, TimeInterval)? LastItemAlarm { get; private set; }
     public   (Alarm, ILocation, TimeInterval)? LastFishAlarm { get; private set; }
 
-    public TimeStamp NextChange  = TimeStamp.Epoch;
-    public TimeStamp LastMessage = TimeStamp.Epoch;
+    internal bool      Dirty                    = true;
+
+
+    public void SortActiveAlarms()
+    {
+        if (!Dirty)
+            return;
+
+        ActiveAlarms.StableSort((a, b) => a.Item2.CompareTo(b.Item2));
+        Dirty = false;
+    }
+
+    public void AddActiveAlarm(Alarm alarm)
+    {
+        var idx = ActiveAlarms.FindIndex(a => ReferenceEquals(a.Item1, alarm));
+        if (idx >= 0)
+            return;
+
+        var (_, uptime) = GatherBuddy.UptimeManager.BestLocation(alarm.Item);
+        var start = uptime.Start.AddSeconds(-alarm.SecondOffset);
+        ActiveAlarms.Add((alarm, start));
+        Dirty = true;
+    }
+
+    public void RemoveActiveAlarm(Alarm alarm)
+    {
+        if (ReferenceEquals(alarm, LastFishAlarm?.Item1))
+            LastFishAlarm = null;
+        if (ReferenceEquals(alarm, LastItemAlarm?.Item1))
+            LastItemAlarm = null;
+
+        var idx = ActiveAlarms.FindIndex(a => ReferenceEquals(a.Item1, alarm));
+        if (idx < 0)
+            return;
+
+        ActiveAlarms.RemoveAt(idx);
+    }
 
     public AlarmManager()
         => _sounds = new PlaySound(Dalamud.SigScanner);
@@ -67,7 +101,7 @@ public partial class AlarmManager : IDisposable
     }
 
     public void SetDirty()
-        => NextChange = TimeStamp.Epoch;
+        => Dirty = true;
 
     public void Dispose()
         => Disable();
@@ -81,20 +115,21 @@ public partial class AlarmManager : IDisposable
         foreach (var alarm in Alarms.Where(g => g.Enabled)
                      .SelectMany(g => g.Alarms)
                      .Where(a => a.Enabled))
-            ActiveAlarms.TryAdd(alarm, TimeStamp.Epoch);
-        SetDirty();
+            AddActiveAlarm(alarm);
     }
 
     private void OnLogin(object? _, EventArgs _2)
-        => SetDirty();
-
-    private static bool AlarmActive(Alarm a, TimeInterval i)
-        => GatherBuddy.Time.ServerTime >= i.Start.AddSeconds(-a.SecondOffset) && GatherBuddy.Time.ServerTime < i.End;
+        => SetActiveAlarms();
 
     public void OnUpdate(Framework _)
     {
         var st = GatherBuddy.Time.ServerTime;
-        if (st < NextChange)
+        if (LastFishAlarm != null && LastFishAlarm.Value.Item3.End < st)
+            LastFishAlarm = null;
+        if (LastItemAlarm != null && LastItemAlarm.Value.Item3.End < st)
+            LastItemAlarm = null;
+
+        if (ActiveAlarms.Count == 0)
             return;
 
         if (Functions.BetweenAreas())
@@ -103,50 +138,30 @@ public partial class AlarmManager : IDisposable
         if (!GatherBuddy.Config.AlarmsInDuty && Functions.BoundByDuty())
             return;
 
-        var nextChange = st.AddDays(365);
-        foreach (var (alarm, status) in ActiveAlarms)
-        {
-            var (location, uptime) = GatherBuddy.UptimeManager.BestLocation(alarm.Item);
+        SortActiveAlarms();
+        var (alarm, timeStamp) = ActiveAlarms[0];
 
-            var shiftedStart = uptime.Start.AddSeconds(-alarm.SecondOffset);
+        if (timeStamp >= st)
+            return;
 
-            if (shiftedStart > st && uptime.Start < nextChange)
-                nextChange = shiftedStart;
+        var (location, uptime) = GatherBuddy.UptimeManager.BestLocation(alarm.Item);
 
-            if (uptime.End < nextChange)
-                nextChange = uptime.End;
+        if (alarm.Item.Type == ObjectType.Fish)
+            LastFishAlarm = (alarm, location, uptime);
+        else if (alarm.Item.Type == ObjectType.Gatherable)
+            LastItemAlarm = (alarm, location, uptime);
 
-            if (uptime.Start == status)
-                continue;
+        if (alarm.SoundId > Sounds.Unknown)
+            _sounds.Play(alarm.SoundId);
 
-            ActiveAlarms[alarm] = uptime.Start;
-            if (shiftedStart > st)
-                continue;
+        // Some lax rounding for display.
+        uptime = uptime.Extend(500);
+        alarm.SendMessage(location, uptime);
 
-            // Do not spam messages and sounds when changing values.
-            if (LastMessage.AddSeconds(1) >= st
-             && (ReferenceEquals(alarm, LastItemAlarm?.Item1) || ReferenceEquals(alarm, LastFishAlarm?.Item1)))
-                continue;
-
-            LastMessage = st;
-            if (alarm.Item.Type == ObjectType.Fish)
-                LastFishAlarm = (alarm, location, uptime);
-            else if (alarm.Item.Type == ObjectType.Gatherable)
-                LastItemAlarm = (alarm, location, uptime);
-
-            if (alarm.SoundId > Sounds.Unknown)
-                _sounds.Play(alarm.SoundId);
-
-            alarm.SendMessage(location, uptime);
-        }
-
-        if (LastFishAlarm != null && !AlarmActive(LastFishAlarm.Value.Item1, LastFishAlarm.Value.Item3))
-            LastFishAlarm = null;
-
-        if (LastItemAlarm != null && !AlarmActive(LastItemAlarm.Value.Item1, LastItemAlarm.Value.Item3))
-            LastItemAlarm = null;
-
-        NextChange = nextChange;
+        var (_, newUptime) = GatherBuddy.UptimeManager.NextUptime(alarm.Item, uptime.End + 1);
+        var newStart = newUptime.Start.AddSeconds(-alarm.SecondOffset);
+        ActiveAlarms[0] = (alarm, newStart);
+        Dirty           = true;
     }
 
     public void Save()

@@ -1,6 +1,5 @@
 ﻿using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
-using GatherBuddy.Time;
 
 namespace GatherBuddy.Alarms;
 
@@ -12,16 +11,14 @@ public partial class AlarmManager
         if (alarm.Enabled)
         {
             alarm.Enabled = false;
-            ActiveAlarms.Remove(alarm);
+            if (group.Enabled)
+                RemoveActiveAlarm(alarm);
         }
         else
         {
             alarm.Enabled = true;
             if (group.Enabled)
-            {
-                ActiveAlarms.TryAdd(alarm, TimeStamp.Epoch);
-                SetDirty();
-            }
+                AddActiveAlarm(alarm);
         }
 
         Save();
@@ -37,7 +34,7 @@ public partial class AlarmManager
     {
         var alarm = group.Alarms[idx];
         if (group.Enabled && alarm.Enabled)
-            ActiveAlarms.Remove(alarm);
+            RemoveActiveAlarm(alarm);
 
         group.Alarms.RemoveAt(idx);
     }
@@ -47,7 +44,7 @@ public partial class AlarmManager
         group.Alarms.Add(value);
         if (group.Enabled && value.Enabled)
         {
-            ActiveAlarms.Add(value, TimeStamp.Epoch);
+            AddActiveAlarm(value);
             SetDirty();
         }
 
@@ -70,17 +67,9 @@ public partial class AlarmManager
         if (ReferenceEquals(alarm.Item, item))
             return;
 
+        RemoveActiveAlarm(alarm);
         alarm.Item = item;
-        if (ActiveAlarms.ContainsKey(alarm))
-        {
-            ActiveAlarms[alarm] = TimeStamp.Epoch;
-            SetDirty();
-            if (ReferenceEquals(alarm, LastFishAlarm?.Item1))
-                LastFishAlarm = null;
-            if (ReferenceEquals(alarm, LastItemAlarm?.Item1))
-                LastItemAlarm = null;
-        }
-
+        AddActiveAlarm(alarm);
         Save();
     }
 
@@ -110,13 +99,9 @@ public partial class AlarmManager
         if (alarm.SecondOffset == secondOffset)
             return;
 
+        RemoveActiveAlarm(alarm);
         alarm.SecondOffset = secondOffset;
-        if (ActiveAlarms.ContainsKey(alarm))
-        {
-            ActiveAlarms[alarm] = TimeStamp.Epoch;
-            SetDirty();
-        }
-
+        AddActiveAlarm(alarm);
         Save();
     }
 }
