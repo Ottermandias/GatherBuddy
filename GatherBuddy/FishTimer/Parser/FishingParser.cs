@@ -55,6 +55,9 @@ public partial class FishingParser : IDisposable
     private void OnCatchUpdate(IntPtr module, uint fishId, bool large, ushort size, byte amount, byte level, byte unk7, byte unk8, byte unk9,
         byte unk10, byte unk11, byte unk12)
     {
+        if (!GatherBuddy.Config.HideFishSizePopup)
+            _catchHook!.Original(module, fishId, large, size, amount, level, unk7, unk8, unk9, unk10, unk11, unk12);
+
         // Check against collectibles.
         var collectible = false;
         if (fishId > 500000)

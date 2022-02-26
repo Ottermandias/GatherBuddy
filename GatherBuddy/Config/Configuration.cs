@@ -68,6 +68,7 @@ public partial class Configuration : IPluginConfiguration
     public bool   HideUncaughtFish     { get; set; } = false;
     public bool   HideUnavailableFish  { get; set; } = false;
     public bool   ShowFishTimerUptimes { get; set; } = true;
+    public bool   HideFishSizePopup    { get; set; } = false;
     public ushort FishTimerScale       { get; set; } = 40000;
 
     // Spearfish Helper

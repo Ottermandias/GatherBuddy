@@ -185,6 +185,11 @@ public partial class Interface
             GatherBuddy.Config.Save();
         }
 
+        public static void DrawHideFishPopupBox()
+            => DrawCheckbox("Hide Catch Popup",
+                "Prevents the popup window that shows you your caught fish and its size, amount and quality from being shown.",
+                GatherBuddy.Config.HideFishSizePopup, b => GatherBuddy.Config.HideFishSizePopup = b);
+
 
         // Spearfishing Helper
         public static void DrawSpearfishHelperBox()
@@ -436,6 +441,7 @@ public partial class Interface
                 ConfigFunctions.DrawFishTimerHideBox2();
                 ConfigFunctions.DrawFishTimerUptimesBox();
                 ConfigFunctions.DrawFishTimerScale();
+                ConfigFunctions.DrawHideFishPopupBox();
                 ImGui.TreePop();
             }
 
