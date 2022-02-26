@@ -248,8 +248,16 @@ public partial class Interface
             ImGuiUtil.DrawTableColumn(item.NodeList.Count.ToString());
             var (loc, time) = GatherBuddy.UptimeManager.BestLocation(item);
             ImGuiUtil.DrawTableColumn(loc.Name);
-            ImGuiUtil.DrawTableColumn(time.Start.ToString());
-            ImGuiUtil.DrawTableColumn(time.End.ToString());
+            if (item.InternalLocationId > 0)
+            {
+                ImGuiUtil.DrawTableColumn(time.Start.ToString());
+                ImGuiUtil.DrawTableColumn(time.End.ToString());
+            }
+            else
+            {
+                ImGuiUtil.DrawTableColumn("Always");
+                ImGui.TableNextColumn();
+            }
         }
 
         foreach (var fish in GatherBuddy.GameData.Fishes.Values)
@@ -262,8 +270,16 @@ public partial class Interface
             ImGuiUtil.DrawTableColumn(fish.FishingSpots.Count.ToString());
             var (loc, time) = GatherBuddy.UptimeManager.BestLocation(fish);
             ImGuiUtil.DrawTableColumn(loc.Name);
-            ImGuiUtil.DrawTableColumn(time.Start.ToString());
-            ImGuiUtil.DrawTableColumn(time.End.ToString());
+            if (fish.InternalLocationId > 0)
+            {
+                ImGuiUtil.DrawTableColumn(time.Start.ToString());
+                ImGuiUtil.DrawTableColumn(time.End.ToString());
+            }
+            else
+            {
+                ImGuiUtil.DrawTableColumn("Always");
+                ImGui.TableNextColumn();
+            }
         }
     }
 
