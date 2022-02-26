@@ -23,7 +23,7 @@ public partial class AlarmManager : IDisposable
     public   (Alarm, ILocation, TimeInterval)? LastItemAlarm { get; private set; }
     public   (Alarm, ILocation, TimeInterval)? LastFishAlarm { get; private set; }
 
-    internal bool      Dirty                    = true;
+    internal bool Dirty = true;
 
 
     public void SortActiveAlarms()
