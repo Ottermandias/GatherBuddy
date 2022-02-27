@@ -48,7 +48,7 @@ public class Alarm
         [JsonConverter(typeof(StringEnumConverter))]
         public ObjectType Type;
 
-        public string Name;
+        public string Name = string.Empty;
         public int    SecondOffset;
         public Sounds SoundId;
         public bool   Enabled;
