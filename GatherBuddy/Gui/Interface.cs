@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.Plugin;
@@ -36,6 +37,7 @@ public partial class Interface : Window, IDisposable
 
     public override void Draw()
     {
+        SetFlags();
         SetupValues();
         DrawHeader();
         if (!ImGui.BeginTabBar("ConfigTabs###GatherBuddyConfigTabs", ImGuiTabBarFlags.Reorderable))
@@ -52,6 +54,21 @@ public partial class Interface : Window, IDisposable
         DrawLocationsTab();
         DrawRecordTab();
         DrawDebugTab();
+    }
+
+    public void SetFlags()
+    {
+        var flags = ImGuiWindowFlags.None;
+
+        if (GatherBuddy.Config.LockPosition) {
+            flags |= ImGuiWindowFlags.NoMove;
+        }
+
+        if (GatherBuddy.Config.LockResize) {
+            flags |= ImGuiWindowFlags.NoResize;
+        }
+
+        Flags = flags;
     }
 
     public override void PreOpenCheck()
