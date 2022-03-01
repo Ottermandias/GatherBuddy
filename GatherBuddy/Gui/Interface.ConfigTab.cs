@@ -47,6 +47,16 @@ public partial class Interface
                 "Toggle whether the GatherBuddy GUI should be visible after you start the game.",
                 GatherBuddy.Config.OpenOnStart, b => GatherBuddy.Config.OpenOnStart = b);
 
+        public static void DrawLockPositionBox()
+            => DrawCheckbox("Lock Config UI Movement",
+                "Toggle whether the GatherBuddy GUI movement should be locked.",
+                GatherBuddy.Config.LockPosition, b => GatherBuddy.Config.LockPosition = b);
+
+        public static void DrawLockResizeBox()
+            => DrawCheckbox("Lock Config UI Size",
+                "Toggle whether the GatherBuddy GUI size should be locked.",
+                GatherBuddy.Config.LockResize, b => GatherBuddy.Config.LockResize = b);
+
         public static void DrawGearChangeBox()
             => DrawCheckbox("Enable Gear Change",
                 "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set, Botanist Set and Fisher Set.",
@@ -427,6 +437,8 @@ public partial class Interface
             if (ImGui.TreeNodeEx("Config Window"))
             {
                 ConfigFunctions.DrawOpenOnStartBox();
+                ConfigFunctions.DrawLockPositionBox();
+                ConfigFunctions.DrawLockResizeBox();
                 ConfigFunctions.DrawWeatherTabNamesBox();
                 ConfigFunctions.DrawMainInterfaceHotkeyInput();
                 ImGui.TreePop();
