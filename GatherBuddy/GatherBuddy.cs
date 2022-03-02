@@ -4,6 +4,7 @@ using System.Reflection;
 using Dalamud;
 using Dalamud.Game;
 using Dalamud.Interface.Windowing;
+using Dalamud.Logging;
 using Dalamud.Plugin;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
@@ -91,7 +92,6 @@ public partial class GatherBuddy : IDalamudPlugin
         FishRecorder = new FishRecorder();
         FishRecorder.Enable();
         FishTimerWindow = new FishTimerWindow(FishRecorder);
-
         WindowSystem = new WindowSystem(Name);
         Interface    = new Interface(this);
         GatherWindow = new GatherWindow(this);

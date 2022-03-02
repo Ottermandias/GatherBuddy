@@ -11,10 +11,13 @@ public struct Record
 
     public HashSet<uint> SuccessfulBaits   { get; }      = new();
     public ushort        EarliestCatch     { get; set; } = ushort.MaxValue;
-    public ushort        LatestCatch       { get; set; }
+    public ushort        LatestCatch       { get; set; } = 0;
     public ushort        EarliestCatchChum { get; set; } = ushort.MaxValue;
-    public ushort        LatestCatchChum   { get; set; }
-    public bool          WithoutSnagging   { get; set; }
+    public ushort        LatestCatchChum   { get; set; } = 0;
+    public bool          WithoutSnagging   { get; set; } = false;
+
+    public Record()
+    {}
 
     private static readonly Regex V3MigrationRegex = new("(Unknown|Weak|Strong|Legendary) ", RegexOptions.Compiled);
 
