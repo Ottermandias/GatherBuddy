@@ -64,34 +64,6 @@ public class GatherWindow
         ImGui.SetTooltip(s);
     }
 
-    private void DrawAlarm((Alarm, ILocation, TimeInterval)? alarmGroup)
-    {
-        if (alarmGroup == null)
-            return;
-
-        var (alarm, location, time) = alarmGroup.Value;
-        if (time.End < GatherBuddy.Time.ServerTime)
-            return;
-
-        if (ImGui.TableNextColumn())
-        {
-            var name = alarm.Name.Length == 0
-                ? $"Alarm: {alarm.Item.Name[GatherBuddy.Language]}"
-                : $"{alarm.Name}: {alarm.Item.Name[GatherBuddy.Language]}";
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
-            ImGuiUtil.HoverIcon(Icons.DefaultStorage[alarm.Item.ItemData.Icon], Vector2.One * ImGui.GetTextLineHeight());
-            ImGui.SameLine();
-            using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.GatherWindowAvailable.Value());
-            if (ImGui.Selectable(name, false))
-                _plugin.Executor.GatherLocation(location);
-            color.Pop();
-            style.Pop();
-            CreateTooltip(location, time);
-        }
-
-        DrawTime(location, time);
-    }
-
     private void DrawItem(IGatherable item)
     {
         var (loc, time) = GatherBuddy.UptimeManager.BestLocation(item);
@@ -130,15 +102,6 @@ public class GatherWindow
         }
 
         DrawTime(loc, time);
-    }
-
-    private void DrawAlarms()
-    {
-        if (!GatherBuddy.Config.ShowGatherWindowAlarms)
-            return;
-
-        DrawAlarm(_plugin.AlarmManager.LastItemAlarm);
-        DrawAlarm(_plugin.AlarmManager.LastFishAlarm);
     }
 
     private void DeleteItem()
@@ -182,10 +145,7 @@ public class GatherWindow
         if (CheckHotkeys() || CheckHoldKey() || CheckDuty())
             return;
 
-        var alarmTimers = GatherBuddy.Config.ShowGatherWindowAlarms
-         && (_plugin.AlarmManager.LastFishAlarm != null || _plugin.AlarmManager.LastItemAlarm != null);
-
-        if (_plugin.GatherWindowManager.ActiveItems.Count == 0 && !alarmTimers)
+        if (_plugin.GatherWindowManager.ActiveItems.Count == 0)
             return;
 
         using var color = ImGuiRaii.PushColor(ImGuiCol.WindowBg, ColorId.GatherWindowBackground.Value());
@@ -207,7 +167,6 @@ public class GatherWindow
 
         end.Push(ImGui.EndTable);
 
-        DrawAlarms();
         foreach (var item in _plugin.GatherWindowManager.GetList())
             DrawItem(item);
 

@@ -83,7 +83,7 @@ public partial class GatherBuddy : IDalamudPlugin
         GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
         LocationManager     = LocationManager.Load();
         AlarmManager        = AlarmManager.Load();
-        GatherWindowManager = GatherWindowManager.Load();
+        GatherWindowManager = GatherWindowManager.Load(AlarmManager);
         AlarmManager.ForceEnable();
 
         SpearfishingHelper = new SpearfishingHelper(GameData);

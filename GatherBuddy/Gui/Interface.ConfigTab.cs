@@ -257,9 +257,13 @@ public partial class Interface
                 GatherBuddy.Config.ShowGatherWindowTimers, b => GatherBuddy.Config.ShowGatherWindowTimers = b);
 
         public static void DrawGatherWindowAlarmsBox()
-            => DrawCheckbox("Show Last Alarms in Gather Window",
-                "Show the last triggered alarms in your gather window if they exist.",
-                GatherBuddy.Config.ShowGatherWindowAlarms, b => GatherBuddy.Config.ShowGatherWindowAlarms = b);
+            => DrawCheckbox("Show Active Alarms in Gather Window",
+                "Additionally show active alarms as a last gather window preset, obeying the regular rules for the window.",
+                GatherBuddy.Config.ShowGatherWindowAlarms, b =>
+                {
+                    GatherBuddy.Config.ShowGatherWindowAlarms = b;
+                    _plugin.GatherWindowManager.SetShowGatherWindowAlarms(b);
+                });
 
         public static void DrawSortGatherWindowBox()
             => DrawCheckbox("Sort Gather Window by Uptime",

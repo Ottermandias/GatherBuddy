@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dalamud.Logging;
+using GatherBuddy.Alarms;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using ImGuiOtter.Table;
@@ -19,10 +20,24 @@ public partial class GatherWindowManager : IDisposable
     public List<IGatherable> ActiveItems = new();
     public List<IGatherable> SortedItems = new();
 
-    private bool _sortDirty = true;
+    private readonly AlarmManager _alarms;
+    private          bool         _sortDirty = true;
 
-    public GatherWindowManager()
-        => GatherBuddy.UptimeManager.UptimeChange += OnUptimeChange;
+    public GatherWindowManager(AlarmManager alarms)
+    {
+        _alarms                                =  alarms;
+        GatherBuddy.UptimeManager.UptimeChange += OnUptimeChange;
+        SetShowGatherWindowAlarms(GatherBuddy.Config.ShowGatherWindowAlarms);
+    }
+
+    public void SetShowGatherWindowAlarms(bool value)
+    {
+        if (value)
+            _alarms.ActiveAlarmsChanged += OnActiveAlarmsChange;
+        else
+            _alarms.ActiveAlarmsChanged -= OnActiveAlarmsChange;
+        SetActiveItems();
+    }
 
     public void Dispose()
         => GatherBuddy.UptimeManager.UptimeChange -= OnUptimeChange;
@@ -30,6 +45,8 @@ public partial class GatherWindowManager : IDisposable
     private void OnUptimeChange(IGatherable item)
         => _sortDirty = true;
 
+    private void OnActiveAlarmsChange()
+        => SetActiveItems();
 
     public void SetActiveItems()
     {
@@ -38,6 +55,10 @@ public partial class GatherWindowManager : IDisposable
                      .SelectMany(p => p.Items)
                      .Where(i => !ActiveItems.Contains(i)))
             ActiveItems.Add(item);
+        if (GatherBuddy.Config.ShowGatherWindowAlarms && GatherBuddy.Config.AlarmsEnabled)
+            foreach (var item in _alarms.ActiveAlarms.Select(a => a.Item1.Item)
+                         .Where(i => !ActiveItems.Contains(i)))
+                ActiveItems.Add(item);
         SortedItems.Clear();
         SortedItems.InsertRange(0, ActiveItems);
         _sortDirty = true;
@@ -72,9 +93,9 @@ public partial class GatherWindowManager : IDisposable
         }
     }
 
-    public static GatherWindowManager Load()
+    public static GatherWindowManager Load(AlarmManager alarms)
     {
-        var ret  = new GatherWindowManager();
+        var ret  = new GatherWindowManager(alarms);
         var file = Functions.ObtainSaveFile(FileName);
         if (file is not { Exists: true })
         {
