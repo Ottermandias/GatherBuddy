@@ -151,7 +151,10 @@ public partial class GatherBuddy
         {
             if (node.Annotation.Any())
                 Communicator.Print(node.Annotation);
+            if (node.PreferLocation == null)
                 Executor.GatherItem(node.Item);
+            else
+                Executor.GatherLocation(node.PreferLocation);
         }
     }
 

@@ -1,7 +1,5 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 
@@ -19,8 +17,8 @@ public static class GroupData
                 {
                     Type        = ObjectType.Gatherable,
                     ItemId      = i.Item1,
-                    StartMinute = i.Item2 * RealTime.MinutesPerHour,
-                    EndMinute   = (i.Item2 + 2) * RealTime.MinutesPerHour % RealTime.MinutesPerDay,
+                    StartMinute = (short) (i.Item2 * RealTime.MinutesPerHour),
+                    EndMinute   = (short) ((i.Item2 + 2) * RealTime.MinutesPerHour % RealTime.MinutesPerDay),
                     Annotation  = string.Empty,
                 }).ToArray(),
         };
@@ -35,8 +33,8 @@ public static class GroupData
                 {
                     Type        = ObjectType.Gatherable,
                     ItemId      = i.Item1,
-                    StartMinute = i.Item2 * RealTime.MinutesPerHour,
-                    EndMinute   = (i.Item2 + 4) * RealTime.MinutesPerHour % RealTime.MinutesPerDay,
+                    StartMinute = (short) (i.Item2 * RealTime.MinutesPerHour),
+                    EndMinute   = (short) ((i.Item2 + 4) * RealTime.MinutesPerHour % RealTime.MinutesPerDay),
                     Annotation  = string.Empty,
                 }).ToArray(),
         };

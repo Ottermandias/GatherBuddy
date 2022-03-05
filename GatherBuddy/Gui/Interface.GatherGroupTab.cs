@@ -207,6 +207,36 @@ public partial class Interface
         ImGui.Text(" Eorzea Time");
     }
 
+    private void DrawLocationInput(TimedGroup group, int nodeIdx)
+    {
+        var node  = group.Nodes[nodeIdx];
+        var width = SelectorWidth * 0.75f;
+        if (node.Item.Locations.Count() <= 1)
+        {
+            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
+            ImGuiUtil.DrawTextButton(node.Item.Locations.First().Name, new Vector2(width, 0), ImGui.GetColorU32(ImGuiCol.FrameBg));
+            return;
+        }
+
+        var text = node.PreferLocation?.Name ?? "No Preferred Location";
+        ImGui.SetNextItemWidth(width);
+        if (!ImGui.BeginCombo("##Location", text))
+            return;
+
+        using var end = ImGuiRaii.DeferredEnd(ImGui.EndCombo);
+
+        if (ImGui.Selectable("No preferred location", node.PreferLocation == null)
+         && _plugin.GatherGroupManager.ChangeGroupNodeLocation(group, nodeIdx, null))
+            _plugin.GatherGroupManager.Save();
+
+        foreach (var loc in node.Item.Locations)
+        {
+            if (ImGui.Selectable(loc.Name, loc.Id == (node.PreferLocation?.Id ?? 0))
+             && _plugin.GatherGroupManager.ChangeGroupNodeLocation(@group, nodeIdx, loc))
+                _plugin.GatherGroupManager.Save();
+        }
+    }
+
     private void DrawGatherGroupNode(TimedGroup group, ref int idx, int minutes)
     {
         var       node           = group.Nodes[idx];
@@ -223,9 +253,9 @@ public partial class Interface
             }
 
         ImGui.TableNextColumn();
-        if (_gatherGroupCache.GatherableSelector.Draw(node.Item.Name[GatherBuddy.Language], out var newIdx))
-            if (_plugin.GatherGroupManager.ChangeGroupNode(group, i, GatherGroupCache.AllGatherables[newIdx], null, null, null, false))
-                _plugin.GatherGroupManager.Save();
+        if (_gatherGroupCache.GatherableSelector.Draw(node.Item.Name[GatherBuddy.Language], out var newIdx)
+         && _plugin.GatherGroupManager.ChangeGroupNode(group, i, GatherGroupCache.AllGatherables[newIdx], null, null, null, false))
+            _plugin.GatherGroupManager.Save();
 
         _gatherGroupCache.Selector.CreateDropSource(new GatherGroupDragDropData(group, node, i), node.Item.Name[GatherBuddy.Language]);
 
@@ -240,6 +270,8 @@ public partial class Interface
                 _gatherGroupCache.SetDirty();
             }
         });
+        ImGui.TableNextColumn();
+        DrawLocationInput(group, idx);
         ImGui.TableNextColumn();
         var length = node.Length();
         ImGuiUtil.DrawTextButton($"{length} minutes", Vector2.Zero,
@@ -286,7 +318,7 @@ public partial class Interface
         var times = _gatherGroupCache.UpdateItemPerMinute(group);
         DrawMissingTimesHint(times[0] > 0);
 
-        if (!ImGui.BeginTable("##nodes", 5, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollX))
+        if (!ImGui.BeginTable("##nodes", 6, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollX))
             return;
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);
@@ -370,13 +402,15 @@ public partial class Interface
             }
         }
 
-        if (ImGuiUtil.DrawDisabledButton("Create Preset", Vector2.Zero, "Create a new Gather Window Preset from this gather group.", _gatherGroupCache.Selector.Current == null))
+        if (ImGuiUtil.DrawDisabledButton("Create Preset", Vector2.Zero, "Create a new Gather Window Preset from this gather group.",
+                _gatherGroupCache.Selector.Current == null))
         {
             var preset = new GatherWindowPreset(_gatherGroupCache.Selector.Current!);
             _plugin.GatherWindowManager.AddPreset(preset);
         }
 
-        if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this gather group.", _gatherGroupCache.Selector.Current == null))
+        if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this gather group.",
+                _gatherGroupCache.Selector.Current == null))
         {
             var preset = new AlarmGroup(_gatherGroupCache.Selector.Current!);
             _plugin.AlarmManager.AddGroup(preset);
