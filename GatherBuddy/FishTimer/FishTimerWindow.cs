@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Windowing;
 using GatherBuddy.Config;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
@@ -10,12 +11,16 @@ using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.FishTimer;
 
-public partial class FishTimerWindow : IDisposable
+public partial class FishTimerWindow : Window
 {
     private const ImGuiWindowFlags EditFlags =
         ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoCollapse | ImGuiWindowFlags.NoTitleBar;
 
-    private const ImGuiWindowFlags Flags = EditFlags | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoResize | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.NoNavFocus;
+    private const ImGuiWindowFlags NormalFlags = EditFlags
+      | ImGuiWindowFlags.NoDecoration
+      | ImGuiWindowFlags.NoResize
+      | ImGuiWindowFlags.NoInputs
+      | ImGuiWindowFlags.NoNavFocus;
 
     private          FishingSpot? _spot;
     private          FishCache[]  _availableFish = Array.Empty<FishCache>();
@@ -32,43 +37,16 @@ public partial class FishTimerWindow : IDisposable
     private int     _milliseconds;
 
     public FishTimerWindow(FishRecorder recorder)
+        : base("##FishingTimer")
     {
-        _recorder                              =  recorder;
-        Dalamud.PluginInterface.UiBuilder.Draw += Draw;
-    }
-
-    public void Dispose()
-    {
-        Dalamud.PluginInterface.UiBuilder.Draw -= Draw;
+        _recorder          = recorder;
+        IsOpen             = GatherBuddy.Config.ShowFishTimer;
+        Namespace          = "FishingTimer";
+        RespectCloseHotkey = false;
     }
 
     private static float Rounding
         => 4 * ImGuiHelpers.GlobalScale;
-
-    private void DrawRegular()
-    {
-        using var style = Preamble();
-        if (!BeginWindow(Flags))
-            return;
-
-        using var end = ImGuiRaii.DeferredEnd(ImGui.End);
-        DrawTextHeader(_recorder.Record.Bait.Name, _spot?.Name ?? "Unknown", _milliseconds);
-        foreach (var fish in _availableFish)
-            fish.Draw(this);
-
-        DrawProgressLine();
-    }
-
-    private void DrawEditMode()
-    {
-        using var style = Preamble();
-        if (!BeginWindow(EditFlags))
-            return;
-
-        using var end = ImGuiRaii.DeferredEnd(ImGui.End);
-        DrawTextHeader("Bait", "Place", -1);
-        DrawEditModeTimer();
-    }
 
     private void DrawEditModeTimer()
     {
@@ -102,36 +80,6 @@ public partial class FishTimerWindow : IDisposable
         var end   = new Vector2(diff, _windowPos.Y + _listHeight - 2 * ImGuiHelpers.GlobalScale);
         ImGui.GetWindowDrawList()
             .AddLine(start, end, ColorId.FishTimerProgress.Value(), 3 * ImGuiHelpers.GlobalScale);
-    }
-
-    private ImGuiRaii.Style Preamble()
-    {
-        ImGui.SetNextWindowSizeConstraints(new Vector2(225 * ImGuiHelpers.GlobalScale, _maxListHeight),
-            new Vector2(2000 * ImGuiHelpers.GlobalScale,                               _maxListHeight));
-        var style = ImGuiRaii.PushStyle(ImGuiStyleVar.WindowPadding, Vector2.Zero)
-            .Push(ImGuiStyleVar.ItemSpacing, _itemSpacing);
-        SetupStyle();
-        return style;
-    }
-
-    private void SetupStyle()
-    {
-        _lineHeight    = ImGui.GetFrameHeight();
-        _iconSize      = new Vector2(_lineHeight);
-        _itemSpacing   = new Vector2(0, ImGuiHelpers.GlobalScale);
-        _textLines     = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGuiHelpers.GlobalScale;
-        _maxListHeight = 10 * (_lineHeight + _itemSpacing.Y) + _textLines;
-        _listHeight    = _availableFish.Length * (_lineHeight + _itemSpacing.Y) + _textLines;
-    }
-
-    private bool BeginWindow(ImGuiWindowFlags flags)
-    {
-        if (!ImGui.Begin("##FishingTimer", flags))
-            return false;
-
-        _windowPos  = ImGui.GetWindowPos();
-        _windowSize = new Vector2(ImGui.GetWindowSize().X, _maxListHeight);
-        return true;
     }
 
     private void DrawTextHeader(string bait, string spot, int milliseconds)
@@ -198,24 +146,60 @@ public partial class FishTimerWindow : IDisposable
         }
     }
 
-    private void Draw()
+    public override void PreDraw()
     {
-        if (!GatherBuddy.Config.ShowFishTimer)
-            return;
-
-        if (GatherBuddy.Config.FishTimerEdit)
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
+        ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
+        _lineHeight    = ImGui.GetFrameHeight();
+        _iconSize      = new Vector2(_lineHeight);
+        _itemSpacing   = new Vector2(0, ImGuiHelpers.GlobalScale);
+        _textLines     = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGuiHelpers.GlobalScale;
+        _maxListHeight = 10 * (_lineHeight + _itemSpacing.Y) + _textLines;
+        _listHeight    = _availableFish.Length * (_lineHeight + _itemSpacing.Y) + _textLines;
+        SizeConstraints = new WindowSizeConstraints
         {
-            DrawEditMode();
-            return;
-        }
+            MinimumSize = new Vector2(225 * ImGuiHelpers.GlobalScale,  _maxListHeight),
+            MaximumSize = new Vector2(2000 * ImGuiHelpers.GlobalScale, _maxListHeight),
+        };
+        Flags = GatherBuddy.Config.FishTimerEdit ? EditFlags : NormalFlags;
+    }
+
+    public override void PostDraw()
+    {
+        ImGui.PopStyleVar(2);
+    }
+
+    public override bool DrawConditions()
+    {
+        if (GatherBuddy.Config.FishTimerEdit)
+            return true;
 
         if (GatherBuddy.EventFramework.FishingState == FishingState.None)
         {
             SetSpot(null);
-            return;
+            return false;
         }
 
         SetSpot(_recorder.Record.FishingSpot);
-        DrawRegular();
+        return true;
+    }
+
+    public override void Draw()
+    {
+        _windowPos  = ImGui.GetWindowPos();
+        _windowSize = new Vector2(ImGui.GetWindowSize().X, _maxListHeight);
+        if (GatherBuddy.Config.FishTimerEdit)
+        {
+            DrawTextHeader("Bait", "Place", -1);
+            DrawEditModeTimer();
+        }
+        else
+        {
+            DrawTextHeader(_recorder.Record.Bait.Name, _spot?.Name ?? "Unknown", _milliseconds);
+            foreach (var fish in _availableFish)
+                fish.Draw(this);
+
+            DrawProgressLine();
+        }
     }
 }

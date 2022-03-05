@@ -3,6 +3,7 @@ using System.Linq;
 using Dalamud.Game.ClientState.Objects.Enums;
 using GatherBuddy.Enums;
 using GatherBuddy.SeFunctions;
+using ImGuiNET;
 using Lumina.Excel.GeneratedSheets;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
@@ -16,11 +17,12 @@ public partial class SpearfishingHelper
     private bool         _isOpen;
 
     public SpearfishingHelper(GameData gameData)
+        : base("SpearfishingHelper", WindowFlags, true)
     {
         var points = Dalamud.GameData.GetExcelSheet<GatheringPoint>()!;
 
         // We go through all fishingspots and correspond them to their gathering point base.
-        var baseNodes = GatherBuddy.GameData.FishingSpots.Values
+        var baseNodes = gameData.FishingSpots.Values
             .Where(fs => fs.Spearfishing)
             .ToDictionary(fs => fs.SpearfishingSpotData!.GatheringPointBase.Row, fs => fs);
 
@@ -33,6 +35,10 @@ public partial class SpearfishingHelper
 
             SpearfishingSpots.Add(point.RowId, node);
         }
+
+        IsOpen             = GatherBuddy.Config.ShowSpearfishHelper;
+        RespectCloseHotkey = false;
+        Namespace          = "SpearfishingHelper";
     }
 
     // We should always have to target a spearfishing spot when opening the window.

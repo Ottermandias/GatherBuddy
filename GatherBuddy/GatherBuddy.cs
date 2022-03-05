@@ -29,14 +29,14 @@ public partial class GatherBuddy : IDalamudPlugin
 
     public static string Version = string.Empty;
 
-    public static Configuration  Config    { get; private set; } = null!;
-    public static GameData       GameData  { get; private set; } = null!;
-    public static ClientLanguage Language  { get; private set; } = ClientLanguage.English;
-    public static SeTime         Time      { get; private set; } = null!;
+    public static Configuration  Config   { get; private set; } = null!;
+    public static GameData       GameData { get; private set; } = null!;
+    public static ClientLanguage Language { get; private set; } = ClientLanguage.English;
+    public static SeTime         Time     { get; private set; } = null!;
 #if DEBUG
-    public static bool           DebugMode { get; private set; } = true;
+    public static bool DebugMode { get; private set; } = true;
 #else
-    public static bool           DebugMode { get; private set; } = false;
+    public static bool DebugMode { get; private set; } = false;
 #endif
 
     public static WeatherManager WeatherManager { get; private set; } = null!;
@@ -45,7 +45,6 @@ public partial class GatherBuddy : IDalamudPlugin
     public static EventFramework EventFramework { get; private set; } = null!;
     public static CurrentBait    CurrentBait    { get; private set; } = null!;
     public static SeTugType      TugType        { get; private set; } = null!;
-    public static FishingParser  FishingParser  { get; private set; } = null!;
 
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
     internal readonly LocationManager                LocationManager;
@@ -53,12 +52,9 @@ public partial class GatherBuddy : IDalamudPlugin
     internal readonly GatherWindowManager            GatherWindowManager;
     internal readonly WindowSystem                   WindowSystem;
     internal readonly Interface                      Interface;
-    internal readonly GatherWindow                   GatherWindow;
     internal readonly Executor                       Executor;
     internal readonly ContextMenu                    ContextMenu;
-    internal readonly SpearfishingHelper             SpearfishingHelper;
     internal readonly FishRecorder                   FishRecorder;
-    internal readonly FishTimerWindow                FishTimerWindow;
 
     internal readonly GatherBuddyIpc Ipc;
     //    internal readonly WotsitIpc Wotsit;
@@ -86,20 +82,17 @@ public partial class GatherBuddy : IDalamudPlugin
         GatherWindowManager = GatherWindowManager.Load(AlarmManager);
         AlarmManager.ForceEnable();
 
-        SpearfishingHelper = new SpearfishingHelper(GameData);
         InitializeCommands();
 
         FishRecorder = new FishRecorder();
         FishRecorder.Enable();
-        FishTimerWindow = new FishTimerWindow(FishRecorder);
         WindowSystem = new WindowSystem(Name);
         Interface    = new Interface(this);
-        GatherWindow = new GatherWindow(this);
         WindowSystem.AddWindow(Interface);
-        Dalamud.PluginInterface.UiBuilder.Draw         += Interface.ToggleHotkey;
+        WindowSystem.AddWindow(new GatherWindow(this));
+        WindowSystem.AddWindow(new FishTimerWindow(FishRecorder));
+        WindowSystem.AddWindow(new SpearfishingHelper(GameData));
         Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
-        Dalamud.PluginInterface.UiBuilder.Draw         += SpearfishingHelper.Draw;
-        Dalamud.PluginInterface.UiBuilder.Draw         += GatherWindow.Draw;
         Dalamud.PluginInterface.UiBuilder.OpenConfigUi += Interface.Toggle;
 
         Ipc = new GatherBuddyIpc(this);
@@ -108,15 +101,12 @@ public partial class GatherBuddy : IDalamudPlugin
 
     void IDisposable.Dispose()
     {
-        FishTimerWindow.Dispose();
         FishRecorder.Disable();
         ContextMenu.Dispose();
         UptimeManager.Dispose();
         Ipc.Dispose();
         //Wotsit.Dispose();
         Dalamud.PluginInterface.UiBuilder.OpenConfigUi -= Interface.Toggle;
-        Dalamud.PluginInterface.UiBuilder.Draw         -= GatherWindow.Draw;
-        Dalamud.PluginInterface.UiBuilder.Draw         -= SpearfishingHelper.Draw;
         Dalamud.PluginInterface.UiBuilder.Draw         -= WindowSystem.Draw;
         Interface.Dispose();
         WindowSystem.RemoveAllWindows();

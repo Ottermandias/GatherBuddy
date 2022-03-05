@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.Plugin;
@@ -55,7 +54,7 @@ public partial class Interface : Window, IDisposable
         DrawDebugTab();
     }
 
-    public void ToggleHotkey()
+    public override void PreOpenCheck()
     {
         if (_earliestKeyboardToggle > GatherBuddy.Time.ServerTime || !Functions.CheckKeyState(GatherBuddy.Config.MainInterfaceHotkey, false))
             return;

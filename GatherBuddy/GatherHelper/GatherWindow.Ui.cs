@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
-using GatherBuddy.Alarms;
+using Dalamud.Interface.Windowing;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.Interfaces;
@@ -12,7 +12,7 @@ using ImGuiOtter;
 
 namespace GatherBuddy.GatherHelper;
 
-public class GatherWindow
+public class GatherWindow : Window
 {
     private readonly GatherBuddy _plugin;
 
@@ -21,7 +21,20 @@ public class GatherWindow
     private TimeStamp _earliestKeyboardToggle = TimeStamp.Epoch;
 
     public GatherWindow(GatherBuddy plugin)
-        => _plugin = plugin;
+        : base("##GatherHelper",
+            ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus,
+            false)
+    {
+        _plugin            = plugin;
+        IsOpen             = GatherBuddy.Config.ShowGatherWindow;
+        RespectCloseHotkey = false;
+        Namespace          = "GatherHelper";
+        SizeConstraints = new WindowSizeConstraints
+        {
+            MinimumSize = Vector2.Zero,
+            MaximumSize = Vector2.One * 10000,
+        };
+    }
 
     private static void DrawTime(ILocation? loc, TimeInterval time)
     {
@@ -117,16 +130,14 @@ public class GatherWindow
         _deleteItemIdx = -1;
     }
 
-    private bool CheckHotkeys()
+    private void CheckHotkeys()
     {
         if (_earliestKeyboardToggle > GatherBuddy.Time.ServerTime || !Functions.CheckKeyState(GatherBuddy.Config.GatherWindowHotkey, false))
-            return !GatherBuddy.Config.ShowGatherWindow;
+            return;
 
         _earliestKeyboardToggle             = GatherBuddy.Time.ServerTime.AddMilliseconds(500);
         GatherBuddy.Config.ShowGatherWindow = !GatherBuddy.Config.ShowGatherWindow;
         GatherBuddy.Config.Save();
-
-        return !GatherBuddy.Config.ShowGatherWindow;
     }
 
     private static bool CheckHoldKey()
@@ -140,27 +151,35 @@ public class GatherWindow
     private static bool CheckDuty()
         => GatherBuddy.Config.HideGatherWindowInDuty && Functions.BoundByDuty();
 
-    public void Draw()
+    public override void PreOpenCheck()
     {
-        if (CheckHotkeys() || CheckHoldKey() || CheckDuty())
-            return;
+        CheckHotkeys();
+        IsOpen = GatherBuddy.Config.ShowGatherWindow;
+    }
 
-        if (_plugin.GatherWindowManager.ActiveItems.Count == 0)
-            return;
+    public override bool DrawConditions()
+        => !(CheckHoldKey() || CheckDuty() || _plugin.GatherWindowManager.ActiveItems.Count == 0);
 
-        using var color = ImGuiRaii.PushColor(ImGuiCol.WindowBg, ColorId.GatherWindowBackground.Value());
-        using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.WindowPadding, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
-        ImGui.SetNextWindowSizeConstraints(Vector2.Zero, Vector2.One * 10000);
-        var flags = ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus;
+    public override void PreDraw()
+    {
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, ColorId.GatherWindowBackground.Value());
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
         if (GatherBuddy.Config.LockGatherWindow)
-            flags |= ImGuiWindowFlags.NoMove;
+            Flags |= ImGuiWindowFlags.NoMove;
+        else
+            Flags &= ~
+                ImGuiWindowFlags.NoMove;
+    }
 
-        if (!ImGui.Begin("##GatherHelper", flags))
-        {
-            ImGui.End();
-            return;
-        }
+    public override void PostDraw()
+    {
+        DeleteItem();
+        ImGui.PopStyleVar();
+        ImGui.PopStyleColor();
+    }
 
+    public override void Draw()
+    {
         using var end = ImGuiRaii.DeferredEnd(ImGui.End);
         if (!ImGui.BeginTable("##table", GatherBuddy.Config.ShowGatherWindowTimers ? 2 : 1))
             return;
@@ -169,7 +188,5 @@ public class GatherWindow
 
         foreach (var item in _plugin.GatherWindowManager.GetList())
             DrawItem(item);
-
-        DeleteItem();
     }
 }

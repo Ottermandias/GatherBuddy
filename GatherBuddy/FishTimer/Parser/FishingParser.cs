@@ -11,8 +11,8 @@ namespace GatherBuddy.FishTimer.Parser;
 
 public partial class FishingParser : IDisposable
 {
-    private delegate bool UseActionDelegate(IntPtr manager, ActionType actionType, uint actionId, GameObjectID targetId, uint a4, uint a5, uint a6,
-        IntPtr a7);
+    private delegate bool UseActionDelegate(IntPtr manager, ActionType actionType, uint actionId, GameObjectID targetId, uint a4, uint a5,
+        uint a6, IntPtr a7);
 
     public event Action<FishingSpot?>?                   BeganFishing;
     public event Action?                                 BeganMooching;
@@ -78,7 +78,6 @@ public partial class FishingParser : IDisposable
     private bool OnUseAction(IntPtr manager, ActionType actionType, uint actionId, GameObjectID targetId, uint a4, uint a5, uint a6, IntPtr a7)
     {
         if (actionType == ActionType.Spell)
-        {
             switch (actionId)
             {
                 case 296:
@@ -97,7 +96,6 @@ public partial class FishingParser : IDisposable
                     HookedIn?.Invoke(HookSet.TripleHook);
                     break;
             }
-        }
 
         return _hookHook!.Original(manager, actionType, actionId, targetId, a4, a5, a6, a7);
     }
