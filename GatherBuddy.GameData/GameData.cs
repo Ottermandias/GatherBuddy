@@ -109,7 +109,7 @@ public class GameData
             Data.Fish.Apply(this);
 
             FishingSpots = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.FishingSpot>()?
-                    .Where(f => f.PlaceName.Row != 0 && f.TerritoryType.Row > 0)
+                    .Where(f => f.PlaceName.Row != 0 && (f.TerritoryType.Row > 0 || f.RowId == 10000 || f.RowId >= 10017) )
                     .Select(f => new FishingSpot(this, f))
                     .Concat(
                         DataManager.GetExcelSheet<SpearfishingNotebook>()?

@@ -60,7 +60,7 @@ public partial class Interface
         public FishTable()
             : base("##FishTable",
                 GatherBuddy.GameData.Fishes.Values
-                    .Where(f => f.FishingSpots.Count > 0)
+                    .Where(f => f.FishingSpots.Count > 0 && f.InLog)
                     .Select(f => new ExtendedFish(f)).ToList(), TextHeight, _nameColumn, _caughtColumn, _nextUptimeColumn, _uptimeColumn,
                 _baitColumn, _bestSpotColumn, _typeColumn, _patchColumn, _folkloreColumn, _aetheryteColumn, _bestZoneColumn, _itemIdColumn,
                 _fishIdColumn)
