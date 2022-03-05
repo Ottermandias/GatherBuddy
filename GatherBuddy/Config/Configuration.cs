@@ -50,8 +50,9 @@ public partial class Configuration : IPluginConfiguration
     public bool ShowWeatherNames { get; set; } = true;
 
     // Alarms
-    public bool AlarmsEnabled { get; set; } = false;
-    public bool AlarmsInDuty  { get; set; } = true;
+    public bool AlarmsEnabled          { get; set; } = false;
+    public bool AlarmsInDuty           { get; set; } = true;
+    public bool AlarmsOnlyWhenLoggedIn { get; set; } = false;
 
     // Colors
     public Dictionary<ColorId, uint> Colors { get; set; }

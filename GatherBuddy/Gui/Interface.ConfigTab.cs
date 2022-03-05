@@ -131,6 +131,10 @@ public partial class Interface
             => DrawCheckbox("Enable Alarms in Duty", "Set whether alarms should trigger while you are bound by a duty.",
                 GatherBuddy.Config.AlarmsInDuty,     b => GatherBuddy.Config.AlarmsInDuty = b);
 
+        public static void DrawAlarmsOnlyWhenLoggedInToggle()
+            => DrawCheckbox("Enable Alarms Only In-Game",  "Set whether alarms should trigger while you are not logged into any character.",
+                GatherBuddy.Config.AlarmsOnlyWhenLoggedIn, b => GatherBuddy.Config.AlarmsOnlyWhenLoggedIn = b);
+
         // Fish Timer
         public static void DrawFishTimerBox()
             => DrawCheckbox("Show Fish Timer",
