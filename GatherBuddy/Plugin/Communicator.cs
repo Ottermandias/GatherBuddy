@@ -122,12 +122,12 @@ public static class Communicator
         if (e != null)
         {
             name = name.Any() ? name : "<Unnamed>";
-            PluginLog.Error($"Could not save {objectType} {name} to Clipboard:\n{e}");
-            PrintError($"Could not save {objectType} ", name, GatherBuddy.Config.SeColorNames, " to Clipboard.");
+            PluginLog.Error($"Could not save {objectType}{name} to Clipboard:\n{e}");
+            PrintError($"Could not save {objectType}", name, GatherBuddy.Config.SeColorNames, " to Clipboard.");
         }
         else if (GatherBuddy.Config.PrintClipboardMessages)
         {
-            Print($"{objectType} ", name.Any() ? name : "<Unnamed>", GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
+            Print(objectType, name.Any() ? name : "<Unnamed>", GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
         }
     }
 

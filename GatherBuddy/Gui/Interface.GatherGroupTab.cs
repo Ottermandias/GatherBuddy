@@ -207,7 +207,7 @@ public partial class Interface
         ImGui.Text(" Eorzea Time");
     }
 
-    private void DrawLocationInput(TimedGroup group, int nodeIdx)
+    private static void DrawLocationInput(TimedGroup group, int nodeIdx)
     {
         var node  = group.Nodes[nodeIdx];
         var width = SelectorWidth * 0.75f;
