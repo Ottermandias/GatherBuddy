@@ -17,7 +17,7 @@ public partial class Interface : Window, IDisposable
 
     private static GatherBuddy _plugin                 = null!;
     private        TimeStamp   _earliestKeyboardToggle = TimeStamp.Epoch;
-
+    
     public Interface(GatherBuddy plugin)
         : base(GatherBuddy.Version.Length > 0 ? $"{PluginName} v{GatherBuddy.Version}###GatherBuddyMain" : PluginName)
     {
@@ -35,9 +35,12 @@ public partial class Interface : Window, IDisposable
         IsOpen = GatherBuddy.Config.OpenOnStart;
     }
 
+    public override void PreDraw() {
+        Flags = GetFlags();
+    }
+
     public override void Draw()
     {
-        SetFlags();
         SetupValues();
         DrawHeader();
         if (!ImGui.BeginTabBar("ConfigTabs###GatherBuddyConfigTabs", ImGuiTabBarFlags.Reorderable))
@@ -56,7 +59,7 @@ public partial class Interface : Window, IDisposable
         DrawDebugTab();
     }
 
-    public void SetFlags()
+    public static ImGuiWindowFlags GetFlags()
     {
         var flags = ImGuiWindowFlags.None;
 
@@ -68,7 +71,7 @@ public partial class Interface : Window, IDisposable
             flags |= ImGuiWindowFlags.NoResize;
         }
 
-        Flags = flags;
+        return flags;
     }
 
     public override void PreOpenCheck()
