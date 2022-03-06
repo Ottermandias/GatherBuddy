@@ -186,6 +186,10 @@ public partial class GatherBuddy
                 }
 
                 break;
+            case "unlock":
+                Config.MainWindowLockPosition = false;
+                Config.MainWindowLockResize   = false;
+                break;
             default:
                 var shortHelpString = new SeStringBuilder().AddText("Use ").AddColoredText(command, Config.SeColorCommands)
                     .AddText(" with one of the following arguments:\n")
@@ -193,7 +197,9 @@ public partial class GatherBuddy
                     .AddColoredText("        alarm",  Config.SeColorArguments).AddText(" - Toggle Alarms on or off.\n")
                     .AddColoredText("        spear",  Config.SeColorArguments).AddText(" - Toggle the Spearfishing Helper on or off.\n")
                     .AddColoredText("        fish",   Config.SeColorArguments).AddText(" - Toggle the Fish Timer window on or off.\n")
-                    .AddColoredText("        edit",   Config.SeColorArguments).AddText(" - Toggle edit mode for the fish timer.").BuiltString;
+                    .AddColoredText("        edit",   Config.SeColorArguments).AddText(" - Toggle edit mode for the fish timer.\n")
+                    .AddColoredText("        unlock", Config.SeColorArguments).AddText(" - Unlock the main window position and size.")
+                    .BuiltString;
                 Communicator.Print(shortHelpString);
                 return;
         }

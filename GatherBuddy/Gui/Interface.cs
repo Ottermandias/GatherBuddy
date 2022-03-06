@@ -34,6 +34,11 @@ public partial class Interface : Window, IDisposable
         IsOpen = GatherBuddy.Config.OpenOnStart;
     }
 
+    public override void PreDraw()
+    {
+        SetFlags();
+    }
+
     public override void Draw()
     {
         SetupValues();
@@ -52,6 +57,19 @@ public partial class Interface : Window, IDisposable
         DrawLocationsTab();
         DrawRecordTab();
         DrawDebugTab();
+    }
+
+    private void SetFlags()
+    {
+        if (GatherBuddy.Config.MainWindowLockPosition)
+            Flags |= ImGuiWindowFlags.NoMove;
+        else
+            Flags &= ~ImGuiWindowFlags.NoMove;
+
+        if (GatherBuddy.Config.MainWindowLockResize)
+            Flags |= ImGuiWindowFlags.NoResize;
+        else
+            Flags &= ~ImGuiWindowFlags.NoResize;
     }
 
     public override void PreOpenCheck()
