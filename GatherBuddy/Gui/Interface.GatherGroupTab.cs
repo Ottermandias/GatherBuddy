@@ -271,7 +271,7 @@ public partial class Interface
             }
         });
         ImGui.TableNextColumn();
-        DrawLocationInput(group, idx);
+        DrawLocationInput(group, i);
         ImGui.TableNextColumn();
         var length = node.Length();
         ImGuiUtil.DrawTextButton($"{length} minutes", Vector2.Zero,
