@@ -50,12 +50,12 @@ public partial class Interface
         public static void DrawLockPositionBox()
             => DrawCheckbox("Lock Config UI Movement",
                 "Toggle whether the GatherBuddy GUI movement should be locked.",
-                GatherBuddy.Config.LockPosition, b => GatherBuddy.Config.LockPosition = b);
+                GatherBuddy.Config.MainWindowLockPosition, b => GatherBuddy.Config.MainWindowLockPosition = b);
 
         public static void DrawLockResizeBox()
             => DrawCheckbox("Lock Config UI Size",
                 "Toggle whether the GatherBuddy GUI size should be locked.",
-                GatherBuddy.Config.LockResize, b => GatherBuddy.Config.LockResize = b);
+                GatherBuddy.Config.MainWindowLockResize, b => GatherBuddy.Config.MainWindowLockResize = b);
 
         public static void DrawGearChangeBox()
             => DrawCheckbox("Enable Gear Change",

@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Numerics;
-using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.Plugin;
@@ -17,7 +16,7 @@ public partial class Interface : Window, IDisposable
 
     private static GatherBuddy _plugin                 = null!;
     private        TimeStamp   _earliestKeyboardToggle = TimeStamp.Epoch;
-    
+
     public Interface(GatherBuddy plugin)
         : base(GatherBuddy.Version.Length > 0 ? $"{PluginName} v{GatherBuddy.Version}###GatherBuddyMain" : PluginName)
     {
@@ -35,8 +34,9 @@ public partial class Interface : Window, IDisposable
         IsOpen = GatherBuddy.Config.OpenOnStart;
     }
 
-    public override void PreDraw() {
-        Flags = GetFlags();
+    public override void PreDraw()
+    {
+        SetFlags();
     }
 
     public override void Draw()
@@ -59,19 +59,17 @@ public partial class Interface : Window, IDisposable
         DrawDebugTab();
     }
 
-    public static ImGuiWindowFlags GetFlags()
+    private void SetFlags()
     {
-        var flags = ImGuiWindowFlags.None;
+        if (GatherBuddy.Config.MainWindowLockPosition)
+            Flags |= ImGuiWindowFlags.NoMove;
+        else
+            Flags &= ~ImGuiWindowFlags.NoMove;
 
-        if (GatherBuddy.Config.LockPosition) {
-            flags |= ImGuiWindowFlags.NoMove;
-        }
-
-        if (GatherBuddy.Config.LockResize) {
-            flags |= ImGuiWindowFlags.NoResize;
-        }
-
-        return flags;
+        if (GatherBuddy.Config.MainWindowLockResize)
+            Flags |= ImGuiWindowFlags.NoResize;
+        else
+            Flags &= ~ImGuiWindowFlags.NoResize;
     }
 
     public override void PreOpenCheck()
