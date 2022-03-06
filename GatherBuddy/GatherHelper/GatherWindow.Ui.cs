@@ -1,7 +1,7 @@
 ﻿using System.Numerics;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
-using GatherBuddy.Alarms;
+using Dalamud.Interface.Windowing;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.Interfaces;
@@ -12,7 +12,7 @@ using ImGuiOtter;
 
 namespace GatherBuddy.GatherHelper;
 
-public class GatherWindow
+public class GatherWindow : Window
 {
     private readonly GatherBuddy _plugin;
 
@@ -21,7 +21,20 @@ public class GatherWindow
     private TimeStamp _earliestKeyboardToggle = TimeStamp.Epoch;
 
     public GatherWindow(GatherBuddy plugin)
-        => _plugin = plugin;
+        : base("##GatherHelper",
+            ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus,
+            false)
+    {
+        _plugin            = plugin;
+        IsOpen             = GatherBuddy.Config.ShowGatherWindow;
+        RespectCloseHotkey = false;
+        Namespace          = "GatherHelper";
+        SizeConstraints = new WindowSizeConstraints
+        {
+            MinimumSize = Vector2.Zero,
+            MaximumSize = Vector2.One * 10000,
+        };
+    }
 
     private static void DrawTime(ILocation? loc, TimeInterval time)
     {
@@ -64,34 +77,6 @@ public class GatherWindow
         ImGui.SetTooltip(s);
     }
 
-    private void DrawAlarm((Alarm, ILocation, TimeInterval)? alarmGroup)
-    {
-        if (alarmGroup == null)
-            return;
-
-        var (alarm, location, time) = alarmGroup.Value;
-        if (time.End < GatherBuddy.Time.ServerTime)
-            return;
-
-        if (ImGui.TableNextColumn())
-        {
-            var name = alarm.Name.Length == 0
-                ? $"Alarm: {alarm.Item.Name[GatherBuddy.Language]}"
-                : $"{alarm.Name}: {alarm.Item.Name[GatherBuddy.Language]}";
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
-            ImGuiUtil.HoverIcon(Icons.DefaultStorage[alarm.Item.ItemData.Icon], Vector2.One * ImGui.GetTextLineHeight());
-            ImGui.SameLine();
-            using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.GatherWindowAvailable.Value());
-            if (ImGui.Selectable(name, false))
-                _plugin.Executor.GatherLocation(location);
-            color.Pop();
-            style.Pop();
-            CreateTooltip(location, time);
-        }
-
-        DrawTime(location, time);
-    }
-
     private void DrawItem(IGatherable item)
     {
         var (loc, time) = GatherBuddy.UptimeManager.BestLocation(item);
@@ -132,15 +117,6 @@ public class GatherWindow
         DrawTime(loc, time);
     }
 
-    private void DrawAlarms()
-    {
-        if (!GatherBuddy.Config.ShowGatherWindowAlarms)
-            return;
-
-        DrawAlarm(_plugin.AlarmManager.LastItemAlarm);
-        DrawAlarm(_plugin.AlarmManager.LastFishAlarm);
-    }
-
     private void DeleteItem()
     {
         if (_deleteSet < 0 || _deleteItemIdx < 0)
@@ -154,16 +130,14 @@ public class GatherWindow
         _deleteItemIdx = -1;
     }
 
-    private bool CheckHotkeys()
+    private void CheckHotkeys()
     {
         if (_earliestKeyboardToggle > GatherBuddy.Time.ServerTime || !Functions.CheckKeyState(GatherBuddy.Config.GatherWindowHotkey, false))
-            return !GatherBuddy.Config.ShowGatherWindow;
+            return;
 
         _earliestKeyboardToggle             = GatherBuddy.Time.ServerTime.AddMilliseconds(500);
         GatherBuddy.Config.ShowGatherWindow = !GatherBuddy.Config.ShowGatherWindow;
         GatherBuddy.Config.Save();
-
-        return !GatherBuddy.Config.ShowGatherWindow;
     }
 
     private static bool CheckHoldKey()
@@ -177,40 +151,42 @@ public class GatherWindow
     private static bool CheckDuty()
         => GatherBuddy.Config.HideGatherWindowInDuty && Functions.BoundByDuty();
 
-    public void Draw()
+    public override void PreOpenCheck()
     {
-        if (CheckHotkeys() || CheckHoldKey() || CheckDuty())
-            return;
+        CheckHotkeys();
+        IsOpen = GatherBuddy.Config.ShowGatherWindow;
+    }
 
-        var alarmTimers = GatherBuddy.Config.ShowGatherWindowAlarms
-         && (_plugin.AlarmManager.LastFishAlarm != null || _plugin.AlarmManager.LastItemAlarm != null);
+    public override bool DrawConditions()
+        => !(CheckHoldKey() || CheckDuty() || _plugin.GatherWindowManager.ActiveItems.Count == 0);
 
-        if (_plugin.GatherWindowManager.ActiveItems.Count == 0 && !alarmTimers)
-            return;
-
-        using var color = ImGuiRaii.PushColor(ImGuiCol.WindowBg, ColorId.GatherWindowBackground.Value());
-        using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.WindowPadding, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
-        ImGui.SetNextWindowSizeConstraints(Vector2.Zero, Vector2.One * 10000);
-        var flags = ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus;
+    public override void PreDraw()
+    {
+        ImGui.PushStyleColor(ImGuiCol.WindowBg, ColorId.GatherWindowBackground.Value());
+        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
         if (GatherBuddy.Config.LockGatherWindow)
-            flags |= ImGuiWindowFlags.NoMove;
+            Flags |= ImGuiWindowFlags.NoMove;
+        else
+            Flags &= ~
+                ImGuiWindowFlags.NoMove;
+    }
 
-        if (!ImGui.Begin("##GatherHelper", flags))
-        {
-            ImGui.End();
-            return;
-        }
+    public override void PostDraw()
+    {
+        DeleteItem();
+        ImGui.PopStyleVar();
+        ImGui.PopStyleColor();
+    }
 
+    public override void Draw()
+    {
         using var end = ImGuiRaii.DeferredEnd(ImGui.End);
         if (!ImGui.BeginTable("##table", GatherBuddy.Config.ShowGatherWindowTimers ? 2 : 1))
             return;
 
         end.Push(ImGui.EndTable);
 
-        DrawAlarms();
         foreach (var item in _plugin.GatherWindowManager.GetList())
             DrawItem(item);
-
-        DeleteItem();
     }
 }

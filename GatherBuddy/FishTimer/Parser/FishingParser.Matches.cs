@@ -40,7 +40,7 @@ public partial class FishingParser
             PluginLog.Error($"Discovered unknown fishing spot: \"{fishingSpotName}\".");
     }
 
-    private const XivChatType FishingMessage      = (XivChatType)2243;
+    private const XivChatType FishingMessage = (XivChatType)2243;
 
 
     private void OnMessageDelegate(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)

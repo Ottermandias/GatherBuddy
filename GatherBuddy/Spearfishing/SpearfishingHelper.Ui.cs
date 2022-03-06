@@ -1,5 +1,9 @@
-﻿using System.Numerics;
+﻿using System;
+using System.Linq;
+using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using Dalamud.Interface;
+using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -11,11 +15,25 @@ using ImGuiOtter;
 
 namespace GatherBuddy.Spearfishing;
 
-public partial class SpearfishingHelper
+public partial class SpearfishingHelper : Window
 {
-    private float   _uiScale = 1;
-    private Vector2 _uiPos   = Vector2.Zero;
-    private Vector2 _uiSize  = Vector2.Zero;
+    private const ImGuiWindowFlags WindowFlags = ImGuiWindowFlags.NoDecoration
+      | ImGuiWindowFlags.NoInputs
+      | ImGuiWindowFlags.AlwaysAutoResize
+      | ImGuiWindowFlags.NoFocusOnAppearing
+      | ImGuiWindowFlags.NoNavFocus
+      | ImGuiWindowFlags.NoBackground;
+
+    private        float            _uiScale       = 1;
+    private        Vector2          _uiPos         = Vector2.Zero;
+    private        Vector2          _uiSize        = Vector2.Zero;
+    private unsafe SpearfishWindow* _addon         = null;
+    private        Vector2          _listSizeText  = Vector2.Zero;
+    private        Vector2          _listSizeIcons = Vector2.Zero;
+    private const  float            _iconSize      = 30;
+
+    private Vector2 ListSize
+        => ImGuiHelpers.GlobalScale * (GatherBuddy.Config.ShowSpearfishListIconsAsText ? _listSizeText : _listSizeIcons);
 
     private unsafe void DrawFish(FishingSpot? spot, SpearfishWindow.Info info, AtkResNode* node, AtkResNode* fishLines, int idx)
     {
@@ -44,22 +62,20 @@ public partial class SpearfishingHelper
         if (!GatherBuddy.Config.ShowAvailableSpearfish || _currentSpot == null || _currentSpot.Items.Length == 0)
             return;
 
-        ImGuiHelpers.ForceNextWindowMainViewport();
-        using var color = ImGuiRaii.PushColor(ImGuiCol.WindowBg, ColorId.SpearfishHelperBackgroundList.Value());
-        ImGui.SetNextWindowPos(_uiSize * Vector2.UnitX + _uiPos);
-        if (!ImGui.Begin("SpearfishingHelperList",
-                ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoInputs | ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus))
+        ImGui.SetCursorPos(_uiSize * Vector2.UnitX);
+        using var color = ImGuiRaii.PushColor(ImGuiCol.ChildBg, ColorId.SpearfishHelperBackgroundList.Value());
+        using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ChildRounding, 5 * ImGuiHelpers.GlobalScale);
+        if (!ImGui.BeginChild("##ListChild", ListSize, true, ImGuiWindowFlags.NoScrollbar))
         {
-            ImGui.End();
+            ImGui.EndChild();
             return;
         }
 
-        using var end      = ImGuiRaii.DeferredEnd(ImGui.End);
-        var       iconSize = ImGuiHelpers.ScaledVector2(30, 30);
+        using var end      = ImGuiRaii.DeferredEnd(ImGui.EndChild);
+        var       iconSize = ImGuiHelpers.ScaledVector2(_iconSize, _iconSize);
         foreach (var fish in _currentSpot.Items)
         {
-            using var _    = ImGuiRaii.NewGroup();
-            var       name = fish.Name[GatherBuddy.Language];
+            var name = fish.Name[GatherBuddy.Language];
             if (GatherBuddy.Config.ShowSpearfishListIconsAsText)
             {
                 name = $"{name} ({fish.Size.ToName()} and {fish.Speed.ToName()})";
@@ -73,64 +89,103 @@ public partial class SpearfishingHelper
             }
 
             ImGui.Image(Icons.DefaultStorage[fish.ItemData.Icon].ImGuiHandle, iconSize);
+            var pos = ImGui.GetCursorPos();
             ImGui.SameLine();
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + (iconSize.Y - ImGui.GetTextLineHeight()) / 2);
             ImGui.Text(name);
+            ImGui.SetCursorPos(pos);
         }
     }
 
-    private unsafe void DrawFishOverlay(SpearfishWindow* addon)
+    private unsafe void DrawFishOverlay()
     {
-        if (!GatherBuddy.Config.ShowSpearfishNames && !GatherBuddy.Config.ShowSpearfishCenterLine)
+        if (!GatherBuddy.Config.ShowSpearfishNames)
             return;
 
-        ImGui.SetNextWindowSize(_uiSize);
-        ImGui.SetNextWindowPos(_uiPos);
-        ImGuiHelpers.ForceNextWindowMainViewport();
-        if (!ImGui.Begin("SpearfishingHelper", ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoDecoration | ImGuiWindowFlags.NoInputs))
-        {
-            ImGui.End();
-        }
-        else
-        {
-            using var end = ImGuiRaii.DeferredEnd(ImGui.End);
-            if (GatherBuddy.Config.ShowSpearfishNames)
-            {
-                DrawFish(_currentSpot, addon->Fish1, addon->Fish1Node, addon->FishLines, 5);
-                DrawFish(_currentSpot, addon->Fish2, addon->Fish2Node, addon->FishLines, 3);
-                DrawFish(_currentSpot, addon->Fish3, addon->Fish3Node, addon->FishLines, 1);
-            }
-
-            if (GatherBuddy.Config.ShowSpearfishCenterLine)
-            {
-                var lineStart = _uiPos + new Vector2(_uiSize.X / 2, addon->FishLines->Y * _uiScale);
-                var lineEnd   = lineStart + new Vector2(0,          addon->FishLines->Height * _uiScale);
-                var list      = ImGui.GetWindowDrawList();
-                list.AddLine(lineStart, lineEnd, ColorId.SpearfishHelperCenterLine.Value(), 3 * ImGuiHelpers.GlobalScale);
-            }
-        }
+        DrawFish(_currentSpot, _addon->Fish1, _addon->Fish1Node, _addon->FishLines, 5);
+        DrawFish(_currentSpot, _addon->Fish2, _addon->Fish2Node, _addon->FishLines, 3);
+        DrawFish(_currentSpot, _addon->Fish3, _addon->Fish3Node, _addon->FishLines, 1);
     }
 
-    public unsafe void Draw()
+    private unsafe void DrawFishCenterLine()
     {
-        if (!GatherBuddy.Config.ShowSpearfishHelper)
+        if (!GatherBuddy.Config.ShowSpearfishCenterLine)
             return;
 
-        var addon   = (SpearfishWindow*)Dalamud.GameGui.GetAddonByName("SpearFishing", 1);
+        var lineStart = _uiPos + new Vector2(_uiSize.X / 2, _addon->FishLines->Y * _uiScale);
+        var lineEnd   = lineStart + new Vector2(0,          _addon->FishLines->Height * _uiScale);
+        var list      = ImGui.GetWindowDrawList();
+        list.AddLine(lineStart, lineEnd, ColorId.SpearfishHelperCenterLine.Value(), 3 * ImGuiHelpers.GlobalScale);
+    }
+
+    private void ComputeListSize()
+    {
+        if (_currentSpot == null)
+        {
+            _listSizeIcons = Vector2.Zero;
+            _listSizeText  = Vector2.Zero;
+            return;
+        }
+
+        var padding = ImGui.GetStyle().WindowPadding / ImGuiHelpers.GlobalScale;
+        var spacing = ImGui.GetStyle().ItemSpacing / ImGuiHelpers.GlobalScale;
+        var y       = padding.Y * 1.5f + (spacing.Y + _iconSize) * _currentSpot.Items.Length;
+        var xIcons = padding.X * 2
+          + (spacing.X + _iconSize) * 3
+          + _currentSpot.Items.Max(i => ImGui.CalcTextSize(i.Name[GatherBuddy.Language]).X) / ImGuiHelpers.GlobalScale;
+        var xText = padding.X * 2
+          + spacing.X
+          + _iconSize
+          + _currentSpot.Items.Max(i => ImGui.CalcTextSize($"{i.Name[GatherBuddy.Language]} ({i.Size.ToName()} and {i.Speed.ToName()})").X)
+          / ImGuiHelpers.GlobalScale;
+        _listSizeIcons = new Vector2(xIcons, y);
+        _listSizeText  = new Vector2(xText,  y);
+    }
+
+    public override unsafe bool DrawConditions()
+    {
         var oldOpen = _isOpen;
-        _isOpen = addon != null && addon->Base.WindowNode != null;
+        _addon  = (SpearfishWindow*)Dalamud.GameGui.GetAddonByName("SpearFishing", 1);
+        _isOpen = _addon != null && _addon->Base.WindowNode != null;
         if (!_isOpen)
-            return;
+            return false;
 
         if (_isOpen != oldOpen)
+        {
             _currentSpot = GetTargetFishingSpot();
+            ComputeListSize();
+        }
 
-        _uiScale = addon->Base.Scale;
-        _uiPos   = new Vector2(addon->Base.X, addon->Base.Y);
-        _uiSize = new Vector2(addon->Base.WindowNode->AtkResNode.Width * _uiScale,
-            addon->Base.WindowNode->AtkResNode.Height * _uiScale);
+        var drawOverlay = GatherBuddy.Config.ShowSpearfishNames
+         || GatherBuddy.Config.ShowSpearfishCenterLine
+         || GatherBuddy.Config.ShowAvailableSpearfish && _currentSpot != null && _currentSpot.Items.Length > 0;
+        return drawOverlay;
+    }
 
-        DrawFishOverlay(addon);
+    public override void PreOpenCheck()
+    {
+        IsOpen = GatherBuddy.Config.ShowSpearfishHelper;
+    }
+
+    public override unsafe void PreDraw()
+    {
+        _uiScale = _addon->Base.Scale;
+        _uiPos   = new Vector2(_addon->Base.X, _addon->Base.Y);
+        _uiSize = new Vector2(_addon->Base.WindowNode->AtkResNode.Width * _uiScale,
+            _addon->Base.WindowNode->AtkResNode.Height * _uiScale);
+
+        Position = _uiPos;
+        SizeConstraints = new WindowSizeConstraints
+        {
+            MinimumSize = _uiSize,
+            MaximumSize = Vector2.One * 10000,
+        };
+    }
+
+    public override void Draw()
+    {
+        DrawFishOverlay();
+        DrawFishCenterLine();
         DrawList();
     }
 }

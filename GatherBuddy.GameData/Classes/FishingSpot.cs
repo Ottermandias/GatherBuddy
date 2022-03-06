@@ -60,7 +60,7 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     public FishingSpot(GameData data, Lumina.Excel.GeneratedSheets.FishingSpot spot)
     {
         _data     = spot;
-        Territory = data.FindOrAddTerritory(spot.TerritoryType.Value) ?? Territory.Invalid;
+        Territory = data.FindOrAddTerritory(FishingSpotTerritoryHacks(data, spot)) ?? Territory.Invalid;
         Name      = MultiString.ParseSeStringLumina(spot.PlaceName.Value?.Name);
 
         IntegralXCoord = Maps.MarkerToMap(spot.X, Territory.SizeFactor);
@@ -105,4 +105,20 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         foreach (var item in Items)
             item.FishingSpots.Add(this);
     }
+
+    private TerritoryType? FishingSpotTerritoryHacks(GameData data, Lumina.Excel.GeneratedSheets.FishingSpot spot)
+        => spot.RowId switch
+        {
+            10_000 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(759), // the rows in between are no longer used diadem objects
+            10_017 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_018 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_019 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_020 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_021 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_022 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_023 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_024 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_025 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            _      => spot.TerritoryType.Value,
+        };
 }

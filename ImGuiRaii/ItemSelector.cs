@@ -370,7 +370,7 @@ public class ItemSelector<T>
 
     private void DrawDeleteButton(float width)
     {
-        if (ImGui.Button(FontAwesomeIcon.Trash.ToIconString(), Vector2.UnitX * width) && ImGui.GetIO().KeyCtrl && OnDelete(CurrentIdx))
+        if (ImGui.Button(FontAwesomeIcon.Trash.ToIconString(), Vector2.UnitX * width) && ImGui.GetIO().KeyCtrl && CurrentIdx >= 0 && OnDelete(CurrentIdx))
         {
             FilterDirty = true;
             SetCurrent(CurrentIdx > 0 ? CurrentIdx - 1 : CurrentIdx);

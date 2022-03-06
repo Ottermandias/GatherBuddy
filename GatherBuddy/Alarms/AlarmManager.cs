@@ -18,13 +18,14 @@ public partial class AlarmManager : IDisposable
     private const    string    FileName = "alarms.json";
     private readonly PlaySound _sounds;
 
-    public   List<AlarmGroup>                  Alarms        { get; init; } = new();
-    internal List<(Alarm, TimeStamp)>          ActiveAlarms  { get; init; } = new();
+    public   List<AlarmGroup>         Alarms       { get; init; } = new();
+    internal List<(Alarm, TimeStamp)> ActiveAlarms { get; init; } = new();
     public   (Alarm, ILocation, TimeInterval)? LastItemAlarm { get; private set; }
     public   (Alarm, ILocation, TimeInterval)? LastFishAlarm { get; private set; }
 
     internal bool Dirty = true;
 
+    public event Action? ActiveAlarmsChanged;
 
     public void SortActiveAlarms()
     {
@@ -35,7 +36,7 @@ public partial class AlarmManager : IDisposable
         Dirty = false;
     }
 
-    public void AddActiveAlarm(Alarm alarm)
+    public void AddActiveAlarm(Alarm alarm, bool trigger = true)
     {
         var idx = ActiveAlarms.FindIndex(a => ReferenceEquals(a.Item1, alarm));
         if (idx >= 0)
@@ -45,6 +46,8 @@ public partial class AlarmManager : IDisposable
         var start = uptime.Start.AddSeconds(-alarm.SecondOffset);
         ActiveAlarms.Add((alarm, start));
         Dirty = true;
+        if (trigger)
+            ActiveAlarmsChanged?.Invoke();
     }
 
     public void RemoveActiveAlarm(Alarm alarm)
@@ -59,6 +62,7 @@ public partial class AlarmManager : IDisposable
             return;
 
         ActiveAlarms.RemoveAt(idx);
+        ActiveAlarmsChanged?.Invoke();
     }
 
     public AlarmManager()
@@ -110,12 +114,16 @@ public partial class AlarmManager : IDisposable
     {
         ActiveAlarms.Clear();
         if (!GatherBuddy.Config.AlarmsEnabled)
+        {
+            ActiveAlarmsChanged?.Invoke();
             return;
+        }
 
         foreach (var alarm in Alarms.Where(g => g.Enabled)
                      .SelectMany(g => g.Alarms)
                      .Where(a => a.Enabled))
             AddActiveAlarm(alarm);
+        ActiveAlarmsChanged?.Invoke();
     }
 
     private void OnLogin(object? _, EventArgs _2)
@@ -133,6 +141,9 @@ public partial class AlarmManager : IDisposable
             return;
 
         if (Functions.BetweenAreas())
+            return;
+
+        if (GatherBuddy.Config.AlarmsOnlyWhenLoggedIn && Dalamud.ClientState.LocalPlayer == null)
             return;
 
         if (!GatherBuddy.Config.AlarmsInDuty && Functions.BoundByDuty())

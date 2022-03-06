@@ -72,7 +72,10 @@ public partial class GatherBuddy
             ShowInHelp  = true,
         };
 
-        _commands["/gatherdebug"] = new CommandInfo(OnGatherDebug);
+        _commands["/gatherdebug"] = new CommandInfo(OnGatherDebug)
+        {
+            ShowInHelp = false,
+        };
 
         foreach (var (command, info) in _commands)
             Dalamud.Commands.AddHandler(command, info);
@@ -148,7 +151,10 @@ public partial class GatherBuddy
         {
             if (node.Annotation.Any())
                 Communicator.Print(node.Annotation);
-            Executor.GatherItem(node.Item);
+            if (node.PreferLocation == null)
+                Executor.GatherItem(node.Item);
+            else
+                Executor.GatherLocation(node.PreferLocation);
         }
     }
 
@@ -181,7 +187,8 @@ public partial class GatherBuddy
 
                 break;
             default:
-                var shortHelpString = new SeStringBuilder().AddText("Use ").AddColoredText(command, Config.SeColorCommands).AddText(" with one of the following arguments:\n")
+                var shortHelpString = new SeStringBuilder().AddText("Use ").AddColoredText(command, Config.SeColorCommands)
+                    .AddText(" with one of the following arguments:\n")
                     .AddColoredText("        window", Config.SeColorArguments).AddText(" - Toggle the Gather Window on or off.\n")
                     .AddColoredText("        alarm",  Config.SeColorArguments).AddText(" - Toggle Alarms on or off.\n")
                     .AddColoredText("        spear",  Config.SeColorArguments).AddText(" - Toggle the Spearfishing Helper on or off.\n")

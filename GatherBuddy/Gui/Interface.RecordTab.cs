@@ -540,7 +540,7 @@ public partial class Interface
             {
                 var logFish = GatherBuddy.GameData.Fishes.Values.Where(f => f.InLog && f.FishingSpots.Count > 0).ToArray();
                 var ids     = logFish.Where(f => GatherBuddy.FishLog.IsUnlocked(f)).Select(f => f.ItemId).ToArray();
-                Communicator.PrintClipboardMessage("List of ", $"{ids.Length}/{logFish.Length} caught fish");
+                Communicator.PrintClipboardMessage("List of ", $"{ids.Length}/{logFish.Length} caught fish ");
                 ImGui.SetClipboardText(JsonConvert.SerializeObject(ids, Formatting.Indented));
             }
         }

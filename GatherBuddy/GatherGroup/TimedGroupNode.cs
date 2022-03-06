@@ -9,6 +9,7 @@ namespace GatherBuddy.GatherGroup;
 public class TimedGroupNode
 {
     public IGatherable Item;
+    public ILocation?  PreferLocation;
     public int         EorzeaStartMinute;
     public int         EorzeaEndMinute;
     public string      Annotation = string.Empty;
@@ -49,41 +50,62 @@ public class TimedGroupNode
     internal struct Config
     {
         public uint ItemId;
+        public uint PreferLocation;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ObjectType Type;
 
-        public int    StartMinute;
-        public int    EndMinute;
+        public short  StartMinute;
+        public short  EndMinute;
         public string Annotation;
     }
 
     internal Config ToConfig()
         => new()
         {
-            ItemId      = Item.ItemId,
-            Type        = Item.Type,
-            StartMinute = EorzeaStartMinute,
-            EndMinute   = EorzeaEndMinute,
-            Annotation  = Annotation,
+            ItemId         = Item.ItemId,
+            Type           = Item.Type,
+            PreferLocation = PreferLocation?.Id ?? 0,
+            StartMinute    = (short)EorzeaStartMinute,
+            EndMinute      = (short)EorzeaEndMinute,
+            Annotation     = Annotation,
         };
+
+    private static (IGatherable?, ILocation?) GetNodeData(Config cfg)
+    {
+        var        item = GatherBuddy.GameData.Gatherables.TryGetValue(cfg.ItemId, out var i) ? i : null;
+        ILocation? loc  = null;
+        if (cfg.PreferLocation != 0 && GatherBuddy.GameData.GatheringNodes.TryGetValue(cfg.PreferLocation, out var l))
+            loc = l;
+        return (item, loc);
+    }
+
+    private static (IGatherable?, ILocation?) GetFishData(Config cfg)
+    {
+        var        item = GatherBuddy.GameData.Fishes.TryGetValue(cfg.ItemId, out var f) ? f : null;
+        ILocation? loc  = null;
+        if (cfg.PreferLocation != 0 && GatherBuddy.GameData.FishingSpots.TryGetValue(cfg.PreferLocation, out var l))
+            loc = l;
+        return (item, loc);
+    }
 
     internal static bool FromConfig(Config cfg, out TimedGroupNode? timedGroupNode)
     {
         timedGroupNode = null;
-        IGatherable? item = cfg.Type switch
+        var (item, location) = cfg.Type switch
         {
-            ObjectType.Gatherable => GatherBuddy.GameData.Gatherables.TryGetValue(cfg.ItemId, out var i) ? i : null,
-            ObjectType.Fish       => GatherBuddy.GameData.Fishes.TryGetValue(cfg.ItemId, out var f) ? f : null,
-            _                     => null,
+            ObjectType.Gatherable => GetNodeData(cfg),
+            ObjectType.Fish       => GetFishData(cfg),
+            _                     => (null, null),
         };
-        if (item == null)
+        if (item == null || location == null && cfg.PreferLocation != 0)
             return false;
 
         timedGroupNode = new TimedGroupNode(item)
         {
-            EorzeaStartMinute = Math.Clamp(cfg.StartMinute, 0, RealTime.MinutesPerDay - 1),
-            EorzeaEndMinute   = Math.Clamp(cfg.EndMinute,   0, RealTime.MinutesPerDay - 1),
+            PreferLocation    = location,
+            EorzeaStartMinute = Math.Clamp((int)cfg.StartMinute, 0, RealTime.MinutesPerDay - 1),
+            EorzeaEndMinute   = Math.Clamp((int)cfg.EndMinute,   0, RealTime.MinutesPerDay - 1),
             Annotation        = cfg.Annotation,
         };
         return true;

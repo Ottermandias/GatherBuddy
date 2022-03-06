@@ -89,6 +89,16 @@ public class GatherGroupManager
     public bool RemoveGroup(TimedGroup group)
         => Groups.Remove(group.Name.ToLowerInvariant().Trim());
 
+    public bool ChangeGroupNodeLocation(TimedGroup group, int idx, ILocation? location)
+    {
+        if (ReferenceEquals(group.Nodes[idx].PreferLocation, location)
+         || location != null && !location.Gatherables.Contains(@group.Nodes[idx].Item))
+            return false;
+
+        group.Nodes[idx].PreferLocation = location;
+        return true;
+    }
+
     public bool ChangeGroupNode(TimedGroup group, int idx, IGatherable? item, int? start, int? end, string? annotation, bool delete)
     {
         if (idx < 0 || group.Nodes.Count < idx)
@@ -149,7 +159,6 @@ public class GatherGroupManager
 
         return changes;
     }
-
 
     public void MoveNode(TimedGroup group, int idx1, int idx2)
     {

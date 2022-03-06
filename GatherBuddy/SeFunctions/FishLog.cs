@@ -100,5 +100,5 @@ public unsafe class FishLog
     }
 
     public bool IsUnlocked(Fish fish)
-        => fish.IsSpearFish ? SpearFishIsUnlocked(fish.FishId) : FishIsUnlocked(fish.FishId);
+        => !fish.InLog || (fish.IsSpearFish ? SpearFishIsUnlocked(fish.FishId) : FishIsUnlocked(fish.FishId));
 }

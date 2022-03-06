@@ -1,5 +1,3 @@
-using System;
-using Dalamud.Logging;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
@@ -80,7 +78,7 @@ public class Alarm
 
         alarm = new Alarm(item)
         {
-            Name         = config.Name,
+            Name         = config.Name ?? string.Empty,
             Enabled      = config.Enabled,
             PrintMessage = config.PrintMessage,
             SecondOffset = config.SecondOffset,

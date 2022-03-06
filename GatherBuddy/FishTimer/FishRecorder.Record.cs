@@ -7,11 +7,9 @@ using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer.Parser;
-using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
-using ImGuiOtter;
 using Lumina.Excel.GeneratedSheets;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
@@ -89,9 +87,9 @@ public partial class FishRecorder
 
     private static int GetContentHash(ulong id)
     {
-        var lower  = ((id << 5) - id) & 0xFFFFFFFF;
+        var lower = ((id << 5) - id) & 0xFFFFFFFF;
         var upper = ((id << 4) + id) >> 32;
-        return (int) ((lower & 0x45551555) | ((upper ^ lower) & 0x2AAA8AAA) | 0x10002000);
+        return (int)((lower & 0x45551555) | ((upper ^ lower) & 0x2AAA8AAA) | 0x10002000);
     }
 
     private unsafe void CheckStats()
