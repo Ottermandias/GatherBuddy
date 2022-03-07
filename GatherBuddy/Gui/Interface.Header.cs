@@ -94,16 +94,16 @@ public partial class Interface
             return;
 
         if (which)
-            _plugin.Executor.GatherFishByName("alarm");
-        else
             _plugin.Executor.GatherItemByName("alarm");
+        else
+            _plugin.Executor.GatherFishByName("alarm");
     }
 
     private void DrawLastItemAlarm()
-        => DrawLastAlarm(false, "No Item Alarm Triggered");
+        => DrawLastAlarm(true, "No Item Alarm Triggered");
 
     private void DrawLastFishAlarm()
-        => DrawLastAlarm(true, "No Fish Alarm Triggered");
+        => DrawLastAlarm(false, "No Fish Alarm Triggered");
 
 
     private void DrawAlarmRow()

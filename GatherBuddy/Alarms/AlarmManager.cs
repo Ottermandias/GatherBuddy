@@ -169,8 +169,14 @@ public partial class AlarmManager : IDisposable
         uptime = uptime.Extend(500);
         alarm.SendMessage(location, uptime);
 
-        var (_, newUptime) = GatherBuddy.UptimeManager.NextUptime(alarm.Item, uptime.End + 1);
-        var newStart = newUptime.Start.AddSeconds(-alarm.SecondOffset);
+        var newStart  = TimeStamp.MinValue;
+        var newUptime = uptime;
+        while (newStart <= st)
+        {
+            (var _, newUptime) = GatherBuddy.UptimeManager.NextUptime(alarm.Item, newUptime.End + 1);
+            newStart = newUptime.Start.AddSeconds(-alarm.SecondOffset);
+        }
+
         ActiveAlarms[0] = (alarm, newStart);
         Dirty           = true;
     }

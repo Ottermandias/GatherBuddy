@@ -69,7 +69,8 @@ public partial class AlarmManager
 
         RemoveActiveAlarm(alarm);
         alarm.Item = item;
-        AddActiveAlarm(alarm);
+        if (group.Enabled && alarm.Enabled)
+            AddActiveAlarm(alarm);
         Save();
     }
 
@@ -101,7 +102,8 @@ public partial class AlarmManager
 
         RemoveActiveAlarm(alarm);
         alarm.SecondOffset = secondOffset;
-        AddActiveAlarm(alarm);
+        if (group.Enabled && alarm.Enabled)
+            AddActiveAlarm(alarm);
         Save();
     }
 }
