@@ -129,7 +129,7 @@ public class Executor
         {
             (false, null)     => GatherBuddy.UptimeManager.BestLocation(_item),
             (false, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime),
-            (true, null)      => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, GatherBuddy.Time.ServerTime, _visitedLocations),
+            (true, null)      => GatherBuddy.UptimeManager.NextUptime(_item,             GatherBuddy.Time.ServerTime, _visitedLocations),
             (true, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime,
                 _visitedLocations),
         };
