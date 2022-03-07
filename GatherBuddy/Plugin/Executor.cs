@@ -93,6 +93,8 @@ public class Executor
         if (_lastGatherReset < GatherBuddy.Time.ServerTime)
             _visitedLocations.Clear();
         _keepVisitedLocations = true;
+        if (_item == null)
+            Communicator.Print("No previous gather command registered.");
     }
 
     private void DoIdentify()
