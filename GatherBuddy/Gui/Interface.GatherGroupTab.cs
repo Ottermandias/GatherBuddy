@@ -220,38 +220,10 @@ public partial class Interface
 
     private static void DrawLocationInput(TimedGroup group, int nodeIdx)
     {
-        var node  = group.Nodes[nodeIdx];
-        var width = SelectorWidth * 0.85f;
-        if (node.Item.Locations.Count() == 1)
-        {
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
-            ImGuiUtil.DrawTextButton(node.Item.Locations.First().Name, new Vector2(width, 0), ImGui.GetColorU32(ImGuiCol.FrameBg));
-            DrawLocationTooltip(node.Item.Locations.First());
-            return;
-        }
-
-        var text = node.PreferLocation?.Name ?? "No Preferred Location";
-        ImGui.SetNextItemWidth(width);
-        var ret = ImGui.BeginCombo("##Location", text);
-        DrawLocationTooltip(node.PreferLocation);
-        if (!ret)
-            return;
-
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndCombo);
-
-        if (ImGui.Selectable("No preferred location", node.PreferLocation == null)
-         && _plugin.GatherGroupManager.ChangeGroupNodeLocation(group, nodeIdx, null))
+        var node = group.Nodes[nodeIdx];
+        if (DrawLocationInput(node.Item, node.PreferLocation, out var newLoc)
+         && _plugin.GatherGroupManager.ChangeGroupNodeLocation(group, nodeIdx, newLoc))
             _plugin.GatherGroupManager.Save();
-
-        var idx = 0;
-        foreach (var loc in node.Item.Locations)
-        {
-            using var id = ImGuiRaii.PushId(idx++);
-            if (ImGui.Selectable(loc.Name, loc.Id == (node.PreferLocation?.Id ?? 0))
-             && _plugin.GatherGroupManager.ChangeGroupNodeLocation(group, nodeIdx, loc))
-                _plugin.GatherGroupManager.Save();
-            DrawLocationTooltip(loc);
-        }
     }
 
     private void DrawGatherGroupNode(TimedGroup group, ref int idx, int minutes)

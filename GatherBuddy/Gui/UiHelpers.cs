@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using GatherBuddy.Config;
+using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
 using ImGuiOtter;
@@ -9,6 +11,53 @@ namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
+    internal static bool DrawLocationInput(IGatherable item, ILocation? current, out ILocation? ret)
+    {
+        const string noPreferred = "No Preferred Location";
+        var          width       = SetInputWidth * 0.85f;
+        ret = current;
+        if (item.Locations.Count() == 1)
+        {
+            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
+            ImGuiUtil.DrawTextButton(item.Locations.First().Name, new Vector2(width, 0), ImGui.GetColorU32(ImGuiCol.FrameBg));
+            DrawLocationTooltip(item.Locations.First());
+            return false;
+        }
+
+        var text = current?.Name ?? noPreferred;
+        ImGui.SetNextItemWidth(width);
+        var combo = ImGui.BeginCombo("##Location", text);
+        if (!combo)
+            return false;
+
+        using var end     = ImGuiRaii.DeferredEnd(ImGui.EndCombo);
+        var       changed = false;
+
+        if (ImGui.Selectable(noPreferred, current == null))
+        {
+            ret     = null;
+            changed = true;
+        }
+
+        var idx = 0;
+        foreach (var loc in item.Locations)
+        {
+            using var id = ImGuiRaii.PushId(idx++);
+            if (ImGui.Selectable(loc.Name, loc.Id == (current?.Id ?? 0)))
+            {
+                ret     = loc;
+                changed = true;
+            }
+
+            DrawLocationTooltip(loc);
+        }
+
+        end.Pop();
+        DrawLocationTooltip(current);
+
+        return changed;
+    }
+
     internal static void DrawTimeInterval(TimeInterval uptime, bool uptimeDependency = false)
     {
         var active = uptime.ToTimeString(GatherBuddy.Time.ServerTime, false, out var timeString);

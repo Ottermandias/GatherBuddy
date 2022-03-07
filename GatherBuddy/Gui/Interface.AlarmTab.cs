@@ -214,7 +214,11 @@ public partial class Interface
         ImGuiUtil.HoverTooltip("Play this sound effect when this alarm is triggered.");
 
         ImGui.TableNextColumn();
-        var (_, time) = GatherBuddy.UptimeManager.BestLocation(alarm.Item);
+        if (DrawLocationInput(alarm.Item, alarm.PreferLocation, out var newLocation))
+            _plugin.AlarmManager.ChangeAlarmLocation(group, alarmIdx, newLocation);
+
+        ImGui.TableNextColumn();
+        var (_, time) = AlarmManager.GetUptime(alarm);
         var now  = GatherBuddy.Time.ServerTime.AddSeconds(alarm.SecondOffset);
         var size = Vector2.UnitX * 150;
         if (time.Start > now)
@@ -260,8 +264,8 @@ public partial class Interface
 
     private void DrawAlarmTable(AlarmGroup group, int idx)
     {
-        var width = SetInputWidth * 2.5f + ImGui.GetFrameHeight() * 3 + (85 + 150) * ImGuiHelpers.GlobalScale + ItemSpacing.X * 8;
-        if (!ImGui.BeginTable("##alarms", 8, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.NoKeepColumnsVisible, Vector2.UnitX * width))
+        var width = SetInputWidth * 3.35f + ImGui.GetFrameHeight() * 3 + (85 + 150) * ImGuiHelpers.GlobalScale + ItemSpacing.X * 8;
+        if (!ImGui.BeginTable("##alarms", 9, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.NoKeepColumnsVisible, Vector2.UnitX * width))
             return;
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);

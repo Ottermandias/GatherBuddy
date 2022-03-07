@@ -8,12 +8,13 @@ namespace GatherBuddy.Alarms;
 
 public class Alarm
 {
-    public IGatherable Item         { get; set; }
-    public string      Name         { get; set; } = string.Empty;
-    public int         SecondOffset { get; set; }
-    public Sounds      SoundId      { get; set; }
-    public bool        Enabled      { get; set; }
-    public bool        PrintMessage { get; set; }
+    public IGatherable Item           { get; set; }
+    public ILocation?  PreferLocation { get; set; }
+    public string      Name           { get; set; } = string.Empty;
+    public int         SecondOffset   { get; set; }
+    public Sounds      SoundId        { get; set; }
+    public bool        Enabled        { get; set; }
+    public bool        PrintMessage   { get; set; }
 
     public Alarm(IGatherable item)
         => Item = item;
@@ -21,11 +22,12 @@ public class Alarm
     public Alarm Clone()
         => new(Item)
         {
-            Name         = Name,
-            SecondOffset = SecondOffset,
-            SoundId      = SoundId,
-            Enabled      = false,
-            PrintMessage = PrintMessage,
+            Name           = Name,
+            PreferLocation = PreferLocation,
+            SecondOffset   = SecondOffset,
+            SoundId        = SoundId,
+            Enabled        = false,
+            PrintMessage   = PrintMessage,
         };
 
     public void SendMessage(ILocation location, TimeInterval uptime)
@@ -41,48 +43,46 @@ public class Alarm
 
     internal struct Config
     {
-        public uint Id;
+        public string Name = string.Empty;
+        public uint   Id;
+        public int    SecondOffset;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ObjectType Type;
 
-        public string Name = string.Empty;
-        public int    SecondOffset;
+        public uint   PreferLocationId;
         public Sounds SoundId;
         public bool   Enabled;
         public bool   PrintMessage;
 
         public Config(Alarm a)
         {
-            Name         = a.Name;
-            Id           = a.Item.ItemId;
-            Type         = a.Item.Type;
-            SecondOffset = a.SecondOffset;
-            SoundId      = a.SoundId;
-            Enabled      = a.Enabled;
-            PrintMessage = a.PrintMessage;
+            Name             = a.Name;
+            Id               = a.Item.ItemId;
+            PreferLocationId = a.PreferLocation?.Id ?? 0;
+            Type             = a.Item.Type;
+            SecondOffset     = a.SecondOffset;
+            SoundId          = a.SoundId;
+            Enabled          = a.Enabled;
+            PrintMessage     = a.PrintMessage;
         }
     }
 
     internal static bool FromConfig(Config config, out Alarm? alarm)
     {
-        alarm = null;
-        IGatherable? item = config.Type switch
-        {
-            ObjectType.Gatherable => GatherBuddy.GameData.Gatherables.TryGetValue(config.Id, out var i) ? i : null,
-            ObjectType.Fish       => GatherBuddy.GameData.Fishes.TryGetValue(config.Id, out var i) ? i : null,
-            _                     => null,
-        };
-        if (item is not { InternalLocationId: > 0 })
+        alarm                = null;
+        var (item, location) = GatherBuddy.GameData.GetConfig(config.Type, config.Id, config.PreferLocationId);
+        if (item is not { InternalLocationId: > 0 } || location == null && config.PreferLocationId != 0)
             return false;
 
         alarm = new Alarm(item)
         {
-            Name         = config.Name ?? string.Empty,
-            Enabled      = config.Enabled,
-            PrintMessage = config.PrintMessage,
-            SecondOffset = config.SecondOffset,
-            SoundId      = config.SoundId,
+            Name           = config.Name ?? string.Empty,
+            PreferLocation = location,
+            Enabled        = config.Enabled,
+            PrintMessage   = config.PrintMessage,
+            SecondOffset   = config.SecondOffset,
+            SoundId        = config.SoundId,
         };
 
         return true;

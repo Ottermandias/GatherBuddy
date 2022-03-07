@@ -6,6 +6,7 @@ using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Data;
 using GatherBuddy.Enums;
+using GatherBuddy.Interfaces;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Structs;
 using Lumina.Excel.GeneratedSheets;
@@ -39,6 +40,15 @@ public class GameData
     public int TimedGatherables     { get; init; }
     public int MultiNodeGatherables { get; init; }
 
+    public (IGatherable? Item, ILocation? Location) GetConfig(ObjectType type, uint itemId, uint locationId)
+        => type switch
+        {
+            ObjectType.Gatherable => (itemId == 0 ? null : Gatherables.TryGetValue(itemId, out var g)        ? g : null,
+                locationId == 0                   ? null : GatheringNodes.TryGetValue(locationId, out var l) ? l : null),
+            ObjectType.Fish => (itemId == 0 ? null : Fishes.TryGetValue(itemId, out var f)           ? f : null,
+                locationId == 0             ? null : FishingSpots.TryGetValue(locationId, out var l) ? l : null),
+            _ => (null, null),
+        };
 
     public GameData(DataManager gameData)
     {
@@ -109,7 +119,7 @@ public class GameData
             Data.Fish.Apply(this);
 
             FishingSpots = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.FishingSpot>()?
-                    .Where(f => f.PlaceName.Row != 0 && (f.TerritoryType.Row > 0 || f.RowId == 10000 || f.RowId >= 10017) )
+                    .Where(f => f.PlaceName.Row != 0 && (f.TerritoryType.Row > 0 || f.RowId == 10000 || f.RowId >= 10017))
                     .Select(f => new FishingSpot(this, f))
                     .Concat(
                         DataManager.GetExcelSheet<SpearfishingNotebook>()?

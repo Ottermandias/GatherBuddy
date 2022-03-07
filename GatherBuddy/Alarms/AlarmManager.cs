@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using Dalamud.Game;
 using Dalamud.Logging;
+using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
@@ -18,8 +19,8 @@ public partial class AlarmManager : IDisposable
     private const    string    FileName = "alarms.json";
     private readonly PlaySound _sounds;
 
-    public   List<AlarmGroup>         Alarms       { get; init; } = new();
-    internal List<(Alarm, TimeStamp)> ActiveAlarms { get; init; } = new();
+    public   List<AlarmGroup>                  Alarms        { get; init; } = new();
+    internal List<(Alarm, TimeStamp)>          ActiveAlarms  { get; init; } = new();
     public   (Alarm, ILocation, TimeInterval)? LastItemAlarm { get; private set; }
     public   (Alarm, ILocation, TimeInterval)? LastFishAlarm { get; private set; }
 
@@ -129,6 +130,19 @@ public partial class AlarmManager : IDisposable
     private void OnLogin(object? _, EventArgs _2)
         => SetActiveAlarms();
 
+    public static (ILocation, TimeInterval) GetUptime(Alarm alarm)
+    {
+        if (alarm.PreferLocation == null)
+            return GatherBuddy.UptimeManager.BestLocation(alarm.Item);
+
+        return alarm.PreferLocation switch
+        {
+            GatheringNode node => (node, node.Times.NextUptime(GatherBuddy.Time.ServerTime)),
+            FishingSpot spot   => (spot, GatherBuddy.UptimeManager.NextUptime((Fish)alarm.Item, spot.Territory, GatherBuddy.Time.ServerTime)),
+            _                  => (alarm.PreferLocation, TimeInterval.Never),
+        };
+    }
+
     public void OnUpdate(Framework _)
     {
         var st = GatherBuddy.Time.ServerTime;
@@ -155,7 +169,7 @@ public partial class AlarmManager : IDisposable
         if (timeStamp >= st)
             return;
 
-        var (location, uptime) = GatherBuddy.UptimeManager.BestLocation(alarm.Item);
+        var (location, uptime) = GetUptime(alarm);
 
         if (alarm.Item.Type == ObjectType.Fish)
             LastFishAlarm = (alarm, location, uptime);
@@ -166,15 +180,15 @@ public partial class AlarmManager : IDisposable
             _sounds.Play(alarm.SoundId);
 
         // Some lax rounding for display.
+        var newUptime = uptime;
         uptime = uptime.Extend(500);
         alarm.SendMessage(location, uptime);
 
         var newStart  = TimeStamp.MinValue;
-        var newUptime = uptime;
         while (newStart <= st)
         {
             (var _, newUptime) = GatherBuddy.UptimeManager.NextUptime(alarm.Item, newUptime.End + 1);
-            newStart = newUptime.Start.AddSeconds(-alarm.SecondOffset);
+            newStart           = newUptime.Start.AddSeconds(-alarm.SecondOffset);
         }
 
         ActiveAlarms[0] = (alarm, newStart);

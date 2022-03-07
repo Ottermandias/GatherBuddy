@@ -4,7 +4,7 @@ using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.Interfaces;
 
-public enum ObjectType
+public enum ObjectType : byte
 {
     Invalid,
     Gatherable,

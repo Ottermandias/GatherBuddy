@@ -49,15 +49,14 @@ public class TimedGroupNode
 
     internal struct Config
     {
-        public uint ItemId;
-        public uint PreferLocation;
+        public string Annotation;
+        public uint   ItemId;
+        public uint   PreferLocation;
+        public short  StartMinute;
+        public short  EndMinute;
 
         [JsonConverter(typeof(StringEnumConverter))]
         public ObjectType Type;
-
-        public short  StartMinute;
-        public short  EndMinute;
-        public string Annotation;
     }
 
     internal Config ToConfig()
@@ -71,33 +70,10 @@ public class TimedGroupNode
             Annotation     = Annotation,
         };
 
-    private static (IGatherable?, ILocation?) GetNodeData(Config cfg)
-    {
-        var        item = GatherBuddy.GameData.Gatherables.TryGetValue(cfg.ItemId, out var i) ? i : null;
-        ILocation? loc  = null;
-        if (cfg.PreferLocation != 0 && GatherBuddy.GameData.GatheringNodes.TryGetValue(cfg.PreferLocation, out var l))
-            loc = l;
-        return (item, loc);
-    }
-
-    private static (IGatherable?, ILocation?) GetFishData(Config cfg)
-    {
-        var        item = GatherBuddy.GameData.Fishes.TryGetValue(cfg.ItemId, out var f) ? f : null;
-        ILocation? loc  = null;
-        if (cfg.PreferLocation != 0 && GatherBuddy.GameData.FishingSpots.TryGetValue(cfg.PreferLocation, out var l))
-            loc = l;
-        return (item, loc);
-    }
-
     internal static bool FromConfig(Config cfg, out TimedGroupNode? timedGroupNode)
     {
-        timedGroupNode = null;
-        var (item, location) = cfg.Type switch
-        {
-            ObjectType.Gatherable => GetNodeData(cfg),
-            ObjectType.Fish       => GetFishData(cfg),
-            _                     => (null, null),
-        };
+        timedGroupNode       = null;
+        var (item, location) = GatherBuddy.GameData.GetConfig(cfg.Type, cfg.ItemId, cfg.PreferLocation);
         if (item == null || location == null && cfg.PreferLocation != 0)
             return false;
 

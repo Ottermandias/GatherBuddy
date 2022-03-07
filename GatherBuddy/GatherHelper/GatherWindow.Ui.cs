@@ -2,6 +2,7 @@
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
+using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.Interfaces;
@@ -19,6 +20,8 @@ public class GatherWindow : Window
     private int       _deleteSet              = -1;
     private int       _deleteItemIdx          = -1;
     private TimeStamp _earliestKeyboardToggle = TimeStamp.Epoch;
+
+    public IGatherable? LastClick = null;
 
     public GatherWindow(GatherBuddy plugin)
         : base("##GatherHelper",
@@ -92,7 +95,16 @@ public class GatherWindow : Window
                 time.Start > GatherBuddy.Time.ServerTime ? ColorId.GatherWindowUpcoming : ColorId.GatherWindowAvailable;
             using var color = ImGuiRaii.PushColor(ImGuiCol.Text, colorId.Value());
             if (ImGui.Selectable(item.Name[GatherBuddy.Language], false))
-                _plugin.Executor.GatherItem(item);
+            {
+                if (LastClick != item)
+                    _plugin.Executor.GatherItem(item);
+                else if (item is Gatherable)
+                    _plugin.Executor.GatherItemByName("next");
+                else
+                    _plugin.Executor.GatherFishByName("next");
+                LastClick = item;
+            }
+
             var clicked = ImGui.IsItemClicked(ImGuiMouseButton.Right);
             color.Pop();
             CreateTooltip(loc, time);

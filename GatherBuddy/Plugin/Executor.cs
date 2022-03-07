@@ -42,6 +42,7 @@ public class Executor
     private          IGatherable?    _lastItem             = null;
     private readonly List<ILocation> _visitedLocations     = new();
     private          bool            _keepVisitedLocations = false;
+    private          TimeStamp       _lastGatherReset      = TimeStamp.Epoch;
 
     private void FindGatherableLogged(string itemName)
     {
@@ -57,6 +58,8 @@ public class Executor
 
     private void CheckVisitedLocations()
     {
+        _lastGatherReset = GatherBuddy.Time.ServerTime.AddEorzeaHours(1);
+
         if (_keepVisitedLocations)
             _item = _lastItem;
         else
@@ -86,7 +89,9 @@ public class Executor
 
     private void HandleNext()
     {
-        _item                 = _lastItem;
+        _item = _lastItem;
+        if (_lastGatherReset < GatherBuddy.Time.ServerTime)
+            _visitedLocations.Clear();
         _keepVisitedLocations = true;
     }
 

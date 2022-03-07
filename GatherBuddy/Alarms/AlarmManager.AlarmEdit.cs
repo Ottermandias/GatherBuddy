@@ -94,6 +94,19 @@ public partial class AlarmManager
         Save();
     }
 
+    public void ChangeAlarmLocation(AlarmGroup group, int idx, ILocation? location)
+    {
+        var alarm = group.Alarms[idx];
+        if (alarm.PreferLocation == location)
+            return;
+
+        RemoveActiveAlarm(alarm);
+        alarm.PreferLocation = location;
+        if (group.Enabled && alarm.Enabled)
+            AddActiveAlarm(alarm);
+        Save();
+    }
+
     public void ChangeAlarmOffset(AlarmGroup group, int idx, int secondOffset)
     {
         var alarm = group.Alarms[idx];
