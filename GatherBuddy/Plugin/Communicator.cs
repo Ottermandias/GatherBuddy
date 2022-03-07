@@ -121,19 +121,19 @@ public static class Communicator
     {
         if (e != null)
         {
-            name = name.Any() ? name : "<Unnamed>";
+            name = name.Length > 0 ? name : "<Unnamed>";
             PluginLog.Error($"Could not save {objectType}{name} to Clipboard:\n{e}");
             PrintError($"Could not save {objectType}", name, GatherBuddy.Config.SeColorNames, " to Clipboard.");
         }
         else if (GatherBuddy.Config.PrintClipboardMessages)
         {
-            Print(objectType, name.Any() ? name : "<Unnamed>", GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
+            Print(objectType, name.Length > 0 ? name : "<Unnamed>", GatherBuddy.Config.SeColorNames, " saved to Clipboard.");
         }
     }
 
     public static void PrintUptime(TimeInterval uptime)
     {
-        if (!GatherBuddy.Config.PrintUptime || uptime.Equals(TimeInterval.Always))
+        if (!GatherBuddy.Config.PrintUptime || uptime.Equals(TimeInterval.Always) || uptime.Equals(TimeInterval.Invalid) || uptime.Equals(TimeInterval.Never))
             return;
 
         if (uptime.Start > GatherBuddy.Time.ServerTime)
@@ -209,19 +209,28 @@ public static class Communicator
         SeStringBuilder sb = new();
         sb.AddText("No associated location or attuned aetheryte found for ");
         if (item != null)
-            sb.AddItemLink(item.ItemId, ItemPayload.ItemKind.Normal);
+            sb.AddFullItemLink(item.ItemId, item.Name[GatherBuddy.Language]);
         else
             sb.AddColoredText("Unknown", GatherBuddy.Config.SeColorNames);
 
         if (type != null)
             sb.AddText(" with condition ")
                 .AddColoredText(type.Value.ToString(), GatherBuddy.Config.SeColorArguments);
+        sb.AddText(".");
         Print(sb.BuiltString);
         PluginLog.Verbose(sb.BuiltString.TextValue);
     }
 
     public static void NoItemName(string command, string itemType)
-        => PrintError($"please supply a (partial) {itemType} name for ", command, GatherBuddy.Config.SeColorCommands, ".");
+    {
+        PrintError(new SeStringBuilder().AddText($"Please supply a (partial) {itemType} name, ")
+            .AddColoredText("alarm", GatherBuddy.Config.SeColorArguments)
+            .AddText(" or ")
+            .AddColoredText("next", GatherBuddy.Config.SeColorArguments)
+            .AddText(" for ")
+            .AddColoredText(command, GatherBuddy.Config.SeColorCommands)
+            .AddText(".").BuiltString);
+    }
 
     public static void NoGatherGroup(string groupName)
         => PrintError("The gather group ", groupName, GatherBuddy.Config.SeColorNames, " does not exist.");

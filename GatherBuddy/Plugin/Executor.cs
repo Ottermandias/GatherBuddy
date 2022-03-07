@@ -1,9 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Logging;
 using GatherBuddy.Classes;
-using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.SeFunctions;
@@ -25,7 +24,11 @@ public class Executor
 
     private readonly CommandManager _commandManager = new(Dalamud.GameGui, Dalamud.SigScanner);
     private readonly MacroManager   _macroManager   = new();
-    public readonly  Identificator  Identificator   = new();
+    private readonly GatherBuddy    _plugin;
+    public readonly  Identificator  Identificator = new();
+
+    public Executor(GatherBuddy plugin)
+        => _plugin = plugin;
 
     private IdentifyType _identifyType = IdentifyType.None;
     private string       _name         = string.Empty;
@@ -35,6 +38,10 @@ public class Executor
     private GatheringType? _gatheringType = null;
     private ILocation?     _location      = null;
     private TimeInterval   _uptime        = TimeInterval.Always;
+
+    private          IGatherable?    _lastItem             = null;
+    private readonly List<ILocation> _visitedLocations     = new();
+    private          bool            _keepVisitedLocations = false;
 
     private void FindGatherableLogged(string itemName)
     {
@@ -48,10 +55,56 @@ public class Executor
         Communicator.PrintIdentifiedItem(fishName, _item);
     }
 
+    private void CheckVisitedLocations()
+    {
+        if (_keepVisitedLocations)
+            _item = _lastItem;
+        else
+            _visitedLocations.Clear();
+        _lastItem = _item;
+        if (_item != null && _location != null)
+            _visitedLocations.Add(_location);
+
+        if ((_lastItem?.Locations.Count() ?? 0) == _visitedLocations.Count)
+            _visitedLocations.Clear();
+    }
+
+    private void HandleAlarm()
+    {
+        switch (_identifyType)
+        {
+            case IdentifyType.None: return;
+            case IdentifyType.Item:
+                _item = _plugin.AlarmManager.LastItemAlarm?.Item1.Item;
+                return;
+            case IdentifyType.Fish:
+                _item = _plugin.AlarmManager.LastFishAlarm?.Item1.Item;
+                return;
+            default: throw new ArgumentOutOfRangeException();
+        }
+    }
+
+    private void HandleNext()
+    {
+        _item                 = _lastItem;
+        _keepVisitedLocations = true;
+    }
+
     private void DoIdentify()
     {
+        _keepVisitedLocations = false;
         if (_name.Length == 0)
             return;
+
+        switch (_name)
+        {
+            case "alarm":
+                HandleAlarm();
+                return;
+            case "next":
+                HandleNext();
+                return;
+        }
 
         switch (_identifyType)
         {
@@ -72,10 +125,14 @@ public class Executor
             return;
 
         _location = null;
-        if (_gatheringType == null || _item is Fish)
-            (_location, _uptime) = GatherBuddy.UptimeManager.BestLocation(_item);
-        else
-            (_location, _uptime) = GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime);
+        (_location, _uptime) = (_keepVisitedLocations, _gatheringType) switch
+        {
+            (false, null)     => GatherBuddy.UptimeManager.BestLocation(_item),
+            (false, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime),
+            (true, null)      => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, GatherBuddy.Time.ServerTime, _visitedLocations),
+            (true, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime,
+                _visitedLocations),
+        };
 
         if (_location == null)
             Communicator.LocationNotFound(_item, _gatheringType);
@@ -127,7 +184,8 @@ public class Executor
 
         if (set.Length == 0)
         {
-            Communicator.PrintError("No gear set for ", _location.GatheringType.ToString(), GatherBuddy.Config.SeColorArguments, " configured.");
+            Communicator.PrintError("No gear set for ", _location.GatheringType.ToString(), GatherBuddy.Config.SeColorArguments,
+                " configured.");
             return;
         }
 
@@ -145,7 +203,7 @@ public class Executor
             return;
 
         var link = new SeStringBuilder().AddFullMapLink(_location.Name, _location.Territory, _location.IntegralXCoord / 100f,
-                _location.IntegralYCoord / 100f,   true).BuiltString;
+            _location.IntegralYCoord / 100f, true).BuiltString;
         Communicator.PrintCoordinates(link);
     }
 
@@ -161,6 +219,7 @@ public class Executor
             case GatherBuddy.IdentifyCommand:
                 DoIdentify();
                 FindClosestLocation();
+                CheckVisitedLocations();
                 return true;
             case GatherBuddy.MapMarkerCommand:
                 DoMapFlag();
@@ -214,7 +273,7 @@ public class Executor
             return;
 
         _identifyType  = IdentifyType.Fish;
-        _name          = fishName;
+        _name          = fishName.ToLowerInvariant();
         _item          = null;
         _location      = null;
         _gatheringType = null;
@@ -229,7 +288,7 @@ public class Executor
             return;
 
         _identifyType  = IdentifyType.Item;
-        _name          = itemName;
+        _name          = itemName.ToLowerInvariant();
         _item          = null;
         _location      = null;
         _gatheringType = type;

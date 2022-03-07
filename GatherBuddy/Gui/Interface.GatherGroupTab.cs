@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.Specialized;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
@@ -11,6 +10,7 @@ using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Logging;
 using GatherBuddy.Alarms;
+using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.GatherGroup;
 using GatherBuddy.GatherHelper;
@@ -207,20 +207,34 @@ public partial class Interface
         ImGui.Text(" Eorzea Time");
     }
 
+    private static void DrawLocationTooltip(ILocation? loc)
+    {
+        if (loc == null || !ImGui.IsItemHovered())
+            return;
+
+        var tt = $"{string.Join("\n", loc.Gatherables.Select(g => g.Name[GatherBuddy.Language]))}";
+        if (loc is GatheringNode g)
+            tt = $"{g.Times.PrintHours()}\n{tt}";
+        ImGui.SetTooltip(tt);
+    }
+
     private static void DrawLocationInput(TimedGroup group, int nodeIdx)
     {
         var node  = group.Nodes[nodeIdx];
-        var width = SelectorWidth * 0.75f;
-        if (node.Item.Locations.Count() <= 1)
+        var width = SelectorWidth * 0.85f;
+        if (node.Item.Locations.Count() == 1)
         {
             using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
             ImGuiUtil.DrawTextButton(node.Item.Locations.First().Name, new Vector2(width, 0), ImGui.GetColorU32(ImGuiCol.FrameBg));
+            DrawLocationTooltip(node.Item.Locations.First());
             return;
         }
 
         var text = node.PreferLocation?.Name ?? "No Preferred Location";
         ImGui.SetNextItemWidth(width);
-        if (!ImGui.BeginCombo("##Location", text))
+        var ret = ImGui.BeginCombo("##Location", text);
+        DrawLocationTooltip(node.PreferLocation);
+        if (!ret)
             return;
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndCombo);
@@ -229,11 +243,14 @@ public partial class Interface
          && _plugin.GatherGroupManager.ChangeGroupNodeLocation(group, nodeIdx, null))
             _plugin.GatherGroupManager.Save();
 
+        var idx = 0;
         foreach (var loc in node.Item.Locations)
         {
+            using var id = ImGuiRaii.PushId(idx++);
             if (ImGui.Selectable(loc.Name, loc.Id == (node.PreferLocation?.Id ?? 0))
-             && _plugin.GatherGroupManager.ChangeGroupNodeLocation(@group, nodeIdx, loc))
+             && _plugin.GatherGroupManager.ChangeGroupNodeLocation(group, nodeIdx, loc))
                 _plugin.GatherGroupManager.Save();
+            DrawLocationTooltip(loc);
         }
     }
 

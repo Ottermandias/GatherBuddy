@@ -90,8 +90,13 @@ public partial class Interface
         var desc =
             $"Click to /gather this alarm.\n{loc.Name} - {loc.ClosestAetheryte?.Name ?? "None"}\n{time.Start.LocalTime}\n{time.End.LocalTime}";
 
-        if (ImGuiUtil.DrawDisabledButton(text, _headerCache.AlarmButtonSize, desc, false))
-            _plugin.Executor.GatherLocation(loc);
+        if (!ImGuiUtil.DrawDisabledButton(text, _headerCache.AlarmButtonSize, desc, false))
+            return;
+
+        if (which)
+            _plugin.Executor.GatherFishByName("alarm");
+        else
+            _plugin.Executor.GatherItemByName("alarm");
     }
 
     private void DrawLastItemAlarm()

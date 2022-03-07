@@ -194,7 +194,7 @@ public class UptimeManager : IDisposable
     public TimeInterval NextUptime(Fish fish, Territory territory, TimeStamp now)
     {
         // Always up
-        if (fish.InternalLocationId < 0)
+        if (fish.InternalLocationId <= 0)
             return TimeInterval.Always;
 
         // Unknown
@@ -205,56 +205,64 @@ public class UptimeManager : IDisposable
         return GetUptime(fish, territory, now);
     }
 
-    public (ILocation? Location, TimeInterval interval) NextUptime(IGatherable item, TimeStamp now)
+    public (ILocation? Location, TimeInterval interval) NextUptime(IGatherable item, TimeStamp now, IReadOnlyList<ILocation>? excludes = null)
     {
+        if (item.InternalLocationId == 0)
+            return (item.Locations.FirstOrDefault(), TimeInterval.Always);
         if (item.InternalLocationId < 0)
-            return (FindClosestAetheryte(item), TimeInterval.Always);
+            return (FindClosestAetheryte(item, null, excludes), TimeInterval.Always);
 
         return item switch
         {
-            Gatherable g => GetBestUptime(g.NodeList, now),
-            Fish f       => GetBestUptime(f,          f.FishingSpots, now),
+            Gatherable g => GetBestUptime(g.NodeList.Except(excludes ?? Array.Empty<ILocation>()).Cast<GatheringNode>(), now),
+            Fish f       => GetBestUptime(f, f.FishingSpots.Except(excludes ?? Array.Empty<ILocation>()).Cast<FishingSpot>(), now),
             _            => throw new ArgumentException(),
         };
     }
 
-    public (ILocation? Location, TimeInterval interval) NextUptime(Gatherable item, GatheringType type, TimeStamp now)
+    public (ILocation? Location, TimeInterval interval) NextUptime(Gatherable item, GatheringType type, TimeStamp now,
+        IReadOnlyList<ILocation>? excludes = null)
     {
         if (item.InternalLocationId < 0)
             return (FindClosestAetheryte(item, type), TimeInterval.Always);
 
-        return GetBestUptime(item.NodeList.Where(n => n.GatheringType.ToGroup() == type), now);
+        return GetBestUptime(
+            item.NodeList.Where(n => n.GatheringType.ToGroup() == type).Except(excludes ?? Array.Empty<ILocation>()).Cast<GatheringNode>(),
+            now);
     }
 
 
     // Tries to find the aetheryte with the lowest teleport cost that is available for this node.
-    private ILocation? FindClosestAetheryteCost(IGatherable item, GatheringType? type = null)
+    private ILocation? FindClosestAetheryteCost(IGatherable item, GatheringType? type = null, IReadOnlyList<ILocation>? excludes = null)
     {
         if (_currentTerritory == 0)
-            return FindClosestAetheryteTravel(item, type);
+            return FindClosestAetheryteTravel(item, type, excludes);
 
-        var enumerable = type == null
-            ? item.Locations.Where(l => l is FishingSpot || ((GatheringNode)l).Times.AlwaysUp())
-            : item.Locations.Where(l => l is GatheringNode n && n.GatheringType.ToGroup() == type);
+        var enumerable = excludes != null ? item.Locations.Except(excludes) : item.Locations;
+        enumerable = type == null
+            ? enumerable.Where(l => l is FishingSpot || ((GatheringNode)l).Times.AlwaysUp())
+            : enumerable.Where(l => l is GatheringNode n && n.GatheringType.ToGroup() == type);
         return enumerable
             .Where(a => a.ClosestAetheryte != null && Teleporter.IsAttuned(a.ClosestAetheryte.Id))
             .ArgMin(a => a.ClosestAetheryte!.AetherDistance(_aetherStreamX, _aetherStreamY, _aetherPlane));
     }
 
     // Tries to find the node with the closest available aetheryte in world distance.
-    private static ILocation? FindClosestAetheryteTravel(IGatherable item, GatheringType? type = null)
+    private static ILocation? FindClosestAetheryteTravel(IGatherable item, GatheringType? type = null,
+        IReadOnlyList<ILocation>? excludes = null)
     {
-        var enumerable = type == null ? item.Locations : item.Locations.Where(l => l is GatheringNode n && n.GatheringType.ToGroup() == type);
+        var enumerable = excludes == null ? item.Locations : item.Locations.Except(excludes);
+        enumerable = type == null ? enumerable : enumerable.Where(l => l is GatheringNode n && n.GatheringType.ToGroup() == type);
         return enumerable
             .Where(l => l.ClosestAetheryte != null && Teleporter.IsAttuned(l.ClosestAetheryte.Id))
             .ArgMin(l => l.AetheryteDistance());
     }
 
-    private ILocation? FindClosestAetheryte(IGatherable item, GatheringType? type = null)
+    private ILocation? FindClosestAetheryte(IGatherable item, GatheringType? type = null, IReadOnlyList<ILocation>? excludes = null)
         => GatherBuddy.Config.AetherytePreference switch
         {
-            AetherytePreference.Distance => FindClosestAetheryteTravel(item, type),
-            AetherytePreference.Cost     => FindClosestAetheryteCost(item, type),
+            AetherytePreference.Distance => FindClosestAetheryteTravel(item, type, excludes),
+            AetherytePreference.Cost     => FindClosestAetheryteCost(item, type, excludes),
             _                            => throw new ArgumentException(),
         };
 

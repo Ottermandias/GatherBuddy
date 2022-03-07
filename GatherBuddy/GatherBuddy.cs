@@ -74,7 +74,7 @@ public partial class GatherBuddy : IDalamudPlugin
         EventFramework      = new EventFramework(Dalamud.SigScanner);
         CurrentBait         = new CurrentBait(Dalamud.SigScanner);
         TugType             = new SeTugType(Dalamud.SigScanner);
-        Executor            = new Executor();
+        Executor            = new Executor(this);
         ContextMenu         = new ContextMenu(Executor);
         GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
         LocationManager     = LocationManager.Load();
