@@ -129,7 +129,7 @@ public partial class Interface
             => Selector = new AlarmSelector(manager);
 
         public static readonly Sounds[] SoundIds = Enum.GetValues<Sounds>().Where(s => s != Sounds.Unknown).ToArray();
-        public static readonly string SoundIdNames = string.Join("\0", SoundIds.Select(s => s == Sounds.None ? "None" : $"Sound {s.ToIdx()}"));
+        public static readonly string SoundIdNames = string.Join("\0", SoundIds.Select(s => s == Sounds.None ? "No Sound" : $"Sound {s.ToIdx()}"));
 
         public readonly AlarmSelector  Selector;
         public readonly TimedItemCombo ItemCombo = new(string.Empty);
