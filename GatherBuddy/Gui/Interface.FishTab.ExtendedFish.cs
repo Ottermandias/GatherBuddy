@@ -419,9 +419,9 @@ public partial class Interface
             ImGui.Button(fish.Patch);
         }
 
-        public void SetTooltip(Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize)
+        public void SetTooltip(Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool standAlone = true)
         {
-            using var tooltip = ImGuiRaii.NewTooltip();
+            using var tooltip = standAlone ? ImGuiRaii.NewTooltip() : null;
             using var style   = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing * new Vector2(1f, 1.5f));
             PrintTime(this);
             PrintWeather(this, weatherIconSize);

@@ -1,4 +1,7 @@
-﻿using System.Numerics;
+﻿using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
@@ -57,27 +60,47 @@ public class GatherWindow : Window
             ImGui.Text(TimeInterval.DurationString(time.End, GatherBuddy.Time.ServerTime, false));
         }
 
-        CreateTooltip(loc, time);
+        CreateTooltip(null, loc, time);
     }
 
-    private static void CreateTooltip(ILocation? loc, TimeInterval time)
+    private static string TooltipText(ILocation? loc, TimeInterval time)
+    {
+        var sb = new StringBuilder();
+        sb.Append(loc == null
+            ? "Unknown Location\nUnknown Territory\nUnknown Aetheryte\n"
+            : $"{loc.Name}\n{loc.Territory.Name}\n{loc.ClosestAetheryte?.Name ?? "No Aetheryte"}\n");
+
+        sb.Append(time.Equals(TimeInterval.Always)
+            ? "Always Up"
+            : $"{time.Start}\n{time.End}\n{time.DurationString()}\n{TimeInterval.DurationString(time.Start > GatherBuddy.Time.ServerTime ? time.Start : time.End, GatherBuddy.Time.ServerTime, false)}");
+
+        return sb.ToString();
+    }
+
+    private static void CreateTooltip(IGatherable? item, ILocation? loc, TimeInterval time)
     {
         if (!ImGui.IsItemHovered())
             return;
 
-        var s = string.Empty;
-        if (loc == null)
-            s += "Unknown Location\nUnknown Territory\nUnknown Aetheryte\n";
-        else
-            s += $"{loc.Name}\n{loc.Territory.Name}\n{loc.ClosestAetheryte?.Name ?? "No Aetheryte"}\n";
+        if (item is not Fish fish)
+        {
+            ImGui.SetTooltip(TooltipText(loc, time));
+            return;
+        }
 
-        if (time.Equals(TimeInterval.Always))
-            s += "Always Up";
-        else
-            s +=
-                $"{time.Start}\n{time.End}\n{time.DurationString()}\n{TimeInterval.DurationString(time.Start > GatherBuddy.Time.ServerTime ? time.Start : time.End, GatherBuddy.Time.ServerTime, false)}";
+        var extendedFish = Interface.ExtendedFishList.FirstOrDefault(f => f.Data == fish);
+        if (extendedFish == null)
+        {
+            ImGui.SetTooltip(TooltipText(loc, time));
+            return;
+        }
 
-        ImGui.SetTooltip(s);
+        using var tt = ImGuiRaii.NewTooltip();
+
+        ImGui.Text(TooltipText(loc, time));
+        ImGui.NewLine();
+        extendedFish.SetTooltip(ImGuiHelpers.ScaledVector2(40, 40), ImGuiHelpers.ScaledVector2(20, 20), ImGuiHelpers.ScaledVector2(30, 30),
+            false);
     }
 
     private void DrawItem(IGatherable item)
@@ -107,7 +130,7 @@ public class GatherWindow : Window
 
             var clicked = ImGui.IsItemClicked(ImGuiMouseButton.Right);
             color.Pop();
-            CreateTooltip(loc, time);
+            CreateTooltip(item, loc, time);
 
             if (clicked && Functions.CheckModifier(GatherBuddy.Config.GatherWindowDeleteModifier, false))
                 for (var i = 0; i < _plugin.GatherWindowManager.Presets.Count; ++i)

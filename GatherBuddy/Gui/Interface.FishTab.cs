@@ -1,9 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud;
-using Dalamud.Game.Gui;
-using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Interface;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -58,10 +55,8 @@ public partial class Interface
         }
 
         public FishTable()
-            : base("##FishTable",
-                GatherBuddy.GameData.Fishes.Values
-                    .Where(f => f.FishingSpots.Count > 0 && f.InLog)
-                    .Select(f => new ExtendedFish(f)).ToList(), TextHeight, _nameColumn, _caughtColumn, _nextUptimeColumn, _uptimeColumn,
+            : base("##FishTable", ExtendedFishList.Count > 0 ? _extendedFishList! : new List<ExtendedFish>(), TextHeight, _nameColumn,
+                _caughtColumn, _nextUptimeColumn, _uptimeColumn,
                 _baitColumn, _bestSpotColumn, _typeColumn, _patchColumn, _folkloreColumn, _aetheryteColumn, _bestZoneColumn, _itemIdColumn,
                 _fishIdColumn)
         {
