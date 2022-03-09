@@ -1,6 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.IO;
+using System.Net;
+using System.Threading.Tasks;
 using Dalamud;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
@@ -88,7 +91,7 @@ public partial class Interface
                 $"Add {item.Name[GatherBuddy.Language]} to {(current == null ? "a new gather window preset." : CheckUnnamed(current.Name))}");
     }
 
-    private static string TeamCraftAddress(string type, uint id)
+    private static string TeamCraftAddressEnd(string type, uint id)
     {
         var lang = GatherBuddy.Language switch
         {
@@ -99,13 +102,13 @@ public partial class Interface
             _                       => "en",
         };
 
-        return $"https://ffxivteamcraft.com/db/{lang}/{type}/{id}";
+        return $"db/{lang}/{type}/{id}";
     }
 
-    private static string TeamCraftAddress(FishingSpot s)
+    private static string TeamCraftAddressEnd(FishingSpot s)
         => s.Spearfishing
-            ? TeamCraftAddress("spearfishing-spot", s.SpearfishingSpotData!.GatheringPointBase.Row)
-            : TeamCraftAddress("fishing-spot",      s.Id);
+            ? TeamCraftAddressEnd("spearfishing-spot", s.SpearfishingSpotData!.GatheringPointBase.Row)
+            : TeamCraftAddressEnd("fishing-spot",      s.Id);
 
     private static string GarlandToolsItemAddress(uint itemId)
         => $"https://www.garlandtools.org/db/#item/{itemId}";
@@ -132,34 +135,61 @@ public partial class Interface
     {
         if (itemId == 0)
             return;
-        if (!ImGui.Selectable("Open in TeamCraft"))
-            return;
 
-        try
+        if (ImGui.Selectable("Open in TeamCraft (Browser)"))
+            OpenInTeamCraftWeb(TeamCraftAddressEnd("item", itemId));
+
+        if (ImGui.Selectable("Open in TeamCraft (App)"))
+            OpenInTeamCraftLocal(TeamCraftAddressEnd("item", itemId));
+    }
+
+    private static void OpenInTeamCraftWeb(string addressEnd)
+    {
+        Process.Start(new ProcessStartInfo($"https://ffxivteamcraft.com/{addressEnd}")
         {
-            Process.Start(new ProcessStartInfo(TeamCraftAddress("item", itemId)) { UseShellExecute = true });
-        }
-        catch (Exception e)
+            UseShellExecute = true,
+        });
+    }
+
+    private static void OpenInTeamCraftLocal(string addressEnd)
+    {
+        Task.Run(() =>
         {
-            PluginLog.Error($"Could not open TeamCraft:\n{e.Message}");
-        }
+            try
+            {
+                var wr = WebRequest.CreateHttp($"http://localhost:14500/{addressEnd}");
+                wr.Timeout = 1500;
+                wr.Method  = "GET";
+                wr.GetResponse().Close();
+            }
+            catch
+            {
+                try
+                {
+                    if (Directory.Exists(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "ffxiv-teamcraft")))
+                        Process.Start(new ProcessStartInfo($"teamcraft:///{addressEnd}")
+                        {
+                            UseShellExecute = true,
+                        });
+                }
+                catch
+                {
+                    PluginLog.Error("Could not open local teamcraft.");
+                }
+            }
+        });
     }
 
     private static void DrawOpenInTeamCraft(FishingSpot fs)
     {
         if (fs.Id == 0)
             return;
-        if (!ImGui.Selectable("Open in TeamCraft"))
-            return;
 
-        try
-        {
-            Process.Start(new ProcessStartInfo(TeamCraftAddress(fs)) { UseShellExecute = true });
-        }
-        catch (Exception e)
-        {
-            PluginLog.Error($"Could not open TeamCraft:\n{e.Message}");
-        }
+        if (ImGui.Selectable("Open in TeamCraft (Browser)"))
+            OpenInTeamCraftWeb(TeamCraftAddressEnd(fs));
+
+        if (ImGui.Selectable("Open in TeamCraft (App)"))
+            OpenInTeamCraftLocal(TeamCraftAddressEnd(fs));
     }
 
     private void CreateContextMenu(IGatherable item)
