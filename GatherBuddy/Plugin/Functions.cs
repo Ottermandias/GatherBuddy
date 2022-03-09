@@ -113,7 +113,6 @@ public static class Functions
          || Dalamud.Conditions[ConditionFlag.WatchingCutscene]
          || Dalamud.Conditions[ConditionFlag.BoundByDuty56]
          || Dalamud.Conditions[ConditionFlag.BoundByDuty95]
-         || Dalamud.Conditions[ConditionFlag.BoundToDuty97]
          || Dalamud.Conditions[ConditionFlag.WatchingCutscene78]
          || Dalamud.Conditions[ConditionFlag.InDeepDungeon];
 
