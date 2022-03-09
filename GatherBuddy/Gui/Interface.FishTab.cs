@@ -35,7 +35,7 @@ public partial class Interface
         {
             if (_nameColumnWidth == 0)
             {
-                _caughtColumnWidth = TextWidth("Log") / Scale + Table.ArrowWidth;
+                _caughtColumnWidth = TextWidth(_caughtColumn.Label) / Scale + Table.ArrowWidth;
                 _nameColumnWidth   = (Items.Max(i => TextWidth(i.Data.Name[GatherBuddy.Language])) + ItemSpacing.X + LineIconSize.X) / Scale;
                 _nextUptimeColumnWidth = Math.Max(TextWidth("99:99 Minutes") / Scale,
                     TextWidth(_nextUptimeColumn.Label) / Scale + Table.ArrowWidth);
@@ -43,7 +43,7 @@ public partial class Interface
                 _baitColumnWidth             = (Items.Max(f => TextWidth(f.Bait.First().Name)) + ItemSpacing.X + LineIconSize.X) / Scale;
                 _closestAetheryteColumnWidth = GatherBuddy.GameData.Aetherytes.Values.Max(a => TextWidth(a.Name)) / Scale;
                 _typeColumnWidth             = TextWidth("Spearfishing");
-                _patchColumnWidth            = TextWidth("Patch") / Scale + Table.ArrowWidth;
+                _patchColumnWidth            = TextWidth(_patchColumn.Label) / Scale + Table.ArrowWidth;
                 _folkloreColumnWidth         = Items.Max(i => TextWidth(i.Data.Folklore)) / Scale;
                 _bestSpotColumnWidth         = GatherBuddy.GameData.FishingSpots.Values.Max(a => TextWidth(a.Name)) / Scale;
                 _bestZoneColumnWidth         = GatherBuddy.GameData.Territories.Values.Max(a => TextWidth(a.Name)) / Scale;
@@ -70,13 +70,13 @@ public partial class Interface
         private static readonly CaughtColumn     _caughtColumn     = new() { Label = "Log" };
         private static readonly NextUptimeColumn _nextUptimeColumn = new() { Label = "Next Uptime" };
         private static readonly UptimesColumn    _uptimeColumn     = new() { Label = "Up%" };
-        private static readonly BaitColumn       _baitColumn       = new() { Label = "Bait" };
-        private static readonly AetheryteColumn  _aetheryteColumn  = new() { Label = "Aetheryte" };
+        private static readonly BaitColumn       _baitColumn       = new() { Label = "Bait..." };
+        private static readonly AetheryteColumn  _aetheryteColumn  = new() { Label = "Aetheryte..." };
         private static readonly TypeColumn       _typeColumn       = new() { Label = "Fish Type" };
         private static readonly PatchColumn      _patchColumn      = new() { Label = "Patch" };
-        private static readonly FolkloreColumn   _folkloreColumn   = new() { Label = "Folklore" };
-        private static readonly BestSpotColumn   _bestSpotColumn   = new() { Label = "Best Spot" };
-        private static readonly BestZoneColumn   _bestZoneColumn   = new() { Label = "Best Zone" };
+        private static readonly FolkloreColumn   _folkloreColumn   = new() { Label = "Folklore..." };
+        private static readonly BestSpotColumn   _bestSpotColumn   = new() { Label = "Best Spot..." };
+        private static readonly BestZoneColumn   _bestZoneColumn   = new() { Label = "Best Zone..." };
         private static readonly ItemIdColumn     _itemIdColumn     = new() { Label = "Item Id" };
         private static readonly FishIdColumn     _fishIdColumn     = new() { Label = "G. Id" };
 
@@ -508,5 +508,6 @@ public partial class Interface
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
         _fishTable.Draw();
+        DrawClippy();
     }
 }

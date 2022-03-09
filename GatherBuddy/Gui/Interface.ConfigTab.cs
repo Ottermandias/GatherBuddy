@@ -87,6 +87,11 @@ public partial class Interface
                 "Skips teleports if you are in the same map and closer to the target than the selected aetheryte already.",
                 GatherBuddy.Config.SkipTeleportIfClose, b => GatherBuddy.Config.SkipTeleportIfClose = b);
 
+        public static void DrawHideClippyBox()
+            => DrawCheckbox("Hide GatherClippy Button",
+                "Permanently hide the GatherClippy Button in the Gatherables and Fish tabs.",
+                GatherBuddy.Config.HideClippy, v => GatherBuddy.Config.HideClippy = v);
+
         private const string ChatInformationString =
             "Note that the message only gets printed to your chat log, regardless of the selected channel"
           + " - other people will not see your 'Say' message.";
@@ -264,6 +269,11 @@ public partial class Interface
             => DrawCheckbox("Show Gather Window",
                 "Show a small window with pinned Gatherables and their uptimes.",
                 GatherBuddy.Config.ShowGatherWindow, b => GatherBuddy.Config.ShowGatherWindow = b);
+
+        public static void DrawGatherWindowAnchorBox()
+            => DrawCheckbox("Anchor Gather Window to Bottom Left",
+                "Lets the Gather Window grow to the top and shrink from the top instead of the bottom.",
+                GatherBuddy.Config.GatherWindowBottomAnchor, b => GatherBuddy.Config.GatherWindowBottomAnchor = b);
 
         public static void DrawGatherWindowTimersBox()
             => DrawCheckbox("Show Gather Window Timers",
@@ -448,6 +458,7 @@ public partial class Interface
                 ConfigFunctions.DrawLockPositionBox();
                 ConfigFunctions.DrawLockResizeBox();
                 ConfigFunctions.DrawWeatherTabNamesBox();
+                ConfigFunctions.DrawHideClippyBox();
                 ConfigFunctions.DrawMainInterfaceHotkeyInput();
                 ImGui.TreePop();
             }
@@ -468,6 +479,7 @@ public partial class Interface
             if (ImGui.TreeNodeEx("Gather Window"))
             {
                 ConfigFunctions.DrawShowGatherWindowBox();
+                ConfigFunctions.DrawGatherWindowAnchorBox();
                 ConfigFunctions.DrawGatherWindowTimersBox();
                 ConfigFunctions.DrawGatherWindowAlarmsBox();
                 ConfigFunctions.DrawSortGatherWindowBox();

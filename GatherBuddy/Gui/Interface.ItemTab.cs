@@ -431,5 +431,6 @@ public partial class Interface
 
         using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
         _itemTable.Draw();
+        DrawClippy();
     }
 }

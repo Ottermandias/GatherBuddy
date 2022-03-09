@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Interface;
 using GatherBuddy.Config;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
@@ -123,5 +124,66 @@ public partial class Interface
         ImGui.SameLine();
         ImGui.AlignTextToFramePadding();
         ImGui.Text(label);
+    }
+
+    private static void DrawClippy()
+    {
+        const string popupName = "GatherClippy###ClippyPopup";
+        const string text      = "Can't find something?";
+        if (GatherBuddy.Config.HideClippy)
+            return;
+
+        var textSize   = ImGui.CalcTextSize(text).X;
+        var buttonSize = new Vector2(Math.Max(200, textSize) * ImGuiHelpers.GlobalScale, ImGui.GetFrameHeight());
+        var padding    = ImGuiHelpers.ScaledVector2(9, 9);
+
+        ImGui.SetCursorPos(ImGui.GetWindowSize() - buttonSize - padding);
+        if (!ImGui.BeginChild("##clippyChild", buttonSize, false, ImGuiWindowFlags.NoBackground | ImGuiWindowFlags.NoDecoration))
+        {
+            ImGui.EndChild();
+            return;
+        }
+
+        using var end   = ImGuiRaii.DeferredEnd(ImGui.EndChild);
+        using var color = ImGuiRaii.PushColor(ImGuiCol.Button, 0xFFA06020);
+
+        if (ImGui.Button(text, buttonSize))
+            ImGui.OpenPopup(popupName);
+        if (ImGui.IsItemClicked(ImGuiMouseButton.Right) && ImGui.GetIO().KeyCtrl && ImGui.GetIO().KeyShift)
+        {
+            GatherBuddy.Config.HideClippy = true;
+            GatherBuddy.Config.Save();
+        }
+
+        ImGuiUtil.HoverTooltip("Click for some help navigating this table.\n"
+          + "Control + Shift + Right-Click to permanently hide this button.");
+
+        var _ = true;
+        color.Pop();
+        var windowSize = new Vector2(1024 * ImGuiHelpers.GlobalScale,
+            ImGui.GetTextLineHeightWithSpacing() * 13 + 2 * ImGui.GetFrameHeightWithSpacing());
+        ImGui.SetNextWindowSize(windowSize);
+        ImGui.SetNextWindowPos((ImGui.GetIO().DisplaySize - windowSize)/2);
+        if (ImGui.BeginPopupModal(popupName, ref _, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoMove | ImGuiWindowFlags.NoResize))
+        {
+            end.Push(ImGui.EndPopup);
+
+            ImGui.BulletText("You can use text filters like \"Item Name...\" to only show entries that contain the given string. They are case-insensitive and are not stored for your next session.");
+            ImGui.BulletText("Text filters also support regular expressions, e.g. \"(blue|green)\" matches all entries that contain either blue or green.");
+            ImGui.BulletText("Button filters like \"Next Uptime\", \"Node Type\" or \"Fish Type\" allow you to filter specific types on click.");
+            ImGui.BulletText("Those filters are stored across sessions. For columns with active filters, the filter buttons are tinted red.");
+            ImGui.NewLine();
+            ImGui.BulletText("You can click in the blank space of a header to sort the table in this column, ascending or descending. This is signified with a little triangle pointing up or down.");
+            ImGui.BulletText("You can right-click in the blank space of a header to open the table context menu, in which you can hide columns you are not interested in.");
+            ImGui.BulletText("You can resize text columns by dragging the small separation markers of the column. It highlights the line in blue. Size is stored across sessions.");
+            ImGui.BulletText("You can reorder most columns by left-clicking in the blank space, holding the mouse button and dragging them. Ordering is stored across sessions.");
+            ImGui.NewLine();
+            ImGui.BulletText("You can right-click item names and a few other columns (like bait and fishing spot) to open further context menus with object-specific options.");
+            ImGui.BulletText("You can also re-order the tabs themselves, though that is not stored across sessions.");
+
+            ImGui.SetCursorPosY(windowSize.Y - ImGui.GetFrameHeight() - ImGui.GetStyle().WindowPadding.Y);
+            if (ImGui.Button("Understood", -Vector2.UnitX))
+                ImGui.CloseCurrentPopup();
+        }
     }
 }

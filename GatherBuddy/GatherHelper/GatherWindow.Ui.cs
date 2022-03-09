@@ -23,6 +23,8 @@ public class GatherWindow : Window
     private int       _deleteSet              = -1;
     private int       _deleteItemIdx          = -1;
     private TimeStamp _earliestKeyboardToggle = TimeStamp.Epoch;
+    private Vector2   _lastSize               = Vector2.Zero;
+    private Vector2   _newPosition            = Vector2.Zero;
 
     public IGatherable? LastClick = null;
 
@@ -204,6 +206,12 @@ public class GatherWindow : Window
         else
             Flags &= ~
                 ImGuiWindowFlags.NoMove;
+
+        if (_newPosition.Y != 0)
+        {
+            ImGui.SetNextWindowPos(_newPosition);
+            _newPosition = Vector2.Zero;
+        }
     }
 
     public override void PostDraw()
@@ -211,6 +219,23 @@ public class GatherWindow : Window
         DeleteItem();
         ImGui.PopStyleVar();
         ImGui.PopStyleColor();
+    }
+
+    private void CheckAnchorPosition()
+    {
+        if (!GatherBuddy.Config.GatherWindowBottomAnchor)
+            return;
+
+        if (_lastSize == Vector2.Zero)
+            _lastSize = ImGui.GetWindowSize();
+
+        var size = ImGui.GetWindowSize();
+        if (_lastSize == size)
+            return;
+
+        _newPosition   =  ImGui.GetWindowPos();
+        _newPosition.Y += _lastSize.Y - size.Y;
+        _lastSize      =  size;
     }
 
     public override void Draw()
@@ -223,5 +248,7 @@ public class GatherWindow : Window
 
         foreach (var item in _plugin.GatherWindowManager.GetList())
             DrawItem(item);
+
+        CheckAnchorPosition();
     }
 }

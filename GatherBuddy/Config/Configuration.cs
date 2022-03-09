@@ -46,6 +46,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             AddIngameContextMenus  { get; set; } = true;
     public bool             StoreFishRecords       { get; set; } = true;
     public bool             PrintClipboardMessages { get; set; } = true;
+    public bool             HideClippy             { get; set; } = false;
     public ModifiableHotkey MainInterfaceHotkey    { get; set; } = new();
 
     // Weather tab
@@ -94,6 +95,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             HideGatherWindowInDuty         { get; set; } = true;
     public bool             OnlyShowGatherWindowHoldingKey { get; set; } = false;
     public bool             LockGatherWindow               { get; set; } = false;
+    public bool             GatherWindowBottomAnchor   { get; set; } = false;
     public ModifiableHotkey GatherWindowHotkey             { get; set; } = new(VirtualKey.G, VirtualKey.CONTROL);
     public ModifierHotkey   GatherWindowDeleteModifier     { get; set; } = VirtualKey.CONTROL;
     public VirtualKey       GatherWindowHoldKey            { get; set; } = VirtualKey.MENU;
