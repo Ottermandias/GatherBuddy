@@ -146,6 +146,11 @@ public partial class FishTimerWindow : Window
         }
     }
 
+    public override void PreOpenCheck()
+    {
+        IsOpen = GatherBuddy.Config.ShowFishTimer;
+    }
+
     public override void PreDraw()
     {
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
