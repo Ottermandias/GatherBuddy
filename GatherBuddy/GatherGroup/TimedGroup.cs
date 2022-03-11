@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using GatherBuddy.Plugin;
@@ -63,6 +64,7 @@ public class TimedGroup
             return Functions.CompressedBase64(bytes);
         }
 
+        [SuppressMessage("ReSharper", "ConditionIsAlwaysTrueOrFalse")]
         internal static bool FromBase64(string data, out Config cfg)
         {
             cfg = default;
@@ -74,6 +76,9 @@ public class TimedGroup
 
                 var json = Encoding.UTF8.GetString(bytes.AsSpan()[1..]);
                 cfg = JsonConvert.DeserializeObject<Config>(json);
+                if (cfg.Nodes == null || cfg.Name == null || cfg.Description == null)
+                    return false;
+
                 return true;
             }
             catch (Exception)
