@@ -37,6 +37,7 @@ public partial class AlarmManager
             RemoveActiveAlarm(alarm);
 
         group.Alarms.RemoveAt(idx);
+        Save();
     }
 
     public void AddAlarm(AlarmGroup group, Alarm value)
