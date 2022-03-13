@@ -44,7 +44,7 @@ public partial class SpearfishingHelper : Window
         var size = ImGui.CalcTextSize(text);
         var (x, y) = GatherBuddy.Config.FixNamesOnPosition
             ? (_uiSize.X * GatherBuddy.Config.FixNamesPercentage / 100,
-                fishLines->Y + fishLines->Height * _uiScale * idx / 7 - ImGui.GetFrameHeight() / 2)
+                (fishLines->Y + fishLines->Height * idx / 7f) * _uiScale - ImGui.GetFrameHeight() / 2)
             : (node->X * _uiScale + node->Width * node->ScaleX * _uiScale / 2f - size.X / 2f,
                 (node->Y + fishLines->Y + node->Height / 2f) * _uiScale - (size.Y + ImGui.GetStyle().FramePadding.Y) / 2f);
         ImGui.SetCursorPos(new Vector2(x, y));
