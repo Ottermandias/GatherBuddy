@@ -218,9 +218,8 @@ public partial class Interface
         ImGui.SetTooltip(tt);
     }
 
-    private static void DrawLocationInput(TimedGroup group, int nodeIdx)
+    private static void DrawLocationInput(TimedGroup group, int nodeIdx, TimedGroupNode node)
     {
-        var node = group.Nodes[nodeIdx];
         if (DrawLocationInput(node.Item, node.PreferLocation, out var newLoc)
          && _plugin.GatherGroupManager.ChangeGroupNodeLocation(group, nodeIdx, newLoc))
             _plugin.GatherGroupManager.Save();
@@ -260,7 +259,7 @@ public partial class Interface
             }
         });
         ImGui.TableNextColumn();
-        DrawLocationInput(group, i);
+        DrawLocationInput(group, i, node);
         ImGui.TableNextColumn();
         var length = node.Length();
         ImGuiUtil.DrawTextButton($"{length} minutes", Vector2.Zero,
