@@ -28,6 +28,7 @@ public partial class Interface
         var text = current?.Name ?? noPreferred;
         ImGui.SetNextItemWidth(width);
         var combo = ImGui.BeginCombo("##Location", text);
+        DrawLocationTooltip(current);
         if (!combo)
             return false;
 
@@ -54,7 +55,6 @@ public partial class Interface
         }
 
         end.Pop();
-        DrawLocationTooltip(current);
 
         return changed;
     }
