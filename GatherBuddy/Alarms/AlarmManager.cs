@@ -43,7 +43,7 @@ public partial class AlarmManager : IDisposable
         if (idx >= 0)
             return;
 
-        var (_, uptime) = GatherBuddy.UptimeManager.BestLocation(alarm.Item);
+        var (_, uptime) = GetUptime(alarm);
         var start = uptime.Start.AddSeconds(-alarm.SecondOffset);
         ActiveAlarms.Add((alarm, start));
         Dirty = true;
@@ -143,6 +143,19 @@ public partial class AlarmManager : IDisposable
         };
     }
 
+    public static (ILocation?, TimeInterval) GetUptime(Alarm alarm, TimeStamp now)
+    {
+        if (alarm.PreferLocation == null)
+            return GatherBuddy.UptimeManager.NextUptime(alarm.Item, now);
+
+        return alarm.PreferLocation switch
+        {
+            GatheringNode node => (node, node.Times.NextUptime(now)),
+            FishingSpot spot   => (spot, GatherBuddy.UptimeManager.NextUptime((Fish)alarm.Item, spot.Territory, now)),
+            _                  => (alarm.PreferLocation, TimeInterval.Never),
+        };
+    }
+
     public void OnUpdate(Framework _)
     {
         var st = GatherBuddy.Time.ServerTime;
@@ -187,7 +200,7 @@ public partial class AlarmManager : IDisposable
         var newStart  = TimeStamp.MinValue;
         while (newStart <= st)
         {
-            (var _, newUptime) = GatherBuddy.UptimeManager.NextUptime(alarm.Item, newUptime.End + 1);
+            (var _, newUptime) = GetUptime(alarm, newUptime.End + 1);
             newStart           = newUptime.Start.AddSeconds(-alarm.SecondOffset);
         }
 
