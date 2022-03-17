@@ -38,14 +38,15 @@ public class AlarmGroup
         Alarms      = new List<Alarm>(group.Nodes.Count);
         foreach (var node in group.Nodes.Where(n => n.Item.InternalLocationId > 0))
         {
-            if (Alarms.Any(a => a.Item.ItemId == node.Item.ItemId))
+            if (Alarms.Any(a => a.Item.ItemId == node.Item.ItemId && a.PreferLocation == node.PreferLocation))
                 continue;
 
             Alarms.Add(new Alarm(node.Item)
             {
-                Enabled      = true,
-                Name         = node.Annotation,
-                PrintMessage = true,
+                Enabled        = true,
+                Name           = node.Annotation,
+                PreferLocation = node.PreferLocation,
+                PrintMessage   = true,
             });
         }
     }
