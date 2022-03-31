@@ -7,8 +7,9 @@ using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using ImGuiNET;
-using ImGuiOtter;
-using ImGuiOtter.Table;
+using OtterGui;
+using OtterGui.Table;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -68,7 +69,7 @@ public partial class Interface
         private static readonly ItemIdColumn      _itemIdColumn      = new() { Label = "Item Id" };
         private static readonly GatheringIdColumn _gatheringIdColumn = new() { Label = "G. Id" };
 
-        private class ItemFilterColumn : HeaderConfigFlags<ItemFilter, ExtendedGatherable>
+        private class ItemFilterColumn : ColumnFlags<ItemFilter, ExtendedGatherable>
         {
             private ItemFilter[] FlagValues = Array.Empty<ItemFilter>();
             private string[]     FlagNames  = Array.Empty<string>();
@@ -108,7 +109,7 @@ public partial class Interface
             }
         }
 
-        private sealed class NameColumn : HeaderConfigString<ExtendedGatherable>
+        private sealed class NameColumn : ColumnString<ExtendedGatherable>
         {
             public NameColumn()
                 => Flags |= ImGuiTableColumnFlags.NoHide | ImGuiTableColumnFlags.NoReorder;
@@ -121,7 +122,7 @@ public partial class Interface
 
             public override void DrawColumn(ExtendedGatherable item, int _)
             {
-                using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
+                using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
                 ImGuiUtil.HoverIcon(item.Icon, LineIconSize);
                 ImGui.SameLine();
 
@@ -160,7 +161,7 @@ public partial class Interface
             }
         }
 
-        private sealed class AetheryteColumn : HeaderConfigString<ExtendedGatherable>
+        private sealed class AetheryteColumn : ColumnString<ExtendedGatherable>
         {
             public override string ToName(ExtendedGatherable item)
                 => item.Uptime.Item1.ClosestAetheryte?.Name ?? "None";
@@ -192,7 +193,7 @@ public partial class Interface
             }
         }
 
-        private sealed class LevelColumn : HeaderConfigString<ExtendedGatherable>
+        private sealed class LevelColumn : ColumnString<ExtendedGatherable>
         {
             public override string ToName(ExtendedGatherable item)
                 => item.Level;
@@ -299,7 +300,7 @@ public partial class Interface
             }
         }
 
-        private sealed class FolkloreColumn : HeaderConfigString<ExtendedGatherable>
+        private sealed class FolkloreColumn : ColumnString<ExtendedGatherable>
         {
             public override string ToName(ExtendedGatherable item)
                 => item.Folklore;
@@ -308,7 +309,7 @@ public partial class Interface
                 => _folkloreColumnWidth * ImGuiHelpers.GlobalScale;
         }
 
-        private sealed class UptimesColumn : HeaderConfigString<ExtendedGatherable>
+        private sealed class UptimesColumn : ColumnString<ExtendedGatherable>
         {
             public override string ToName(ExtendedGatherable item)
                 => item.Uptimes;
@@ -317,7 +318,7 @@ public partial class Interface
                 => _uptimeColumnWidth * ImGuiHelpers.GlobalScale;
         }
 
-        private sealed class BestNodeColumn : HeaderConfigString<ExtendedGatherable>
+        private sealed class BestNodeColumn : ColumnString<ExtendedGatherable>
         {
             public override string ToName(ExtendedGatherable item)
                 => item.Uptime.Item1.Name;
@@ -342,7 +343,7 @@ public partial class Interface
             }
         }
 
-        private sealed class BestZoneColumn : HeaderConfigString<ExtendedGatherable>
+        private sealed class BestZoneColumn : ColumnString<ExtendedGatherable>
         {
             public override string ToName(ExtendedGatherable item)
                 => item.Uptime.Item1.Territory.Name;
@@ -367,7 +368,7 @@ public partial class Interface
             }
         }
 
-        private sealed class ItemIdColumn : HeaderConfig<ExtendedGatherable>
+        private sealed class ItemIdColumn : Column<ExtendedGatherable>
         {
             public override float Width
                 => _itemIdColumnWidth;
@@ -379,7 +380,7 @@ public partial class Interface
                 => ImGuiUtil.RightAlign($"{item.Data.ItemId}");
         }
 
-        private sealed class GatheringIdColumn : HeaderConfig<ExtendedGatherable>
+        private sealed class GatheringIdColumn : Column<ExtendedGatherable>
         {
             public override float Width
                 => _gatheringIdColumnWidth;
@@ -422,14 +423,14 @@ public partial class Interface
 
     private void DrawItemTab()
     {
-        using var id  = ImGuiRaii.PushId("Gatherables");
+        using var id  = ImRaii.PushId("Gatherables");
         var       ret = ImGui.BeginTabItem("Gatherables");
         ImGuiUtil.HoverTooltip("Breaking rocks with a pickaxe or felling trees counts as gathering, why do you ask?\n"
           + "Find all information about botanist and miner items you could ever need.");
         if (!ret)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
         _itemTable.Draw();
         DrawClippy();
     }

@@ -8,8 +8,9 @@ using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
 using static GatherBuddy.FishTimer.FishRecord;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -123,7 +124,7 @@ public partial class Interface
 
         if (!ImGui.BeginTable("##Times", 2))
             return;
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
 
         var fw  = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
         ImGuiUtil.DrawTableColumn("Framework Timestamp");
@@ -148,7 +149,7 @@ public partial class Interface
         if (!ImGui.BeginTable("##Framework", 2))
             return;
 
-        using var end     = ImGuiRaii.DeferredEnd(ImGui.EndTable);
+        using var end     = ImRaii.DeferredEnd(ImGui.EndTable);
         ImGuiUtil.DrawTableColumn("UiState Address");
         ImGuiUtil.DrawTableColumn($"{(IntPtr)FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance():X}");
         ImGuiUtil.DrawTableColumn("Event Framework Address");
@@ -206,7 +207,7 @@ public partial class Interface
         if (!ImGui.BeginTable("##Fishing Times", 6))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
         foreach (var (fishId, data) in _plugin.FishRecorder.Times)
         {
             ImGuiUtil.DrawTableColumn(GatherBuddy.GameData.Fishes[fishId].Name[ClientLanguage.English]);
@@ -237,7 +238,7 @@ public partial class Interface
         if (!ImGui.BeginTable("##Uptimes", 6, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
         foreach (var item in GatherBuddy.GameData.Gatherables.Values)
         {
             if (item.InternalLocationId == 0)
@@ -289,7 +290,7 @@ public partial class Interface
             return;
         if(!ImGui.BeginTable("##Alarms", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
             return;
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
 
         ImGuiUtil.DrawTableColumn("Enabled");
         ImGuiUtil.DrawTableColumn(GatherBuddy.Config.AlarmsEnabled.ToString());
@@ -318,14 +319,14 @@ public partial class Interface
         if (!GatherBuddy.DebugMode)
             return;
 
-        using var id  = ImGuiRaii.PushId("Debug");
+        using var id  = ImRaii.PushId("Debug");
         var       ret = ImGui.BeginTabItem("Debug");
         ImGuiUtil.HoverTooltip("I really hope there is a good reason for you seeing this.");
 
         if (!ret)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
         if (!ImGui.BeginChild(string.Empty))
         {
             ImGui.EndChild();
@@ -374,7 +375,7 @@ public partial class Interface
 
         if (ImGui.CollapsingHeader("IPC"))
         {
-            using var group1 = ImGuiRaii.NewGroup();
+            using var group1 = ImRaii.NewGroup();
             ImGui.Text("Version");
             ImGui.Text(GatherBuddyIpc.VersionName);
             ImGui.Text(GatherBuddyIpc.IdentifyName);
@@ -383,7 +384,7 @@ public partial class Interface
                     .InvokeFunc(_identifyTest);
             group1.Pop();
             ImGui.SameLine();
-            using var group2 = ImGuiRaii.NewGroup();
+            using var group2 = ImRaii.NewGroup();
             ImGui.Text(GatherBuddyIpc.IpcVersion.ToString());
             ImGui.Text(_plugin.Ipc._versionProvider != null ? "Available" : "Unavailable");
             ImGui.Text(_plugin.Ipc._identifyProvider != null ? "Available" : "Unavailable");

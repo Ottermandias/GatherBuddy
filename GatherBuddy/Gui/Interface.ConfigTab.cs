@@ -6,7 +6,8 @@ using Dalamud.Game.Text;
 using GatherBuddy.Config;
 using GatherBuddy.FishTimer;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -389,7 +390,7 @@ public partial class Interface
 
     private static void DrawConfigTab()
     {
-        using var id  = ImGuiRaii.PushId("Config");
+        using var id  = ImRaii.PushId("Config");
         var       ret = ImGui.BeginTabItem("Config");
         ImGuiUtil.HoverTooltip("Set up your very own GatherBuddy to your meticulous specifications.\n"
           + "If you treat him well, he might even become a real boy.");
@@ -397,7 +398,7 @@ public partial class Interface
         if (!ret)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         if (!ImGui.BeginChild("ConfigTab"))
         {

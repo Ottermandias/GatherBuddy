@@ -9,7 +9,8 @@ using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -42,8 +43,8 @@ public partial class Interface
 
             protected override bool OnDraw(int idx)
             {
-                using var id    = ImGuiRaii.PushId(idx);
-                using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
+                using var id    = ImRaii.PushId(idx);
+                using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
                 return ImGui.Selectable(CheckUnnamed(Items[idx].Name), idx == CurrentIdx);
             }
 
@@ -163,11 +164,11 @@ public partial class Interface
         if (!ImGui.BeginListBox("##gatherWindowList", new Vector2(-1.5f * ImGui.GetStyle().ItemSpacing.X, -1)))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndListBox);
+        using var end = ImRaii.DeferredEnd(ImGui.EndListBox);
         for (var i = 0; i < preset.Items.Count; ++i)
         {
-            using var id    = ImGuiRaii.PushId(i);
-            using var group = ImGuiRaii.NewGroup();
+            using var id    = ImRaii.PushId(i);
+            using var group = ImRaii.NewGroup();
             var       item  = preset.Items[i];
             if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset...", false,
                     true))
@@ -197,7 +198,7 @@ public partial class Interface
 
     private void DrawGatherWindowTab()
     {
-        using var id  = ImGuiRaii.PushId("GatherWindow");
+        using var id  = ImRaii.PushId("GatherWindow");
         var       tab = ImGui.BeginTabItem("Gather Window");
 
         ImGuiUtil.HoverTooltip(
@@ -207,7 +208,7 @@ public partial class Interface
         if (!tab)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _gatherWindowCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

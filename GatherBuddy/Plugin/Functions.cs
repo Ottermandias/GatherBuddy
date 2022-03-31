@@ -8,7 +8,7 @@ using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
-using ImGuiOtter;
+using OtterGui;
 
 namespace GatherBuddy.Plugin;
 

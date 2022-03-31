@@ -78,7 +78,7 @@
 
 	<ItemGroup>
 	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
-	  <ProjectReference Include="..\ImGuiRaii\ImGuiOtter.csproj" />
+	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
 	</ItemGroup>
 
 	<Target Name="PostBuild" AfterTargets="PostBuildEvent">

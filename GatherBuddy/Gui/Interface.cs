@@ -7,7 +7,8 @@ using Dalamud.Interface.Windowing;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -55,7 +56,7 @@ public partial class Interface : Window, IDisposable
         if (!ImGui.BeginTabBar("ConfigTabs###GatherBuddyConfigTabs", ImGuiTabBarFlags.Reorderable))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabBar);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabBar);
         DrawItemTab();
         DrawFishTab();
         DrawWeatherTab();

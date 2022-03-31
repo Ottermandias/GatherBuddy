@@ -15,7 +15,8 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -56,7 +57,7 @@ public partial class Interface
     private void DrawAddToGatherGroup(IGatherable item)
     {
         var       current = _gatherGroupCache.Selector.EnsureCurrent();
-        using var color   = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), current == null);
+        using var color   = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), current == null);
         if (ImGui.Selectable("Add to Gather Group") && current != null)
             if (_plugin.GatherGroupManager.ChangeGroupNode(current, current.Nodes.Count, item, null, null, null, false))
                 _plugin.GatherGroupManager.Save();
@@ -200,7 +201,7 @@ public partial class Interface
         if (!ImGui.BeginPopup(item.Name[GatherBuddy.Language]))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndPopup);
+        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
         DrawAddAlarm(item);
         DrawAddToGatherGroup(item);
         DrawAddGatherWindow(item);
@@ -221,7 +222,7 @@ public partial class Interface
         if (!ImGui.BeginPopup(bait.Name))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndPopup);
+        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
 
         if (ImGui.Selectable("Create Link"))
             Communicator.Print(SeString.CreateItemLink(bait.Id));
@@ -240,7 +241,7 @@ public partial class Interface
         if (!ImGui.BeginPopup(spot.Name))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndPopup);
+        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
 
         DrawOpenInTeamCraft(spot);
     }

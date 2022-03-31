@@ -6,7 +6,8 @@ using GatherBuddy.Config;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -19,7 +20,7 @@ public partial class Interface
         ret = current;
         if (item.Locations.Count() == 1)
         {
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
+            using var style = ImRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
             ImGuiUtil.DrawTextButton(item.Locations.First().Name, new Vector2(width, 0), ImGui.GetColorU32(ImGuiCol.FrameBg));
             DrawLocationTooltip(item.Locations.First());
             return false;
@@ -32,7 +33,7 @@ public partial class Interface
         if (!combo)
             return false;
 
-        using var end     = ImGuiRaii.DeferredEnd(ImGui.EndCombo);
+        using var end     = ImRaii.DeferredEnd(ImGui.EndCombo);
         var       changed = false;
 
         if (ImGui.Selectable(noPreferred, current == null))
@@ -44,7 +45,7 @@ public partial class Interface
         var idx = 0;
         foreach (var loc in item.Locations)
         {
-            using var id = ImGuiRaii.PushId(idx++);
+            using var id = ImRaii.PushId(idx++);
             if (ImGui.Selectable(loc.Name, loc.Id == (current?.Id ?? 0)))
             {
                 ret     = loc;
@@ -69,12 +70,12 @@ public partial class Interface
             (false, true)  => ColorId.DependentUpcomingFish.Value(),
             (false, false) => ColorId.UpcomingItem.Value(),
         };
-        using var color = ImGuiRaii.PushColor(ImGuiCol.Text, colorId);
+        using var color = ImRaii.PushColor(ImGuiCol.Text, colorId);
         ImGuiUtil.RightAlign(timeString);
         color.Pop();
         if ((uptimeDependency || !char.IsLetter(timeString[0])) && ImGui.IsItemHovered())
         {
-            using var tt = ImGuiRaii.NewTooltip();
+            using var tt = ImRaii.NewTooltip();
 
             if (uptimeDependency)
                 ImGuiUtil.DrawTextButton("Uptime Dependency", Vector2.Zero, 0xFF202080);
@@ -104,7 +105,7 @@ public partial class Interface
     private static void DrawFormatInput(string label, string tooltip, string oldValue, string defaultValue, Action<string> setValue)
     {
         var       tmp = oldValue;
-        using var id  = ImGuiRaii.PushId(label);
+        using var id  = ImRaii.PushId(label);
 
         ImGui.SetNextItemWidth(ImGui.GetContentRegionAvail().X - 50 * Scale);
         if (ImGui.InputText(string.Empty, ref tmp, 256) && tmp != oldValue)
@@ -144,8 +145,8 @@ public partial class Interface
             return;
         }
 
-        using var end   = ImGuiRaii.DeferredEnd(ImGui.EndChild);
-        using var color = ImGuiRaii.PushColor(ImGuiCol.Button, 0xFFA06020);
+        using var end   = ImRaii.DeferredEnd(ImGui.EndChild);
+        using var color = ImRaii.PushColor(ImGuiCol.Button, 0xFFA06020);
 
         if (ImGui.Button(text, buttonSize))
             ImGui.OpenPopup(popupName);

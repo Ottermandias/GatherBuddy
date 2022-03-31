@@ -8,8 +8,9 @@ using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using ImGuiNET;
-using ImGuiOtter;
-using ImGuiOtter.Table;
+using OtterGui;
+using OtterGui.Table;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -80,7 +81,7 @@ public partial class Interface
         private static readonly ItemIdColumn     _itemIdColumn     = new() { Label = "Item Id" };
         private static readonly FishIdColumn     _fishIdColumn     = new() { Label = "G. Id" };
 
-        private class FishFilterColumn : HeaderConfigFlags<FishFilter, ExtendedFish>
+        private class FishFilterColumn : ColumnFlags<FishFilter, ExtendedFish>
         {
             private FishFilter[] FlagValues = Array.Empty<FishFilter>();
             private string[]     FlagNames  = Array.Empty<string>();
@@ -120,7 +121,7 @@ public partial class Interface
             }
         }
 
-        private sealed class NameColumn : HeaderConfigString<ExtendedFish>
+        private sealed class NameColumn : ColumnString<ExtendedFish>
         {
             public NameColumn()
                 => Flags |= ImGuiTableColumnFlags.NoHide | ImGuiTableColumnFlags.NoReorder;
@@ -133,7 +134,7 @@ public partial class Interface
 
             public override void DrawColumn(ExtendedFish item, int id)
             {
-                using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
+                using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
                 ImGuiUtil.HoverIcon(item.Icon, LineIconSize);
                 ImGui.SameLine();
                 var selected = ImGui.Selectable(item.Data.Name[GatherBuddy.Language]);
@@ -161,22 +162,22 @@ public partial class Interface
 
             public override void DrawColumn(ExtendedFish fish, int _)
             {
-                using var font = ImGuiRaii.PushFont(UiBuilder.IconFont);
+                using var font = ImRaii.PushFont(UiBuilder.IconFont);
                 if (!fish.Data.InLog)
                 {
-                    using var color = ImGuiRaii.PushColor(ImGuiCol.Text, 0xFFA00000);
+                    using var color = ImRaii.PushColor(ImGuiCol.Text, 0xFFA00000);
                     ImGuiUtil.Center(FontAwesomeIcon.Question.ToIconString());
                     return;
                 }
 
                 if (fish.Unlocked)
                 {
-                    using var color = ImGuiRaii.PushColor(ImGuiCol.Text, 0xFF008000);
+                    using var color = ImRaii.PushColor(ImGuiCol.Text, 0xFF008000);
                     ImGuiUtil.Center(FontAwesomeIcon.Check.ToIconString());
                 }
                 else
                 {
-                    using var color = ImGuiRaii.PushColor(ImGuiCol.Text, 0xFF000080);
+                    using var color = ImRaii.PushColor(ImGuiCol.Text, 0xFF000080);
                     ImGuiUtil.Center(FontAwesomeIcon.Times.ToIconString());
                 }
             }
@@ -230,7 +231,7 @@ public partial class Interface
             }
         }
 
-        private sealed class BaitColumn : HeaderConfigString<ExtendedFish>
+        private sealed class BaitColumn : ColumnString<ExtendedFish>
         {
             public override string ToName(ExtendedFish item)
                 => item.Bait.First().Name;
@@ -240,7 +241,7 @@ public partial class Interface
 
             public override void DrawColumn(ExtendedFish item, int _)
             {
-                using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
+                using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
                 ImGuiUtil.HoverIcon(item.Bait.First().Icon, LineIconSize);
                 ImGui.SameLine();
                 ImGui.Selectable(item.Bait.First().Name);
@@ -248,7 +249,7 @@ public partial class Interface
             }
         }
 
-        private sealed class AetheryteColumn : HeaderConfigString<ExtendedFish>
+        private sealed class AetheryteColumn : ColumnString<ExtendedFish>
         {
             public override string ToName(ExtendedFish item)
                 => item.Uptime.Item1.ClosestAetheryte?.Name ?? "None";
@@ -280,7 +281,7 @@ public partial class Interface
             }
         }
 
-        private sealed class PatchColumn : HeaderConfigFlags<PatchFlag, ExtendedFish>
+        private sealed class PatchColumn : ColumnFlags<PatchFlag, ExtendedFish>
         {
             public PatchColumn()
                 => AllFlags = Enum.GetValues<PatchFlag>().Aggregate((l, r) => l | r);
@@ -356,7 +357,7 @@ public partial class Interface
             }
         }
 
-        private sealed class FolkloreColumn : HeaderConfigString<ExtendedFish>
+        private sealed class FolkloreColumn : ColumnString<ExtendedFish>
         {
             public override string ToName(ExtendedFish item)
                 => item.Data.Folklore;
@@ -393,7 +394,7 @@ public partial class Interface
                 };
         }
 
-        private sealed class BestSpotColumn : HeaderConfigString<ExtendedFish>
+        private sealed class BestSpotColumn : ColumnString<ExtendedFish>
         {
             public override string ToName(ExtendedFish item)
                 => item.Uptime.Item1.Name;
@@ -419,7 +420,7 @@ public partial class Interface
             }
         }
 
-        private sealed class BestZoneColumn : HeaderConfigString<ExtendedFish>
+        private sealed class BestZoneColumn : ColumnString<ExtendedFish>
         {
             public override string ToName(ExtendedFish item)
                 => item.Uptime.Item1.Territory.Name;
@@ -444,7 +445,7 @@ public partial class Interface
             }
         }
 
-        private sealed class ItemIdColumn : HeaderConfig<ExtendedFish>
+        private sealed class ItemIdColumn : Column<ExtendedFish>
         {
             public override float Width
                 => _itemIdColumnWidth;
@@ -456,7 +457,7 @@ public partial class Interface
                 => ImGuiUtil.RightAlign($"{item.Data.ItemId}");
         }
 
-        private sealed class FishIdColumn : HeaderConfig<ExtendedFish>
+        private sealed class FishIdColumn : Column<ExtendedFish>
         {
             public override float Width
                 => _fishIdColumnWidth;
@@ -498,7 +499,7 @@ public partial class Interface
 
     private void DrawFishTab()
     {
-        using var id  = ImGuiRaii.PushId("Fish");
+        using var id  = ImRaii.PushId("Fish");
         var       ret = ImGui.BeginTabItem("Fish");
         ImGuiUtil.HoverTooltip("There are plenty of fish in the sea. And the air. And the sand. And the lava. And space, for some reason.\n"
           + " Gotta catch'em all!\n"
@@ -506,7 +507,7 @@ public partial class Interface
         if (!ret)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
         _fishTable.Draw();
         DrawClippy();
     }

@@ -11,7 +11,8 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -60,8 +61,8 @@ public partial class Interface
 
             protected override bool OnDraw(int idx)
             {
-                using var id    = ImGuiRaii.PushId(idx);
-                using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
+                using var id    = ImRaii.PushId(idx);
+                using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
                 return ImGui.Selectable(CheckUnnamed(Items[idx].Name), idx == CurrentIdx);
             }
 
@@ -163,7 +164,7 @@ public partial class Interface
     private void DrawAlarmInfo(ref int alarmIdx, AlarmGroup group)
     {
         var       alarm   = group.Alarms[alarmIdx];
-        using var id      = ImGuiRaii.PushId(alarmIdx);
+        using var id      = ImRaii.PushId(alarmIdx);
         var       enabled = alarm.Enabled;
 
         ImGui.TableNextColumn();
@@ -268,13 +269,13 @@ public partial class Interface
         if (!ImGui.BeginTable("##alarms", 9, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.NoKeepColumnsVisible, Vector2.UnitX * width))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
         DrawToggleAll(group);
         ImGui.TableNextRow();
         for (var i = 0; i < group.Alarms.Count; ++i)
             DrawAlarmInfo(ref i, group);
 
-        using var id = ImGuiRaii.PushId(-1);
+        using var id = ImRaii.PushId(-1);
         ImGui.TableNextColumn();
         if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize, "Add new Alarm...", false, true))
             _plugin.AlarmManager.AddAlarm(group, _alarmCache.CreateAlarm());
@@ -305,7 +306,7 @@ public partial class Interface
             return;
         }
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndChild);
+        using var end = ImRaii.DeferredEnd(ImGui.EndChild);
         DrawGroupData(group, idx);
         ImGui.NewLine();
         DrawAlarmTable(group, idx);
@@ -345,7 +346,7 @@ public partial class Interface
 
     private void DrawAlarmTab()
     {
-        using var id  = ImGuiRaii.PushId("Alarms");
+        using var id  = ImRaii.PushId("Alarms");
         var       ret = ImGui.BeginTabItem("Alarms");
         ImGuiUtil.HoverTooltip("Do you often find yourself late for a very important date with no time to say hello or goodbye?\n"
           + "Set up your very own alarm clock. Viera might even be able to wear it around their neck.");
@@ -353,7 +354,7 @@ public partial class Interface
         if (!ret)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _alarmCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

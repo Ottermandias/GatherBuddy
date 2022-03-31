@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
@@ -15,6 +15,7 @@ using GatherBuddy.Config;
 using GatherBuddy.GatherGroup;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Plugin;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -49,7 +50,7 @@ public partial class Interface
 
             protected override bool OnDraw(int idx)
             {
-                using var id = ImGuiRaii.PushId(idx);
+                using var id = ImRaii.PushId(idx);
                 return ImGui.Selectable(Items[idx].Name, idx == CurrentIdx);
             }
 
@@ -171,10 +172,10 @@ public partial class Interface
     {
         var       hour   = value / RealTime.MinutesPerHour;
         var       minute = value % RealTime.MinutesPerHour;
-        using var group  = ImGuiRaii.NewGroup();
-        using var id     = ImGuiRaii.PushId(label);
+        using var group  = ImRaii.NewGroup();
+        using var id     = ImRaii.PushId(label);
         ImGui.SetNextItemWidth(width);
-        using var style  = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
+        using var style  = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
         var       change = ImGui.DragInt("##hour", ref hour, 0.05f, 0, RealTime.HoursPerDay - 1, "%02d", ImGuiSliderFlags.AlwaysClamp);
         ImGui.SameLine();
         ImGui.Text(":");
@@ -194,7 +195,7 @@ public partial class Interface
     private void DrawTimeInput(int fromValue, int toValue, Action<int, int> setter)
     {
         var       width = 20 * ImGuiHelpers.GlobalScale;
-        using var group = ImGuiRaii.NewGroup();
+        using var group = ImRaii.NewGroup();
 
         ImGui.Text(" from ");
         ImGui.SameLine();
@@ -228,7 +229,7 @@ public partial class Interface
     private void DrawGatherGroupNode(TimedGroup group, ref int idx, int minutes)
     {
         var       node           = group.Nodes[idx];
-        using var id             = ImGuiRaii.PushId(idx);
+        using var id             = ImRaii.PushId(idx);
         var       i              = idx;
         var       annotationEdit = _gatherGroupCache.AnnotationEditIdx;
         ImGui.TableNextColumn();
@@ -309,7 +310,7 @@ public partial class Interface
         if (!ImGui.BeginTable("##nodes", 6, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollX))
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTable);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
 
         for (var i = 0; i < group.Nodes.Count; ++i)
             DrawGatherGroupNode(group, ref i, times[i + 1]);
@@ -364,7 +365,7 @@ public partial class Interface
 
     private void DrawGatherGroup(TimedGroup group)
     {
-        using var id = ImGuiRaii.PushId(group.Name);
+        using var id = ImRaii.PushId(group.Name);
 
         DrawNameField(group);
         DrawDescField(group);
@@ -405,7 +406,7 @@ public partial class Interface
         }
 
         var       holdingCtrl = ImGui.GetIO().KeyCtrl;
-        using var color       = ImGuiRaii.PushColor(ImGuiCol.ButtonHovered, 0x8000A000, holdingCtrl);
+        using var color       = ImRaii.PushColor(ImGuiCol.ButtonHovered, 0x8000A000, holdingCtrl);
         if (ImGui.Button("Restore Default Groups") && holdingCtrl && _plugin.GatherGroupManager.SetDefaults(true))
         {
             _gatherGroupCache.Selector.TryRestoreCurrent();
@@ -424,7 +425,7 @@ public partial class Interface
 
     private void DrawGatherGroupTab()
     {
-        using var id  = ImGuiRaii.PushId("Gather Groups");
+        using var id  = ImRaii.PushId("Gather Groups");
         var       tab = ImGui.BeginTabItem("Gather Groups");
 
         ImGuiUtil.HoverTooltip(
@@ -434,7 +435,7 @@ public partial class Interface
         if (!tab)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _gatherGroupCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

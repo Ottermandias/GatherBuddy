@@ -5,7 +5,7 @@ using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using GatherBuddy.Enums;
-using ImGuiOtter;
+using OtterGui;
 
 namespace GatherBuddy.Config;
 

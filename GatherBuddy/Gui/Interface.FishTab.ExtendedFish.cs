@@ -10,8 +10,9 @@ using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
 using ImGuiScene;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -276,7 +277,7 @@ public partial class Interface
                 return;
             }
 
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
+            using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
             if (fish.TransitionIcons.Length > 0)
             {
                 AlignTextToSize(fish.TransitionIcons.Length > 1 ? "Requires one of" : "Requires", weatherIconSize);
@@ -326,7 +327,7 @@ public partial class Interface
                 return;
             }
 
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
+            using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
 
             var startPos = ImGui.GetCursorPos();
             var size     = Vector2.Zero;
@@ -345,10 +346,10 @@ public partial class Interface
                 {
                     style.Push(ImGuiStyleVar.ItemSpacing, Vector2.One);
                     ImGui.SameLine();
-                    using var _ = ImGuiRaii.NewGroup();
+                    using var _ = ImRaii.NewGroup();
                     style.Push(ImGuiStyleVar.FramePadding, Vector2.Zero);
                     ImGui.Image(bait.HookSet!.ImGuiHandle, smallIconSize);
-                    using var color = ImGuiRaii.PushColor(ImGuiCol.Button, bait.Bite.Item2);
+                    using var color = ImRaii.PushColor(ImGuiCol.Button, bait.Bite.Item2);
                     ImGui.Button(bait.Bite.Item1, smallIconSize);
                     style.Pop(2);
                 }
@@ -379,11 +380,11 @@ public partial class Interface
             var offset = (size.Y - ImGui.GetTextLineHeight()) / 2f;
             var length = ImGui.CalcTextSize(fish.Intuition).X;
 
-            using var color = ImGuiRaii.PushColor(ImGuiCol.Button, 0xFF0040C0);
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
+            using var color = ImRaii.PushColor(ImGuiCol.Button, 0xFF0040C0);
+            using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
             foreach (var predator in fish.Predators)
             {
-                using var group = ImGuiRaii.NewGroup();
+                using var group = ImRaii.NewGroup();
                 ImGui.Button(predator.Amount, size);
                 ImGui.SameLine();
                 ImGui.Image(predator.Icon.ImGuiHandle, size);
@@ -405,7 +406,7 @@ public partial class Interface
 
         private static void PrintFolklore(ExtendedFish fish)
         {
-            using var color = new ImGuiRaii.Color();
+            using var color = new ImRaii.Color();
             if (fish.Data.Folklore.Length != 0)
             {
                 color.Push(ImGuiCol.Button, 0xFF802080);
@@ -421,8 +422,8 @@ public partial class Interface
 
         public void SetTooltip(Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool standAlone = true)
         {
-            using var tooltip = standAlone ? ImGuiRaii.NewTooltip() : null;
-            using var style   = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing * new Vector2(1f, 1.5f));
+            using var tooltip = standAlone ? ImRaii.NewTooltip() : null;
+            using var style   = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing * new Vector2(1f, 1.5f));
             PrintTime(this);
             PrintWeather(this, weatherIconSize);
             PrintBait(this, iconSize, smallIconSize);

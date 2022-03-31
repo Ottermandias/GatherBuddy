@@ -19,7 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GatherBuddy.GameData", "Gat
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GatherBuddy.Levenshtein", "GatherBuddy.Levenshtein\GatherBuddy.Levenshtein.csproj", "{751A5A02-9232-4DD6-87AA-A374D015B4B5}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImGuiOtter", "ImGuiRaii\ImGuiOtter.csproj", "{8830BF74-F127-438B-8135-29CCBC328D86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OtterGui", "OtterGui\OtterGui.csproj", "{8830BF74-F127-438B-8135-29CCBC328D86}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -11,7 +11,8 @@ using GatherBuddy.Enums;
 using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Spearfishing;
 
@@ -63,15 +64,15 @@ public partial class SpearfishingHelper : Window
             return;
 
         ImGui.SetCursorPos(_uiSize * Vector2.UnitX);
-        using var color = ImGuiRaii.PushColor(ImGuiCol.ChildBg, ColorId.SpearfishHelperBackgroundList.Value());
-        using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ChildRounding, 5 * ImGuiHelpers.GlobalScale);
+        using var color = ImRaii.PushColor(ImGuiCol.ChildBg, ColorId.SpearfishHelperBackgroundList.Value());
+        using var style = ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 5 * ImGuiHelpers.GlobalScale);
         if (!ImGui.BeginChild("##ListChild", ListSize, true, ImGuiWindowFlags.NoScrollbar))
         {
             ImGui.EndChild();
             return;
         }
 
-        using var end      = ImGuiRaii.DeferredEnd(ImGui.EndChild);
+        using var end      = ImRaii.DeferredEnd(ImGui.EndChild);
         var       iconSize = ImGuiHelpers.ScaledVector2(_iconSize, _iconSize);
         foreach (var fish in _currentSpot.Items)
         {

@@ -1,7 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Keys;
-using ImGuiOtter;
+using OtterGui;
 using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.Config;

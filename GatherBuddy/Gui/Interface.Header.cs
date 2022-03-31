@@ -5,8 +5,9 @@ using Dalamud.Interface;
 using GatherBuddy.Config;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
 using ImGuiScene;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -108,7 +109,7 @@ public partial class Interface
 
     private void DrawAlarmRow()
     {
-        using var _ = ImGuiRaii.NewGroup();
+        using var _ = ImRaii.NewGroup();
         ConfigFunctions.DrawAlarmToggle();
         ImGui.SameLine();
         _headerCache.AlarmButtonSize = (ImGui.GetContentRegionAvail().X - ItemSpacing.X) / 2 * Vector2.UnitX;
@@ -144,7 +145,7 @@ public partial class Interface
 
     private void DrawNextWeather(string nextWeather)
     {
-        using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.Zero);
+        using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.Zero);
         DrawIconTint(_headerCache.LastWeather, _headerCache.LastWeatherIcon, WeatherIconSize, _headerCache.LastWeatherTint);
         ImGui.SameLine();
         DrawIcon(_headerCache.CurrentWeather, _headerCache.CurrentWeatherIcon, WeatherIconSize);
@@ -172,7 +173,7 @@ public partial class Interface
           + (WeatherIconSize.X + ItemSpacing.X + FramePadding.X) * 3);
 
         _headerCache.UpdateCurrentTerritory();
-        using var _ = ImGuiRaii.NewGroup();
+        using var _ = ImRaii.NewGroup();
         DrawEorzeaTime($"ET {GatherBuddy.Time.EorzeaHourOfDay:D2}:{GatherBuddy.Time.EorzeaMinuteOfHour:D2}");
         ImGui.SameLine();
         DrawNextEorzeaHour($"{nextHourM:D2}:{nextHourS:D2} Min to next hour.", new Vector2(width, WeatherIconSize.Y));

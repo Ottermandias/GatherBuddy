@@ -6,7 +6,7 @@ using Dalamud.Logging;
 using GatherBuddy.Alarms;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
-using ImGuiOtter.Table;
+using OtterGui.Table;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.GatherHelper;

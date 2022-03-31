@@ -9,10 +9,11 @@ using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
 using GatherBuddy.Plugin;
 using ImGuiNET;
-using ImGuiOtter;
-using ImGuiOtter.Table;
+using OtterGui;
+using OtterGui.Table;
 using ImGuiScene;
 using Newtonsoft.Json;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -61,7 +62,7 @@ public partial class Interface
         private static readonly SizeHeader       _sizeHeader       = new() { Label = "Ilm" };
         private static readonly FlagHeader       _flagHeader       = new() { Label = "Flags" };
 
-        private sealed class GatheringHeader : HeaderConfigString<FishRecord>
+        private sealed class GatheringHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
                 => record.Gathering.ToString();
@@ -76,7 +77,7 @@ public partial class Interface
                 => ImGuiUtil.RightAlign(ToName(record));
         }
 
-        private sealed class PerceptionHeader : HeaderConfigString<FishRecord>
+        private sealed class PerceptionHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
                 => record.Perception.ToString();
@@ -91,7 +92,7 @@ public partial class Interface
                 => ImGuiUtil.RightAlign(ToName(record));
         }
 
-        private sealed class AmountHeader : HeaderConfigString<FishRecord>
+        private sealed class AmountHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
                 => record.Amount.ToString();
@@ -108,7 +109,7 @@ public partial class Interface
             }
         }
 
-        private sealed class SizeHeader : HeaderConfigString<FishRecord>
+        private sealed class SizeHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
                 => $"{record.Size / 10f:F1}";
@@ -126,14 +127,14 @@ public partial class Interface
                     tt = "Large Catch!";
                 if (record.Flags.HasFlag(FishRecord.Effects.Collectible))
                     tt += tt.Length > 0 ? "\nCollectible!" : "Collectible!";
-                using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), tt.Length == 0);
+                using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), tt.Length == 0);
                 ImGuiUtil.RightAlign(ToName(record));
                 ImGuiUtil.HoverTooltip(tt);
             }
         }
 
 
-        private sealed class ContentIdHeader : HeaderConfigString<FishRecord>
+        private sealed class ContentIdHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord item)
                 => item.Flags.HasFlag(FishRecord.Effects.Legacy) ? "Legacy" : item.ContentIdHash.ToString("X8");
@@ -145,7 +146,7 @@ public partial class Interface
                 => lhs.ContentIdHash.CompareTo(rhs.ContentIdHash);
         }
 
-        private sealed class BaitHeader : HeaderConfigString<FishRecord>
+        private sealed class BaitHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord item)
                 => item.Bait.Name;
@@ -154,7 +155,7 @@ public partial class Interface
                 => 150 * ImGuiHelpers.GlobalScale;
         }
 
-        private sealed class SpotHeader : HeaderConfigString<FishRecord>
+        private sealed class SpotHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord item)
                 => item.FishingSpot?.Name ?? "Unknown";
@@ -163,7 +164,7 @@ public partial class Interface
                 => 200 * ImGuiHelpers.GlobalScale;
         }
 
-        private sealed class CatchHeader : HeaderConfigString<FishRecord>
+        private sealed class CatchHeader : ColumnString<FishRecord>
         {
             public CatchHeader()
             {
@@ -186,7 +187,7 @@ public partial class Interface
             }
         }
 
-        private sealed class CastStartHeader : HeaderConfigString<FishRecord>
+        private sealed class CastStartHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
                 => (record.TimeStamp.Time / 1000).ToString();
@@ -213,7 +214,7 @@ public partial class Interface
             Invalid   = 0x08,
         }
 
-        private sealed class BiteTypeHeader : HeaderConfigFlags<TugTypeFilter, FishRecord>
+        private sealed class BiteTypeHeader : ColumnFlags<TugTypeFilter, FishRecord>
         {
             public BiteTypeHeader()
             {
@@ -264,7 +265,7 @@ public partial class Interface
             Invalid  = 0x20,
         }
 
-        private sealed class HookHeader : HeaderConfigFlags<HookSetFilter, FishRecord>
+        private sealed class HookHeader : ColumnFlags<HookSetFilter, FishRecord>
         {
             public HookHeader()
             {
@@ -311,7 +312,7 @@ public partial class Interface
                 => 75 * ImGuiHelpers.GlobalScale;
         }
 
-        private sealed class DurationHeader : HeaderConfigString<FishRecord>
+        private sealed class DurationHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
                 => $"{record.Bite / 1000}.{record.Bite % 1000:D3}";
@@ -327,7 +328,7 @@ public partial class Interface
         }
 
 
-        private class FlagHeader : HeaderConfigFlags<FishRecord.Effects, FishRecord>
+        private class FlagHeader : ColumnFlags<FishRecord.Effects, FishRecord>
         {
             private readonly float                               _iconScale;
             private readonly (TextureWrap, FishRecord.Effects)[] _effects;
@@ -453,14 +454,14 @@ public partial class Interface
                 if (!ImGui.IsItemHovered())
                     return;
 
-                using var tt = ImGuiRaii.NewTooltip();
+                using var tt = ImRaii.NewTooltip();
                 ImGui.Image(icon.ImGuiHandle, new Vector2(icon.Width, icon.Height));
                 ImGui.Text(flag.ToString());
             }
 
             public override void DrawColumn(FishRecord item, int idx)
             {
-                using var space = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
+                using var space = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
                 foreach (var (icon, flag) in _effects)
                 {
                     DrawIcon(item, icon, flag);
@@ -477,14 +478,14 @@ public partial class Interface
 
     private void DrawRecordTab()
     {
-        using var id  = ImGuiRaii.PushId("Fish Records");
+        using var id  = ImRaii.PushId("Fish Records");
         var       ret = ImGui.BeginTabItem("Fish Records");
         ImGuiUtil.HoverTooltip("The records of my fishing prowess have been greatly exaggerated.\n"
           + "Find, cleanup and share all data you have collected while fishing.");
         if (!ret)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
         _recordTable.Draw();
         if (ImGui.Button("Cleanup"))
         {

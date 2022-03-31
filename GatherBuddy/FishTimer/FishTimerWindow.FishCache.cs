@@ -7,8 +7,9 @@ using GatherBuddy.Enums;
 using GatherBuddy.Gui;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
 using ImGuiScene;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.FishTimer;
 
@@ -194,7 +195,7 @@ public partial class FishTimerWindow
             // Name
             ImGui.SameLine(window._iconSize.X + padding);
             ImGui.AlignTextToFramePadding();
-            using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
+            using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
             ImGui.Text(_textLine);
 
             // Time

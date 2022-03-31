@@ -8,8 +8,9 @@ using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using ImGuiNET;
-using ImGuiOtter;
-using ImGuiOtter.Table;
+using OtterGui;
+using OtterGui.Table;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -43,7 +44,7 @@ public partial class Interface
         private static readonly YCoordColumn    _yCoordColumn    = new() { Label = "Y-Coord" };
         private static readonly ItemColumn      _itemColumn      = new() { Label = "Items" };
 
-        private sealed class NameColumn : HeaderConfigString<ILocation>
+        private sealed class NameColumn : ColumnString<ILocation>
         {
             public NameColumn()
                 => Flags |= ImGuiTableColumnFlags.NoHide | ImGuiTableColumnFlags.NoReorder;
@@ -61,7 +62,7 @@ public partial class Interface
             }
         }
 
-        private sealed class TypeColumn : HeaderConfigFlags<JobFlags, ILocation>
+        private sealed class TypeColumn : ColumnFlags<JobFlags, ILocation>
         {
             public TypeColumn()
             {
@@ -110,7 +111,7 @@ public partial class Interface
                 => _typeColumnWidth * ImGuiHelpers.GlobalScale;
         }
 
-        private sealed class TerritoryColumn : HeaderConfigString<ILocation>
+        private sealed class TerritoryColumn : ColumnString<ILocation>
         {
             public override string ToName(ILocation location)
                 => location.Territory.Name;
@@ -125,7 +126,7 @@ public partial class Interface
             }
         }
 
-        private sealed class ItemColumn : HeaderConfigString<ILocation>
+        private sealed class ItemColumn : ColumnString<ILocation>
         {
             public override string ToName(ILocation location)
                 => string.Join(", ", location.Gatherables.Select(g => g.Name[GatherBuddy.Language]));
@@ -140,7 +141,7 @@ public partial class Interface
             }
         }
 
-        private sealed class AetheryteColumn : HeaderConfigString<ILocation>
+        private sealed class AetheryteColumn : ColumnString<ILocation>
         {
             private readonly List<Aetheryte>                   _aetherytes;
             private readonly ClippedSelectableCombo<Aetheryte> _aetheryteCombo;
@@ -160,7 +161,7 @@ public partial class Interface
             public override void DrawColumn(ILocation location, int _)
             {
                 var       overwritten = location.DefaultAetheryte != location.ClosestAetheryte;
-                using var color       = ImGuiRaii.PushColor(ImGuiCol.FrameBg, ColorId.ChangedLocationBg.Value(), overwritten);
+                using var color       = ImRaii.PushColor(ImGuiCol.FrameBg, ColorId.ChangedLocationBg.Value(), overwritten);
                 var       currentName = location.ClosestAetheryte?.Name ?? "None";
                 if (_aetheryteCombo.Draw(currentName, out var newIdx))
                     _plugin.LocationManager.SetAetheryte(location, _aetherytes[newIdx]);
@@ -173,7 +174,7 @@ public partial class Interface
             }
         }
 
-        private sealed class XCoordColumn : HeaderConfigString<ILocation>
+        private sealed class XCoordColumn : ColumnString<ILocation>
         {
             public override string ToName(ILocation location)
                 => (location.IntegralXCoord / 100f).ToString("0.00", CultureInfo.InvariantCulture);
@@ -184,7 +185,7 @@ public partial class Interface
             public override void DrawColumn(ILocation location, int _)
             {
                 var       overwritten = location.DefaultXCoord != location.IntegralXCoord;
-                using var color       = ImGuiRaii.PushColor(ImGuiCol.FrameBg, ColorId.ChangedLocationBg.Value(), overwritten);
+                using var color       = ImRaii.PushColor(ImGuiCol.FrameBg, ColorId.ChangedLocationBg.Value(), overwritten);
                 var       x           = location.IntegralXCoord / 100f;
                 ImGui.SetNextItemWidth(-1);
                 if (ImGui.DragFloat("##x", ref x, 0.05f, 1f, 42f, "%.2f", ImGuiSliderFlags.AlwaysClamp))
@@ -201,7 +202,7 @@ public partial class Interface
                 => a.IntegralXCoord.CompareTo(b.IntegralXCoord);
         }
 
-        private sealed class YCoordColumn : HeaderConfigString<ILocation>
+        private sealed class YCoordColumn : ColumnString<ILocation>
         {
             public override string ToName(ILocation location)
                 => location.IntegralYCoord.ToString("0.00", CultureInfo.InvariantCulture);
@@ -212,7 +213,7 @@ public partial class Interface
             public override void DrawColumn(ILocation location, int _)
             {
                 var       overwritten = location.DefaultYCoord != location.IntegralYCoord;
-                using var color       = ImGuiRaii.PushColor(ImGuiCol.FrameBg, ColorId.ChangedLocationBg.Value(), overwritten);
+                using var color       = ImRaii.PushColor(ImGuiCol.FrameBg, ColorId.ChangedLocationBg.Value(), overwritten);
                 var       y           = location.IntegralYCoord / 100f;
                 ImGui.SetNextItemWidth(-1);
                 if (ImGui.DragFloat("##y", ref y, 0.05f, 1f, 42f, "%.2f", ImGuiSliderFlags.AlwaysClamp))
@@ -239,7 +240,7 @@ public partial class Interface
 
     private void DrawLocationsTab()
     {
-        using var id  = ImGuiRaii.PushId("Locations");
+        using var id  = ImRaii.PushId("Locations");
         var       tab = ImGui.BeginTabItem("Locations");
         ImGuiUtil.HoverTooltip("Default locations getting you down?\n"
           + "Set up custom aetherytes or map marker locations for specific nodes.");
@@ -247,7 +248,7 @@ public partial class Interface
         if (!tab)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _locationTable.Draw();
     }

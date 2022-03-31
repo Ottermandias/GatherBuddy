@@ -6,7 +6,7 @@ using Dalamud.Interface.Windowing;
 using GatherBuddy.Config;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.FishTimer;

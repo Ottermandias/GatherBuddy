@@ -12,7 +12,8 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
+using OtterGui;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.GatherHelper;
 
@@ -53,12 +54,12 @@ public class GatherWindow : Window
 
         if (time.Start > GatherBuddy.Time.ServerTime)
         {
-            using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.UpcomingItem.Value());
+            using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.UpcomingItem.Value());
             ImGui.Text(TimeInterval.DurationString(time.Start, GatherBuddy.Time.ServerTime, false));
         }
         else
         {
-            using var color = ImGuiRaii.PushColor(ImGuiCol.Text, ColorId.AvailableItem.Value());
+            using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.AvailableItem.Value());
             ImGui.Text(TimeInterval.DurationString(time.End, GatherBuddy.Time.ServerTime, false));
         }
 
@@ -97,7 +98,7 @@ public class GatherWindow : Window
             return;
         }
 
-        using var tt = ImGuiRaii.NewTooltip();
+        using var tt = ImRaii.NewTooltip();
 
         ImGui.Text(TooltipText(loc, time));
         ImGui.NewLine();
@@ -113,12 +114,12 @@ public class GatherWindow : Window
 
         if (ImGui.TableNextColumn())
         {
-            using var style = ImGuiRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
+            using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
             ImGuiUtil.HoverIcon(Icons.DefaultStorage[item.ItemData.Icon], Vector2.One * ImGui.GetTextLineHeight());
             ImGui.SameLine();
             var colorId = time == TimeInterval.Always    ? ColorId.GatherWindowText :
                 time.Start > GatherBuddy.Time.ServerTime ? ColorId.GatherWindowUpcoming : ColorId.GatherWindowAvailable;
-            using var color = ImGuiRaii.PushColor(ImGuiCol.Text, colorId.Value());
+            using var color = ImRaii.PushColor(ImGuiCol.Text, colorId.Value());
             if (ImGui.Selectable(item.Name[GatherBuddy.Language], false))
             {
                 if (LastClick != item)
@@ -240,7 +241,7 @@ public class GatherWindow : Window
 
     public override void Draw()
     {
-        using var end = ImGuiRaii.DeferredEnd(ImGui.End);
+        using var end = ImRaii.DeferredEnd(ImGui.End);
         if (!ImGui.BeginTable("##table", GatherBuddy.Config.ShowGatherWindowTimers ? 2 : 1))
             return;
 

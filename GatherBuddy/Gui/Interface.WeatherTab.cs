@@ -5,9 +5,10 @@ using Dalamud.Interface;
 using GatherBuddy.Config;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiOtter;
-using ImGuiOtter.Table;
+using OtterGui;
+using OtterGui.Table;
 using ImGuiScene;
+using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
@@ -26,7 +27,7 @@ public partial class Interface
 
         public WeatherTable()
             : base("WeatherTable", CachedWeather.CreateWeatherCache(), ImGui.GetFrameHeightWithSpacing(),
-                Enumerable.Range(0, CachedWeather.NumWeathers).Select(i => (HeaderConfig<CachedWeather>)new WeatherHeader(i))
+                Enumerable.Range(0, CachedWeather.NumWeathers).Select(i => (Column<CachedWeather>)new WeatherHeader(i))
                     .Prepend(new ZoneHeader()).ToArray())
         {
             GatherBuddy.Time.WeatherChanged += SetDirty;
@@ -41,7 +42,7 @@ public partial class Interface
         internal void SetDirty()
             => _weathersDirty = true;
 
-        private sealed class ZoneHeader : HeaderConfigString<CachedWeather>
+        private sealed class ZoneHeader : ColumnString<CachedWeather>
         {
             public ZoneHeader()
                 => Label = "Filter Zone...";
@@ -60,7 +61,7 @@ public partial class Interface
             }
         }
 
-        private sealed class WeatherHeader : HeaderConfig<CachedWeather>
+        private sealed class WeatherHeader : Column<CachedWeather>
         {
             private readonly ColorId _headerColor;
             private readonly ColorId _cellColor;
@@ -159,7 +160,7 @@ public partial class Interface
 
     private void DrawWeatherTab()
     {
-        using var id  = ImGuiRaii.PushId("Weather");
+        using var id  = ImRaii.PushId("Weather");
         var       ret = ImGui.BeginTabItem("Weather");
         ImGuiUtil.HoverTooltip("Yes, 'Gloom' is weather.\n"
           + "See the weather forecast in all zones for the following days, as well as the last one.");
@@ -167,7 +168,7 @@ public partial class Interface
         if (!ret)
             return;
 
-        using var end = ImGuiRaii.DeferredEnd(ImGui.EndTabItem);
+        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _weatherTable.Draw();
     }
