@@ -199,5 +199,6 @@ public static partial class Fish
         data.ApplyFuturesRewritten();
         data.ApplyDeathUntoDawn();
         data.ApplyEndwalker();
+        data.ApplyNewfoundAdventure();
     }
 }

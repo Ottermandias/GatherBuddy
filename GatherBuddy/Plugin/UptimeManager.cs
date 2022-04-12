@@ -109,7 +109,13 @@ public class UptimeManager : IDisposable
     private static TimeInterval GetUptime(Fish fish, Territory territory, TimeStamp now)
     {
         if (fish.FishRestrictions == FishRestrictions.Time)
-            return fish.Interval.NextRealUptime(now);
+            return fish.Interval == RepeatingInterval.Always ? TimeInterval.Invalid : fish.Interval.NextRealUptime(now);
+
+        if (fish.FishRestrictions.HasFlag(FishRestrictions.Time) && fish.Interval == RepeatingInterval.Always)
+            return TimeInterval.Invalid;
+
+        if (fish.CurrentWeather.Length == 0 && fish.PreviousWeather.Length == 0)
+            return TimeInterval.Invalid;
 
         var wl = GatherBuddy.WeatherManager.RequestForecast(territory, fish.CurrentWeather, fish.PreviousWeather, fish.Interval, now);
         if (wl.Timestamp == TimeStamp.Epoch)

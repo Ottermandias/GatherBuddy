@@ -31,6 +31,7 @@ public enum Patch : ushort
     FuturesRewritten           = 540,
     DeathUntoDawn              = 550,
     Endwalker                  = 600,
+    NewfoundAdventure          = 610,
 }
 
 [Flags]
@@ -61,6 +62,7 @@ public enum PatchFlag : ulong
     FuturesRewritten           = 1 << 22,
     DeathUntoDawn              = 1 << 23,
     Endwalker                  = 1 << 24,
+    NewfoundAdventure          = 1 << 25,
 }
 
 public static class PatchExtensions
@@ -112,6 +114,7 @@ public static class PatchExtensions
             54 => "Futures Rewritten",
             55 => "Death Unto Dawn",
             60 => "Endwalker",
+            61 => "Newfound Adventure",
             _  => "Unknown",
         };
     }
@@ -145,6 +148,7 @@ public static class PatchExtensions
             Patch.FuturesRewritten           => PatchFlag.FuturesRewritten,
             Patch.DeathUntoDawn              => PatchFlag.DeathUntoDawn,
             Patch.Endwalker                  => PatchFlag.Endwalker,
+            Patch.NewfoundAdventure          => PatchFlag.NewfoundAdventure,
             _                                => 0,
         };
     }
@@ -178,6 +182,7 @@ public static class PatchExtensions
             PatchFlag.FuturesRewritten           => Patch.FuturesRewritten,
             PatchFlag.DeathUntoDawn              => Patch.DeathUntoDawn,
             PatchFlag.Endwalker                  => Patch.Endwalker,
+            PatchFlag.NewfoundAdventure          => Patch.NewfoundAdventure,
             _                                    => Patch.Unknown,
         };
     }

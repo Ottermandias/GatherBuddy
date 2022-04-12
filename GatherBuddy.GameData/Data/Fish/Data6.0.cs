@@ -20,6 +20,7 @@ public static partial class Fish
             .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36385, Patch.Endwalker) // Pecten
+            .Bait      (data, 36592)
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Snag      (Snagging.Required);
         data.Apply     (36386, Patch.Endwalker) // Northern Herring
