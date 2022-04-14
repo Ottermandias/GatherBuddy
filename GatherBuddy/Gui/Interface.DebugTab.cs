@@ -31,6 +31,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(t.Name);
         ImGuiUtil.DrawTableColumn(t.SizeFactor.ToString(CultureInfo.InvariantCulture));
         ImGuiUtil.DrawTableColumn(t.WeatherRates.Rates.Length.ToString());
+        ImGuiUtil.DrawTableColumn(string.Join(", ", t.WeatherRates.Rates.Select(r => $"{r.Weather.Name} ({r.Weather.Id})")));
     }
 
     private static void DrawDebugBait(Bait b)
@@ -251,8 +252,21 @@ public partial class Interface
             ImGuiUtil.DrawTableColumn(loc.Name);
             if (item.InternalLocationId > 0)
             {
-                ImGuiUtil.DrawTableColumn(time.Start.ToString());
-                ImGuiUtil.DrawTableColumn(time.End.ToString());
+                if (time == TimeInterval.Invalid)
+                {
+                    ImGuiUtil.DrawTableColumn("Invalid");
+                    ImGuiUtil.DrawTableColumn(string.Empty);
+                }
+                else if (time == TimeInterval.Never)
+                {
+                    ImGuiUtil.DrawTableColumn("Never");
+                    ImGuiUtil.DrawTableColumn(string.Empty);
+                }
+                else
+                {
+                    ImGuiUtil.DrawTableColumn(time.Start.ToString());
+                    ImGuiUtil.DrawTableColumn(time.End.ToString());
+                }
             }
             else
             {
@@ -273,8 +287,21 @@ public partial class Interface
             ImGuiUtil.DrawTableColumn(loc.Name);
             if (fish.InternalLocationId > 0)
             {
-                ImGuiUtil.DrawTableColumn(time.Start.ToString());
-                ImGuiUtil.DrawTableColumn(time.End.ToString());
+                if (time == TimeInterval.Invalid)
+                {
+                    ImGuiUtil.DrawTableColumn("Invalid");
+                    ImGuiUtil.DrawTableColumn(string.Empty);
+                }
+                else if (time == TimeInterval.Never)
+                {
+                    ImGuiUtil.DrawTableColumn("Never");
+                    ImGuiUtil.DrawTableColumn(string.Empty);
+                }
+                else
+                {
+                    ImGuiUtil.DrawTableColumn(time.Start.ToString());
+                    ImGuiUtil.DrawTableColumn(time.End.ToString());
+                }
             }
             else
             {
@@ -345,7 +372,7 @@ public partial class Interface
         ImGuiTable.DrawTabbedTable($"Aetherytes ({GatherBuddy.GameData.Aetherytes.Count})", GatherBuddy.GameData.Aetherytes.Values,
             DrawDebugAetheryte, flags, "Id", "Name", "Territory", "Coords", "Aetherstream");
         ImGuiTable.DrawTabbedTable($"Territories ({GatherBuddy.GameData.WeatherTerritories.Length})", GatherBuddy.GameData.WeatherTerritories,
-            DrawDebugTerritory, flags, "Id", "Name", "SizeFactor", "#Weathers");
+            DrawDebugTerritory, flags, "Id", "Name", "SizeFactor", "#Weathers", "Weathers");
         ImGuiTable.DrawTabbedTable($"Bait ({GatherBuddy.GameData.Bait.Count})", GatherBuddy.GameData.Bait.Values,
             DrawDebugBait, flags, "Id", "Name");
         ImGuiTable.DrawTabbedTable($"Gatherables ({GatherBuddy.GameData.Gatherables.Count})",

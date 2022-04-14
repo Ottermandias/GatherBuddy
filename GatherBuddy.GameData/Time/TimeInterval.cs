@@ -141,7 +141,7 @@ public readonly struct TimeInterval : IEquatable<TimeInterval>
 
         if (this == Invalid)
         {
-            timeString = "Invalid";
+            timeString = "Unknown";
             return false;
         }
 
