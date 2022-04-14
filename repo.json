@@ -10,7 +10,7 @@
     "TestingAssemblyVersion": "3.0.5.0",
     "RepoUrl": "https://github.com/Ottermandias/GatherBuddy",
     "ApplicableVersion": "any",
-    "DalamudApiLevel": 5,
+    "DalamudApiLevel": 6,
     "IsHide": "False",
     "IsTestingExclusive": "True",
     "DownloadCount": 1,
