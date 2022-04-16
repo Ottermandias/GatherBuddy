@@ -42,7 +42,7 @@ public static partial class Fish
             .Transition(data, 2)
             .Time(480, 920);
         data.Apply(36686, Patch.NewfoundAdventure) // Thavnairian Calamari
-            .Bait(data, 36591)
+            .Bait(data, 36593)
             .Bite(HookSet.Powerful, BiteType.Strong);
     }
     // @formatter:on
