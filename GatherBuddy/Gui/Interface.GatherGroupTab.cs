@@ -278,11 +278,12 @@ public partial class Interface
             {
                 _gatherGroupCache.AnnotationEditIdx = i;
                 ImGui.SetKeyboardFocusHere();
-                ImGui.SetItemDefaultFocus();
-                ImGui.SameLine();
-                ImGui.SetNextItemWidth(0);
-                ImGui.InputTextWithHint("##annotation", "Annotation...", ref annotation, 256, ImGuiInputTextFlags.EnterReturnsTrue);
             }
+
+            ImGui.SameLine();
+            using var alpha = ImRaii.PushStyle(ImGuiStyleVar.Alpha, 0f);
+            ImGui.SetNextItemWidth(0);
+            ImGui.InputTextWithHint("##annotation", string.Empty, ref annotation, 256);
         }
         else
         {
