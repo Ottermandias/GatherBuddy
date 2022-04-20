@@ -15,7 +15,6 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
 using ImGuiNET;
-using OtterGui;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -193,7 +192,7 @@ public partial class Interface
             OpenInTeamCraftLocal(TeamCraftAddressEnd(fs));
     }
 
-    private void CreateContextMenu(IGatherable item)
+    public void CreateContextMenu(IGatherable item)
     {
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
             ImGui.OpenPopup(item.Name[GatherBuddy.Language]);
@@ -211,7 +210,22 @@ public partial class Interface
         DrawOpenInTeamCraft(item.ItemId);
     }
 
-    private static void CreateContextMenu(Bait bait)
+    public static void CreateGatherWindowContextMenu(IGatherable item, bool clicked)
+    {
+        if (clicked)
+            ImGui.OpenPopup(item.Name[GatherBuddy.Language]);
+
+        if (!ImGui.BeginPopup(item.Name[GatherBuddy.Language]))
+            return;
+
+        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
+        if (ImGui.Selectable("Create Link"))
+            Communicator.Print(SeString.CreateItemLink(item.ItemId));
+        DrawOpenInGarlandTools(item.ItemId);
+        DrawOpenInTeamCraft(item.ItemId);
+    }
+
+    public static void CreateContextMenu(Bait bait)
     {
         if (bait.Id == 0)
             return;
@@ -230,7 +244,7 @@ public partial class Interface
         DrawOpenInTeamCraft(bait.Id);
     }
 
-    private static void CreateContextMenu(FishingSpot? spot)
+    public static void CreateContextMenu(FishingSpot? spot)
     {
         if (spot == null)
             return;

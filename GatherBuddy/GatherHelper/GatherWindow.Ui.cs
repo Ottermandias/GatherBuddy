@@ -122,13 +122,12 @@ public class GatherWindow : Window
             using var color = ImRaii.PushColor(ImGuiCol.Text, colorId.Value());
             if (ImGui.Selectable(item.Name[GatherBuddy.Language], false))
             {
-                if (LastClick != item)
+                if (_plugin.Executor.LastItem != item)
                     _plugin.Executor.GatherItem(item);
                 else if (item is Gatherable)
                     _plugin.Executor.GatherItemByName("next");
                 else
                     _plugin.Executor.GatherFishByName("next");
-                LastClick = item;
             }
 
             var clicked = ImGui.IsItemClicked(ImGuiMouseButton.Right);
@@ -150,6 +149,8 @@ public class GatherWindow : Window
                     _deleteItemIdx = idx;
                     break;
                 }
+            else
+                Interface.CreateGatherWindowContextMenu(item, clicked);
         }
 
         DrawTime(loc, time);

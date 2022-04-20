@@ -4,9 +4,9 @@ using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.Config;
+using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
-using OtterGui;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.FishTimer;
@@ -19,7 +19,7 @@ public partial class FishTimerWindow : Window
     private const ImGuiWindowFlags NormalFlags = EditFlags
       | ImGuiWindowFlags.NoDecoration
       | ImGuiWindowFlags.NoResize
-      | ImGuiWindowFlags.NoInputs
+      | ImGuiWindowFlags.NoMove
       | ImGuiWindowFlags.NoNavFocus;
 
     private          FishingSpot? _spot;
@@ -67,7 +67,8 @@ public partial class FishTimerWindow : Window
         DrawCenteredText(_windowSize.X, "\nDisable \"Edit Fish Timer\"");
         DrawCenteredText(_windowSize.X, "in /GatherBuddy -> Config");
         DrawCenteredText(_windowSize.X, "-> Interface -> Fish Timer Window");
-        DrawCenteredText(_windowSize.X, "to hide this when not fishing.");
+        DrawCenteredText(_windowSize.X, "to enable actual functionality");
+        DrawCenteredText(_windowSize.X, "and hide this when not fishing.");
     }
 
     private void DrawProgressLine()
@@ -90,8 +91,10 @@ public partial class FishTimerWindow : Window
         var offset = 5 * ImGuiHelpers.GlobalScale;
         ImGui.SetCursorPosX(offset);
         ImGui.Text(bait);
+        Interface.CreateContextMenu(_recorder.Record.Bait);
         ImGui.SetCursorPosX(offset);
         ImGui.Text(spot);
+        Interface.CreateContextMenu(_spot);
 
         switch (milliseconds)
         {
