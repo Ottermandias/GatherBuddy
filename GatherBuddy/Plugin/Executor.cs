@@ -39,7 +39,7 @@ public class Executor
     private ILocation?     _location      = null;
     private TimeInterval   _uptime        = TimeInterval.Always;
 
-    private          IGatherable?    _lastItem             = null;
+    public           IGatherable?    LastItem { get; private set; } = null;
     private readonly List<ILocation> _visitedLocations     = new();
     private          bool            _keepVisitedLocations = false;
     private          TimeStamp       _lastGatherReset      = TimeStamp.Epoch;
@@ -61,14 +61,14 @@ public class Executor
         _lastGatherReset = GatherBuddy.Time.ServerTime.AddEorzeaHours(1);
 
         if (_keepVisitedLocations)
-            _item = _lastItem;
+            _item = LastItem;
         else
             _visitedLocations.Clear();
-        _lastItem = _item;
+        LastItem = _item;
         if (_item != null && _location != null)
             _visitedLocations.Add(_location);
 
-        if ((_lastItem?.Locations.Count() ?? 0) == _visitedLocations.Count)
+        if ((LastItem?.Locations.Count() ?? 0) == _visitedLocations.Count)
             _visitedLocations.Clear();
     }
 
@@ -89,7 +89,7 @@ public class Executor
 
     private void HandleNext()
     {
-        _item = _lastItem;
+        _item = LastItem;
         if (_lastGatherReset < GatherBuddy.Time.ServerTime)
             _visitedLocations.Clear();
         _keepVisitedLocations = true;
