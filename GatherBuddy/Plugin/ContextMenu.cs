@@ -48,11 +48,11 @@ public class ContextMenu : IDisposable
         if (agent == IntPtr.Zero)
             return false;
 
-        var itemIdx = *(byte*)(agent + 0x54);
+        var itemIdx = *(byte*)(agent + Offsets.SatisfactionSupplyItemIdx);
         return itemIdx switch
         {
-            1 => AddEntry(args, *(uint*)(agent + 0x7C + 0x38)),
-            2 => AddEntry(args, *(uint*)(agent + 0x7C + 0x70)),
+            1 => AddEntry(args, *(uint*)(agent + Offsets.SatisfactionSupplyItem1Id)),
+            2 => AddEntry(args, *(uint*)(agent + Offsets.SatisfactionSupplyItem2Id)),
             _ => false,
         };
     }
@@ -68,11 +68,11 @@ public class ContextMenu : IDisposable
             PluginLog.Information(args.ParentAddonName);
             var _ = args.ParentAddonName switch
             {
-                "ContentsInfoDetail" => AddEntry(args, "ContentsInfo",     0x1764),
-                "RecipeNote"         => AddEntry(args, "RecipeNote",       0x398),
-                "GatheringNote"      => AddEntry(args, "GatheringNote",    0xA0),
-                "ItemSearch"         => AddEntry(args, (IntPtr)args.Agent, 0x398),
-                "ChatLog"            => AddEntry(args, "ChatLog",          0x940),
+                "ContentsInfoDetail" => AddEntry(args, "ContentsInfo",     Offsets.ContentsInfoDetailContextItemId),
+                "RecipeNote"         => AddEntry(args, "RecipeNote",       Offsets.RecipeNoteContextItemId),
+                "GatheringNote"      => AddEntry(args, "GatheringNote",    Offsets.GatheringNoteContextItemId),
+                "ItemSearch"         => AddEntry(args, (IntPtr)args.Agent, Offsets.ItemSearchContextItemId),
+                "ChatLog"            => AddEntry(args, "ChatLog",          Offsets.ChatLogContextItemId),
                 _                    => false,
             };
         }
