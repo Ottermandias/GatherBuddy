@@ -38,7 +38,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (540, 840);
         data.Apply     (7686, Patch.ThroughTheMaelstrom) // Gigantshark
-            .Bait      (data, 2585, 4869)
+            .Bait      (data, 2611, 4874)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 1, 2);
         data.Apply     (7687, Patch.ThroughTheMaelstrom) // Armorer
@@ -65,7 +65,7 @@ public static partial class Fish
             .Time      (1020, 180);
         data.Apply     (7693, Patch.ThroughTheMaelstrom) // Navigator's Brand
             .Bait      (data, 2628)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (540, 840)
             .Weather   (data, 1, 2);
         data.Apply     (7694, Patch.ThroughTheMaelstrom) // Dark Ambusher

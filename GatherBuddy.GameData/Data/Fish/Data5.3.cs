@@ -9,12 +9,12 @@ public static partial class Fish
     {
         data.Apply     (30432, Patch.ReflectionsInCrystal) // The Sinsteeped
             .Bait      (data, 27582)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (1320, 1440)
             .Weather   (data, 1, 2);
         data.Apply     (30433, Patch.ReflectionsInCrystal) // Sweetheart
             .Bait      (data, 27589)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 4)
             .Weather   (data, 1, 2);
         data.Apply     (30434, Patch.ReflectionsInCrystal) // Giant Taimen
@@ -27,7 +27,7 @@ public static partial class Fish
             .Weather   (data, 7);
         data.Apply     (30436, Patch.ReflectionsInCrystal) // Gold Hammer
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Transition(data, 1, 2)
             .Weather   (data, 1);
         data.Apply     (30437, Patch.ReflectionsInCrystal) // Recordkiller

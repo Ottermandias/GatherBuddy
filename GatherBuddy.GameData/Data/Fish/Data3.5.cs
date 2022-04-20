@@ -44,14 +44,14 @@ public static partial class Fish
             .Weather   (data, 1);
         data.Apply     (17580, Patch.TheFarEdgeOfFate) // Ceti
             .Bait      (data, 12710)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (1080, 1320)
             .Snag      (Snagging.None)
             .Transition(data, 3)
             .Weather   (data, 9);
         data.Apply     (17581, Patch.TheFarEdgeOfFate) // Crystal Pigeon
             .Bait      (data, 12712, 12805)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Snag      (Snagging.None)
             .Transition(data, 2)
             .Weather   (data, 9);
@@ -95,15 +95,15 @@ public static partial class Fish
             .Transition(data, 1)
             .Weather   (data, 6);
         data.Apply     (17588, Patch.TheFarEdgeOfFate) // Problematicus
-            .Bait      (data, 12709, 12754)
+            .Bait      (data, 28634, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 900)
             .Snag      (Snagging.None)
             .Predators (data, 180, (12800, 3), (12754, 5))
             .Weather   (data, 1, 2);
         data.Apply     (17589, Patch.TheFarEdgeOfFate) // Opabinia
-            .Bait      (data, 12710, 12776)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bait      (data, 30136, 12776)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Snag      (Snagging.None)
             .Predators (data, 105, (13727, 3))
             .Weather   (data, 9);
@@ -130,7 +130,7 @@ public static partial class Fish
             .Weather   (data, 16);
         data.Apply     (17593, Patch.TheFarEdgeOfFate) // Raimdellopterus
             .Bait      (data, 12712, 12805)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (300, 480)
             .Snag      (Snagging.None)
             .Predators (data, 100, (12805, 5))

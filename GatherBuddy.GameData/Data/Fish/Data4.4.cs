@@ -55,11 +55,11 @@ public static partial class Fish
             .Weather   (data, 1);
         data.Apply     (24213, Patch.PreludeInViolet) // Princess Killifish
             .Bait      (data, 20614)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (240, 360);
         data.Apply     (24214, Patch.PreludeInViolet) // Ku'er
             .Bait      (data, 20676)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (0, 480)
             .Transition(data, 9)
             .Weather   (data, 3);

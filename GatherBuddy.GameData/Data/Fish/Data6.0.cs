@@ -158,10 +158,9 @@ public static partial class Fish
             .Bait      (data, 36589)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36440, Patch.Endwalker) // Red Drum
-            .Bait      (data, 36589)
+            .Bait      (data, 36591)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Time      (960, 1440)
-            .Transition(data, 8, 3)
             .Weather   (data, 2);
         data.Apply     (36441, Patch.Endwalker) // Forgeflame
             .Bait      (data, 36589)
@@ -176,16 +175,16 @@ public static partial class Fish
             .Bait      (data, 36589)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36446, Patch.Endwalker) // Banana Eel
-            .Bait      (data, 36589)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36447, Patch.Endwalker) // Handy Hamsa
-            .Bait      (data, 36589)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36448, Patch.Endwalker) // Flowerhorn
-            .Bait      (data, 36589)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36449, Patch.Endwalker) // Thavnairian Caiman
-            .Bait      (data, 36589)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36450, Patch.Endwalker) // Fiery Goby
             .Bait      (data, 36592)
@@ -194,10 +193,10 @@ public static partial class Fish
             .Bait      (data, 36593)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36452, Patch.Endwalker) // Narunnairian Octopus
-            .Bait      (data, 36592)
+            .Bait      (data, 36593)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36453, Patch.Endwalker) // Roosterfish
-            .Bait      (data, 36593)
+            .Bait      (data, 36593, 36451)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36454, Patch.Endwalker) // Basilosaurus
             .Bait      (data, 36593, 36451)
@@ -210,31 +209,31 @@ public static partial class Fish
             .Bait      (data, 36588)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36458, Patch.Endwalker) // Cerule Core
-            .Bait      (data, 36588)
+            .Bait      (data, 36589)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36459, Patch.Endwalker) // Icepike
-            .Bait      (data, 36588)
+            .Bait      (data, 36589)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36460, Patch.Endwalker) // Dark Crown
-            .Bait      (data, 36588)
+            .Bait      (data, 36589)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36461, Patch.Endwalker) // Imperial Pleco
-            .Bait      (data, 36588)
+            .Bait      (data, 36589)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36462, Patch.Endwalker) // Bluetail
-            .Bait      (data, 36588)
+            .Bait      (data, 36589)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36463, Patch.Endwalker) // Star-blue Guppy
             .Bait      (data, 36588)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36465, Patch.Endwalker) // Lunar Cichlid
-            .Bait      (data, 36588)
+            .Bait      (data, 36589)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36466, Patch.Endwalker) // Teareye
             .Bait      (data, 36588)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36467, Patch.Endwalker) // Replipirarucu
-            .Bait      (data, 36588)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36468, Patch.Endwalker) // Feverfish
             .Bait      (data, 36594)
@@ -250,7 +249,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2);
         data.Apply     (36473, Patch.Endwalker) // Fleeting Brand
-            .Bait      (data, 36594)
+            .Bait      (data, 29717)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36475, Patch.Endwalker) // Regotoise
             .Bait      (data, 36594)
@@ -262,23 +261,23 @@ public static partial class Fish
             .Bait      (data, 36588)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36478, Patch.Endwalker) // Albino Loach
-            .Bait      (data, 36588)
+            .Bait      (data, 29717)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36479, Patch.Endwalker) // Golden Shiner
-            .Bait      (data, 36588)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36480, Patch.Endwalker) // Mangar
-            .Bait      (data, 36588, 36478)
+            .Bait      (data, 36591, 36478)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 3);
         data.Apply     (36481, Patch.Endwalker) // Dermogenys
-            .Bait      (data, 36588)
+            .Bait      (data, 36589)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36484, Patch.Endwalker) // Antheia
-            .Bait      (data, 36588)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36485, Patch.Endwalker) // Colossoma
-            .Bait      (data, 36588)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36487, Patch.Endwalker) // Superstring
             .Bait      (data, 36594)
@@ -311,16 +310,16 @@ public static partial class Fish
             .Bait      (data, 36588)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36501, Patch.Endwalker) // Comet Tail
-            .Bait      (data, 36589)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36502, Patch.Endwalker) // Aoide
-            .Bait      (data, 36589)
+            .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36503, Patch.Endwalker) // Protoflesh
             .Bait      (data, 36588)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36505, Patch.Endwalker) // Wandering Starscale
-            .Bait      (data, 36589)
+            .Bait      (data, 29717)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36506, Patch.Endwalker) // Wormhole Worm
             .Bait      (data, 36596)
@@ -368,7 +367,7 @@ public static partial class Fish
             .Bait      (data, 36596, 36518)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36521, Patch.Endwalker) // Phallaina 
-            .Bait      (data, 36596, 36518)
+            .Bait      (data, 36597, 36518)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1320, 240);
         data.Apply     (36522, Patch.Endwalker) // Thavnairian Cucumber

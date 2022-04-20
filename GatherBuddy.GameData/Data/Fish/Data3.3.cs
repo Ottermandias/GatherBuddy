@@ -13,14 +13,14 @@ public static partial class Fish
             .Snag      (Snagging.Required);
         data.Apply     (15626, Patch.RevengeOfTheHorde) // Fat Purse
             .Bait      (data, 12711)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Precise, BiteType.Legendary);
         data.Apply     (15627, Patch.RevengeOfTheHorde) // The Impaler
             .Bait      (data, 12711)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Snag      (Snagging.Required);
         data.Apply     (15628, Patch.RevengeOfTheHorde) // La Reale
             .Bait      (data, 12711)
-            .Bite      (HookSet.Precise, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (15629, Patch.RevengeOfTheHorde) // Scaleripper
             .Bait      (data, 12711)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
@@ -34,7 +34,7 @@ public static partial class Fish
             .Bait      (data, 12709, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (15632, Patch.RevengeOfTheHorde) // The Ewer King
-            .Bait      (data, 12706, 12780)
+            .Bait      (data, 12707, 12780)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (15633, Patch.RevengeOfTheHorde) // Vidofnir
             .Bait      (data, 12711)
@@ -42,12 +42,12 @@ public static partial class Fish
             .Time      (480, 600);
         data.Apply     (15634, Patch.RevengeOfTheHorde) // The Soul of the Martyr
             .Bait      (data, 12712)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (240, 360)
             .Weather   (data, 1, 2);
         data.Apply     (15635, Patch.RevengeOfTheHorde) // Inkfish
             .Bait      (data, 12711)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (840, 960);
         data.Apply     (15636, Patch.RevengeOfTheHorde) // The Second One
             .Bait      (data, 12712)

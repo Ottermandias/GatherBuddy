@@ -18,14 +18,14 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (23057, Patch.UnderTheMoonlight) // Hookstealer
             .Bait      (data, 20615, 20056)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Precise, BiteType.Legendary);
         data.Apply     (23058, Patch.UnderTheMoonlight) // Sapphire Fan
             .Bait      (data, 20675)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Weather   (data, 9);
         data.Apply     (23059, Patch.UnderTheMoonlight) // The Archbishop
             .Bait      (data, 20619)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (720, 960);
         data.Apply     (23060, Patch.UnderTheMoonlight) // Bondsplitter
             .Bait      (data, 20619)
@@ -55,15 +55,15 @@ public static partial class Fish
             .Weather   (data, 9);
         data.Apply     (23067, Patch.UnderTheMoonlight) // Bokuden
             .Bait      (data, 20675)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (720, 840);
         data.Apply     (23068, Patch.UnderTheMoonlight) // Hagoromo Koi
             .Bait      (data, 20675)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 4);
         data.Apply     (23069, Patch.UnderTheMoonlight) // The Word of God
             .Bait      (data, 20675)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (1200, 1440);
         data.Apply     (23070, Patch.UnderTheMoonlight) // Yat Khan
             .Bait      (data, 20675)

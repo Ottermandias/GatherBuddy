@@ -9,7 +9,7 @@ public static partial class Fish
     {
         data.Apply     (28065, Patch.VowsOfVirtueDeedsOfCruelty) // Loose Pendant
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (1080, 1320);
         data.Apply     (28066, Patch.VowsOfVirtueDeedsOfCruelty) // Winged Dame
             .Bait      (data, 27590)
@@ -18,7 +18,7 @@ public static partial class Fish
             .Weather   (data, 1);
         data.Apply     (28067, Patch.VowsOfVirtueDeedsOfCruelty) // The Unforgiven
             .Bait      (data, 27589)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 4);
         data.Apply     (28068, Patch.VowsOfVirtueDeedsOfCruelty) // Bronze Sole
             .Bait      (data, 27585)
@@ -31,16 +31,16 @@ public static partial class Fish
             .Weather   (data, 11);
         data.Apply     (28070, Patch.VowsOfVirtueDeedsOfCruelty) // The Sound of Fury
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (1200, 1440)
             .Weather   (data, 2, 1);
         data.Apply     (28071, Patch.VowsOfVirtueDeedsOfCruelty) // Priest of Yx'Lokwa
             .Bait      (data, 27587, 27490, 27491)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 720);
         data.Apply     (28072, Patch.VowsOfVirtueDeedsOfCruelty) // Starchaser
             .Bait      (data, 27590)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (360, 600)
             .Weather   (data, 3);
         data.Apply     (28189, Patch.VowsOfVirtueDeedsOfCruelty) // Laxan Inkhorn

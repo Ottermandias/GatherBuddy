@@ -35,7 +35,7 @@ public static partial class Fish
             .Predators (data, 350, (33319, 1), (27452, 5));
         data.Apply     (33241, Patch.DeathUntoDawn) // Cinder Surprise
             .Bait      (data, 27584)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (0, 120)
             .Predators (data, 350, (27462, 10))
             .Transition(data, 11)
@@ -48,7 +48,7 @@ public static partial class Fish
             .Weather   (data, 1);
         data.Apply     (33243, Patch.DeathUntoDawn) // Greater Serpent of Ronka
             .Bait      (data, 27587, 27490, 27491, 28071)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 720);
         data.Apply     (33244, Patch.DeathUntoDawn) // Lancetfish
             .Bait      (data, 27590)
@@ -59,7 +59,7 @@ public static partial class Fish
             .Weather   (data, 3);
         data.Apply     (33316, Patch.DeathUntoDawn) // Aster Trivi
             .Bait      (data, 27585)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (1320, 1440)
             .Transition(data, 1)
             .Weather   (data, 1);
@@ -80,13 +80,13 @@ public static partial class Fish
             .Weather   (data, 6);
         data.Apply     (33320, Patch.DeathUntoDawn) // Nabaath Saw
             .Bait      (data, 27586, 27464)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (360, 600)
             .Transition(data, 1, 2, 14)
             .Weather   (data, 14);
         data.Apply     (33321, Patch.DeathUntoDawn) // Dammroen Herring
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Precise, BiteType.Legendary);
         data.Apply     (33322, Patch.DeathUntoDawn) // Celestial
             .Bait      (data, 27589)
             .Bite      (HookSet.Precise, BiteType.Legendary)
@@ -101,7 +101,7 @@ public static partial class Fish
             .Weather   (data, 4);
         data.Apply     (33324, Patch.DeathUntoDawn) // Golden Pipira
             .Bait      (data, 27587)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (360, 420);
         data.Apply     (33325, Patch.DeathUntoDawn) // Mora Tecta
             .Bait      (data, 27588)

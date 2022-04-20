@@ -15,11 +15,11 @@ public static partial class Fish
             .Weather   (data, 3, 4);
         data.Apply     (28926, Patch.EchoesOfAFallenStar) // White Ronso
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (0, 120);
         data.Apply     (28927, Patch.EchoesOfAFallenStar) // Ambling Caltrop
             .Bait      (data, 27584, 27461)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (720, 960)
             .Weather   (data, 1);
         data.Apply     (28928, Patch.EchoesOfAFallenStar) // Fae Rainbow

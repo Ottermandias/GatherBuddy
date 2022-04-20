@@ -356,11 +356,11 @@ public static partial class Fish
             .Bait      (data, 12712)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (12815, Patch.Heavensward) // Oil Eel
-            .Bait      (data, 12710, 12776)
+            .Bait      (data, 30136, 12776)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 9);
         data.Apply     (12816, Patch.Heavensward) // Jeweled Jellyfish
-            .Bait      (data, 12710, 12776)
+            .Bait      (data, 30136, 12776)
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Time      (1200, 180);
         data.Apply     (12817, Patch.Heavensward) // Battle Galley
@@ -396,7 +396,7 @@ public static partial class Fish
             .Bait      (data, 12709, 12754)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (12827, Patch.Heavensward) // Barreleye
-            .Bait      (data, 12710, 12776)
+            .Bait      (data, 30136, 12776)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 9);
         data.Apply     (12828, Patch.Heavensward) // Thunderbolt Eel

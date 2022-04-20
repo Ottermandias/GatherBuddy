@@ -18,13 +18,13 @@ public static partial class Fish
             .Transition(data, 4)
             .Weather   (data, 1);
         data.Apply     (16744, Patch.SoulSurrender) // Allagan Bladeshark
-            .Bait      (data, 12710, 12776)
+            .Bait      (data, 30136, 12776)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 3)
             .Weather   (data, 9);
         data.Apply     (16745, Patch.SoulSurrender) // Hailfinder
             .Bait      (data, 12708, 12724)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Transition(data, 16, 15)
             .Weather   (data, 16);
         data.Apply     (16746, Patch.SoulSurrender) // Flarefish
@@ -45,18 +45,18 @@ public static partial class Fish
             .Weather   (data, 1);
         data.Apply     (16749, Patch.SoulSurrender) // Moggle Mogpom
             .Bait      (data, 12711)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (600, 780)
             .Transition(data, 6)
             .Weather   (data, 1);
         data.Apply     (16750, Patch.SoulSurrender) // Cirrostratus
             .Bait      (data, 12712)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 780)
             .Weather   (data, 2, 1);
         data.Apply     (16751, Patch.SoulSurrender) // Hraesvelgr's Tear
             .Bait      (data, 12709)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (120, 360);
         data.Apply     (16752, Patch.SoulSurrender) // Aetherochemical Compound #666
             .Bait      (data, 12710, 12776)
@@ -66,8 +66,8 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (360, 600);
         data.Apply     (16754, Patch.SoulSurrender) // Bobgoblin Bass
-            .Bait      (data, 12711, 12780)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bait      (data, 12706, 12780)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (120, 360)
             .Transition(data, 7)
             .Weather   (data, 8);

@@ -14,7 +14,7 @@ public static partial class Fish
         data.Apply     (13728, Patch.AsGoesLightSoGoesDarkness) // Coerthan Clione
             .Bait      (data, 12711)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Time      (0, 120)
+            .Time      (0, 240)
             .Weather   (data, 16);
         data.Apply     (13729, Patch.AsGoesLightSoGoesDarkness) // Dravanian Smelt
             .Bait      (data, 12711)

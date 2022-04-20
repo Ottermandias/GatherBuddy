@@ -24,12 +24,12 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (24881, Patch.ARequiemForHeroes) // Lily of the Veil
             .Bait      (data, 20619)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Transition(data, 1)
             .Weather   (data, 2);
         data.Apply     (24882, Patch.ARequiemForHeroes) // The Vegetarian
             .Bait      (data, 20617, 20112)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1200, 1440)
             .Weather   (data, 9);
         data.Apply     (24883, Patch.ARequiemForHeroes) // Seven Stars
@@ -83,13 +83,13 @@ public static partial class Fish
             .Weather   (data, 2, 1);
         data.Apply     (24892, Patch.ARequiemForHeroes) // Garden Skipper
             .Bait      (data, 20615)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (480, 720)
             .Transition(data, 2)
             .Weather   (data, 1);
         data.Apply     (24893, Patch.ARequiemForHeroes) // Banderole
             .Bait      (data, 20614, 20127)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (0, 480)
             .Transition(data, 2)
             .Weather   (data, 4);

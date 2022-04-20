@@ -15,7 +15,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (32049, Patch.FuturesRewritten) // Moonlight Guppy
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (360, 480)
             .Transition(data, 1)
             .Weather   (data, 2);
@@ -26,18 +26,18 @@ public static partial class Fish
             .Weather   (data, 4);
         data.Apply     (32051, Patch.FuturesRewritten) // Henodus Grandis
             .Bait      (data, 27588, 27457)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1320, 1440)
             .Weather   (data, 3);
         data.Apply     (32052, Patch.FuturesRewritten) // Sunken Tome
             .Bait      (data, 27585)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (720, 960)
             .Transition(data, 2)
             .Weather   (data, 10);
         data.Apply     (32053, Patch.FuturesRewritten) // Pearl Pipira
             .Bait      (data, 27587, 27492)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1020, 1200)
             .Weather   (data, 4);
         data.Apply     (32054, Patch.FuturesRewritten) // The Ondotaker
