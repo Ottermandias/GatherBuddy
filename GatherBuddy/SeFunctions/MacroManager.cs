@@ -15,7 +15,7 @@ public unsafe class MacroManager : IDisposable
 {
     public const int DefaultLineSize  = 256;
     public const int NumMacroLines    = 15;
-    public const int NumRequiredLines = 5;
+    public const int NumRequiredLines = 8;
 
     public RaptureShellModule* Module
         => Framework.Instance()->GetUiModule()->GetRaptureShellModule();
@@ -128,9 +128,12 @@ public unsafe class MacroManager : IDisposable
     {
         CopyString(GatherBuddy.FullIdentify,       Macro->Line[0]);
         CopyString(GatherBuddy.FullMapMarker,      Macro->Line[1]);
-        CopyString(GatherBuddy.FullGearChange,     Macro->Line[2]);
-        CopyString(GatherBuddy.FullTeleport,       Macro->Line[3]);
-        CopyString(GatherBuddy.FullAdditionalInfo, Macro->Line[4]);
+        CopyString("/wait 0",                      Macro->Line[2]);
+        CopyString(GatherBuddy.FullGearChange,     Macro->Line[3]);
+        CopyString("/wait 0",                      Macro->Line[4]);
+        CopyString("/wait 0",                      Macro->Line[5]);
+        CopyString(GatherBuddy.FullTeleport,       Macro->Line[6]);
+        CopyString(GatherBuddy.FullAdditionalInfo, Macro->Line[7]);
     }
 
     public void Execute()
