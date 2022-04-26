@@ -1,5 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
 using System.Text;
 using Dalamud.Game.ClientState.Keys;
@@ -27,12 +26,9 @@ public class GatherWindow : Window
     private Vector2   _lastSize               = Vector2.Zero;
     private Vector2   _newPosition            = Vector2.Zero;
 
-    public IGatherable? LastClick = null;
-
     public GatherWindow(GatherBuddy plugin)
         : base("##GatherHelper",
-            ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus,
-            false)
+            ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus)
     {
         _plugin            = plugin;
         IsOpen             = GatherBuddy.Config.ShowGatherWindow;
@@ -228,16 +224,18 @@ public class GatherWindow : Window
         if (!GatherBuddy.Config.GatherWindowBottomAnchor)
             return;
 
-        if (_lastSize == Vector2.Zero)
+        // Can not use Y size since a single text row is smaller than the minimal window size
+        // for some reason. 50 is arbitrary. Default window size was 32,32 for me.
+        if (_lastSize.X < 50 * ImGuiHelpers.GlobalScale)
             _lastSize = ImGui.GetWindowSize();
 
         var size = ImGui.GetWindowSize();
         if (_lastSize == size)
             return;
 
-        _newPosition   =  ImGui.GetWindowPos();
+        _newPosition = ImGui.GetWindowPos();
         _newPosition.Y += _lastSize.Y - size.Y;
-        _lastSize      =  size;
+        _lastSize = size;
     }
 
     public override void Draw()
