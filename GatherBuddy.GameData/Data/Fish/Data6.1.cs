@@ -23,9 +23,9 @@ public static partial class Fish
         data.Apply(36682, Patch.NewfoundAdventure)  // Hippo Frog
             .Bait(data, 36591)
             .Bite(HookSet.Powerful, BiteType.Legendary)
-            .Weather(data, 7, 8);
+            .Weather(data, 8);
         data.Apply(36683, Patch.NewfoundAdventure) // Rimepike
-            .Bait(data, 36588, 36458)
+            .Bait(data, 36589, 36458)
             .Bite(HookSet.Powerful, BiteType.Legendary)
             .Weather(data, 15);
         data.Apply(36684, Patch.NewfoundAdventure) // Foun Ahlm
