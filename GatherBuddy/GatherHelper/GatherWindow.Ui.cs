@@ -159,8 +159,6 @@ public class GatherWindow : Window
 
         var preset = _plugin.GatherWindowManager.Presets[_deleteSet];
         _plugin.GatherWindowManager.RemoveItem(preset, _deleteItemIdx);
-        if (preset.Items.Count == 0)
-            _plugin.GatherWindowManager.DeletePreset(_deleteSet);
         _deleteSet     = -1;
         _deleteItemIdx = -1;
     }
