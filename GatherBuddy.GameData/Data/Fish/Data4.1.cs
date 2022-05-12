@@ -49,6 +49,7 @@ public static partial class Fish
             .Time      (960, 1200)
             .Weather   (data, 2, 1);
         data.Apply     (21179, Patch.TheLegendReturns) // Ichimonji
+            .Time      (120, 720)
             .Spear     (SpearfishSize.Large, SpearfishSpeed.LynFast);
         data.Apply     (21180, Patch.TheLegendReturns) // Snailfish
             .Spear     (SpearfishSize.Average, SpearfishSpeed.Fast)

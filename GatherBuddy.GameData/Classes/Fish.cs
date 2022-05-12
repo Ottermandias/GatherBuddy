@@ -61,7 +61,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
         ItemData         = fishRow.Item.Value ?? new ItemRow();
         _fishData        = fishRow;
         Name             = MultiString.FromItem(gameData, ItemData.RowId);
-        FishRestrictions = FishRestrictions.None;
+        FishRestrictions = fishRow.Unknown9 ? FishRestrictions.Time : FishRestrictions.None;
         Folklore         = string.Empty;
         Size             = SpearfishSize.Unknown;
         Speed            = SpearfishSpeed.Unknown;
