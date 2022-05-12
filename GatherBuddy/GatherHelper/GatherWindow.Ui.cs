@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
 using System.Text;
 using Dalamud.Game.ClientState.Keys;
@@ -102,9 +103,10 @@ public class GatherWindow : Window
             false);
     }
 
-    private void DrawItem(IGatherable item)
+    private readonly List<(IGatherable Item, ILocation Location, TimeInterval Uptime)> _data = new();
+
+    private void DrawItem(IGatherable item, ILocation loc, TimeInterval time)
     {
-        var (loc, time) = GatherBuddy.UptimeManager.BestLocation(item);
         if (GatherBuddy.Config.ShowGatherWindowOnlyAvailable && time.Start > GatherBuddy.Time.ServerTime)
             return;
 
@@ -184,6 +186,20 @@ public class GatherWindow : Window
     private static bool CheckDuty()
         => GatherBuddy.Config.HideGatherWindowInDuty && Functions.BoundByDuty();
 
+    private bool CheckAvailable()
+    {
+        _data.Clear();
+        if (_plugin.GatherWindowManager.ActiveItems.Count == 0)
+            return true;
+
+        _data.AddRange(_plugin.GatherWindowManager.GetList().Select(i =>
+        {
+            var (loc, time) = GatherBuddy.UptimeManager.BestLocation(i);
+            return (i, loc, time);
+        }));
+        return GatherBuddy.Config.ShowGatherWindowOnlyAvailable && _data.All(f => f.Uptime.Start > GatherBuddy.Time.ServerTime);
+    }
+
     public override void PreOpenCheck()
     {
         CheckHotkeys();
@@ -191,7 +207,7 @@ public class GatherWindow : Window
     }
 
     public override bool DrawConditions()
-        => !(CheckHoldKey() || CheckDuty() || _plugin.GatherWindowManager.ActiveItems.Count == 0);
+        => !(CheckHoldKey() || CheckDuty() || CheckAvailable());
 
     public override void PreDraw()
     {
@@ -244,8 +260,8 @@ public class GatherWindow : Window
 
         end.Push(ImGui.EndTable);
 
-        foreach (var item in _plugin.GatherWindowManager.GetList())
-            DrawItem(item);
+        foreach (var (item, loc, time) in _data)
+            DrawItem(item, loc, time);
 
         CheckAnchorPosition();
     }
