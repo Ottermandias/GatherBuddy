@@ -210,7 +210,7 @@ public class Executor
             return;
 
         var link = new SeStringBuilder().AddFullMapLink(_location.Name, _location.Territory, _location.IntegralXCoord / 100f,
-            _location.IntegralYCoord / 100f, true).BuiltString;
+            _location.IntegralYCoord / 100f, GatherBuddy.Config.UseCoordinates).BuiltString;
         Communicator.PrintCoordinates(link);
     }
 
