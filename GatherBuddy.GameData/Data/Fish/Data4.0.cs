@@ -142,7 +142,7 @@ public static partial class Fish
             .Bait      (data, 20615, 20056)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (20058, Patch.Stormblood) // Miounnefish
-            .Bait      (data, 20614, 20064)
+            .Bait      (data, 20615, 20056)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 3, 4);
         data.Apply     (20059, Patch.Stormblood) // Monk Betta
