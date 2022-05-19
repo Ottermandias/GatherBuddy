@@ -14,9 +14,9 @@ public partial class Configuration : IPluginConfiguration
     public int Version { get; set; } = 4;
 
     // Set Names
-    public string BotanistSetName { get; set; } = "BTN";
-    public string MinerSetName    { get; set; } = "MIN";
-    public string FisherSetName   { get; set; } = "FSH";
+    public string BotanistSetName { get; set; } = "Botanist";
+    public string MinerSetName    { get; set; } = "Miner";
+    public string FisherSetName   { get; set; } = "Fisher";
 
     // formats
     public string IdentifiedGatherableFormat { get; set; } = DefaultIdentifiedGatherableFormat;
