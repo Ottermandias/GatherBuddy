@@ -48,6 +48,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             PrintClipboardMessages { get; set; } = true;
     public bool             HideClippy             { get; set; } = false;
     public ModifiableHotkey MainInterfaceHotkey    { get; set; } = new();
+    public bool             PlaceCustomWaymarks    { get; set; } = true;
 
     // Weather tab
     public bool ShowWeatherNames { get; set; } = true;

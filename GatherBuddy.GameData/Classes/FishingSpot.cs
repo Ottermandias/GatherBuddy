@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
 using Lumina.Excel.GeneratedSheets;
@@ -50,6 +51,7 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     public Aetheryte? DefaultAetheryte { get; internal set; }
     public int        DefaultXCoord    { get; internal set; }
     public int        DefaultYCoord    { get; internal set; }
+    public Vector3[]  Markers          { get; set; } = Array.Empty<Vector3>();
 
     public bool Spearfishing
         => _data is SpearfishingNotebook;

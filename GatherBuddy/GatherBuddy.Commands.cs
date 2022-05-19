@@ -17,11 +17,13 @@ public partial class GatherBuddy
     public const string TeleportCommand       = "teleport";
     public const string MapMarkerCommand      = "mapmarker";
     public const string AdditionalInfoCommand = "information";
+    public const string SetWaymarksCommand    = "waymarks";
     public const string FullIdentify          = $"/gatherbuddy {IdentifyCommand}";
     public const string FullGearChange        = $"/gatherbuddy {GearChangeCommand}";
     public const string FullTeleport          = $"/gatherbuddy {TeleportCommand}";
     public const string FullMapMarker         = $"/gatherbuddy {MapMarkerCommand}";
     public const string FullAdditionalInfo    = $"/gatherbuddy {AdditionalInfoCommand}";
+    public const string FullSetWaymarks       = $"/gatherbuddy {SetWaymarksCommand}";
 
     private readonly Dictionary<string, CommandInfo> _commands = new();
 
@@ -37,7 +39,7 @@ public partial class GatherBuddy
         {
             HelpMessage = "Mark the nearest node containing the item supplied, teleport to the nearest aetheryte, equip appropriate gear.\n"
               + "You can use 'alarm' to gather the last triggered alarm or 'next' to gather the same item as before, but in the next-best location.",
-            ShowInHelp  = true,
+            ShowInHelp = true,
         };
 
         _commands["/gatherbtn"] = new CommandInfo(OnGatherBtn)

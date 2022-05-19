@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
@@ -22,14 +23,20 @@ public class LocationManager
     private static bool HasCustomization(ILocation loc)
         => !ReferenceEquals(loc.ClosestAetheryte, loc.DefaultAetheryte)
          || loc.IntegralXCoord != loc.DefaultXCoord
-         || loc.IntegralYCoord != loc.DefaultYCoord;
+         || loc.IntegralYCoord != loc.DefaultYCoord
+         || loc.Markers.Length > 0;
 
-    public IEnumerable<LocationData> CustomLocations 
+    public IEnumerable<LocationData> CustomLocations
         => AllLocations.Where(HasCustomization).Select(l => new LocationData(l));
-
 
     private string CustomLocationData()
         => JsonConvert.SerializeObject(CustomLocations);
+
+    public void SetMarkers(ILocation loc, IEnumerable<Vector3> markers)
+    {
+        if (loc.SetMarkers(markers))
+            Save();
+    }
 
     public void SetXCoord(ILocation loc, int newCoord)
     {
@@ -54,7 +61,7 @@ public class LocationManager
         var file = Functions.ObtainSaveFile(FileName);
         if (file == null)
             return;
-        
+
         try
         {
             var text = CustomLocationData();
@@ -80,8 +87,7 @@ public class LocationManager
         {
             var changes   = false;
             var text      = File.ReadAllText(file.FullName);
-            var locations = JsonConvert.DeserializeObject<LocationData[]>(text);
-            foreach (var location in locations)
+            foreach (var location in JsonConvert.DeserializeObject<LocationData[]>(text))
             {
                 ILocation? loc = location.Type switch
                 {
@@ -99,18 +105,17 @@ public class LocationManager
 
                 Aetheryte? aetheryte = null;
                 if (location.AetheryteId != -1)
-                {
                     if (!GatherBuddy.GameData.Aetherytes.TryGetValue((uint)location.AetheryteId, out aetheryte))
                     {
                         PluginLog.Error($"Invalid aetheryte id {location.AetheryteId} in custom location for {loc.Name}.");
                         changes = true;
                         continue;
                     }
-                }
 
                 changes |= !loc.SetAetheryte(aetheryte);
                 changes |= !loc.SetXCoord(location.XCoord);
                 changes |= !loc.SetYCoord(location.YCoord);
+                changes |= !loc.SetMarkers(location.Markers);
             }
 
             if (changes)

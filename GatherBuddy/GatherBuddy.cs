@@ -45,6 +45,7 @@ public partial class GatherBuddy : IDalamudPlugin
     public static EventFramework EventFramework { get; private set; } = null!;
     public static CurrentBait    CurrentBait    { get; private set; } = null!;
     public static SeTugType      TugType        { get; private set; } = null!;
+    public static WaymarkManager WaymarkManager { get; private set; } = null!;
 
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
     internal readonly LocationManager                LocationManager;
@@ -62,11 +63,12 @@ public partial class GatherBuddy : IDalamudPlugin
     public GatherBuddy(DalamudPluginInterface pluginInterface)
     {
         Dalamud.Initialize(pluginInterface);
-        Version  = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
-        Config   = Configuration.Load();
-        Language = Dalamud.ClientState.ClientLanguage;
-        GameData = new GameData(Dalamud.GameData);
-        Time     = new SeTime();
+        Version        = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
+        Config         = Configuration.Load();
+        Language       = Dalamud.ClientState.ClientLanguage;
+        GameData       = new GameData(Dalamud.GameData);
+        Time           = new SeTime();
+        WaymarkManager = new WaymarkManager();
 
         WeatherManager      = new WeatherManager(GameData);
         UptimeManager       = new UptimeManager(GameData);

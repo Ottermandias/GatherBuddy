@@ -341,6 +341,36 @@ public partial class Interface
     private string _identifyTest       = string.Empty;
     private uint   _lastItemIdentified = 0;
 
+    private void DrawWaymarkTab()
+    {
+        if (!ImGui.CollapsingHeader("Waymarks##WaymarkDebug"))
+            return;
+
+        ImGui.TextUnformatted($"Waymark Manager: 0x{GatherBuddy.WaymarkManager.Address:X}");
+        ImGui.TextUnformatted($"Waymark Manager Offset: +0x{(ulong)GatherBuddy.WaymarkManager.Address - (ulong) Dalamud.SigScanner.Module.BaseAddress:X}");
+        if (!ImGui.BeginTable("##Waymarks", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+            return;
+        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
+
+        for (var i = 0; i < 8; ++i)
+        {
+            using var id      = ImRaii.PushId(i);
+            var       waymark = GatherBuddy.WaymarkManager[i];
+            ImGui.TableNextColumn();
+            if (ImGui.Button("Clear"))
+                GatherBuddy.WaymarkManager.ClearWaymark(i);
+            ImGui.TableNextColumn();
+            if (ImGui.Button("Set"))
+                GatherBuddy.WaymarkManager.SetWaymark(i);
+            ImGuiUtil.DrawTableColumn(waymark.IsSet.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.X.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Y.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Z.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Unk1.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Unk2.ToString());
+        }
+    }
+
     private void DrawDebugTab()
     {
         if (!GatherBuddy.DebugMode)
@@ -386,6 +416,7 @@ public partial class Interface
         ImGuiTable.DrawTabbedTable($"Fishing Spots ({GatherBuddy.GameData.FishingSpots.Count})", GatherBuddy.GameData.FishingSpots.Values,
             DrawFishingSpotDebug, flags, "Id", "Name", "Territory", "Aetheryte", "Coords", "Shadow", "Fishes");
         DrawUptimeManagerTable();
+        DrawWaymarkTab();
         if (ImGui.CollapsingHeader("GatheringTree"))
         {
             id.Push("GatheringTree");

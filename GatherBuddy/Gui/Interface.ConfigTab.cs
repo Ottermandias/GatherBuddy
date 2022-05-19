@@ -78,6 +78,11 @@ public partial class Interface
                 "Toggle whether to automatically write a map link to the approximate location of the chosen node to chat.",
                 GatherBuddy.Config.WriteCoordinates, b => GatherBuddy.Config.WriteCoordinates = b);
 
+        public static void DrawPlaceWaymarkBox()
+            => DrawCheckbox("Place Custom Waymarks",
+                "Toggle whether to place custom Waymarks you set manually set up for certain locations.",
+                GatherBuddy.Config.PlaceCustomWaymarks, b => GatherBuddy.Config.PlaceCustomWaymarks = b);
+
         public static void DrawPrintUptimesBox()
             => DrawCheckbox("Print Node Uptimes On Gather",
                 "Print the uptimes of nodes you try to /gather in the chat if they are not always up.",
@@ -415,6 +420,7 @@ public partial class Interface
                 ConfigFunctions.DrawGearChangeBox();
                 ConfigFunctions.DrawTeleportBox();
                 ConfigFunctions.DrawMapMarkerOpenBox();
+                ConfigFunctions.DrawPlaceWaymarkBox();
                 ConfigFunctions.DrawAetherytePreference();
                 ConfigFunctions.DrawSkipTeleportBox();
                 ConfigFunctions.DrawContextMenuBox();

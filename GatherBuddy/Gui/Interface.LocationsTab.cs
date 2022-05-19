@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Interface;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -28,7 +29,7 @@ public partial class Interface
         {
             if (_nameColumnWidth != 0)
                 return;
-            
+
             _nameColumnWidth      = _plugin.LocationManager.AllLocations.Max(l => TextWidth(l.Name)) / ImGuiHelpers.GlobalScale;
             _territoryColumnWidth = _plugin.LocationManager.AllLocations.Max(l => TextWidth(l.Territory.Name)) / ImGuiHelpers.GlobalScale;
             _aetheryteColumnWidth = GatherBuddy.GameData.Aetherytes.Values.Max(a => TextWidth(a.Name)) / ImGuiHelpers.GlobalScale;
@@ -42,6 +43,7 @@ public partial class Interface
         private static readonly AetheryteColumn _aetheryteColumn = new() { Label = "Aetheryte" };
         private static readonly XCoordColumn    _xCoordColumn    = new() { Label = "X-Coord" };
         private static readonly YCoordColumn    _yCoordColumn    = new() { Label = "Y-Coord" };
+        private static readonly MarkerColumn    _markerColumn    = new() { Label = "Markers" };
         private static readonly ItemColumn      _itemColumn      = new() { Label = "Items" };
 
         private sealed class NameColumn : ColumnString<ILocation>
@@ -230,9 +232,38 @@ public partial class Interface
                 => a.IntegralYCoord.CompareTo(b.IntegralYCoord);
         }
 
+        private sealed class MarkerColumn : ColumnString<ILocation>
+        {
+            public override string ToName(ILocation location)
+                => location.Markers.Length.ToString();
+
+            public override float Width
+                => ImGui.GetFrameHeight() * 2 + ImGui.GetStyle().ItemSpacing.X;
+
+            public override void DrawColumn(ILocation location, int id)
+            {
+                using var _       = ImRaii.PushId(id);
+                var       markers = GatherBuddy.WaymarkManager.GetWaymarks();
+                var       invalid = Dalamud.ClientState.TerritoryType != location.Territory.Id;
+                if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Map.ToIconString(), new Vector2(ImGui.GetFrameHeight()),
+                        "Set the currently placed map markers for this location.", markers.Count == 0 || invalid, true))
+                    _plugin.LocationManager.SetMarkers(location, markers);
+                var hovered = ImGui.IsItemHovered();
+
+                ImGui.SameLine();
+                if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), new Vector2(ImGui.GetFrameHeight()),
+                        "Remove all markers for this location", location.Markers.Length == 0, true))
+                    _plugin.LocationManager.SetMarkers(location, Array.Empty<Vector3>());
+                hovered |= ImGui.IsItemHovered();
+
+                if (hovered && markers.Count > 0)
+                    ImGui.SetTooltip(string.Join("\n", markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}")));
+            }
+        }
+
         public LocationTable()
             : base("##LocationTable", _plugin.LocationManager.AllLocations, ImGui.GetFrameHeight(), _nameColumn,
-                _typeColumn, _aetheryteColumn, _xCoordColumn, _yCoordColumn, _territoryColumn, _itemColumn)
+                _typeColumn, _aetheryteColumn, _xCoordColumn, _yCoordColumn, _markerColumn, _territoryColumn, _itemColumn)
         { }
     }
 

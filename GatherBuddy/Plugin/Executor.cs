@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Text.SeStringHandling;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
@@ -43,6 +44,7 @@ public class Executor
     private readonly List<ILocation> _visitedLocations     = new();
     private          bool            _keepVisitedLocations = false;
     private          TimeStamp       _lastGatherReset      = TimeStamp.Epoch;
+    private          bool            _teleporting          = false;
 
     private void FindGatherableLogged(string itemName)
     {
@@ -147,6 +149,7 @@ public class Executor
 
     private void DoTeleport()
     {
+        _teleporting = false;
         if (!GatherBuddy.Config.UseTeleport || _location?.ClosestAetheryte == null)
             return;
 
@@ -168,6 +171,7 @@ public class Executor
                 return;
         }
 
+        _teleporting = true;
         TeleportToAetheryte(_location.ClosestAetheryte);
     }
 
@@ -196,8 +200,29 @@ public class Executor
             return;
         }
 
+        var territory = _location.Territory.Id;
+        var time      = DateTime.UtcNow.AddSeconds(30);
+        var waitTime  = DateTime.UtcNow.AddSeconds(_teleporting ? 6 : -1);
 
-        _commandManager.Execute($"/gearset change \"{set}\"");
+        void DoGearChangeOnArrival(object _)
+        {
+            if (DateTime.UtcNow < waitTime
+             || Dalamud.Conditions[ConditionFlag.BetweenAreas]
+             || Dalamud.Conditions[ConditionFlag.Casting]
+             || territory != Dalamud.ClientState.TerritoryType)
+                return;
+
+            if (DateTime.UtcNow > time)
+            {
+                Dalamud.Framework.Update -= DoGearChangeOnArrival;
+                return;
+            }
+
+            _commandManager.Execute($"/gearset change \"{set}\"");
+            Dalamud.Framework.Update -= DoGearChangeOnArrival;
+        }
+
+        Dalamud.Framework.Update += DoGearChangeOnArrival;
     }
 
 
@@ -217,6 +242,31 @@ public class Executor
     private void DoAdditionalInfo()
     {
         Communicator.PrintUptime(_uptime);
+    }
+
+    private void DoWaymarks()
+    {
+        if (!GatherBuddy.Config.PlaceCustomWaymarks || _location == null)
+            return;
+
+        var territory = _location.Territory.Id;
+        var markers   = _location.Markers;
+        if (Dalamud.ClientState.TerritoryType == territory)
+        {
+            GatherBuddy.WaymarkManager.SetWaymarks(markers);
+            return;
+        }
+
+        var time = DateTime.UtcNow.AddSeconds(30);
+
+        void DoWaymarkOnArrival(object? _, ushort t)
+        {
+            if (territory == t)
+                GatherBuddy.WaymarkManager.SetWaymarks(markers);
+            Dalamud.ClientState.TerritoryChanged -= DoWaymarkOnArrival;
+        }
+
+        Dalamud.ClientState.TerritoryChanged += DoWaymarkOnArrival;
     }
 
     public bool DoCommand(string argument)
@@ -239,6 +289,9 @@ public class Executor
                 return true;
             case GatherBuddy.AdditionalInfoCommand:
                 DoAdditionalInfo();
+                return true;
+            case GatherBuddy.SetWaymarksCommand:
+                DoWaymarks();
                 return true;
             default: return false;
         }

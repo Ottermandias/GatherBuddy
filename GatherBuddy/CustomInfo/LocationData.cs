@@ -1,4 +1,4 @@
-﻿using GatherBuddy.Classes;
+﻿using System.Numerics;
 using GatherBuddy.Interfaces;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
@@ -16,6 +16,8 @@ public struct LocationData
     public int XCoord;
     public int YCoord;
 
+    public Vector3[] Markers;
+
     public LocationData(ILocation loc)
     {
         Id          = loc.Id;
@@ -23,5 +25,6 @@ public struct LocationData
         AetheryteId = loc.ClosestAetheryte == null ? -1 : (int)loc.ClosestAetheryte.Id;
         XCoord      = loc.IntegralXCoord;
         YCoord      = loc.IntegralYCoord;
+        Markers     = loc.Markers;
     }
 }
