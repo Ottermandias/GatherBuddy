@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using System.Reflection.Metadata.Ecma335;
 using Dalamud.Interface;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -232,32 +233,83 @@ public partial class Interface
                 => a.IntegralYCoord.CompareTo(b.IntegralYCoord);
         }
 
-        private sealed class MarkerColumn : ColumnString<ILocation>
+        [Flags]
+        private enum MarkerFlags : byte
         {
-            public override string ToName(ILocation location)
-                => location.Markers.Length.ToString();
+            None = 0x01,
+            Any  = 0x02,
+        }
+
+        private sealed class MarkerColumn : ColumnFlags<MarkerFlags, ILocation>
+        {
+            public override int Compare(ILocation lhs, ILocation rhs)
+            {
+                if (lhs.Markers.Length != rhs.Markers.Length)
+                    return lhs.Markers.Length - rhs.Markers.Length;
+
+                var diff = lhs.Territory.Id.CompareTo(rhs.Territory.Id);
+                if (diff != 0)
+                    return diff;
+
+                foreach (var (l, r) in lhs.Markers.Zip(rhs.Markers))
+                {
+                    diff = l.X.CompareTo(r.X);
+                    if (diff != 0)
+                        return diff;
+
+                    diff = l.Y.CompareTo(r.Y);
+                    if (diff != 0)
+                        return diff;
+
+                    diff = l.Z.CompareTo(r.Z);
+                    if (diff != 0)
+                        return diff;
+                }
+
+                return 0;
+            }
+
+            private MarkerFlags _filter = MarkerFlags.None | MarkerFlags.Any;
+
+            public override MarkerFlags FilterValue
+                => _filter;
+
+            protected override void SetValue(MarkerFlags value, bool enable)
+            {
+                _filter = enable ? _filter | value : _filter & ~value;
+            }
+
+
+            public override bool FilterFunc(ILocation item)
+                => FilterValue.HasFlag(item.Markers.Length == 0 ? MarkerFlags.None : MarkerFlags.Any);
 
             public override float Width
-                => ImGui.GetFrameHeight() * 2 + ImGui.GetStyle().ItemSpacing.X;
+                => ImGui.GetFrameHeight() * 2 + ImGui.GetStyle().ItemSpacing.X + Table.ArrowWidth;
 
             public override void DrawColumn(ILocation location, int id)
             {
-                using var _       = ImRaii.PushId(id);
-                var       markers = GatherBuddy.WaymarkManager.GetWaymarks();
-                var       invalid = Dalamud.ClientState.TerritoryType != location.Territory.Id;
-                if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Map.ToIconString(), new Vector2(ImGui.GetFrameHeight()),
-                        "Set the currently placed map markers for this location.", markers.Count == 0 || invalid, true))
+                using var _ = ImRaii.PushId(id);
+                var markers = GatherBuddy.WaymarkManager.GetWaymarks();
+                var invalid = Dalamud.ClientState.TerritoryType != location.Territory.Id;
+                var tt = invalid ? "Not in the correct zone for this location." :
+                    markers.Count == 0 ? "No markers set that could be stored for this location." :
+                                         $"Store the currently placed markers for this location:\n\n{string.Join("\n", markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
+
+                if (location.Markers.Length > 0)
+                    tt +=
+                        $"\n\nMarkers stored for this location:\n\n{string.Join("\n", location.Markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
+
+                if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Map.ToIconString(), new Vector2(ImGui.GetFrameHeight()), tt,
+                        markers.Count == 0 || invalid, true))
                     _plugin.LocationManager.SetMarkers(location, markers);
-                var hovered = ImGui.IsItemHovered();
 
                 ImGui.SameLine();
-                if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), new Vector2(ImGui.GetFrameHeight()),
-                        "Remove all markers for this location", location.Markers.Length == 0, true))
+                tt = location.Markers.Length == 0
+                    ? "No markers stored for this location."
+                    : $"Remove the stored markers for this location:\n\n{string.Join("\n", location.Markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
+                if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), new Vector2(ImGui.GetFrameHeight()), tt,
+                        location.Markers.Length == 0, true))
                     _plugin.LocationManager.SetMarkers(location, Array.Empty<Vector3>());
-                hovered |= ImGui.IsItemHovered();
-
-                if (hovered && markers.Count > 0)
-                    ImGui.SetTooltip(string.Join("\n", markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}")));
             }
         }
 
