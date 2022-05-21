@@ -179,12 +179,19 @@ public partial class Interface
         {
             bool CheckRestrictions(Fish f)
             {
-                // naive check because exhaustive is complicated.
-                if (f.FishRestrictions.HasFlag(FishRestrictions.Time) && f.Interval != fish.Interval)
-                    return true;
+                if (f.FishRestrictions.HasFlag(FishRestrictions.Time))
+                {
+                    if (!fish.FishRestrictions.HasFlag(FishRestrictions.Time))
+                        return true;
+                    if (!f.Interval.Contains(fish.Interval))
+                        return true;
+                }
 
                 if (f.FishRestrictions.HasFlag(FishRestrictions.Weather))
                 {
+                    if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
+                        return true;
+
                     if (f.CurrentWeather.Intersect(fish.CurrentWeather).Count() < fish.CurrentWeather.Length)
                         return true;
 

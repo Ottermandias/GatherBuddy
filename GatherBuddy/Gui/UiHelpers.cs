@@ -63,7 +63,7 @@ public partial class Interface
     internal static void DrawTimeInterval(TimeInterval uptime, bool uptimeDependency = false)
     {
         var active = uptime.ToTimeString(GatherBuddy.Time.ServerTime, false, out var timeString);
-        var colorId = (active, fish: uptimeDependency) switch
+        var colorId = (active, uptimeDependency) switch
         {
             (true, true)   => ColorId.DependentAvailableFish.Value(),
             (true, false)  => ColorId.AvailableItem.Value(),

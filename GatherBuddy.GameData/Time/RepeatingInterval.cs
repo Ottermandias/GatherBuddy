@@ -32,7 +32,7 @@ public readonly struct RepeatingInterval : IEquatable<RepeatingInterval>
 
     private TimeStamp SyncToShift(TimeStamp ts)
         => new((ts - ShiftTime) / Period * Period + ShiftTime);
-    
+
     public TimeInterval FirstOverlap(TimeInterval interval)
     {
         if (interval == TimeInterval.Invalid)
@@ -145,7 +145,8 @@ public readonly struct RepeatingInterval : IEquatable<RepeatingInterval>
         var start = new TimeStamp(ShiftTime).CurrentEorzeaMinuteOfDay();
         if (start < 0)
             start += RealTime.MinutesPerDay;
-        var end = start + new TimeStamp(OnTime).TotalEorzeaMinutes();
+
+        var end = (int)(start + new TimeStamp(OnTime).TotalEorzeaMinutes());
         if (end > RealTime.MinutesPerDay)
             end -= RealTime.MinutesPerDay;
 
@@ -158,4 +159,7 @@ public readonly struct RepeatingInterval : IEquatable<RepeatingInterval>
 
         return simple ? $"{sStart}-{sEnd}" : $"{sStart} - {sEnd} ET";
     }
+
+    public bool Contains(RepeatingInterval other)
+        => ShiftTime <= other.ShiftTime && OnTime >= other.OnTime;
 }
