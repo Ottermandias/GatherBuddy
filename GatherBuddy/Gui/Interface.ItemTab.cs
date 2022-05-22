@@ -424,14 +424,15 @@ public partial class Interface
     private void DrawItemTab()
     {
         using var id  = ImRaii.PushId("Gatherables");
-        var       ret = ImGui.BeginTabItem("Gatherables");
+        using var tab = ImRaii.TabItem("Gatherables");
         ImGuiUtil.HoverTooltip("Breaking rocks with a pickaxe or felling trees counts as gathering, why do you ask?\n"
           + "Find all information about botanist and miner items you could ever need.");
-        if (!ret)
+        if (!tab)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
+        _itemTable.ExtraHeight = GatherBuddy.Config.ShowStatusLine ? ImGui.GetTextLineHeight() : 0;
         _itemTable.Draw();
+        DrawStatusLine(_itemTable, "Items");
         DrawClippy();
     }
 }

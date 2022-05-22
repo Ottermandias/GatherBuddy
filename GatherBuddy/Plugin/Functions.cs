@@ -5,10 +5,8 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Keys;
-using Dalamud.Game.Text;
-using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Logging;
-using OtterGui;
+using OtterGui.Classes;
 
 namespace GatherBuddy.Plugin;
 

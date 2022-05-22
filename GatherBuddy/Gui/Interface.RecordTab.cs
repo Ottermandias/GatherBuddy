@@ -454,7 +454,7 @@ public partial class Interface
                 if (!ImGui.IsItemHovered())
                     return;
 
-                using var tt = ImRaii.NewTooltip();
+                using var tt = ImRaii.Tooltip();
                 ImGui.Image(icon.ImGuiHandle, new Vector2(icon.Width, icon.Height));
                 ImGui.Text(flag.ToString());
             }
@@ -479,13 +479,12 @@ public partial class Interface
     private void DrawRecordTab()
     {
         using var id  = ImRaii.PushId("Fish Records");
-        var       ret = ImGui.BeginTabItem("Fish Records");
+        using var tab = ImRaii.TabItem("Fish Records");
         ImGuiUtil.HoverTooltip("The records of my fishing prowess have been greatly exaggerated.\n"
           + "Find, cleanup and share all data you have collected while fishing.");
-        if (!ret)
+        if (!tab)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
         _recordTable.Draw();
         if (ImGui.Button("Cleanup"))
         {

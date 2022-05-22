@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
 using Dalamud.Interface;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -12,6 +11,7 @@ using GatherBuddy.Interfaces;
 using ImGuiNET;
 using OtterGui;
 using OtterGui.Table;
+using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -324,14 +324,12 @@ public partial class Interface
     private void DrawLocationsTab()
     {
         using var id  = ImRaii.PushId("Locations");
-        var       tab = ImGui.BeginTabItem("Locations");
+        using var tab = ImRaii.TabItem("Locations");
         ImGuiUtil.HoverTooltip("Default locations getting you down?\n"
           + "Set up custom aetherytes or map marker locations for specific nodes.");
 
         if (!tab)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _locationTable.Draw();
     }

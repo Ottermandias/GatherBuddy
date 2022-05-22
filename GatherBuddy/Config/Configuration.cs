@@ -5,7 +5,7 @@ using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using GatherBuddy.Enums;
-using OtterGui;
+using OtterGui.Classes;
 
 namespace GatherBuddy.Config;
 
@@ -47,6 +47,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             StoreFishRecords       { get; set; } = true;
     public bool             PrintClipboardMessages { get; set; } = true;
     public bool             HideClippy             { get; set; } = false;
+    public bool             ShowStatusLine         { get; set; } = true;
     public ModifiableHotkey MainInterfaceHotkey    { get; set; } = new();
     public bool             PlaceCustomWaymarks    { get; set; } = true;
 

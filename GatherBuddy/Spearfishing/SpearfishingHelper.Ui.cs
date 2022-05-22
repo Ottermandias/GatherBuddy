@@ -66,14 +66,11 @@ public partial class SpearfishingHelper : Window
         ImGui.SetCursorPos(_uiSize * Vector2.UnitX);
         using var color = ImRaii.PushColor(ImGuiCol.ChildBg, ColorId.SpearfishHelperBackgroundList.Value());
         using var style = ImRaii.PushStyle(ImGuiStyleVar.ChildRounding, 5 * ImGuiHelpers.GlobalScale);
-        if (!ImGui.BeginChild("##ListChild", ListSize, true, ImGuiWindowFlags.NoScrollbar))
-        {
-            ImGui.EndChild();
+        using var child = ImRaii.Child("##ListChild", ListSize, true, ImGuiWindowFlags.NoScrollbar);
+        if (!child)
             return;
-        }
 
-        using var end      = ImRaii.DeferredEnd(ImGui.EndChild);
-        var       iconSize = ImGuiHelpers.ScaledVector2(_iconSize, _iconSize);
+        var iconSize = ImGuiHelpers.ScaledVector2(_iconSize, _iconSize);
         foreach (var fish in _currentSpot.Items)
         {
             var name = fish.Name[GatherBuddy.Language];

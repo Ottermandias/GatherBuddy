@@ -197,10 +197,10 @@ public partial class Interface
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
             ImGui.OpenPopup(item.Name[GatherBuddy.Language]);
 
-        if (!ImGui.BeginPopup(item.Name[GatherBuddy.Language]))
+        using var popup = ImRaii.Popup(item.Name[GatherBuddy.Language]);
+        if (!popup)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
         DrawAddAlarm(item);
         DrawAddToGatherGroup(item);
         DrawAddGatherWindow(item);
@@ -215,10 +215,10 @@ public partial class Interface
         if (clicked)
             ImGui.OpenPopup(item.Name[GatherBuddy.Language]);
 
-        if (!ImGui.BeginPopup(item.Name[GatherBuddy.Language]))
+        using var popup = ImRaii.Popup(item.Name[GatherBuddy.Language]);
+        if (!popup)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
         if (ImGui.Selectable("Create Link"))
             Communicator.Print(SeString.CreateItemLink(item.ItemId));
         DrawOpenInGarlandTools(item.ItemId);
@@ -233,10 +233,9 @@ public partial class Interface
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
             ImGui.OpenPopup(bait.Name);
 
-        if (!ImGui.BeginPopup(bait.Name))
+        using var popup = ImRaii.Popup(bait.Name);
+        if (!popup)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
 
         if (ImGui.Selectable("Create Link"))
             Communicator.Print(SeString.CreateItemLink(bait.Id));
@@ -252,10 +251,9 @@ public partial class Interface
         if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
             ImGui.OpenPopup(spot.Name);
 
-        if (!ImGui.BeginPopup(spot.Name))
+        using var popup = ImRaii.Popup(spot.Name);
+        if (!popup)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndPopup);
 
         DrawOpenInTeamCraft(spot);
     }

@@ -15,7 +15,7 @@ public partial class Configuration
 
     public static readonly Dictionary<int, uint> ForegroundColors = Dalamud.GameData.GetExcelSheet<UIColor>()!
         .Where(c => (c.UIForeground & 0xFF) > 0)
-        .ToDictionary(c => (int)c.RowId, c => ImGuiUtil.ReorderColor(c.UIForeground));
+        .ToDictionary(c => (int)c.RowId, c => Functions.ReorderColor(c.UIForeground));
 
     public const int DefaultSeColorNames     = 504;
     public const int DefaultSeColorCommands  = 31;

@@ -109,7 +109,7 @@ public partial class Interface
 
     private void DrawAlarmRow()
     {
-        using var _ = ImRaii.NewGroup();
+        using var _ = ImRaii.Group();
         ConfigFunctions.DrawAlarmToggle();
         ImGui.SameLine();
         _headerCache.AlarmButtonSize = (ImGui.GetContentRegionAvail().X - ItemSpacing.X) / 2 * Vector2.UnitX;
@@ -173,7 +173,7 @@ public partial class Interface
           + (WeatherIconSize.X + ItemSpacing.X + FramePadding.X) * 3);
 
         _headerCache.UpdateCurrentTerritory();
-        using var _ = ImRaii.NewGroup();
+        using var _ = ImRaii.Group();
         DrawEorzeaTime($"ET {GatherBuddy.Time.EorzeaHourOfDay:D2}:{GatherBuddy.Time.EorzeaMinuteOfHour:D2}");
         ImGui.SameLine();
         DrawNextEorzeaHour($"{nextHourM:D2}:{nextHourS:D2} Min to next hour.", new Vector2(width, WeatherIconSize.Y));

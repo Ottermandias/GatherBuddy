@@ -500,15 +500,16 @@ public partial class Interface
     private void DrawFishTab()
     {
         using var id  = ImRaii.PushId("Fish");
-        var       ret = ImGui.BeginTabItem("Fish");
+        using var tab = ImRaii.TabItem("Fish");
         ImGuiUtil.HoverTooltip("There are plenty of fish in the sea. And the air. And the sand. And the lava. And space, for some reason.\n"
           + " Gotta catch'em all!\n"
           + "Enough information about fish to get you started, and for everything else there's TeamCraft!");
-        if (!ret)
+        if (!tab)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
+        _fishTable.ExtraHeight = GatherBuddy.Config.ShowStatusLine ? ImGui.GetTextLineHeight() : 0;
         _fishTable.Draw();
+        DrawStatusLine(_fishTable, "Fish");
         DrawClippy();
     }
 }

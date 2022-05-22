@@ -8,6 +8,7 @@ using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
+using Functions = GatherBuddy.Plugin.Functions;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -53,10 +54,10 @@ public partial class Interface : Window, IDisposable
     {
         SetupValues();
         DrawHeader();
-        if (!ImGui.BeginTabBar("ConfigTabs###GatherBuddyConfigTabs", ImGuiTabBarFlags.Reorderable))
+        using var tab = ImRaii.TabBar("ConfigTabs###GatherBuddyConfigTabs", ImGuiTabBarFlags.Reorderable);
+        if (!tab)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabBar);
         DrawItemTab();
         DrawFishTab();
         DrawWeatherTab();

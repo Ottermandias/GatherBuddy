@@ -1,12 +1,11 @@
 ﻿using System;
-using System.Linq;
 using System.Numerics;
-using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using GatherBuddy.Config;
 using GatherBuddy.FishTimer;
 using ImGuiNET;
 using OtterGui;
+using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -37,7 +36,7 @@ public partial class Interface
         private static void DrawChatTypeSelector(string label, string description, XivChatType currentValue, Action<XivChatType> setter)
         {
             ImGui.SetNextItemWidth(SetInputWidth);
-            if (ImGuiUtil.DrawChatTypeSelector(label, description, currentValue, setter))
+            if (Widget.DrawChatTypeSelector(label, description, currentValue, setter))
                 GatherBuddy.Config.Save();
         }
 
@@ -92,6 +91,11 @@ public partial class Interface
             => DrawCheckbox("Skip Nearby Teleports",
                 "Skips teleports if you are in the same map and closer to the target than the selected aetheryte already.",
                 GatherBuddy.Config.SkipTeleportIfClose, b => GatherBuddy.Config.SkipTeleportIfClose = b);
+
+        public static void DrawShowStatusLineBox()
+            => DrawCheckbox("Show Status Line",
+                "Show a status line below the gatherables and fish tables.",
+                GatherBuddy.Config.ShowStatusLine, v => GatherBuddy.Config.ShowStatusLine = v);
 
         public static void DrawHideClippyBox()
             => DrawCheckbox("Hide GatherClippy Button",
@@ -320,7 +324,7 @@ public partial class Interface
                 return;
 
             ImGui.SetNextItemWidth(SetInputWidth);
-            ImGuiUtil.KeySelector("Hotkey to Hold", "Set the hotkey to hold to keep the window visible.",
+            Widget.KeySelector("Hotkey to Hold", "Set the hotkey to hold to keep the window visible.",
                 GatherBuddy.Config.GatherWindowHoldKey,
                 k => GatherBuddy.Config.GatherWindowHoldKey = k, Configuration.ValidKeys);
         }
@@ -333,14 +337,14 @@ public partial class Interface
 
         public static void DrawGatherWindowHotkeyInput()
         {
-            if (ImGuiUtil.ModifiableKeySelector("Hotkey to Open Gather Window", "Set a hotkey to open the Gather Window.", SetInputWidth,
+            if (Widget.ModifiableKeySelector("Hotkey to Open Gather Window", "Set a hotkey to open the Gather Window.", SetInputWidth,
                     GatherBuddy.Config.GatherWindowHotkey, k => GatherBuddy.Config.GatherWindowHotkey = k, Configuration.ValidKeys))
                 GatherBuddy.Config.Save();
         }
 
         public static void DrawMainInterfaceHotkeyInput()
         {
-            if (ImGuiUtil.ModifiableKeySelector("Hotkey to Open Main Interface", "Set a hotkey to open the main GatherBuddy interface.",
+            if (Widget.ModifiableKeySelector("Hotkey to Open Main Interface", "Set a hotkey to open the main GatherBuddy interface.",
                     SetInputWidth,
                     GatherBuddy.Config.MainInterfaceHotkey, k => GatherBuddy.Config.MainInterfaceHotkey = k, Configuration.ValidKeys))
                 GatherBuddy.Config.Save();
@@ -350,7 +354,7 @@ public partial class Interface
         public static void DrawGatherWindowDeleteModifierInput()
         {
             ImGui.SetNextItemWidth(SetInputWidth);
-            if (ImGuiUtil.ModifierSelector("Modifier to Delete Items on Right-Click",
+            if (Widget.ModifierSelector("Modifier to Delete Items on Right-Click",
                     "Set the modifier key to be used while right-clicking items in the gather window to delete them.",
                     GatherBuddy.Config.GatherWindowDeleteModifier, k => GatherBuddy.Config.GatherWindowDeleteModifier = k))
                 GatherBuddy.Config.Save();
@@ -396,22 +400,16 @@ public partial class Interface
     private static void DrawConfigTab()
     {
         using var id  = ImRaii.PushId("Config");
-        var       ret = ImGui.BeginTabItem("Config");
+        using var tab = ImRaii.TabItem("Config");
         ImGuiUtil.HoverTooltip("Set up your very own GatherBuddy to your meticulous specifications.\n"
           + "If you treat him well, he might even become a real boy.");
 
-        if (!ret)
+        if (!tab)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
-
-        if (!ImGui.BeginChild("ConfigTab"))
-        {
-            ImGui.EndChild();
+        using var child = ImRaii.Child("ConfigTab");
+        if (!child)
             return;
-        }
-
-        end.Push(ImGui.EndChild);
 
         if (ImGui.CollapsingHeader("General"))
         {
@@ -465,6 +463,7 @@ public partial class Interface
                 ConfigFunctions.DrawLockPositionBox();
                 ConfigFunctions.DrawLockResizeBox();
                 ConfigFunctions.DrawWeatherTabNamesBox();
+                ConfigFunctions.DrawShowStatusLineBox();
                 ConfigFunctions.DrawHideClippyBox();
                 ConfigFunctions.DrawMainInterfaceHotkeyInput();
                 ImGui.TreePop();
@@ -521,22 +520,22 @@ public partial class Interface
             {
                 var (defaultColor, name, description) = color.Data();
                 var currentColor = GatherBuddy.Config.Colors.TryGetValue(color, out var current) ? current : defaultColor;
-                if (ImGuiUtil.ColorPicker(name, description, currentColor, c => GatherBuddy.Config.Colors[color] = c, defaultColor))
+                if (Widget.ColorPicker(name, description, currentColor, c => GatherBuddy.Config.Colors[color] = c, defaultColor))
                     GatherBuddy.Config.Save();
             }
 
             ImGui.NewLine();
 
-            if (ImGuiUtil.PaletteColorPicker("Names in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorNames,
+            if (Widget.PaletteColorPicker("Names in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorNames,
                     Configuration.DefaultSeColorNames, Configuration.ForegroundColors, out var idx))
                 GatherBuddy.Config.SeColorNames = idx;
-            if (ImGuiUtil.PaletteColorPicker("Commands in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorCommands,
+            if (Widget.PaletteColorPicker("Commands in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorCommands,
                     Configuration.DefaultSeColorCommands, Configuration.ForegroundColors, out idx))
                 GatherBuddy.Config.SeColorCommands = idx;
-            if (ImGuiUtil.PaletteColorPicker("Arguments in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorArguments,
+            if (Widget.PaletteColorPicker("Arguments in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorArguments,
                     Configuration.DefaultSeColorArguments, Configuration.ForegroundColors, out idx))
                 GatherBuddy.Config.SeColorArguments = idx;
-            if (ImGuiUtil.PaletteColorPicker("Alarm Message in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorAlarm,
+            if (Widget.PaletteColorPicker("Alarm Message in Chat", Vector2.One * ImGui.GetFrameHeight(), GatherBuddy.Config.SeColorAlarm,
                     Configuration.DefaultSeColorAlarm, Configuration.ForegroundColors, out idx))
                 GatherBuddy.Config.SeColorAlarm = idx;
 

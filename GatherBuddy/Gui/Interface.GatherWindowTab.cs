@@ -161,14 +161,14 @@ public partial class Interface
 
         ImGui.NewLine();
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() - ImGui.GetStyle().ItemInnerSpacing.X);
-        if (!ImGui.BeginListBox("##gatherWindowList", new Vector2(-1.5f * ImGui.GetStyle().ItemSpacing.X, -1)))
+        using var box = ImRaii.ListBox("##gatherWindowList", new Vector2(-1.5f * ImGui.GetStyle().ItemSpacing.X, -1));
+        if (!box)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndListBox);
         for (var i = 0; i < preset.Items.Count; ++i)
         {
             using var id    = ImRaii.PushId(i);
-            using var group = ImRaii.NewGroup();
+            using var group = ImRaii.Group();
             var       item  = preset.Items[i];
             if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset...", false,
                     true))
@@ -177,7 +177,7 @@ public partial class Interface
             ImGui.SameLine();
             if (_gatherGroupCache.GatherableSelector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
                 _plugin.GatherWindowManager.ChangeItem(preset, GatherGroupCache.AllGatherables[newIdx], i);
-            group.Pop();
+            group.Dispose();
 
             _gatherWindowCache.Selector.CreateDropSource(new GatherWindowDragDropData(preset, item, i), item.Name[GatherBuddy.Language]);
 
@@ -199,7 +199,7 @@ public partial class Interface
     private void DrawGatherWindowTab()
     {
         using var id  = ImRaii.PushId("GatherWindow");
-        var       tab = ImGui.BeginTabItem("Gather Window");
+        using var tab = ImRaii.TabItem("Gather Window");
 
         ImGuiUtil.HoverTooltip(
             "Config window too big? Why can't you hold all this information?\n"
@@ -207,8 +207,6 @@ public partial class Interface
 
         if (!tab)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _gatherWindowCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

@@ -12,6 +12,7 @@ using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
+using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -130,7 +131,9 @@ public partial class Interface
             => Selector = new AlarmSelector(manager);
 
         public static readonly Sounds[] SoundIds = Enum.GetValues<Sounds>().Where(s => s != Sounds.Unknown).ToArray();
-        public static readonly string SoundIdNames = string.Join("\0", SoundIds.Select(s => s == Sounds.None ? "No Sound" : $"Sound {s.ToIdx()}"));
+
+        public static readonly string SoundIdNames =
+            string.Join("\0", SoundIds.Select(s => s == Sounds.None ? "No Sound" : $"Sound {s.ToIdx()}"));
 
         public readonly AlarmSelector  Selector;
         public readonly TimedItemCombo ItemCombo = new(string.Empty);
@@ -146,7 +149,7 @@ public partial class Interface
         public int    NewSecondOffset = 0;
 
         public int ChangedSecondOffset = 0;
-        public int ChangedAlarmIdx  = -1;
+        public int ChangedAlarmIdx     = -1;
 
         public Alarm CreateAlarm()
             => new(GatherBuddy.UptimeManager.TimedGatherables[NewItemIdx])
@@ -197,6 +200,7 @@ public partial class Interface
             _alarmCache.ChangedAlarmIdx     = alarmIdx;
             _alarmCache.ChangedSecondOffset = secondOffset;
         }
+
         if (ImGui.IsItemDeactivated())
             _plugin.AlarmManager.ChangeAlarmOffset(group, alarmIdx, Math.Clamp(_alarmCache.ChangedSecondOffset, 0, RealTime.SecondsPerDay));
         ImGuiUtil.HoverTooltip("Trigger this alarm this many seconds before the item in question is next available.");
@@ -266,10 +270,11 @@ public partial class Interface
     private void DrawAlarmTable(AlarmGroup group, int idx)
     {
         var width = SetInputWidth * 3.35f + ImGui.GetFrameHeight() * 3 + (85 + 150) * ImGuiHelpers.GlobalScale + ItemSpacing.X * 8;
-        if (!ImGui.BeginTable("##alarms", 9, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.NoKeepColumnsVisible, Vector2.UnitX * width))
+        using var table = ImRaii.Table("##alarms", 9, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.NoKeepColumnsVisible,
+            Vector2.UnitX * width);
+        if (!table)
             return;
 
-        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
         DrawToggleAll(group);
         ImGui.TableNextRow();
         for (var i = 0; i < group.Alarms.Count; ++i)
@@ -300,13 +305,9 @@ public partial class Interface
 
     private void DrawAlarmInfo(AlarmGroup group, int idx)
     {
-        if (!ImGui.BeginChild("##alarmInfo", -Vector2.One, false, ImGuiWindowFlags.HorizontalScrollbar))
-        {
-            ImGui.EndChild();
+        using var child = ImRaii.Child("##alarmInfo", -Vector2.One, false, ImGuiWindowFlags.HorizontalScrollbar);
+        if (!child)
             return;
-        }
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndChild);
         DrawGroupData(group, idx);
         ImGui.NewLine();
         DrawAlarmTable(group, idx);
@@ -347,14 +348,11 @@ public partial class Interface
     private void DrawAlarmTab()
     {
         using var id  = ImRaii.PushId("Alarms");
-        var       ret = ImGui.BeginTabItem("Alarms");
+        using var tab = ImRaii.TabItem("Alarms");
         ImGuiUtil.HoverTooltip("Do you often find yourself late for a very important date with no time to say hello or goodbye?\n"
           + "Set up your very own alarm clock. Viera might even be able to wear it around their neck.");
-
-        if (!ret)
+        if (!tab)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _alarmCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

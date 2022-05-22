@@ -9,10 +9,10 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.Interfaces;
-using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
+using Functions = GatherBuddy.Plugin.Functions;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.GatherHelper;
@@ -95,7 +95,7 @@ public class GatherWindow : Window
             return;
         }
 
-        using var tt = ImRaii.NewTooltip();
+        using var tt = ImRaii.Tooltip();
 
         ImGui.Text(TooltipText(loc, time));
         ImGui.NewLine();
@@ -254,11 +254,9 @@ public class GatherWindow : Window
 
     public override void Draw()
     {
-        using var end = ImRaii.DeferredEnd(ImGui.End);
-        if (!ImGui.BeginTable("##table", GatherBuddy.Config.ShowGatherWindowTimers ? 2 : 1))
+        using var table = ImRaii.Table("##table", GatherBuddy.Config.ShowGatherWindowTimers ? 2 : 1);
+        if (!table)
             return;
-
-        end.Push(ImGui.EndTable);
 
         foreach (var (item, loc, time) in _data)
             DrawItem(item, loc, time);

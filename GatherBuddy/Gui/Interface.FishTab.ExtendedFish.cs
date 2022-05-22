@@ -353,7 +353,7 @@ public partial class Interface
                 {
                     style.Push(ImGuiStyleVar.ItemSpacing, Vector2.One);
                     ImGui.SameLine();
-                    using var _ = ImRaii.NewGroup();
+                    using var _ = ImRaii.Group();
                     style.Push(ImGuiStyleVar.FramePadding, Vector2.Zero);
                     ImGui.Image(bait.HookSet!.ImGuiHandle, smallIconSize);
                     using var color = ImRaii.PushColor(ImGuiCol.Button, bait.Bite.Item2);
@@ -391,7 +391,7 @@ public partial class Interface
             using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
             foreach (var predator in fish.Predators)
             {
-                using var group = ImRaii.NewGroup();
+                using var group = ImRaii.Group();
                 ImGui.Button(predator.Amount, size);
                 ImGui.SameLine();
                 ImGui.Image(predator.Icon.ImGuiHandle, size);
@@ -429,7 +429,7 @@ public partial class Interface
 
         public void SetTooltip(Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool standAlone = true)
         {
-            using var tooltip = standAlone ? ImRaii.NewTooltip() : null;
+            using var tooltip = standAlone ? ImRaii.Tooltip() : ImRaii.IEndObject.Empty;
             using var style   = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing * new Vector2(1f, 1.5f));
             PrintTime(this);
             PrintWeather(this, weatherIconSize);

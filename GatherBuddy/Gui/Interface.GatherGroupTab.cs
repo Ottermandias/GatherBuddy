@@ -15,6 +15,7 @@ using GatherBuddy.Config;
 using GatherBuddy.GatherGroup;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Plugin;
+using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -172,7 +173,7 @@ public partial class Interface
     {
         var       hour   = value / RealTime.MinutesPerHour;
         var       minute = value % RealTime.MinutesPerHour;
-        using var group  = ImRaii.NewGroup();
+        using var group  = ImRaii.Group();
         using var id     = ImRaii.PushId(label);
         ImGui.SetNextItemWidth(width);
         using var style  = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One * 2 * ImGuiHelpers.GlobalScale);
@@ -195,7 +196,7 @@ public partial class Interface
     private void DrawTimeInput(int fromValue, int toValue, Action<int, int> setter)
     {
         var       width = 20 * ImGuiHelpers.GlobalScale;
-        using var group = ImRaii.NewGroup();
+        using var group = ImRaii.Group();
 
         ImGui.Text(" from ");
         ImGui.SameLine();
@@ -308,10 +309,9 @@ public partial class Interface
         var times = _gatherGroupCache.UpdateItemPerMinute(group);
         DrawMissingTimesHint(times[0] > 0);
 
-        if (!ImGui.BeginTable("##nodes", 6, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollX))
+        using var table = ImRaii.Table("##nodes", 6, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.ScrollX);
+        if (!table)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndTable);
 
         for (var i = 0; i < group.Nodes.Count; ++i)
             DrawGatherGroupNode(group, ref i, times[i + 1]);
@@ -427,7 +427,7 @@ public partial class Interface
     private void DrawGatherGroupTab()
     {
         using var id  = ImRaii.PushId("Gather Groups");
-        var       tab = ImGui.BeginTabItem("Gather Groups");
+        using var tab = ImRaii.TabItem("Gather Groups");
 
         ImGuiUtil.HoverTooltip(
             "Do you really need to catch a Dirty Herry from 8PM to 10PM but gather mythril ore otherwise?\n"
@@ -435,8 +435,6 @@ public partial class Interface
 
         if (!tab)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _gatherGroupCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

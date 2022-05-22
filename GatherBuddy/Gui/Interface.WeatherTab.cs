@@ -161,14 +161,12 @@ public partial class Interface
     private void DrawWeatherTab()
     {
         using var id  = ImRaii.PushId("Weather");
-        var       ret = ImGui.BeginTabItem("Weather");
+        using var tab = ImRaii.TabItem("Weather");
         ImGuiUtil.HoverTooltip("Yes, 'Gloom' is weather.\n"
           + "See the weather forecast in all zones for the following days, as well as the last one.");
 
-        if (!ret)
+        if (!tab)
             return;
-
-        using var end = ImRaii.DeferredEnd(ImGui.EndTabItem);
 
         _weatherTable.Draw();
     }
