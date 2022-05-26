@@ -8,6 +8,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
+using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
@@ -31,9 +32,10 @@ public partial class Interface
 
         public struct Predator
         {
-            public TextureWrap Icon;
-            public string      Name;
-            public string      Amount;
+            public Fish         Fish;
+            public TextureWrap  Icon;
+            public string       Name;
+            public string       Amount;
         }
 
         public static class Bites
@@ -118,6 +120,7 @@ public partial class Interface
 
             return fish.Predators.Select(p => new Predator
             {
+                Fish   = p.Item1,
                 Amount = p.Item2.ToString(),
                 Name   = p.Item1.Name[GatherBuddy.Language],
                 Icon   = Icons.DefaultStorage[p.Item1.ItemData.Icon],
@@ -326,7 +329,7 @@ public partial class Interface
             }
         }
 
-        private static void PrintBait(ExtendedFish fish, Vector2 iconSize, Vector2 smallIconSize)
+        private static void PrintBait(ExtendedFish fish, Territory territory, Vector2 iconSize, Vector2 smallIconSize)
         {
             if (fish.Bait.Length == 0)
             {
@@ -364,8 +367,28 @@ public partial class Interface
                 ImGui.SameLine();
 
                 var pos = ImGui.GetCursorPosY();
+
+                var printed = false;
+                if (bait.Fish is Fish f)
+                {
+                    var uptime = GatherBuddy.UptimeManager.NextUptime(f, territory, GatherBuddy.Time.ServerTime);
+                    if (uptime != TimeInterval.Always)
+                    {
+                        using var group  = ImRaii.Group();
+                        var       offset = (smallIconSize.Y - ImGui.GetTextLineHeight()) / 2;
+                        ImGui.SetCursorPosY(pos + offset);
+                        ImGui.Text(bait.Name);
+                        ImGui.SetCursorPosY(pos + smallIconSize.Y + offset);
+                        DrawTimeInterval(uptime, false, false);
+                        printed = true;
+                    }
+                }
+
                 ImGui.SetCursorPosY(pos + (iconSize.Y - ImGui.GetTextLineHeight()) / 2);
-                ImGui.Text(bait.Name);
+                if (!printed)
+                {
+                    ImGui.Text(bait.Name);
+                }
                 if (bait.Equals(fish.Bait.Last()))
                     break;
 
@@ -378,15 +401,13 @@ public partial class Interface
             ImGui.SetCursorPos(startPos + new Vector2(0, size.Y + ImGui.GetStyle().ItemSpacing.Y));
         }
 
-        private static void PrintPredators(ExtendedFish fish, Vector2 iconSize)
+        private static void PrintPredators(ExtendedFish fish, Territory territory, Vector2 iconSize)
         {
             if (fish.Predators.Length == 0 && fish.Intuition.Length == 0)
                 return;
 
             var size   = iconSize / 1.5f;
             var offset = (size.Y - ImGui.GetTextLineHeight()) / 2f;
-            var length = ImGui.CalcTextSize(fish.Intuition).X;
-
             using var color = ImRaii.PushColor(ImGuiCol.Button, 0xFF0040C0);
             using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
             foreach (var predator in fish.Predators)
@@ -397,10 +418,15 @@ public partial class Interface
                 ImGui.Image(predator.Icon.ImGuiHandle, size);
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset);
-                ImGui.Text(predator.Name);
-                ImGui.SameLine();
-                length = Math.Max(length, ImGui.GetCursorPosX());
-                ImGui.NewLine();
+                ImGui.TextUnformatted(predator.Name);
+                var uptime = GatherBuddy.UptimeManager.NextUptime(predator.Fish, territory, GatherBuddy.Time.ServerTime);
+                if (uptime != TimeInterval.Always)
+                {
+                    style.Push(ImGuiStyleVar.ItemSpacing, new Vector2(10 * ImGuiHelpers.GlobalScale, 0));
+                    ImGui.SameLine();
+                    DrawTimeInterval(uptime, false, false);
+                    style.Pop();
+                }
             }
 
 
@@ -427,14 +453,14 @@ public partial class Interface
             ImGui.Button(fish.Patch);
         }
 
-        public void SetTooltip(Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool standAlone = true)
+        public void SetTooltip(Territory territory, Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool standAlone = true)
         {
             using var tooltip = standAlone ? ImRaii.Tooltip() : ImRaii.IEndObject.Empty;
             using var style   = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing * new Vector2(1f, 1.5f));
             PrintTime(this);
             PrintWeather(this, weatherIconSize);
-            PrintBait(this, iconSize, smallIconSize);
-            PrintPredators(this, iconSize);
+            PrintBait(this, territory, iconSize, smallIconSize);
+            PrintPredators(this, territory, iconSize);
             PrintFolklore(this);
         }
     }

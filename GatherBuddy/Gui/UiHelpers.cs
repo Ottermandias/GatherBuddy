@@ -58,7 +58,7 @@ public partial class Interface
         return changed;
     }
 
-    internal static void DrawTimeInterval(TimeInterval uptime, bool uptimeDependency = false)
+    internal static void DrawTimeInterval(TimeInterval uptime, bool uptimeDependency = false, bool rightAligned = true)
     {
         var active = uptime.ToTimeString(GatherBuddy.Time.ServerTime, false, out var timeString);
         var colorId = (active, uptimeDependency) switch
@@ -69,7 +69,10 @@ public partial class Interface
             (false, false) => ColorId.UpcomingItem.Value(),
         };
         using var color = ImRaii.PushColor(ImGuiCol.Text, colorId);
-        ImGuiUtil.RightAlign(timeString);
+        if (rightAligned)
+            ImGuiUtil.RightAlign(timeString);
+        else
+            ImGui.TextUnformatted(timeString);
         color.Pop();
         if ((uptimeDependency || !char.IsLetter(timeString[0])) && ImGui.IsItemHovered())
         {

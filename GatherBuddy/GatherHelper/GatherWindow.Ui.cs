@@ -99,7 +99,7 @@ public class GatherWindow : Window
 
         ImGui.Text(TooltipText(loc, time));
         ImGui.NewLine();
-        extendedFish.SetTooltip(ImGuiHelpers.ScaledVector2(40, 40), ImGuiHelpers.ScaledVector2(20, 20), ImGuiHelpers.ScaledVector2(30, 30),
+        extendedFish.SetTooltip(loc?.Territory ?? Territory.Invalid, ImGuiHelpers.ScaledVector2(40, 40), ImGuiHelpers.ScaledVector2(20, 20), ImGuiHelpers.ScaledVector2(30, 30),
             false);
     }
 
