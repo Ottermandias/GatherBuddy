@@ -131,6 +131,9 @@ public partial class Interface
 
         private sealed class ItemColumn : ColumnString<ILocation>
         {
+            public ItemColumn()
+                => Flags |= ImGuiTableColumnFlags.WidthStretch;
+
             public override string ToName(ILocation location)
                 => string.Join(", ", location.Gatherables.Select(g => g.Name[GatherBuddy.Language]));
 

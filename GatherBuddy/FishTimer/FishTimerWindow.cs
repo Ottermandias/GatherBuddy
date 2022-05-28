@@ -25,6 +25,7 @@ public partial class FishTimerWindow : Window
     private          FishingSpot? _spot;
     private          FishCache[]  _availableFish = Array.Empty<FishCache>();
     private readonly FishRecorder _recorder;
+    private readonly int          _maxNumLines = GatherBuddy.GameData.FishingSpots.Values.Where(f => !f.Spearfishing).Max(f => f.Items.Length);
 
     private float   _lineHeight;
     private Vector2 _iconSize    = Vector2.Zero;
@@ -156,18 +157,18 @@ public partial class FishTimerWindow : Window
 
     public override void PreDraw()
     {
+        _itemSpacing = new Vector2(0, ImGuiHelpers.GlobalScale);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
         _lineHeight    = ImGui.GetFrameHeight();
         _iconSize      = new Vector2(_lineHeight);
-        _itemSpacing   = new Vector2(0, ImGuiHelpers.GlobalScale);
         _textLines     = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGuiHelpers.GlobalScale;
-        _maxListHeight = 10 * (_lineHeight + _itemSpacing.Y) + _textLines;
+        _maxListHeight = _maxNumLines * (_lineHeight + _itemSpacing.Y) + _textLines;
         _listHeight    = _availableFish.Length * (_lineHeight + _itemSpacing.Y) + _textLines;
         SizeConstraints = new WindowSizeConstraints
         {
-            MinimumSize = new Vector2(225 * ImGuiHelpers.GlobalScale,  _maxListHeight),
-            MaximumSize = new Vector2(2000 * ImGuiHelpers.GlobalScale, _maxListHeight),
+            MinimumSize = new Vector2(225,  _maxListHeight / ImGuiHelpers.GlobalScale),
+            MaximumSize = new Vector2(2000, _maxListHeight / ImGuiHelpers.GlobalScale),
         };
         Flags = GatherBuddy.Config.FishTimerEdit ? EditFlags : NormalFlags;
     }
