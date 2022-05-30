@@ -50,6 +50,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             ShowStatusLine         { get; set; } = true;
     public ModifiableHotkey MainInterfaceHotkey    { get; set; } = new();
     public bool             PlaceCustomWaymarks    { get; set; } = true;
+    public GatheringType    PreferredGatheringType { get; set; } = GatheringType.Multiple;
 
     // Weather tab
     public bool ShowWeatherNames { get; set; } = true;

@@ -134,6 +134,11 @@ public class Executor
             return;
 
         _location = null;
+        if (GatherBuddy.Config.PreferredGatheringType != GatheringType.Multiple
+         && _gatheringType == null
+         && _item is Gatherable { GatheringType: GatheringType.Multiple })
+            _gatheringType = GatherBuddy.Config.PreferredGatheringType;
+
         (_location, _uptime) = (_keepVisitedLocations, _gatheringType) switch
         {
             (false, null)     => GatherBuddy.UptimeManager.BestLocation(_item),

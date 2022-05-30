@@ -2,6 +2,7 @@
 using System.Numerics;
 using Dalamud.Game.Text;
 using GatherBuddy.Config;
+using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
 using ImGuiNET;
 using OtterGui;
@@ -129,6 +130,38 @@ public partial class Interface
                     else
                         _plugin.ContextMenu.Disable();
                 });
+
+        public static void DrawPreferredJobSelect()
+        {
+            var v       = GatherBuddy.Config.PreferredGatheringType;
+            var current = v == GatheringType.Multiple ? "No Preference" : v.ToString();
+            ImGui.SetNextItemWidth(SetInputWidth);
+            using var combo = ImRaii.Combo("Preferred Job", current);
+            ImGuiUtil.HoverTooltip(
+                "Choose your job preference when gathering items that can be gathered by miners as well as botanists.\n"
+              + "This effectively turns the regular gather command to /gathermin or /gatherbtn when an item can be gathered by both, "
+              + "ignoring the other options even on successive tries.");
+            if (!combo)
+                return;
+
+            if (ImGui.Selectable("No Preference", v == GatheringType.Multiple) && v != GatheringType.Multiple)
+            {
+                GatherBuddy.Config.PreferredGatheringType = GatheringType.Multiple;
+                GatherBuddy.Config.Save();
+            }
+
+            if (ImGui.Selectable(GatheringType.Miner.ToString(), v == GatheringType.Miner) && v != GatheringType.Miner)
+            {
+                GatherBuddy.Config.PreferredGatheringType = GatheringType.Miner;
+                GatherBuddy.Config.Save();
+            }
+
+            if (ImGui.Selectable(GatheringType.Botanist.ToString(), v == GatheringType.Botanist) && v != GatheringType.Botanist)
+            {
+                GatherBuddy.Config.PreferredGatheringType = GatheringType.Botanist;
+                GatherBuddy.Config.Save();
+            }
+        }
 
         public static void DrawPrintClipboardBox()
             => DrawCheckbox("Print Clipboard Information",
@@ -415,6 +448,7 @@ public partial class Interface
         {
             if (ImGui.TreeNodeEx("Gather Command"))
             {
+                ConfigFunctions.DrawPreferredJobSelect();
                 ConfigFunctions.DrawGearChangeBox();
                 ConfigFunctions.DrawTeleportBox();
                 ConfigFunctions.DrawMapMarkerOpenBox();
@@ -437,6 +471,7 @@ public partial class Interface
             {
                 ConfigFunctions.DrawAlarmToggle();
                 ConfigFunctions.DrawAlarmsInDutyToggle();
+                ConfigFunctions.DrawAlarmsOnlyWhenLoggedInToggle();
                 ImGui.TreePop();
             }
 
