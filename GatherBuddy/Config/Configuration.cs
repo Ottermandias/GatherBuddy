@@ -102,6 +102,7 @@ public partial class Configuration : IPluginConfiguration
     public ModifiableHotkey GatherWindowHotkey             { get; set; } = new(VirtualKey.G, VirtualKey.CONTROL);
     public ModifierHotkey   GatherWindowDeleteModifier     { get; set; } = VirtualKey.CONTROL;
     public VirtualKey       GatherWindowHoldKey            { get; set; } = VirtualKey.MENU;
+    public bool             GatherWindowRFC3339HoverDates      { get; set; } = true;
 
     public void Save()
         => Dalamud.PluginInterface.SavePluginConfig(this);

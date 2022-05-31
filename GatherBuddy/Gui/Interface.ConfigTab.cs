@@ -393,6 +393,12 @@ public partial class Interface
                 GatherBuddy.Config.Save();
         }
 
+        //mystuff
+        public static void DrawGatherWindowDateFormatInput()            
+            => DrawCheckbox("Use RFC3339 date format while hovering",
+                "i.e. 2022-01-31 23:30:00",
+                GatherBuddy.Config.GatherWindowRFC3339HoverDates, b => GatherBuddy.Config.GatherWindowRFC3339HoverDates = b);
+
 
         public static void DrawAetherytePreference()
         {
@@ -530,6 +536,7 @@ public partial class Interface
                 ConfigFunctions.DrawGatherWindowLockBox();
                 ConfigFunctions.DrawGatherWindowHotkeyInput();
                 ConfigFunctions.DrawGatherWindowDeleteModifierInput();
+                ConfigFunctions.DrawGatherWindowDateFormatInput();
                 ImGui.TreePop();
             }
 
