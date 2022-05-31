@@ -136,7 +136,4 @@ public readonly struct TimeStamp : IComparable<TimeStamp>, IEquatable<TimeStamp>
 
     public override string ToString()
         => LocalTime.ToString(CultureInfo.InvariantCulture);
-
-    public string ToString(string dateFormat)
-        => LocalTime.ToString(dateFormat, CultureInfo.InvariantCulture);
 }

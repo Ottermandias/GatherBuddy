@@ -70,8 +70,8 @@ public class GatherWindow : Window
             ? "Unknown Location\nUnknown Territory\nUnknown Aetheryte\n"
             : $"{loc.Name}\n{loc.Territory.Name}\n{loc.ClosestAetheryte?.Name ?? "No Aetheryte"}\n");
 
-        string startStr = GatherBuddy.Config.GatherWindowRFC3339HoverDates ? time.End.ToString("yyyy-MM-dd HH:mm:ss") : time.End.ToString();
-        string endStr = GatherBuddy.Config.GatherWindowRFC3339HoverDates ? time.Start.ToString("yyyy-MM-dd HH:mm:ss") : time.Start.ToString();
+        string startStr = GatherBuddy.Config.GatherWindowRFC3339HoverDates ? time.End.LocalTime.ToString("yyyy-MM-dd HH:mm:ss") : time.End.ToString();
+        string endStr = GatherBuddy.Config.GatherWindowRFC3339HoverDates ? time.Start.LocalTime.ToString("yyyy-MM-dd HH:mm:ss") : time.Start.ToString();
 
         sb.Append(time.Equals(TimeInterval.Always)
             ? "Always Up"
