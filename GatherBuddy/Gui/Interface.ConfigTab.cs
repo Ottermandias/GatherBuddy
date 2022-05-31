@@ -395,7 +395,7 @@ public partial class Interface
 
         //mystuff
         public static void DrawGatherWindowDateFormatInput()            
-            => DrawCheckbox("Use RFC3339 date format while hovering",
+            => DrawCheckbox("Use YYYY-MM-DD date format while hovering a timed item",
                 "i.e. 2022-01-31 23:30:00",
                 GatherBuddy.Config.GatherWindowRFC3339HoverDates, b => GatherBuddy.Config.GatherWindowRFC3339HoverDates = b);
 
