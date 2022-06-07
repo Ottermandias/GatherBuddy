@@ -42,11 +42,11 @@ public static partial class Fish
             .Bait(data, 36593)
             .Bite(HookSet.Powerful, BiteType.Strong);
         data.Apply(36659, Patch.NewfoundAdventure) // Inksquid
-            ;
+            .Spear(SpearfishSize.Average, SpearfishSpeed.Average);
         data.Apply(36660, Patch.NewfoundAdventure) // Seedtoad
             ;
         data.Apply(36661, Patch.NewfoundAdventure) // Auroral Clam
-            ;
+            .Spear(SpearfishSize.Small, SpearfishSpeed.ExtremelySlow);
         data.Apply(36662, Patch.NewfoundAdventure) // Holier-than Mogpom
             ;
         data.Apply(36663, Patch.NewfoundAdventure) // Chalky Coral
