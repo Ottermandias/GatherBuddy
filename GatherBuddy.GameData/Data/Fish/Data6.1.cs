@@ -50,10 +50,10 @@ public static partial class Fish
             .Spear(SpearfishSize.Small, SpearfishSpeed.ExtremelySlow);
         data.Apply(36662, Patch.NewfoundAdventure) // Holier-than Mogpom
             .Bait(data, 28634)
-            .Bite(Hookset.Powerful, BiteType.Strong);
+            .Bite(HookSet.Powerful, BiteType.Strong);
         data.Apply(36663, Patch.NewfoundAdventure) // Chalky Coral
             .Bait(data, 28634)
-            .Bite(Hookset.Precise, BiteType.Weak);
+            .Bite(HookSet.Precise, BiteType.Weak);
     }
     // @formatter:on
 }
