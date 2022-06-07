@@ -41,6 +41,16 @@ public static partial class Fish
         data.Apply(36686, Patch.NewfoundAdventure) // Thavnairian Calamari
             .Bait(data, 36593)
             .Bite(HookSet.Powerful, BiteType.Strong);
+        data.Apply(36659, Patch.NewfoundAdventure) // Inksquid
+            ;
+        data.Apply(36660, Patch.NewfoundAdventure) // Seedtoad
+            ;
+        data.Apply(36661, Patch.NewfoundAdventure) // Auroral Clam
+            ;
+        data.Apply(36662, Patch.NewfoundAdventure) // Holier-than Mogpom
+            ;
+        data.Apply(36663, Patch.NewfoundAdventure) // Chalky Coral
+            ;
     }
     // @formatter:on
 }
