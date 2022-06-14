@@ -47,7 +47,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
         => _fishData is SpearFishRow;
 
     public bool IsBigFish
-        => FishData?.Unknown5 ?? false;
+        => BigFishOverride.Value ?? FishData?.Unknown5 ?? false;
 
     public bool OceanFish
         => (FishData?.TerritoryType.Row ?? 0) == 900;
