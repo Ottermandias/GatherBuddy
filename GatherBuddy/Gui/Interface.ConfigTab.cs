@@ -247,6 +247,24 @@ public partial class Interface
             GatherBuddy.Config.Save();
         }
 
+        public static void DrawFishTimerIntervals()
+        {
+            int value = GatherBuddy.Config.ShowSecondIntervals;
+            ImGui.SetNextItemWidth(SetInputWidth);
+            var ret = ImGui.DragInt("Fish Timer Interval Separators", ref value, 0.01f, 0, 16);
+            ImGuiUtil.HoverTooltip("The fishing timer window can show a number of interval lines and corresponding seconds between 0 and 16.\n"
+              + "Set to 0 to turn this feature off.");
+            if (!ret)
+                return;
+
+            var newValue = (byte)Math.Clamp(value, 0, 16);
+            if (newValue == GatherBuddy.Config.ShowSecondIntervals)
+                return;
+
+            GatherBuddy.Config.ShowSecondIntervals = newValue;
+            GatherBuddy.Config.Save();
+        }
+
         public static void DrawHideFishPopupBox()
             => DrawCheckbox("Hide Catch Popup",
                 "Prevents the popup window that shows you your caught fish and its size, amount and quality from being shown.",
@@ -513,6 +531,7 @@ public partial class Interface
                 ConfigFunctions.DrawFishTimerHideBox2();
                 ConfigFunctions.DrawFishTimerUptimesBox();
                 ConfigFunctions.DrawFishTimerScale();
+                ConfigFunctions.DrawFishTimerIntervals();
                 ConfigFunctions.DrawHideFishPopupBox();
                 ImGui.TreePop();
             }

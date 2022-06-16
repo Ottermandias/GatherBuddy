@@ -84,6 +84,26 @@ public partial class FishTimerWindow : Window
             .AddLine(start, end, ColorId.FishTimerProgress.Value(), 3 * ImGuiHelpers.GlobalScale);
     }
 
+    private void DrawSecondLines()
+    {
+        if (GatherBuddy.Config.ShowSecondIntervals == 0)
+            return;
+
+        var increment = (_windowSize.X - _iconSize.X) / (GatherBuddy.Config.ShowSecondIntervals + 1);
+        var baseLine  = _windowPos with { X = _windowPos.X + _iconSize.X + 2 };
+        var drawList  = ImGui.GetWindowDrawList();
+        var time      = GatherBuddy.Config.FishTimerScale / (GatherBuddy.Config.ShowSecondIntervals + 1) ;
+        var color     = ColorId.FishTimerIntervals.Value();
+        for (byte i = 1; i <= GatherBuddy.Config.ShowSecondIntervals; ++i)
+        {
+            var start = baseLine + new Vector2(increment * i, _textLines);
+            var end   = start with { Y = baseLine.Y + _listHeight - 2 * ImGuiHelpers.GlobalScale };
+            drawList.AddLine(start, end, color, 2 * ImGuiHelpers.GlobalScale);
+            var t = (i * time / 1000).ToString();
+            drawList.AddText(end with {X = end.X - ImGui.CalcTextSize(t).X / 2 }, color, t);
+        }
+    }
+
     private void DrawTextHeader(string bait, string spot, int milliseconds)
     {
         var drawList = ImGui.GetWindowDrawList();
@@ -205,6 +225,7 @@ public partial class FishTimerWindow : Window
         else
         {
             DrawTextHeader(_recorder.Record.Bait.Name, _spot?.Name ?? "Unknown", _milliseconds);
+            DrawSecondLines();
             foreach (var fish in _availableFish)
                 fish.Draw(this);
 
