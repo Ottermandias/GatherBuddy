@@ -67,7 +67,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29719, Patch.EchoesOfAFallenStar) // Jasperhead
             .Bait      (data, 29715)
-            .Bite      (HookSet.Strong, BiteType.Powerful);
+            .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29720, Patch.EchoesOfAFallenStar) // Merlthor Lobster
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -75,7 +75,7 @@ public static partial class Fish
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29722, Patch.EchoesOfAFallenStar) // Ghoul Barracuda
-            .Bait      (data, ?)
+            .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29723, Patch.EchoesOfAFallenStar) // Leopard Eel
             .Bait      (data, 29716)

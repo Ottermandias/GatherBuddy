@@ -7,6 +7,7 @@ using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
+using OtterGui;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.FishTimer;
@@ -92,15 +93,17 @@ public partial class FishTimerWindow : Window
         var increment = (_windowSize.X - _iconSize.X) / (GatherBuddy.Config.ShowSecondIntervals + 1);
         var baseLine  = _windowPos with { X = _windowPos.X + _iconSize.X + 2 };
         var drawList  = ImGui.GetWindowDrawList();
-        var time      = GatherBuddy.Config.FishTimerScale / (GatherBuddy.Config.ShowSecondIntervals + 1) ;
-        var color     = ColorId.FishTimerIntervals.Value();
+        var time      = GatherBuddy.Config.FishTimerScale / (GatherBuddy.Config.ShowSecondIntervals + 1);
+        var scale     = Vector2.UnitX * ImGuiHelpers.GlobalScale;
         for (byte i = 1; i <= GatherBuddy.Config.ShowSecondIntervals; ++i)
         {
             var start = baseLine + new Vector2(increment * i, _textLines);
             var end   = start with { Y = baseLine.Y + _listHeight - 2 * ImGuiHelpers.GlobalScale };
-            drawList.AddLine(start, end, color, 2 * ImGuiHelpers.GlobalScale);
+            drawList.AddLine(start - scale, end - scale, 0x80000000, ImGuiHelpers.GlobalScale);
+            drawList.AddLine(start,         end,         0xFFFFFFFF, ImGuiHelpers.GlobalScale);
+            drawList.AddLine(start + scale, end + scale, 0x80000000, ImGuiHelpers.GlobalScale);
             var t = (i * time / 1000).ToString();
-            drawList.AddText(end with {X = end.X - ImGui.CalcTextSize(t).X / 2 }, color, t);
+            ImGuiUtil.TextShadowed(end with { X = end.X - ImGui.CalcTextSize(t).X / 2 }, t, 0xFFFFFFFF, 0x80000000);
         }
     }
 
