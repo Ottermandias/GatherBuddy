@@ -90,7 +90,7 @@ public static partial class Fish
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29727, Patch.EchoesOfAFallenStar) // Gladius
-            .Bait      (data, 29722)
+            .Bait      (data, 29715, 29722)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29728, Patch.EchoesOfAFallenStar) // Rhotano Wahoo
             .Bait      (data, 29715)
@@ -138,20 +138,24 @@ public static partial class Fish
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29743, Patch.EchoesOfAFallenStar) // Elder Dinichthys
-            .Bait      (data, 29718)
+            .Bait      (data, 29714, 29718)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29744, Patch.EchoesOfAFallenStar) // Drunkfish
             .Bait      (data, 29715)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 60, (28938, 3));
         data.Apply     (29745, Patch.EchoesOfAFallenStar) // Little Leviathan
             .Bait      (data, 29716)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 60, (29727, 1));
         data.Apply     (29746, Patch.EchoesOfAFallenStar) // Sabaton
             .Bait      (data, 29715)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 60, (29731, 2));
         data.Apply     (29747, Patch.EchoesOfAFallenStar) // Shooting Star
             .Bait      (data, 29714)
-            .Bite      (HookSet.Precise, BiteType.Legendary);
+            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Predators (data, 60, (29743, 1));
         data.Apply     (29748, Patch.EchoesOfAFallenStar) // Hammerclaw
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -183,7 +187,7 @@ public static partial class Fish
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29758, Patch.EchoesOfAFallenStar) // Great Grandmarlin
-            .Bait      (data, 29761)
+            .Bait      (data, 29714, 29761)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29759, Patch.EchoesOfAFallenStar) // Shipwreck's Sail
             .Bait      (data, 29716)
@@ -198,13 +202,13 @@ public static partial class Fish
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29763, Patch.EchoesOfAFallenStar) // Aetheric Seadragon
-            .Bait      (data, 29761)
+            .Bait      (data, 29714, 29761)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29764, Patch.EchoesOfAFallenStar) // Coral Seadragon
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29765, Patch.EchoesOfAFallenStar) // Roguesaurus
-            .Bait      (data, 29761)
+            .Bait      (data, 29714, 29761)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (29766, Patch.EchoesOfAFallenStar) // Merman's Mane
             .Bait      (data, 29715)
@@ -274,16 +278,20 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (29788, Patch.EchoesOfAFallenStar) // Sothis
             .Bait      (data, 2603)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 15, (29749, 2), (29752, 1));
         data.Apply     (29789, Patch.EchoesOfAFallenStar) // Coral Manta
             .Bait      (data, 2613)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 15, (29758, 2));
         data.Apply     (29790, Patch.EchoesOfAFallenStar) // Stonescale
             .Bait      (data, 2591)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 15, (29769, 1), (29768, 1));
         data.Apply     (29791, Patch.EchoesOfAFallenStar) // Elasmosaurus
             .Bait      (data, 2619)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 15, (29781, 3));
         data.Apply     (29994, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Cloudskipper
             .Bait      (data);
         data.Apply     (29995, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Meditator
