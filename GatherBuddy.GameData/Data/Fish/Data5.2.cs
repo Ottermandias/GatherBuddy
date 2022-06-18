@@ -76,7 +76,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29722, Patch.EchoesOfAFallenStar) // Ghoul Barracuda
             .Bait      (data, 29715)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29723, Patch.EchoesOfAFallenStar) // Leopard Eel
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong);
