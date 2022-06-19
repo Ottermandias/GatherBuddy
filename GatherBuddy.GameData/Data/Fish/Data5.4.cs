@@ -231,7 +231,7 @@ public static partial class Fish
         data.Apply     (32114, Patch.FuturesRewritten) // Placodus
             .Bait      (data, 29714, 32107)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Predators (data, 15, (32110, 1));
+            .Predators (data, 45, (32110, 1));
         data.Apply     (32882, Patch.FuturesRewritten) // Grade 4 Skybuilders' Zagas Khaal
             .Bait      (data);
         data.Apply     (32883, Patch.FuturesRewritten) // Grade 4 Skybuilders' Goldsmith Crab
