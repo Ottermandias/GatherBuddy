@@ -10,7 +10,7 @@ namespace GatherBuddy.FishTimer;
 
 public struct FishRecord
 {
-    public const ushort MinBiteTime        = 3000;
+    public const ushort MinBiteTime        = 1000;
     public const ushort MaxBiteTime        = 65000;
     public const byte   Version            = 1;
     public const int    Version1ByteLength = 4 + 4 + 4 + 4 + 4 + 2 + 2 + 2 + 2 + 2 + 1 + 1;
