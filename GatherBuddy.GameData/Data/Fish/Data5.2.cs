@@ -176,7 +176,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29754, Patch.EchoesOfAFallenStar) // Fishmonger
             .Bait      (data, 29716)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29755, Patch.EchoesOfAFallenStar) // Mythril Sovereign
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong);
