@@ -420,7 +420,8 @@ public static partial class Fish
         data.Apply     (20143, Patch.Stormblood) // Little Perykos
             .Bait      (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Weather   (data, 7, 8);
+            .Weather   (data, 7, 8)
+            .ForceBig  (true);
         data.Apply     (20144, Patch.Stormblood) // Wentletrap
             .Spear     (SpearfishSize.Small, SpearfishSpeed.ExtremelySlow);
         data.Apply     (20145, Patch.Stormblood) // Black Boxfish

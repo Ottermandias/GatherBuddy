@@ -172,6 +172,15 @@ public static partial class Fish
         return fish;
     }
 
+    private static Classes.Fish? ForceBig(this Classes.Fish? fish, bool value)
+    {
+        if (fish == null)
+            return null;
+
+        fish.BigFishOverride = value;
+        return fish;
+    }
+
 
     internal static void Apply(GameData data)
     {

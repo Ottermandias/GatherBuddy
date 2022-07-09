@@ -77,6 +77,7 @@ public partial class Configuration : IPluginConfiguration
     public bool   ShowFishTimerUptimes { get; set; } = true;
     public bool   HideFishSizePopup    { get; set; } = false;
     public ushort FishTimerScale       { get; set; } = 40000;
+    public byte   ShowSecondIntervals  { get; set; } = 7;
 
     // Spearfish Helper
     public bool ShowSpearfishHelper          { get; set; } = true;

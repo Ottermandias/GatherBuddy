@@ -211,7 +211,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (12772, Patch.Heavensward) // Cindersmith
             .Bait      (data, 12709)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (HookSet.Precise, BiteType.Weak)
             .Snag      (Snagging.Required);
         data.Apply     (12773, Patch.Heavensward) // Bullwhip
             .Bait      (data, 12710)
