@@ -347,6 +347,8 @@ public partial class Interface
                 ImGui.SameLine();
             }
 
+            var offsetSmall = (smallIconSize.Y - ImGui.GetTextLineHeight()) / 2;
+            var offsetBig = (iconSize.Y - ImGui.GetTextLineHeight()) / 2;
             foreach (var bait in fish.Bait)
             {
                 size = iconSize;
@@ -375,27 +377,26 @@ public partial class Interface
                     if (uptime != TimeInterval.Always)
                     {
                         using var group  = ImRaii.Group();
-                        var       offset = (smallIconSize.Y - ImGui.GetTextLineHeight()) / 2;
-                        ImGui.SetCursorPosY(pos + offset);
-                        ImGui.Text(bait.Name);
-                        ImGui.SetCursorPosY(pos + smallIconSize.Y + offset);
+                        ImGui.SetCursorPosY(pos + offsetSmall);
+                        ImGui.TextUnformatted(bait.Name);
+                        ImGui.SetCursorPosY(pos + smallIconSize.Y + offsetSmall);
                         DrawTimeInterval(uptime, false, false);
                         printed = true;
                     }
                 }
 
-                ImGui.SetCursorPosY(pos + (iconSize.Y - ImGui.GetTextLineHeight()) / 2);
+                ImGui.SetCursorPosY(pos + offsetBig);
                 if (!printed)
                 {
-                    ImGui.Text(bait.Name);
+                    ImGui.TextUnformatted(bait.Name);
                 }
                 if (bait.Equals(fish.Bait.Last()))
                     break;
 
                 ImGui.SameLine();
-                ImGui.Text(" → ");
+                ImGui.SetCursorPosY(pos + offsetBig);
+                ImGui.TextUnformatted(" → ");
                 ImGui.SameLine();
-                ImGui.SetCursorPosY(pos);
             }
 
             ImGui.SetCursorPos(startPos + new Vector2(0, size.Y + ImGui.GetStyle().ItemSpacing.Y));
@@ -406,27 +407,32 @@ public partial class Interface
             if (fish.Predators.Length == 0 && fish.Intuition.Length == 0)
                 return;
 
-            var size   = iconSize / 1.5f;
-            var offset = (size.Y - ImGui.GetTextLineHeight()) / 2f;
-            using var color = ImRaii.PushColor(ImGuiCol.Button, 0xFF0040C0);
-            using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.One);
+            using var color  = ImRaii.PushColor(ImGuiCol.Button, 0xFF0040C0);
+            using var style  = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing with {X = ImGuiHelpers.GlobalScale});
+            var       size   = iconSize / 1.5f;
+            var       offset = (size.Y - ImGui.GetTextLineHeightWithSpacing()) / 2f;
             foreach (var predator in fish.Predators)
             {
+                var       pos   = ImGui.GetCursorPosY();
                 using var group = ImRaii.Group();
                 ImGui.Button(predator.Amount, size);
                 ImGui.SameLine();
                 ImGui.Image(predator.Icon.ImGuiHandle, size);
+                style.Push(ImGuiStyleVar.ItemSpacing, new Vector2(3 * ImGuiHelpers.GlobalScale, 0));
                 ImGui.SameLine();
-                ImGui.SetCursorPosY(ImGui.GetCursorPosY() + offset);
+                ImGui.SetCursorPosY(pos + offset);
                 ImGui.TextUnformatted(predator.Name);
                 var uptime = GatherBuddy.UptimeManager.NextUptime(predator.Fish, territory, GatherBuddy.Time.ServerTime);
                 if (uptime != TimeInterval.Always)
                 {
                     style.Push(ImGuiStyleVar.ItemSpacing, new Vector2(10 * ImGuiHelpers.GlobalScale, 0));
                     ImGui.SameLine();
+                    ImGui.SetCursorPosY(pos + offset);
                     DrawTimeInterval(uptime, false, false);
                     style.Pop();
                 }
+
+                style.Pop();
             }
 
 
