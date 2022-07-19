@@ -317,7 +317,7 @@ public partial class Interface
         }
 
         public LocationTable()
-            : base("##LocationTable", _plugin.LocationManager.AllLocations, ImGui.GetFrameHeight(), _nameColumn,
+            : base("##LocationTable", _plugin.LocationManager.AllLocations, _nameColumn,
                 _typeColumn, _aetheryteColumn, _xCoordColumn, _yCoordColumn, _markerColumn, _territoryColumn, _itemColumn)
         { }
     }
@@ -334,6 +334,6 @@ public partial class Interface
         if (!tab)
             return;
 
-        _locationTable.Draw();
+        _locationTable.Draw(ImGui.GetFrameHeightWithSpacing());
     }
 }

@@ -24,7 +24,7 @@ public partial class Interface
         public const string FileNamePopup = "FileNamePopup";
 
         public RecordTable()
-            : base("Fish Records", _plugin.FishRecorder.Records, TextHeight, _catchHeader, _baitHeader, _durationHeader, _castStartHeader,
+            : base("Fish Records", _plugin.FishRecorder.Records, _catchHeader, _baitHeader, _durationHeader, _castStartHeader,
                 _biteTypeHeader, _hookHeader, _amountHeader, _spotHeader, _contentIdHeader, _gatheringHeader, _perceptionHeader, _sizeHeader,
                 _flagHeader)
             => Flags |= ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
@@ -485,7 +485,7 @@ public partial class Interface
         if (!tab)
             return;
 
-        _recordTable.Draw();
+        _recordTable.Draw(ImGui.GetTextLineHeightWithSpacing());
         if (ImGui.Button("Cleanup"))
         {
             _plugin.FishRecorder.RemoveDuplicates();

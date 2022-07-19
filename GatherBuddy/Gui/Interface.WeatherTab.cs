@@ -26,7 +26,7 @@ public partial class Interface
         private        bool  _weathersDirty        = true;
 
         public WeatherTable()
-            : base("WeatherTable", CachedWeather.CreateWeatherCache(), ImGui.GetFrameHeightWithSpacing(),
+            : base("WeatherTable", CachedWeather.CreateWeatherCache(),
                 Enumerable.Range(0, CachedWeather.NumWeathers).Select(i => (Column<CachedWeather>)new WeatherHeader(i))
                     .Prepend(new ZoneHeader()).ToArray())
         {
@@ -168,6 +168,6 @@ public partial class Interface
         if (!tab)
             return;
 
-        _weatherTable.Draw();
+        _weatherTable.Draw(WeatherIconSize.Y + ImGui.GetStyle().ItemSpacing.Y);
     }
 }

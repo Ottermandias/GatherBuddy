@@ -56,7 +56,7 @@ public partial class Interface
         }
 
         public FishTable()
-            : base("##FishTable", ExtendedFishList.Count > 0 ? _extendedFishList! : new List<ExtendedFish>(), TextHeight, _nameColumn,
+            : base("##FishTable", ExtendedFishList.Count > 0 ? _extendedFishList! : new List<ExtendedFish>(), _nameColumn,
                 _caughtColumn, _nextUptimeColumn, _uptimeColumn,
                 _baitColumn, _bestSpotColumn, _typeColumn, _patchColumn, _folkloreColumn, _aetheryteColumn, _bestZoneColumn, _itemIdColumn,
                 _fishIdColumn)
@@ -508,7 +508,7 @@ public partial class Interface
             return;
 
         _fishTable.ExtraHeight = GatherBuddy.Config.ShowStatusLine ? ImGui.GetTextLineHeight() : 0;
-        _fishTable.Draw();
+        _fishTable.Draw(ImGui.GetTextLineHeightWithSpacing());
         DrawStatusLine(_fishTable, "Fish");
         DrawClippy();
     }

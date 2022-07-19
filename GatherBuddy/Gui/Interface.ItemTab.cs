@@ -395,7 +395,7 @@ public partial class Interface
         public ItemTable()
             : base("ItemTable",
                 GatherBuddy.GameData.Gatherables.Values.Where(g => g.GatheringType != GatheringType.Unknown)
-                    .Select(g => new ExtendedGatherable(g)).ToList(), TextHeight, _nameColumn, _nextUptimeColumn, _aetheryteColumn,
+                    .Select(g => new ExtendedGatherable(g)).ToList(), _nameColumn, _nextUptimeColumn, _aetheryteColumn,
                 _levelColumn, _jobColumn, _typeColumn, _expansionColumn, _folkloreColumn, _uptimesColumn, _bestNodeColumn, _bestZoneColumn,
                 _itemIdColumn, _gatheringIdColumn)
         {
@@ -431,7 +431,7 @@ public partial class Interface
             return;
 
         _itemTable.ExtraHeight = GatherBuddy.Config.ShowStatusLine ? ImGui.GetTextLineHeight() : 0;
-        _itemTable.Draw();
+        _itemTable.Draw(ImGui.GetTextLineHeightWithSpacing());
         DrawStatusLine(_itemTable, "Items");
         DrawClippy();
     }
