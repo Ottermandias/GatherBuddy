@@ -272,7 +272,7 @@ public struct FishRecord
         if (!Flags.HasFlag(Effects.Patience) && !Flags.HasFlag(Effects.Patience2) && Hook is HookSet.Powerful or HookSet.Precise)
             return false;
 
-        if (Amount > 1 && Hook is not HookSet.DoubleHook or HookSet.TripleHook)
+        if (Amount > 1 && Hook is not (HookSet.DoubleHook or HookSet.TripleHook))
             return false;
 
         if (_catch != 0 && Flags.HasFlag(Effects.PrizeCatch) && !Flags.HasFlag(Effects.Large))
