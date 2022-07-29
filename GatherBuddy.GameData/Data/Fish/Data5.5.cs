@@ -37,7 +37,7 @@ public static partial class Fish
             .Bait      (data, 27584)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (0, 120)
-            .Predators (data, 350, (27462, 10))
+            .Predators (data, 360, (27462, 10))
             .Transition(data, 11)
             .Weather   (data, 14);
         data.Apply     (33242, Patch.DeathUntoDawn) // Ealad Skaan

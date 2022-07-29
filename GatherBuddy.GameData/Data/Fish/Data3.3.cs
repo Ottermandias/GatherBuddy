@@ -8,7 +8,7 @@ public static partial class Fish
     private static void ApplyRevengeOfTheHorde(this GameData data)
     {
         data.Apply     (15439, Patch.RevengeOfTheHorde) // Magic Bucket
-            .Bait      (data, 12711)
+            .Bait      (data, 29717)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Snag      (Snagging.Required);
         data.Apply     (15626, Patch.RevengeOfTheHorde) // Fat Purse
@@ -59,7 +59,7 @@ public static partial class Fish
         data.Apply     (15638, Patch.RevengeOfTheHorde) // Aphotic Pirarucu
             .Bait      (data, 12705, 12777)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1320, 120)
+            .Time      (1260, 120)
             .Weather   (data, 3);
     }
     // @formatter:on

@@ -28,7 +28,7 @@ public static partial class Fish
             .Transition(data, 16, 15)
             .Weather   (data, 16);
         data.Apply     (16746, Patch.SoulSurrender) // Flarefish
-            .Bait      (data, 12705, 12715)
+            .Bait      (data, 28634, 12715)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (600, 960)
             .Weather   (data, 16);

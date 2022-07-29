@@ -15,7 +15,7 @@ public static partial class Fish
             .Bait(data, 36591)
             .Weather(data, 3)
             .Bite(HookSet.Powerful, BiteType.Legendary)
-            .Time(1080, 1380);
+            .Time(1080, 1320);
         data.Apply(36681, Patch.NewfoundAdventure)  // Earful
             .Bait(data, 36591)
             .Bite(HookSet.Powerful, BiteType.Legendary)

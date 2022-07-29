@@ -519,8 +519,8 @@ public static partial class Fish
         data.Apply     (5024, Patch.ARealmReborn) // Poxpike
             .Bait      (data, 2599, 4978, 5011)
             .Bite      (HookSet.Powerful, BiteType.Strong);
-        data.Apply     (5025, Patch.ARealmReborn) // Emperor data
-            .Bait      (data, 2599, 4937)
+        data.Apply     (5025, Patch.ARealmReborn) // Emperor fish
+            .Bait      (data, 2586, 4927)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5026, Patch.ARealmReborn) // Bowfin
             .Bait      (data, 2599, 4978, 5011)

@@ -417,7 +417,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (900, 1080);
         data.Apply     (12832, Patch.Heavensward) // Lavalord
-            .Bait      (data, 12709, 12754)
+            .Bait      (data, 28634, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (540, 960)
             .Weather   (data, 2, 1);

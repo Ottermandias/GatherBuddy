@@ -97,7 +97,7 @@ public static partial class Fish
             .Bait      (data, 2599, 4937)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1140, 240)
-            .Predators (data, 120, (5544, 5))
+            .Predators (data, 180, (5544, 5))
             .Weather   (data, 16, 15);
         data.Apply     (8770, Patch.DreamsOfIce) // Blue Corpse
             .Bait      (data, 2607)

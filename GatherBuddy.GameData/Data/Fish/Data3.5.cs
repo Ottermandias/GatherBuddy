@@ -70,7 +70,7 @@ public static partial class Fish
             .Transition(data, 1)
             .Weather   (data, 1);
         data.Apply     (17584, Patch.TheFarEdgeOfFate) // The Lord of Lords
-            .Bait      (data, 12709, 12754)
+            .Bait      (data, 28634, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 960)
             .Snag      (Snagging.None)

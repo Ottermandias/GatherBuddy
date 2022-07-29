@@ -369,7 +369,7 @@ public static partial class Fish
         data.Apply     (36521, Patch.Endwalker) // Phallaina 
             .Bait      (data, 36597, 36518)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1320, 240);
+            .Time      (0, 240);
         data.Apply     (36522, Patch.Endwalker) // Thavnairian Cucumber
             .Spear     (SpearfishSize.Small, SpearfishSpeed.ExtremelySlow);
         data.Apply     (36523, Patch.Endwalker) // Spiny King Crab
