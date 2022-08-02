@@ -5,6 +5,7 @@ description: |-
   via item name and a UI to keep track of special uptime and weather conditions.
 punchline: Simplify Gathering and Fishing.
 repo_url: https://github.com/Ottermandias/GatherBuddy
+dalamud_api_level: 7
 tags:
   - Gathering
   - Fishing
