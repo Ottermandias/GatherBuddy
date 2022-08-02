@@ -1,0 +1,15 @@
+name: GatherBuddy
+author: Ottermandias
+description: |-
+  Adds commands to simplify gathering by finding nodes and fish and their locations
+  via item name and a UI to keep track of special uptime and weather conditions.
+punchline: Simplify Gathering and Fishing.
+repo_url: https://github.com/Ottermandias/GatherBuddy
+tags:
+  - Gathering
+  - Fishing
+  - Miner
+  - Botanist
+  - Weather
+  - Alarms
+  - Timer

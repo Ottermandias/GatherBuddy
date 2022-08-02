@@ -1,0 +1,26 @@
+{
+  "version": 1,
+  "dependencies": {
+    "net6.0-windows7.0": {
+      "DalamudPackager": {
+        "type": "Direct",
+        "requested": "[2.1.7, )",
+        "resolved": "2.1.7",
+        "contentHash": "jnZ/sdInyn07ycuWI+pPOtP/xE3v+c4+jYJfDt36FWnBF9NKqkpzfviJtPl/jGLgbaCmFIXu+Yid0N8GvdKefg=="
+      },
+      "gatherbuddy.gamedata": {
+        "type": "Project",
+        "dependencies": {
+          "GatherBuddy.Levenshtein": "[1.0.0, )",
+          "OtterGui": "[1.0.0, )"
+        }
+      },
+      "gatherbuddy.levenshtein": {
+        "type": "Project"
+      },
+      "ottergui": {
+        "type": "Project"
+      }
+    }
+  }
+}

@@ -220,7 +220,7 @@ public class GatherGroupManager
         try
         {
             var text    = File.ReadAllText(file.FullName);
-            var data    = JsonConvert.DeserializeObject<List<TimedGroup.Config>>(text);
+            var data    = JsonConvert.DeserializeObject<List<TimedGroup.Config>>(text)!;
             var changes = false;
             foreach (var config in data)
             {

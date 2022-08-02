@@ -87,7 +87,7 @@ public class LocationManager
         {
             var changes   = false;
             var text      = File.ReadAllText(file.FullName);
-            foreach (var location in JsonConvert.DeserializeObject<LocationData[]>(text))
+            foreach (var location in JsonConvert.DeserializeObject<LocationData[]>(text)!)
             {
                 ILocation? loc = location.Type switch
                 {

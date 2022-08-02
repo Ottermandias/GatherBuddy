@@ -1,16 +1,13 @@
 ﻿using System;
-using System.Diagnostics;
+using System.Net.Http;
 using System.Reflection;
 using Dalamud;
-using Dalamud.Game;
 using Dalamud.Interface.Windowing;
-using Dalamud.Logging;
 using Dalamud.Plugin;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.FishTimer;
-using GatherBuddy.FishTimer.Parser;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Gui;
 using GatherBuddy.Plugin;
@@ -38,6 +35,11 @@ public partial class GatherBuddy : IDalamudPlugin
 #else
     public static bool DebugMode { get; private set; } = false;
 #endif
+
+    public static readonly HttpClient HttpClient = new()
+    {
+        Timeout = TimeSpan.FromMilliseconds(1500),
+    };
 
     public static WeatherManager WeatherManager { get; private set; } = null!;
     public static UptimeManager  UptimeManager  { get; private set; } = null!;
@@ -115,5 +117,6 @@ public partial class GatherBuddy : IDalamudPlugin
         DisposeCommands();
         Time.Dispose();
         Icons.DefaultStorage.Dispose();
+        HttpClient.Dispose();
     }
 }

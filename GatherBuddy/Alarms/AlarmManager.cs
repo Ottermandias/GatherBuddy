@@ -238,7 +238,7 @@ public partial class AlarmManager : IDisposable
         try
         {
             var text    = File.ReadAllText(file.FullName);
-            var data    = JsonConvert.DeserializeObject<AlarmGroup.Config[]>(text);
+            var data    = JsonConvert.DeserializeObject<AlarmGroup.Config[]>(text)!;
             var changes = false;
             foreach (var alarmGroup in data)
             {

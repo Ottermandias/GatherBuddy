@@ -106,7 +106,7 @@ public partial class GatherWindowManager : IDisposable
         try
         {
             var text = File.ReadAllText(file.FullName);
-            var data = JsonConvert.DeserializeObject<GatherWindowPreset.Config[]>(text);
+            var data = JsonConvert.DeserializeObject<GatherWindowPreset.Config[]>(text)!;
             ret.Presets.Capacity = data.Length;
             var change = false;
             foreach (var cfg in data)

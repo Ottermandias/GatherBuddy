@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Net;
+using System.Net.Http;
 using System.Threading.Tasks;
 using Dalamud;
 using Dalamud.Game.Text.SeStringHandling;
@@ -157,10 +158,8 @@ public partial class Interface
         {
             try
             {
-                var wr = WebRequest.CreateHttp($"http://localhost:14500/{addressEnd}");
-                wr.Timeout = 1500;
-                wr.Method  = "GET";
-                wr.GetResponse().Close();
+                using var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:14500/{addressEnd}");
+                using var response = GatherBuddy.HttpClient.Send(request);
             }
             catch
             {
