@@ -48,7 +48,8 @@ public static partial class Fish
         data.Apply     (15635, Patch.RevengeOfTheHorde) // Inkfish
             .Bait      (data, 12711)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (840, 960);
+            .Time      (840, 960)
+            .Slap      (data, 12739);
         data.Apply     (15636, Patch.RevengeOfTheHorde) // The Second One
             .Bait      (data, 12712)
             .Bite      (HookSet.Powerful, BiteType.Legendary)

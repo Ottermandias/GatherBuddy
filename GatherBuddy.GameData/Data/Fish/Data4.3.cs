@@ -56,7 +56,8 @@ public static partial class Fish
         data.Apply     (23067, Patch.UnderTheMoonlight) // Bokuden
             .Bait      (data, 20675)
             .Bite      (HookSet.Precise, BiteType.Legendary)
-            .Time      (720, 840);
+            .Time      (720, 840)
+            .Slap      ( data, 20115);
         data.Apply     (23068, Patch.UnderTheMoonlight) // Hagoromo Koi
             .Bait      (data, 20675)
             .Bite      (HookSet.Powerful, BiteType.Legendary)

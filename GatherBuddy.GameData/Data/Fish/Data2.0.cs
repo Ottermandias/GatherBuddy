@@ -114,7 +114,7 @@ public static partial class Fish
         data.Apply     (4901, Patch.ARealmReborn) // Lavender Remora
             .Bait      (data, 2619)
             .Bite      (HookSet.Powerful, BiteType.Strong);
-        data.Apply     (4902, Patch.ARealmReborn) // Balloondata
+        data.Apply     (4902, Patch.ARealmReborn) // Balloonfish
             .Bait      (data, 2619)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4903, Patch.ARealmReborn) // Silver Shark

@@ -102,7 +102,8 @@ public static partial class Fish
         data.Apply     (33324, Patch.DeathUntoDawn) // Golden Pipira
             .Bait      (data, 27587)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (360, 420);
+            .Time      (360, 420)
+            .Slap      (data, 27482);
         data.Apply     (33325, Patch.DeathUntoDawn) // Mora Tecta
             .Bait      (data, 27588)
             .Bite      (HookSet.Powerful, BiteType.Legendary)

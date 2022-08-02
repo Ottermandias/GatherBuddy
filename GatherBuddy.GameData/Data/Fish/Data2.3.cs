@@ -107,7 +107,8 @@ public static partial class Fish
             .Bait      (data, 2598)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (540, 900)
-            .Weather   (data, 1);
+            .Weather   (data, 1)
+            .Slap      (data, 4902);
         data.Apply     (7925, Patch.DefendersOfEorzea) // The Salter
             .Bait      (data, 2599)
             .Bite      (HookSet.Precise, BiteType.Weak)

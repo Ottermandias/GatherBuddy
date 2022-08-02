@@ -17,7 +17,8 @@ public partial class FishingParser
             ? SetupFishingSpotNamesGerman()
             : GatherBuddy.GameData.FishingSpots.Values
                 .Where(fs => !fs.Spearfishing)
-                .ToDictionary(fs => fs.Name.ToLowerInvariant(), fs => fs);
+                .GroupBy(fs => fs.Name.ToLowerInvariant())
+                .ToDictionary(g => g.Key, g => g.First());
 
     // German has some weird rules for fishing spot names, thus special consideration.
     private static Dictionary<string, FishingSpot> SetupFishingSpotNamesGerman()

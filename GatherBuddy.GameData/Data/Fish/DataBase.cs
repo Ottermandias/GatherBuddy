@@ -181,6 +181,25 @@ public static partial class Fish
         return fish;
     }
 
+    private static Classes.Fish? Slap(this Classes.Fish? fish, GameData data, uint fishId)
+    {
+        if (fish == null)
+            return null;
+
+        fish.SurfaceSlap = data.Fishes.TryGetValue(fishId, out var fsh)
+            ? fsh
+            : throw new Exception($"Could not find fish {fishId}.");
+        return fish;
+    }
+
+    private static Classes.Fish? Comment(this Classes.Fish? fish, string value)
+    {
+        if (fish == null)
+            return null;
+
+        fish.Guide = value;
+        return fish;
+    }
 
     internal static void Apply(GameData data)
     {

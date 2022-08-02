@@ -257,9 +257,9 @@ public partial class Interface
                     : data.Interval.PrintHours();
 
             UptimePercent = SetUptime(data);
-            UptimeString  = $"{(UptimePercent / 100f).ToString("F1", CultureInfo.InvariantCulture)}%%";
-            if (UptimeString == "0.0%%")
-                UptimeString = "<0.1%%";
+            UptimeString  = $"{(UptimePercent / 100f).ToString("F1", CultureInfo.InvariantCulture)}%";
+            if (UptimeString == "0.0%")
+                UptimeString = "<0.1%";
             WeatherIcons     = SetWeather(data);
             TransitionIcons  = SetTransition(data);
             Predators        = SetPredators(data);
