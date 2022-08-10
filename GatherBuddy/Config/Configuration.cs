@@ -35,6 +35,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             OpenOnStart            { get; set; } = false;
     public bool             MainWindowLockPosition { get; set; } = false;
     public bool             MainWindowLockResize   { get; set; } = false;
+    public bool             CloseOnEscape          { get; set; } = true;
     public bool             UseGearChange          { get; set; } = true;
     public bool             UseTeleport            { get; set; } = true;
     public bool             UseCoordinates         { get; set; } = true;

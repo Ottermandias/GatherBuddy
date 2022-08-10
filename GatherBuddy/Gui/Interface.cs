@@ -4,10 +4,8 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Windowing;
-using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
-using OtterGui;
 using Functions = GatherBuddy.Plugin.Functions;
 using ImRaii = OtterGui.Raii.ImRaii;
 
@@ -42,12 +40,8 @@ public partial class Interface : Window, IDisposable
             MinimumSize = new Vector2(MinSize,     17 * ImGui.GetTextLineHeightWithSpacing() / ImGuiHelpers.GlobalScale),
             MaximumSize = new Vector2(MinSize * 4, ImGui.GetIO().DisplaySize.Y * 15 / 16 / ImGuiHelpers.GlobalScale),
         };
-        IsOpen = GatherBuddy.Config.OpenOnStart;
-    }
-
-    public override void PreDraw()
-    {
-        SetFlags();
+        IsOpen             = GatherBuddy.Config.OpenOnStart;
+        UpdateFlags();
     }
 
     public override void Draw()
@@ -70,7 +64,7 @@ public partial class Interface : Window, IDisposable
         DrawDebugTab();
     }
 
-    private void SetFlags()
+    public void UpdateFlags()
     {
         if (GatherBuddy.Config.MainWindowLockPosition)
             Flags |= ImGuiWindowFlags.NoMove;
@@ -81,6 +75,7 @@ public partial class Interface : Window, IDisposable
             Flags |= ImGuiWindowFlags.NoResize;
         else
             Flags &= ~ImGuiWindowFlags.NoResize;
+        RespectCloseHotkey = GatherBuddy.Config.CloseOnEscape;
     }
 
     public override void PreOpenCheck()

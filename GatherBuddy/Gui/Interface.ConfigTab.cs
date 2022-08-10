@@ -15,6 +15,7 @@ public partial class Interface
 {
     private static class ConfigFunctions
     {
+        public static Interface _base = null!;
         public static void DrawSetInput(string jobName, string oldName, Action<string> setName)
         {
             var tmp = oldName;
@@ -51,12 +52,29 @@ public partial class Interface
         public static void DrawLockPositionBox()
             => DrawCheckbox("Lock Config UI Movement",
                 "Toggle whether the GatherBuddy GUI movement should be locked.",
-                GatherBuddy.Config.MainWindowLockPosition, b => GatherBuddy.Config.MainWindowLockPosition = b);
+                GatherBuddy.Config.MainWindowLockPosition, b =>
+                {
+                    GatherBuddy.Config.MainWindowLockPosition = b;
+                    _base.UpdateFlags();
+                });
 
         public static void DrawLockResizeBox()
             => DrawCheckbox("Lock Config UI Size",
                 "Toggle whether the GatherBuddy GUI size should be locked.",
-                GatherBuddy.Config.MainWindowLockResize, b => GatherBuddy.Config.MainWindowLockResize = b);
+                GatherBuddy.Config.MainWindowLockResize, b =>
+                {
+                    GatherBuddy.Config.MainWindowLockResize = b;
+                    _base.UpdateFlags();
+                });
+
+        public static void DrawRespectEscapeBox()
+            => DrawCheckbox("Escape Closes Main Window",
+                "Toggle whether pressing escape while having the main window focused shall close it.",
+                GatherBuddy.Config.CloseOnEscape, b =>
+                {
+                    GatherBuddy.Config.CloseOnEscape = b;
+                    _base.UpdateFlags();
+                });
 
         public static void DrawGearChangeBox()
             => DrawCheckbox("Enable Gear Change",
@@ -448,7 +466,7 @@ public partial class Interface
                 s => GatherBuddy.Config.IdentifiedGatherableFormat = s);
     }
 
-    private static void DrawConfigTab()
+    private void DrawConfigTab()
     {
         using var id  = ImRaii.PushId("Config");
         using var tab = ImRaii.TabItem("Config");
@@ -512,7 +530,9 @@ public partial class Interface
         {
             if (ImGui.TreeNodeEx("Config Window"))
             {
+                ConfigFunctions._base = this;
                 ConfigFunctions.DrawOpenOnStartBox();
+                ConfigFunctions.DrawRespectEscapeBox();
                 ConfigFunctions.DrawLockPositionBox();
                 ConfigFunctions.DrawLockResizeBox();
                 ConfigFunctions.DrawWeatherTabNamesBox();
