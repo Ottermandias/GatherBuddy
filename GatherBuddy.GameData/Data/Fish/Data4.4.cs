@@ -82,7 +82,8 @@ public static partial class Fish
             .Bait      (data, 20619)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (240, 480)
-            .Weather   (data, 4);
+            .Weather   (data, 4)
+            .Slap      (data, 20133);
     }
     // @formatter:on
 }
