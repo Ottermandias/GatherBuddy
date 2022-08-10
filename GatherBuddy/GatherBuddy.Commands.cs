@@ -161,7 +161,7 @@ public partial class GatherBuddy
         }
     }
 
-    private static void OnGatherBuddyShort(string command, string arguments)
+    private void OnGatherBuddyShort(string command, string arguments)
     {
         switch (arguments.ToLowerInvariant())
         {
@@ -169,7 +169,10 @@ public partial class GatherBuddy
                 Config.ShowGatherWindow = !Config.ShowGatherWindow;
                 break;
             case "alarm":
-                Config.AlarmsEnabled = !Config.AlarmsEnabled;
+                if (Config.AlarmsEnabled)
+                    AlarmManager.Disable();
+                else
+                    AlarmManager.Enable();
                 break;
             case "spear":
                 Config.ShowSpearfishHelper = !Config.ShowSpearfishHelper;
