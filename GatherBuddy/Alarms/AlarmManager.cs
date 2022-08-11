@@ -28,7 +28,7 @@ public partial class AlarmManager : IDisposable
 
     public event Action? ActiveAlarmsChanged;
 
-    public void SortActiveAlarms()
+    private void SortActiveAlarms()
     {
         if (!Dirty)
             return;
@@ -36,6 +36,40 @@ public partial class AlarmManager : IDisposable
         ActiveAlarms.StableSort((a, b) => a.Item2.CompareTo(b.Item2));
         Dirty = false;
     }
+
+    public void SetWeatherAlarm(Sounds sound)
+    {
+        if (GatherBuddy.Config.WeatherAlarm == sound)
+            return;
+
+
+        if (GatherBuddy.Config.WeatherAlarm == Sounds.None)
+            GatherBuddy.Time.WeatherChanged += TriggerWeatherAlarm;
+        else if (sound == Sounds.None)
+            GatherBuddy.Time.WeatherChanged -= TriggerWeatherAlarm;
+        GatherBuddy.Config.WeatherAlarm = sound;
+        GatherBuddy.Config.Save();
+    }
+
+    public void SetHourAlarm(Sounds sound)
+    {
+        if (GatherBuddy.Config.HourAlarm == sound)
+            return;
+
+        if (GatherBuddy.Config.HourAlarm == Sounds.None)
+            GatherBuddy.Time.HourChanged += TriggerHourAlarm;
+        else if (sound == Sounds.None)
+            GatherBuddy.Time.HourChanged -= TriggerHourAlarm;
+        GatherBuddy.Config.HourAlarm = sound;
+        GatherBuddy.Config.Save();
+    }
+
+    private void TriggerWeatherAlarm()
+        => _sounds.Play(GatherBuddy.Config.WeatherAlarm);
+
+    private void TriggerHourAlarm()
+        => _sounds.Play(GatherBuddy.Config.HourAlarm);
+
 
     public void AddActiveAlarm(Alarm alarm, bool trigger = true)
     {
@@ -67,7 +101,13 @@ public partial class AlarmManager : IDisposable
     }
 
     public AlarmManager()
-        => _sounds = new PlaySound(Dalamud.SigScanner);
+    {
+        _sounds = new PlaySound(Dalamud.SigScanner);
+        if (GatherBuddy.Config.WeatherAlarm != Sounds.None)
+            GatherBuddy.Time.WeatherChanged += TriggerWeatherAlarm;
+        if (GatherBuddy.Config.HourAlarm != Sounds.None)
+            GatherBuddy.Time.HourChanged += TriggerHourAlarm;
+    }
 
     public void Enable()
     {
@@ -197,7 +237,7 @@ public partial class AlarmManager : IDisposable
         uptime = uptime.Extend(500);
         alarm.SendMessage(location, uptime);
 
-        var newStart  = TimeStamp.MinValue;
+        var newStart = TimeStamp.MinValue;
         while (newStart <= st)
         {
             (var _, newUptime) = GetUptime(alarm, newUptime.End + 1);

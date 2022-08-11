@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Numerics;
 using Dalamud.Game.Text;
+using Dalamud.Interface;
+using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
@@ -16,6 +18,7 @@ public partial class Interface
     private static class ConfigFunctions
     {
         public static Interface _base = null!;
+
         public static void DrawSetInput(string jobName, string oldName, Action<string> setName)
         {
             var tmp = oldName;
@@ -210,6 +213,23 @@ public partial class Interface
         public static void DrawAlarmsOnlyWhenLoggedInToggle()
             => DrawCheckbox("Enable Alarms Only In-Game",  "Set whether alarms should trigger while you are not logged into any character.",
                 GatherBuddy.Config.AlarmsOnlyWhenLoggedIn, b => GatherBuddy.Config.AlarmsOnlyWhenLoggedIn = b);
+
+        private static void DrawAlarmPicker(string label, string description, Sounds current, Action<Sounds> setter)
+        {
+            var cur = (int)current;
+            ImGui.SetNextItemWidth(90 * ImGuiHelpers.GlobalScale);
+            if (ImGui.Combo(label, ref cur, AlarmCache.SoundIdNames))
+                setter((Sounds)cur);
+            ImGuiUtil.HoverTooltip(description);
+        }
+
+        public static void DrawWeatherAlarmPicker()
+            => DrawAlarmPicker("Weather Change Alarm", "Choose a sound that is played every 8 Eorzea hours on regular weather changes.",
+                GatherBuddy.Config.WeatherAlarm,       _plugin.AlarmManager.SetWeatherAlarm);
+
+        public static void DrawHourAlarmPicker()
+            => DrawAlarmPicker("Eorzea Hour Change Alarm", "Choose a sound that is played every time the current Eorzea hour changes.",
+                GatherBuddy.Config.HourAlarm,              _plugin.AlarmManager.SetHourAlarm);
 
         // Fish Timer
         public static void DrawFishTimerBox()
@@ -508,6 +528,8 @@ public partial class Interface
                 ConfigFunctions.DrawAlarmToggle();
                 ConfigFunctions.DrawAlarmsInDutyToggle();
                 ConfigFunctions.DrawAlarmsOnlyWhenLoggedInToggle();
+                ConfigFunctions.DrawWeatherAlarmPicker();
+                ConfigFunctions.DrawHourAlarmPicker();
                 ImGui.TreePop();
             }
 

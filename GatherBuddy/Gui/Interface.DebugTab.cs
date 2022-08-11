@@ -321,14 +321,20 @@ public partial class Interface
         if (!table)
             return;
 
+        var nextAlarm = _plugin.AlarmManager.ActiveAlarms.Count > 0 ? _plugin.AlarmManager.ActiveAlarms[0].Item2 : TimeStamp.Epoch;
+        var (abs, rel) = nextAlarm != TimeStamp.Epoch
+            ? (nextAlarm.LocalTime.ToString(CultureInfo.InvariantCulture),
+                TimeInterval.DurationString(nextAlarm, GatherBuddy.Time.ServerTime, false))
+            : ("Never", "Never");
+
         ImGuiUtil.DrawTableColumn("Enabled");
         ImGuiUtil.DrawTableColumn(GatherBuddy.Config.AlarmsEnabled.ToString());
         ImGuiUtil.DrawTableColumn("Dirty");
         ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.Dirty.ToString());
         ImGuiUtil.DrawTableColumn("Next Change (Absolute)");
-        ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.ActiveAlarms[0].Item2.LocalTime.ToString(CultureInfo.InvariantCulture));
+        ImGuiUtil.DrawTableColumn(abs);
         ImGuiUtil.DrawTableColumn("Next Change (Relative)");
-        ImGuiUtil.DrawTableColumn(TimeInterval.DurationString(_plugin.AlarmManager.ActiveAlarms[0].Item2, GatherBuddy.Time.ServerTime, false));
+        ImGuiUtil.DrawTableColumn(rel);
         ImGuiUtil.DrawTableColumn("#Alarm Groups");
         ImGuiUtil.DrawTableColumn(_plugin.AlarmManager.Alarms.Count.ToString());
         ImGuiUtil.DrawTableColumn("#Enabled Alarms");

@@ -4,6 +4,7 @@ using System.Linq;
 using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
+using GatherBuddy.Alarms;
 using GatherBuddy.Enums;
 using OtterGui.Classes;
 
@@ -57,9 +58,11 @@ public partial class Configuration : IPluginConfiguration
     public bool ShowWeatherNames { get; set; } = true;
 
     // Alarms
-    public bool AlarmsEnabled          { get; set; } = false;
-    public bool AlarmsInDuty           { get; set; } = true;
-    public bool AlarmsOnlyWhenLoggedIn { get; set; } = false;
+    public bool   AlarmsEnabled          { get; set; } = false;
+    public bool   AlarmsInDuty           { get; set; } = true;
+    public bool   AlarmsOnlyWhenLoggedIn { get; set; } = false;
+    public Sounds WeatherAlarm           { get; set; } = Sounds.None;
+    public Sounds HourAlarm              { get; set; } = Sounds.None;
 
     // Colors
     public Dictionary<ColorId, uint> Colors { get; set; }
@@ -100,7 +103,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             HideGatherWindowInDuty         { get; set; } = true;
     public bool             OnlyShowGatherWindowHoldingKey { get; set; } = false;
     public bool             LockGatherWindow               { get; set; } = false;
-    public bool             GatherWindowBottomAnchor   { get; set; } = false;
+    public bool             GatherWindowBottomAnchor       { get; set; } = false;
     public ModifiableHotkey GatherWindowHotkey             { get; set; } = new(VirtualKey.G, VirtualKey.CONTROL);
     public ModifierHotkey   GatherWindowDeleteModifier     { get; set; } = VirtualKey.CONTROL;
     public VirtualKey       GatherWindowHoldKey            { get; set; } = VirtualKey.MENU;
