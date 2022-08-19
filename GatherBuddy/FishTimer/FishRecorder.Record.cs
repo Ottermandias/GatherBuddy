@@ -29,10 +29,10 @@ public partial class FishRecorder
         FishReeled     = 0x20,
     }
 
-    public readonly FishingParser Parser    = new();
-    internal        CatchSteps    Step      = 0;
-    internal        FishingState  LastState = FishingState.None;
-    internal        Stopwatch     Timer     = new();
+    public readonly   FishingParser Parser    = new();
+    internal          CatchSteps    Step      = 0;
+    internal          FishingState  LastState = FishingState.None;
+    internal readonly Stopwatch     Timer     = new();
 
     public Fish? LastCatch;
 

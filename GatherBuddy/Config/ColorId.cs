@@ -11,6 +11,7 @@ public enum ColorId
     DisabledText,
     WarningBg,
     ChangedLocationBg,
+    HighlightText,
 
     FishTimerWeakTug,
     FishTimerStrongTug,
@@ -61,6 +62,7 @@ public static class ColorIdExtensions
             ColorId.DisabledText                           => (0xFF606060, "Interface Disabled Text",                                        "Text for disabled objects in selectors."),
             ColorId.WarningBg                              => (0xA00000A0, "Warning Background",                                             "The background color of warning badges in the user interface."),
             ColorId.ChangedLocationBg                      => (0x80009000, "Custom Location Data Background",                                "The background of customly set aetherytes or coordinates for specific locations."),
+            ColorId.HighlightText                          => (0xFF00A0FF, "Highlight Text",                                                 "Color used to highlight text under specific circumstances."),
                                                                                                                                             
             ColorId.FishTimerWeakTug                       => (0x8000A000, "Fish Timer Window Weak Tug",                                     "Fish that bite with a weak tug (!)."),
             ColorId.FishTimerStrongTug                     => (0x8000A0A0, "Fish Timer Window Strong Tug",                                   "Fish that bite with a strong tug (!!)."),

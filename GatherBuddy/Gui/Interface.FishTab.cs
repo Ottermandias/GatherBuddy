@@ -236,7 +236,7 @@ public partial class Interface
         private sealed class BaitColumn : ColumnString<ExtendedFish>
         {
             public override string ToName(ExtendedFish item)
-                => item.Bait.First().Name;
+                => item.Bait[0].Name;
 
             public override float Width
                 => _baitColumnWidth * ImGuiHelpers.GlobalScale;
@@ -244,14 +244,17 @@ public partial class Interface
             public override void DrawColumn(ExtendedFish item, int _)
             {
                 using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
+                var       bait  = item.Bait[0].Fish as Bait ?? Bait.Unknown;
                 ImGuiUtil.HoverIcon(item.Bait[0].Icon, LineIconSize);
                 ImGui.SameLine();
-                if (ImGui.Selectable(item.Bait[0].Name) && item.Bait[0].Fish is Bait bait)
+                using (var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.HighlightText.Value(), bait.Id == GatherBuddy.CurrentBait.Current))
                 {
-                    // Other communication handled by the game itself.
-                    if (GatherBuddy.CurrentBait.ChangeBait(bait.Id) == CurrentBait.ChangeBaitReturn.NotInInventory)
-                        Communicator.NoBaitFound(bait);
+                    if (ImGui.Selectable(item.Bait[0].Name))
+                        // Other communication handled by the game itself.
+                        if (GatherBuddy.CurrentBait.ChangeBait(bait.Id) == CurrentBait.ChangeBaitReturn.NotInInventory)
+                            Communicator.NoBaitFound(bait);
                 }
+
                 CreateContextMenu(item.Data.InitialBait);
             }
         }
@@ -411,8 +414,13 @@ public partial class Interface
 
             public override void DrawColumn(ExtendedFish item, int _)
             {
-                if (ImGui.Selectable(ToName(item)))
-                    _plugin.Executor.GatherLocation(item.Uptime.Item1);
+                using (var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.HighlightText.Value(),
+                           _plugin.FishRecorder.LastState != FishingState.None && item.Uptime.Item1.Id == _plugin.FishRecorder.Record.SpotId))
+                {
+                    if (ImGui.Selectable(ToName(item)))
+                        _plugin.Executor.GatherLocation(item.Uptime.Item1);
+                }
+
                 CreateContextMenu(item.Uptime.Item1 as FishingSpot);
                 HoverTooltip(item.SpotNames);
             }
@@ -437,8 +445,13 @@ public partial class Interface
 
             public override void DrawColumn(ExtendedFish item, int _)
             {
-                if (ImGui.Selectable(ToName(item)))
-                    Executor.TeleportToTerritory(item.Uptime.Item1.Territory);
+                using (var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.HighlightText.Value(),
+                           Dalamud.ClientState.TerritoryType == item.Uptime.Item1.Territory.Id))
+                {
+                    if (ImGui.Selectable(ToName(item)))
+                        Executor.TeleportToTerritory(item.Uptime.Item1.Territory);
+                }
+
                 HoverTooltip(item.Territories);
             }
 
