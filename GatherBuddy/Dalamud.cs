@@ -6,7 +6,6 @@ using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.ClientState.Objects;
 using Dalamud.Game.Command;
 using Dalamud.Game.Gui;
-using Dalamud.Game.Gui.ContextMenus;
 using Dalamud.IoC;
 using Dalamud.Plugin;
 
@@ -26,7 +25,6 @@ public class Dalamud
     [PluginService][RequiredVersion("1.0")] public static DataManager            GameData        { get; private set; } = null!;
     [PluginService][RequiredVersion("1.0")] public static ClientState            ClientState     { get; private set; } = null!;
     [PluginService][RequiredVersion("1.0")] public static ChatGui                Chat            { get; private set; } = null!;
-    [PluginService][RequiredVersion("1.0")] public static ContextMenu            ContextMenu     { get; private set; } = null!;
     //[PluginService][RequiredVersion("1.0")] public static SeStringManager        SeStrings       { get; private set; } = null!;
     //[PluginService][RequiredVersion("1.0")] public static ChatHandlers           ChatHandlers    { get; private set; } = null!;
     [PluginService][RequiredVersion("1.0")] public static Framework              Framework       { get; private set; } = null!;

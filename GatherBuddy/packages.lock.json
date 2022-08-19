@@ -8,6 +8,9 @@
         "resolved": "2.1.7",
         "contentHash": "jnZ/sdInyn07ycuWI+pPOtP/xE3v+c4+jYJfDt36FWnBF9NKqkpzfviJtPl/jGLgbaCmFIXu+Yid0N8GvdKefg=="
       },
+      "dalamud.contextmenu": {
+        "type": "Project"
+      },
       "gatherbuddy.gamedata": {
         "type": "Project",
         "dependencies": {

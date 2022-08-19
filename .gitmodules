@@ -2,3 +2,7 @@
 	path = OtterGui
 	url = https://github.com/Ottermandias/OtterGui.git
 	branch = main
+[submodule "Dalamud.ContextMenu"]
+	path = Dalamud.ContextMenu
+	url = git@github.com:Ottermandias/Dalamud.ContextMenu.git
+	branch = main

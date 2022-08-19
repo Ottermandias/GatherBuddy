@@ -73,5 +73,6 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
 	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
+	  <ProjectReference Include="..\Dalamud.ContextMenu\src\Dalamud.ContextMenu\Dalamud.ContextMenu.csproj" />
 	</ItemGroup>
 </Project>

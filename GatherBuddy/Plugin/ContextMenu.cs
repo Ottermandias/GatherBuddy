@@ -43,9 +43,9 @@ public class ContextMenu : IDisposable
             itemId -= 500000;
 
         if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var gatherable))
-            return new InventoryContextMenuItem(GatherString, _ => _executor.GatherItem(gatherable));
+            return new InventoryContextMenuItem(GatherString, _ => _executor.GatherItem(gatherable), true);
         if (GatherBuddy.GameData.Fishes.TryGetValue(itemId, out var fish))
-            return new InventoryContextMenuItem(GatherString, _ => _executor.GatherItem(fish));
+            return new InventoryContextMenuItem(GatherString, _ => _executor.GatherItem(fish), true);
 
         return null;
     }
@@ -56,9 +56,9 @@ public class ContextMenu : IDisposable
             itemId -= 500000;
 
         if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var gatherable))
-            return new GameObjectContextMenuItem(GatherString, _ => _executor.GatherItem(gatherable));
+            return new GameObjectContextMenuItem(GatherString, _ => _executor.GatherItem(gatherable), true);
         if (GatherBuddy.GameData.Fishes.TryGetValue(itemId, out var fish))
-            return new GameObjectContextMenuItem(GatherString, _ => _executor.GatherItem(fish));
+            return new GameObjectContextMenuItem(GatherString, _ => _executor.GatherItem(fish), true);
 
         return null;
     }
