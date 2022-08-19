@@ -7,6 +7,8 @@ using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
+using GatherBuddy.SeFunctions;
+using GatherBuddy.Structs;
 using ImGuiNET;
 using OtterGui;
 using OtterGui.Table;
@@ -242,9 +244,14 @@ public partial class Interface
             public override void DrawColumn(ExtendedFish item, int _)
             {
                 using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ItemSpacing / 2);
-                ImGuiUtil.HoverIcon(item.Bait.First().Icon, LineIconSize);
+                ImGuiUtil.HoverIcon(item.Bait[0].Icon, LineIconSize);
                 ImGui.SameLine();
-                ImGui.Selectable(item.Bait.First().Name);
+                if (ImGui.Selectable(item.Bait[0].Name) && item.Bait[0].Fish is Bait bait)
+                {
+                    // Other communication handled by the game itself.
+                    if (GatherBuddy.CurrentBait.ChangeBait(bait.Id) == CurrentBait.ChangeBaitReturn.NotInInventory)
+                        Communicator.NoBaitFound(bait);
+                }
                 CreateContextMenu(item.Data.InitialBait);
             }
         }

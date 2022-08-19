@@ -224,6 +224,10 @@ public class Executor
             }
 
             _commandManager.Execute($"/gearset change \"{set}\"");
+
+            if (_item is Fish fish)
+                GatherBuddy.CurrentBait.ChangeBait(fish.InitialBait.Id);
+
             Dalamud.Framework.Update -= DoGearChangeOnArrival;
         }
 

@@ -12,6 +12,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
+using GatherBuddy.Structs;
 using GatherBuddy.Time;
 
 namespace GatherBuddy.Plugin;
@@ -133,7 +134,10 @@ public static class Communicator
 
     public static void PrintUptime(TimeInterval uptime)
     {
-        if (!GatherBuddy.Config.PrintUptime || uptime.Equals(TimeInterval.Always) || uptime.Equals(TimeInterval.Invalid) || uptime.Equals(TimeInterval.Never))
+        if (!GatherBuddy.Config.PrintUptime
+         || uptime.Equals(TimeInterval.Always)
+         || uptime.Equals(TimeInterval.Invalid)
+         || uptime.Equals(TimeInterval.Never))
             return;
 
         if (uptime.Start > GatherBuddy.Time.ServerTime)
@@ -230,6 +234,13 @@ public static class Communicator
             .AddText(" for ")
             .AddColoredText(command, GatherBuddy.Config.SeColorCommands)
             .AddText(".").BuiltString);
+    }
+
+    public static void NoBaitFound(Bait bait)
+    {
+        PrintError(new SeStringBuilder().AddText("Bait ")
+            .AddFullItemLink(bait.Id, bait.Name)
+            .AddText(" could not be equipped because you do not carry it.").BuiltString);
     }
 
     public static void NoGatherGroup(string groupName)
