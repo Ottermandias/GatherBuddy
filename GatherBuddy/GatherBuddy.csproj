@@ -19,6 +19,7 @@
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
+    <CopyLocalLockfileAssemblies>true</CopyLocalLockfileAssemblies>
 	</PropertyGroup>
 
 	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -40,6 +41,7 @@
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.7" />
+    <PackageReference Include="Dalamud.ContextMenu" Version="1.2.0" />
     <Reference Include="Dalamud">
 			<HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
       <Private>False</Private>
@@ -73,6 +75,5 @@
 	<ItemGroup>
 	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
 	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
-	  <ProjectReference Include="..\Dalamud.ContextMenu\src\Dalamud.ContextMenu\Dalamud.ContextMenu.csproj" />
 	</ItemGroup>
 </Project>
