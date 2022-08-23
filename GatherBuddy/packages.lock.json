@@ -4,9 +4,9 @@
     "net6.0-windows7.0": {
       "Dalamud.ContextMenu": {
         "type": "Direct",
-        "requested": "[1.2.0, )",
-        "resolved": "1.2.0",
-        "contentHash": "GBCPa52yaFFG3caJl12Fx/1oIP4dxDPyNMvOEQ3oBY5cJ9k6ONojK/m5mbA+UrJNnK6VgLhl+JGFVrjfqg4zTg=="
+        "requested": "[1.2.1, )",
+        "resolved": "1.2.1",
+        "contentHash": "RiBkn1OYRTnVbfUGYolLBE8MOeXjok+JiZaryb27oGa7YARCTu0XgUzkRiCglujknsHOn5kAaXsT3TUJmqMigg=="
       },
       "DalamudPackager": {
         "type": "Direct",

@@ -41,7 +41,7 @@
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.7" />
-    <PackageReference Include="Dalamud.ContextMenu" Version="1.2.0" />
+    <PackageReference Include="Dalamud.ContextMenu" Version="1.2.1" />
     <Reference Include="Dalamud">
 			<HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
       <Private>False</Private>
