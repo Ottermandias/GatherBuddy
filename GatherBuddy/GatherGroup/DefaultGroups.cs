@@ -107,6 +107,7 @@ public static class GroupData
         CreateDefaultGroup("80***", "Contains exarchic crafting nodes.",                    (32954, 0), (32952, 2), (32955, 4), (32950, 6), (32951, 8), (32953, 10)),
         CreateDefaultGroup("80**",  "Contains neo-ishgardian / aesthete crafting nodes.",   (30485, 0), (30486, 2), (29974, 4), (29970, 6), (29972, 8), (29976, 10)),
         CreateDefaultGroup("90*",   "Contains classical crafting nodes.",                   (36216, 0), (36167, 2), (36179, 4), (36195, 6), (36207, 8), (36217, 10)),
+        CreateDefaultGroup("90**",  "Contains Rinascita crafting nodes.",                  (37819, 0), (37818, 2), (37821, 4), (37817, 6), (37820, 8), (37822, 10)),
         CreateDarkMatterGroup(),
         CreateEphemeralGroup("90sand", "Contains the nodes for the group of 90 aethersands.", (36285, 0), (36287, 8), (36288, 12), (36286, 20), (36287, 4), (36286, 16)), // last two nodes are temporary because there is nothing there
     };

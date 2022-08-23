@@ -32,6 +32,7 @@ public enum Patch : ushort
     DeathUntoDawn              = 550,
     Endwalker                  = 600,
     NewfoundAdventure          = 610,
+    BuriedMemory               = 620,
 }
 
 [Flags]
@@ -63,6 +64,7 @@ public enum PatchFlag : ulong
     DeathUntoDawn              = 1 << 23,
     Endwalker                  = 1 << 24,
     NewfoundAdventure          = 1 << 25,
+    BuriedMemory               = 1 << 26,
 }
 
 public static class PatchExtensions
@@ -115,6 +117,7 @@ public static class PatchExtensions
             55 => "Death Unto Dawn",
             60 => "Endwalker",
             61 => "Newfound Adventure",
+            62 => "Buried Memory",
             _  => "Unknown",
         };
     }
@@ -149,6 +152,7 @@ public static class PatchExtensions
             Patch.DeathUntoDawn              => PatchFlag.DeathUntoDawn,
             Patch.Endwalker                  => PatchFlag.Endwalker,
             Patch.NewfoundAdventure          => PatchFlag.NewfoundAdventure,
+            Patch.BuriedMemory               => PatchFlag.BuriedMemory,
             _                                => 0,
         };
     }
@@ -183,6 +187,7 @@ public static class PatchExtensions
             PatchFlag.DeathUntoDawn              => Patch.DeathUntoDawn,
             PatchFlag.Endwalker                  => Patch.Endwalker,
             PatchFlag.NewfoundAdventure          => Patch.NewfoundAdventure,
+            PatchFlag.BuriedMemory               => Patch.BuriedMemory,
             _                                    => Patch.Unknown,
         };
     }

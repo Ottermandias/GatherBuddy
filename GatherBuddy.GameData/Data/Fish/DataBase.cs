@@ -228,5 +228,6 @@ public static partial class Fish
         data.ApplyDeathUntoDawn();
         data.ApplyEndwalker();
         data.ApplyNewfoundAdventure();
+        data.ApplyBuriedMemory();
     }
 }
