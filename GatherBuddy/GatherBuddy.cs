@@ -79,7 +79,7 @@ public partial class GatherBuddy : IDalamudPlugin
         CurrentBait         = new CurrentBait(Dalamud.SigScanner);
         TugType             = new SeTugType(Dalamud.SigScanner);
         Executor            = new Executor(this);
-        ContextMenu         = new ContextMenu(Executor);
+        //ContextMenu         = new ContextMenu(Executor);
         GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
         LocationManager     = LocationManager.Load();
         AlarmManager        = AlarmManager.Load();
@@ -106,7 +106,7 @@ public partial class GatherBuddy : IDalamudPlugin
     void IDisposable.Dispose()
     {
         FishRecorder.Disable();
-        ContextMenu.Dispose();
+        //ContextMenu.Dispose();
         UptimeManager.Dispose();
         Ipc.Dispose();
         //Wotsit.Dispose();
