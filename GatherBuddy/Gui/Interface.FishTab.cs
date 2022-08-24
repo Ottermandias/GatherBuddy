@@ -247,7 +247,7 @@ public partial class Interface
                 var       bait  = item.Bait[0].Fish as Bait ?? Bait.Unknown;
                 ImGuiUtil.HoverIcon(item.Bait[0].Icon, LineIconSize);
                 ImGui.SameLine();
-                using (var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.HighlightText.Value(), bait.Id == GatherBuddy.CurrentBait.Current))
+                using (var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.HighlightText.Value(), bait.Id != 0 && bait.Id == GatherBuddy.CurrentBait.Current))
                 {
                     if (ImGui.Selectable(item.Bait[0].Name))
                         // Other communication handled by the game itself.
