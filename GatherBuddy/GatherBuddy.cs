@@ -64,59 +64,67 @@ public partial class GatherBuddy : IDalamudPlugin
 
     public GatherBuddy(DalamudPluginInterface pluginInterface)
     {
-        Dalamud.Initialize(pluginInterface);
-        Version        = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
-        Config         = Configuration.Load();
-        Language       = Dalamud.ClientState.ClientLanguage;
-        GameData       = new GameData(Dalamud.GameData);
-        Time           = new SeTime();
-        WaymarkManager = new WaymarkManager();
+        try
+        {
+            Dalamud.Initialize(pluginInterface);
+            Version        = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
+            Config         = Configuration.Load();
+            Language       = Dalamud.ClientState.ClientLanguage;
+            GameData       = new GameData(Dalamud.GameData);
+            Time           = new SeTime();
+            WaymarkManager = new WaymarkManager();
 
-        WeatherManager      = new WeatherManager(GameData);
-        UptimeManager       = new UptimeManager(GameData);
-        FishLog             = new FishLog(Dalamud.SigScanner, Dalamud.GameData);
-        EventFramework      = new EventFramework(Dalamud.SigScanner);
-        CurrentBait         = new CurrentBait(Dalamud.SigScanner);
-        TugType             = new SeTugType(Dalamud.SigScanner);
-        Executor            = new Executor(this);
-        ContextMenu         = new ContextMenu(Executor);
-        GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
-        LocationManager     = LocationManager.Load();
-        AlarmManager        = AlarmManager.Load();
-        GatherWindowManager = GatherWindowManager.Load(AlarmManager);
-        AlarmManager.ForceEnable();
+            WeatherManager      = new WeatherManager(GameData);
+            UptimeManager       = new UptimeManager(GameData);
+            FishLog             = new FishLog(Dalamud.SigScanner, Dalamud.GameData);
+            EventFramework      = new EventFramework(Dalamud.SigScanner);
+            CurrentBait         = new CurrentBait(Dalamud.SigScanner);
+            TugType             = new SeTugType(Dalamud.SigScanner);
+            Executor            = new Executor(this);
+            ContextMenu         = new ContextMenu(Executor);
+            GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
+            LocationManager     = LocationManager.Load();
+            AlarmManager        = AlarmManager.Load();
+            GatherWindowManager = GatherWindowManager.Load(AlarmManager);
+            AlarmManager.ForceEnable();
 
-        InitializeCommands();
+            InitializeCommands();
 
-        FishRecorder = new FishRecorder();
-        FishRecorder.Enable();
-        WindowSystem = new WindowSystem(Name);
-        Interface    = new Interface(this);
-        WindowSystem.AddWindow(Interface);
-        WindowSystem.AddWindow(new GatherWindow(this));
-        WindowSystem.AddWindow(new FishTimerWindow(FishRecorder));
-        WindowSystem.AddWindow(new SpearfishingHelper(GameData));
-        Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
-        Dalamud.PluginInterface.UiBuilder.OpenConfigUi += Interface.Toggle;
+            FishRecorder = new FishRecorder();
+            FishRecorder.Enable();
+            WindowSystem = new WindowSystem(Name);
+            Interface    = new Interface(this);
+            WindowSystem.AddWindow(Interface);
+            WindowSystem.AddWindow(new GatherWindow(this));
+            WindowSystem.AddWindow(new FishTimerWindow(FishRecorder));
+            WindowSystem.AddWindow(new SpearfishingHelper(GameData));
+            Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
+            Dalamud.PluginInterface.UiBuilder.OpenConfigUi += Interface.Toggle;
 
-        Ipc = new GatherBuddyIpc(this);
-        //Wotsit = new WotsitIpc();
+            Ipc = new GatherBuddyIpc(this);
+            //Wotsit = new WotsitIpc();
+        }
+        catch
+        {
+            ((IDisposable)this).Dispose();
+            throw;
+        }
     }
 
     void IDisposable.Dispose()
     {
-        FishRecorder.Disable();
-        ContextMenu.Dispose();
-        UptimeManager.Dispose();
-        Ipc.Dispose();
-        //Wotsit.Dispose();
+        FishRecorder?.Disable();
+        ContextMenu?.Dispose();
+        UptimeManager?.Dispose();
+        Ipc?.Dispose();
+        //Wotsit?.Dispose();
         Dalamud.PluginInterface.UiBuilder.OpenConfigUi -= Interface.Toggle;
         Dalamud.PluginInterface.UiBuilder.Draw         -= WindowSystem.Draw;
-        Interface.Dispose();
-        WindowSystem.RemoveAllWindows();
+        Interface?.Dispose();
+        WindowSystem?.RemoveAllWindows();
         DisposeCommands();
-        Time.Dispose();
-        Icons.DefaultStorage.Dispose();
-        HttpClient.Dispose();
+        Time?.Dispose();
+        Icons.DefaultStorage?.Dispose();
+        HttpClient?.Dispose();
     }
 }
