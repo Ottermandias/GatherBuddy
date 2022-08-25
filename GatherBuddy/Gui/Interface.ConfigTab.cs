@@ -89,10 +89,15 @@ public partial class Interface
                 "Toggle whether to automatically teleport to a chosen node.",
                 GatherBuddy.Config.UseTeleport, b => GatherBuddy.Config.UseTeleport = b);
 
-        public static void DrawMapMarkerOpenBox()
-            => DrawCheckbox("Open Map With Marker",
-                "Toggle whether to automatically set a map marker on the approximate location of the chosen node and open the map of that territory.",
+        public static void DrawMapOpenBox()
+            => DrawCheckbox("Open Map With Location",
+                "Toggle whether to automatically open the map of the territory of the chosen node with its gathering location highlighted.",
                 GatherBuddy.Config.UseCoordinates, b => GatherBuddy.Config.UseCoordinates = b);
+
+        public static void DrawPlaceMarkerBox()
+            => DrawCheckbox("Place Flag Marker on Map",
+                "Toggle whether to automatically set a red flag marker on the approximate location of the chosen node without opening the map.",
+                GatherBuddy.Config.UseFlag, b => GatherBuddy.Config.UseFlag = b);
 
         public static void DrawMapMarkerPrintBox()
             => DrawCheckbox("Print Map Location",
@@ -507,7 +512,8 @@ public partial class Interface
                 ConfigFunctions.DrawPreferredJobSelect();
                 ConfigFunctions.DrawGearChangeBox();
                 ConfigFunctions.DrawTeleportBox();
-                ConfigFunctions.DrawMapMarkerOpenBox();
+                ConfigFunctions.DrawMapOpenBox();
+                ConfigFunctions.DrawPlaceMarkerBox();
                 ConfigFunctions.DrawPlaceWaymarkBox();
                 ConfigFunctions.DrawAetherytePreference();
                 ConfigFunctions.DrawSkipTeleportBox();
