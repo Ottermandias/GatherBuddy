@@ -57,6 +57,8 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
         IntegralXCoord = coordRow != null ? Maps.NodeToMap(coordRow.X, Territory.SizeFactor) : 100;
         IntegralYCoord = coordRow != null ? Maps.NodeToMap(coordRow.Y, Territory.SizeFactor) : 100;
 
+        Radius = coordRow?.Radius ?? 10;
+
         ClosestAetheryte = Territory.Aetherytes.Count > 0
             ? Territory.Aetherytes.ArgMin(a => a.WorldDistance(Territory.Id, IntegralXCoord, IntegralYCoord))
             : null;
@@ -64,12 +66,13 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
         DefaultXCoord    = IntegralXCoord;
         DefaultYCoord    = IntegralYCoord;
         DefaultAetheryte = ClosestAetheryte;
+        DefaultRadius    = Radius;
 
         // Obtain additional information.
         Folklore = MultiString.ParseSeStringLumina(nodeRow?.GatheringSubCategory.Value?.FolkloreBook);
         var extendedRow = nodeRow == null ? null : data.DataManager.GetExcelSheet<GatheringPointTransient>()?.GetRow(nodeRow.RowId);
         (Times, NodeType) = GetTimes(extendedRow);
-        if (Folklore.Any() && NodeType == NodeType.Unspoiled && nodeRow!.GatheringSubCategory.Value!.Item.Row != 0)
+        if (Folklore.Length > 0 && NodeType == NodeType.Unspoiled && nodeRow!.GatheringSubCategory.Value!.Item.Row != 0)
             NodeType = NodeType.Legendary;
 
         // Obtain the items and add the node to their individual lists.

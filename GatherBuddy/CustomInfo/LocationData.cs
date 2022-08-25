@@ -12,9 +12,10 @@ public struct LocationData
     [JsonConverter(typeof(StringEnumConverter))]
     public ObjectType Type;
 
-    public int AetheryteId;
-    public int XCoord;
-    public int YCoord;
+    public int    AetheryteId;
+    public int    XCoord;
+    public int    YCoord;
+    public ushort Radius;
 
     public Vector3[] Markers;
 
@@ -26,5 +27,6 @@ public struct LocationData
         XCoord      = loc.IntegralXCoord;
         YCoord      = loc.IntegralYCoord;
         Markers     = loc.Markers;
+        Radius      = loc.Radius;
     }
 }

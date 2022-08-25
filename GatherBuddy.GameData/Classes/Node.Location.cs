@@ -1,6 +1,3 @@
-using GatherBuddy.Interfaces;
-using GatherBuddy.Utility;
-
 namespace GatherBuddy.Classes;
 
 public partial class GatheringNode
@@ -15,4 +12,6 @@ public partial class GatheringNode
     public int        DefaultXCoord    { get; internal set; }
     public int        DefaultYCoord    { get; internal set; }
 
+    public ushort Radius        { get; set; }
+    public ushort DefaultRadius { get; internal set; }
 }

@@ -51,7 +51,12 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     public Aetheryte? DefaultAetheryte { get; internal set; }
     public int        DefaultXCoord    { get; internal set; }
     public int        DefaultYCoord    { get; internal set; }
-    public Vector3[]  Markers          { get; set; } = Array.Empty<Vector3>();
+
+    public ushort Radius        { get; set; }
+    public ushort DefaultRadius { get; internal set; }
+
+
+    public Vector3[] Markers { get; set; } = Array.Empty<Vector3>();
 
     public bool Spearfishing
         => _data is SpearfishingNotebook;
@@ -70,10 +75,12 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         ClosestAetheryte = Territory.Aetherytes.Count > 0
             ? Territory.Aetherytes.ArgMin(a => a.WorldDistance(Territory.Id, IntegralXCoord, IntegralYCoord))
             : null;
+        Radius = (ushort)(spot.Radius / 7);
 
         DefaultXCoord    = IntegralXCoord;
         DefaultYCoord    = IntegralYCoord;
         DefaultAetheryte = ClosestAetheryte;
+        DefaultRadius    = Radius;
 
         Items = spot.Item.Where(i => i.Row > 0)
             .Select(i => data.Fishes.TryGetValue(i.Row, out var fish) ? fish : null)
@@ -94,10 +101,12 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         ClosestAetheryte = Territory.Aetherytes.Count > 0
             ? Territory.Aetherytes.ArgMin(a => a.WorldDistance(Territory.Id, IntegralXCoord, IntegralYCoord))
             : null;
+        Radius = (ushort)(spot.Radius / 7);
 
         DefaultXCoord    = IntegralXCoord;
         DefaultYCoord    = IntegralYCoord;
         DefaultAetheryte = ClosestAetheryte;
+        DefaultRadius    = Radius;
 
         Items = spot.GatheringPointBase.Value?.Item.Where(i => i > 0)
                 .Select(i => data.Fishes.Values.FirstOrDefault(f => f.IsSpearFish && f.FishId == i))

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Xml.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.Text.SeStringHandling;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
@@ -235,7 +237,7 @@ public class Executor
     }
 
 
-    private void DoMapFlag()
+    private unsafe void DoMapFlag()
     {
         if (!GatherBuddy.Config.WriteCoordinates && !GatherBuddy.Config.UseCoordinates || _location == null)
             return;
@@ -243,9 +245,20 @@ public class Executor
         if (_location.IntegralXCoord == 100 || _location.IntegralYCoord == 100)
             return;
 
+        var instance = AgentMap.Instance();
+
         var link = new SeStringBuilder().AddFullMapLink(_location.Name, _location.Territory, _location.IntegralXCoord / 100f,
-            _location.IntegralYCoord / 100f, GatherBuddy.Config.UseCoordinates).BuiltString;
+            _location.IntegralYCoord / 100f).BuiltString;
+
         Communicator.PrintCoordinates(link);
+
+        if (instance != null && GatherBuddy.Config.UseCoordinates)
+        {
+            var icon = GatherBuddy.GameData.GatheringIcons[_location.GatheringType];
+            instance->TempMapMarkerCount = 0;
+            instance->OpenMap(_location.Territory.Data.Map.Row, _location.Territory.Id, _item?.Name[GatherBuddy.Language] ?? _location.Name, MapType.GatheringLog);
+            instance->AddGatheringTempMarker(Maps.IntegerToInternal(_location.IntegralXCoord, _location.Territory.SizeFactor), Maps.IntegerToInternal(_location.IntegralYCoord, _location.Territory.SizeFactor), _location.Radius, icon.Item1);
+        }
     }
 
     private void DoAdditionalInfo()

@@ -37,6 +37,8 @@ public class GameData
     public PatriciaTrie<Gatherable> GatherablesTrie { get; init; } = new();
     public PatriciaTrie<Fish>       FishTrie        { get; init; } = new();
 
+    public GatheringIcons GatheringIcons { get; init; } = null!;
+
     public int TimedGatherables     { get; init; }
     public int MultiNodeGatherables { get; init; }
 
@@ -55,6 +57,8 @@ public class GameData
         DataManager = gameData;
         try
         {
+            GatheringIcons = new GatheringIcons(gameData);
+
             Weathers = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!
                 .ToDictionary(w => w.RowId, w => new Weather(w));
             PluginLog.Verbose("Collected {NumWeathers} different Weathers.", Weathers.Count);

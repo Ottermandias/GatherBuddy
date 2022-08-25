@@ -1,4 +1,3 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -8,17 +7,21 @@ namespace GatherBuddy.Interfaces;
 
 public interface IMarkable
 {
-    public const int CoordMin   = 100;
-    public const int CoordMax   = 4200;
-    public const int MarkersMax = 8;
+    public const int    CoordMin   = 100;
+    public const int    CoordMax   = 4200;
+    public const int    MarkersMax = 8;
+    public const ushort RadiusMax  = 400;
 
     public string    Name           { get; }
     public Territory Territory      { get; }
     public int       IntegralXCoord { get; set; }
     public int       IntegralYCoord { get; set; }
 
-    public int DefaultXCoord { get; }
-    public int DefaultYCoord { get; }
+    public int   DefaultXCoord { get; }
+    public int   DefaultYCoord { get; }
+
+    public ushort Radius        { get; set; }
+    public ushort DefaultRadius { get; }
 
     public Vector3[] Markers { get; set; }
 
@@ -47,6 +50,15 @@ public interface IMarkable
             return false;
 
         IntegralYCoord = yCoord;
+        return true;
+    }
+
+    public bool SetRadius(ushort radius)
+    {
+        if (radius is 0 or > RadiusMax)
+            return false;
+
+        Radius = radius;
         return true;
     }
 }

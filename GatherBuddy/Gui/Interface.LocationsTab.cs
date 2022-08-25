@@ -24,6 +24,7 @@ public partial class Interface
         private static float _territoryColumnWidth = 0;
         private static float _aetheryteColumnWidth = 0;
         private static float _coordColumnWidth     = 0;
+        private static float _radiusColumnWidth    = 0;
         private static float _typeColumnWidth      = 0;
 
         protected override void PreDraw()
@@ -35,6 +36,7 @@ public partial class Interface
             _territoryColumnWidth = _plugin.LocationManager.AllLocations.Max(l => TextWidth(l.Territory.Name)) / ImGuiHelpers.GlobalScale;
             _aetheryteColumnWidth = GatherBuddy.GameData.Aetherytes.Values.Max(a => TextWidth(a.Name)) / ImGuiHelpers.GlobalScale;
             _coordColumnWidth     = TextWidth("X-Coord") / ImGuiHelpers.GlobalScale + Table.ArrowWidth;
+            _radiusColumnWidth    = TextWidth("Radius") / ImGuiHelpers.GlobalScale + Table.ArrowWidth;
             _typeColumnWidth      = Enum.GetValues<GatheringType>().Max(t => TextWidth(t.ToString())) / ImGuiHelpers.GlobalScale;
         }
 
@@ -44,6 +46,7 @@ public partial class Interface
         private static readonly AetheryteColumn _aetheryteColumn = new() { Label = "Aetheryte" };
         private static readonly XCoordColumn    _xCoordColumn    = new() { Label = "X-Coord" };
         private static readonly YCoordColumn    _yCoordColumn    = new() { Label = "Y-Coord" };
+        private static readonly RadiusColumn    _radiusColumn    = new() { Label = "Radius" };
         private static readonly MarkerColumn    _markerColumn    = new() { Label = "Markers" };
         private static readonly ItemColumn      _itemColumn      = new() { Label = "Items" };
 
@@ -236,6 +239,34 @@ public partial class Interface
                 => a.IntegralYCoord.CompareTo(b.IntegralYCoord);
         }
 
+        private sealed class RadiusColumn : ColumnString<ILocation>
+        {
+            public override string ToName(ILocation location)
+                => location.Radius.ToString();
+
+            public override float Width
+                => _radiusColumnWidth * ImGuiHelpers.GlobalScale;
+
+            public override void DrawColumn(ILocation location, int _)
+            {
+                var       overwritten = location.DefaultRadius != location.Radius;
+                using var color       = ImRaii.PushColor(ImGuiCol.FrameBg, ColorId.ChangedLocationBg.Value(), overwritten);
+                ImGui.SetNextItemWidth(-1);
+                int radius = location.Radius;
+                if (ImGui.DragInt("##radius", ref radius, 0.1f, 0, IMarkable.RadiusMax))
+                    _plugin.LocationManager.SetRadius(location, Math.Clamp((ushort)radius, (ushort)0, IMarkable.RadiusMax));
+                if (overwritten)
+                {
+                    ImGuiUtil.HoverTooltip($"Right-click to restore default. ({location.DefaultRadius})");
+                    if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+                        _plugin.LocationManager.SetRadius(location, location.DefaultRadius);
+                }
+            }
+
+            public override int Compare(ILocation a, ILocation b)
+                => a.Radius.CompareTo(b.Radius);
+        }
+
         [Flags]
         private enum MarkerFlags : byte
         {
@@ -318,7 +349,7 @@ public partial class Interface
 
         public LocationTable()
             : base("##LocationTable", _plugin.LocationManager.AllLocations, _nameColumn,
-                _typeColumn, _aetheryteColumn, _xCoordColumn, _yCoordColumn, _markerColumn, _territoryColumn, _itemColumn)
+                _typeColumn, _aetheryteColumn, _xCoordColumn, _yCoordColumn, _radiusColumn, _markerColumn, _territoryColumn, _itemColumn)
         { }
     }
 

@@ -24,7 +24,8 @@ public class LocationManager
         => !ReferenceEquals(loc.ClosestAetheryte, loc.DefaultAetheryte)
          || loc.IntegralXCoord != loc.DefaultXCoord
          || loc.IntegralYCoord != loc.DefaultYCoord
-         || loc.Markers.Length > 0;
+         || loc.Markers.Length > 0
+         || loc.Radius != loc.DefaultRadius;
 
     public IEnumerable<LocationData> CustomLocations
         => AllLocations.Where(HasCustomization).Select(l => new LocationData(l));
@@ -53,6 +54,12 @@ public class LocationManager
     public void SetAetheryte(ILocation loc, Aetheryte? newAetheryte)
     {
         if (loc.SetAetheryte(newAetheryte))
+            Save();
+    }
+
+    public void SetRadius(ILocation loc, ushort newRadius)
+    {
+        if (loc.SetRadius(newRadius))
             Save();
     }
 
@@ -85,8 +92,8 @@ public class LocationManager
 
         try
         {
-            var changes   = false;
-            var text      = File.ReadAllText(file.FullName);
+            var changes = false;
+            var text    = File.ReadAllText(file.FullName);
             foreach (var location in JsonConvert.DeserializeObject<LocationData[]>(text)!)
             {
                 ILocation? loc = location.Type switch
@@ -116,6 +123,7 @@ public class LocationManager
                 changes |= !loc.SetXCoord(location.XCoord);
                 changes |= !loc.SetYCoord(location.YCoord);
                 changes |= !loc.SetMarkers(location.Markers);
+                changes |= !loc.SetRadius(location.Radius);
             }
 
             if (changes)
