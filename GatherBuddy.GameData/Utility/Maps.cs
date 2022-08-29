@@ -16,13 +16,9 @@ public static class Maps
 
     public static unsafe void SetFlagMarker(AgentMap* instance, IMarkable location, uint iconId = 60561U)
     {
-        instance->FlagMapMarker.MapId            = location.Territory.Data.Map.Row;
-        instance->FlagMapMarker.TerritoryId      = location.Territory.Id;
-        instance->FlagMapMarker.XFloat           = IntegerToInternal(location.IntegralXCoord, location.Territory.SizeFactor);
-        instance->FlagMapMarker.YFloat           = IntegerToInternal(location.IntegralYCoord, location.Territory.SizeFactor);
-        instance->IsFlagMarkerSet                = 1;
-        instance->FlagMapMarker.MapMarker.X      = (short)(instance->FlagMapMarker.XFloat * 16);
-        instance->FlagMapMarker.MapMarker.Y      = (short)(instance->FlagMapMarker.YFloat * 16);
-        instance->FlagMapMarker.MapMarker.IconId = iconId;
+        instance->IsFlagMarkerSet = 0;
+        var x = IntegerToInternal(location.IntegralXCoord, location.Territory.SizeFactor);
+        var y = IntegerToInternal(location.IntegralYCoord, location.Territory.SizeFactor);
+        instance->SetFlagMapMarker(location.Territory.Id, location.Territory.Data.Map.Row, x, y, iconId);
     }
 }

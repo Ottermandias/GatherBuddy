@@ -253,6 +253,9 @@ public class Executor
 
         if (instance != null)
         {
+            if (GatherBuddy.Config.UseFlag)
+                Maps.SetFlagMarker(instance, _location);
+
             if (GatherBuddy.Config.UseCoordinates)
             {
                 var icon = GatherBuddy.GameData.GatheringIcons[_location.GatheringType];
@@ -262,9 +265,6 @@ public class Executor
                 instance->OpenMap(_location.Territory.Data.Map.Row, _location.Territory.Id, _item?.Name[GatherBuddy.Language] ?? _location.Name,
                     MapType.GatheringLog);
             }
-
-            if (GatherBuddy.Config.UseFlag)
-                Maps.SetFlagMarker(instance, _location);
         }
     }
 
