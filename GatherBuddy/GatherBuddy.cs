@@ -118,8 +118,10 @@ public partial class GatherBuddy : IDalamudPlugin
         UptimeManager?.Dispose();
         Ipc?.Dispose();
         //Wotsit?.Dispose();
-        Dalamud.PluginInterface.UiBuilder.OpenConfigUi -= Interface.Toggle;
-        Dalamud.PluginInterface.UiBuilder.Draw         -= WindowSystem.Draw;
+        if (Interface != null)
+            Dalamud.PluginInterface.UiBuilder.OpenConfigUi -= Interface.Toggle;
+        if (WindowSystem != null)
+            Dalamud.PluginInterface.UiBuilder.Draw -= WindowSystem.Draw;
         Interface?.Dispose();
         WindowSystem?.RemoveAllWindows();
         DisposeCommands();

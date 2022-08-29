@@ -1,6 +1,7 @@
 ﻿using Dalamud.Game;
 using Dalamud.Utility.Signatures;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using GatherBuddy.Structs;
 
 namespace GatherBuddy.SeFunctions;
 
@@ -29,7 +30,10 @@ public sealed class CurrentBait : SeAddressBase
         UnknownError,
     }
 
-    public unsafe ChangeBaitReturn ChangeBait(uint baitId)
+    public static unsafe int HasItem(uint itemId)
+        => InventoryManager.Instance()->GetInventoryItemCount(itemId);
+
+    public ChangeBaitReturn ChangeBait(uint baitId)
     {
         if (baitId == Current)
             return ChangeBaitReturn.AlreadyEquipped;
@@ -37,7 +41,7 @@ public sealed class CurrentBait : SeAddressBase
         if (baitId == 0 || !GatherBuddy.GameData.Bait.ContainsKey(baitId))
             return ChangeBaitReturn.InvalidBait;
 
-        if (InventoryManager.Instance()->GetInventoryItemCount(baitId) <= 0)
+        if (HasItem(baitId) <= 0)
             return ChangeBaitReturn.NotInInventory;
 
 
