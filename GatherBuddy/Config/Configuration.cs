@@ -40,7 +40,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             UseGearChange          { get; set; } = true;
     public bool             UseTeleport            { get; set; } = true;
     public bool             UseCoordinates         { get; set; } = true;
-    public bool             UseFlag                { get; set; } = false;
+    public bool             UseFlag                { get; set; } = true;
     public bool             WriteCoordinates       { get; set; } = true;
     public bool             PrintUptime            { get; set; } = true;
     public bool             SkipTeleportIfClose    { get; set; } = true;
