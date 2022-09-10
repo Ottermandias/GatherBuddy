@@ -30,11 +30,13 @@ public partial class Interface
         private static float _bestZoneColumnWidth         = 0;
         private static float _itemIdColumnWidth           = 0;
         private static float _gatheringIdColumnWidth      = 0;
+        private static float _globalScale                 = 0;
 
         protected override void PreDraw()
         {
-            if (_nameColumnWidth == 0)
+            if (ImGuiHelpers.GlobalScale != _globalScale)
             {
+                _globalScale     = ImGuiHelpers.GlobalScale;
                 _nameColumnWidth = (Items.Max(i => TextWidth(i.Data.Name[GatherBuddy.Language])) + ItemSpacing.X + LineIconSize.X) / Scale;
                 _nextUptimeColumnWidth = Math.Max(TextWidth("99:99 Minutes") / Scale,
                     TextWidth(_nextUptimeColumn.Label) / Scale + Table.ArrowWidth);

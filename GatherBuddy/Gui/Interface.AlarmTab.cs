@@ -225,7 +225,7 @@ public partial class Interface
         ImGui.TableNextColumn();
         var (_, time) = AlarmManager.GetUptime(alarm);
         var now  = GatherBuddy.Time.ServerTime.AddSeconds(alarm.SecondOffset);
-        var size = Vector2.UnitX * 150;
+        var size = Vector2.UnitX * 150 * ImGuiHelpers.GlobalScale;
         if (time.Start > now)
             ImGuiUtil.DrawTextButton(TimeInterval.DurationString(time.Start, now, false), size, ColorId.WarningBg.Value());
         else
@@ -260,7 +260,7 @@ public partial class Interface
         if (!ret)
             return;
 
-        for (var i = 0; i < @group.Alarms.Count; ++i)
+        for (var i = 0; i < group.Alarms.Count; ++i)
         {
             if (group.Alarms[i].Enabled != allEnabled)
                 _plugin.AlarmManager.ToggleAlarm(@group, i);
