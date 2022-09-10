@@ -18,8 +18,7 @@ public static unsafe class Teleporter
             return false;
         }
 
-        if (teleport->TeleportList.Size() == 0)
-            teleport->UpdateAetheryteList();
+        teleport->UpdateAetheryteList();
 
         var endPtr = teleport->TeleportList.Last;
         for (var it = teleport->TeleportList.First; it != endPtr; ++it)
