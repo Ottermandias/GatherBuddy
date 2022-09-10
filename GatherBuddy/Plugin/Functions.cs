@@ -6,6 +6,7 @@ using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Logging;
+using Lumina.Excel.GeneratedSheets;
 using OtterGui.Classes;
 
 namespace GatherBuddy.Plugin;
@@ -107,16 +108,20 @@ public static class Functions
     }
 
     public static bool BoundByDuty()
-        => Dalamud.Conditions[ConditionFlag.BoundByDuty]
+        => !InIslandSanctuary() && (Dalamud.Conditions[ConditionFlag.BoundByDuty]
          || Dalamud.Conditions[ConditionFlag.WatchingCutscene]
          || Dalamud.Conditions[ConditionFlag.BoundByDuty56]
          || Dalamud.Conditions[ConditionFlag.BoundByDuty95]
          || Dalamud.Conditions[ConditionFlag.WatchingCutscene78]
-         || Dalamud.Conditions[ConditionFlag.InDeepDungeon];
+         || Dalamud.Conditions[ConditionFlag.InDeepDungeon]);
 
     public static bool BetweenAreas()
         => Dalamud.Conditions[ConditionFlag.BetweenAreas]
          || Dalamud.Conditions[ConditionFlag.BetweenAreas51];
+
+    public static bool InIslandSanctuary()
+        => Dalamud.GameData.GetExcelSheet<TerritoryType>()?
+            .GetRow(Dalamud.ClientState.TerritoryType)?.TerritoryIntendedUse == 49;
 
     public static bool Move<T>(IList<T> list, int idx1, int idx2)
     {
@@ -141,11 +146,11 @@ public static class Functions
     public static bool CheckModifier(ModifierHotkey key, bool noKey)
         => key.Modifier switch
         {
-            VirtualKey.CONTROL  => Dalamud.Keys[VirtualKey.CONTROL],
-            VirtualKey.SHIFT    => Dalamud.Keys[VirtualKey.SHIFT],
-            VirtualKey.MENU     => Dalamud.Keys[VirtualKey.MENU],
-            VirtualKey.NO_KEY   => noKey,
-            _                   => false,
+            VirtualKey.CONTROL => Dalamud.Keys[VirtualKey.CONTROL],
+            VirtualKey.SHIFT   => Dalamud.Keys[VirtualKey.SHIFT],
+            VirtualKey.MENU    => Dalamud.Keys[VirtualKey.MENU],
+            VirtualKey.NO_KEY  => noKey,
+            _                  => false,
         };
 
     public static bool CheckKeyState(ModifiableHotkey key, bool noKey)
