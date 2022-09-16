@@ -7,6 +7,7 @@ public static class Offsets
     public const int SatisfactionSupplyItem2Id       = 0x7C + 0x70;
     public const int ContentsInfoDetailContextItemId = 0x1764;
     public const int RecipeNoteContextItemId         = 0x398;
+    public const int AgentItemContextItemId          = 0x28;
     public const int GatheringNoteContextItemId      = 0xA0;
     public const int ItemSearchContextItemId         = 0x398;
     public const int ChatLogContextItemId            = 0x940;

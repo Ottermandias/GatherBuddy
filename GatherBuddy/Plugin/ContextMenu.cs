@@ -2,6 +2,9 @@
 using Dalamud.ContextMenu;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Logging;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
 namespace GatherBuddy.Plugin;
 
@@ -86,18 +89,29 @@ public class ContextMenu : IDisposable
 
     private void AddGameObjectItem(GameObjectContextMenuOpenArgs args)
     {
+        // TODO: update when client structs is updated.
         var item = args.ParentAddonName switch
         {
             null                 => HandleSatisfactionSupply(),
-            "ContentsInfoDetail" => CheckGameObjectItem("ContentsInfo",  Offsets.ContentsInfoDetailContextItemId),
-            "RecipeNote"         => CheckGameObjectItem("RecipeNote",    Offsets.RecipeNoteContextItemId),
-            "GatheringNote"      => CheckGameObjectItem("GatheringNote", Offsets.GatheringNoteContextItemId),
-            "ItemSearch"         => CheckGameObjectItem(args.Agent,      Offsets.ItemSearchContextItemId),
-            "ChatLog"            => CheckGameObjectItem("ChatLog",       Offsets.ChatLogContextItemId),
+            "ContentsInfoDetail" => CheckGameObjectItem("ContentsInfo",          Offsets.ContentsInfoDetailContextItemId),
+            "RecipeNote"         => CheckGameObjectItem("RecipeNote",            Offsets.RecipeNoteContextItemId),
+            "RecipeTree"         => CheckGameObjectItem(AgentById((AgentId)259), Offsets.AgentItemContextItemId),
+            "RecipeMaterialList" => CheckGameObjectItem(AgentById((AgentId)259), Offsets.AgentItemContextItemId),
+            "GatheringNote"      => CheckGameObjectItem("GatheringNote",         Offsets.GatheringNoteContextItemId),
+            "ItemSearch"         => CheckGameObjectItem(args.Agent,              Offsets.ItemSearchContextItemId),
+            "ChatLog"            => CheckGameObjectItem("ChatLog",               Offsets.ChatLogContextItemId),
             _                    => null,
         };
         if (item != null)
             args.AddCustomItem(item);
+    }
+
+    private static unsafe IntPtr AgentById(AgentId id)
+    {
+        var uiModule = (UIModule*)Dalamud.GameGui.GetUIModule();
+        var agents   = uiModule->GetAgentModule();
+        var agent    = agents->GetAgentByInternalId(id);
+        return (IntPtr)agent;
     }
 
     private void AddInventoryItem(InventoryContextMenuOpenArgs args)
