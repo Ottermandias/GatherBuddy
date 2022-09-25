@@ -29,7 +29,7 @@ public static partial class Fish
             .Weather   (data, 16);
         data.Apply     (16746, Patch.SoulSurrender) // Flarefish
             .Bait      (data, 28634, 12715)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 960)
             .Weather   (data, 16);
         data.Apply     (16747, Patch.SoulSurrender) // Twin-tongued Carp
