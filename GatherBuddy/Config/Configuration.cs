@@ -12,7 +12,7 @@ namespace GatherBuddy.Config;
 
 public partial class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 4;
+    public int Version { get; set; } = 5;
 
     // Set Names
     public string BotanistSetName { get; set; } = "Botanist";
@@ -128,11 +128,22 @@ public partial class Configuration : IPluginConfiguration
         if (Dalamud.PluginInterface.GetPluginConfig() is Configuration config)
         {
             config.AddColors();
+            config.Migrate4To5();
             return config;
         }
 
         config = new Configuration();
         config.Save();
         return config;
+    }
+
+    public void Migrate4To5()
+    {
+        if (Version >= 5)
+            return;
+
+        ShowFish |= FishFilter.Collectible | FishFilter.NotCollectible;
+        Version  =  5;
+        Save();
     }
 }

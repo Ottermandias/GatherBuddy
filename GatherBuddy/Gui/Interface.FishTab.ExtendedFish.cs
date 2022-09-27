@@ -74,6 +74,7 @@ public partial class Interface
         public bool          UptimeDependency;
         public ushort        UptimePercent;
         public bool          Unlocked = false;
+        public bool          Collectible;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -234,6 +235,7 @@ public partial class Interface
         public ExtendedFish(Fish data)
         {
             Data        = data;
+            Collectible = data.ItemData.IsCollectable;
             Icon        = Icons.DefaultStorage[data.ItemData.Icon];
             Territories = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
             if (!Territories.Contains("\n"))

@@ -23,5 +23,8 @@ public enum FishFilter
     Available   = 0x1000,
     Unavailable = 0x2000,
 
-    All = 0x3F7F,
+    Collectible    = 0x4000,
+    NotCollectible = 0x8000,
+
+    All = 0xFF7F,
 }
