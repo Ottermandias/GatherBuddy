@@ -24,7 +24,8 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Time      (0, 360)
             .Snag      (Snagging.Required)
-            .Weather   (data, 1, 2);
+            .Weather   (data, 1, 2)
+            .ForceBig  (false);
         data.Apply     (13731, Patch.AsGoesLightSoGoesDarkness) // Sunsail
             .Bait      (data, 12712)
             .Bite      (HookSet.Powerful, BiteType.Strong)
@@ -60,7 +61,8 @@ public static partial class Fish
         data.Apply     (14217, Patch.AsGoesLightSoGoesDarkness) // Coerthan Oyster
             .Bait      (data, 12711)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (14218, Patch.AsGoesLightSoGoesDarkness) // Oliphant's Trunk
             .Bait      (data, 12710)
             .Bite      (HookSet.Precise, BiteType.Weak)
