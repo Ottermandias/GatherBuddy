@@ -16,7 +16,8 @@ public static partial class Fish
         data.Apply     (17564, Patch.TheFarEdgeOfFate) // Red Sky Coral
             .Bait      (data, 28634)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (17565, Patch.TheFarEdgeOfFate) // Lovers' Clam
             .Bait      (data, 28634)
             .Bite      (HookSet.Precise, BiteType.Weak);
