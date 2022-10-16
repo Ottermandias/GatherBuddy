@@ -63,7 +63,8 @@ public static partial class Fish
         data.Apply     (28719, Patch.VowsOfVirtueDeedsOfCruelty) // Sweetmeat Mussel
             .Bait      (data, 27590)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
     }
     // @formatter:on
 }
