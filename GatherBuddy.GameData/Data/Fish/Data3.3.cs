@@ -10,7 +10,8 @@ public static partial class Fish
         data.Apply     (15439, Patch.RevengeOfTheHorde) // Magic Bucket
             .Bait      (data, 29717)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (15626, Patch.RevengeOfTheHorde) // Fat Purse
             .Bait      (data, 12711)
             .Bite      (HookSet.Precise, BiteType.Legendary);
