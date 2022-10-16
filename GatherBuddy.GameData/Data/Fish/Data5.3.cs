@@ -70,10 +70,12 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (31129, Patch.ReflectionsInCrystal) // Petal Shell
             .Bait      (data, 30136)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (HookSet.Precise, BiteType.Weak)
+            .ForceBig  (false);
         data.Apply     (31134, Patch.ReflectionsInCrystal) // Allagan Hunter
             .Bait      (data, 30136)
-            .Bite      (HookSet.Powerful, BiteType.Strong);
+            .Bite      (HookSet.Powerful, BiteType.Strong)
+            .ForceBig  (false);
         data.Apply     (31578, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Thunderbolt Sculpin
             .Bait      (data);
         data.Apply     (31579, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Alligator Snapping Turtle
