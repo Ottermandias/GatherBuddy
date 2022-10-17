@@ -9,10 +9,12 @@ public static partial class Fish
     {
         data.Apply     (31770, Patch.FuturesRewritten) // Flintstrike
             .Bait      (data, 30136)
-            .Bite      (HookSet.Powerful, BiteType.Strong);
+            .Bite      (HookSet.Powerful, BiteType.Strong)
+            .ForceBig  (false);
         data.Apply     (31771, Patch.FuturesRewritten) // Pickled Pom
             .Bait      (data, 30136)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (HookSet.Precise, BiteType.Weak)
+            .ForceBig  (false);
         data.Apply     (32049, Patch.FuturesRewritten) // Moonlight Guppy
             .Bait      (data, 27589)
             .Bite      (HookSet.Precise, BiteType.Legendary)
