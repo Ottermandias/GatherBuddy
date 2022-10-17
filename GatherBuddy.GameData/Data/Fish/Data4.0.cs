@@ -264,15 +264,18 @@ public static partial class Fish
         data.Apply     (20095, Patch.Stormblood) // Ruby Coral
             .Bait      (data, 20618)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (20096, Patch.Stormblood) // Sapphire Coral
             .Bait      (data, 20618)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (20097, Patch.Stormblood) // Bone Coral
             .Bait      (data, 20618)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (20098, Patch.Stormblood) // Butterfly Fish
             .Bait      (data, 20676)
             .Bite      (HookSet.Powerful, BiteType.Strong);
