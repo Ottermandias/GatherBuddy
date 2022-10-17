@@ -3,7 +3,6 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
-using Dalamud.Logging;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.GatherHelper;
@@ -96,7 +95,7 @@ public partial class Interface
                 };
 
                 if (group.Alarms.Count < configGroup.Alarms.Count())
-                    PluginLog.Warning("Invalid alarms skipped");
+                    GatherBuddy.Log.Warning("Invalid alarms skipped");
 
                 _manager.AddGroup(group);
                 return true;
@@ -327,7 +326,7 @@ public partial class Interface
             }
             catch (Exception e)
             {
-                PluginLog.Error($"Could not write Alarm Group {group.Name} to Clipboard:\n{e}");
+                GatherBuddy.Log.Error($"Could not write Alarm Group {group.Name} to Clipboard:\n{e}");
                 Communicator.PrintClipboardMessage("Alarm Group ", group.Name, e);
             }
         }

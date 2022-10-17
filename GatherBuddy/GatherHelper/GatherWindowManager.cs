@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Dalamud.Logging;
 using GatherBuddy.Alarms;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -89,7 +88,7 @@ public partial class GatherWindowManager : IDisposable
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Error serializing gather window data:\n{e}");
+            GatherBuddy.Log.Error($"Error serializing gather window data:\n{e}");
         }
     }
 
@@ -120,7 +119,7 @@ public partial class GatherWindowManager : IDisposable
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Error deserializing gather window data:\n{e}");
+            GatherBuddy.Log.Error($"Error deserializing gather window data:\n{e}");
             ret.Save();
         }
 

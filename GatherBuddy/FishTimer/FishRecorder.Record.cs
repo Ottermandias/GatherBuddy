@@ -3,7 +3,6 @@ using System.Diagnostics;
 using System.Linq;
 using Dalamud;
 using Dalamud.Game;
-using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer.Parser;
@@ -44,7 +43,7 @@ public partial class FishRecorder
         if (GatherBuddy.GameData.Bait.TryGetValue(baitId, out var bait))
             return bait;
 
-        PluginLog.Error("Item with id {Id} is not a known type of bait.", baitId);
+        GatherBuddy.Log.Error($"Item with id {baitId} is not a known type of bait.");
         return Bait.Unknown;
     }
 
@@ -138,8 +137,7 @@ public partial class FishRecorder
         if (Record.HasSpot)
             Step |= CatchSteps.IdentifiedSpot;
 
-        PluginLog.Verbose("Began fishing at {FishingSpot:l} using {Bait:l}.",
-            spot?.Name ?? "Undiscovered Fishing Hole", Record.Bait.Name);
+        GatherBuddy.Log.Verbose($"Began fishing at {spot?.Name ?? "Undiscovered Fishing Hole"} using {Record.Bait.Name}.");
     }
 
     private void OnBite()
@@ -147,20 +145,20 @@ public partial class FishRecorder
         Timer.Stop();
         Record.SetTugHook(GatherBuddy.TugType.Bite, Record.Hook);
         Step |= CatchSteps.FishBit;
-        PluginLog.Verbose("Fish bit with {BiteType} after {Milliseconds}.", Record.Tug, Timer.ElapsedMilliseconds);
+        GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds}.");
     }
 
     private void OnIdentification(FishingSpot spot)
     {
         Record.FishingSpot =  spot;
         Step               |= CatchSteps.IdentifiedSpot;
-        PluginLog.Verbose("Identified previously unknown fishing spot as {FishingSpot:l}.", spot.Name);
+        GatherBuddy.Log.Verbose($"Identified previously unknown fishing spot as {spot.Name}.");
     }
 
     private void OnHooking(HookSet hook)
     {
         Record.SetTugHook(Record.Tug, hook);
-        PluginLog.Verbose("Hooking {BiteType:l} tug with {HookSet:l}.", Record.Tug, hook);
+        GatherBuddy.Log.Verbose($"Hooking {Record.Tug} tug with {hook}.");
     }
 
     private void OnCatch(Fish fish, ushort size, byte amount, bool large, bool collectible)
@@ -173,9 +171,8 @@ public partial class FishRecorder
             Record.Flags |= FishRecord.Effects.Large;
         if (collectible)
             Record.Flags |= FishRecord.Effects.Collectible;
-        PluginLog.Verbose("Caught {Amount} {Large:l}{Collectible:l}{Fish:l} of size {Size:F1}.",
-            amount, large ? "large " : string.Empty, collectible ? "collectible " : string.Empty,
-            Record.Catch.Name[ClientLanguage.English], size / 10f);
+        GatherBuddy.Log.Verbose(
+            $"Caught {amount} {(large ? "large " : string.Empty)}{(collectible ? "collectible " : string.Empty)}{Record.Catch.Name[ClientLanguage.English]} of size {size / 10f:F1}.");
     }
 
     private void OnMooch()
@@ -191,9 +188,7 @@ public partial class FishRecorder
         Record.FishingSpot = spot;
         if (Record.HasSpot)
             Step |= CatchSteps.IdentifiedSpot;
-        PluginLog.Verbose("Mooching with {Fish} at {FishingSpot}.",
-            Record.Bait.Name,
-            spot?.Name ?? "Undiscovered Fishing Hole");
+        GatherBuddy.Log.Verbose($"Mooching with {Record.Bait.Name} at {spot?.Name ?? "Undiscovered Fishing Hole"}.");
     }
 
     private void OnFishingStop()

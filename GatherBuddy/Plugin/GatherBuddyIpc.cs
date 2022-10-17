@@ -1,5 +1,4 @@
 ﻿using System;
-using Dalamud.Logging;
 using Dalamud.Plugin.Ipc;
 
 namespace GatherBuddy.Plugin;
@@ -26,7 +25,7 @@ public class GatherBuddyIpc : IDisposable
         catch (Exception e)
         {
             _versionProvider = null;
-            PluginLog.Error($"Could not obtain provider for {VersionName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not obtain provider for {VersionName}:\n{e}");
         }
 
         _identifyProvider = Dalamud.PluginInterface.GetIpcProvider<string, uint>(IdentifyName);
@@ -37,7 +36,7 @@ public class GatherBuddyIpc : IDisposable
         catch (Exception e)
         {
             _identifyProvider = null;
-            PluginLog.Error($"Could not obtain provider for {IdentifyName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not obtain provider for {IdentifyName}:\n{e}");
         }
     }
 

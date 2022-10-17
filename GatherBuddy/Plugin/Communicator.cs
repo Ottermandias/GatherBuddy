@@ -6,7 +6,6 @@ using Dalamud;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Logging;
 using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -123,7 +122,7 @@ public static class Communicator
         if (e != null)
         {
             name = name.Length > 0 ? name : "<Unnamed>";
-            PluginLog.Error($"Could not save {objectType}{name} to Clipboard:\n{e}");
+            GatherBuddy.Log.Error($"Could not save {objectType}{name} to Clipboard:\n{e}");
             PrintError($"Could not save {objectType}", name, GatherBuddy.Config.SeColorNames, " to Clipboard.");
         }
         else if (GatherBuddy.Config.PrintClipboardMessages)
@@ -190,20 +189,20 @@ public static class Communicator
         if (item == null)
         {
             Print("Could not find item corresponding to \"", name, GatherBuddy.Config.SeColorNames, "\".");
-            PluginLog.Verbose("Could not find item corresponding to \"{ItemName}\".", name);
+            GatherBuddy.Log.Verbose($"Could not find item corresponding to \"{name}\".");
             return;
         }
 
         if (GatherBuddy.Config.IdentifiedGatherableFormat.Length > 0)
             Print(FormatIdentifiedItemMessage(GatherBuddy.Config.IdentifiedGatherableFormat, name, item));
-        PluginLog.Verbose(Configuration.DefaultIdentifiedGatherableFormat, item.ItemId, item.Name[ClientLanguage.English], name);
+        GatherBuddy.Log.Verbose(Configuration.DefaultIdentifiedGatherableFormat, item.ItemId, item.Name[ClientLanguage.English], name);
     }
 
     public static void PrintAlarmMessage(Alarm alarm, ILocation location, TimeInterval uptime)
     {
         if (GatherBuddy.Config.AlarmFormat.Length > 0)
             Print(FormatAlarmMessage(GatherBuddy.Config.AlarmFormat, alarm, location, uptime));
-        PluginLog.Verbose(Configuration.DefaultAlarmFormat, alarm.Name, alarm.Item.Name[ClientLanguage.English], string.Empty,
+        GatherBuddy.Log.Verbose(Configuration.DefaultAlarmFormat, alarm.Name, alarm.Item.Name[ClientLanguage.English], string.Empty,
             location.Name); // Duration string too ugly.
     }
 
@@ -222,7 +221,7 @@ public static class Communicator
                 .AddColoredText(type.Value.ToString(), GatherBuddy.Config.SeColorArguments);
         sb.AddText(".");
         Print(sb.BuiltString);
-        PluginLog.Verbose(sb.BuiltString.TextValue);
+        GatherBuddy.Log.Verbose(sb.BuiltString.TextValue);
     }
 
     public static void NoItemName(string command, string itemType)

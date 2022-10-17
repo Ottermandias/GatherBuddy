@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.Command;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Logging;
 using GatherBuddy.Enums;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;

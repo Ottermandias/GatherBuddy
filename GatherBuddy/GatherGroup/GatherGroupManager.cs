@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Logging;
 using GatherBuddy.Config;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -179,7 +178,7 @@ public class GatherGroupManager
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Could not write gather groups to file {file.FullName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not write gather groups to file {file.FullName}:\n{e}");
         }
     }
 
@@ -226,7 +225,7 @@ public class GatherGroupManager
             {
                 if (!TimedGroup.FromConfig(config, out var group))
                 {
-                    PluginLog.Error($"Invalid items in gather group {group.Name} skipped.");
+                    GatherBuddy.Log.Error($"Invalid items in gather group {group.Name} skipped.");
                     changes = true;
                 }
 
@@ -234,14 +233,14 @@ public class GatherGroupManager
                 if (searchName.Length == 0)
                 {
                     changes = true;
-                    PluginLog.Error("Gather group without name found, skipping.");
+                    GatherBuddy.Log.Error("Gather group without name found, skipping.");
                     continue;
                 }
 
                 if (manager.Groups.ContainsKey(searchName))
                 {
                     changes = true;
-                    PluginLog.Error($"Multiple gather groups with the same name {searchName} found, skipping later ones.");
+                    GatherBuddy.Log.Error($"Multiple gather groups with the same name {searchName} found, skipping later ones.");
                     continue;
                 }
 
@@ -254,7 +253,7 @@ public class GatherGroupManager
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Error loading gather groups:\n{e}");
+            GatherBuddy.Log.Error($"Error loading gather groups:\n{e}");
             manager.Groups.Clear();
             manager.SetDefaults();
             manager.Save();

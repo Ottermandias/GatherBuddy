@@ -1,5 +1,4 @@
 ﻿using System;
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.System.Framework;
 using GatherBuddy.Time;
 using Action = System.Action;
@@ -65,12 +64,12 @@ public class SeTime
             HourChanged?.Invoke();
             if ((EorzeaHourOfDay & 0b111) == 0)
             {
-                PluginLog.Verbose("Eorzea Hour and Weather Change triggered. {ServerTime} {EorzeaTime}", (long)ServerTime, (long)EorzeaTime);
+                GatherBuddy.Log.Verbose("Eorzea Hour and Weather Change triggered. {(long)ServerTime} {(long)EorzeaTime}");
                 WeatherChanged?.Invoke();
             }
             else
             {
-                PluginLog.Verbose("Eorzea Hour Change triggered. {ServerTime} {EorzeaTime}", (long)ServerTime, (long)EorzeaTime);
+                GatherBuddy.Log.Verbose("Eorzea Hour Change triggered. {(long)ServerTime} {(long)EorzeaTime}");
             }
         }
 

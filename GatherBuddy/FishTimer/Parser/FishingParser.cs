@@ -1,6 +1,5 @@
 ﻿using System;
 using Dalamud.Hooking;
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using GatherBuddy.Classes;
@@ -68,7 +67,7 @@ public partial class FishingParser : IDisposable
 
         if (!GatherBuddy.GameData.Fishes.TryGetValue(fishId, out var fish))
         {
-            PluginLog.Error($"Unknown fish id {fishId} caught.");
+            GatherBuddy.Log.Error($"Unknown fish id {fishId} caught.");
             return;
         }
 

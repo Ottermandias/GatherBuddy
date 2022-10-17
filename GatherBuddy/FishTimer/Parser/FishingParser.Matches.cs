@@ -2,7 +2,6 @@
 using Dalamud;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Logging;
 
 namespace GatherBuddy.FishTimer.Parser;
 
@@ -23,7 +22,7 @@ public partial class FishingParser
               && FishingSpotNames.TryGetValue(fishingSpotName[4..], out fishingSpot))
             BeganFishing?.Invoke(fishingSpot);
         else
-            PluginLog.Error($"Began fishing at unknown fishing spot: \"{fishingSpotName}\".");
+            GatherBuddy.Log.Error($"Began fishing at unknown fishing spot: \"{fishingSpotName}\".");
     }
 
     private void HandleSpotDiscoveredMatch(Match match)
@@ -37,7 +36,7 @@ public partial class FishingParser
               && FishingSpotNames.TryGetValue(fishingSpotName[4..], out fishingSpot))
             IdentifiedSpot?.Invoke(fishingSpot);
         else
-            PluginLog.Error($"Discovered unknown fishing spot: \"{fishingSpotName}\".");
+            GatherBuddy.Log.Error($"Discovered unknown fishing spot: \"{fishingSpotName}\".");
     }
 
     private const XivChatType FishingMessage = (XivChatType)2243;

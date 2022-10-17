@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Threading.Tasks;
 using Dalamud;
 using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Logging;
 using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -128,7 +127,7 @@ public partial class Interface
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Could not open GarlandTools:\n{e.Message}");
+            GatherBuddy.Log.Error($"Could not open GarlandTools:\n{e.Message}");
         }
     }
 
@@ -173,7 +172,7 @@ public partial class Interface
                 }
                 catch
                 {
-                    PluginLog.Error("Could not open local teamcraft.");
+                    GatherBuddy.Log.Error("Could not open local teamcraft.");
                 }
             }
         });

@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Dalamud.Logging;
 using GatherBuddy.Enums;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
@@ -87,7 +86,7 @@ public static class Migration
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Could not read old fishing records from file {file.FullName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not read old fishing records from file {file.FullName}:\n{e}");
         }
     }
 }

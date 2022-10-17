@@ -14,6 +14,7 @@ using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Spearfishing;
 using GatherBuddy.Weather;
+using OtterGui.Log;
 
 namespace GatherBuddy;
 
@@ -28,6 +29,7 @@ public partial class GatherBuddy : IDalamudPlugin
 
     public static Configuration  Config   { get; private set; } = null!;
     public static GameData       GameData { get; private set; } = null!;
+    public static Logger         Log      { get; private set; } = null!;
     public static ClientLanguage Language { get; private set; } = ClientLanguage.English;
     public static SeTime         Time     { get; private set; } = null!;
 #if DEBUG
@@ -67,6 +69,7 @@ public partial class GatherBuddy : IDalamudPlugin
         try
         {
             Dalamud.Initialize(pluginInterface);
+            Log            = new Logger();
             Version        = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             Config         = Configuration.Load();
             Language       = Dalamud.ClientState.ClientLanguage;

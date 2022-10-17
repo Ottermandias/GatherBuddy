@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using System.Text.RegularExpressions;
-using Dalamud.Logging;
 
 namespace GatherBuddy.FishTimer.OldRecords;
 
@@ -28,7 +27,7 @@ public struct Record
     {
         (uint, Record)? Error()
         {
-            PluginLog.Error($"Could not create fishing record from \"{line}\".");
+            GatherBuddy.Log.Error($"Could not create fishing record from \"{line}\".");
             return null;
         }
 

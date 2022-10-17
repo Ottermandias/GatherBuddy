@@ -3,7 +3,6 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Dalamud.Game;
 using Dalamud.Game.Gui;
-using Dalamud.Logging;
 
 namespace GatherBuddy.SeFunctions;
 
@@ -27,13 +26,13 @@ public class CommandManager
         // First try to process the command through Dalamud.
         if (Dalamud.Commands.ProcessCommand(message))
         {
-            PluginLog.Verbose("Executed Dalamud command \"{Message:l}\".", message);
+            GatherBuddy.Log.Verbose($"Executed Dalamud command \"{ message}\".");
             return true;
         }
 
         if (_uiModulePtr == IntPtr.Zero)
         {
-            PluginLog.Error("Can not execute \"{Message:l}\" because no uiModulePtr is available.", message);
+            GatherBuddy.Log.Error("Can not execute \"{message}\" because no uiModulePtr is available.");
             return false;
         }
 

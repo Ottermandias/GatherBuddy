@@ -5,7 +5,6 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Keys;
-using Dalamud.Logging;
 using Lumina.Excel.GeneratedSheets;
 using OtterGui.Classes;
 
@@ -37,7 +36,7 @@ public static class Functions
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Could not create save directory at {dir.FullName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not create save directory at {dir.FullName}:\n{e}");
             return null;
         }
 

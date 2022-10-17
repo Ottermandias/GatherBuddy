@@ -1,4 +1,3 @@
-using Dalamud.Logging;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Plugin;
 
@@ -14,7 +13,7 @@ public static unsafe class Teleporter
         var teleport = Telepo.Instance();
         if (teleport == null)
         {
-            PluginLog.Error("Could not check attunement: Telepo is missing.");
+            GatherBuddy.Log.Error("Could not check attunement: Telepo is missing.");
             return false;
         }
 

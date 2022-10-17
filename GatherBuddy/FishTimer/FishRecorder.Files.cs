@@ -35,7 +35,7 @@ public partial class FishRecorder
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Could not write fish record file {file.FullName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not write fish record file {file.FullName}:\n{e}");
         }
     }
 
@@ -68,11 +68,11 @@ public partial class FishRecorder
         {
             var data = JsonConvert.SerializeObject(Records.Select(r => r.ToJson()), Formatting.Indented);
             File.WriteAllText(file.FullName, data);
-            PluginLog.Information($"Exported {Records.Count} fish records to {file.FullName}.");
+            GatherBuddy.Log.Information($"Exported {Records.Count} fish records to {file.FullName}.");
         }
         catch (Exception e)
         {
-            PluginLog.Warning($"Could not export json file to {file.FullName}:\n{e}");
+            GatherBuddy.Log.Warning($"Could not export json file to {file.FullName}:\n{e}");
         }
     }
 
@@ -86,7 +86,7 @@ public partial class FishRecorder
         }
         catch (Exception e)
         {
-            PluginLog.Warning($"Error while importing fish records:\n{e}");
+            GatherBuddy.Log.Warning($"Error while importing fish records:\n{e}");
         }
     }
 
@@ -126,7 +126,7 @@ public partial class FishRecorder
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Unknown error reading fish record file {file.FullName}:\n{e}");
+            GatherBuddy.Log.Error($"Unknown error reading fish record file {file.FullName}:\n{e}");
             return new List<FishRecord>();
         }
     }
@@ -156,7 +156,7 @@ public partial class FishRecorder
             {
                 if (data.Length % FishRecord.Version1ByteLength != 1)
                 {
-                    PluginLog.Error($"{name} has no valid size for its record version, skipped.\n");
+                    GatherBuddy.Log.Error($"{name} has no valid size for its record version, skipped.\n");
                     return new List<FishRecord>();
                 }
 
@@ -166,7 +166,7 @@ public partial class FishRecorder
                 {
                     if (!FishRecord.FromBytesV1(data, 1 + i * FishRecord.Version1ByteLength, out var record))
                     {
-                        PluginLog.Error($"{name}'s {i}th record is invalid, skipped.\n");
+                        GatherBuddy.Log.Error($"{name}'s {i}th record is invalid, skipped.\n");
                         continue;
                     }
 
@@ -176,7 +176,7 @@ public partial class FishRecorder
                 return ret;
             }
             default:
-                PluginLog.Error($"{name} has no valid record version, skipped.\n");
+                GatherBuddy.Log.Error($"{name} has no valid record version, skipped.\n");
                 return new List<FishRecord>();
         }
     }

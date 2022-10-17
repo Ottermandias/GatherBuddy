@@ -2,7 +2,6 @@
 using System.Runtime.InteropServices;
 using Dalamud.Game;
 using Dalamud.Hooking;
-using Dalamud.Logging;
 
 namespace GatherBuddy.SeFunctions;
 
@@ -14,7 +13,7 @@ public class SeFunctionBase<T> where T : Delegate
     public SeFunctionBase(SigScanner sigScanner, int offset)
     {
         Address = sigScanner.Module.BaseAddress + offset;
-        PluginLog.Debug($"{GetType().Name} address 0x{Address.ToInt64():X16}, baseOffset 0x{offset:X16}.");
+        GatherBuddy.Log.Debug($"{GetType().Name} address 0x{Address.ToInt64():X16}, baseOffset 0x{offset:X16}.");
     }
 
     public SeFunctionBase(SigScanner sigScanner, string signature, int offset = 0)
@@ -23,7 +22,7 @@ public class SeFunctionBase<T> where T : Delegate
         if (Address != IntPtr.Zero)
             Address += offset;
         var baseOffset = (ulong)Address.ToInt64() - (ulong)sigScanner.Module.BaseAddress.ToInt64();
-        PluginLog.Debug($"{GetType().Name} address 0x{Address.ToInt64():X16}, baseOffset 0x{baseOffset:X16}.");
+        GatherBuddy.Log.Debug($"{GetType().Name} address 0x{Address.ToInt64():X16}, baseOffset 0x{baseOffset:X16}.");
     }
 
     public T? Delegate()
@@ -37,7 +36,7 @@ public class SeFunctionBase<T> where T : Delegate
             return FuncDelegate;
         }
 
-        PluginLog.Error($"Trying to generate delegate for {GetType().Name}, but no pointer available.");
+        GatherBuddy.Log.Error($"Trying to generate delegate for {GetType().Name}, but no pointer available.");
         return null;
     }
 
@@ -53,7 +52,7 @@ public class SeFunctionBase<T> where T : Delegate
         }
         else
         {
-            PluginLog.Error($"Trying to call {GetType().Name}, but no pointer available.");
+            GatherBuddy.Log.Error($"Trying to call {GetType().Name}, but no pointer available.");
             return null;
         }
     }
@@ -64,11 +63,11 @@ public class SeFunctionBase<T> where T : Delegate
         {
             var hook = Hook<T>.FromAddress(Address, detour);
             hook.Enable();
-            PluginLog.Debug($"Hooked onto {GetType().Name} at address 0x{Address.ToInt64():X16}.");
+            GatherBuddy.Log.Debug($"Hooked onto {GetType().Name} at address 0x{Address.ToInt64():X16}.");
             return hook;
         }
 
-        PluginLog.Error($"Trying to create Hook for {GetType().Name}, but no pointer available.");
+        GatherBuddy.Log.Error($"Trying to create Hook for {GetType().Name}, but no pointer available.");
         return null;
     }
 }

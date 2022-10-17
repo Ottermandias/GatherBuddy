@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -76,7 +75,7 @@ public class LocationManager
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Could not write custom locations to file {file.FullName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not write custom locations to file {file.FullName}:\n{e}");
         }
     }
 
@@ -104,7 +103,7 @@ public class LocationManager
                 };
                 if (loc == null)
                 {
-                    PluginLog.Error($"Invalid custom location {location.Id} of type {location.Type}, skipped.");
+                    GatherBuddy.Log.Error($"Invalid custom location {location.Id} of type {location.Type}, skipped.");
                     changes = true;
                     continue;
                 }
@@ -114,7 +113,7 @@ public class LocationManager
                 if (location.AetheryteId != -1)
                     if (!GatherBuddy.GameData.Aetherytes.TryGetValue((uint)location.AetheryteId, out aetheryte))
                     {
-                        PluginLog.Error($"Invalid aetheryte id {location.AetheryteId} in custom location for {loc.Name}.");
+                        GatherBuddy.Log.Error($"Invalid aetheryte id {location.AetheryteId} in custom location for {loc.Name}.");
                         changes = true;
                         continue;
                     }
@@ -131,7 +130,7 @@ public class LocationManager
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Error loading custom infos:\n{e}");
+            GatherBuddy.Log.Error($"Error loading custom infos:\n{e}");
         }
 
         return ret;

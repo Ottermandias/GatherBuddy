@@ -3,7 +3,6 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using Dalamud.Data;
 using Dalamud.Game;
-using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Plugin;
 using Lumina.Excel.GeneratedSheets;
@@ -65,13 +64,13 @@ public unsafe class FishLog
         spearFishId -= SpearFishIdOffset;
         if (spearFishId >= _numSpearFish)
         {
-            PluginLog.Error($"Spearfish Id {spearFishId} is larger than number of spearfish in log {_numSpearFish}.");
+            GatherBuddy.Log.Error($"Spearfish Id {spearFishId} is larger than number of spearfish in log {_numSpearFish}.");
             return false;
         }
 
         if (_spearFish == null)
         {
-            PluginLog.Error("Requesting spearfish log completion, but pointer not set.");
+            GatherBuddy.Log.Error("Requesting spearfish log completion, but pointer not set.");
             return false;
         }
 
@@ -84,13 +83,13 @@ public unsafe class FishLog
     {
         if (fishId >= _numFish)
         {
-            PluginLog.Error($"Fish Id {fishId} is larger than number of fish in log {_numFish}.");
+            GatherBuddy.Log.Error($"Fish Id {fishId} is larger than number of fish in log {_numFish}.");
             return false;
         }
 
         if (_fish == null)
         {
-            PluginLog.Error("Requesting fish log completion, but pointer not set.");
+            GatherBuddy.Log.Error("Requesting fish log completion, but pointer not set.");
             return false;
         }
 

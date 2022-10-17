@@ -8,7 +8,6 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
-using Dalamud.Logging;
 using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -97,7 +96,7 @@ public partial class Interface
                 if (!_plugin.GatherGroupManager.ChangeGroupNode(@group, @group.Nodes.Count, d.Node.Item, d.Node.EorzeaStartMinute,
                         d.Node.EorzeaEndMinute, d.Node.Annotation, false))
                 {
-                    PluginLog.Error($"Could not move node from group {d.Group.Name} to group {group.Name}.");
+                    GatherBuddy.Log.Error($"Could not move node from group {d.Group.Name} to group {group.Name}.");
                     return;
                 }
 

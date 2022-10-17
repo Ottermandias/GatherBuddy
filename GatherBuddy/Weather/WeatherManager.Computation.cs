@@ -1,7 +1,6 @@
 using System;
 using System.Diagnostics;
 using System.Linq;
-using Dalamud.Logging;
 using GatherBuddy.Classes;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
@@ -37,7 +36,7 @@ public partial class WeatherManager
         }
 
 #if DEBUG
-        PluginLog.Warning($"Should never be reached, weather rates not adding up to 100. {rates.Rates.Last().CumulativeRate}");
+        GatherBuddy.Log.Warning($"Should never be reached, weather rates not adding up to 100. {rates.Rates.Last().CumulativeRate}");
 #endif
         return rates.Rates[^1].Weather;
     }
@@ -49,7 +48,7 @@ public partial class WeatherManager
 
         if (territory.WeatherRates.Rates.Length == 0)
         {
-            PluginLog.Error($"Trying to get forecast for territory {territory.Id} which has no weather rates.");
+            GatherBuddy.Log.Error($"Trying to get forecast for territory {territory.Id} which has no weather rates.");
             return Array.Empty<WeatherListing>();
         }
 
