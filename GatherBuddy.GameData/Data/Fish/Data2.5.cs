@@ -11,7 +11,8 @@ public static partial class Fish
             .Bait      (data, 2619)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1380, 120)
-            .Snag      (Snagging.None);
+            .Snag      (Snagging.None)
+            .ForceBig  (false);;
     }
     // @formatter:on
 }
