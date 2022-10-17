@@ -51,11 +51,13 @@ public static partial class Fish
         data.Apply     (27419, Patch.Shadowbringers) // Milky Coral
             .Bait      (data, 27583)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (27420, Patch.Shadowbringers) // Gravel Mussel
             .Bait      (data, 27583)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (27421, Patch.Shadowbringers) // Crimson Sea Spider
             .Bait      (data, 27583)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -290,11 +292,13 @@ public static partial class Fish
         data.Apply     (27495, Patch.Shadowbringers) // Deep Purple Coral
             .Bait      (data, 27588)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (27496, Patch.Shadowbringers) // Sycorax
             .Bait      (data, 27588)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (27497, Patch.Shadowbringers) // Stormfish
             .Bait      (data, 27583)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -343,14 +347,16 @@ public static partial class Fish
         data.Apply     (27511, Patch.Shadowbringers) // Maneater Clam
             .Bait      (data, 27588)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (27512, Patch.Shadowbringers) // Stargazer
             .Bait      (data, 27590)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (27513, Patch.Shadowbringers) // Sweetflesh Oyster
             .Bait      (data, 27588)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (27514, Patch.Shadowbringers) // Rainbow Shrimp
             .Bait      (data, 27588)
             .Bite      (HookSet.Precise, BiteType.Weak);
