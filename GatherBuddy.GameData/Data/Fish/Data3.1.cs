@@ -54,7 +54,8 @@ public static partial class Fish
             .Bait      (data, 12709)
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Snag      (Snagging.Required)
-            .Weather   (data, 1, 2);
+            .Weather   (data, 1, 2)
+            .ForceBig  (false);
         data.Apply     (14216, Patch.AsGoesLightSoGoesDarkness) // Priestfish
             .Bait      (data, 12711)
             .Bite      (HookSet.Powerful, BiteType.Strong);
