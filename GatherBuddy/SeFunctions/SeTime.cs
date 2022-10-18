@@ -64,12 +64,12 @@ public class SeTime
             HourChanged?.Invoke();
             if ((EorzeaHourOfDay & 0b111) == 0)
             {
-                GatherBuddy.Log.Verbose("Eorzea Hour and Weather Change triggered. {(long)ServerTime} {(long)EorzeaTime}");
+                GatherBuddy.Log.Verbose($"Eorzea Hour and Weather Change triggered. {(long)ServerTime} {(long)EorzeaTime}");
                 WeatherChanged?.Invoke();
             }
             else
             {
-                GatherBuddy.Log.Verbose("Eorzea Hour Change triggered. {(long)ServerTime} {(long)EorzeaTime}");
+                GatherBuddy.Log.Verbose($"Eorzea Hour Change triggered. {(long)ServerTime} {(long)EorzeaTime}");
             }
         }
 

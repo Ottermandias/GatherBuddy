@@ -134,6 +134,12 @@ public class Executor
         if (_item == null)
             return;
 
+        if (!_item.Locations.Any())
+        {
+            Communicator.LocationNotFound(_item, _gatheringType);
+            return;
+        }
+
         _location = null;
         if (GatherBuddy.Config.PreferredGatheringType != GatheringType.Multiple
          && _gatheringType == null

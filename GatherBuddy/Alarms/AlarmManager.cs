@@ -10,6 +10,7 @@ using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
 using Newtonsoft.Json;
 using OtterGui;
+using Functions = GatherBuddy.Plugin.Functions;
 
 namespace GatherBuddy.Alarms;
 
