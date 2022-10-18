@@ -30,7 +30,10 @@ public partial class FishRecorder : IDisposable
         LoadFile();
 
         if (Changes > 0)
+        {
             WriteFile();
+            ResetTimes();
+        }
 
         SubscribeToParser();
     }

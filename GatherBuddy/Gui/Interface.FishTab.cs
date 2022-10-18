@@ -205,8 +205,10 @@ public partial class Interface
             {
                 if (!lhs.Data.InLog)
                     return rhs.Data.InLog ? 1 : 0;
+                if (!rhs.Data.InLog)
+                    return -1;
 
-                return lhs.Unlocked ? rhs.Unlocked ? 0 : 1 : -1;
+                return lhs.Unlocked ? rhs.Unlocked ? 0 : 1 : rhs.Unlocked ? -1 : 0;
             }
         }
 
@@ -411,7 +413,7 @@ public partial class Interface
                     : FilterValue.HasFlag(FishFilter.NotCollectible);
 
             public override int Compare(ExtendedFish lhs, ExtendedFish rhs)
-                => lhs.Collectible ? rhs.Collectible ? 0 : 1 : -1;
+                => lhs.Collectible ? rhs.Collectible ? 0 : 1 : rhs.Collectible ? -1 : 0;
         }
 
         private sealed class FolkloreColumn : ColumnString<ExtendedFish>
