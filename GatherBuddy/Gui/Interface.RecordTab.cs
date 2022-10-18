@@ -486,6 +486,13 @@ public partial class Interface
             return;
 
         _recordTable.Draw(ImGui.GetTextLineHeightWithSpacing());
+
+        var textSize = ImGui.CalcTextSize("00000000") with { Y = 0 };
+        if (_recordTable.CurrentItems != _recordTable.TotalItems)
+            ImGuiUtil.DrawTextButton($"{_recordTable.CurrentItems}", textSize, ImGui.GetColorU32(ImGuiCol.Button), ColorId.AvailableItem.Value());
+        else
+            ImGuiUtil.DrawTextButton($"{_recordTable.CurrentItems}", textSize, ImGui.GetColorU32(ImGuiCol.Button));
+        ImGui.SameLine();
         if (ImGui.Button("Cleanup"))
         {
             _plugin.FishRecorder.RemoveDuplicates();
