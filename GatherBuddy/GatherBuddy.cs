@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using Dalamud;
@@ -14,6 +17,7 @@ using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Spearfishing;
 using GatherBuddy.Weather;
+using OtterGui.Classes;
 using OtterGui.Log;
 
 namespace GatherBuddy;
@@ -69,8 +73,9 @@ public partial class GatherBuddy : IDalamudPlugin
         try
         {
             Dalamud.Initialize(pluginInterface);
-            Log            = new Logger();
-            Version        = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
+            Log     = new Logger();
+            Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
+            Backup.CreateBackup(pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
             Config         = Configuration.Load();
             Language       = Dalamud.ClientState.ClientLanguage;
             GameData       = new GameData(Dalamud.GameData);
@@ -131,5 +136,15 @@ public partial class GatherBuddy : IDalamudPlugin
         Time?.Dispose();
         Icons.DefaultStorage?.Dispose();
         HttpClient?.Dispose();
+    }
+
+    // Collect all relevant files for GatherBuddy configuration
+    private static IReadOnlyList<FileInfo> GatherBuddyBackupFiles()
+    {
+        var list = Directory.Exists(Dalamud.PluginInterface.GetPluginConfigDirectory())
+            ? Dalamud.PluginInterface.ConfigDirectory.EnumerateFiles("*.*").ToList()
+            : new List<FileInfo>();
+        list.Add(Dalamud.PluginInterface.ConfigFile);
+        return list;
     }
 }
