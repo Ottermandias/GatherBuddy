@@ -8,8 +8,8 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
-using OtterGui.Table;
 using Newtonsoft.Json;
+using OtterGui;
 
 namespace GatherBuddy.Alarms;
 

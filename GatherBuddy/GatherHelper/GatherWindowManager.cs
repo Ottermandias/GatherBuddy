@@ -5,8 +5,8 @@ using System.Linq;
 using GatherBuddy.Alarms;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
-using OtterGui.Table;
 using Newtonsoft.Json;
+using OtterGui;
 
 namespace GatherBuddy.GatherHelper;
 
