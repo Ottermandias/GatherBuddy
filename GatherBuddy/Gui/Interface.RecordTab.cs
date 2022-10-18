@@ -508,7 +508,7 @@ public partial class Interface
         try
         {
             if (ImGui.Button("Copy to Clipboard"))
-                ImGui.SetClipboardText(_plugin.FishRecorder.ExportBase64(0, _plugin.FishRecorder.Records.Count));
+                ImGui.SetClipboardText(_plugin.FishRecorder.ExportBase64());
             ImGuiUtil.HoverTooltip("Export all fish records to your clipboard, to share them with other people. This may be a lot");
         }
         catch

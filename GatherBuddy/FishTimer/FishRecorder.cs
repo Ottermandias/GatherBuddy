@@ -24,7 +24,13 @@ public partial class FishRecorder : IDisposable
         }
 
         if (Directory.Exists(FishRecordDirectory.FullName))
-            ReadAllFiles();
+        {
+            MigrateOldFiles();
+        }
+        LoadFile();
+
+        if (Changes > 0)
+            WriteFile();
 
         SubscribeToParser();
     }
@@ -42,12 +48,17 @@ public partial class FishRecorder : IDisposable
     }
 
     public void Dispose()
-        => Disable();
+    {
+        Disable();
+        if (Changes > 0)
+            WriteFile();
+    }
 
     private void AddUnchecked(FishRecord record)
     {
         Records.Add(record);
         AddRecordToTimes(record);
+        ++Changes;
     }
 
     internal bool AddChecked(FishRecord record)
@@ -75,8 +86,9 @@ public partial class FishRecorder : IDisposable
 
     public void Add(FishRecord record)
     {
-        if (AddChecked(record))
-            WriteNewestFile();
+        AddChecked(record);
+        if (Changes > 20)
+            WriteFile();
     }
 
     public void Remove(int idx)
@@ -84,8 +96,9 @@ public partial class FishRecorder : IDisposable
         Debug.Assert(idx >= 0 && idx < Records.Count);
         var record = Records[idx];
         Records.RemoveAt(idx);
-        WriteAllFiles(idx);
         RemoveRecordFromTimes(record);
+        if (++Changes > 20)
+            WriteFile();
     }
 
     private void RemoveRecordFromTimes(FishRecord record)
@@ -136,8 +149,8 @@ public partial class FishRecorder : IDisposable
         if (Records.RemoveAll(r => !r.Flags.HasFlag(FishRecord.Effects.Valid)) <= 0)
             return;
 
-        WriteAllFiles();
         ResetTimes();
+        WriteFile();
     }
 
     public void RemoveDuplicates()
@@ -156,8 +169,8 @@ public partial class FishRecorder : IDisposable
         if (oldCount == Records.Count)
             return;
 
-        WriteAllFiles();
         ResetTimes();
+        WriteFile();
     }
 
     private static bool Similar(FishRecord lhs, FishRecord rhs)
@@ -167,4 +180,5 @@ public partial class FishRecorder : IDisposable
 
     private bool CheckSimilarity(FishRecord record)
         => !Records.Any(r => Similar(r, record));
+
 }
