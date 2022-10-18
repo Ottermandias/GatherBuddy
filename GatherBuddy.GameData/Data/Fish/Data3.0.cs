@@ -77,7 +77,8 @@ public static partial class Fish
         data.Apply     (12733, Patch.Heavensward) // Rock Mussel
             .Bait      (data, 12706)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (12734, Patch.Heavensward) // Buoyant Oviform
             .Bait      (data, 12708)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -87,7 +88,8 @@ public static partial class Fish
         data.Apply     (12736, Patch.Heavensward) // Blue Cloud Coral
             .Bait      (data, 12708)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (12737, Patch.Heavensward) // Seema Patrician
             .Bait      (data, 12706)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -165,7 +167,8 @@ public static partial class Fish
         data.Apply     (12759, Patch.Heavensward) // Magma Tree
             .Bait      (data, 12709)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (12760, Patch.Heavensward) // Cloud Rider
             .Bait      (data, 12708)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -212,7 +215,8 @@ public static partial class Fish
         data.Apply     (12772, Patch.Heavensward) // Cindersmith
             .Bait      (data, 12709)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (12773, Patch.Heavensward) // Bullwhip
             .Bait      (data, 12710)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -291,7 +295,8 @@ public static partial class Fish
         data.Apply     (12795, Patch.Heavensward) // Gloaming Coral
             .Bait      (data, 12708)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (12796, Patch.Heavensward) // Albino Octopus
             .Bait      (data, 28634, 12715)
             .Bite      (HookSet.Powerful, BiteType.Strong)
@@ -386,7 +391,8 @@ public static partial class Fish
         data.Apply     (12823, Patch.Heavensward) // Spring Urchin
             .Bait      (data, 12711)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (12824, Patch.Heavensward) // Cherry Trout
             .Bait      (data, 12707)
             .Bite      (HookSet.Powerful, BiteType.Strong);
