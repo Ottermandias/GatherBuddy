@@ -21,8 +21,7 @@ public partial class FishTimerWindow : Window
       | ImGuiWindowFlags.NoDecoration
       | ImGuiWindowFlags.NoResize
       | ImGuiWindowFlags.NoMove
-      | ImGuiWindowFlags.NoNavFocus
-      | ImGuiWindowFlags.NoMouseInputs;
+      | ImGuiWindowFlags.NoNavFocus;
 
     private          FishingSpot? _spot;
     private          FishCache[]  _availableFish = Array.Empty<FishCache>();
@@ -195,6 +194,8 @@ public partial class FishTimerWindow : Window
             MaximumSize = new Vector2(2000, _maxListHeight / ImGuiHelpers.GlobalScale),
         };
         Flags = GatherBuddy.Config.FishTimerEdit ? EditFlags : NormalFlags;
+        if (!GatherBuddy.Config.FishTimerEdit && GatherBuddy.Config.FishTimerClickthrough)
+            Flags |= ImGuiWindowFlags.NoMouseInputs;
     }
 
     public override void PostDraw()
