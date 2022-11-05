@@ -17,7 +17,6 @@ public partial class FishTimerWindow
 {
     private readonly struct FishCache
     {
-        private readonly TimeInterval          _nextUptime;
         private readonly string                _textLine;
         private readonly TextureWrap           _icon;
         private readonly FishRecordTimes.Times _all;
@@ -26,6 +25,7 @@ public partial class FishTimerWindow
         public readonly  bool                  Uncaught;
         public readonly  bool                  Unavailable;
         public readonly  ulong                 SortOrder;
+        public readonly TimeInterval           NextUptime;
 
 
         private static ulong MakeSortOrder(ushort min, ushort max)
@@ -98,7 +98,7 @@ public partial class FishTimerWindow
                 SortOrder   = ulong.MaxValue;
             }
 
-            _nextUptime = TimeInterval.Always;
+            NextUptime = TimeInterval.Always;
             _textLine   = fish.Name[GatherBuddy.Language];
 
             // Ocean fish should not respect uptimes due to mechanics.
@@ -110,7 +110,7 @@ public partial class FishTimerWindow
             {
                 var uptime = GatherBuddy.UptimeManager.NextUptime(fish, spot.Territory, GatherBuddy.Time.ServerTime);
                 if (GatherBuddy.Config.ShowFishTimerUptimes && uptime != TimeInterval.Invalid && uptime != TimeInterval.Never)
-                    _nextUptime = uptime;
+                    NextUptime = uptime;
                 if (GatherBuddy.Time.ServerTime < uptime.Start
                  && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || fish.FishRestrictions.HasFlag(FishRestrictions.Weather)))
                     Unavailable = true;
@@ -199,12 +199,12 @@ public partial class FishTimerWindow
             ImGui.Text(_textLine);
 
             // Time
-            if (_nextUptime == TimeInterval.Always)
+            if (NextUptime == TimeInterval.Always)
                 return;
 
-            var timeString = _nextUptime.Start > GatherBuddy.Time.ServerTime
-                ? TimeInterval.DurationString(_nextUptime.Start, GatherBuddy.Time.ServerTime, true)
-                : TimeInterval.DurationString(_nextUptime.End,   GatherBuddy.Time.ServerTime, true);
+            var timeString = NextUptime.Start > GatherBuddy.Time.ServerTime
+                ? TimeInterval.DurationString(NextUptime.Start, GatherBuddy.Time.ServerTime, true)
+                : TimeInterval.DurationString(NextUptime.End,   GatherBuddy.Time.ServerTime, true);
             var offset = ImGui.CalcTextSize(timeString).X;
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImGui.AlignTextToFramePadding();
