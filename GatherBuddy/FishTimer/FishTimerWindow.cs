@@ -21,7 +21,8 @@ public partial class FishTimerWindow : Window
       | ImGuiWindowFlags.NoDecoration
       | ImGuiWindowFlags.NoResize
       | ImGuiWindowFlags.NoMove
-      | ImGuiWindowFlags.NoNavFocus;
+      | ImGuiWindowFlags.NoNavFocus
+      | ImGuiWindowFlags.NoMouseInputs;
 
     private          FishingSpot? _spot;
     private          FishCache[]  _availableFish = Array.Empty<FishCache>();
