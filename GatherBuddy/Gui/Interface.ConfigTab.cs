@@ -247,6 +247,11 @@ public partial class Interface
                 "Enable editing the fish timer window.",
                 GatherBuddy.Config.FishTimerEdit, b => GatherBuddy.Config.FishTimerEdit = b);
 
+        public static void DrawFishTimerClickthroughBox()
+            => DrawCheckbox("Enable fish timer window clickthrough",
+                "Allow clicking through the fish timer by disabling mouse events and context menus.",
+                GatherBuddy.Config.FishTimerClickthrough, b => GatherBuddy.Config.FishTimerClickthrough = b);
+
         public static void DrawFishTimerHideBox()
             => DrawCheckbox("Hide Uncaught Fish in Fish Timer",
                 "Hide all fish from the fish timer window that have not been recorded with the given combination of snagging and bait.",
@@ -575,6 +580,7 @@ public partial class Interface
                 ConfigFunctions.DrawKeepRecordsBox();
                 ConfigFunctions.DrawFishTimerBox();
                 ConfigFunctions.DrawFishTimerEditBox();
+                ConfigFunctions.DrawFishTimerClickthroughBox();
                 ConfigFunctions.DrawFishTimerHideBox();
                 ConfigFunctions.DrawFishTimerHideBox2();
                 ConfigFunctions.DrawFishTimerUptimesBox();

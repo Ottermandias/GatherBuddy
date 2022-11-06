@@ -194,6 +194,8 @@ public partial class FishTimerWindow : Window
             MaximumSize = new Vector2(2000, _maxListHeight / ImGuiHelpers.GlobalScale),
         };
         Flags = GatherBuddy.Config.FishTimerEdit ? EditFlags : NormalFlags;
+        if (!GatherBuddy.Config.FishTimerEdit && GatherBuddy.Config.FishTimerClickthrough)
+            Flags |= ImGuiWindowFlags.NoMouseInputs;
     }
 
     public override void PostDraw()
