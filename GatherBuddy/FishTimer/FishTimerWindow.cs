@@ -35,6 +35,7 @@ public partial class FishTimerWindow : Window
     private Vector2 _itemSpacing = Vector2.Zero;
     private Vector2 _windowPos   = Vector2.Zero;
     private Vector2 _windowSize  = Vector2.Zero;
+    private float   _textMargin  = 5 * ImGuiHelpers.GlobalScale;
     private float   _textLines;
     private float   _maxListHeight;
     private float   _listHeight;
@@ -52,9 +53,6 @@ public partial class FishTimerWindow : Window
 
     private static float Rounding
         => 4 * ImGuiHelpers.GlobalScale;
-
-    private static float TextMargin
-        => 5 * ImGuiHelpers.GlobalScale;
 
     private void DrawEditModeTimer()
     {
@@ -118,10 +116,10 @@ public partial class FishTimerWindow : Window
         var drawList = ImGui.GetWindowDrawList();
         drawList.AddRectFilled(_windowPos, _windowPos + new Vector2(_windowSize.X, _textLines),
             ColorId.FishTimerBackground.Value(), 4 * ImGuiHelpers.GlobalScale);
-        ImGui.SetCursorPosX(TextMargin);
+        ImGui.SetCursorPosX(_textMargin);
         ImGui.Text(bait);
         Interface.CreateContextMenu(_recorder.Record.Bait);
-        ImGui.SetCursorPosX(TextMargin);
+        ImGui.SetCursorPosX(_textMargin);
         ImGui.Text(spot);
         Interface.CreateContextMenu(_spot);
 
@@ -129,13 +127,13 @@ public partial class FishTimerWindow : Window
         {
             case 0: return;
             case -1:
-                var text = "Elapsed Time";
-                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(text).X - TextMargin);
+                const string text = "Elapsed Time";
+                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(text).X - _textMargin);
                 ImGui.Text(text);
                 return;
             default:
                 var secondText = (_milliseconds / 1000.0).ToString("00.0");
-                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(secondText).X - TextMargin);
+                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(secondText).X - _textMargin);
                 ImGui.Text(secondText);
                 return;
         }
@@ -144,18 +142,14 @@ public partial class FishTimerWindow : Window
     private string EllipsifyString(string text, float maxWidth)
     {
         if (ImGui.CalcTextSize(text).X < maxWidth)
-        {
             return text;
-        }
 
-        while (text.Length > 0)
+        maxWidth -= ImGui.CalcTextSize("...").X;
+        var length = Math.Max(text.Length - 3, 0);
+        while (length-- > 0)
         {
-            text = text.Substring(0, text.Length - 1);
-            var newText = $"{text}...";
-            if (ImGui.CalcTextSize(newText).X < maxWidth)
-            {
-                return newText;
-            }
+            if (ImGui.CalcTextSize(text, 0, length).X < maxWidth)
+                return $"{text[..length]}...";
         }
 
         return "";
@@ -169,8 +163,7 @@ public partial class FishTimerWindow : Window
             return;
         }
 
-        var timeString = "100.0";
-        var maxWidth = _windowSize.X - ImGui.CalcTextSize(timeString).X - 2 * TextMargin;
+        var maxWidth = _windowSize.X - ImGui.CalcTextSize("100.0").X - 2 * _textMargin;
         _spotName = EllipsifyString(spot.Name, maxWidth);
     }
 
@@ -223,6 +216,7 @@ public partial class FishTimerWindow : Window
         ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
         _lineHeight = ImGui.GetFrameHeight();
         _iconSize   = new Vector2(_lineHeight);
+        _textMargin = 5 * ImGuiHelpers.GlobalScale;
         _textLines  = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGuiHelpers.GlobalScale;
         _maxListHeight = _maxNumLines * (_lineHeight + _itemSpacing.Y)
           + _textLines
