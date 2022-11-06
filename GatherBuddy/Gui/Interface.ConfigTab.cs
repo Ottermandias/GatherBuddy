@@ -248,8 +248,8 @@ public partial class Interface
                 GatherBuddy.Config.FishTimerEdit, b => GatherBuddy.Config.FishTimerEdit = b);
 
         public static void DrawFishTimerClickthroughBox()
-            => DrawCheckbox("Enable fish timer window clickthrough",
-                "Allow clicking through the fish timer by disabling mouse events and context menus.",
+            => DrawCheckbox("Enable Fish Timer Clickthrough",
+                "Allow clicking through the fish timer and disabling the context menus instead.",
                 GatherBuddy.Config.FishTimerClickthrough, b => GatherBuddy.Config.FishTimerClickthrough = b);
 
         public static void DrawFishTimerHideBox()

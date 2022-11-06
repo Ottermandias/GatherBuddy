@@ -25,7 +25,7 @@ public partial class FishTimerWindow : Window
       | ImGuiWindowFlags.NoNavFocus;
 
     private          FishingSpot? _spot;
-    private          FishCache[]  _availableFish = Array.Empty<FishCache>();
+    private          FishCache[]  _availableFish    = Array.Empty<FishCache>();
     private          TimeStamp    _nextUptimeChange = TimeStamp.MaxValue;
     private readonly FishRecorder _recorder;
     private readonly int          _maxNumLines = GatherBuddy.GameData.FishingSpots.Values.Where(f => !f.Spearfishing).Max(f => f.Items.Length);
@@ -174,8 +174,7 @@ public partial class FishTimerWindow : Window
             _availableFish = enumerator.OrderBy(f => f.SortOrder).ToArray();
 
             var currentTime = GatherBuddy.Time.ServerTime;
-            var times = enumerator.Select(f => f.NextUptime.Start < currentTime ? f.NextUptime.End : f.NextUptime.Start);
-            _nextUptimeChange = times.Min();
+            _nextUptimeChange = _availableFish.Min(f => f.NextUptime.Start < currentTime ? f.NextUptime.End : f.NextUptime.Start);
         }
     }
 
@@ -189,11 +188,13 @@ public partial class FishTimerWindow : Window
         _itemSpacing = new Vector2(0, ImGuiHelpers.GlobalScale);
         ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
-        _lineHeight    = ImGui.GetFrameHeight();
-        _iconSize      = new Vector2(_lineHeight);
-        _textLines     = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGuiHelpers.GlobalScale;
-        _maxListHeight = _maxNumLines * (_lineHeight + _itemSpacing.Y) + _textLines + (GatherBuddy.Config.ShowSecondIntervals > 0 ? 1.1f * ImGui.GetTextLineHeightWithSpacing() : 0);
-        _listHeight    = _availableFish.Length * (_lineHeight + _itemSpacing.Y) + _textLines;
+        _lineHeight = ImGui.GetFrameHeight();
+        _iconSize   = new Vector2(_lineHeight);
+        _textLines  = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGuiHelpers.GlobalScale;
+        _maxListHeight = _maxNumLines * (_lineHeight + _itemSpacing.Y)
+          + _textLines
+          + (GatherBuddy.Config.ShowSecondIntervals > 0 ? 1.1f * ImGui.GetTextLineHeightWithSpacing() : 0);
+        _listHeight = _availableFish.Length * (_lineHeight + _itemSpacing.Y) + _textLines;
         SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = new Vector2(225,  _maxListHeight / ImGuiHelpers.GlobalScale),
