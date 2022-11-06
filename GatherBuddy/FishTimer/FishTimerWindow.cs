@@ -9,6 +9,7 @@ using GatherBuddy.SeFunctions;
 using ImGuiNET;
 using OtterGui;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
+using TimeStamp = GatherBuddy.Time.TimeStamp;
 
 namespace GatherBuddy.FishTimer;
 
@@ -25,6 +26,7 @@ public partial class FishTimerWindow : Window
 
     private          FishingSpot? _spot;
     private          FishCache[]  _availableFish = Array.Empty<FishCache>();
+    private          TimeStamp    _nextUptimeChange = TimeStamp.MaxValue;
     private readonly FishRecorder _recorder;
     private readonly int          _maxNumLines = GatherBuddy.GameData.FishingSpots.Values.Where(f => !f.Spearfishing).Max(f => f.Items.Length);
 
@@ -147,7 +149,7 @@ public partial class FishTimerWindow : Window
         }
 
         var newMilliseconds = (int)_recorder.Timer.ElapsedMilliseconds;
-        if (newMilliseconds < _milliseconds || _spot == null)
+        if (newMilliseconds < _milliseconds || _spot == null || GatherBuddy.Time.ServerTime >= _nextUptimeChange)
         {
             _spot = spot;
             UpdateFish();
@@ -170,6 +172,10 @@ public partial class FishTimerWindow : Window
             if (GatherBuddy.Config.HideUncaughtFish)
                 enumerator = enumerator.Where(f => !f.Uncaught);
             _availableFish = enumerator.OrderBy(f => f.SortOrder).ToArray();
+
+            var currentTime = GatherBuddy.Time.ServerTime;
+            var times = enumerator.Select(f => f.NextUptime.Start < currentTime ? f.NextUptime.End : f.NextUptime.Start);
+            _nextUptimeChange = times.Min();
         }
     }
 
