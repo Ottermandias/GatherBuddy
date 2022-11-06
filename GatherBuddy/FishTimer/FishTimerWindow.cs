@@ -192,7 +192,7 @@ public partial class FishTimerWindow : Window
         _lineHeight    = ImGui.GetFrameHeight();
         _iconSize      = new Vector2(_lineHeight);
         _textLines     = 2 * ImGui.GetTextLineHeightWithSpacing() + ImGuiHelpers.GlobalScale;
-        _maxListHeight = _maxNumLines * (_lineHeight + _itemSpacing.Y) + _textLines;
+        _maxListHeight = _maxNumLines * (_lineHeight + _itemSpacing.Y) + _textLines + (GatherBuddy.Config.ShowSecondIntervals > 0 ? 1.1f * ImGui.GetTextLineHeightWithSpacing() : 0);
         _listHeight    = _availableFish.Length * (_lineHeight + _itemSpacing.Y) + _textLines;
         SizeConstraints = new WindowSizeConstraints
         {
