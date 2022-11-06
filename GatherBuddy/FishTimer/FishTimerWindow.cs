@@ -39,6 +39,7 @@ public partial class FishTimerWindow : Window
     private float   _maxListHeight;
     private float   _listHeight;
     private int     _milliseconds;
+    private string  _spotName = "";
 
     public FishTimerWindow(FishRecorder recorder)
         : base("##FishingTimer")
@@ -51,6 +52,9 @@ public partial class FishTimerWindow : Window
 
     private static float Rounding
         => 4 * ImGuiHelpers.GlobalScale;
+
+    private static float TextMargin
+        => 5 * ImGuiHelpers.GlobalScale;
 
     private void DrawEditModeTimer()
     {
@@ -114,11 +118,10 @@ public partial class FishTimerWindow : Window
         var drawList = ImGui.GetWindowDrawList();
         drawList.AddRectFilled(_windowPos, _windowPos + new Vector2(_windowSize.X, _textLines),
             ColorId.FishTimerBackground.Value(), 4 * ImGuiHelpers.GlobalScale);
-        var offset = 5 * ImGuiHelpers.GlobalScale;
-        ImGui.SetCursorPosX(offset);
+        ImGui.SetCursorPosX(TextMargin);
         ImGui.Text(bait);
         Interface.CreateContextMenu(_recorder.Record.Bait);
-        ImGui.SetCursorPosX(offset);
+        ImGui.SetCursorPosX(TextMargin);
         ImGui.Text(spot);
         Interface.CreateContextMenu(_spot);
 
@@ -127,35 +130,65 @@ public partial class FishTimerWindow : Window
             case 0: return;
             case -1:
                 var text = "Elapsed Time";
-                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(text).X - offset);
+                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(text).X - TextMargin);
                 ImGui.Text(text);
                 return;
             default:
                 var secondText = (_milliseconds / 1000.0).ToString("00.0");
-                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(secondText).X - offset);
+                ImGui.SameLine(_windowSize.X - ImGui.CalcTextSize(secondText).X - TextMargin);
                 ImGui.Text(secondText);
                 return;
         }
     }
 
-    private void SetSpot(FishingSpot? spot)
+    private string EllipsifyString(string text, float maxWidth)
+    {
+        if (ImGui.CalcTextSize(text).X < maxWidth)
+        {
+            return text;
+        }
+
+        while (text.Length > 0)
+        {
+            text = text.Substring(0, text.Length - 1);
+            var newText = $"{text}...";
+            if (ImGui.CalcTextSize(newText).X < maxWidth)
+            {
+                return newText;
+            }
+        }
+
+        return "";
+    }
+
+    private void UpdateSpotText(FishingSpot? spot)
     {
         if (spot == null)
         {
-            _spot = null;
-            UpdateFish();
-            _milliseconds = 0;
+            _spotName = "Unknown";
             return;
         }
 
+        var timeString = "100.0";
+        var maxWidth = _windowSize.X - ImGui.CalcTextSize(timeString).X - 2 * TextMargin;
+        _spotName = EllipsifyString(spot.Name, maxWidth);
+    }
+
+    private void SetSpot(FishingSpot? spot)
+    {
         var newMilliseconds = (int)_recorder.Timer.ElapsedMilliseconds;
-        if (newMilliseconds < _milliseconds || _spot == null || GatherBuddy.Time.ServerTime >= _nextUptimeChange)
+        if (_spot != spot)
         {
             _spot = spot;
+            UpdateSpotText(spot);
+            UpdateFish();
+        }
+        else if (newMilliseconds < _milliseconds || GatherBuddy.Time.ServerTime >= _nextUptimeChange)
+        {
             UpdateFish();
         }
 
-        _milliseconds = newMilliseconds;
+        _milliseconds = spot == null ? 0 : newMilliseconds;
     }
 
     private void UpdateFish()
@@ -236,7 +269,7 @@ public partial class FishTimerWindow : Window
         }
         else
         {
-            DrawTextHeader(_recorder.Record.Bait.Name, _spot?.Name ?? "Unknown", _milliseconds);
+            DrawTextHeader(_recorder.Record.Bait.Name, _spotName, _milliseconds);
             DrawSecondLines();
             foreach (var fish in _availableFish)
                 fish.Draw(this);
