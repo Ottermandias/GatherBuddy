@@ -40,7 +40,7 @@ public partial class FishTimerWindow : Window
     private float   _maxListHeight;
     private float   _listHeight;
     private int     _milliseconds;
-    private string  _spotName = "";
+    private string? _spotName;
 
     public FishTimerWindow(FishRecorder recorder)
         : base("##FishingTimer")
@@ -155,16 +155,15 @@ public partial class FishTimerWindow : Window
         return "";
     }
 
-    private void UpdateSpotText(FishingSpot? spot)
+    private string GetSpotText(FishingSpot? spot)
     {
         if (spot == null)
         {
-            _spotName = "Unknown";
-            return;
+            return "Unknown";
         }
 
         var maxWidth = _windowSize.X - ImGui.CalcTextSize("100.0").X - 2 * _textMargin;
-        _spotName = EllipsifyString(spot.Name, maxWidth);
+        return EllipsifyString(spot.Name, maxWidth);
     }
 
     private void SetSpot(FishingSpot? spot)
@@ -173,7 +172,8 @@ public partial class FishTimerWindow : Window
         if (_spot != spot)
         {
             _spot = spot;
-            UpdateSpotText(spot);
+            // Recalculated and cached on the first draw.
+            _spotName = null;
             UpdateFish();
         }
         else if (newMilliseconds < _milliseconds || GatherBuddy.Time.ServerTime >= _nextUptimeChange)
@@ -263,6 +263,10 @@ public partial class FishTimerWindow : Window
         }
         else
         {
+            if (_spotName == null)
+            {
+                _spotName = GetSpotText(_spot);
+            }
             DrawTextHeader(_recorder.Record.Bait.Name, _spotName, _milliseconds);
             DrawSecondLines();
             foreach (var fish in _availableFish)
