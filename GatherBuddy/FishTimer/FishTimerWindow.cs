@@ -263,10 +263,7 @@ public partial class FishTimerWindow : Window
         }
         else
         {
-            if (_spotName == null)
-            {
-                _spotName = GetSpotText(_spot);
-            }
+            _spotName ??= GetSpotText(_spot);
             DrawTextHeader(_recorder.Record.Bait.Name, _spotName, _milliseconds);
             DrawSecondLines();
             foreach (var fish in _availableFish)
