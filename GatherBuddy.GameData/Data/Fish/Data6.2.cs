@@ -10,7 +10,8 @@ public static partial class Fish
         data.Apply(37697, Patch.BuriedMemory) // Mayashell
             .Bait(data, 36591, 36447)
             .Bite(HookSet.Powerful, BiteType.Strong)
-            .Time(180, 360); 
+            .Time(180, 360)
+            .ForceBig  (false); 
         data.Apply(37845, Patch.BuriedMemory) // Greatsword Snook
             .Bait(data, 36591)
             .Bite(HookSet.Powerful, BiteType.Legendary)
