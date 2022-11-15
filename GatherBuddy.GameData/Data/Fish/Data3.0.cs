@@ -30,7 +30,8 @@ public static partial class Fish
         data.Apply     (12720, Patch.Heavensward) // Lake Urchin
             .Bait      (data, 12711)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Snag      (Snagging.Required);
+            .Snag      (Snagging.Required)
+            .ForceBig  (false);
         data.Apply     (12721, Patch.Heavensward) // Whilom Catfish
             .Bait      (data, 12707)
             .Bite      (HookSet.Powerful, BiteType.Strong)
