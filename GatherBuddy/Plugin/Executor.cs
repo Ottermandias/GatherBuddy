@@ -306,6 +306,9 @@ public class Executor
 
     public bool DoCommand(string argument)
     {
+        if (Dalamud.ClientState.LocalPlayer == null || Dalamud.Conditions[ConditionFlag.BetweenAreas])
+            return true;
+
         switch (argument)
         {
             case GatherBuddy.IdentifyCommand:
