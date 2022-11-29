@@ -209,10 +209,20 @@ public class UptimeManager : IDisposable
         if (fish.InternalLocationId <= 0)
             return TimeInterval.Always;
 
-        // Unknown
-        if (fish.FishRestrictions.HasFlag(FishRestrictions.Time) && fish.Interval.AlwaysUp()
-         || fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && fish.PreviousWeather.Length == 0 && fish.CurrentWeather.Length == 0)
-            return TimeInterval.Invalid;
+
+        // Some spectral ocean fish have time restrictions (handled specially in GetUptime)
+        // and some non-spectral ocean fish have weather restrictions (not handled).
+        // Skip all of them here, as they should be considered AlwaysUp instead of Invalid.
+        if (!fish.OceanFish)
+        {
+            // Invalid
+            if (fish.FishRestrictions.HasFlag(FishRestrictions.Time) && fish.Interval.AlwaysUp())
+                return TimeInterval.Invalid;
+
+            // Unknown
+            if (fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && fish.PreviousWeather.Length == 0 && fish.CurrentWeather.Length == 0)
+                return TimeInterval.Invalid;
+        }
 
         return GetUptime(fish, territory, now);
     }

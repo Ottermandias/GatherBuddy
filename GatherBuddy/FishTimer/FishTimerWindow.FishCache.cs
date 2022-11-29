@@ -104,8 +104,10 @@ public partial class FishTimerWindow
             var uptime = GatherBuddy.UptimeManager.NextUptime(fish, spot.Territory, GatherBuddy.Time.ServerTime);
             if (GatherBuddy.Config.ShowFishTimerUptimes && uptime != TimeInterval.Invalid && uptime != TimeInterval.Never)
                 NextUptime = uptime;
+            // Some non-spectral ocean fish have weather restrictions, but this is not handled.
+            var hasWeatherRestriction = fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && !fish.OceanFish;
             if (GatherBuddy.Time.ServerTime < uptime.Start
-              && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || fish.FishRestrictions.HasFlag(FishRestrictions.Weather)))
+              && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || hasWeatherRestriction))
                 Unavailable = true;
             if (fish.Snagging == Snagging.Required && !flags.HasFlag(FishRecord.Effects.Snagging))
                 Unavailable = true;
