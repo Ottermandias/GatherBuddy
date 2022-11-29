@@ -152,7 +152,8 @@ public class GameData
 
             foreach (var fish in Fishes.Values)
             {
-                if (fish.FishingSpots.Count > 0 && fish.FishRestrictions != FishRestrictions.None && !fish.OceanFish)
+                var isRestrictedOceanFish = fish.OceanFish && fish.OceanTimes.Length > 0;
+                if (fish.FishingSpots.Count > 0 && fish.FishRestrictions != FishRestrictions.None || isRestrictedOceanFish)
                     fish.InternalLocationId = ++TimedGatherables;
                 else if (fish.FishingSpots.Count > 0)
                     fish.InternalLocationId = -++MultiNodeGatherables;

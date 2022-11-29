@@ -108,6 +108,15 @@ public class UptimeManager : IDisposable
     // Obtain the next uptime for a fish from now in a specific territory.
     private static TimeInterval GetUptime(Fish fish, Territory territory, TimeStamp now)
     {
+        if (fish.OceanFish)
+        {
+            if (fish.OceanTimes.Length == 0)
+                return TimeInterval.Always;
+
+            // Ocean fish timing is based on the real world time determine routes, not server time.
+            return OceanUptime.GetOceanUptime(fish, TimeStamp.UtcNow);
+        }
+
         if (fish.FishRestrictions == FishRestrictions.Time)
             return fish.Interval == RepeatingInterval.Always ? TimeInterval.Invalid : fish.Interval.NextRealUptime(now);
 

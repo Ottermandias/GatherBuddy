@@ -201,6 +201,15 @@ public static partial class Fish
         return fish;
     }
 
+    private static Classes.Fish? OceanTimes(this Classes.Fish? fish, params OceanTime[] times)
+    {
+        if (fish == null)
+            return null;
+
+        fish.OceanTimes = times;
+        return fish;
+    }
+
     internal static void Apply(GameData data)
     {
         data.ApplyARealmReborn();
