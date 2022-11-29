@@ -39,7 +39,7 @@ public static class OceanUptime
         GaladionBaySpectralCurrent = 238,
     }
 
-    // The sopts are ordered the same way they are in game.
+    // The spots are ordered the same way they are in game.
     // If this is Bloodbrine Day, then the progression is Cieldales Sunset, Northern Strait Night, Bloodbrine Day.
     private static readonly Dictionary<OceanRoute, OceanStop[]> RouteToStops = new Dictionary<OceanRoute, OceanStop[]>()
     {
@@ -93,7 +93,7 @@ public static class OceanUptime
         },
     };
 
-    // Convenience function to return the subsequence OceanTime.
+    // Convenience function to return the subsequent OceanTime.
     private static OceanTime NextTime(OceanTime time) {
         return (OceanTime)(((int)time + 1) % 3);
     }
