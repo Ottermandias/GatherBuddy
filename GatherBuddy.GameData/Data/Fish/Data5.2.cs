@@ -189,7 +189,8 @@ public static partial class Fish
             .OceanTimes(OceanTime.Day);
         data.Apply     (29757, Patch.EchoesOfAFallenStar) // Sea Nettle
             .Bait      (data, 29714)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (HookSet.Precise, BiteType.Weak)
+            .OceanTimes(OceanTime.Sunset);
         data.Apply     (29758, Patch.EchoesOfAFallenStar) // Great Grandmarlin
             .Bait      (data, 29714, 29761)
             .Bite      (HookSet.Powerful, BiteType.Strong);
