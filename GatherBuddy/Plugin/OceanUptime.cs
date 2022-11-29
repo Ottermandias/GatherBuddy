@@ -180,11 +180,11 @@ public static class OceanUptime
         if (!fish.OceanFish || fish.OceanTimes.Length == 0)
             return TimeInterval.Always;
 
-        // The offset in seconds from when the current loop started to the current time.
+        // The offset in milliseconds from when the current loop started to the current time.
         long loopOffsetMilliseconds = (utcNow.Time - LoopTimestampEpoch) % LoopDurationMilliseconds;
-        // The index into RouteLoop for the current timestamp.
+        // The index into RouteLoop for the given timestamp.
         var loopIdx = loopOffsetMilliseconds / TwoHoursInMilliseconds;
-        // The timestamp that this loop started.
+        // The timestamp that this loop started at.
         long loopStartTimestamp = utcNow.Time - loopOffsetMilliseconds;
 
         var spotIds = fish.FishingSpots.Select(spot => spot.Id);
