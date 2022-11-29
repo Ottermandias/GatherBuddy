@@ -110,10 +110,7 @@ public class UptimeManager : IDisposable
     {
         if (fish.OceanFish)
         {
-            if (fish.OceanTimes.Length == 0)
-                return TimeInterval.Always;
-
-            // Ocean fish timing is based on the real world time determine routes, not server time.
+            // Ocean fish timing is based on the real world time, not server time.
             return OceanUptime.GetOceanUptime(fish, TimeStamp.UtcNow);
         }
 
