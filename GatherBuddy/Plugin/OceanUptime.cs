@@ -11,6 +11,8 @@ namespace GatherBuddy.Plugin;
 // A helper class for UptimeManager to deal with ocean fish uptime.
 public static class OceanUptime
 {
+    private const ushort oceanFishingTerritoryId = 900;
+
     private enum OceanRoute
     {
         BloodbrineSea,
@@ -177,7 +179,23 @@ public static class OceanUptime
     // Returns the current/next TimeInterval from a utc timestamp for this ocean fish.
     public static TimeInterval GetOceanUptime(Fish fish, TimeStamp utcNow)
     {
-        if (!fish.OceanFish || fish.OceanTimes.Length == 0)
+        if (!fish.OceanFish)
+            return TimeInterval.Always;
+
+        // Only consider weather when on an ocean fishing boat.
+        // The weather is random per zone, so you need to be there to see it.
+        if (Dalamud.ClientState.TerritoryType == oceanFishingTerritoryId && fish.CurrentWeather.Length > 0)
+        {
+            var currentWeather = GatherBuddy.CurrentWeather.Current;
+
+            if (!Array.Exists(fish.CurrentWeather, weather => weather.Id == currentWeather))
+            {
+                GatherBuddy.Log.Error($"{fish.Name.English} cw:{currentWeather} w:{String.Join(", ", fish.CurrentWeather.Select(x => x.Id))}");
+                return TimeInterval.Invalid;
+            }
+        }
+
+        if (fish.OceanTimes.Length == 0)
             return TimeInterval.Always;
 
         // The offset in milliseconds from when the current loop started to the current time.
