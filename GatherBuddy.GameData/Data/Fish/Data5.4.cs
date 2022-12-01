@@ -54,7 +54,7 @@ public static partial class Fish
         data.Apply     (32056, Patch.FuturesRewritten) // Lady's Cameo
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 3, 4, 1);
         data.Apply     (32057, Patch.FuturesRewritten) // Metallic Boxfish
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -64,11 +64,11 @@ public static partial class Fish
         data.Apply     (32059, Patch.FuturesRewritten) // Watermoura
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.Thunder, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 3, 4, 9, 1);
         data.Apply     (32060, Patch.FuturesRewritten) // King Cobrafish
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Thunder, (uint)OceanWeather.Thunderstorms, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 9, 10, 1);
         data.Apply     (32061, Patch.FuturesRewritten) // Mamahi-mahi
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
@@ -78,7 +78,7 @@ public static partial class Fish
         data.Apply     (32063, Patch.FuturesRewritten) // Spectral Butterfly
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Legendary)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.Thunder, (uint)OceanWeather.Thunderstorms);
+            .Weather   (data, 2, 3, 4, 9, 10);
         data.Apply     (32064, Patch.FuturesRewritten) // Cieldalaes Geode
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
@@ -125,21 +125,21 @@ public static partial class Fish
         data.Apply     (32076, Patch.FuturesRewritten) // Star of the Destroyer
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 3, 4, 1);
         data.Apply     (32077, Patch.FuturesRewritten) // True Scad
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (32078, Patch.FuturesRewritten) // Blooded Wrasse
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.Rain, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 3, 4, 7, 1);
         data.Apply     (32079, Patch.FuturesRewritten) // Bloodpolish Crab
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (32080, Patch.FuturesRewritten) // Blue Stitcher
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Rain, (uint)OceanWeather.Showers, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 7, 8, 1);
         data.Apply     (32081, Patch.FuturesRewritten) // Bloodfresh Tuna
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -149,7 +149,7 @@ public static partial class Fish
         data.Apply     (32083, Patch.FuturesRewritten) // Spectral Eel
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.Rain, (uint)OceanWeather.Showers);
+            .Weather   (data, 2, 3, 4, 7, 8);
         data.Apply     (32084, Patch.FuturesRewritten) // Bareface
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
@@ -198,18 +198,18 @@ public static partial class Fish
         data.Apply     (32097, Patch.FuturesRewritten) // Living Lantern
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 3, 4, 1);
         data.Apply     (32098, Patch.FuturesRewritten) // Honeycomb Fish
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (32099, Patch.FuturesRewritten) // Godsbed
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Thunder, (uint)OceanWeather.Thunderstorms, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 9, 10, 1);
         data.Apply     (32100, Patch.FuturesRewritten) // Lansquenet
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.Thunder, (uint)OceanWeather.ClearSkies);
+            .Weather   (data, 2, 3, 4, 9, 1);
         data.Apply     (32101, Patch.FuturesRewritten) // Thavnairian Shark
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
@@ -219,7 +219,7 @@ public static partial class Fish
         data.Apply     (32103, Patch.FuturesRewritten) // Spectresaur
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Weather   (data, (uint)OceanWeather.FairSkies, (uint)OceanWeather.Clouds, (uint)OceanWeather.Fog, (uint)OceanWeather.Thunder, (uint)OceanWeather.Thunderstorms);
+            .Weather   (data, 2, 3, 4, 9, 10);
         data.Apply     (32104, Patch.FuturesRewritten) // Ginkgo Fin
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Legendary)
