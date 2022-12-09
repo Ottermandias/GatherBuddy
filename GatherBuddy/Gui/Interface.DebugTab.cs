@@ -3,9 +3,9 @@ using System.Globalization;
 using System.Linq;
 using Dalamud;
 using GatherBuddy.Classes;
-using GatherBuddy.Enums;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
+using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
 using ImGuiNET;
@@ -141,6 +141,15 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(GatherBuddy.Time.ServerTime.Time.ToString());
         ImGuiUtil.DrawTableColumn("GatherBuddy EorzeaTime");
         ImGuiUtil.DrawTableColumn(GatherBuddy.Time.EorzeaTime.Time.ToString());
+        ImGuiUtil.DrawTableColumn("Current Computed Weather");
+        ImGuiUtil.DrawTableColumn(Dalamud.ClientState.TerritoryType != 0
+            ? GatherBuddy.WeatherManager.FindLastCurrentNextWeather(Dalamud.ClientState.TerritoryType).Current.Name
+            : "None");
+        ImGuiUtil.DrawTableColumn("Current True Weather");
+        ImGuiUtil.DrawTableColumn(Dalamud.ClientState.TerritoryType != 0
+         && GatherBuddy.GameData.Weathers.TryGetValue(GatherBuddy.CurrentWeather.Current, out var w)
+                ? w.Name
+                : "None");
     }
 
     private static unsafe void DrawDebugFishingState()
