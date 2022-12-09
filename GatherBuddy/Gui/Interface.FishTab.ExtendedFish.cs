@@ -8,7 +8,6 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
-using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
@@ -32,10 +31,10 @@ public partial class Interface
 
         public struct Predator
         {
-            public Fish         Fish;
-            public TextureWrap  Icon;
-            public string       Name;
-            public string       Amount;
+            public Fish        Fish;
+            public TextureWrap Icon;
+            public string      Name;
+            public string      Amount;
         }
 
         public static class Bites
@@ -227,9 +226,9 @@ public partial class Interface
             var minutes = intuition / RealTime.SecondsPerMinute;
             var seconds = intuition % RealTime.SecondsPerMinute;
             if (seconds == 0)
-                return minutes == 1 ? "Intuition for 1 Minute" : $"Intuition for {minutes} Minutes";
+                return minutes == 1 ? "Intuition for 1 Minute" : string.Intern($"Intuition for {minutes} Minutes");
 
-            return $"Intuition for {minutes}:{seconds:D2} Minutes";
+            return string.Intern($"Intuition for {minutes}:{seconds:D2} Minutes");
         }
 
         public ExtendedFish(Fish data)
@@ -247,19 +246,21 @@ public partial class Interface
                 data.FishingSpots.Where(f => f.ClosestAetheryte != null).Select(f => f.ClosestAetheryte!.Name).Distinct());
             if (!Aetherytes.Contains("\n"))
                 Aetherytes = '\0' + Aetherytes;
-            Patch = $"Patch {data.Patch.ToVersionString()}";
-            FishType = data.OceanFish ? string.Intern("Ocean Fish") :
-                data.IsSpearFish      ? string.Intern("Spearfishing") :
-                data.IsBigFish        ? string.Intern("Big Fish") : string.Intern("Regular Fish");
+            Patch = string.Intern($"Patch {data.Patch.ToVersionString()}");
+            FishType = data.OceanFish ? "Ocean Fish" :
+                data.IsSpearFish      ? "Spearfishing" :
+                data.IsBigFish        ? "Big Fish" : "Regular Fish";
 
             Time = !data.FishRestrictions.HasFlag(FishRestrictions.Time)
-                ? string.Intern("Always Up")
-                : data.Interval.AlwaysUp()
-                    ? string.Intern("Unknown Uptime")
-                    : data.Interval.PrintHours();
+                ? "Always Up"
+                : data.OceanFish
+                    ? PrintOceanTime(data.OceanTime)
+                    : data.Interval.AlwaysUp()
+                        ? "Unknown Uptime"
+                        : string.Intern(data.Interval.PrintHours());
 
             UptimePercent = SetUptime(data);
-            UptimeString  = $"{(UptimePercent / 100f).ToString("F1", CultureInfo.InvariantCulture)}%";
+            UptimeString  = string.Intern($"{(UptimePercent / 100f).ToString("F1", CultureInfo.InvariantCulture)}%");
             if (UptimeString == "0.0%")
                 UptimeString = "<0.1%";
             WeatherIcons     = SetWeather(data);
@@ -270,6 +271,20 @@ public partial class Interface
             UptimeDependency = SetUptimeDependency(data, Bait);
             Intuition        = SetIntuition(data);
             Unlocked         = GatherBuddy.FishLog.IsUnlocked(data);
+        }
+
+        private static string PrintOceanTime(OceanTime time)
+        {
+            return time switch
+            {
+                OceanTime.Sunset                   => "Sunset",
+                OceanTime.Sunset | OceanTime.Night => "Sunset or Night",
+                OceanTime.Sunset | OceanTime.Day   => "Sunset or Day",
+                OceanTime.Night                    => "Night",
+                OceanTime.Night | OceanTime.Day    => "Day or Night",
+                OceanTime.Day                      => "Day",
+                _                                  => "Unknown Uptime",
+            };
         }
 
         private static void PrintTime(ExtendedFish fish)
@@ -350,7 +365,7 @@ public partial class Interface
             }
 
             var offsetSmall = (smallIconSize.Y - ImGui.GetTextLineHeight()) / 2;
-            var offsetBig = (iconSize.Y - ImGui.GetTextLineHeight()) / 2;
+            var offsetBig   = (iconSize.Y - ImGui.GetTextLineHeight()) / 2;
             foreach (var bait in fish.Bait)
             {
                 size = iconSize;
@@ -378,7 +393,7 @@ public partial class Interface
                     var uptime = GatherBuddy.UptimeManager.NextUptime(f, territory, GatherBuddy.Time.ServerTime);
                     if (uptime != TimeInterval.Always)
                     {
-                        using var group  = ImRaii.Group();
+                        using var group = ImRaii.Group();
                         ImGui.SetCursorPosY(pos + offsetSmall);
                         ImGui.TextUnformatted(bait.Name);
                         ImGui.SetCursorPosY(pos + smallIconSize.Y + offsetSmall);
@@ -389,9 +404,7 @@ public partial class Interface
 
                 ImGui.SetCursorPosY(pos + offsetBig);
                 if (!printed)
-                {
                     ImGui.TextUnformatted(bait.Name);
-                }
                 if (bait.Equals(fish.Bait.Last()))
                     break;
 
@@ -410,7 +423,7 @@ public partial class Interface
                 return;
 
             using var color  = ImRaii.PushColor(ImGuiCol.Button, 0xFF0040C0);
-            using var style  = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing with {X = ImGuiHelpers.GlobalScale});
+            using var style  = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing with { X = ImGuiHelpers.GlobalScale });
             var       size   = iconSize / 1.5f;
             var       offset = (size.Y - ImGui.GetTextLineHeightWithSpacing()) / 2f;
             foreach (var predator in fish.Predators)

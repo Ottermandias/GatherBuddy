@@ -201,12 +201,14 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? OceanTimes(this Classes.Fish? fish, params OceanTime[] times)
+    private static Classes.Fish? Ocean(this Classes.Fish? fish, params OceanTime[] times)
     {
         if (fish == null)
             return null;
 
-        fish.OceanTimes = times;
+        fish.OceanTime = times.Aggregate(OceanTime.Never, (a, b) => a | b);
+        if (fish.OceanTime != OceanTime.Always)
+            fish.FishRestrictions |= FishRestrictions.Time;
         return fish;
     }
 

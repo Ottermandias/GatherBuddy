@@ -2,7 +2,9 @@ using System;
 using Dalamud.Data;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud;
 using Dalamud.Logging;
+using Dalamud.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Data;
 using GatherBuddy.Enums;
@@ -33,6 +35,9 @@ public class GameData
     public Dictionary<uint, Bait>          Bait                  { get; init; } = new();
     public Dictionary<uint, Fish>          Fishes                { get; init; } = new();
     public Dictionary<uint, FishingSpot>   FishingSpots          { get; init; } = new();
+
+    public IReadOnlyList<OceanRoute> OceanRoutes        { get; init; } = Array.Empty<OceanRoute>();
+    public IReadOnlyList<OceanRoute> OceanRouteTimeline { get; init; } = Array.Empty<OceanRoute>();
 
     public PatriciaTrie<Gatherable> GatherablesTrie { get; init; } = new();
     public PatriciaTrie<Fish>       FishTrie        { get; init; } = new();
@@ -152,13 +157,15 @@ public class GameData
 
             foreach (var fish in Fishes.Values)
             {
-                var isRestrictedOceanFish = fish.OceanFish && fish.OceanTimes.Length > 0;
-                if (fish.FishingSpots.Count > 0 && fish.FishRestrictions != FishRestrictions.None || isRestrictedOceanFish)
+                if (fish.FishingSpots.Count > 0 && fish.FishRestrictions != FishRestrictions.None)
                     fish.InternalLocationId = ++TimedGatherables;
                 else if (fish.FishingSpots.Count > 0)
                     fish.InternalLocationId = -++MultiNodeGatherables;
                 FishTrie.Add(fish.Name[gameData.Language].ToLowerInvariant(), fish);
             }
+
+            OceanRoutes        = SetupOceanRoutes(gameData, FishingSpots);
+            OceanRouteTimeline = SetupOceanTimeline(gameData, OceanRoutes);
         }
         catch (Exception e)
         {
@@ -179,5 +186,47 @@ public class GameData
         territory = new Territory(this, t, aether);
         Territories.Add(t.RowId, territory);
         return territory;
+    }
+
+    public static OceanRoute[] SetupOceanRoutes(DataManager manager, Dictionary<uint, FishingSpot> fishingSpots)
+    {
+        var routeSheet = manager.GetExcelSheet<IKDRoute>(ClientLanguage.English)!;
+        var spotSheet  = manager.GetExcelSheet<IKDSpot>()!;
+        var ret        = new OceanRoute[routeSheet.RowCount - 1];
+
+        var spots = spotSheet.Skip(1).Select(r
+                => fishingSpots.TryGetValue(r.SpotMain.Row, out var Main) && fishingSpots.TryGetValue(r.SpotSub.Row, out var Sub)
+                    ? (Main, Sub)
+                    : throw new Exception("Invalid fishing spot!"))
+            .ToArray();
+
+        for (var i = 1u; i < routeSheet.RowCount; ++i)
+        {
+            var row = routeSheet.GetRow(i)!;
+            var (start, day, sunset, night) = row.UnkData0[0].Time switch
+            {
+                1 => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1]),
+                2 => (OceanTime.Night, spots[(int)row.UnkData0[0].Spot - 1], spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1]),
+                3 => (OceanTime.Day, spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1], spots[(int)row.UnkData0[1].Spot - 1]),
+                _ => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1]),
+            };
+            ret[i - 1] = new OceanRoute
+            {
+                Id         = (byte)i,
+                Name       = row.Name.ToDalamudString().TextValue,
+                StartTime  = start,
+                SpotDay    = day,
+                SpotSunset = sunset,
+                SpotNight  = night,
+            };
+        }
+
+        return ret;
+    }
+
+    public static OceanRoute[] SetupOceanTimeline(DataManager manager, IReadOnlyList<OceanRoute> routes)
+    {
+        var timelineSheet = manager.GetExcelSheet<IKDRouteTable>()!;
+        return timelineSheet.Select(r => routes[(int)r.Route.Row - 1]).ToArray();
     }
 }

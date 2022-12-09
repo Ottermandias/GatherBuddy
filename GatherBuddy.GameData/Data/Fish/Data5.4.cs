@@ -98,26 +98,26 @@ public static partial class Fish
         data.Apply     (32069, Patch.FuturesRewritten) // Flaming Eel
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .OceanTimes(OceanTime.Sunset);
+            .Ocean     (OceanTime.Sunset);
         data.Apply     (32070, Patch.FuturesRewritten) // Jetborne Manta
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32071, Patch.FuturesRewritten) // Devil's Sting
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .OceanTimes(OceanTime.Day);
+            .Ocean     (OceanTime.Day);
         data.Apply     (32072, Patch.FuturesRewritten) // Callichthyid
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .OceanTimes(OceanTime.Day);
+            .Ocean     (OceanTime.Day);
         data.Apply     (32073, Patch.FuturesRewritten) // Meandering Mora
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .OceanTimes(OceanTime.Sunset);
+            .Ocean     (OceanTime.Sunset);
         data.Apply     (32074, Patch.FuturesRewritten) // Hafgufa
             .Bait      (data, 27590)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .OceanTimes(OceanTime.Night)
+            .Ocean     (OceanTime.Night)
             .Predators (data, 15, (32070, 2), (32067, 1));
         data.Apply     (32075, Patch.FuturesRewritten) // Thaliak Crab
             .Bait      (data, 29714)
@@ -157,14 +157,14 @@ public static partial class Fish
         data.Apply     (32085, Patch.FuturesRewritten) // Oracular Crab
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .OceanTimes(OceanTime.Day);
+            .Ocean     (OceanTime.Day);
         data.Apply     (32086, Patch.FuturesRewritten) // Dravanian Bream
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (32087, Patch.FuturesRewritten) // Skaldminni
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .OceanTimes(OceanTime.Night);
+            .Ocean     (OceanTime.Night);
         data.Apply     (32088, Patch.FuturesRewritten) // Serrated Clam
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -174,7 +174,7 @@ public static partial class Fish
         data.Apply     (32090, Patch.FuturesRewritten) // Exterminator
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .OceanTimes(OceanTime.Day);
+            .Ocean     (OceanTime.Day);
         data.Apply     (32091, Patch.FuturesRewritten) // Gory Tuna
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -187,7 +187,7 @@ public static partial class Fish
         data.Apply     (32094, Patch.FuturesRewritten) // Seafaring Toad
             .Bait      (data, 2587)
             .Bite      (HookSet.Precise, BiteType.Legendary)
-            .OceanTimes(OceanTime.Day)
+            .Ocean     (OceanTime.Day)
             .Predators (data, 15, (32089, 3));
         data.Apply     (32095, Patch.FuturesRewritten) // Crow Puffer
             .Bait      (data, 29714)
@@ -227,7 +227,7 @@ public static partial class Fish
         data.Apply     (32105, Patch.FuturesRewritten) // Garum Jug
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .OceanTimes(OceanTime.Day, OceanTime.Night);
+            .Ocean     (OceanTime.Day, OceanTime.Night);
         data.Apply     (32106, Patch.FuturesRewritten) // Smooth Jaguar
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -240,14 +240,14 @@ public static partial class Fish
         data.Apply     (32109, Patch.FuturesRewritten) // Pearl Bombfish
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .OceanTimes(OceanTime.Day, OceanTime.Night);
+            .Ocean     (OceanTime.Day, OceanTime.Night);
         data.Apply     (32110, Patch.FuturesRewritten) // Trollfish
             .Bait      (data, 29714, 32107)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (32111, Patch.FuturesRewritten) // Panoptes
             .Bait      (data, 29716)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .OceanTimes(OceanTime.Day);
+            .Ocean     (OceanTime.Day);
         data.Apply     (32112, Patch.FuturesRewritten) // Crepe Sole
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -257,7 +257,7 @@ public static partial class Fish
         data.Apply     (32114, Patch.FuturesRewritten) // Placodus
             .Bait      (data, 29714, 32107)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .OceanTimes(OceanTime.Sunset)
+            .Ocean     (OceanTime.Sunset)
             .Predators (data, 45, (32110, 1));
         data.Apply     (32882, Patch.FuturesRewritten) // Grade 4 Skybuilders' Zagas Khaal
             .Bait      (data);

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.Linq;
 using Dalamud;
 using GatherBuddy.Classes;
+using GatherBuddy.Enums;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
@@ -127,7 +128,7 @@ public partial class Interface
         if (!table)
             return;
 
-        var fw  = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
+        var fw = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
         ImGuiUtil.DrawTableColumn("Framework Timestamp");
         ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->ServerTime.ToString());
         ImGuiUtil.DrawTableColumn("Framework Eorzea");
@@ -141,7 +142,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn("GatherBuddy EorzeaTime");
         ImGuiUtil.DrawTableColumn(GatherBuddy.Time.EorzeaTime.Time.ToString());
     }
-    
+
     private static unsafe void DrawDebugFishingState()
     {
         if (!ImGui.CollapsingHeader("Fishing State"))
@@ -165,7 +166,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(GatherBuddy.TugType.Address.ToString("X"));
         ImGuiUtil.DrawTableColumn("Bite Type");
         ImGuiUtil.DrawTableColumn(GatherBuddy.TugType.Bite.ToString());
-        
+
         var record = _plugin.FishRecorder.Record;
         ImGuiUtil.DrawTableColumn("Last Fishing State");
         ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.LastState.ToString());
@@ -190,9 +191,11 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn("HookSet");
         ImGuiUtil.DrawTableColumn(record.Hook.ToString());
         ImGuiUtil.DrawTableColumn("Last Catch");
-        ImGuiUtil.DrawTableColumn($"{_plugin.FishRecorder.LastCatch?.Name[ClientLanguage.English] ?? "None"} ({_plugin.FishRecorder.LastCatch?.ItemId ?? 0} - {_plugin.FishRecorder.LastCatch?.FishId ?? 0})");
+        ImGuiUtil.DrawTableColumn(
+            $"{_plugin.FishRecorder.LastCatch?.Name[ClientLanguage.English] ?? "None"} ({_plugin.FishRecorder.LastCatch?.ItemId ?? 0} - {_plugin.FishRecorder.LastCatch?.FishId ?? 0})");
         ImGuiUtil.DrawTableColumn("Current Catch");
-        ImGuiUtil.DrawTableColumn($"{record.Catch?.Name[ClientLanguage.English] ?? "None"} ({record.Catch?.ItemId ?? 0} - {record.Catch?.FishId ?? 0}) - of size {record.Size / 10f} times {record.Amount}");
+        ImGuiUtil.DrawTableColumn(
+            $"{record.Catch?.Name[ClientLanguage.English] ?? "None"} ({record.Catch?.ItemId ?? 0} - {record.Catch?.FishId ?? 0}) - of size {record.Size / 10f} times {record.Amount}");
         foreach (var flag in Enum.GetValues<Effects>())
         {
             ImGuiUtil.DrawTableColumn(flag.ToString());
@@ -232,7 +235,7 @@ public partial class Interface
         }
     }
 
-    private void DrawUptimeManagerTable()
+    private static void DrawUptimeManagerTable()
     {
         if (!ImGui.CollapsingHeader($"Uptimes ({GatherBuddy.GameData.TimedGatherables})"))
             return;
@@ -355,9 +358,10 @@ public partial class Interface
             return;
 
         ImGui.TextUnformatted($"Waymark Manager: 0x{GatherBuddy.WaymarkManager.Address:X}");
-        ImGui.TextUnformatted($"Waymark Manager Offset: +0x{(ulong)GatherBuddy.WaymarkManager.Address - (ulong) Dalamud.SigScanner.Module.BaseAddress:X}");
+        ImGui.TextUnformatted(
+            $"Waymark Manager Offset: +0x{(ulong)GatherBuddy.WaymarkManager.Address - (ulong)Dalamud.SigScanner.Module.BaseAddress:X}");
         using var table = ImRaii.Table("##Waymarks", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
-        if(!table)
+        if (!table)
             return;
 
         for (var i = 0; i < 8; ++i)
@@ -376,6 +380,41 @@ public partial class Interface
             ImGuiUtil.DrawTableColumn(waymark.Z.ToString());
             ImGuiUtil.DrawTableColumn(waymark.Unk1.ToString());
             ImGuiUtil.DrawTableColumn(waymark.Unk2.ToString());
+        }
+    }
+
+    private static void DrawOceanTab()
+    {
+        if (!ImGui.CollapsingHeader("Ocean Routes##OceanDebug"))
+            return;
+
+        using (var table = ImRaii.Table("##Ocean", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        {
+            if (table)
+                foreach (var route in GatherBuddy.GameData.OceanRoutes)
+                {
+                    ImGuiUtil.DrawTableColumn(route.ToString());
+                    ImGuiUtil.DrawTableColumn(route.StartTime.ToString());
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(0).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(0).Spectral.Name);
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(1).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(1).Spectral.Name);
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(2).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(2).Spectral.Name);
+                }
+        }
+
+        using (var table = ImRaii.Table("##OceanTimeline", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        {
+            if (table)
+                foreach (var (route, idx) in GatherBuddy.GameData.OceanRouteTimeline.WithIndex())
+                {
+                    ImGuiUtil.DrawTableColumn(idx.ToString());
+                    ImGuiUtil.DrawTableColumn(route.ToString());
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(0).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(1).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(route.GetSpots(2).Normal.Name);
+                }
         }
     }
 
@@ -419,6 +458,7 @@ public partial class Interface
         ImGuiTable.DrawTabbedTable($"Fishing Spots ({GatherBuddy.GameData.FishingSpots.Count})", GatherBuddy.GameData.FishingSpots.Values,
             DrawFishingSpotDebug, flags, "Id", "Name", "Territory", "Aetheryte", "Coords", "Shadow", "Fishes");
         DrawUptimeManagerTable();
+        DrawOceanTab();
         DrawWaymarkTab();
         if (ImGui.CollapsingHeader("GatheringTree"))
         {
