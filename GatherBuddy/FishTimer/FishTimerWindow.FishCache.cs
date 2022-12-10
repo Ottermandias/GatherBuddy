@@ -101,27 +101,21 @@ public partial class FishTimerWindow
             NextUptime = TimeInterval.Always;
             _textLine   = fish.Name[GatherBuddy.Language];
 
-            // Ocean fish should not respect uptimes due to mechanics.
-            if (fish.OceanFish)
-            {
-                _color = FromData(fish.BiteType, fish.HookSet, Uncaught, false);
-            }
-            else
-            {
-                var uptime = GatherBuddy.UptimeManager.NextUptime(fish, spot.Territory, GatherBuddy.Time.ServerTime);
-                if (GatherBuddy.Config.ShowFishTimerUptimes && uptime != TimeInterval.Invalid && uptime != TimeInterval.Never)
-                    NextUptime = uptime;
-                if (GatherBuddy.Time.ServerTime < uptime.Start
-                 && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || fish.FishRestrictions.HasFlag(FishRestrictions.Weather)))
-                    Unavailable = true;
-                if (fish.Snagging == Snagging.Required && !flags.HasFlag(FishRecord.Effects.Snagging))
-                    Unavailable = true;
-                // Unavailable fish should be last.
-                if (Unavailable)
-                    SortOrder = ulong.MaxValue;
+            var uptime = GatherBuddy.UptimeManager.NextUptime(fish, spot.Territory, GatherBuddy.Time.ServerTime);
+            if (GatherBuddy.Config.ShowFishTimerUptimes && uptime != TimeInterval.Invalid && uptime != TimeInterval.Never)
+                NextUptime = uptime;
+            // Some non-spectral ocean fish have weather restrictions, but this is not handled.
+            var hasWeatherRestriction = fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && !fish.OceanFish;
+            if (GatherBuddy.Time.ServerTime < uptime.Start
+              && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || hasWeatherRestriction))
+                Unavailable = true;
+            if (fish.Snagging == Snagging.Required && !flags.HasFlag(FishRecord.Effects.Snagging))
+                Unavailable = true;
+            // Unavailable fish should be last.
+            if (Unavailable)
+                SortOrder = ulong.MaxValue;
 
-                _color = FromData(fish.BiteType, fish.HookSet, Uncaught, Unavailable);
-            }
+            _color = FromData(fish.BiteType, fish.HookSet, Uncaught, Unavailable);
         }
 
         private void DrawMarkers(ImDrawListPtr ptr, Vector2 pos, float height, float size)

@@ -108,6 +108,12 @@ public class UptimeManager : IDisposable
     // Obtain the next uptime for a fish from now in a specific territory.
     private static TimeInterval GetUptime(Fish fish, Territory territory, TimeStamp now)
     {
+        if (fish.OceanFish)
+        {
+            // Ocean fish timing is based on the real world time, not server time.
+            return OceanUptime.GetOceanUptime(fish, TimeStamp.UtcNow);
+        }
+
         if (fish.FishRestrictions == FishRestrictions.Time)
             return fish.Interval == RepeatingInterval.Always ? TimeInterval.Invalid : fish.Interval.NextRealUptime(now);
 
@@ -203,10 +209,20 @@ public class UptimeManager : IDisposable
         if (fish.InternalLocationId <= 0)
             return TimeInterval.Always;
 
-        // Unknown
-        if (fish.FishRestrictions.HasFlag(FishRestrictions.Time) && fish.Interval.AlwaysUp()
-         || fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && fish.PreviousWeather.Length == 0 && fish.CurrentWeather.Length == 0)
-            return TimeInterval.Invalid;
+
+        // Some spectral ocean fish have time restrictions (handled specially in GetUptime)
+        // and some non-spectral ocean fish have weather restrictions (not handled).
+        // Skip all of them here, as they should be considered AlwaysUp instead of Invalid.
+        if (!fish.OceanFish)
+        {
+            // Invalid
+            if (fish.FishRestrictions.HasFlag(FishRestrictions.Time) && fish.Interval.AlwaysUp())
+                return TimeInterval.Invalid;
+
+            // Unknown
+            if (fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && fish.PreviousWeather.Length == 0 && fish.CurrentWeather.Length == 0)
+                return TimeInterval.Invalid;
+        }
 
         return GetUptime(fish, territory, now);
     }

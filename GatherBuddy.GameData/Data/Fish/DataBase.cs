@@ -201,6 +201,17 @@ public static partial class Fish
         return fish;
     }
 
+    private static Classes.Fish? Ocean(this Classes.Fish? fish, params OceanTime[] times)
+    {
+        if (fish == null)
+            return null;
+
+        fish.OceanTime = times.Aggregate(OceanTime.Never, (a, b) => a | b);
+        if (fish.OceanTime != OceanTime.Always)
+            fish.FishRestrictions |= FishRestrictions.Time;
+        return fish;
+    }
+
     internal static void Apply(GameData data)
     {
         data.ApplyARealmReborn();
