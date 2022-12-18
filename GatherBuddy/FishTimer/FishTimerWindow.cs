@@ -8,6 +8,7 @@ using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
 using OtterGui;
+using OtterGui.Raii;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using TimeStamp = GatherBuddy.Time.TimeStamp;
 
@@ -29,18 +30,20 @@ public partial class FishTimerWindow : Window
     private          TimeStamp    _nextUptimeChange = TimeStamp.MaxValue;
     private readonly FishRecorder _recorder;
     private readonly int          _maxNumLines = GatherBuddy.GameData.FishingSpots.Values.Where(f => !f.Spearfishing).Max(f => f.Items.Length);
+    private readonly ImRaii.Style _style       = new();
 
-    private float   _lineHeight;
-    private Vector2 _iconSize    = Vector2.Zero;
-    private Vector2 _itemSpacing = Vector2.Zero;
-    private Vector2 _windowPos   = Vector2.Zero;
-    private Vector2 _windowSize  = Vector2.Zero;
-    private float   _textMargin  = 5 * ImGuiHelpers.GlobalScale;
-    private float   _textLines;
-    private float   _maxListHeight;
-    private float   _listHeight;
-    private int     _milliseconds;
-    private string? _spotName;
+    private float        _lineHeight;
+    private Vector2      _iconSize    = Vector2.Zero;
+    private Vector2      _itemSpacing = Vector2.Zero;
+    private Vector2      _windowPos   = Vector2.Zero;
+    private Vector2      _windowSize  = Vector2.Zero;
+    private float        _textMargin  = 5 * ImGuiHelpers.GlobalScale;
+    private float        _textLines;
+    private float        _maxListHeight;
+    private float        _listHeight;
+    private int          _milliseconds;
+    private string?      _spotName;
+
 
     public FishTimerWindow(FishRecorder recorder)
         : base("##FishingTimer")
@@ -107,7 +110,7 @@ public partial class FishTimerWindow : Window
             drawList.AddLine(start,         end,         0xFFFFFFFF, ImGuiHelpers.GlobalScale);
             drawList.AddLine(start + scale, end + scale, 0x80000000, ImGuiHelpers.GlobalScale);
             var t = (i * time / 1000).ToString();
-            ImGuiUtil.TextShadowed(end with { X = end.X - ImGui.CalcTextSize(t).X / 2 }, t, 0xFFFFFFFF, 0x80000000);
+            ImGuiUtil.TextShadowed(ImGui.GetWindowDrawList(), end with { X = end.X - ImGui.CalcTextSize(t).X / 2 }, t, 0xFFFFFFFF, 0x80000000);
         }
     }
 
@@ -158,9 +161,7 @@ public partial class FishTimerWindow : Window
     private string GetSpotText(FishingSpot? spot)
     {
         if (spot == null)
-        {
             return "Unknown";
-        }
 
         var maxWidth = _windowSize.X - ImGui.CalcTextSize("100.0").X - 2 * _textMargin;
         return EllipsifyString(spot.Name, maxWidth);
@@ -212,8 +213,8 @@ public partial class FishTimerWindow : Window
     public override void PreDraw()
     {
         _itemSpacing = new Vector2(0, ImGuiHelpers.GlobalScale);
-        ImGui.PushStyleVar(ImGuiStyleVar.WindowPadding, Vector2.Zero);
-        ImGui.PushStyleVar(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
+        _style.Push(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
+        _style.Push(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         _lineHeight = ImGui.GetFrameHeight();
         _iconSize   = new Vector2(_lineHeight);
         _textMargin = 5 * ImGuiHelpers.GlobalScale;
@@ -234,7 +235,7 @@ public partial class FishTimerWindow : Window
 
     public override void PostDraw()
     {
-        ImGui.PopStyleVar(2);
+        _style.Dispose();
     }
 
     public override bool DrawConditions()
@@ -254,6 +255,7 @@ public partial class FishTimerWindow : Window
 
     public override void Draw()
     {
+        _style.Pop();
         _windowPos  = ImGui.GetWindowPos();
         _windowSize = new Vector2(ImGui.GetWindowSize().X, _maxListHeight);
         if (GatherBuddy.Config.FishTimerEdit)
@@ -271,5 +273,6 @@ public partial class FishTimerWindow : Window
 
             DrawProgressLine();
         }
+        _style.Push(ImGuiStyleVar.WindowPadding, Vector2.Zero);
     }
 }

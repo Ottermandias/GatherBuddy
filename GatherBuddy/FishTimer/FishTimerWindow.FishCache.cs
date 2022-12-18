@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using GatherBuddy.Classes;
@@ -7,8 +8,8 @@ using GatherBuddy.Enums;
 using GatherBuddy.Gui;
 using GatherBuddy.Time;
 using ImGuiNET;
-using OtterGui;
 using ImGuiScene;
+using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.FishTimer;
@@ -17,6 +18,7 @@ public partial class FishTimerWindow
 {
     private readonly struct FishCache
     {
+        private readonly ExtendedFish?         _fish;
         private readonly string                _textLine;
         private readonly TextureWrap           _icon;
         private readonly FishRecordTimes.Times _all;
@@ -25,7 +27,7 @@ public partial class FishTimerWindow
         public readonly  bool                  Uncaught;
         public readonly  bool                  Unavailable;
         public readonly  ulong                 SortOrder;
-        public readonly TimeInterval           NextUptime;
+        public readonly  TimeInterval          NextUptime;
 
 
         private static ulong MakeSortOrder(ushort min, ushort max)
@@ -57,6 +59,8 @@ public partial class FishTimerWindow
 
         public FishCache(FishRecorder recorder, Fish fish, FishingSpot spot)
         {
+            _fish = ExtendedFishList.FirstOrDefault(f => f.Data == fish);
+
             // Get All and Bait Times and set caught-with-bait information.
             _all          = new FishRecordTimes.Times();
             _baitSpecific = new FishRecordTimes.Times();
@@ -99,7 +103,7 @@ public partial class FishTimerWindow
             }
 
             NextUptime = TimeInterval.Always;
-            _textLine   = fish.Name[GatherBuddy.Language];
+            _textLine  = fish.Name[GatherBuddy.Language];
 
             var uptime = GatherBuddy.UptimeManager.NextUptime(fish, spot.Territory, GatherBuddy.Time.ServerTime);
             if (GatherBuddy.Config.ShowFishTimerUptimes && uptime != TimeInterval.Invalid && uptime != TimeInterval.Never)
@@ -107,7 +111,7 @@ public partial class FishTimerWindow
             // Some non-spectral ocean fish have weather restrictions, but this is not handled.
             var hasWeatherRestriction = fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && !fish.OceanFish;
             if (GatherBuddy.Time.ServerTime < uptime.Start
-              && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || hasWeatherRestriction))
+             && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || hasWeatherRestriction))
                 Unavailable = true;
             if (fish.Snagging == Snagging.Required && !flags.HasFlag(FishRecord.Effects.Snagging))
                 Unavailable = true;
@@ -172,7 +176,7 @@ public partial class FishTimerWindow
         {
             var padding = 5 * ImGuiHelpers.GlobalScale;
             var pos     = window._windowPos + ImGui.GetCursorPos();
-            var size    = new Vector2(window._windowSize.X, ImGui.GetFrameHeight());
+            var size    = window._windowSize with { Y = ImGui.GetFrameHeight() };
             var ptr     = ImGui.GetWindowDrawList();
 
             // Background
@@ -185,12 +189,24 @@ public partial class FishTimerWindow
 
             // Icon
             ImGui.Image(_icon.ImGuiHandle, window._iconSize);
+            var hovered = ImGui.IsItemHovered();
 
             // Name
             ImGui.SameLine(window._iconSize.X + padding);
             ImGui.AlignTextToFramePadding();
             using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
             ImGui.Text(_textLine);
+            hovered |= ImGui.IsItemHovered();
+
+            if (hovered && _fish != null)
+            {
+                window._style.Pop();
+                _fish.SetTooltip(window._spot?.Territory ?? Territory.Invalid,
+                    ImGuiHelpers.ScaledVector2(40, 40),
+                    ImGuiHelpers.ScaledVector2(20, 20),
+                    ImGuiHelpers.ScaledVector2(30, 30));
+                window._style.Push(ImGuiStyleVar.ItemSpacing, window._itemSpacing);
+            }
 
             // Time
             if (NextUptime == TimeInterval.Always)
