@@ -157,7 +157,8 @@ public class GameData
 
             foreach (var fish in Fishes.Values)
             {
-                if (fish.FishingSpots.Count > 0 && fish.FishRestrictions != FishRestrictions.None)
+                if (fish.FishingSpots.Count > 0 && !fish.OceanFish && fish.FishRestrictions != FishRestrictions.None
+                 || fish.OceanFish && fish.FishRestrictions == FishRestrictions.Time)
                     fish.InternalLocationId = ++TimedGatherables;
                 else if (fish.FishingSpots.Count > 0)
                     fish.InternalLocationId = -++MultiNodeGatherables;
@@ -205,10 +206,14 @@ public class GameData
             var row = routeSheet.GetRow(i)!;
             var (start, day, sunset, night) = row.UnkData0[0].Time switch
             {
-                1 => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1]),
-                2 => (OceanTime.Night, spots[(int)row.UnkData0[0].Spot - 1], spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1]),
-                3 => (OceanTime.Day, spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1], spots[(int)row.UnkData0[1].Spot - 1]),
-                _ => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1]),
+                1 => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1],
+                    spots[(int)row.UnkData0[0].Spot - 1]),
+                2 => (OceanTime.Night, spots[(int)row.UnkData0[0].Spot - 1], spots[(int)row.UnkData0[1].Spot - 1],
+                    spots[(int)row.UnkData0[2].Spot - 1]),
+                3 => (OceanTime.Day, spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1],
+                    spots[(int)row.UnkData0[1].Spot - 1]),
+                _ => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1],
+                    spots[(int)row.UnkData0[0].Spot - 1]),
             };
             ret[i - 1] = new OceanRoute
             {
