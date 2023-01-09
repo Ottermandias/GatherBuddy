@@ -240,5 +240,6 @@ public static partial class Fish
         data.ApplyEndwalker();
         data.ApplyNewfoundAdventure();
         data.ApplyBuriedMemory();
+        data.ApplyGodsRevelLandsTremble();
     }
 }

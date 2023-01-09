@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 
 namespace GatherBuddy.Enums;
 
@@ -33,6 +32,7 @@ public enum Patch : ushort
     Endwalker                  = 600,
     NewfoundAdventure          = 610,
     BuriedMemory               = 620,
+    GodsRevelLandsTremble      = 630,
 }
 
 [Flags]
@@ -65,6 +65,7 @@ public enum PatchFlag : ulong
     Endwalker                  = 1 << 24,
     NewfoundAdventure          = 1 << 25,
     BuriedMemory               = 1 << 26,
+    GodsRevelLandsTremble      = 1 << 27,
 }
 
 public static class PatchExtensions
@@ -118,6 +119,7 @@ public static class PatchExtensions
             60 => "Endwalker",
             61 => "Newfound Adventure",
             62 => "Buried Memory",
+            63 => "Gods Revel, Lands Tremble",
             _  => "Unknown",
         };
     }
@@ -153,6 +155,7 @@ public static class PatchExtensions
             Patch.Endwalker                  => PatchFlag.Endwalker,
             Patch.NewfoundAdventure          => PatchFlag.NewfoundAdventure,
             Patch.BuriedMemory               => PatchFlag.BuriedMemory,
+            Patch.GodsRevelLandsTremble      => PatchFlag.GodsRevelLandsTremble,
             _                                => 0,
         };
     }
@@ -188,6 +191,7 @@ public static class PatchExtensions
             PatchFlag.Endwalker                  => Patch.Endwalker,
             PatchFlag.NewfoundAdventure          => Patch.NewfoundAdventure,
             PatchFlag.BuriedMemory               => Patch.BuriedMemory,
+            PatchFlag.GodsRevelLandsTremble      => Patch.GodsRevelLandsTremble,
             _                                    => Patch.Unknown,
         };
     }
