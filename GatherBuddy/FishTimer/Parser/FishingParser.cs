@@ -26,7 +26,7 @@ public partial class FishingParser : IDisposable
     {
         FishingSpotNames = SetupFishingSpotNames();
         _catchHook       = new UpdateFishCatch(Dalamud.SigScanner).CreateHook(OnCatchUpdate);
-        var hookPtr = (IntPtr)ActionManager.fpUseAction;
+        var hookPtr = (IntPtr)ActionManager.MemberFunctionPointers.UseAction;
         _hookHook = Hook<UseActionDelegate>.FromAddress(hookPtr, OnUseAction);
     }
 
