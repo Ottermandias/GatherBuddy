@@ -50,7 +50,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
         => BigFishOverride.Value ?? FishData?.Unknown5 ?? false;
 
     public bool OceanFish
-        => (FishData?.TerritoryType.Row ?? 0) == 900;
+        => (FishData?.Unknown7 ?? 0) == 900;
 
     public FishRestrictions FishRestrictions { get; set; }
 
@@ -61,7 +61,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
         ItemData         = fishRow.Item.Value ?? new ItemRow();
         _fishData        = fishRow;
         Name             = MultiString.FromItem(gameData, ItemData.RowId);
-        FishRestrictions = fishRow.Unknown9 ? FishRestrictions.Time : FishRestrictions.None;
+        FishRestrictions = fishRow.Unknown10 ? FishRestrictions.Time : FishRestrictions.None;
         Folklore         = string.Empty;
         Size             = SpearfishSize.Unknown;
         Speed            = SpearfishSpeed.Unknown;
