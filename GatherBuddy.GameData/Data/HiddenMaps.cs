@@ -21,6 +21,7 @@ public static class HiddenMaps
         (26745, new uint[]{621, 620, 625, 623, 596, 648, 598, 600, 602}),                // Zonureskin
         (36611, new uint[]{847, 848, 825, 826}),                                         // Saigaskin
         (36612, new uint[]{847, 848, 825, 826}),                                         // Kumbhiraskin
+        (39591, new uint[]{846, 844, 824, 823}),                                         // Ophiotauroskin
     };
     // @formatter:on
 
