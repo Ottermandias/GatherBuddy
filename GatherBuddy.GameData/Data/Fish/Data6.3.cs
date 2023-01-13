@@ -26,14 +26,17 @@ public static partial class Fish
             .Bite(HookSet.Precise, BiteType.Weak);
 
         data.Apply(38830, Patch.GodsRevelLandsTremble) // Catastrophizer
-            .Bait(data)
-            .Bite(HookSet.Unknown, BiteType.Legendary);
+            .Bait(data, 36591)
+            .Time(480, 840)
+            .Transition(data, 2)
+            .Weather(data, 1)
+            .Bite(HookSet.Precise, BiteType.Legendary);
 
         data.Apply(38831, Patch.GodsRevelLandsTremble) // Mossgill Salmon
             .Bait(data, 36590)
             .Transition(data, 3)
             .Weather(data, 7)
-            .Bite(HookSet.Unknown, BiteType.Legendary);
+            .Bite(HookSet.Powerful, BiteType.Legendary);
 
         data.Apply(38832, Patch.GodsRevelLandsTremble) // Vidyutvat Wrasse
             .Bait(data)
@@ -43,27 +46,27 @@ public static partial class Fish
             .Bait(data, 36591)
             .Time(1320, 120)
             .Weather(data, 7)
-            .Bite(HookSet.Unknown, BiteType.Legendary);
+            .Bite(HookSet.Powerful, BiteType.Legendary);
 
         data.Apply(38834, Patch.GodsRevelLandsTremble) // Frozen Regotoise
             .Bait(data, 36595)
             .Time(600, 780)
-            .Transition(data, 2)
+            .Transition(data, 2, 148)
             .Weather(data, 49)
-            .Bite(HookSet.Unknown, BiteType.Legendary);
+            .Bite(HookSet.Powerful, BiteType.Legendary);
 
         data.Apply(38835, Patch.GodsRevelLandsTremble) // Cosmic Haze
             .Bait(data, 36594, 36489)
             .Time(1200, 240)
             .Weather(data, 149)
-            .Bite(HookSet.Unknown, BiteType.Legendary);
+            .Bite(HookSet.Powerful, BiteType.Legendary);
 
         data.Apply(38836, Patch.GodsRevelLandsTremble) // Antheian Dahlia
             .Bait(data, 36591)
-            .Time(240, 480)
+            .Time(240, 600)
             .Transition(data, 3)
             .Weather(data, 1)
-            .Bite(HookSet.Unknown, BiteType.Legendary);
+            .Bite(HookSet.Precise, BiteType.Legendary);
 
         data.Apply(38837, Patch.GodsRevelLandsTremble) // Lakeskipper
             .Spear(SpearfishSize.Small, SpearfishSpeed.VerySlow);
