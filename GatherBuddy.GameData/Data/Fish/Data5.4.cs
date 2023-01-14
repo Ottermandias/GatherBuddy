@@ -119,6 +119,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Night)
             .Predators (data, 15, (32070, 2), (32067, 1));
+            .ForceBig  (false);
         data.Apply     (32075, Patch.FuturesRewritten) // Thaliak Crab
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -189,6 +190,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Ocean     (OceanTime.Day)
             .Predators (data, 15, (32089, 3));
+            .ForceBig  (false);
         data.Apply     (32095, Patch.FuturesRewritten) // Crow Puffer
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -259,6 +261,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Sunset)
             .Predators (data, 45, (32110, 1));
+            .ForceBig  (false);
         data.Apply     (32882, Patch.FuturesRewritten) // Grade 4 Skybuilders' Zagas Khaal
             .Bait      (data);
         data.Apply     (32883, Patch.FuturesRewritten) // Grade 4 Skybuilders' Goldsmith Crab
