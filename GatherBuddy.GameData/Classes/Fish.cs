@@ -49,8 +49,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
     public bool IsBigFish
         => BigFishOverride.Value ?? FishData?.Unknown5 ?? false;
 
-    public bool OceanFish
-        => (FishData?.Unknown7 ?? 0) == 900;
+    public bool OceanFish { get; internal set; }
 
     public FishRestrictions FishRestrictions { get; set; }
 
@@ -76,13 +75,13 @@ public partial class Fish : IComparable<Fish>, IGatherable
         _fishData = fishRow;
         FishRestrictions = (fishRow.TimeRestricted ? FishRestrictions.Time : FishRestrictions.None)
           | (fishRow.WeatherRestricted ? FishRestrictions.Weather : FishRestrictions.None);
-        Name     = MultiString.FromItem(gameData, ItemData.RowId);
-        Folklore = MultiString.ParseSeStringLumina(fishRow.GatheringSubCategory.Value?.FolkloreBook);
-        Size     = SpearfishSize.None;
-        Speed    = SpearfishSpeed.None;
-        BiteType = BiteType.Unknown;
-        Snagging = Snagging.Unknown;
-        HookSet  = HookSet.Unknown;
+        Name      = MultiString.FromItem(gameData, ItemData.RowId);
+        Folklore  = MultiString.ParseSeStringLumina(fishRow.GatheringSubCategory.Value?.FolkloreBook);
+        Size      = SpearfishSize.None;
+        Speed     = SpearfishSpeed.None;
+        BiteType  = BiteType.Unknown;
+        Snagging  = Snagging.Unknown;
+        HookSet   = HookSet.Unknown;
     }
 
     public int CompareTo(Fish? obj)

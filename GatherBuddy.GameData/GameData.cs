@@ -36,8 +36,8 @@ public class GameData
     public Dictionary<uint, Fish>          Fishes                { get; init; } = new();
     public Dictionary<uint, FishingSpot>   FishingSpots          { get; init; } = new();
 
-    public IReadOnlyList<OceanRoute> OceanRoutes        { get; init; } = Array.Empty<OceanRoute>();
-    public IReadOnlyList<OceanRoute> OceanRouteTimeline { get; init; } = Array.Empty<OceanRoute>();
+    public IReadOnlyList<OceanRoute> OceanRoutes         { get; init; } = Array.Empty<OceanRoute>();
+    public IReadOnlyList<OceanRoute> OceanRouteTimeline  { get; init; } = Array.Empty<OceanRoute>();
 
     public PatriciaTrie<Gatherable> GatherablesTrie { get; init; } = new();
     public PatriciaTrie<Fish>       FishTrie        { get; init; } = new();
@@ -167,6 +167,7 @@ public class GameData
 
             OceanRoutes        = SetupOceanRoutes(gameData, FishingSpots);
             OceanRouteTimeline = SetupOceanTimeline(gameData, OceanRoutes);
+            SetOceanFish(OceanRoutes, Fishes.Values);
         }
         catch (Exception e)
         {
@@ -189,7 +190,28 @@ public class GameData
         return territory;
     }
 
-    public static OceanRoute[] SetupOceanRoutes(DataManager manager, Dictionary<uint, FishingSpot> fishingSpots)
+    private static void SetOceanFish(IEnumerable<OceanRoute> routes, IEnumerable<Fish> fishes)
+    {
+        var set = new HashSet<uint>(128);
+        foreach (var route in routes)
+        {
+            set.Add(route.SpotDay.Normal.Id);
+            set.Add(route.SpotDay.Spectral.Id);
+            set.Add(route.SpotNight.Normal.Id);
+            set.Add(route.SpotNight.Spectral.Id);
+            set.Add(route.SpotSunset.Normal.Id);
+            set.Add(route.SpotSunset.Spectral.Id);
+        }
+
+        foreach (var fish in fishes)
+        {
+            var spot = fish.FishData?.FishingSpot.Row ?? 0u;
+            if (set.Contains(spot))
+                fish.OceanFish = true;
+        }
+    }
+
+    private static OceanRoute[] SetupOceanRoutes(DataManager manager, Dictionary<uint, FishingSpot> fishingSpots)
     {
         var routeSheet = manager.GetExcelSheet<IKDRoute>(ClientLanguage.English)!;
         var spotSheet  = manager.GetExcelSheet<IKDSpot>()!;
@@ -229,7 +251,7 @@ public class GameData
         return ret;
     }
 
-    public static OceanRoute[] SetupOceanTimeline(DataManager manager, IReadOnlyList<OceanRoute> routes)
+    private static OceanRoute[] SetupOceanTimeline(DataManager manager, IReadOnlyList<OceanRoute> routes)
     {
         var timelineSheet = manager.GetExcelSheet<IKDRouteTable>()!;
         return timelineSheet.Select(r => routes[(int)r.Route.Row - 1]).ToArray();
