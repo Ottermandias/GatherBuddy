@@ -7,9 +7,6 @@ public static unsafe class Teleporter
 {
     public static bool IsAttuned(uint aetheryte)
     {
-        if (!Dalamud.ClientState.IsLoggedIn)
-            return true;
-
         var teleport = Telepo.Instance();
         if (teleport == null)
         {
@@ -17,6 +14,8 @@ public static unsafe class Teleporter
             return false;
         }
 
+        if (Dalamud.ClientState.LocalPlayer == null)
+            return true;
         teleport->UpdateAetheryteList();
 
         var endPtr = teleport->TeleportList.Last;
