@@ -77,7 +77,7 @@ public static partial class Fish
             .Spear(SpearfishSize.Small, SpearfishSpeed.Fast);
         data.Apply(39240, Patch.GodsRevelLandsTremble) // Phyllinos
             .Bait(data, 36591)
-            .Time(300, 360)
+            .Time(300, 480)
             .Bite(HookSet.Precise, BiteType.Weak);
     }
     // @formatter:on
