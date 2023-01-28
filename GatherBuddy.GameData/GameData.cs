@@ -146,6 +146,10 @@ public class GameData
             HiddenSeeds.Apply(this);
             ForcedAetherytes.Apply(this);
 
+            OceanRoutes        = SetupOceanRoutes(gameData, FishingSpots);
+            OceanRouteTimeline = SetupOceanTimeline(gameData, OceanRoutes);
+            SetOceanFish(OceanRoutes, Fishes.Values);
+
             foreach (var gatherable in Gatherables.Values)
             {
                 if (gatherable.NodeType != NodeType.Unknown && !gatherable.NodeList.Any(n => n.Times.AlwaysUp()))
@@ -164,10 +168,6 @@ public class GameData
                     fish.InternalLocationId = -++MultiNodeGatherables;
                 FishTrie.Add(fish.Name[gameData.Language].ToLowerInvariant(), fish);
             }
-
-            OceanRoutes        = SetupOceanRoutes(gameData, FishingSpots);
-            OceanRouteTimeline = SetupOceanTimeline(gameData, OceanRoutes);
-            SetOceanFish(OceanRoutes, Fishes.Values);
         }
         catch (Exception e)
         {

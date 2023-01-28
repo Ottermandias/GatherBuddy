@@ -111,7 +111,7 @@ public class UptimeManager : IDisposable
         if (fish.OceanFish)
         {
             // Ocean fish timing is based on the real world time, not server time.
-            return OceanUptime.GetOceanUptime(fish, TimeStamp.UtcNow);
+            return OceanUptime.GetOceanUptime(fish, now);
         }
 
         if (fish.FishRestrictions == FishRestrictions.Time)
