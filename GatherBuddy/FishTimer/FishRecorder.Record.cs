@@ -213,6 +213,7 @@ public partial class FishRecorder
 
     private void OnFrameworkUpdate(Framework _)
     {
+        TimedSave();
         var state = GatherBuddy.EventFramework.FishingState;
         if (LastState == state)
             return;

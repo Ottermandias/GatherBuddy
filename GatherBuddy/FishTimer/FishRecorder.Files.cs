@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using GatherBuddy.Plugin;
+using GatherBuddy.Time;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.FishTimer;
@@ -13,20 +13,38 @@ public partial class FishRecorder
     public const    string        FishRecordFileName = "fish_records.dat";
     public readonly DirectoryInfo FishRecordDirectory;
 
-    public int Changes = 0;
+    public  int       Changes  = 0;
+    public  TimeStamp SaveTime = TimeStamp.MaxValue;
+
+    public int AddChanges()
+    {
+        SaveTime = TimeStamp.UtcNow.AddMinutes(3);
+        return ++Changes;
+    }
 
     public void WriteFile()
     {
         var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
+        GatherBuddy.Log.Debug($"Saving fish record file to {file.FullName} with {Changes} changes.");
+        Changes  = 0;
+        SaveTime = TimeStamp.MaxValue;
         try
         {
             var bytes = GetRecordBytes();
             File.WriteAllBytes(file.FullName, bytes);
-            Changes = 0;
         }
         catch (Exception e)
         {
             GatherBuddy.Log.Error($"Could not write fish record file {file.FullName}:\n{e}");
+        }
+    }
+
+
+    private void TimedSave()
+    {
+        if (TimeStamp.UtcNow > SaveTime)
+        {
+            WriteFile();
         }
     }
 
@@ -165,7 +183,7 @@ public partial class FishRecorder
             {
                 Records.AddRange(ReadFile(file));
                 file.Delete();
-                ++Changes;
+                AddChanges();
             }
             catch (Exception e)
             {

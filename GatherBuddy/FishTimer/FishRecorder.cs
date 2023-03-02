@@ -61,7 +61,7 @@ public partial class FishRecorder : IDisposable
     {
         Records.Add(record);
         AddRecordToTimes(record);
-        ++Changes;
+        AddChanges();
     }
 
     internal bool AddChecked(FishRecord record)
@@ -100,7 +100,7 @@ public partial class FishRecorder : IDisposable
         var record = Records[idx];
         Records.RemoveAt(idx);
         RemoveRecordFromTimes(record);
-        if (++Changes > 20)
+        if (AddChanges() > 20)
             WriteFile();
     }
 

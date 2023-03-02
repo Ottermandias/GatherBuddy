@@ -161,6 +161,10 @@ public partial class Interface
         if (!table)
             return;
 
+        ImGuiUtil.DrawTableColumn("Current Save Changes");
+        ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.Changes.ToString());
+        ImGuiUtil.DrawTableColumn("Next Timed Save");
+        ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.SaveTime == TimeStamp.MaxValue ? "Never" : TimeInterval.DurationString(_plugin.FishRecorder.SaveTime, TimeStamp.UtcNow, false));
         ImGuiUtil.DrawTableColumn("UiState Address");
         ImGuiUtil.DrawTableColumn($"{(IntPtr)FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance():X}");
         ImGuiUtil.DrawTableColumn("Event Framework Address");

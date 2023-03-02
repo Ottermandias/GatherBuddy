@@ -256,7 +256,6 @@ public struct FishRecord
          || TimeStamp <= TimeStamp.Epoch
          || TimeStamp > GatherBuddy.Time.ServerTime
          || Bite is < MinBiteTime or > MaxBiteTime
-         || Perception == 0
          || Gathering == 0
          || ContentIdHash == 0
          || _fishingSpot == 0)
