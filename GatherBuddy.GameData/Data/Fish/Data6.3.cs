@@ -79,6 +79,22 @@ public static partial class Fish
             .Bait(data, 36591)
             .Time(300, 480)
             .Bite(HookSet.Precise, BiteType.Weak);
+        data.Apply(38792, Patch.GodsRevelLandsTremble) // Platinum Seahorse
+            .Bait(data, 38808)
+            .Bite(HookSet.Precise, BiteType.Weak)
+            .ForceBig(false);
+        data.Apply(38793, Patch.GodsRevelLandsTremble) // Clavekeeper
+            .Bite(HookSet.Powerful, BiteType.Strong)
+            .Bait(data, 38808)
+            .ForceBig(false);
+        data.Apply(38798, Patch.GodsRevelLandsTremble) // Mirror Image
+            .Bait(data, 38808)
+            .Bite(HookSet.Precise, BiteType.Weak)
+            .ForceBig(false);
+        data.Apply(38799, Patch.GodsRevelLandsTremble) // Spangled Pirarucu
+            .Bait(data, 38808)
+            .Bite(HookSet.Powerful, BiteType.Strong)
+            .ForceBig(false);
     }
     // @formatter:on
 }
