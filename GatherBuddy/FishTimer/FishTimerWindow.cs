@@ -120,10 +120,10 @@ public partial class FishTimerWindow : Window
         drawList.AddRectFilled(_windowPos, _windowPos + new Vector2(_windowSize.X, _textLines),
             ColorId.FishTimerBackground.Value(), 4 * ImGuiHelpers.GlobalScale);
         ImGui.SetCursorPosX(_textMargin);
-        ImGui.Text(bait);
+        ImGui.TextUnformatted(bait);
         Interface.CreateContextMenu(_recorder.Record.Bait);
         ImGui.SetCursorPosX(_textMargin);
-        ImGui.Text(spot);
+        ImGui.TextUnformatted(spot);
         Interface.CreateContextMenu(_spot);
 
         switch (milliseconds)
@@ -266,7 +266,8 @@ public partial class FishTimerWindow : Window
         else
         {
             _spotName ??= GetSpotText(_spot);
-            DrawTextHeader(_recorder.Record.Bait.Name, _spotName, _milliseconds);
+            var baitCount = CurrentBait.HasItem(_recorder.Record.Bait.Id);
+            DrawTextHeader($"{_recorder.Record.Bait.Name} ({(baitCount > 999 ? ">1k" : baitCount.ToString())})", _spotName, _milliseconds);
             DrawSecondLines();
             foreach (var fish in _availableFish)
                 fish.Draw(this);
