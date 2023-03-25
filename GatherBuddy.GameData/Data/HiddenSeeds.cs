@@ -44,6 +44,11 @@ public static class HiddenSeeds
         (31130, 31131), // Oddly Specific Primordial Resin      
         (31127, 31128), // Oddly Specific Landborne Aethersand  
         (31132, 31133), // Oddly Specific Primordial Asphaltum  
+
+        (38788, 38789), // Splendorous Earth Shard
+        (38790, 38791), // Splendorous Water Shard
+        (38794, 38795), // Splendorous Lightning Shard
+        (38796, 38797), // Splendorous Fire Shard
     };
 
     public static void Apply(GameData data)
