@@ -65,11 +65,14 @@ public class ContextMenu : IDisposable
         return null;
     }
 
+    private unsafe GameObjectContextMenuItem? CheckGameObjectItem(IntPtr agent, int offset, Func<nint, bool> validate)
+        => agent != IntPtr.Zero && validate(agent) ? CheckGameObjectItem(*(uint*)(agent + offset)) : null;
+
     private unsafe GameObjectContextMenuItem? CheckGameObjectItem(IntPtr agent, int offset)
-    {
-        GatherBuddy.Log.Information($"{agent:X}");
-        return agent != IntPtr.Zero ? CheckGameObjectItem(*(uint*)(agent + offset)) : null;
-    }
+        => agent != IntPtr.Zero ? CheckGameObjectItem(*(uint*)(agent + offset)) : null;
+
+    private GameObjectContextMenuItem? CheckGameObjectItem(string name, int offset, Func<nint, bool> validate)
+        => CheckGameObjectItem(Dalamud.GameGui.FindAgentInterface(name), offset, validate);
 
     private GameObjectContextMenuItem? CheckGameObjectItem(string name, int offset)
         => CheckGameObjectItem(Dalamud.GameGui.FindAgentInterface(name), offset);
@@ -100,12 +103,15 @@ public class ContextMenu : IDisposable
             "RecipeMaterialList" => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
             "GatheringNote"      => CheckGameObjectItem("GatheringNote",                      Offsets.GatheringNoteContextItemId),
             "ItemSearch"         => CheckGameObjectItem(args.Agent,                           Offsets.ItemSearchContextItemId),
-            "ChatLog"            => CheckGameObjectItem("ChatLog",                            Offsets.ChatLogContextItemId),
+            "ChatLog"            => CheckGameObjectItem("ChatLog",                            Offsets.ChatLogContextItemId, ValidateChatLogContext),
             _                    => null,
         };
         if (item != null)
             args.AddCustomItem(item);
     }
+
+    private static unsafe bool ValidateChatLogContext(nint agent)
+        => *(uint*)(agent + Offsets.ChatLogContextItemId + 8) == 3;
 
     private static unsafe IntPtr AgentById(AgentId id)
     {
