@@ -31,7 +31,7 @@ public class Territory : IComparable<Territory>, IEquatable<Territory>
         SizeFactor = (data.Map.Value?.SizeFactor ?? 100f) / 100f;
         XStream    = aether?.Unknown0 ?? 0;
         YStream    = aether?.Unknown1 ?? 0;
-        Plane      = aether?.Unknown2 ?? 0;
+        Plane      = aether?.Unknown3 ?? 0;
 
         WeatherRates = gameData.CumulativeWeatherRates.TryGetValue(data.WeatherRate, out var wr)
             ? wr
