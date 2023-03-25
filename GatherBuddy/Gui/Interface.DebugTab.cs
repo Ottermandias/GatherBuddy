@@ -5,7 +5,6 @@ using Dalamud;
 using GatherBuddy.Classes;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
-using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
 using ImGuiNET;
@@ -23,7 +22,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(a.Name);
         ImGuiUtil.DrawTableColumn(a.Territory.Name);
         ImGuiUtil.DrawTableColumn($"{a.XCoord}-{a.YCoord}");
-        ImGuiUtil.DrawTableColumn($"{a.XStream}-{a.YStream}");
+        ImGuiUtil.DrawTableColumn($"{a.XStream}-{a.YStream}-{a.Plane}");
     }
 
     private static void DrawDebugTerritory(Territory t)
