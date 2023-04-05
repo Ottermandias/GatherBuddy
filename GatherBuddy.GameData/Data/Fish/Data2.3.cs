@@ -10,7 +10,7 @@ public static partial class Fish
         data.Apply     (7902, Patch.DefendersOfEorzea) // Cupfish
             .Bait      (data, 2597)
             .Bite      (HookSet.Precise, BiteType.Legendary)
-            .Time      (1020, 1140);
+            .Time      (1020, 1110);
         data.Apply     (7903, Patch.DefendersOfEorzea) // Meteor Survivor
             .Bait      (data, 2591)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
@@ -23,12 +23,12 @@ public static partial class Fish
         data.Apply     (7905, Patch.DefendersOfEorzea) // Toramafish
             .Bait      (data, 2620, 4995)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1020, 1200)
+            .Time      (1020, 1170)
             .Weather   (data, 4, 3);
         data.Apply     (7906, Patch.DefendersOfEorzea) // Fingers
             .Bait      (data, 2606)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1020, 1080);
+            .Time      (1050, 1080);
         data.Apply     (7907, Patch.DefendersOfEorzea) // The Assassin
             .Bait      (data, 2594)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
@@ -78,7 +78,7 @@ public static partial class Fish
         data.Apply     (7918, Patch.DefendersOfEorzea) // The Warden's Wand
             .Bait      (data, 2599)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1020, 1200)
+            .Time      (1050, 1200)
             .Weather   (data, 1);
         data.Apply     (7919, Patch.DefendersOfEorzea) // Spearnose
             .Bait      (data, 2607)
@@ -92,7 +92,7 @@ public static partial class Fish
         data.Apply     (7921, Patch.DefendersOfEorzea) // The Sinker
             .Bait      (data, 2617)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1260, 180)
+            .Time      (1290, 180)
             .Weather   (data, 1, 2);
         data.Apply     (7922, Patch.DefendersOfEorzea) // The Gobfather
             .Bait      (data, 2599, 4978)
@@ -120,7 +120,7 @@ public static partial class Fish
         data.Apply     (7927, Patch.DefendersOfEorzea) // King of the Spring
             .Bait      (data, 2626)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (960, 1140);
+            .Time      (960, 1125);
         data.Apply     (7928, Patch.DefendersOfEorzea) // Discobolus
             .Bait      (data, 2603)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
@@ -162,7 +162,7 @@ public static partial class Fish
         data.Apply     (7937, Patch.DefendersOfEorzea) // Thundergut
             .Bait      (data, 2601)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1140, 180)
+            .Time      (1170, 165)
             .Weather   (data, 7);
         data.Apply     (7938, Patch.DefendersOfEorzea) // The Drowned Sniper
             .Bait      (data, 2618)
@@ -199,7 +199,7 @@ public static partial class Fish
         data.Apply     (7945, Patch.DefendersOfEorzea) // Starbright
             .Bait      (data, 2597, 4937)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1260, 240)
+            .Time      (1200, 240)
             .Weather   (data, 1, 2);
         data.Apply     (7946, Patch.DefendersOfEorzea) // The Matriarch
             .Bait      (data, 2599, 4937)
@@ -207,12 +207,12 @@ public static partial class Fish
         data.Apply     (7947, Patch.DefendersOfEorzea) // Shadowstreak
             .Bait      (data, 2624)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (240, 600)
+            .Time      (270, 600)
             .Weather   (data, 4);
         data.Apply     (7948, Patch.DefendersOfEorzea) // The Captain's Chalice
             .Bait      (data, 2616, 4898)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1380, 120);
+            .Time      (1410,  65);
         data.Apply     (7949, Patch.DefendersOfEorzea) // Anomalocaris
             .Bait      (data, 2605, 5040)
             .Bite      (HookSet.Powerful, BiteType.Legendary)

@@ -30,13 +30,13 @@ public static partial class Fish
         data.Apply     (16746, Patch.SoulSurrender) // Flarefish
             .Bait      (data, 28634, 12715)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (600, 960)
+            .Time      (600, 1080)
             .Weather   (data, 16);
         data.Apply     (16747, Patch.SoulSurrender) // Twin-tongued Carp
             .Bait      (data, 12711)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (720, 960)
-            .Transition(data, 3, 11)
+            .Transition(data, 3, 4, 11)
             .Weather   (data, 1);
         data.Apply     (16748, Patch.SoulSurrender) // Madam Butterfly
             .Bait      (data, 12705, 12757)

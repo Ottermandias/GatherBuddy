@@ -45,7 +45,7 @@ public static partial class Fish
             .Bait      (data, 20614, 20127)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Snag      (Snagging.None)
-            .Weather   (data, 3, 4);
+            .Weather   (data, 3, 4, 5);
     }
     // @formatter:on
 }

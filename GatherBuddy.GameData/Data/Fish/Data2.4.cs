@@ -37,7 +37,6 @@ public static partial class Fish
             .Bait      (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1140, 120)
-            .Transition(data, 1, 2)
             .Weather   (data, 1, 2);
         data.Apply     (8758, Patch.DreamsOfIce) // Ignus Horn
             .Bait      (data, 2603)
@@ -84,7 +83,7 @@ public static partial class Fish
         data.Apply     (8767, Patch.DreamsOfIce) // Wootz Knifefish Zenith
             .Bait      (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (60, 240)
+            .Time      (60, 200)
             .Transition(data, 1, 2)
             .Weather   (data, 4);
         data.Apply     (8768, Patch.DreamsOfIce) // Helicoprion
@@ -128,7 +127,7 @@ public static partial class Fish
         data.Apply     (8776, Patch.DreamsOfIce) // Blood Red Bonytongue
             .Bait      (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (240, 720)
+            .Time      (270, 690)
             .Transition(data, 1, 2)
             .Weather   (data, 4);
     }

@@ -232,7 +232,7 @@ public static partial class Fish
         data.Apply     (20085, Patch.Stormblood) // Capsized Squeaker
             .Bait      (data, 20613)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Time      (960, 1140);
+            .Time      (960, 1095);
         data.Apply     (20086, Patch.Stormblood) // Nirvana Crab
             .Bait      (data, 20619)
             .Bite      (HookSet.Powerful, BiteType.Strong)

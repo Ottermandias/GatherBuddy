@@ -112,11 +112,11 @@ public static partial class Fish
         data.Apply     (12742, Patch.Heavensward) // Dravanian Squeaker
             .Bait      (data, 12704)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Time      (960, 1140);
+            .Time      (960, 1095);
         data.Apply     (12743, Patch.Heavensward) // Kissing Fish
             .Bait      (data, 12711)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Time      (540, 120);
+            .Time      (540, 0);
         data.Apply     (12744, Patch.Heavensward) // Mitre Slug
             .Bait      (data, 12708)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -286,7 +286,7 @@ public static partial class Fish
         data.Apply     (12792, Patch.Heavensward) // Weston Bowfin
             .Bait      (data, 12706)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Time      (480, 720);
+            .Time      (480, 700);
         data.Apply     (12793, Patch.Heavensward) // Letter Puffer
             .Bait      (data, 12712)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -301,7 +301,7 @@ public static partial class Fish
         data.Apply     (12796, Patch.Heavensward) // Albino Octopus
             .Bait      (data, 28634, 12715)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Time      (480, 1020);
+            .Time      (480, 1080);
         data.Apply     (12797, Patch.Heavensward) // Dragon's Soul
             .Bait      (data, 29717)
             .Bite      (HookSet.Precise, BiteType.Weak);
@@ -326,7 +326,7 @@ public static partial class Fish
         data.Apply     (12803, Patch.Heavensward) // Euphotic Pirarucu
             .Bait      (data, 12711)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (1080, 120)
+            .Time      (1080, 180)
             .Weather   (data, 3);
         data.Apply     (12804, Patch.Heavensward) // Illuminati Perch
             .Bait      (data, 12704, 12757)
@@ -385,7 +385,7 @@ public static partial class Fish
         data.Apply     (12821, Patch.Heavensward) // Pteranodon
             .Bait      (data, 12712)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (540, 1020);
+            .Time      (540, 990);
         data.Apply     (12822, Patch.Heavensward) // Winged Gurnard
             .Bait      (data, 12712)
             .Bite      (HookSet.Powerful, BiteType.Strong);
@@ -410,7 +410,7 @@ public static partial class Fish
         data.Apply     (12828, Patch.Heavensward) // Thunderbolt Eel
             .Bait      (data, 12704, 12722)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Time      (1320, 210);
+            .Time      (1320, 200);
         data.Apply     (12829, Patch.Heavensward) // Catkiller
             .Bait      (data, 12711)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
@@ -426,7 +426,7 @@ public static partial class Fish
         data.Apply     (12832, Patch.Heavensward) // Lavalord
             .Bait      (data, 28634, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
-            .Time      (540, 960)
+            .Time      (540, 1020)
             .Weather   (data, 2, 1);
         data.Apply     (12833, Patch.Heavensward) // Tupuxuara
             .Bait      (data, 12708)

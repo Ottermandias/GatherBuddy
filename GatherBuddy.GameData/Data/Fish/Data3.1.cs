@@ -29,12 +29,12 @@ public static partial class Fish
         data.Apply     (13731, Patch.AsGoesLightSoGoesDarkness) // Sunsail
             .Bait      (data, 12712)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Time      (900, 1020)
+            .Time      (930, 1020)
             .Weather   (data, 2, 1);
         data.Apply     (13732, Patch.AsGoesLightSoGoesDarkness) // Goblin Bass
             .Bait      (data, 12711)
             .Bite      (HookSet.Powerful, BiteType.Strong)
-            .Time      (0, 300)
+            .Time      (0, 360)
             .Weather   (data, 3, 4);
         data.Apply     (14211, Patch.AsGoesLightSoGoesDarkness) // Amber Salamander
             .Bait      (data, 12711)
