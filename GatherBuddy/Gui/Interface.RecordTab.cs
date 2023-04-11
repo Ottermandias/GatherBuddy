@@ -14,6 +14,9 @@ using OtterGui.Table;
 using ImGuiScene;
 using Newtonsoft.Json;
 using ImRaii = OtterGui.Raii.ImRaii;
+using System.Text;
+using GatherBuddy.Time;
+using GatherBuddy.Weather;
 
 namespace GatherBuddy.Gui;
 
@@ -471,9 +474,60 @@ public partial class Interface
                 ImGui.NewLine();
             }
         }
-    }
 
+        public string CreateTsv()
+        {
+            var sb = new StringBuilder(Items.Count * 128);
+            sb.Append(
+                "Fish\tFishId\tBite\tBait\tBaitId\tSpot\tSpotId\tTug\tHookset\tTimestamp\tEorzea Time\tTransition\tWeather\tAmount\tIlm\tGathering\tPerception\tPatience\tPatience2\tIntuition\tSnagging\tFish Eyes\tChum\tPrize Catch\tIdentical Cast\tSurface Slap\tCollectible\n");
+            foreach (var record in Items.OrderBy(r => r.TimeStamp))
+            {
+                var (hour, minute) = record.TimeStamp.CurrentEorzeaTimeOfDay();
+                var spot = record.FishingSpot;
+                var (weather, transition) = ("Unknown", "Unknown");
+                if (spot != null)
+                {
+                    var weathers = WeatherManager.GetForecast(spot.Territory, 2, record.TimeStamp.AddEorzeaHours(-8));
+                    transition = weathers[0].Weather.Name;
+                    weather = weathers[1].Weather.Name;
+                }
+
+                sb.Append(_catchHeader.ToName(record)).Append('\t')
+                    .Append(record.CatchId).Append('\t')
+                    .Append(_durationHeader.ToName(record)).Append('\t')
+                    .Append(_baitHeader.ToName(record)).Append('\t')
+                    .Append(record.BaitId).Append('\t')
+                    .Append(_spotHeader.ToName(record)).Append('\t')
+                    .Append(record.SpotId).Append('\t')
+                    .Append(record.Tug.ToString()).Append('\t')
+                    .Append(record.Hook.ToString()).Append('\t')
+                    .Append(_castStartHeader.ToName(record)).Append('\t')
+                    .Append($"{hour}:{minute:D2}").Append('\t')
+                    .Append(transition).Append('\t')
+                    .Append(weather).Append('\t')
+                    .Append(_amountHeader.ToName(record)).Append('\t')
+                    .Append(_sizeHeader.ToName(record)).Append('\t')
+                    .Append(_gatheringHeader.ToName(record)).Append('\t')
+                    .Append(_perceptionHeader.ToName(record)).Append('\t')
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.Patience) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.Patience2) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.Intuition) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.Snagging) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.FishEyes) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.Chum) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.PrizeCatch) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.IdenticalCast) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.SurfaceSlap) ? "x\t" : "\t")
+                    .Append(record.Flags.HasFlag(FishRecord.Effects.Collectible) ? "x\t" : "\t")
+                    .Append('\n');
+            }
+
+            return sb.ToString();
+        }
+    }
     private readonly RecordTable _recordTable;
+    private          bool        WriteTsv  = false;
+    private          bool        WriteJson = false;
 
 
     private void DrawRecordTab()
@@ -532,8 +586,28 @@ public partial class Interface
         try
         {
             if (ImGui.Button("Export JSON"))
+            {
                 ImGui.OpenPopup(RecordTable.FileNamePopup);
+                WriteJson = true;
+            }
+
             ImGuiUtil.HoverTooltip("Given a path, export all records as a single JSON file.");
+        }
+        catch
+        {
+            // ignored
+        }
+
+        ImGui.SameLine();
+        try
+        {
+            if (ImGui.Button("Export TSV"))
+            {
+                ImGui.OpenPopup(RecordTable.FileNamePopup);
+                WriteTsv = true;
+            }
+
+            ImGuiUtil.HoverTooltip("Given a path, export all records as a single TSV file.");
         }
         catch
         {
@@ -560,14 +634,35 @@ public partial class Interface
         if (!ImGuiUtil.OpenNameField(RecordTable.FileNamePopup, ref name) || name.Length <= 0)
             return;
 
-        try
+        if (WriteJson)
         {
-            var file = new FileInfo(name);
-            _plugin.FishRecorder.ExportJson(file);
+            try
+            {
+                var file = new FileInfo(name);
+                _plugin.FishRecorder.ExportJson(file);
+            }
+            catch
+            {
+                // ignored
+            }
+
+            WriteJson = false;
         }
-        catch
+
+        if (WriteTsv)
         {
-            // ignored
+            try
+            {
+                var data = _recordTable.CreateTsv();
+                File.WriteAllText(name, data);
+                GatherBuddy.Log.Information($"Exported {_recordTable.TotalItems} fish records to {name}.");
+            }
+            catch (Exception e)
+            {
+                GatherBuddy.Log.Warning($"Could not export tsv file to {name}:\n{e}");
+            }
+
+            WriteTsv = false;
         }
     }
 }
