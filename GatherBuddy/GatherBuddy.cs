@@ -76,7 +76,7 @@ public partial class GatherBuddy : IDalamudPlugin
             Dalamud.Initialize(pluginInterface);
             Log     = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
-            Backup.CreateBackup(pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
+            Backup.CreateBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
             Config         = Configuration.Load();
             Language       = Dalamud.ClientState.ClientLanguage;
             GameData       = new GameData(Dalamud.GameData);
