@@ -29,7 +29,7 @@ public class GatherWindow : Window
 
     public GatherWindow(GatherBuddy plugin)
         : base("##GatherHelper",
-            ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus)
+            ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoFocusOnAppearing | ImGuiWindowFlags.NoNavFocus | ImGuiWindowFlags.NoScrollbar)
     {
         _plugin            = plugin;
         IsOpen             = GatherBuddy.Config.ShowGatherWindow;
