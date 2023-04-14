@@ -212,9 +212,12 @@ public partial class FishTimerWindow
             if (NextUptime == TimeInterval.Always)
                 return;
 
-            var timeString = NextUptime.Start > GatherBuddy.Time.ServerTime
-                ? TimeInterval.DurationString(NextUptime.Start, GatherBuddy.Time.ServerTime, true)
-                : TimeInterval.DurationString(NextUptime.End,   GatherBuddy.Time.ServerTime, true);
+            var timeString = 
+                NextUptime.Start > GatherBuddy.Time.ServerTime
+                    ? TimeInterval.DurationString(NextUptime.Start, GatherBuddy.Time.ServerTime, true)
+                    : NextUptime.End < GatherBuddy.Time.ServerTime
+                        ? "(ended)"
+                        : TimeInterval.DurationString(NextUptime.End,   GatherBuddy.Time.ServerTime, true);
             var offset = ImGui.CalcTextSize(timeString).X;
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImGui.AlignTextToFramePadding();

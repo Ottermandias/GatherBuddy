@@ -32,17 +32,17 @@ public partial class FishTimerWindow : Window
     private readonly int          _maxNumLines = GatherBuddy.GameData.FishingSpots.Values.Where(f => !f.Spearfishing).Max(f => f.Items.Length);
     private readonly ImRaii.Style _style       = new();
 
-    private float        _lineHeight;
-    private Vector2      _iconSize    = Vector2.Zero;
-    private Vector2      _itemSpacing = Vector2.Zero;
-    private Vector2      _windowPos   = Vector2.Zero;
-    private Vector2      _windowSize  = Vector2.Zero;
-    private float        _textMargin  = 5 * ImGuiHelpers.GlobalScale;
-    private float        _textLines;
-    private float        _maxListHeight;
-    private float        _listHeight;
-    private int          _milliseconds;
-    private string?      _spotName;
+    private float   _lineHeight;
+    private Vector2 _iconSize    = Vector2.Zero;
+    private Vector2 _itemSpacing = Vector2.Zero;
+    private Vector2 _windowPos   = Vector2.Zero;
+    private Vector2 _windowSize  = Vector2.Zero;
+    private float   _textMargin  = 5 * ImGuiHelpers.GlobalScale;
+    private float   _textLines;
+    private float   _maxListHeight;
+    private float   _listHeight;
+    private int     _milliseconds;
+    private string? _spotName;
 
 
     public FishTimerWindow(FishRecorder recorder)
@@ -177,7 +177,9 @@ public partial class FishTimerWindow : Window
             _spotName = null;
             UpdateFish();
         }
-        else if (newMilliseconds < _milliseconds || GatherBuddy.Time.ServerTime >= _nextUptimeChange)
+        else if (newMilliseconds < _milliseconds
+              || GatherBuddy.EventFramework.FishingState is FishingState.None or FishingState.PoleReady
+              && GatherBuddy.Time.ServerTime >= _nextUptimeChange)
         {
             UpdateFish();
         }
@@ -266,14 +268,21 @@ public partial class FishTimerWindow : Window
         else
         {
             _spotName ??= GetSpotText(_spot);
-            var baitCount = CurrentBait.HasItem(_recorder.Record.Bait.Id);
-            DrawTextHeader($"{_recorder.Record.Bait.Name} ({(baitCount > 999 ? ">1k" : baitCount.ToString())})", _spotName, _milliseconds);
+            var baitString = " (M)";
+            if (GatherBuddy.GameData.Bait.ContainsKey(_recorder.Record.BaitId))
+            {
+                var baitCount = CurrentBait.HasItem(_recorder.Record.Bait.Id);
+                baitString = baitCount > 999 ? " (>1k)" : $" ({baitCount})";
+            }
+
+            DrawTextHeader(_recorder.Record.Bait.Name + baitString, _spotName, _milliseconds);
             DrawSecondLines();
             foreach (var fish in _availableFish)
                 fish.Draw(this);
 
             DrawProgressLine();
         }
+
         _style.Push(ImGuiStyleVar.WindowPadding, Vector2.Zero);
     }
 }
