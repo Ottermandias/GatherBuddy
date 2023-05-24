@@ -31,6 +31,7 @@ public static partial class Fish
                     ? weather
                     : throw new Exception($"Could not find weather {w}."))
                 .ToArray();
+            fish.FishRestrictions |= FishRestrictions.Weather;
         }
         catch (Exception e)
         {
@@ -51,6 +52,7 @@ public static partial class Fish
                     ? weather
                     : throw new Exception($"Could not find weather {w}."))
                 .ToArray();
+            fish.FishRestrictions |= FishRestrictions.Weather;
         }
         catch (Exception e)
         {
@@ -121,7 +123,8 @@ public static partial class Fish
         if (fish == null)
             return null;
 
-        fish.Interval = RepeatingInterval.FromEorzeanMinutes(uptimeMinuteOfDayStart, uptimeMinuteOfDayEnd);
+        fish.Interval         =  RepeatingInterval.FromEorzeanMinutes(uptimeMinuteOfDayStart, uptimeMinuteOfDayEnd);
+        fish.FishRestrictions |= FishRestrictions.Time;
         return fish;
     }
 
@@ -241,5 +244,6 @@ public static partial class Fish
         data.ApplyNewfoundAdventure();
         data.ApplyBuriedMemory();
         data.ApplyGodsRevelLandsTremble();
+        data.ApplyTheDarkThrone();
     }
 }
