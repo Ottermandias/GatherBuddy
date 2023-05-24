@@ -1,9 +1,11 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Data;
+using Dalamud.Logging;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
+using Lumina.Excel;
 using Lumina.Excel.GeneratedSheets;
 using ItemRow = Lumina.Excel.GeneratedSheets.Item;
 using FishRow = Lumina.Excel.GeneratedSheets.FishParameter;
@@ -47,20 +49,24 @@ public partial class Fish : IComparable<Fish>, IGatherable
         => _fishData is SpearFishRow;
 
     public bool IsBigFish
-        => BigFishOverride.Value ?? FishData?.Unknown5 ?? false;
+        => BigFishOverride.Value ?? FishData?.IsHidden ?? false;
 
-    public bool OceanFish { get; internal set; }
+    public OceanArea OceanArea { get; internal set; } = OceanArea.None;
+
+    public bool OceanFish
+        => OceanArea is not OceanArea.None;
 
     public FishRestrictions FishRestrictions { get; set; }
 
     public string Folklore { get; init; }
 
-    public Fish(DataManager gameData, SpearFishRow fishRow)
+    public Fish(DataManager gameData, SpearFishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
     {
         ItemData         = fishRow.Item.Value ?? new ItemRow();
         _fishData        = fishRow;
         Name             = MultiString.FromItem(gameData, ItemData.RowId);
-        FishRestrictions = fishRow.Unknown10 ? FishRestrictions.Time : FishRestrictions.None;
+        var note = catchData.GetRow(fishRow.RowId + 20000);
+        FishRestrictions = note is { TimeRestriction: 1 } ? FishRestrictions.Time : FishRestrictions.None;
         Folklore         = string.Empty;
         Size             = SpearfishSize.Unknown;
         Speed            = SpearfishSpeed.Unknown;
@@ -69,13 +75,16 @@ public partial class Fish : IComparable<Fish>, IGatherable
         HookSet          = HookSet.None;
     }
 
-    public Fish(DataManager gameData, FishRow fishRow)
+    public Fish(DataManager gameData, FishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
     {
         ItemData  = gameData.GetExcelSheet<ItemRow>()?.GetRow((uint)fishRow.Item) ?? new Item();
         _fishData = fishRow;
-        FishRestrictions = (fishRow.TimeRestricted ? FishRestrictions.Time : FishRestrictions.None)
-          | (fishRow.WeatherRestricted ? FishRestrictions.Weather : FishRestrictions.None);
+        var note = catchData.GetRow(fishRow.RowId);
+        FishRestrictions = (note is { TimeRestriction: 1 } ? FishRestrictions.Time : FishRestrictions.None)
+          | (note is { WeatherRestriction: 1 } ? FishRestrictions.Weather : FishRestrictions.None);
         Name      = MultiString.FromItem(gameData, ItemData.RowId);
+        if (Name.English == "Green Prismfish")
+            PluginLog.Information($"{fishRow.RowId} {note?.RowId} {note?.TimeRestriction} {note?.WeatherRestriction} {FishRestrictions} {note?.Item}");
         Folklore  = MultiString.ParseSeStringLumina(fishRow.GatheringSubCategory.Value?.FolkloreBook);
         Size      = SpearfishSize.None;
         Speed     = SpearfishSpeed.None;

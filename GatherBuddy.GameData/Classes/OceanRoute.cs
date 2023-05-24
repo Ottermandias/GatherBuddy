@@ -1,13 +1,21 @@
 ﻿using System;
-using System.Diagnostics;
 using GatherBuddy.Enums;
 
 namespace GatherBuddy.Classes;
+
+public enum OceanArea : byte
+{
+    None,
+    Unknown,
+    Aldenard,
+    Othard,
+}
 
 public class OceanRoute
 {
     public string                                     Name       { get; internal init; } = string.Empty;
     public byte                                       Id         { get; internal init; }
+    public OceanArea                                  Area       { get; internal init; }
     public OceanTime                                  StartTime  { get; internal init; }
     public (FishingSpot Normal, FishingSpot Spectral) SpotDay    { get; internal init; }
     public (FishingSpot Normal, FishingSpot Spectral) SpotSunset { get; internal init; }

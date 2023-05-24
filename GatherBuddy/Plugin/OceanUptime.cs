@@ -15,7 +15,7 @@ public static class OceanUptime
     public const long LoopTimestampEpoch       = 748800000;
     public const long TripDurationMilliseconds = 2 * RealTime.MillisecondsPerHour;
 
-    public static readonly long LoopDurationMilliseconds = GatherBuddy.GameData.OceanRouteTimeline.Count * TripDurationMilliseconds;
+    public static readonly long LoopDurationMilliseconds = GatherBuddy.GameData.OceanTimeline.Count * TripDurationMilliseconds;
 
     // Returns the current/next TimeInterval from a utc timestamp for this ocean fish.
     public static TimeInterval GetOceanUptime(Fish fish, TimeStamp utcNow)
@@ -43,9 +43,9 @@ public static class OceanUptime
         // The timestamp that this loop started at.
         var loopStartTimestamp = utcNow.Time - loopOffsetMilliseconds;
 
-        for (var loopEnd = GatherBuddy.GameData.OceanRouteTimeline.Count + loopIdx; loopIdx < loopEnd; ++loopIdx)
+        for (var loopEnd = GatherBuddy.GameData.OceanTimeline.Count + loopIdx; loopIdx < loopEnd; ++loopIdx)
         {
-            var route = GatherBuddy.GameData.OceanRouteTimeline[(int)(loopIdx % GatherBuddy.GameData.OceanRouteTimeline.Count)];
+            var route = GatherBuddy.GameData.OceanTimeline[fish.OceanArea, (int)(loopIdx % GatherBuddy.GameData.OceanTimeline.Count)];
             foreach (var time in fish.OceanTime.Enumerate())
             {
                 var (normal, spectral) = route.GetSpots(time);

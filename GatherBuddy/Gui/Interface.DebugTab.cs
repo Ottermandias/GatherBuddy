@@ -416,16 +416,22 @@ public partial class Interface
                 }
         }
 
-        using (var table = ImRaii.Table("##OceanTimeline", 5, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        using (var table = ImRaii.Table("##OceanTimeline", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
         {
             if (table)
-                foreach (var (route, idx) in GatherBuddy.GameData.OceanRouteTimeline.WithIndex())
+                for(var idx = 0; idx < GatherBuddy.GameData.OceanTimeline.Count; ++idx)
                 {
+                    var routeAldenard = GatherBuddy.GameData.OceanTimeline[OceanArea.Aldenard][idx];
+                    var routeOthard = GatherBuddy.GameData.OceanTimeline[OceanArea.Othard][idx];
                     ImGuiUtil.DrawTableColumn(idx.ToString());
-                    ImGuiUtil.DrawTableColumn(route.ToString());
-                    ImGuiUtil.DrawTableColumn(route.GetSpots(0).Normal.Name);
-                    ImGuiUtil.DrawTableColumn(route.GetSpots(1).Normal.Name);
-                    ImGuiUtil.DrawTableColumn(route.GetSpots(2).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(routeAldenard.ToString());
+                    ImGuiUtil.DrawTableColumn(routeAldenard.GetSpots(0).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(routeAldenard.GetSpots(1).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(routeAldenard.GetSpots(2).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(routeOthard.ToString());
+                    ImGuiUtil.DrawTableColumn(routeOthard.GetSpots(0).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(routeOthard.GetSpots(1).Normal.Name);
+                    ImGuiUtil.DrawTableColumn(routeOthard.GetSpots(2).Normal.Name);
                 }
         }
     }

@@ -19,6 +19,33 @@ using Weather = GatherBuddy.Structs.Weather;
 
 namespace GatherBuddy;
 
+public class OceanTimeline
+{
+    public int Count
+        => Aldenard.Count;
+
+    public IReadOnlyList<OceanRoute> Aldenard;
+    public IReadOnlyList<OceanRoute> Othard;
+
+    public IReadOnlyList<OceanRoute> this[OceanArea area]
+        => area switch
+        {
+            OceanArea.Aldenard => Aldenard,
+            OceanArea.Othard   => Othard,
+            _                  => Array.Empty<OceanRoute>(),
+        };
+
+    public OceanRoute this[OceanArea area, int idx]
+        => this[area][idx];
+
+    public OceanTimeline(DataManager gameData, IReadOnlyList<OceanRoute> routes)
+    {
+        var timelineSheet = gameData.GetExcelSheet<IKDRouteTable>()!;
+        Aldenard = timelineSheet.Select(r => routes[(int)r.Route.Row - 1]).ToArray();
+        Othard   = timelineSheet.Select(r => routes[(int)r.Unknown1 - 1]).ToArray();
+    }
+}
+
 public class GameData
 {
     internal DataManager                              DataManager { get; init; }
@@ -36,8 +63,8 @@ public class GameData
     public Dictionary<uint, Fish>          Fishes                { get; init; } = new();
     public Dictionary<uint, FishingSpot>   FishingSpots          { get; init; } = new();
 
-    public IReadOnlyList<OceanRoute> OceanRoutes         { get; init; } = Array.Empty<OceanRoute>();
-    public IReadOnlyList<OceanRoute> OceanRouteTimeline  { get; init; } = Array.Empty<OceanRoute>();
+    public IReadOnlyList<OceanRoute> OceanRoutes   { get; init; } = Array.Empty<OceanRoute>();
+    public OceanTimeline             OceanTimeline { get; init; }
 
     public PatriciaTrie<Gatherable> GatherablesTrie { get; init; } = new();
     public PatriciaTrie<Fish>       FishTrie        { get; init; } = new();
@@ -113,12 +140,13 @@ public class GameData
              ?? new Dictionary<uint, Bait>();
             PluginLog.Verbose("Collected {NumBaits} different types of bait.", Bait.Count);
 
+            var catchData = DataManager.GetExcelSheet<FishingNoteInfo>()!;
             Fishes = DataManager.GetExcelSheet<FishParameter>()?
                     .Where(f => f.Item != 0 && f.Item < 1000000)
-                    .Select(f => new Fish(DataManager, f))
+                    .Select(f => new Fish(DataManager, f, catchData))
                     .Concat(DataManager.GetExcelSheet<SpearfishingItem>()?
                             .Where(sf => sf.Item.Row != 0 && sf.Item.Row < 1000000)
-                            .Select(sf => new Fish(DataManager, sf))
+                            .Select(sf => new Fish(DataManager, sf, catchData))
                      ?? Array.Empty<Fish>())
                     .GroupBy(f => f.ItemId)
                     .Select(group => group.First())
@@ -146,8 +174,8 @@ public class GameData
             HiddenSeeds.Apply(this);
             ForcedAetherytes.Apply(this);
 
-            OceanRoutes        = SetupOceanRoutes(gameData, FishingSpots);
-            OceanRouteTimeline = SetupOceanTimeline(gameData, OceanRoutes);
+            OceanRoutes   = SetupOceanRoutes(gameData, FishingSpots);
+            OceanTimeline = new OceanTimeline(gameData, OceanRoutes);
             SetOceanFish(OceanRoutes, Fishes.Values);
 
             foreach (var gatherable in Gatherables.Values)
@@ -192,22 +220,22 @@ public class GameData
 
     private static void SetOceanFish(IEnumerable<OceanRoute> routes, IEnumerable<Fish> fishes)
     {
-        var set = new HashSet<uint>(128);
+        var set = new Dictionary<uint, OceanArea>(128);
         foreach (var route in routes)
         {
-            set.Add(route.SpotDay.Normal.Id);
-            set.Add(route.SpotDay.Spectral.Id);
-            set.Add(route.SpotNight.Normal.Id);
-            set.Add(route.SpotNight.Spectral.Id);
-            set.Add(route.SpotSunset.Normal.Id);
-            set.Add(route.SpotSunset.Spectral.Id);
+            set.TryAdd(route.SpotDay.Normal.Id,      route.Area);
+            set.TryAdd(route.SpotDay.Spectral.Id,    route.Area);
+            set.TryAdd(route.SpotNight.Normal.Id,    route.Area);
+            set.TryAdd(route.SpotNight.Spectral.Id,  route.Area);
+            set.TryAdd(route.SpotSunset.Normal.Id,   route.Area);
+            set.TryAdd(route.SpotSunset.Spectral.Id, route.Area);
         }
 
         foreach (var fish in fishes)
         {
             var spot = fish.FishData?.FishingSpot.Row ?? 0u;
-            if (set.Contains(spot))
-                fish.OceanFish = true;
+            if (set.TryGetValue(spot, out var area))
+                fish.OceanArea = fish.OceanArea == OceanArea.None || fish.OceanArea == area ? area : OceanArea.Unknown;
         }
     }
 
@@ -245,15 +273,10 @@ public class GameData
                 SpotDay    = day,
                 SpotSunset = sunset,
                 SpotNight  = night,
+                Area       = i < 13 ? OceanArea.Aldenard : i < 19 ? OceanArea.Othard : OceanArea.Unknown,
             };
         }
 
         return ret;
-    }
-
-    private static OceanRoute[] SetupOceanTimeline(DataManager manager, IReadOnlyList<OceanRoute> routes)
-    {
-        var timelineSheet = manager.GetExcelSheet<IKDRouteTable>()!;
-        return timelineSheet.Select(r => routes[(int)r.Route.Row - 1]).ToArray();
     }
 }
