@@ -5,7 +5,7 @@
     <PlatformTarget>x64</PlatformTarget>
 		<RootNamespace>GatherBuddy</RootNamespace>
 		<AssemblyName>GatherBuddy</AssemblyName>
-		<Version>3.2.3.0</Version>
+		<Version>3.2.4.0</Version>
 		<Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2022</Copyright>
@@ -41,7 +41,7 @@
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.10" />
-    <PackageReference Include="Dalamud.ContextMenu" Version="1.2.1" />
+    <PackageReference Include="Dalamud.ContextMenu" Version="1.2.3" />
     <Reference Include="Dalamud">
 			<HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
       <Private>False</Private>

@@ -8,15 +8,30 @@ public static partial class Fish
     private static void ApplyTheDarkThrone(this GameData data)
     {
         data.Apply(39879, Patch.TheDarkThrone) // Onyx Knifefish
-            .Bait(data, 36591);
+            .Bait(data, 36591)
+            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Time(1320, 1440)
+            .Transition(data, 7)
+            .Weather(data, 2);
         data.Apply(39880, Patch.TheDarkThrone) // Wakeful Warden
-            .Bait(data, 36589);
+            .Bait(data, 36589)
+            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Time(480, 960)
+            .Transition(data, 4)
+            .Weather(data, 3);
         data.Apply(39881, Patch.TheDarkThrone) // Basilosaurus Rex
-            .Bait(data, 36593, 36451, 36454);
+            .Bait(data, 36593, 36451, 36454)
+            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Weather(data, 2);
         data.Apply(39882, Patch.TheDarkThrone) // Eehs Fan
-            .Bait(data, 36595);
+            .Bait(data, 36595)
+            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Time(720, 960)
+            .Transition(data, 149)
+            .Weather(data, 49);
         data.Apply(39883, Patch.TheDarkThrone) // Gilt Dermogenys
-            .Bait(data);
+            .Bait(data)
+            .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(39912, Patch.TheDarkThrone) // The Fury's Aegis
             .Bait(data);
         data.Apply(40521, Patch.TheDarkThrone) // Pink Shrimp
