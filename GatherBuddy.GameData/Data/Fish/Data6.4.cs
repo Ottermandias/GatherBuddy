@@ -10,23 +10,23 @@ public static partial class Fish
         data.Apply(39879, Patch.TheDarkThrone) // Onyx Knifefish
             .Bait(data, 36591)
             .Bite(HookSet.Unknown, BiteType.Legendary)
-            .Time(1320, 1440)
+            .Time(1320, 120)
             .Transition(data, 7)
             .Weather(data, 2);
         data.Apply(39880, Patch.TheDarkThrone) // Wakeful Warden
             .Bait(data, 36589)
             .Bite(HookSet.Unknown, BiteType.Legendary)
-            .Time(480, 960)
+            .Time(480, 1440)
             .Transition(data, 4)
             .Weather(data, 3);
         data.Apply(39881, Patch.TheDarkThrone) // Basilosaurus Rex
             .Bait(data, 36593, 36451, 36454)
-            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Bite(HookSet.Powerful, BiteType.Legendary)
             .Weather(data, 2);
         data.Apply(39882, Patch.TheDarkThrone) // Eehs Fan
             .Bait(data, 36595)
             .Bite(HookSet.Unknown, BiteType.Legendary)
-            .Time(720, 960)
+            .Time(720, 1200)
             .Transition(data, 149)
             .Weather(data, 49);
         data.Apply(39883, Patch.TheDarkThrone) // Gilt Dermogenys
