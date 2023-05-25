@@ -13,7 +13,7 @@ namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
-    private struct HeaderCache : IDisposable
+    private class HeaderCache : IDisposable
     {
         public readonly Vector4 LastWeatherTint = new(1f, 0.5f, 0.5f, 1f);
 
