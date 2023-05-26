@@ -64,7 +64,7 @@ public class GameData
     public Dictionary<uint, FishingSpot>   FishingSpots          { get; init; } = new();
 
     public IReadOnlyList<OceanRoute> OceanRoutes   { get; init; } = Array.Empty<OceanRoute>();
-    public OceanTimeline             OceanTimeline { get; init; }
+    public OceanTimeline             OceanTimeline { get; init; } = null!;
 
     public PatriciaTrie<Gatherable> GatherablesTrie { get; init; } = new();
     public PatriciaTrie<Fish>       FishTrie        { get; init; } = new();

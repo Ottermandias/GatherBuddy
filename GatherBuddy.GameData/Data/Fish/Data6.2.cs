@@ -8,7 +8,7 @@ public static partial class Fish
     private static void ApplyBuriedMemory(this GameData data)
     {
         data.Apply(37697, Patch.BuriedMemory) // Mayashell
-            .Bait(data, 36591, 36447)
+            .Mooch(data, 36591, 36447)
             .Bite(HookSet.Powerful, BiteType.Strong)
             .Time(180, 360)
             .ForceBig  (false); 
@@ -55,7 +55,7 @@ public static partial class Fish
            .Time(120, 240)
            .Weather(data, 49);
         data.Apply(37853, Patch.BuriedMemory) // Planetes
-           .Bait(data, 29717, 36478)
+           .Mooch(data, 29717, 36478)
            .Bite(HookSet.Powerful, BiteType.Legendary)
            .Weather(data, 49);
     }

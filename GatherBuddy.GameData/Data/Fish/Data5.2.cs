@@ -18,7 +18,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (0, 120);
         data.Apply     (28927, Patch.EchoesOfAFallenStar) // Ambling Caltrop
-            .Bait      (data, 27584, 27461)
+            .Mooch     (data, 27584, 27461)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (720, 960)
             .Weather   (data, 1);
@@ -95,7 +95,7 @@ public static partial class Fish
             .Bait      (data, 29714)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29727, Patch.EchoesOfAFallenStar) // Gladius
-            .Bait      (data, 29715, 29722)
+            .Mooch     (data, 29715, 29722)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29728, Patch.EchoesOfAFallenStar) // Rhotano Wahoo
             .Bait      (data, 29715)
@@ -148,7 +148,7 @@ public static partial class Fish
             .Bait      (data, 29715)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (29743, Patch.EchoesOfAFallenStar) // Elder Dinichthys
-            .Bait      (data, 29714, 29718)
+            .Mooch     (data, 29714, 29718)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29744, Patch.EchoesOfAFallenStar) // Drunkfish
             .Bait      (data, 29715)
@@ -202,7 +202,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29758, Patch.EchoesOfAFallenStar) // Great Grandmarlin
-            .Bait      (data, 29714, 29761)
+            .Mooch     (data, 29714, 29761)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (29759, Patch.EchoesOfAFallenStar) // Shipwreck's Sail
             .Bait      (data, 29716)
@@ -218,7 +218,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Night);
         data.Apply     (29763, Patch.EchoesOfAFallenStar) // Aetheric Seadragon
-            .Bait      (data, 29714, 29761)
+            .Mooch     (data, 29714, 29761)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Night);
         data.Apply     (29764, Patch.EchoesOfAFallenStar) // Coral Seadragon
@@ -226,7 +226,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29765, Patch.EchoesOfAFallenStar) // Roguesaurus
-            .Bait      (data, 29714, 29761)
+            .Mooch     (data, 29714, 29761)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29766, Patch.EchoesOfAFallenStar) // Merman's Mane

@@ -25,7 +25,7 @@ public static partial class Fish
             .Bite(HookSet.Powerful, BiteType.Legendary)
             .Weather(data, 8);
         data.Apply(36683, Patch.NewfoundAdventure) // Rimepike
-            .Bait(data, 36589, 36458)
+            .Mooch(data, 36589, 36458)
             .Bite(HookSet.Powerful, BiteType.Legendary)
             .Weather(data, 15);
         data.Apply(36684, Patch.NewfoundAdventure) // Foun Ahlm

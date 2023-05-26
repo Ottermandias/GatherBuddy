@@ -9,11 +9,11 @@ public static partial class Fish
     private static void ApplyDreamsOfIce(this GameData data)
     {
         data.Apply     (8752, Patch.DreamsOfIce) // Imperial Goldfish
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 600, (5031, 3));
         data.Apply     (8753, Patch.DreamsOfIce) // The Old Man in the Sea
-            .Bait      (data, 2587, 4874, 4888)
+            .Mooch     (data, 2587, 4874, 4888)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 7, 8)
             .Weather   (data, 1);
@@ -23,18 +23,18 @@ public static partial class Fish
             .Predators (data, 350, (4913, 3))
             .Weather   (data, 7, 8);
         data.Apply     (8755, Patch.DreamsOfIce) // Coelacanthus
-            .Bait      (data, 2596, 4898)
+            .Mooch     (data, 2596, 4898)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1320, 180)
             .Weather   (data, 4, 3, 5);
         data.Apply     (8756, Patch.DreamsOfIce) // Endoceras
-            .Bait      (data, 2596, 4898)
+            .Mooch     (data, 2596, 4898)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1200, 240)
             .Transition(data, 1, 2)
             .Weather   (data, 4, 3, 5);
         data.Apply     (8757, Patch.DreamsOfIce) // Seahag
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1140, 120)
             .Weather   (data, 1, 2);
@@ -53,47 +53,47 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 300, (5008, 5));
         data.Apply     (8761, Patch.DreamsOfIce) // Ninja Betta
-            .Bait      (data, 2592, 4942, 5002)
+            .Mooch     (data, 2592, 4942, 5002)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1080, 540)
             .Weather   (data, 17);
         data.Apply     (8762, Patch.DreamsOfIce) // Canavan
-            .Bait      (data, 2599, 4978, 5011)
+            .Mooch     (data, 2599, 4978, 5011)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 1080)
             .Weather   (data, 17);
         data.Apply     (8763, Patch.DreamsOfIce) // Kuno the Killer
-            .Bait      (data, 2599, 4978, 5002)
+            .Mooch     (data, 2599, 4978, 5002)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 1400, (8762, 1));
         data.Apply     (8764, Patch.DreamsOfIce) // Pirate's Bane
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 120, (4904, 6));
         data.Apply     (8765, Patch.DreamsOfIce) // Ndendecki
-            .Bait      (data, 2599, 4978, 5002)
+            .Mooch     (data, 2599, 4978, 5002)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1080, 300)
             .Weather   (data, 4);
         data.Apply     (8766, Patch.DreamsOfIce) // Bat-o'-Nine-Tails
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 7)
             .Weather   (data, 4, 3, 1, 2);
         data.Apply     (8767, Patch.DreamsOfIce) // Wootz Knifefish Zenith
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (60, 200)
             .Transition(data, 1, 2)
             .Weather   (data, 4);
         data.Apply     (8768, Patch.DreamsOfIce) // Helicoprion
-            .Bait      (data, 2600, 5035)
+            .Mooch     (data, 2600, 5035)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 1200)
             .Transition(data, 4, 3)
             .Weather   (data, 14);
         data.Apply     (8769, Patch.DreamsOfIce) // Darkstar
-            .Bait      (data, 2599, 4937)
+            .Mooch     (data, 2599, 4937)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1140, 240)
             .Predators (data, 180, (5544, 5))
@@ -104,15 +104,15 @@ public static partial class Fish
             .Transition(data, 16, 15)
             .Weather   (data, 1, 2);
         data.Apply     (8771, Patch.DreamsOfIce) // Mahar
-            .Bait      (data, 2605, 5040)
+            .Mooch     (data, 2605, 5040)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 1, 2)
             .Weather   (data, 16);
         data.Apply     (8772, Patch.DreamsOfIce) // Shonisaurus
-            .Bait      (data, 2605, 5040, 8771)
+            .Mooch     (data, 2605, 5040, 8771)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (8773, Patch.DreamsOfIce) // Magicked Mushroom
-            .Bait      (data, 2620, 4995)
+            .Mooch     (data, 2620, 4995)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 7, 9)
             .Weather   (data, 4, 3);
@@ -125,7 +125,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 60, (8774, 1));
         data.Apply     (8776, Patch.DreamsOfIce) // Blood Red Bonytongue
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (270, 690)
             .Transition(data, 1, 2)

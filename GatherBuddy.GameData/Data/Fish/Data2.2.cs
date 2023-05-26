@@ -26,11 +26,11 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Weather   (data, 4, 3, 5);
         data.Apply     (7683, Patch.ThroughTheMaelstrom) // Moldva
-            .Bait      (data, 2592, 4942)
+            .Mooch     (data, 2592, 4942)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1080, 120);
         data.Apply     (7684, Patch.ThroughTheMaelstrom) // Junkmonger
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 120);
         data.Apply     (7685, Patch.ThroughTheMaelstrom) // Goldenfin
@@ -38,7 +38,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (540, 840);
         data.Apply     (7686, Patch.ThroughTheMaelstrom) // Gigantshark
-            .Bait      (data, 2611, 4874)
+            .Mooch     (data, 2611, 4874)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 1, 2);
         data.Apply     (7687, Patch.ThroughTheMaelstrom) // Armorer
@@ -69,7 +69,7 @@ public static partial class Fish
             .Time      (540, 840)
             .Weather   (data, 1, 2);
         data.Apply     (7694, Patch.ThroughTheMaelstrom) // Dark Ambusher
-            .Bait      (data, 2586, 4927)
+            .Mooch     (data, 2586, 4927)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (1260, 180);
         data.Apply     (7695, Patch.ThroughTheMaelstrom) // Judgeray
@@ -116,14 +116,14 @@ public static partial class Fish
             .Time      (1200, 180)
             .Weather   (data, 7, 8);
         data.Apply     (7705, Patch.ThroughTheMaelstrom) // Chirurgeon
-            .Bait      (data, 2586, 4927)
+            .Mooch     (data, 2586, 4927)
             .Bite      (HookSet.Precise, BiteType.Legendary);
         data.Apply     (7706, Patch.ThroughTheMaelstrom) // Mud Golem
             .Bait      (data, 2594)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1260, 180);
         data.Apply     (7707, Patch.ThroughTheMaelstrom) // Octomammoth
-            .Bait      (data, 2587, 4874)
+            .Mooch     (data, 2587, 4874)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (540, 1020);
         data.Apply     (7708, Patch.ThroughTheMaelstrom) // Matron Carp

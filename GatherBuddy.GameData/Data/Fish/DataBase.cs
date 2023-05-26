@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using Dalamud.Logging;
 using GatherBuddy.Enums;
+using GatherBuddy.Structs;
 using GatherBuddy.Time;
 
 namespace GatherBuddy.Data;
@@ -62,12 +63,12 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? Bait(this Classes.Fish? fish, GameData data, params uint[] items)
+    private static Classes.Fish? Bait(this Classes.Fish? fish, GameData data, uint? baitId = null)
     {
         if (fish == null)
             return null;
 
-        if (items.Length == 0)
+        if (baitId == null)
             return fish;
 
         if (fish.IsSpearFish)
@@ -78,11 +79,70 @@ public static partial class Fish
 
         try
         {
-            fish.InitialBait = data.Bait.TryGetValue(items[0], out var bait) ? bait : throw new Exception($"Could not find bait {items[0]}.");
-            fish.Mooches = items.Skip(1).Select(f
-                    => data.Fishes.TryGetValue(f, out var fsh)
-                        ? fsh
-                        : throw new Exception($"Could not find fish {f}."))
+            if (data.Bait.TryGetValue(baitId.Value, out var bait))
+                fish.InitialBait = bait;
+            else if (data.Fishes.TryGetValue(baitId.Value, out var fsh))
+                fish.Mooches = new[]
+                {
+                    fsh,
+                };
+            else
+                throw new Exception($"Could not find bait {baitId.Value}.");
+        }
+        catch (Exception e)
+        {
+            PluginLog.Error(e.Message);
+        }
+
+        return fish;
+    }
+
+    private static Classes.Fish? Mooch(this Classes.Fish? fish, GameData data, uint moochId)
+    {
+        if (fish == null)
+            return null;
+
+        if (fish.IsSpearFish)
+        {
+            PluginLog.Error("Tried to set bait for spearfish.");
+            return fish;
+        }
+
+        try
+        {
+            if (data.Fishes.TryGetValue(moochId, out var fsh))
+                fish.Mooches = new[]
+                {
+                    fsh,
+                };
+            else
+                throw new Exception($"Could not find fish {moochId}.");
+        }
+        catch (Exception e)
+        {
+            PluginLog.Error(e.Message);
+        }
+
+        return fish;
+    }
+
+    private static Classes.Fish? Mooch(this Classes.Fish? fish, GameData data, uint baitId, uint mooch1, params uint[] items)
+    {
+        if (fish == null)
+            return null;
+
+        if (fish.IsSpearFish)
+        {
+            PluginLog.Error("Tried to set bait for spearfish.");
+            return fish;
+        }
+
+        try
+        {
+            fish.InitialBait = data.Bait.TryGetValue(baitId, out var bait) ? bait : throw new Exception($"Could not find bait {baitId}.");
+            fish.Mooches = items.Prepend(mooch1).Select(f => data.Fishes.TryGetValue(f, out var fsh)
+                    ? fsh
+                    : throw new Exception($"Could not find fish {f}."))
                 .ToArray();
         }
         catch (Exception e)
@@ -215,6 +275,29 @@ public static partial class Fish
         return fish;
     }
 
+    private static void ApplyMooches(this GameData data)
+    {
+        (Bait, Classes.Fish[]) ApplyMooch(Classes.Fish fish)
+        {
+            if (fish.InitialBait != Structs.Bait.Unknown)
+                return (fish.InitialBait, fish.Mooches);
+
+            if (fish.Mooches.Length == 0)
+                return (Structs.Bait.Unknown, Array.Empty<Classes.Fish>());
+
+            var (b, m) = ApplyMooch(fish.Mooches[^1]);
+            if (b == Structs.Bait.Unknown)
+                return (Structs.Bait.Unknown, Array.Empty<Classes.Fish>());
+
+            fish.InitialBait = b;
+            fish.Mooches     = m.Append(fish.Mooches[^1]).ToArray();
+            return (fish.InitialBait, fish.Mooches);
+        }
+
+        foreach (var fish in data.Fishes.Values.Where(f => !f.IsSpearFish))
+            ApplyMooch(fish);
+    }
+
     internal static void Apply(GameData data)
     {
         data.ApplyARealmReborn();
@@ -245,5 +328,6 @@ public static partial class Fish
         data.ApplyBuriedMemory();
         data.ApplyGodsRevelLandsTremble();
         data.ApplyTheDarkThrone();
+        data.ApplyMooches();
     }
 }

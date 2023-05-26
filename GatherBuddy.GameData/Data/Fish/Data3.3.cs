@@ -32,10 +32,10 @@ public static partial class Fish
             .Time      (1320, 120)
             .Weather   (data, 11, 4, 3);
         data.Apply     (15631, Patch.RevengeOfTheHorde) // Meteortoise
-            .Bait      (data, 12709, 12754)
+            .Mooch     (data, 12709, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (15632, Patch.RevengeOfTheHorde) // The Ewer King
-            .Bait      (data, 12707, 12780)
+            .Mooch     (data, 12707, 12780)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (15633, Patch.RevengeOfTheHorde) // Vidofnir
             .Bait      (data, 12711)
@@ -56,10 +56,10 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 5);
         data.Apply     (15637, Patch.RevengeOfTheHorde) // Augmented High Allagan Helmet
-            .Bait      (data, 12710, 12776)
+            .Mooch     (data, 12710, 12776)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (15638, Patch.RevengeOfTheHorde) // Aphotic Pirarucu
-            .Bait      (data, 12705, 12777)
+            .Mooch     (data, 12705, 12777)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1260, 120)
             .Weather   (data, 3);

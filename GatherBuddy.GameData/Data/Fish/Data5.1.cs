@@ -25,7 +25,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 7);
         data.Apply     (28069, Patch.VowsOfVirtueDeedsOfCruelty) // The Horned King
-            .Bait      (data, 27586, 27460)
+            .Mooch     (data, 27586, 27460)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (0, 360)
             .Weather   (data, 11);
@@ -35,7 +35,7 @@ public static partial class Fish
             .Time      (1200, 1440)
             .Weather   (data, 2, 1);
         data.Apply     (28071, Patch.VowsOfVirtueDeedsOfCruelty) // Priest of Yx'Lokwa
-            .Bait      (data, 27587, 27490, 27491)
+            .Mooch     (data, 27587, 27490, 27491)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 720);
         data.Apply     (28072, Patch.VowsOfVirtueDeedsOfCruelty) // Starchaser

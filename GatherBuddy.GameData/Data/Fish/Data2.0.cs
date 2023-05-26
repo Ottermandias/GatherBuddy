@@ -62,7 +62,7 @@ public static partial class Fish
             .Bait      (data, 2591)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (4885, Patch.ARealmReborn) // Blue Octopus
-            .Bait      (data, 2585, 4869)
+            .Mooch     (data, 2585, 4869)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4886, Patch.ARealmReborn) // Blowdata
             .Bait      (data, 2606)
@@ -71,7 +71,7 @@ public static partial class Fish
             .Bait      (data, 2619)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4888, Patch.ARealmReborn) // Ogre Barracuda
-            .Bait      (data, 2587, 4874)
+            .Mooch     (data, 2587, 4874)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Snag      (Snagging.None);
         data.Apply     (4889, Patch.ARealmReborn) // Monkdata
@@ -118,17 +118,17 @@ public static partial class Fish
             .Bait      (data, 2619)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4903, Patch.ARealmReborn) // Silver Shark
-            .Bait      (data, 2585, 4869)
+            .Mooch     (data, 2585, 4869)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4904, Patch.ARealmReborn) // Wahoo
-            .Bait      (data, 2585, 4869)
+            .Mooch     (data, 2585, 4869)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4905, Patch.ARealmReborn) // Raincaller
             .Bait      (data, 2601)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 7, 15);
         data.Apply     (4906, Patch.ARealmReborn) // Nautilus
-            .Bait      (data, 2616, 4898)
+            .Mooch     (data, 2616, 4898)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4907, Patch.ARealmReborn) // Pike Eel
             .Bait      (data, 2628)
@@ -147,7 +147,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Time      (1020, 1320);
         data.Apply     (4912, Patch.ARealmReborn) // Goosefish
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4913, Patch.ARealmReborn) // Little Thalaos
             .Bait      (data, 2606)
@@ -164,30 +164,30 @@ public static partial class Fish
             .Bait      (data, 2606)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (4917, Patch.ARealmReborn) // Mazlaya Marlin
-            .Bait      (data, 2587, 4874, 4888)
+            .Mooch     (data, 2587, 4874, 4888)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (4918, Patch.ARealmReborn) // Coelacanth
-            .Bait      (data, 2616, 4898)
+            .Mooch     (data, 2616, 4898)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4919, Patch.ARealmReborn) // Giant Squid
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Snag      (Snagging.None);
         data.Apply     (4920, Patch.ARealmReborn) // Gigant Octopus
-            .Bait      (data, 2587, 4874, 4888)
+            .Mooch     (data, 2587, 4874, 4888)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (4921, Patch.ARealmReborn) // Sundata
-            .Bait      (data, 2587, 4872)
+            .Mooch     (data, 2587, 4872)
             .Weather   (data, 3, 4, 5)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4922, Patch.ARealmReborn) // Dinichthys
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (4923, Patch.ARealmReborn) // Megalodon
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (4924, Patch.ARealmReborn) // Titanic Sawdata
-            .Bait      (data, 2585, 4869, 4904)
+            .Mooch     (data, 2585, 4869, 4904)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (540, 900)
             .Weather   (data, 1, 2);
@@ -279,7 +279,7 @@ public static partial class Fish
             .Bait      (data, 2594)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4952, Patch.ARealmReborn) // Eunuch Craydata
-            .Bait      (data, 2594, 4948)
+            .Mooch     (data, 2594, 4948)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (4953, Patch.ARealmReborn) // Jade Eel
             .Bait      (data, 2594)
@@ -316,13 +316,13 @@ public static partial class Fish
             .Bait      (data, 2595)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (4963, Patch.ARealmReborn) // Shadow Catdata
-            .Bait      (data, 2586, 4927)
+            .Mooch     (data, 2586, 4927)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4964, Patch.ARealmReborn) // Black Ghost
-            .Bait      (data, 2592, 4942)
+            .Mooch     (data, 2592, 4942)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4965, Patch.ARealmReborn) // Lamprey
-            .Bait      (data, 2594, 4948)
+            .Mooch     (data, 2594, 4948)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (4966, Patch.ARealmReborn) // Plaguedata
             .Bait      (data, 2610)
@@ -352,7 +352,7 @@ public static partial class Fish
             .Bait      (data, 2599)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (4975, Patch.ARealmReborn) // Monke Onke
-            .Bait      (data, 2592, 4942)
+            .Mooch     (data, 2592, 4942)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (4976, Patch.ARealmReborn) // Seema
             .Bait      (data, 2623)
@@ -407,7 +407,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 7, 8);
         data.Apply     (4992, Patch.ARealmReborn) // Fall Jumper
-            .Bait      (data, 2594, 4948)
+            .Mooch     (data, 2594, 4948)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4993, Patch.ARealmReborn) // Knifedata
             .Bait      (data, 2603)
@@ -436,23 +436,23 @@ public static partial class Fish
             .Snag      (Snagging.None)
             .Weather   (data, 1, 2, 3, 4);
         data.Apply     (5000, Patch.ARealmReborn) // Goblin Perch
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5001, Patch.ARealmReborn) // Agelyss Carp
             .Bait      (data, 2618)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5002, Patch.ARealmReborn) // Assassin Betta
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Snag      (Snagging.None);
         data.Apply     (5003, Patch.ARealmReborn) // Sludgeskipper
             .Bait      (data, 2601)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (5004, Patch.ARealmReborn) // Boltdata
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5005, Patch.ARealmReborn) // Garpike
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5006, Patch.ARealmReborn) // Ilsabardian Bass
             .Bait      (data, 2624)
@@ -465,26 +465,26 @@ public static partial class Fish
             .Bait      (data, 2603)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5009, Patch.ARealmReborn) // Kissing Trout
-            .Bait      (data, 2586, 4927)
+            .Mooch     (data, 2586, 4927)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5010, Patch.ARealmReborn) // Angry Pike
-            .Bait      (data, 2599, 4937)
+            .Mooch     (data, 2599, 4937)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5011, Patch.ARealmReborn) // Golddata
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Snag      (Snagging.None);
         data.Apply     (5012, Patch.ARealmReborn) // Vampire Lampern
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5013, Patch.ARealmReborn) // Wandering Sculpin
             .Bait      (data, 2607)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5014, Patch.ARealmReborn) // Cave Cherax
-            .Bait      (data, 2586, 4927)
+            .Mooch     (data, 2586, 4927)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5015, Patch.ARealmReborn) // Coeurldata
-            .Bait      (data, 2626, 4995)
+            .Mooch     (data, 2626, 4995)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (5016, Patch.ARealmReborn) // Giant Donko
             .Bait      (data, 2626)
@@ -496,20 +496,20 @@ public static partial class Fish
             .Time      (600, 900)
             .Weather   (data, 1, 2);
         data.Apply     (5018, Patch.ARealmReborn) // Alligator Gardata
-            .Bait      (data, 2626, 4995)
+            .Mooch     (data, 2626, 4995)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (5019, Patch.ARealmReborn) // Wootz Knifedata
-            .Bait      (data, 2599, 4978, 5011)
+            .Mooch     (data, 2599, 4978, 5011)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5020, Patch.ARealmReborn) // Giant Catdata
-            .Bait      (data, 2599, 4978)
+            .Mooch     (data, 2599, 4978)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5021, Patch.ARealmReborn) // Cadaver Carp
             .Bait      (data, 2625)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 17);
         data.Apply     (5022, Patch.ARealmReborn) // Mushroom Crab
-            .Bait      (data, 2620, 4995)
+            .Mooch     (data, 2620, 4995)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 4, 3);
         data.Apply     (5023, Patch.ARealmReborn) // Judgment Staff
@@ -517,13 +517,13 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 9, 10);
         data.Apply     (5024, Patch.ARealmReborn) // Poxpike
-            .Bait      (data, 2599, 4978, 5011)
+            .Mooch     (data, 2599, 4978, 5011)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5025, Patch.ARealmReborn) // Emperor fish
-            .Bait      (data, 2586, 4927)
+            .Mooch     (data, 2586, 4927)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5026, Patch.ARealmReborn) // Bowfin
-            .Bait      (data, 2599, 4978, 5011)
+            .Mooch     (data, 2599, 4978, 5011)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5027, Patch.ARealmReborn) // Heliobatis
             .Bait      (data, 2607)
@@ -536,10 +536,10 @@ public static partial class Fish
             .Bait      (data, 2627)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5030, Patch.ARealmReborn) // Morinabaligi
-            .Bait      (data, 2599, 4978, 5011)
+            .Mooch     (data, 2599, 4978, 5011)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (5031, Patch.ARealmReborn) // Jungle Catdata
-            .Bait      (data, 2599, 4978, 5011)
+            .Mooch     (data, 2599, 4978, 5011)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5032, Patch.ARealmReborn) // Sand Bream
             .Bait      (data, 2604)
@@ -558,7 +558,7 @@ public static partial class Fish
             .Bait      (data, 2602)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5037, Patch.ARealmReborn) // Dune Manta
-            .Bait      (data, 2600, 5035)
+            .Mooch     (data, 2600, 5035)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5038, Patch.ARealmReborn) // Cloud Jellydata
             .Bait      (data, 2609)
@@ -571,22 +571,22 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Snag      (Snagging.None);
         data.Apply     (5041, Patch.ARealmReborn) // Blind Manta
-            .Bait      (data, 2605, 5040)
+            .Mooch     (data, 2605, 5040)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5042, Patch.ARealmReborn) // Rift Sailor
             .Bait      (data, 2609)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (5043, Patch.ARealmReborn) // Sagolii Monkdata
-            .Bait      (data, 27591, 4977)
+            .Mooch     (data, 27591, 4977)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (5044, Patch.ARealmReborn) // Saucerdata
-            .Bait      (data, 2605, 5040)
+            .Mooch     (data, 2605, 5040)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (5045, Patch.ARealmReborn) // Caravan Eel
-            .Bait      (data, 2600, 5035)
+            .Mooch     (data, 2600, 5035)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (5046, Patch.ARealmReborn) // Rhamphorhynchus
-            .Bait      (data, 2605, 5040, 5044)
+            .Mooch     (data, 2605, 5040, 5044)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (5460, Patch.ARealmReborn) // White Coral
             .Bait      (data, 2587)

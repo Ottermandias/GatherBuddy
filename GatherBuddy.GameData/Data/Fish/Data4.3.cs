@@ -8,16 +8,16 @@ public static partial class Fish
     private static void ApplyUnderTheMoonlight(this GameData data)
     {
         data.Apply     (23054, Patch.UnderTheMoonlight) // Shrieker
-            .Bait      (data, 20617, 20112)
+            .Mooch     (data, 20617, 20112)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (23055, Patch.UnderTheMoonlight) // White Goldfish
-            .Bait      (data, 20675, 22397)
+            .Mooch     (data, 20675, 22397)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (23056, Patch.UnderTheMoonlight) // Firelight Goldfish
-            .Bait      (data, 20675, 22397)
+            .Mooch     (data, 20675, 22397)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (23057, Patch.UnderTheMoonlight) // Hookstealer
-            .Bait      (data, 20615, 20056)
+            .Mooch     (data, 20615, 20056)
             .Bite      (HookSet.Precise, BiteType.Legendary);
         data.Apply     (23058, Patch.UnderTheMoonlight) // Sapphire Fan
             .Bait      (data, 20675)
@@ -32,15 +32,15 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 11);
         data.Apply     (23061, Patch.UnderTheMoonlight) // The Undecided
-            .Bait      (data, 20615, 20056)
+            .Mooch     (data, 20615, 20056)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 720);
         data.Apply     (23062, Patch.UnderTheMoonlight) // Diamond-eye
-            .Bait      (data, 20616, 20025)
+            .Mooch     (data, 20616, 20025)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 1);
         data.Apply     (23063, Patch.UnderTheMoonlight) // Rising Dragon
-            .Bait      (data, 20617, 20112)
+            .Mooch     (data, 20617, 20112)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
         data.Apply     (23064, Patch.UnderTheMoonlight) // The Gambler
             .Bait      (data, 20676)
@@ -50,7 +50,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1200);
         data.Apply     (23066, Patch.UnderTheMoonlight) // Rakshasa
-            .Bait      (data, 20617, 20112)
+            .Mooch     (data, 20617, 20112)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 9);
         data.Apply     (23067, Patch.UnderTheMoonlight) // Bokuden

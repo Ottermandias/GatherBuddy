@@ -23,7 +23,7 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Bait      (data, 28634);
         data.Apply     (33239, Patch.DeathUntoDawn) // Listracanthus
-            .Bait      (data, 27589, 28925)
+            .Mooch     (data, 27589, 28925)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1440)
             .Weather   (data, 4);
@@ -46,7 +46,7 @@ public static partial class Fish
             .Transition(data, 10)
             .Weather   (data, 1);
         data.Apply     (33243, Patch.DeathUntoDawn) // Greater Serpent of Ronka
-            .Bait      (data, 27587, 27490, 27491, 28071)
+            .Mooch     (data, 27587, 27490, 27491, 28071)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 720);
         data.Apply     (33244, Patch.DeathUntoDawn) // Lancetfish
@@ -78,7 +78,7 @@ public static partial class Fish
             .Transition(data, 1, 2)
             .Weather   (data, 6);
         data.Apply     (33320, Patch.DeathUntoDawn) // Nabaath Saw
-            .Bait      (data, 27586, 27464)
+            .Mooch     (data, 27586, 27464)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (360, 600)
             .Transition(data, 1, 2, 14)
@@ -109,7 +109,7 @@ public static partial class Fish
             .Time      (1320, 1440)
             .Weather   (data, 2);
         data.Apply     (33326, Patch.DeathUntoDawn) // Maru Crab
-            .Bait      (data, 27588, 27506)
+            .Mooch     (data, 27588, 27506)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (960, 1200)
             .Weather   (data, 3);

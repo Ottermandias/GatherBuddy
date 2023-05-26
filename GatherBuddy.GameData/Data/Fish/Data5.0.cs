@@ -159,13 +159,13 @@ public static partial class Fish
             .Bait      (data, 27588)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (27454, Patch.Shadowbringers) // Kholusian Wrasse
-            .Bait      (data, 27588, 27457)
+            .Mooch     (data, 27588, 27457)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (27455, Patch.Shadowbringers) // Weedy Seadragon
             .Bait      (data, 27588)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (27456, Patch.Shadowbringers) // Henodus
-            .Bait      (data, 27588, 27457)
+            .Mooch     (data, 27588, 27457)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1440)
             .Weather   (data, 4, 3);
@@ -197,10 +197,10 @@ public static partial class Fish
             .Bait      (data, 28634)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (27466, Patch.Shadowbringers) // Nabaath Manta
-            .Bait      (data, 27584, 27461)
+            .Mooch     (data, 27584, 27461)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (27467, Patch.Shadowbringers) // Thorned Lizard
-            .Bait      (data, 27584, 27461)
+            .Mooch     (data, 27584, 27461)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 1080)
             .Weather   (data, 14, 1, 2);
@@ -275,7 +275,7 @@ public static partial class Fish
             .Bait      (data, 27587)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (27491, Patch.Shadowbringers) // Eryops
-            .Bait      (data, 27587, 27490)
+            .Mooch     (data, 27587, 27490)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (27492, Patch.Shadowbringers) // Diamond Pipira
             .Bait      (data, 27587)
@@ -331,10 +331,10 @@ public static partial class Fish
             .Bait      (data, 27588)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (27507, Patch.Shadowbringers) // Yeti Crab
-            .Bait      (data, 27588, 27506)
+            .Mooch     (data, 27588, 27506)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (27508, Patch.Shadowbringers) // Aapoak
-            .Bait      (data, 27588, 27506)
+            .Mooch     (data, 27588, 27506)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (720, 960)
             .Weather   (data, 1);

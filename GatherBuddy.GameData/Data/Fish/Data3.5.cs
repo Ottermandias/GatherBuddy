@@ -37,7 +37,7 @@ public static partial class Fish
             .Transition(data, 15)
             .Weather   (data, 16);
         data.Apply     (17579, Patch.TheFarEdgeOfFate) // Paikiller
-            .Bait      (data, 12707, 12730)
+            .Mooch     (data, 12707, 12730)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 720)
             .Snag      (Snagging.None)
@@ -51,34 +51,34 @@ public static partial class Fish
             .Transition(data, 3)
             .Weather   (data, 9);
         data.Apply     (17581, Patch.TheFarEdgeOfFate) // Crystal Pigeon
-            .Bait      (data, 12712, 12805)
+            .Mooch     (data, 12712, 12805)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Snag      (Snagging.None)
             .Transition(data, 2)
             .Weather   (data, 9);
         data.Apply     (17582, Patch.TheFarEdgeOfFate) // Thunderscale
-            .Bait      (data, 12704, 12722)
+            .Mooch     (data, 12704, 12722)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (360, 480)
             .Snag      (Snagging.None)
             .Transition(data, 11, 3, 4)
             .Weather   (data, 9);
         data.Apply     (17583, Patch.TheFarEdgeOfFate) // Riddle
-            .Bait      (data, 12709, 12754)
+            .Mooch     (data, 12709, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 960)
             .Snag      (Snagging.None)
             .Transition(data, 1)
             .Weather   (data, 1);
         data.Apply     (17584, Patch.TheFarEdgeOfFate) // The Lord of Lords
-            .Bait      (data, 28634, 12754)
+            .Mooch     (data, 28634, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 960)
             .Snag      (Snagging.None)
             .Transition(data, 4, 11, 3)
             .Weather   (data, 1, 2);
         data.Apply     (17585, Patch.TheFarEdgeOfFate) // The Speaker
-            .Bait      (data, 12704, 12757)
+            .Mooch     (data, 12704, 12757)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Snag      (Snagging.None)
             .Transition(data, 3, 4)
@@ -96,20 +96,20 @@ public static partial class Fish
             .Transition(data, 1)
             .Weather   (data, 6);
         data.Apply     (17588, Patch.TheFarEdgeOfFate) // Problematicus
-            .Bait      (data, 28634, 12754)
+            .Mooch     (data, 28634, 12754)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 900)
             .Snag      (Snagging.None)
             .Predators (data, 180, (12800, 3), (12754, 5))
             .Weather   (data, 1, 2);
         data.Apply     (17589, Patch.TheFarEdgeOfFate) // Opabinia
-            .Bait      (data, 30136, 12776)
+            .Mooch     (data, 30136, 12776)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Snag      (Snagging.None)
             .Predators (data, 105, (13727, 3))
             .Weather   (data, 9);
         data.Apply     (17590, Patch.TheFarEdgeOfFate) // Armor Fish
-            .Bait      (data, 12705, 12757)
+            .Mooch     (data, 12705, 12757)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (60, 240)
             .Snag      (Snagging.None)
@@ -123,14 +123,14 @@ public static partial class Fish
             .Predators (data, 60, (12810, 3), (12753, 3))
             .Weather   (data, 1);
         data.Apply     (17592, Patch.TheFarEdgeOfFate) // Charibenet
-            .Bait      (data, 12705, 12715)
+            .Mooch     (data, 12705, 12715)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (0, 180)
             .Snag      (Snagging.None)
             .Predators (data, 120, (12715, 5))
             .Weather   (data, 16);
         data.Apply     (17593, Patch.TheFarEdgeOfFate) // Raimdellopterus
-            .Bait      (data, 12712, 12805)
+            .Mooch     (data, 12712, 12805)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (300, 480)
             .Snag      (Snagging.None)

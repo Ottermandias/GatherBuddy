@@ -97,7 +97,7 @@ public static partial class Fish
             .Bait      (data, 36589)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36414, Patch.Endwalker) // Labyrinthos Tilapia
-            .Bait      (data, 36589, 36412)
+            .Mooch     (data, 36589, 36412)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Time      (480, 960)
             .Weather   (data, 2);
@@ -197,10 +197,10 @@ public static partial class Fish
             .Bait      (data, 36593)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36453, Patch.Endwalker) // Roosterfish
-            .Bait      (data, 36593, 36451)
+            .Mooch     (data, 36593, 36451)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36454, Patch.Endwalker) // Basilosaurus
-            .Bait      (data, 36593, 36451)
+            .Mooch     (data, 36593, 36451)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2);
         data.Apply     (36456, Patch.Endwalker) // Eblan Trout
@@ -246,7 +246,7 @@ public static partial class Fish
             .Bait      (data, 36594)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36472, Patch.Endwalker) // Lunar Deathworm
-            .Bait      (data, 36594, 36470)
+            .Mooch     (data, 36594, 36470)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2);
         data.Apply     (36473, Patch.Endwalker) // Fleeting Brand
@@ -268,7 +268,7 @@ public static partial class Fish
             .Bait      (data, 36590)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36480, Patch.Endwalker) // Mangar
-            .Bait      (data, 36591, 36478)
+            .Mooch     (data, 36591, 36478)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 3);
         data.Apply     (36481, Patch.Endwalker) // Dermogenys
@@ -365,10 +365,10 @@ public static partial class Fish
             .Bait      (data, 36596)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36520, Patch.Endwalker) // Unbegotten
-            .Bait      (data, 36596, 36518)
+            .Mooch     (data, 36596, 36518)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36521, Patch.Endwalker) // Phallaina 
-            .Bait      (data, 36597, 36518)
+            .Mooch     (data, 36597, 36518)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (0, 240);
         data.Apply     (36522, Patch.Endwalker) // Thavnairian Cucumber

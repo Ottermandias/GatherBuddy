@@ -8,27 +8,27 @@ public static partial class Fish
     private static void ApplySoulSurrender(this GameData data)
     {
         data.Apply     (16742, Patch.SoulSurrender) // Dimorphodon
-            .Bait      (data, 12712, 12805)
+            .Mooch     (data, 12712, 12805)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 1)
             .Weather   (data, 6);
         data.Apply     (16743, Patch.SoulSurrender) // Basking Shark
-            .Bait      (data, 28634, 12753)
+            .Mooch     (data, 28634, 12753)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 4)
             .Weather   (data, 1);
         data.Apply     (16744, Patch.SoulSurrender) // Allagan Bladeshark
-            .Bait      (data, 30136, 12776)
+            .Mooch     (data, 30136, 12776)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 3)
             .Weather   (data, 9);
         data.Apply     (16745, Patch.SoulSurrender) // Hailfinder
-            .Bait      (data, 12708, 12724)
+            .Mooch     (data, 12708, 12724)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Transition(data, 16, 15)
             .Weather   (data, 16);
         data.Apply     (16746, Patch.SoulSurrender) // Flarefish
-            .Bait      (data, 28634, 12715)
+            .Mooch     (data, 28634, 12715)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 1080)
             .Weather   (data, 16);
@@ -39,7 +39,7 @@ public static partial class Fish
             .Transition(data, 3, 4, 11)
             .Weather   (data, 1);
         data.Apply     (16748, Patch.SoulSurrender) // Madam Butterfly
-            .Bait      (data, 12705, 12757)
+            .Mooch     (data, 12705, 12757)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1260, 120)
             .Weather   (data, 1);
@@ -59,20 +59,20 @@ public static partial class Fish
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (120, 360);
         data.Apply     (16752, Patch.SoulSurrender) // Aetherochemical Compound #666
-            .Bait      (data, 12710, 12776)
+            .Mooch     (data, 12710, 12776)
             .Bite      (HookSet.Precise, BiteType.Legendary);
         data.Apply     (16753, Patch.SoulSurrender) // Hundred-eyed Axolotl
-            .Bait      (data, 12705, 12777)
+            .Mooch     (data, 12705, 12777)
             .Bite      (HookSet.Precise, BiteType.Legendary)
             .Time      (360, 600);
         data.Apply     (16754, Patch.SoulSurrender) // Bobgoblin Bass
-            .Bait      (data, 12706, 12780)
+            .Mooch     (data, 12706, 12780)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (120, 360)
             .Transition(data, 7)
             .Weather   (data, 8);
         data.Apply     (16756, Patch.SoulSurrender) // Merciless
-            .Bait      (data, 2607, 12715)
+            .Mooch     (data, 2607, 12715)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 15, 16)
             .Weather   (data, 16);

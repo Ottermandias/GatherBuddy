@@ -20,7 +20,7 @@ public static partial class Fish
             .Transition(data, 4)
             .Weather(data, 3);
         data.Apply(39881, Patch.TheDarkThrone) // Basilosaurus Rex
-            .Bait(data, 36593, 36451, 36454)
+            .Mooch(data, 36454)
             .Bite(HookSet.Powerful, BiteType.Legendary)
             .Weather(data, 2);
         data.Apply(39882, Patch.TheDarkThrone) // Eehs Fan
@@ -124,7 +124,7 @@ public static partial class Fish
             .Bait(data)
             .Bite(HookSet.Precise, BiteType.Weak);
         data.Apply(40548, Patch.TheDarkThrone) // Silent Shark
-            .Bait(data, 29714, 40543)
+            .Mooch(data, 29714, 40543)
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40549, Patch.TheDarkThrone) // Spectral Wrasse
             .Bait(data)
@@ -161,7 +161,7 @@ public static partial class Fish
             .Bait(data)
             .Bite(HookSet.Powerful, BiteType.Strong);
         data.Apply(40560, Patch.TheDarkThrone) // Glass Dragon
-            .Bait(data, 29715, 40551)
+            .Mooch(data, 29715, 40551)
             .Bite(HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 45, (40558, 2))
             .Ocean(OceanTime.Night);

@@ -27,7 +27,7 @@ public static partial class Fish
             .Transition(data, 3)
             .Weather   (data, 4);
         data.Apply     (32051, Patch.FuturesRewritten) // Henodus Grandis
-            .Bait      (data, 27588, 27457)
+            .Mooch     (data, 27588, 27457)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1320, 1440)
             .Weather   (data, 3);
@@ -38,7 +38,7 @@ public static partial class Fish
             .Transition(data, 2)
             .Weather   (data, 10);
         data.Apply     (32053, Patch.FuturesRewritten) // Pearl Pipira
-            .Bait      (data, 27587, 27492)
+            .Mooch     (data, 27587, 27492)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1020, 1200)
             .Weather   (data, 4);
@@ -242,7 +242,7 @@ public static partial class Fish
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Day, OceanTime.Night);
         data.Apply     (32110, Patch.FuturesRewritten) // Trollfish
-            .Bait      (data, 29714, 32107)
+            .Mooch     (data, 29714, 32107)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (32111, Patch.FuturesRewritten) // Panoptes
             .Bait      (data, 29716)
@@ -255,7 +255,7 @@ public static partial class Fish
             .Bait      (data, 29715)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (32114, Patch.FuturesRewritten) // Placodus
-            .Bait      (data, 29714, 32107)
+            .Mooch     (data, 29714, 32107)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Sunset)
             .Predators (data, 45, (32110, 1));

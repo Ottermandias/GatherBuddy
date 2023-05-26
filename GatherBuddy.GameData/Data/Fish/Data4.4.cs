@@ -8,7 +8,7 @@ public static partial class Fish
     private static void ApplyPreludeInViolet(this GameData data)
     {
         data.Apply     (24203, Patch.PreludeInViolet) // Indigo Prismfish
-            .Bait      (data, 20675, 21177)
+            .Mooch     (data, 20675, 21177)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (24204, Patch.PreludeInViolet) // Green Prismfish
             .Bait      (data, 20675)
@@ -17,11 +17,11 @@ public static partial class Fish
             .Transition(data, 2)
             .Weather   (data, 2, 1);
         data.Apply     (24205, Patch.PreludeInViolet) // Watcher Catfish
-            .Bait      (data, 20615, 20056)
+            .Mooch     (data, 20615, 20056)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 9);
         data.Apply     (24206, Patch.PreludeInViolet) // Bloodtail Zombie
-            .Bait      (data, 20613, 20064)
+            .Mooch     (data, 20613, 20064)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 720)
             .Weather   (data, 3);
@@ -64,7 +64,7 @@ public static partial class Fish
             .Transition(data, 9)
             .Weather   (data, 3);
         data.Apply     (24215, Patch.PreludeInViolet) // Argonautica
-            .Bait      (data, 20617, 20112)
+            .Mooch     (data, 20617, 20112)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 5);
         data.Apply     (24216, Patch.PreludeInViolet) // Hagoromo Bijin
@@ -73,7 +73,7 @@ public static partial class Fish
             .Transition(data, 3)
             .Weather   (data, 2, 1);
         data.Apply     (24217, Patch.PreludeInViolet) // Duskfish
-            .Bait      (data, 20614, 20127)
+            .Mooch     (data, 20614, 20127)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 960)
             .Transition(data, 7, 6)

@@ -28,7 +28,7 @@ public static partial class Fish
             .Transition(data, 1)
             .Weather   (data, 2);
         data.Apply     (24882, Patch.ARequiemForHeroes) // The Vegetarian
-            .Bait      (data, 20617, 20112)
+            .Mooch     (data, 20617, 20112)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1200, 1440)
             .Weather   (data, 9);
@@ -88,13 +88,13 @@ public static partial class Fish
             .Transition(data, 2)
             .Weather   (data, 1);
         data.Apply     (24893, Patch.ARequiemForHeroes) // Banderole
-            .Bait      (data, 20614, 20127)
+            .Mooch     (data, 20614, 20127)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (0, 480)
             .Transition(data, 2)
             .Weather   (data, 4);
         data.Apply     (24990, Patch.ARequiemForHeroes) // Xenacanthus
-            .Bait      (data, 20675, 24207)
+            .Mooch     (data, 20675, 24207)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1200);
         data.Apply     (24991, Patch.ARequiemForHeroes) // Drepanaspis
@@ -103,12 +103,12 @@ public static partial class Fish
             .Predators (data, 175, (23060, 2))
             .Weather   (data, 11);
         data.Apply     (24992, Patch.ARequiemForHeroes) // Stethacanthus
-            .Bait      (data, 20616, 20025)
+            .Mooch     (data, 20616, 20025)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1080)
             .Predators (data, 350, (20040, 2));
         data.Apply     (24993, Patch.ARequiemForHeroes) // The Ruby Dragon
-            .Bait      (data, 20676, 24214)
+            .Mooch     (data, 20676, 24214)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (240, 480)
             .Transition(data, 9)
