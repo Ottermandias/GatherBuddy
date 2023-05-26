@@ -83,8 +83,6 @@ public partial class Fish : IComparable<Fish>, IGatherable
         FishRestrictions = (note is { TimeRestriction: 1 } ? FishRestrictions.Time : FishRestrictions.None)
           | (note is { WeatherRestriction: 1 } ? FishRestrictions.Weather : FishRestrictions.None);
         Name      = MultiString.FromItem(gameData, ItemData.RowId);
-        if (Name.English == "Green Prismfish")
-            PluginLog.Information($"{fishRow.RowId} {note?.RowId} {note?.TimeRestriction} {note?.WeatherRestriction} {FishRestrictions} {note?.Item}");
         Folklore  = MultiString.ParseSeStringLumina(fishRow.GatheringSubCategory.Value?.FolkloreBook);
         Size      = SpearfishSize.None;
         Speed     = SpearfishSpeed.None;
