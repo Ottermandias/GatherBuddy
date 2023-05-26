@@ -30,10 +30,15 @@ public static partial class Fish
             .Transition(data, 149)
             .Weather(data, 49);
         data.Apply(39883, Patch.TheDarkThrone) // Gilt Dermogenys
-            .Bait(data)
-            .Bite(HookSet.Unknown, BiteType.Legendary);
+            .Bait(data, 36590)
+            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Time(1200, 1320)
+            .Transition(data, 49)
+            .Weather(data, 1, 2);
         data.Apply(39912, Patch.TheDarkThrone) // The Fury's Aegis
-            .Bait(data);
+            .Bait(data, 36589)
+            .Time(960, 1140)
+            .Bite(HookSet.Powerful, BiteType.Strong);
         data.Apply(40521, Patch.TheDarkThrone) // Pink Shrimp
             .Bait(data)
             .Bite(HookSet.Precise, BiteType.Weak);
@@ -63,6 +68,7 @@ public static partial class Fish
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40530, Patch.TheDarkThrone) // Dusk Shark
             .Bait(data, 29716)
+            .Predators (data, 60, (40527, 2))
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40531, Patch.TheDarkThrone) // Mermaid Scale
             .Bait(data)
@@ -94,6 +100,7 @@ public static partial class Fish
         data.Apply(40540, Patch.TheDarkThrone) // Taniwha
             .Bait(data, 36593)
             .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Predators (data, 15, (40534, 3))
             .Ocean(OceanTime.Day);
         data.Apply(40541, Patch.TheDarkThrone) // Ruby Herring
             .Bait(data)
@@ -117,13 +124,14 @@ public static partial class Fish
             .Bait(data)
             .Bite(HookSet.Precise, BiteType.Weak);
         data.Apply(40548, Patch.TheDarkThrone) // Silent Shark
-            .Bait(data)
+            .Bait(data, 29714, 40543)
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40549, Patch.TheDarkThrone) // Spectral Wrasse
             .Bait(data)
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40550, Patch.TheDarkThrone) // Mizuhiki
             .Bait(data, 29714)
+            .Predators (data, 60, (40548, 2))
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40551, Patch.TheDarkThrone) // Snapping Koban
             .Bait(data)
@@ -155,6 +163,7 @@ public static partial class Fish
         data.Apply(40560, Patch.TheDarkThrone) // Glass Dragon
             .Bait(data, 29715, 40551)
             .Bite(HookSet.Powerful, BiteType.Legendary)
+            .Predators (data, 45, (40558, 2))
             .Ocean(OceanTime.Night);
         data.Apply(40561, Patch.TheDarkThrone) // Crimson Kelp
             .Bait(data)
@@ -185,6 +194,7 @@ public static partial class Fish
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40570, Patch.TheDarkThrone) // Heavensent Shark
             .Bait(data, 29715)
+            .Predators (data, 60, (40561, 3))
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40571, Patch.TheDarkThrone) // Fleeting Squid
             .Bait(data)
@@ -216,6 +226,7 @@ public static partial class Fish
         data.Apply(40580, Patch.TheDarkThrone) // Hells' Claw
             .Bait(data, 27590)
             .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Predators (data, 15, (40571, 2), (40579, 1))
             .Ocean(OceanTime.Sunset);
         data.Apply(40581, Patch.TheDarkThrone) // Catching Carp
             .Bait(data)
@@ -246,6 +257,7 @@ public static partial class Fish
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40590, Patch.TheDarkThrone) // Fishy Shark
             .Bait(data, 29716)
+            .Predators (data, 60, (40581, 2))
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40591, Patch.TheDarkThrone) // Gensui Shrimp
             .Bait(data)
@@ -273,6 +285,7 @@ public static partial class Fish
         data.Apply(40600, Patch.TheDarkThrone) // Jewel of Plum Spring
             .Bait(data, 12704)
             .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Predators (data, 15, (40595, 2), (40591, 1))
             .Ocean(OceanTime.Day);
     }
     // @formatter:on
