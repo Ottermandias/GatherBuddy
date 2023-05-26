@@ -257,7 +257,7 @@ public static partial class Fish
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40590, Patch.TheDarkThrone) // Fishy Shark
             .Bait(data, 29716)
-            .Predators (data, 60, (40581, 2))
+            .Predators (data, 60, (40581, 3))
             .Bite(HookSet.Unknown, BiteType.Legendary);
         data.Apply(40591, Patch.TheDarkThrone) // Gensui Shrimp
             .Bait(data)
