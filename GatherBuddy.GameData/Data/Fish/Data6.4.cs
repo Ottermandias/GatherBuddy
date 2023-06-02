@@ -15,8 +15,7 @@ public static partial class Fish
             .Weather(data, 2);
         data.Apply(39880, Patch.TheDarkThrone) // Wakeful Warden
             .Bait(data, 36589)
-            .Bite(HookSet.Unknown, BiteType.Legendary)
-            .Time(480, 1440)
+            .Bite(HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 4)
             .Weather(data, 3);
         data.Apply(39881, Patch.TheDarkThrone) // Basilosaurus Rex
@@ -25,13 +24,13 @@ public static partial class Fish
             .Weather(data, 2);
         data.Apply(39882, Patch.TheDarkThrone) // Eehs Fan
             .Bait(data, 36595)
-            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Bite(HookSet.Powerful, BiteType.Legendary)
             .Time(720, 1200)
             .Transition(data, 149)
             .Weather(data, 49);
         data.Apply(39883, Patch.TheDarkThrone) // Gilt Dermogenys
             .Bait(data, 36590)
-            .Bite(HookSet.Unknown, BiteType.Legendary)
+            .Bite(HookSet.Precise, BiteType.Legendary)
             .Time(1200, 1320)
             .Transition(data, 49)
             .Weather(data, 1, 2);
