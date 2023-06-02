@@ -372,11 +372,11 @@ public partial class Interface
         ImGui.TextUnformatted($"Waymark Manager: 0x{GatherBuddy.WaymarkManager.Address:X}");
         ImGui.TextUnformatted(
             $"Waymark Manager Offset: +0x{(ulong)GatherBuddy.WaymarkManager.Address - (ulong)Dalamud.SigScanner.Module.BaseAddress:X}");
-        using var table = ImRaii.Table("##Waymarks", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
+        using var table = ImRaii.Table("##Waymarks", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
         if (!table)
             return;
 
-        for (var i = 0; i < 8; ++i)
+        for (var i = 0; i < GatherBuddy.WaymarkManager.Count; ++i)
         {
             using var id      = ImRaii.PushId(i);
             var       waymark = GatherBuddy.WaymarkManager[i];
@@ -386,12 +386,13 @@ public partial class Interface
             ImGui.TableNextColumn();
             if (ImGui.Button("Set"))
                 GatherBuddy.WaymarkManager.SetWaymark(i);
-            ImGuiUtil.DrawTableColumn(waymark.IsSet.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Active.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Position.X.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Position.Y.ToString());
+            ImGuiUtil.DrawTableColumn(waymark.Position.Z.ToString());
             ImGuiUtil.DrawTableColumn(waymark.X.ToString());
             ImGuiUtil.DrawTableColumn(waymark.Y.ToString());
             ImGuiUtil.DrawTableColumn(waymark.Z.ToString());
-            ImGuiUtil.DrawTableColumn(waymark.Unk1.ToString());
-            ImGuiUtil.DrawTableColumn(waymark.Unk2.ToString());
         }
     }
 
