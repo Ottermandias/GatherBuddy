@@ -8,6 +8,7 @@ using GatherBuddy.Config;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
+using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
@@ -214,7 +215,10 @@ public partial class Interface
         var idx = alarm.SoundId.ToIdx();
         ImGui.SetNextItemWidth(85 * ImGuiHelpers.GlobalScale);
         if (ImGui.Combo("##Sound", ref idx, AlarmCache.SoundIdNames))
+        {
             _plugin.AlarmManager.ChangeAlarmSound(group, alarmIdx, AlarmCache.SoundIds[idx]);
+            _plugin.AlarmManager.PreviewAlarm(AlarmCache.SoundIds[idx]);
+        }
         ImGuiUtil.HoverTooltip("Play this sound effect when this alarm is triggered.");
 
         ImGui.TableNextColumn();

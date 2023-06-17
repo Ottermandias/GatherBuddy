@@ -70,6 +70,9 @@ public partial class AlarmManager : IDisposable
     private void TriggerHourAlarm()
         => _sounds.Play(GatherBuddy.Config.HourAlarm);
 
+    public void PreviewAlarm(Sounds id)
+        => _sounds.Play(id);
+
 
     public void AddActiveAlarm(Alarm alarm, bool trigger = true)
     {
