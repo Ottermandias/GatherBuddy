@@ -8,10 +8,12 @@ using GatherBuddy.Config;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
+using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
 using OtterGui.Widgets;
+using static Lumina.Data.Files.ScdFile;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -168,6 +170,7 @@ public partial class Interface
         var       alarm   = group.Alarms[alarmIdx];
         using var id      = ImRaii.PushId(alarmIdx);
         var       enabled = alarm.Enabled;
+        var       _sounds = new PlaySound(Dalamud.SigScanner);
 
         ImGui.TableNextColumn();
         if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this Alarm...", false, true))
@@ -214,7 +217,10 @@ public partial class Interface
         var idx = alarm.SoundId.ToIdx();
         ImGui.SetNextItemWidth(85 * ImGuiHelpers.GlobalScale);
         if (ImGui.Combo("##Sound", ref idx, AlarmCache.SoundIdNames))
+        {
             _plugin.AlarmManager.ChangeAlarmSound(group, alarmIdx, AlarmCache.SoundIds[idx]);
+            _sounds.Play(AlarmCache.SoundIds[idx]);
+        }
         ImGuiUtil.HoverTooltip("Play this sound effect when this alarm is triggered.");
 
         ImGui.TableNextColumn();
