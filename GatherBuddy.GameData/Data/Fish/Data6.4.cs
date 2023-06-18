@@ -99,7 +99,8 @@ public static partial class Fish
             .Bite(HookSet.Precise, BiteType.Weak);
         data.Apply(40539, Patch.TheDarkThrone) // Nymeia's Wheel
             .Bait(data, 29715)
-            .Bite(HookSet.Powerful, BiteType.Strong);
+            .Bite(HookSet.Powerful, BiteType.Strong)
+            .Ocean(OceanTime.Sunset);
         data.Apply(40540, Patch.TheDarkThrone) // Taniwha
             .Bait(data, 36593)
             .Bite(HookSet.Unknown, BiteType.Legendary)
@@ -159,7 +160,8 @@ public static partial class Fish
             .Bite(HookSet.Precise, BiteType.Weak);
         data.Apply(40557, Patch.TheDarkThrone) // Maelstrom Turban
             .Bait(data)
-            .Bite(HookSet.Precise, BiteType.Weak);
+            .Bite(HookSet.Precise, BiteType.Weak)
+            .Ocean(OceanTime.Day, OceanTime.Sunset);
         data.Apply(40558, Patch.TheDarkThrone) // Shoshitsuki
             .Bait(data, 29716)
             .Bite(HookSet.Unknown, BiteType.Legendary);
