@@ -267,7 +267,7 @@ public class Executor
                 var icon = GatherBuddy.GameData.GatheringIcons[_location.GatheringType];
                 instance->TempMapMarkerCount = 0;
                 instance->AddGatheringTempMarker(Maps.IntegerToInternal(_location.IntegralXCoord, _location.Territory.SizeFactor),
-                    Maps.IntegerToInternal(_location.IntegralYCoord, _location.Territory.SizeFactor), _location.Radius, icon.Item1);
+                    Maps.IntegerToInternal(_location.IntegralYCoord, _location.Territory.SizeFactor), _location.Radius, icon.Item1, 4u, _item?.Name[GatherBuddy.Language] ?? _location.Name);
                 instance->OpenMap(_location.Territory.Data.Map.Row, _location.Territory.Id, _item?.Name[GatherBuddy.Language] ?? _location.Name,
                     MapType.GatheringLog);
             }
