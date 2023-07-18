@@ -7,6 +7,22 @@ public static partial class Fish
     // @formatter:off
     private static void ApplyTheDarkThrone(this GameData data)
     {
+        data.Apply(39809, Patch.TheDarkThrone) // Gold Dustfish
+            .Bait(data, 38808)
+            .Bite(HookSet.Precise, BiteType.Weak)
+            .ForceBig(false);
+        data.Apply(39810, Patch.TheDarkThrone) // Forgiven Melancholy
+            .Bait(data, 38808)
+            .Bite(HookSet.Powerful, BiteType.Strong)
+            .ForceBig(false);
+        data.Apply(39815, Patch.TheDarkThrone) // Oil Slick
+            .Bait(data, 38808)
+            .Bite(HookSet.Precise, BiteType.Weak)
+            .ForceBig(false);
+        data.Apply(39816, Patch.TheDarkThrone) // Gonzalo's Grace
+            .Bait(data, 38808)
+            .Bite(HookSet.Precise, BiteType.Weak)
+            .ForceBig(false);
         data.Apply(39879, Patch.TheDarkThrone) // Onyx Knifefish
             .Bait(data, 36591)
             .Bite(HookSet.Unknown, BiteType.Legendary)
