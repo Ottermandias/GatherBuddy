@@ -49,6 +49,11 @@ public static class HiddenSeeds
         (38790, 38791), // Splendorous Water Shard
         (38794, 38795), // Splendorous Lightning Shard
         (38796, 38797), // Splendorous Fire Shard
+
+        (39805, 39806), // Custom Ice Crystal
+        (39807, 39808), // Custom Wind Crystal
+        (39811, 39812), // Brilliant Lightning Cluster
+        (39813, 39814), // Brilliant Earth Cluster
     };
 
     public static void Apply(GameData data)
