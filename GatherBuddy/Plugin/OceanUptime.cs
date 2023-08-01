@@ -17,6 +17,18 @@ public static class OceanUptime
 
     public static readonly long LoopDurationMilliseconds = GatherBuddy.GameData.OceanTimeline.Count * TripDurationMilliseconds;
 
+    // Return the next ocean route for an area.
+    public static OceanRoute NextOceanRoute(OceanArea area, TimeStamp utcNow)
+    {
+        // The offset in milliseconds from when the current loop started to the current time.
+        var loopOffsetMilliseconds = (utcNow.Time - LoopTimestampEpoch) % LoopDurationMilliseconds;
+        // The index into RouteLoop for the given timestamp.
+        var loopIdx = (loopOffsetMilliseconds + TripDurationMilliseconds - 1) 
+          / TripDurationMilliseconds;
+
+        return GatherBuddy.GameData.OceanTimeline[area, (int)loopIdx % GatherBuddy.GameData.OceanTimeline.Count];
+    }
+
     // Returns the current/next TimeInterval from a utc timestamp for this ocean fish.
     public static TimeInterval GetOceanUptime(Fish fish, TimeStamp utcNow)
     {
