@@ -142,7 +142,7 @@ public static partial class Fish
             .Mooch     (data, 20615, 20056)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (20058, Patch.Stormblood) // Miounnefish
-            .Mooch     (data, 20615, 20056)
+            .Mooch     (data, 20614, 20064)
             .Bite      (HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 3, 4);
         data.Apply     (20059, Patch.Stormblood) // Monk Betta
@@ -161,7 +161,7 @@ public static partial class Fish
             .Bait      (data, 20614)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (20064, Patch.Stormblood) // Balloon Frog
-            .Bait      (data, 20613)
+            .Bait      (data, 20614)
             .Bite      (HookSet.Precise, BiteType.Weak)
             .Snag      (Snagging.None);
         data.Apply     (20065, Patch.Stormblood) // Lantern Marimo
