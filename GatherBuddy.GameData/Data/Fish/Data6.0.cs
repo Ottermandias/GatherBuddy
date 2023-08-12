@@ -240,13 +240,13 @@ public static partial class Fish
             .Bait      (data, 36594)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36470, Patch.Endwalker) // Calicia
-            .Bait      (data, 36594)
+            .Bait      (data, 36595)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36471, Patch.Endwalker) // Protomyke #987
             .Bait      (data, 36594)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36472, Patch.Endwalker) // Lunar Deathworm
-            .Mooch     (data, 36594, 36470)
+            .Mooch     (data, 36595, 36470)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2);
         data.Apply     (36473, Patch.Endwalker) // Fleeting Brand
