@@ -176,9 +176,8 @@ public static partial class Fish
         data.Apply     (4920, Patch.ARealmReborn) // Gigant Octopus
             .Mooch     (data, 2587, 4874, 4888)
             .Bite      (HookSet.Powerful, BiteType.Legendary);
-        data.Apply     (4921, Patch.ARealmReborn) // Sundata
+        data.Apply     (4921, Patch.ARealmReborn) // Sunfish
             .Mooch     (data, 2587, 4872)
-            .Weather   (data, 3, 4, 5)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (4922, Patch.ARealmReborn) // Dinichthys
             .Mooch     (data, 2585, 4869, 4904)
