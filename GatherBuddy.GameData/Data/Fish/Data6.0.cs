@@ -210,7 +210,7 @@ public static partial class Fish
             .Bait      (data, 36588)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36458, Patch.Endwalker) // Cerule Core
-            .Bait      (data, 36589)
+            .Bait      (data, 36591)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36459, Patch.Endwalker) // Icepike
             .Bait      (data, 36589)
@@ -262,7 +262,7 @@ public static partial class Fish
             .Bait      (data, 36588)
             .Bite      (HookSet.Powerful, BiteType.Strong);
         data.Apply     (36478, Patch.Endwalker) // Albino Loach
-            .Bait      (data, 29717)
+            .Bait      (data, 36591)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (36479, Patch.Endwalker) // Golden Shiner
             .Bait      (data, 36590)
