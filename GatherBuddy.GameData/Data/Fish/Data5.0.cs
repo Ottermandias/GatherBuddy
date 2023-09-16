@@ -170,7 +170,7 @@ public static partial class Fish
             .Time      (960, 1440)
             .Weather   (data, 4, 3);
         data.Apply     (27457, Patch.Shadowbringers) // Spearhead Squid
-            .Bait      (data, 27588)
+            .Bait      (data, 28634)
             .Bite      (HookSet.Precise, BiteType.Weak);
         data.Apply     (27458, Patch.Shadowbringers) // Shadow Crab
             .Bait      (data, 27584)
