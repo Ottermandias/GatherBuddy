@@ -27,7 +27,7 @@ public static partial class Fish
             .Transition(data, 3)
             .Weather   (data, 4);
         data.Apply     (32051, Patch.FuturesRewritten) // Henodus Grandis
-            .Mooch     (data, 27588, 27457)
+            .Mooch     (data, 28634, 27457)
             .Bite      (HookSet.Powerful, BiteType.Legendary)
             .Time      (1320, 1440)
             .Weather   (data, 3);
