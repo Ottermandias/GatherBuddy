@@ -67,7 +67,7 @@ public static partial class Fish
         data.Apply     (14218, Patch.AsGoesLightSoGoesDarkness) // Oliphant's Trunk
             .Bait      (data, 12710)
             .Bite      (HookSet.Precise, BiteType.Weak)
-            .Time      (1080, 1380)
+            .Time      (1080, 1440)
             .Weather   (data, 9);
         data.Apply     (14219, Patch.AsGoesLightSoGoesDarkness) // Mountain Kraken
             .Bait      (data, 12711)
