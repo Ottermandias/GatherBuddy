@@ -140,7 +140,7 @@ public static partial class Fish
             .Snag      (data, Snagging.None);
         data.Apply     (20057, Patch.Stormblood) // Bloodsipper
             .Mooch     (data, 20615, 20056)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (20058, Patch.Stormblood) // Miounnefish
             .Mooch     (data, 20614, 20064)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)

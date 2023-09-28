@@ -175,7 +175,7 @@ public static partial class Fish
             .Snag      (data, Snagging.None);
         data.Apply     (4920, Patch.ARealmReborn) // Gigant Octopus
             .Mooch     (data, 2587, 4874, 4888)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (4921, Patch.ARealmReborn) // Sunfish
             .Mooch     (data, 2587, 4872)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
