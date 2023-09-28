@@ -32,13 +32,13 @@ public static class ForcedAetherytes
             var territory     = data.FindOrAddTerritory(territoryType);
             if (territory == null)
             {
-                PluginLog.Error($"Could not find territory {zoneId}.");
+                data.Log.Error($"Could not find territory {zoneId}.");
                 continue;
             }
 
             if (!data.Aetherytes.TryGetValue(aetheryteId, out var aetheryte))
             {
-                PluginLog.Error($"Could not find aetheryte {aetheryteId}.");
+                data.Log.Error($"Could not find aetheryte {aetheryteId}.");
                 continue;
             }
 
@@ -62,13 +62,13 @@ public static class ForcedAetherytes
         {
             if (!data.GatheringNodes.TryGetValue(nodeId, out var node))
             {
-                PluginLog.Error($"Could not find node {nodeId}.");
+                data.Log.Error($"Could not find node {nodeId}.");
                 continue;
             }
 
             if (!data.Aetherytes.TryGetValue(aetheryteId, out var aetheryte))
             {
-                PluginLog.Error($"Could not find aetheryte {aetheryteId}.");
+                data.Log.Error($"Could not find aetheryte {aetheryteId}.");
                 continue;
             }
 

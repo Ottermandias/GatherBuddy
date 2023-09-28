@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using Dalamud.Data;
+using Dalamud.Plugin.Services;
 using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.Classes;
@@ -9,7 +9,7 @@ public class GatheringIcons
 {
     private readonly Dictionary<Enums.GatheringType, (uint, uint)> _icons;
 
-    public GatheringIcons(DataManager gameData)
+    public GatheringIcons(IDataManager gameData)
     {
         var sheet = gameData.GetExcelSheet<GatheringType>()!;
         _icons = new Dictionary<Enums.GatheringType, (uint, uint)>(Enum.GetValues<Enums.GatheringType>().Length - 2)

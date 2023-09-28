@@ -9,72 +9,72 @@ public static partial class Fish
     {
         data.Apply     (30432, Patch.ReflectionsInCrystal) // The Sinsteeped
             .Bait      (data, 27582)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (1320, 1440)
             .Weather   (data, 1, 2);
         data.Apply     (30433, Patch.ReflectionsInCrystal) // Sweetheart
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Transition(data, 4)
             .Weather   (data, 1, 2);
         data.Apply     (30434, Patch.ReflectionsInCrystal) // Giant Taimen
             .Bait      (data, 27589)
-            .Bite      (HookSet.Powerful, BiteType.Legendary);
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (30435, Patch.ReflectionsInCrystal) // Leannisg
             .Bait      (data, 27585)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (360, 480)
             .Weather   (data, 7);
         data.Apply     (30436, Patch.ReflectionsInCrystal) // Gold Hammer
             .Bait      (data, 27589)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Transition(data, 1, 2)
             .Weather   (data, 1);
         data.Apply     (30437, Patch.ReflectionsInCrystal) // Recordkiller
             .Bait      (data, 27589)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (1080, 1440)
             .Transition(data, 1, 2)
             .Weather   (data, 4);
         data.Apply     (30438, Patch.ReflectionsInCrystal) // The Mother of All Pancakes
             .Bait      (data, 27590)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (0, 180)
             .Transition(data, 3)
             .Weather   (data, 1);
         data.Apply     (30439, Patch.ReflectionsInCrystal) // Opal Shrimp
             .Bait      (data, 27590)
-            .Bite      (HookSet.Precise, BiteType.Legendary)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (1080, 1200)
             .Weather   (data, 1);
         data.Apply     (30487, Patch.ReflectionsInCrystal) // Blue Crab
             .Bait      (data, 27590)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (30488, Patch.ReflectionsInCrystal) // Hoplite
             .Bait      (data, 28634)
-            .Bite      (HookSet.Powerful, BiteType.Strong);
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (30489, Patch.ReflectionsInCrystal) // Hook Fish
             .Bait      (data, 28634)
-            .Bite      (HookSet.Powerful, BiteType.Strong);
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (30490, Patch.ReflectionsInCrystal) // Cloudweed
             .Bait      (data, 28634)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (30491, Patch.ReflectionsInCrystal) // Fatty Herring
             .Bait      (data, 28634)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (30492, Patch.ReflectionsInCrystal) // Inkshell
             .Bait      (data, 28634)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (30593, Patch.ReflectionsInCrystal) // Fuchsia Bloom
             .Bait      (data, 27587)
-            .Bite      (HookSet.Precise, BiteType.Weak);
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (31129, Patch.ReflectionsInCrystal) // Petal Shell
             .Bait      (data, 30136)
-            .Bite      (HookSet.Precise, BiteType.Weak)
+            .Bite      (data, HookSet.Precise, BiteType.Weak)
             .ForceBig  (false);
         data.Apply     (31134, Patch.ReflectionsInCrystal) // Allagan Hunter
             .Bait      (data, 30136)
-            .Bite      (HookSet.Powerful, BiteType.Strong)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .ForceBig  (false);
         data.Apply     (31578, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Thunderbolt Sculpin
             .Bait      (data);

@@ -22,7 +22,7 @@ public readonly struct CumulativeWeatherRates
         for (var i = 0; i < Rates.Length; ++i)
         {
             if (Rates[i].Weather.Id == Weather.Invalid.Id)
-                PluginLog.Error("Invalid Weather requested.");
+                data.Log.Error("Invalid Weather requested.");
             Rates[i].CumulativeRate += lastRate;
             lastRate                =  Rates[i].CumulativeRate;
         }

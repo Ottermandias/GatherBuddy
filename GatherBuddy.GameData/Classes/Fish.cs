@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
-using Dalamud.Data;
-using Dalamud.Logging;
+using Dalamud.Plugin.Services;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
@@ -60,7 +59,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
 
     public string Folklore { get; init; }
 
-    public Fish(DataManager gameData, SpearFishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
+    public Fish(IDataManager gameData, SpearFishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
     {
         ItemData         = fishRow.Item.Value ?? new ItemRow();
         _fishData        = fishRow;
@@ -75,7 +74,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
         HookSet          = HookSet.None;
     }
 
-    public Fish(DataManager gameData, FishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
+    public Fish(IDataManager gameData, FishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
     {
         ItemData  = gameData.GetExcelSheet<ItemRow>()?.GetRow((uint)fishRow.Item) ?? new Item();
         _fishData = fishRow;

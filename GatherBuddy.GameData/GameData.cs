@@ -1,9 +1,9 @@
 using System;
-using Dalamud.Data;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud;
 using Dalamud.Logging;
+using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Data;
@@ -12,6 +12,7 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Structs;
 using Lumina.Excel.GeneratedSheets;
+using OtterGui.Log;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
 using Fish = GatherBuddy.Classes.Fish;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
@@ -38,7 +39,7 @@ public class OceanTimeline
     public OceanRoute this[OceanArea area, int idx]
         => this[area][idx];
 
-    public OceanTimeline(DataManager gameData, IReadOnlyList<OceanRoute> routes)
+    public OceanTimeline(IDataManager gameData, IReadOnlyList<OceanRoute> routes)
     {
         var timelineSheet = gameData.GetExcelSheet<IKDRouteTable>()!;
         Aldenard = timelineSheet.Select(r => routes[(int)r.Route.Row - 1]).ToArray();
@@ -48,8 +49,10 @@ public class OceanTimeline
 
 public class GameData
 {
-    internal DataManager                              DataManager { get; init; }
+    internal IDataManager                             DataManager { get; init; }
     internal Dictionary<byte, CumulativeWeatherRates> CumulativeWeatherRates = new();
+
+    public readonly Logger Log;
 
     public Dictionary<uint, Weather> Weathers           { get; init; } = new();
     public Territory[]               WeatherTerritories { get; init; } = Array.Empty<Territory>();
@@ -84,8 +87,9 @@ public class GameData
             _ => (null, null),
         };
 
-    public GameData(DataManager gameData)
+    public GameData(IDataManager gameData, Logger log)
     {
+        Log         = log;
         DataManager = gameData;
         try
         {
@@ -93,7 +97,7 @@ public class GameData
 
             Weathers = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!
                 .ToDictionary(w => w.RowId, w => new Weather(w));
-            PluginLog.Verbose("Collected {NumWeathers} different Weathers.", Weathers.Count);
+            Log.Verbose("Collected {NumWeathers} different Weathers.", Weathers.Count);
 
             CumulativeWeatherRates = DataManager.GetExcelSheet<WeatherRate>()!
                 .ToDictionary(w => (byte)w.RowId, w => new CumulativeWeatherRates(this, w));
@@ -108,13 +112,13 @@ public class GameData
                     .OrderBy(t => t.Name)
                     .ToArray()
              ?? Array.Empty<Territory>();
-            PluginLog.Verbose("Collected {NumWeatherTerritories} different territories with dynamic weather.", WeatherTerritories.Length);
+            Log.Verbose("Collected {NumWeatherTerritories} different territories with dynamic weather.", WeatherTerritories.Length);
 
             Aetherytes = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()?
                     .Where(a => a.IsAetheryte && a.RowId > 1 && a.PlaceName.Row != 0)
                     .ToDictionary(a => a.RowId, a => new Aetheryte(this, a))
              ?? new Dictionary<uint, Aetheryte>();
-            PluginLog.Verbose("Collected {NumAetherytes} different aetherytes.", Aetherytes.Count);
+            Log.Verbose("Collected {NumAetherytes} different aetherytes.", Aetherytes.Count);
             ForcedAetherytes.ApplyMissingAetherytes(this);
 
             Gatherables = DataManager.GetExcelSheet<GatheringItem>()?
@@ -124,7 +128,7 @@ public class GameData
                     .ToDictionary(g => (uint)g.Item, g => new Gatherable(this, g))
              ?? new Dictionary<uint, Gatherable>();
             GatherablesByGatherId = Gatherables.Values.ToDictionary(g => g.GatheringId, g => g);
-            PluginLog.Verbose("Collected {NumGatherables} different gatherable items.", Gatherables.Count);
+            Log.Verbose("Collected {NumGatherables} different gatherable items.", Gatherables.Count);
 
             GatheringNodes = DataManager.GetExcelSheet<GatheringPointBase>()?
                     .Where(b => b.GatheringType.Row < (int)Enums.GatheringType.Spearfishing)
@@ -132,13 +136,13 @@ public class GameData
                     .Where(n => n.Territory.Id > 1 && n.Items.Count > 0)
                     .ToDictionary(n => n.Id, n => n)
              ?? new Dictionary<uint, GatheringNode>();
-            PluginLog.Verbose("Collected {NumGatheringNodes} different gathering nodes", GatheringNodes.Count);
+            Log.Verbose("Collected {NumGatheringNodes} different gathering nodes", GatheringNodes.Count);
 
             Bait = DataManager.GetExcelSheet<Item>()?
                     .Where(i => i.ItemSearchCategory.Row == Structs.Bait.FishingTackleRow)
                     .ToDictionary(b => b.RowId, b => new Bait(b))
              ?? new Dictionary<uint, Bait>();
-            PluginLog.Verbose("Collected {NumBaits} different types of bait.", Bait.Count);
+            Log.Verbose("Collected {NumBaits} different types of bait.", Bait.Count);
 
             var catchData = DataManager.GetExcelSheet<FishingNoteInfo>()!;
             Fishes = DataManager.GetExcelSheet<FishParameter>()?
@@ -152,7 +156,7 @@ public class GameData
                     .Select(group => group.First())
                     .ToDictionary(f => f.ItemId, f => f)
              ?? new Dictionary<uint, Fish>();
-            PluginLog.Verbose("Collected {NumFishes} different types of fish.", Fishes.Count);
+            Log.Verbose("Collected {NumFishes} different types of fish.", Fishes.Count);
             Data.Fish.Apply(this);
 
             FishingSpots = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.FishingSpot>()?
@@ -166,7 +170,7 @@ public class GameData
                     .Where(f => f.Territory.Id != 0)
                     .ToDictionary(f => f.Id, f => f)
              ?? new Dictionary<uint, FishingSpot>();
-            PluginLog.Verbose("Collected {NumFishingSpots} different fishing spots.", FishingSpots.Count);
+            Log.Verbose("Collected {NumFishingSpots} different fishing spots.", FishingSpots.Count);
 
             HiddenItems.Apply(this);
             HiddenItems.ApplyDarkMatter(this);
@@ -199,7 +203,7 @@ public class GameData
         }
         catch (Exception e)
         {
-            PluginLog.Error($"Error while setting up data:\n{e}");
+            Log.Error($"Error while setting up data:\n{e}");
         }
     }
 
@@ -239,7 +243,7 @@ public class GameData
         }
     }
 
-    private static OceanRoute[] SetupOceanRoutes(DataManager manager, Dictionary<uint, FishingSpot> fishingSpots)
+    private static OceanRoute[] SetupOceanRoutes(IDataManager manager, Dictionary<uint, FishingSpot> fishingSpots)
     {
         var routeSheet = manager.GetExcelSheet<IKDRoute>(ClientLanguage.English)!;
         var spotSheet  = manager.GetExcelSheet<IKDSpot>()!;

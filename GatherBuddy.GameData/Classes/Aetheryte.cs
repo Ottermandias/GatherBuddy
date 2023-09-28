@@ -35,7 +35,7 @@ public class Aetheryte : IComparable<Aetheryte>
         var mapMarker = gameData.DataManager.GetExcelSheet<MapMarker>()?.FirstOrDefault(m => m.DataType == 3 && m.DataKey == data.RowId);
         if (mapMarker == null)
         {
-            PluginLog.Error($"No Map Marker for Aetheryte {Name} [{data.RowId}].");
+            gameData.Log.Error($"No Map Marker for Aetheryte {Name} [{data.RowId}].");
         }
         else
         {

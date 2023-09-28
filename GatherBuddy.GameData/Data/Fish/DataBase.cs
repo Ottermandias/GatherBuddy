@@ -1,6 +1,5 @@
 using System;
 using System.Linq;
-using Dalamud.Logging;
 using GatherBuddy.Enums;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
@@ -17,7 +16,7 @@ public static partial class Fish
             return fish;
         }
 
-        PluginLog.Error($"Could not find fish {id}.");
+        data.Log.Error($"Could not find fish {id}.");
         return null;
     }
 
@@ -36,7 +35,7 @@ public static partial class Fish
         }
         catch (Exception e)
         {
-            PluginLog.Error(e.Message);
+            data.Log.Error(e.Message);
         }
 
         return fish;
@@ -57,7 +56,7 @@ public static partial class Fish
         }
         catch (Exception e)
         {
-            PluginLog.Error(e.Message);
+            data.Log.Error(e.Message);
         }
 
         return fish;
@@ -73,7 +72,7 @@ public static partial class Fish
 
         if (fish.IsSpearFish)
         {
-            PluginLog.Error("Tried to set bait for spearfish.");
+            data.Log.Error("Tried to set bait for spearfish.");
             return fish;
         }
 
@@ -91,7 +90,7 @@ public static partial class Fish
         }
         catch (Exception e)
         {
-            PluginLog.Error(e.Message);
+            data.Log.Error(e.Message);
         }
 
         return fish;
@@ -104,7 +103,7 @@ public static partial class Fish
 
         if (fish.IsSpearFish)
         {
-            PluginLog.Error("Tried to set bait for spearfish.");
+            data.Log.Error("Tried to set bait for spearfish.");
             return fish;
         }
 
@@ -120,7 +119,7 @@ public static partial class Fish
         }
         catch (Exception e)
         {
-            PluginLog.Error(e.Message);
+            data.Log.Error(e.Message);
         }
 
         return fish;
@@ -133,7 +132,7 @@ public static partial class Fish
 
         if (fish.IsSpearFish)
         {
-            PluginLog.Error("Tried to set bait for spearfish.");
+            data.Log.Error("Tried to set bait for spearfish.");
             return fish;
         }
 
@@ -147,7 +146,7 @@ public static partial class Fish
         }
         catch (Exception e)
         {
-            PluginLog.Error(e.Message);
+            data.Log.Error(e.Message);
         }
 
         return fish;
@@ -172,7 +171,7 @@ public static partial class Fish
         }
         catch (Exception e)
         {
-            PluginLog.Error(e.Message);
+            data.Log.Error(e.Message);
         }
 
         return fish;
@@ -188,14 +187,14 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? Snag(this Classes.Fish? fish, Snagging snagging)
+    private static Classes.Fish? Snag(this Classes.Fish? fish, GameData data, Snagging snagging)
     {
         if (fish == null)
             return null;
 
         if (fish.IsSpearFish)
         {
-            PluginLog.Error("Tried to set snagging for spearfish.");
+            data.Log.Error("Tried to set snagging for spearfish.");
             return fish;
         }
 
@@ -203,14 +202,14 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? Bite(this Classes.Fish? fish, HookSet hookSet, BiteType biteType = BiteType.Unknown)
+    private static Classes.Fish? Bite(this Classes.Fish? fish, GameData data, HookSet hookSet, BiteType biteType = BiteType.Unknown)
     {
         if (fish == null)
             return null;
 
         if (fish.IsSpearFish)
         {
-            PluginLog.Error("Tried to set bite for spearfish.");
+            data.Log.Error("Tried to set bite for spearfish.");
             return fish;
         }
 
@@ -219,14 +218,14 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? Spear(this Classes.Fish? fish, SpearfishSize size, SpearfishSpeed speed = SpearfishSpeed.Unknown)
+    private static Classes.Fish? Spear(this Classes.Fish? fish, GameData data, SpearfishSize size, SpearfishSpeed speed = SpearfishSpeed.Unknown)
     {
         if (fish == null)
             return null;
 
         if (!fish.IsSpearFish)
         {
-            PluginLog.Error("Tried to set spearfish data for regular fish.");
+            data.Log.Error("Tried to set spearfish data for regular fish.");
             return fish;
         }
 
@@ -328,6 +327,7 @@ public static partial class Fish
         data.ApplyBuriedMemory();
         data.ApplyGodsRevelLandsTremble();
         data.ApplyTheDarkThrone();
+        data.ApplyGrowingLight();
         data.ApplyMooches();
     }
 }

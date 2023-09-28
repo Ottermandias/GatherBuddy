@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Dalamud.Logging;
 using GatherBuddy.Classes;
 
 namespace GatherBuddy.Data;
@@ -64,13 +63,13 @@ public static class HiddenSeeds
         {
             if (!data.Gatherables.TryGetValue(parent, out var parentItem))
             {
-                PluginLog.Error($"Could not find item {parent}.");
+                data.Log.Error($"Could not find item {parent}.");
                 continue;
             }
 
             if (!data.Gatherables.TryGetValue(seed, out var seedItem))
             {
-                PluginLog.Error($"Could not find item {seed}.");
+                data.Log.Error($"Could not find item {seed}.");
                 continue;
             }
 

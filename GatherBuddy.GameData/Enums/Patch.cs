@@ -34,6 +34,7 @@ public enum Patch : ushort
     BuriedMemory               = 620,
     GodsRevelLandsTremble      = 630,
     TheDarkThrone              = 640,
+    GrowingLight               = 650,
 }
 
 [Flags]
@@ -68,6 +69,7 @@ public enum PatchFlag : ulong
     BuriedMemory               = 1 << 26,
     GodsRevelLandsTremble      = 1 << 27,
     TheDarkThrone              = 1 << 28,
+    GrowingLight               = 1 << 29,
 }
 
 public static class PatchExtensions
@@ -123,6 +125,7 @@ public static class PatchExtensions
             62 => "Buried Memory",
             63 => "Gods Revel, Lands Tremble",
             64 => "The Dark Throne",
+            65 => "Growing Light",
             _  => "Unknown",
         };
     }
@@ -160,6 +163,7 @@ public static class PatchExtensions
             Patch.BuriedMemory               => PatchFlag.BuriedMemory,
             Patch.GodsRevelLandsTremble      => PatchFlag.GodsRevelLandsTremble,
             Patch.TheDarkThrone              => PatchFlag.TheDarkThrone,
+            Patch.GrowingLight               => PatchFlag.GrowingLight,
             _                                => 0,
         };
     }
@@ -197,6 +201,7 @@ public static class PatchExtensions
             PatchFlag.BuriedMemory               => Patch.BuriedMemory,
             PatchFlag.GodsRevelLandsTremble      => Patch.GodsRevelLandsTremble,
             PatchFlag.TheDarkThrone              => Patch.TheDarkThrone,
+            PatchFlag.GrowingLight               => Patch.GrowingLight,
             _                                    => Patch.Unknown,
         };
     }

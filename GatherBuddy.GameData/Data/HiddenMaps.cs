@@ -31,7 +31,7 @@ public static class HiddenMaps
         {
             if (!data.Gatherables.TryGetValue(map, out var mapItem))
             {
-                PluginLog.Error($"Could not find map item {map}.");
+                data.Log.Error($"Could not find map item {map}.");
                 continue;
             }
 
@@ -39,7 +39,7 @@ public static class HiddenMaps
             {
                 if (!data.GatheringNodes.TryGetValue(node, out var nodeData))
                 {
-                    PluginLog.Error($"Could not find gathering node {node}.");
+                    data.Log.Error($"Could not find gathering node {node}.");
                     continue;
                 }
 

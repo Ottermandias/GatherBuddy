@@ -41,13 +41,13 @@ public static class HiddenItems
         {
             if (!data.Gatherables.TryGetValue(itemId, out var item))
             {
-                PluginLog.Error($"Could not find item {itemId}.");
+                data.Log.Error($"Could not find item {itemId}.");
                 continue;
             }
 
             if (!data.GatheringNodes.TryGetValue(nodeId, out var node))
             {
-                PluginLog.Error($"Could not find gathering node {nodeId}.");
+                data.Log.Error($"Could not find gathering node {nodeId}.");
                 continue;
             }
 
@@ -59,13 +59,13 @@ public static class HiddenItems
     {
         if (!data.Gatherables.TryGetValue(DarkMatterClusterId, out var darkMatter))
         {
-            PluginLog.Error("Could not find Dark Matter Cluster.");
+            data.Log.Error("Could not find Dark Matter Cluster.");
             return;
         }
 
         if (!data.Gatherables.TryGetValue(UnaspectedCrystalId, out var crystal))
         {
-            PluginLog.Error("Could not find Unaspected Crystal.");
+            data.Log.Error("Could not find Unaspected Crystal.");
             return;
         }
 

@@ -9,9 +9,9 @@ public static partial class Fish
     {
         data.Apply     (10123, Patch.BeforeTheFall) // Gigant Clam
             .Bait      (data, 2619)
-            .Bite      (HookSet.Powerful, BiteType.Legendary)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (1380, 120)
-            .Snag      (Snagging.None)
+            .Snag      (data, Snagging.None)
             .ForceBig  (false);
     }
     // @formatter:on
