@@ -6,10 +6,10 @@ namespace GatherBuddy.SeFunctions;
 
 public sealed class CurrentBait : SeAddressBase
 {
-    public CurrentBait(SigScanner sigScanner)
+    public CurrentBait(ISigScanner sigScanner)
         : base(sigScanner, "3B 05 ?? ?? ?? ?? 75 ?? C6 43")
     {
-        SignatureHelper.Initialise(this);
+        Dalamud.Interop.InitializeFromAttributes(this);
     }
 
     public unsafe uint Current

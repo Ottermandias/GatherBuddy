@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
+using Dalamud.Plugin.Services;
+using GatherBuddy.FishTimer.Parser;
 
 namespace GatherBuddy.FishTimer;
 
@@ -11,7 +13,7 @@ public partial class FishRecorder : IDisposable
     public readonly List<FishRecord>                  Records = new();
     public readonly Dictionary<uint, FishRecordTimes> Times   = new();
 
-    public FishRecorder()
+    public FishRecorder(IGameInteropProvider provider)
     {
         FishRecordDirectory = Dalamud.PluginInterface.ConfigDirectory;
         try
@@ -24,9 +26,7 @@ public partial class FishRecorder : IDisposable
         }
 
         if (Directory.Exists(FishRecordDirectory.FullName))
-        {
             MigrateOldFiles();
-        }
         LoadFile();
 
         if (Changes > 0)
@@ -35,6 +35,7 @@ public partial class FishRecorder : IDisposable
             ResetTimes();
         }
 
+        Parser = new FishingParser(provider);
         SubscribeToParser();
     }
 
@@ -183,5 +184,4 @@ public partial class FishRecorder : IDisposable
 
     private bool CheckSimilarity(FishRecord record)
         => !Records.Any(r => Similar(r, record));
-
 }

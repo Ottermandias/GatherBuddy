@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Dalamud.Game;
+using Dalamud.Plugin.Services;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
-using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
 using Newtonsoft.Json;
@@ -170,7 +169,7 @@ public partial class AlarmManager : IDisposable
         ActiveAlarmsChanged?.Invoke();
     }
 
-    private void OnLogin(object? _, EventArgs _2)
+    private void OnLogin()
         => SetActiveAlarms();
 
     public static (ILocation, TimeInterval) GetUptime(Alarm alarm)
@@ -199,7 +198,7 @@ public partial class AlarmManager : IDisposable
         };
     }
 
-    public void OnUpdate(Framework _)
+    public void OnUpdate(IFramework _)
     {
         var st = GatherBuddy.Time.ServerTime;
         if (LastFishAlarm != null && LastFishAlarm.Value.Item3.End < st)

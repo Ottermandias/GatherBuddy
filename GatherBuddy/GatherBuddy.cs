@@ -74,12 +74,13 @@ public partial class GatherBuddy : IDalamudPlugin
         try
         {
             Dalamud.Initialize(pluginInterface);
+            Icons.InitDefaultStorage(Dalamud.Textures);
             Log     = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
-            Backup.CreateBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
+            Backup.CreateAutomaticBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
             Config         = Configuration.Load();
             Language       = Dalamud.ClientState.ClientLanguage;
-            GameData       = new GameData(Dalamud.GameData);
+            GameData       = new GameData(Dalamud.GameData, Log);
             Time           = new SeTime();
             WaymarkManager = new WaymarkManager();
 
@@ -91,7 +92,7 @@ public partial class GatherBuddy : IDalamudPlugin
             CurrentWeather      = new CurrentWeather(Dalamud.SigScanner);
             TugType             = new SeTugType(Dalamud.SigScanner);
             Executor            = new Executor(this);
-            ContextMenu         = new ContextMenu(Executor);
+            ContextMenu         = new ContextMenu(pluginInterface, Executor);
             GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
             LocationManager     = LocationManager.Load();
             AlarmManager        = AlarmManager.Load();
@@ -100,7 +101,7 @@ public partial class GatherBuddy : IDalamudPlugin
 
             InitializeCommands();
 
-            FishRecorder = new FishRecorder();
+            FishRecorder = new FishRecorder(Dalamud.Interop);
             FishRecorder.Enable();
             WindowSystem = new WindowSystem(Name);
             Interface    = new Interface(this);

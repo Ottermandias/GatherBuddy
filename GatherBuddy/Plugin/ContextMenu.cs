@@ -2,6 +2,7 @@
 using Dalamud.ContextMenu;
 using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Plugin;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 
@@ -9,12 +10,13 @@ namespace GatherBuddy.Plugin;
 
 public class ContextMenu : IDisposable
 {
-    private readonly DalamudContextMenu _contextMenu = new();
+    private readonly DalamudContextMenu _contextMenu;
     private readonly Executor           _executor;
 
-    public ContextMenu(Executor executor)
+    public ContextMenu(DalamudPluginInterface pi, Executor executor)
     {
-        _executor = executor;
+        _contextMenu = new DalamudContextMenu(pi);
+        _executor    = executor;
         if (GatherBuddy.Config.AddIngameContextMenus)
             Enable();
     }
@@ -97,13 +99,13 @@ public class ContextMenu : IDisposable
         var item = args.ParentAddonName switch
         {
             null                 => HandleSatisfactionSupply(),
-            "ContentsInfoDetail" => CheckGameObjectItem("ContentsInfo",                       Offsets.ContentsInfoDetailContextItemId), // Provisioning
-            "RecipeNote"         => CheckGameObjectItem("RecipeNote",                         Offsets.RecipeNoteContextItemId),
+            "ContentsInfoDetail" => CheckGameObjectItem("ContentsInfo", Offsets.ContentsInfoDetailContextItemId), // Provisioning
+            "RecipeNote"         => CheckGameObjectItem("RecipeNote", Offsets.RecipeNoteContextItemId),
             "RecipeTree"         => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
             "RecipeMaterialList" => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
-            "GatheringNote"      => CheckGameObjectItem("GatheringNote",                      Offsets.GatheringNoteContextItemId),
-            "ItemSearch"         => CheckGameObjectItem(args.Agent,                           Offsets.ItemSearchContextItemId),
-            "ChatLog"            => CheckGameObjectItem("ChatLog",                            Offsets.ChatLogContextItemId, ValidateChatLogContext),
+            "GatheringNote"      => CheckGameObjectItem("GatheringNote", Offsets.GatheringNoteContextItemId),
+            "ItemSearch"         => CheckGameObjectItem(args.Agent, Offsets.ItemSearchContextItemId),
+            "ChatLog"            => CheckGameObjectItem("ChatLog", Offsets.ChatLogContextItemId, ValidateChatLogContext),
             _                    => null,
         };
         if (item != null)

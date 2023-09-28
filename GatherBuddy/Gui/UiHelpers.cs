@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Config;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;

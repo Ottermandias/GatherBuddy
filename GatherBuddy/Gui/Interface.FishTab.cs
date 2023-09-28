@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Interface;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
@@ -21,21 +21,21 @@ public partial class Interface
 {
     private sealed class FishTable : Table<ExtendedFish>, IDisposable
     {
-        private static float _nameColumnWidth             = 0;
-        private static float _caughtColumnWidth           = 0;
-        private static float _nextUptimeColumnWidth       = 0;
-        private static float _uptimeColumnWidth           = 0;
-        private static float _baitColumnWidth             = 0;
-        private static float _closestAetheryteColumnWidth = 0;
-        private static float _typeColumnWidth             = 0;
-        private static float _collectibleColumnWidth      = 0;
-        private static float _patchColumnWidth            = 0;
-        private static float _folkloreColumnWidth         = 0;
-        private static float _bestSpotColumnWidth         = 0;
-        private static float _bestZoneColumnWidth         = 0;
-        private static float _itemIdColumnWidth           = 0;
-        private static float _fishIdColumnWidth           = 0;
-        private static float _globalScale                 = 0;
+        private static float _nameColumnWidth;
+        private static float _caughtColumnWidth;
+        private static float _nextUptimeColumnWidth;
+        private static float _uptimeColumnWidth;
+        private static float _baitColumnWidth;
+        private static float _closestAetheryteColumnWidth;
+        private static float _typeColumnWidth;
+        private static float _collectibleColumnWidth;
+        private static float _patchColumnWidth;
+        private static float _folkloreColumnWidth;
+        private static float _bestSpotColumnWidth;
+        private static float _bestZoneColumnWidth;
+        private static float _itemIdColumnWidth;
+        private static float _fishIdColumnWidth;
+        private static float _globalScale;
 
         protected override void PreDraw()
         {

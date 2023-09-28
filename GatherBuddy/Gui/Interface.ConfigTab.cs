@@ -2,6 +2,7 @@
 using System.Numerics;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;

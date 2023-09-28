@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
@@ -15,6 +14,8 @@ using ImGuiScene;
 using Newtonsoft.Json;
 using ImRaii = OtterGui.Raii.ImRaii;
 using System.Text;
+using Dalamud.Interface.Internal;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Time;
 using GatherBuddy.Weather;
 
@@ -333,8 +334,8 @@ public partial class Interface
 
         private class FlagHeader : ColumnFlags<FishRecord.Effects, FishRecord>
         {
-            private readonly float                               _iconScale;
-            private readonly (TextureWrap, FishRecord.Effects)[] _effects;
+            private readonly float                                       _iconScale;
+            private readonly (IDalamudTextureWrap, FishRecord.Effects)[] _effects;
 
             private static readonly FishRecord.Effects[] _values =
             {
@@ -415,16 +416,16 @@ public partial class Interface
             {
                 _effects = new[]
                 {
-                    (Icons.DefaultStorage[16023], _values[0]),
-                    (Icons.DefaultStorage[11106], _values[2]),
-                    (Icons.DefaultStorage[11101], _values[4]),
-                    (Icons.DefaultStorage[11102], _values[6]),
-                    (Icons.DefaultStorage[11103], _values[8]),
-                    (Icons.DefaultStorage[11104], _values[10]),
-                    (Icons.DefaultStorage[11119], _values[12]),
-                    (Icons.DefaultStorage[11116], _values[14]),
-                    (Icons.DefaultStorage[11115], _values[16]),
-                    (Icons.DefaultStorage[11008], _values[18]),
+                    (Icons.DefaultStorage.LoadIcon(16023, true), _values[0]),
+                    (Icons.DefaultStorage.LoadIcon(11106, true), _values[2]),
+                    (Icons.DefaultStorage.LoadIcon(11101, true), _values[4]),
+                    (Icons.DefaultStorage.LoadIcon(11102, true), _values[6]),
+                    (Icons.DefaultStorage.LoadIcon(11103, true), _values[8]),
+                    (Icons.DefaultStorage.LoadIcon(11104, true), _values[10]),
+                    (Icons.DefaultStorage.LoadIcon(11119, true), _values[12]),
+                    (Icons.DefaultStorage.LoadIcon(11116, true), _values[14]),
+                    (Icons.DefaultStorage.LoadIcon(11115, true), _values[16]),
+                    (Icons.DefaultStorage.LoadIcon(11008, true), _values[18]),
                 };
                 _iconScale = (float)_effects[0].Item1.Width / _effects[0].Item1.Height;
                 AllFlags   = Mask | (FishRecord.Effects)((uint)Mask << 16);
@@ -449,7 +450,7 @@ public partial class Interface
             public override FishRecord.Effects FilterValue
                 => _filter;
 
-            private void DrawIcon(FishRecord item, TextureWrap icon, FishRecord.Effects flag)
+            private void DrawIcon(FishRecord item, IDalamudTextureWrap icon, FishRecord.Effects flag)
             {
                 var size = new Vector2(TextHeight * _iconScale, TextHeight);
                 var tint = item.Flags.HasFlag(flag) ? Vector4.One : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
@@ -489,7 +490,7 @@ public partial class Interface
                 {
                     var weathers = WeatherManager.GetForecast(spot.Territory, 2, record.TimeStamp.AddEorzeaHours(-8));
                     transition = weathers[0].Weather.Name;
-                    weather = weathers[1].Weather.Name;
+                    weather    = weathers[1].Weather.Name;
                 }
 
                 sb.Append(_catchHeader.ToName(record)).Append('\t')
@@ -525,6 +526,7 @@ public partial class Interface
             return sb.ToString();
         }
     }
+
     private readonly RecordTable _recordTable;
     private          bool        WriteTsv  = false;
     private          bool        WriteJson = false;
@@ -543,7 +545,8 @@ public partial class Interface
 
         var textSize = ImGui.CalcTextSize("00000000") with { Y = 0 };
         if (_recordTable.CurrentItems != _recordTable.TotalItems)
-            ImGuiUtil.DrawTextButton($"{_recordTable.CurrentItems}", textSize, ImGui.GetColorU32(ImGuiCol.Button), ColorId.AvailableItem.Value());
+            ImGuiUtil.DrawTextButton($"{_recordTable.CurrentItems}", textSize, ImGui.GetColorU32(ImGuiCol.Button),
+                ColorId.AvailableItem.Value());
         else
             ImGuiUtil.DrawTextButton($"{_recordTable.CurrentItems}", textSize, ImGui.GetColorU32(ImGuiCol.Button));
         ImGui.SameLine();

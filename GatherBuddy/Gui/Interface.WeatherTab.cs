@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Config;
 using GatherBuddy.Time;
 using ImGuiNET;
@@ -9,6 +9,7 @@ using OtterGui;
 using OtterGui.Table;
 using ImGuiScene;
 using ImRaii = OtterGui.Raii.ImRaii;
+using Dalamud.Interface.Internal;
 
 namespace GatherBuddy.Gui;
 
@@ -18,12 +19,12 @@ public partial class Interface
     {
         private static readonly string[] WeatherTimeStrings = new string[CachedWeather.NumWeathers];
 
-        private static float _textHeightIconOffset = 0;
-        private static float _centerOffset         = 0;
-        private static float _zoneSize             = 0;
-        private static float _weatherSize          = 0;
-        private static float _headerSize           = 0;
-        private        bool  _weathersDirty        = true;
+        private static float _textHeightIconOffset;
+        private static float _centerOffset;
+        private static float _zoneSize;
+        private static float _weatherSize;
+        private static float _headerSize;
+        private        bool  _weathersDirty = true;
 
         public WeatherTable()
             : base("WeatherTable", CachedWeather.CreateWeatherCache(),
@@ -140,7 +141,7 @@ public partial class Interface
             _weathersDirty = false;
         }
 
-        private static void NamedWeather(TextureWrap icon, string name)
+        private static void NamedWeather(IDalamudTextureWrap icon, string name)
         {
             var cursor = ImGui.GetCursorPos();
             ImGui.Image(icon.ImGuiHandle, WeatherIconSize);
@@ -148,7 +149,7 @@ public partial class Interface
             ImGui.Text(name);
         }
 
-        private static void CenteredWeather(TextureWrap icon, Structs.Weather weather, float offset)
+        private static void CenteredWeather(IDalamudTextureWrap icon, Structs.Weather weather, float offset)
         {
             ImGui.SetCursorPosX(ImGui.GetCursorPosX() + offset);
             ImGui.Image(icon.ImGuiHandle, WeatherIconSize);

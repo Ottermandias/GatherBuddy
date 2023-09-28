@@ -3,12 +3,12 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
-using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
@@ -141,15 +141,15 @@ public partial class Interface
         public bool EditGroupName;
         public bool EditGroupDesc;
 
-        public string NewName         = string.Empty;
-        public int    NewItemIdx      = 0;
-        public bool   NewEnabled      = false;
-        public bool   NewPrintMessage = false;
-        public int    NewSoundIdx     = 0;
-        public int    NewSecondOffset = 0;
+        public string NewName = string.Empty;
+        public int    NewItemIdx;
+        public bool   NewEnabled;
+        public bool   NewPrintMessage;
+        public int    NewSoundIdx;
+        public int    NewSecondOffset;
 
-        public int ChangedSecondOffset = 0;
-        public int ChangedAlarmIdx     = -1;
+        public int ChangedSecondOffset;
+        public int ChangedAlarmIdx = -1;
 
         public Alarm CreateAlarm()
             => new(GatherBuddy.UptimeManager.TimedGatherables[NewItemIdx])
@@ -270,7 +270,7 @@ public partial class Interface
         }
     }
 
-    private void DrawAlarmTable(AlarmGroup group, int idx)
+    private void DrawAlarmTable(AlarmGroup group, int _)
     {
         var width = SetInputWidth * 3.35f + ImGui.GetFrameHeight() * 3 + (85 + 150) * ImGuiHelpers.GlobalScale + ItemSpacing.X * 8;
         using var table = ImRaii.Table("##alarms", 9, ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.NoKeepColumnsVisible,

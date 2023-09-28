@@ -7,7 +7,7 @@ public delegate IntPtr ProcessChatBoxDelegate(IntPtr uiModule, IntPtr message, I
 
 public sealed class ProcessChatBox : SeFunctionBase<ProcessChatBoxDelegate>
 {
-    public ProcessChatBox(SigScanner sigScanner)
+    public ProcessChatBox(ISigScanner sigScanner)
         : base(sigScanner, "48 89 5C 24 ?? 57 48 83 EC 20 48 8B FA 48 8B D9 45 84 C9")
     { }
 }

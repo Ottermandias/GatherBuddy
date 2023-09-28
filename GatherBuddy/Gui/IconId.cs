@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Dalamud.Interface.Internal;
 using GatherBuddy.Enums;
-using ImGuiScene;
 
 namespace GatherBuddy.Gui;
 
@@ -15,40 +14,40 @@ public static class IconId
     public const uint NormalGig        = 60672;
     public const uint LargeGig         = 60673;
 
-    public static TextureWrap FromHookSet(HookSet hook)
+    public static IDalamudTextureWrap FromHookSet(HookSet hook)
         => hook switch
         {
-            Enums.HookSet.Precise  => Icons.DefaultStorage[PrecisionHookSet],
-            Enums.HookSet.Powerful => Icons.DefaultStorage[PowerfulHookSet],
-            _                      => Icons.DefaultStorage[HookSet],
+            Enums.HookSet.Precise  => Icons.DefaultStorage.LoadIcon(PrecisionHookSet, true),
+            Enums.HookSet.Powerful => Icons.DefaultStorage.LoadIcon(PowerfulHookSet,  true),
+            _                      => Icons.DefaultStorage.LoadIcon(HookSet,          true),
         };
 
-    public static TextureWrap FromSize(SpearfishSize size)
+    public static IDalamudTextureWrap FromSize(SpearfishSize size)
         => size switch
         {
-            SpearfishSize.Small   => Icons.DefaultStorage[SmallGig],
-            SpearfishSize.Average => Icons.DefaultStorage[NormalGig],
-            SpearfishSize.Large   => Icons.DefaultStorage[LargeGig],
-            _                     => Icons.DefaultStorage[Gigs],
+            SpearfishSize.Small   => Icons.DefaultStorage.LoadIcon(SmallGig,  true),
+            SpearfishSize.Average => Icons.DefaultStorage.LoadIcon(NormalGig, true),
+            SpearfishSize.Large   => Icons.DefaultStorage.LoadIcon(LargeGig,  true),
+            _                     => Icons.DefaultStorage.LoadIcon(Gigs,      true),
         };
 
-    public static TextureWrap FromSpeed(SpearfishSpeed speed)
+    public static IDalamudTextureWrap FromSpeed(SpearfishSpeed speed)
         => speed switch
         {
-            SpearfishSpeed.SuperSlow     => Icons.DefaultStorage[83101],
-            SpearfishSpeed.ExtremelySlow => Icons.DefaultStorage[83102],
-            SpearfishSpeed.VerySlow      => Icons.DefaultStorage[83103],
-            SpearfishSpeed.Slow          => Icons.DefaultStorage[83104],
-            SpearfishSpeed.Average       => Icons.DefaultStorage[83105],
-            SpearfishSpeed.Fast          => Icons.DefaultStorage[83106],
-            SpearfishSpeed.VeryFast      => Icons.DefaultStorage[83107],
-            SpearfishSpeed.ExtremelyFast => Icons.DefaultStorage[83108],
-            SpearfishSpeed.SuperFast     => Icons.DefaultStorage[83109],
-            SpearfishSpeed.HyperFast     => Icons.DefaultStorage[83110],
-            SpearfishSpeed.LynFast       => Icons.DefaultStorage[83111],
-            _                            => Icons.DefaultStorage[83121],
+            SpearfishSpeed.SuperSlow     => Icons.DefaultStorage.LoadIcon(83101, true),
+            SpearfishSpeed.ExtremelySlow => Icons.DefaultStorage.LoadIcon(83102, true),
+            SpearfishSpeed.VerySlow      => Icons.DefaultStorage.LoadIcon(83103, true),
+            SpearfishSpeed.Slow          => Icons.DefaultStorage.LoadIcon(83104, true),
+            SpearfishSpeed.Average       => Icons.DefaultStorage.LoadIcon(83105, true),
+            SpearfishSpeed.Fast          => Icons.DefaultStorage.LoadIcon(83106, true),
+            SpearfishSpeed.VeryFast      => Icons.DefaultStorage.LoadIcon(83107, true),
+            SpearfishSpeed.ExtremelyFast => Icons.DefaultStorage.LoadIcon(83108, true),
+            SpearfishSpeed.SuperFast     => Icons.DefaultStorage.LoadIcon(83109, true),
+            SpearfishSpeed.HyperFast     => Icons.DefaultStorage.LoadIcon(83110, true),
+            SpearfishSpeed.LynFast       => Icons.DefaultStorage.LoadIcon(83111, true),
+            _                            => Icons.DefaultStorage.LoadIcon(83121, true),
         };
 
-    public static TextureWrap GetSnagging()
-        => Icons.DefaultStorage[Snagging];
+    public static IDalamudTextureWrap GetSnagging()
+        => Icons.DefaultStorage.LoadIcon(Snagging, true);
 }

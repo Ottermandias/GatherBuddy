@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
@@ -11,8 +11,8 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
-using ImGuiScene;
 using ImRaii = OtterGui.Raii.ImRaii;
+using Dalamud.Interface.Internal;
 
 namespace GatherBuddy.Gui;
 
@@ -22,19 +22,19 @@ public partial class Interface
     {
         public struct BaitOrder
         {
-            public TextureWrap    Icon;
-            public string         Name;
-            public object?        Fish;
-            public TextureWrap?   HookSet;
-            public (string, uint) Bite;
+            public IDalamudTextureWrap  Icon;
+            public string               Name;
+            public object?              Fish;
+            public IDalamudTextureWrap? HookSet;
+            public (string, uint)       Bite;
         }
 
         public struct Predator
         {
-            public Fish        Fish;
-            public TextureWrap Icon;
-            public string      Name;
-            public string      Amount;
+            public Fish                Fish;
+            public IDalamudTextureWrap Icon;
+            public string              Name;
+            public string              Amount;
         }
 
         public static class Bites
@@ -54,26 +54,26 @@ public partial class Interface
                 };
         }
 
-        public Fish        Data;
-        public TextureWrap Icon;
-        public string      Territories;
-        public string      SpotNames;
-        public string      Aetherytes;
+        public Fish                Data;
+        public IDalamudTextureWrap Icon;
+        public string              Territories;
+        public string              SpotNames;
+        public string              Aetherytes;
 
-        public string        Time;
-        public TextureWrap[] WeatherIcons;
-        public TextureWrap[] TransitionIcons;
-        public BaitOrder[]   Bait;
-        public TextureWrap?  Snagging;
-        public Predator[]    Predators;
-        public string        Patch;
-        public string        UptimeString;
-        public string        Intuition;
-        public string        FishType;
-        public bool          UptimeDependency;
-        public ushort        UptimePercent;
-        public bool          Unlocked = false;
-        public bool          Collectible;
+        public string                Time;
+        public IDalamudTextureWrap[] WeatherIcons;
+        public IDalamudTextureWrap[] TransitionIcons;
+        public BaitOrder[]           Bait;
+        public IDalamudTextureWrap?  Snagging;
+        public Predator[]            Predators;
+        public string                Patch;
+        public string                UptimeString;
+        public string                Intuition;
+        public string                FishType;
+        public bool                  UptimeDependency;
+        public ushort                UptimePercent;
+        public bool                  Unlocked = false;
+        public bool                  Collectible;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -97,18 +97,18 @@ public partial class Interface
             return bestUptime;
         }
 
-        private static TextureWrap[] SetWeather(Fish fish)
+        private static IDalamudTextureWrap[] SetWeather(Fish fish)
         {
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather) || fish.CurrentWeather.Length == 0)
-                return Array.Empty<TextureWrap>();
+                return Array.Empty<IDalamudTextureWrap>();
 
             return fish.CurrentWeather.Select(w => Icons.DefaultStorage[(uint)w.Data.Icon]).ToArray();
         }
 
-        private static TextureWrap[] SetTransition(Fish fish)
+        private static IDalamudTextureWrap[] SetTransition(Fish fish)
         {
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather) || fish.PreviousWeather.Length == 0)
-                return Array.Empty<TextureWrap>();
+                return Array.Empty<IDalamudTextureWrap>();
 
             return fish.PreviousWeather.Select(w => Icons.DefaultStorage[(uint)w.Data.Icon]).ToArray();
         }
@@ -168,7 +168,7 @@ public partial class Interface
             return ret;
         }
 
-        private static TextureWrap? SetSnagging(Fish fish, IEnumerable<BaitOrder> baitOrder)
+        private static IDalamudTextureWrap? SetSnagging(Fish fish, IEnumerable<BaitOrder> baitOrder)
         {
             if (fish.Snagging == Enums.Snagging.Required)
                 return IconId.GetSnagging();

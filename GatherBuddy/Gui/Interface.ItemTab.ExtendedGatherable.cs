@@ -1,9 +1,9 @@
 ﻿using System.Linq;
+using Dalamud.Interface.Internal;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
-using ImGuiScene;
 
 namespace GatherBuddy.Gui;
 
@@ -11,23 +11,23 @@ public partial class Interface
 {
     public class ExtendedGatherable
     {
-        public Gatherable  Data;
-        public TextureWrap Icon;
-        public string      Territories;
-        public string      Uptimes;
-        public string      Folklore;
-        public string      Level;
-        public string      NodeNames;
-        public string      Expansion;
-        public string      Aetherytes;
+        public Gatherable          Data;
+        public IDalamudTextureWrap Icon;
+        public string              Territories;
+        public string              Uptimes;
+        public string              Folklore;
+        public string              Level;
+        public string              NodeNames;
+        public string              Expansion;
+        public string              Aetherytes;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
 
         public ExtendedGatherable(Gatherable data)
         {
-            Data        = data;
-            Icon        = Icons.DefaultStorage[data.ItemData.Icon];
+            Data = data;
+            Icon = Icons.DefaultStorage[data.ItemData.Icon];
 
             Territories = string.Join("\n", data.NodeList.Select(n => n.Territory.Name).Distinct());
             if (!Territories.Contains('\n'))
@@ -56,7 +56,8 @@ public partial class Interface
                 4 => "EW",
                 _ => "Unk",
             };
-            Aetherytes = string.Join("\n", data.NodeList.Where(n => n.ClosestAetheryte != null).Select(n => n.ClosestAetheryte!.Name).Distinct());
+            Aetherytes = string.Join("\n",
+                data.NodeList.Where(n => n.ClosestAetheryte != null).Select(n => n.ClosestAetheryte!.Name).Distinct());
             if (!Aetherytes.Contains('\n'))
                 Aetherytes = '\0' + Aetherytes;
         }

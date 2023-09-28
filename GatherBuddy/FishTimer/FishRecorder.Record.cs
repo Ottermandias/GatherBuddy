@@ -2,7 +2,7 @@
 using System.Diagnostics;
 using System.Linq;
 using Dalamud;
-using Dalamud.Game;
+using Dalamud.Plugin.Services;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer.Parser;
@@ -28,7 +28,7 @@ public partial class FishRecorder
         FishReeled     = 0x20,
     }
 
-    public readonly   FishingParser Parser    = new();
+    public readonly   FishingParser Parser;
     internal          CatchSteps    Step      = 0;
     internal          FishingState  LastState = FishingState.None;
     internal readonly Stopwatch     Timer     = new();
@@ -211,7 +211,7 @@ public partial class FishRecorder
             Add(Record);
     }
 
-    private void OnFrameworkUpdate(Framework _)
+    private void OnFrameworkUpdate(IFramework _)
     {
         TimedSave();
         var state = GatherBuddy.EventFramework.FishingState;

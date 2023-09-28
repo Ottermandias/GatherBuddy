@@ -1,14 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface;
+using Dalamud.Interface.Internal;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
-using ImGuiScene;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -19,14 +18,14 @@ public partial class Interface
     {
         public readonly Vector4 LastWeatherTint = new(1f, 0.5f, 0.5f, 1f);
 
-        private uint            _currentTerritory  = 0;
-        public  Structs.Weather LastWeather        = Structs.Weather.Invalid;
-        public  Structs.Weather CurrentWeather     = Structs.Weather.Invalid;
-        public  Structs.Weather NextWeather        = Structs.Weather.Invalid;
-        public  TextureWrap?    LastWeatherIcon    = null;
-        public  TextureWrap?    CurrentWeatherIcon = null;
-        public  TextureWrap?    NextWeatherIcon    = null;
-        public  Vector2         AlarmButtonSize    = Vector2.Zero;
+        private uint                 _currentTerritory;
+        public  Structs.Weather      LastWeather    = Structs.Weather.Invalid;
+        public  Structs.Weather      CurrentWeather = Structs.Weather.Invalid;
+        public  Structs.Weather      NextWeather    = Structs.Weather.Invalid;
+        public  IDalamudTextureWrap? LastWeatherIcon;
+        public  IDalamudTextureWrap? CurrentWeatherIcon;
+        public  IDalamudTextureWrap? NextWeatherIcon;
+        public  Vector2              AlarmButtonSize = Vector2.Zero;
 
         private void NullWeather()
         {
@@ -135,7 +134,7 @@ public partial class Interface
     private static void DrawNextEorzeaHour(string hour, Vector2 size)
         => ImGuiUtil.DrawTextButton(hour, size, ColorId.HeaderNextHour.Value());
 
-    private static void DrawIconTint(Structs.Weather weather, TextureWrap? wrap, Vector2 size, Vector4 tint)
+    private static void DrawIconTint(Structs.Weather weather, IDalamudTextureWrap? wrap, Vector2 size, Vector4 tint)
     {
         if (wrap != null)
         {
@@ -148,7 +147,7 @@ public partial class Interface
         }
     }
 
-    private static void DrawIcon(Structs.Weather weather, TextureWrap? wrap, Vector2 size)
+    private static void DrawIcon(Structs.Weather weather, IDalamudTextureWrap? wrap, Vector2 size)
         => DrawIconTint(weather, wrap, size, Vector4.One);
 
     private void DrawNextWeather(string nextWeather)

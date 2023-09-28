@@ -1,7 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface;
+using Dalamud.Interface.Internal;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
@@ -20,7 +21,7 @@ public partial class FishTimerWindow
     {
         private readonly ExtendedFish?         _fish;
         private readonly string                _textLine;
-        private readonly TextureWrap           _icon;
+        private readonly IDalamudTextureWrap   _icon;
         private readonly FishRecordTimes.Times _all;
         private readonly FishRecordTimes.Times _baitSpecific;
         private readonly ColorId               _color;
@@ -212,12 +213,12 @@ public partial class FishTimerWindow
             if (NextUptime == TimeInterval.Always)
                 return;
 
-            var timeString = 
+            var timeString =
                 NextUptime.Start > GatherBuddy.Time.ServerTime
                     ? TimeInterval.DurationString(NextUptime.Start, GatherBuddy.Time.ServerTime, true)
                     : NextUptime.End < GatherBuddy.Time.ServerTime
                         ? "(ended)"
-                        : TimeInterval.DurationString(NextUptime.End,   GatherBuddy.Time.ServerTime, true);
+                        : TimeInterval.DurationString(NextUptime.End, GatherBuddy.Time.ServerTime, true);
             var offset = ImGui.CalcTextSize(timeString).X;
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImGui.AlignTextToFramePadding();

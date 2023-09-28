@@ -1,4 +1,5 @@
 ﻿using System.Linq;
+using Dalamud.Interface.Internal;
 using GatherBuddy.Weather;
 using ImGuiScene;
 
@@ -10,8 +11,8 @@ public partial class Interface
     {
         public const int NumWeathers = 12;
 
-        private readonly WeatherTimeline                  _timeline;
-        public readonly  (Structs.Weather, TextureWrap)[] Weathers;
+        private readonly WeatherTimeline                          _timeline;
+        public readonly  (Structs.Weather, IDalamudTextureWrap)[] Weathers;
 
         public string Zone
             => _timeline.Territory.Name;
@@ -19,7 +20,7 @@ public partial class Interface
         private CachedWeather(WeatherTimeline t)
         {
             _timeline = t;
-            Weathers  = new (Structs.Weather, TextureWrap)[NumWeathers];
+            Weathers  = new (Structs.Weather, IDalamudTextureWrap)[NumWeathers];
         }
 
         public void Update()

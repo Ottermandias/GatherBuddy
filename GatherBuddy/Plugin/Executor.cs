@@ -294,7 +294,7 @@ public class Executor
 
         var time = DateTime.UtcNow.AddSeconds(30);
 
-        void DoWaymarkOnArrival(object? _, ushort t)
+        void DoWaymarkOnArrival(ushort t)
         {
             if (territory == t)
                 GatherBuddy.WaymarkManager.SetWaymarks(markers);

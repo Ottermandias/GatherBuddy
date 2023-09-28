@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
@@ -20,12 +21,12 @@ public partial class Interface
 {
     private sealed class LocationTable : Table<ILocation>
     {
-        private static float _nameColumnWidth      = 0;
-        private static float _territoryColumnWidth = 0;
-        private static float _aetheryteColumnWidth = 0;
-        private static float _coordColumnWidth     = 0;
-        private static float _radiusColumnWidth    = 0;
-        private static float _typeColumnWidth      = 0;
+        private static float _nameColumnWidth;
+        private static float _territoryColumnWidth;
+        private static float _aetheryteColumnWidth;
+        private static float _coordColumnWidth;
+        private static float _radiusColumnWidth;
+        private static float _typeColumnWidth;
 
         protected override void PreDraw()
         {

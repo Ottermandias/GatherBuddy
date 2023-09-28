@@ -8,6 +8,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -118,8 +119,8 @@ public partial class Interface
 
         public readonly GatherGroupSelector Selector;
 
-        public bool NameEdit          = false;
-        public bool DescriptionEdit   = false;
+        public bool NameEdit;
+        public bool DescriptionEdit;
         public int  AnnotationEditIdx = -1;
 
         public readonly string DefaultGroupTooltip;

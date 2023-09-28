@@ -83,7 +83,7 @@ public static class Communicator
             Name    = SeString.Empty,
             Type    = GatherBuddy.Config.ChatTypeMessage,
         };
-        Dalamud.Chat.PrintChat(entry);
+        Dalamud.Chat.Print(entry);
     }
 
     public static void PrintError(SeString message)
@@ -94,7 +94,7 @@ public static class Communicator
             Name    = SeString.Empty,
             Type    = GatherBuddy.Config.ChatTypeError,
         };
-        Dalamud.Chat.PrintChat(entry);
+        Dalamud.Chat.Print(entry);
     }
 
     public static void Print(string message)

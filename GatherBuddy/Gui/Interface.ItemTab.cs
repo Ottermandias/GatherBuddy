@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
@@ -17,20 +17,20 @@ public partial class Interface
 {
     private sealed class ItemTable : Table<ExtendedGatherable>, IDisposable
     {
-        private static float _nameColumnWidth             = 0;
-        private static float _nextUptimeColumnWidth       = 0;
-        private static float _closestAetheryteColumnWidth = 0;
-        private static float _levelColumnWidth            = 0;
-        private static float _jobColumnWidth              = 0;
-        private static float _typeColumnWidth             = 0;
-        private static float _expansionColumnWidth        = 0;
-        private static float _folkloreColumnWidth         = 0;
-        private static float _uptimeColumnWidth           = 0;
-        private static float _bestNodeColumnWidth         = 0;
-        private static float _bestZoneColumnWidth         = 0;
-        private static float _itemIdColumnWidth           = 0;
-        private static float _gatheringIdColumnWidth      = 0;
-        private static float _globalScale                 = 0;
+        private static float _nameColumnWidth;
+        private static float _nextUptimeColumnWidth;
+        private static float _closestAetheryteColumnWidth;
+        private static float _levelColumnWidth;
+        private static float _jobColumnWidth;
+        private static float _typeColumnWidth;
+        private static float _expansionColumnWidth;
+        private static float _folkloreColumnWidth;
+        private static float _uptimeColumnWidth;
+        private static float _bestNodeColumnWidth;
+        private static float _bestZoneColumnWidth;
+        private static float _itemIdColumnWidth;
+        private static float _gatheringIdColumnWidth;
+        private static float _globalScale;
 
         protected override void PreDraw()
         {

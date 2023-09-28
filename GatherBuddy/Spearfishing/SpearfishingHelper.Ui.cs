@@ -1,8 +1,6 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using System.Numerics;
-using System.Reflection.Metadata.Ecma335;
-using Dalamud.Interface;
+using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;

@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Runtime.InteropServices;
-using Dalamud.Data;
 using Dalamud.Game;
+using Dalamud.Plugin.Services;
 using GatherBuddy.Classes;
 using GatherBuddy.Plugin;
 using Lumina.Excel.GeneratedSheets;
@@ -23,7 +23,7 @@ public unsafe class FishLog
 
     public event Action? Change;
 
-    public FishLog(SigScanner sigScanner, DataManager gameData)
+    public FishLog(ISigScanner sigScanner, IDataManager gameData)
     {
         _numFish      = (uint)(gameData.GetExcelSheet<FishParameter>()?.Count(f => f.IsInLog) ?? 0);
         _numSpearFish = gameData.GetExcelSheet<SpearfishingItem>()?.RowCount ?? 0;

@@ -78,7 +78,7 @@ public class UptimeManager : IDisposable
         return closest;
     }
 
-    private void OnTerritoryChange(object? _, ushort id)
+    private void OnTerritoryChange(ushort id)
         => SetCurrentTerritory(id);
 
     public void Dispose()

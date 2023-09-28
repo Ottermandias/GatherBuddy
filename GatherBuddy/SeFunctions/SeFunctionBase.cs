@@ -2,6 +2,7 @@
 using System.Runtime.InteropServices;
 using Dalamud.Game;
 using Dalamud.Hooking;
+using Dalamud.Plugin.Services;
 
 namespace GatherBuddy.SeFunctions;
 
@@ -10,13 +11,13 @@ public class SeFunctionBase<T> where T : Delegate
     public    IntPtr Address;
     protected T?     FuncDelegate;
 
-    public SeFunctionBase(SigScanner sigScanner, int offset)
+    public SeFunctionBase(ISigScanner sigScanner, int offset)
     {
         Address = sigScanner.Module.BaseAddress + offset;
         GatherBuddy.Log.Debug($"{GetType().Name} address 0x{Address.ToInt64():X16}, baseOffset 0x{offset:X16}.");
     }
 
-    public SeFunctionBase(SigScanner sigScanner, string signature, int offset = 0)
+    public SeFunctionBase(ISigScanner sigScanner, string signature, int offset = 0)
     {
         Address = sigScanner.ScanText(signature);
         if (Address != IntPtr.Zero)
@@ -57,11 +58,11 @@ public class SeFunctionBase<T> where T : Delegate
         }
     }
 
-    public Hook<T>? CreateHook(T detour)
+    public Hook<T>? CreateHook(IGameInteropProvider provider, T detour)
     {
         if (Address != IntPtr.Zero)
         {
-            var hook = Hook<T>.FromAddress(Address, detour);
+            var hook = provider.HookFromAddress(Address, detour);
             hook.Enable();
             GatherBuddy.Log.Debug($"Hooked onto {GetType().Name} at address 0x{Address.ToInt64():X16}.");
             return hook;
