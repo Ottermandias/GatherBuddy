@@ -124,7 +124,7 @@ public partial class GatherBuddy : IDalamudPlugin
 
     void IDisposable.Dispose()
     {
-        FishRecorder?.Disable();
+        FishRecorder?.Dispose();
         ContextMenu?.Dispose();
         UptimeManager?.Dispose();
         Ipc?.Dispose();

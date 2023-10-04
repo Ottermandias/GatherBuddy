@@ -54,6 +54,7 @@ public partial class FishRecorder : IDisposable
     public void Dispose()
     {
         Disable();
+        Parser.Dispose();
         if (Changes > 0)
             WriteFile();
     }
