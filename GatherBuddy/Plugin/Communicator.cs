@@ -46,18 +46,7 @@ internal static class SeStringBuilderExtension
     }
 
     public static SeStringBuilder AddFullItemLink(this SeStringBuilder builder, uint itemId, string itemName)
-        => builder.AddUiForeground(0x0225)
-            .AddUiGlow(0x0226)
-            .AddItemLink(itemId, false)
-            .AddUiForeground(0x01F4)
-            .AddUiGlow(0x01F5)
-            .AddText($"{(char)SeIconChar.LinkMarker}")
-            .AddUiGlowOff()
-            .AddUiForegroundOff()
-            .AddText(itemName)
-            .Add(RawPayload.LinkTerminator)
-            .AddUiGlowOff()
-            .AddUiForegroundOff();
+        => builder.AddItemLink(itemId, false, itemName);
 
     public static SeStringBuilder DelayString(this SeStringBuilder builder, TimeInterval uptime)
     {
