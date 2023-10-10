@@ -223,7 +223,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (4935, Patch.ARealmReborn) // Brass Loach
             .Bait      (data, 2623)
-            .Bite      (data, HookSet.Powerful, BiteType.Strong);
+            .Bite      (data, HookSet.Precision, BiteType.Weak);
         data.Apply     (4936, Patch.ARealmReborn) // Maiden Carp
             .Bait      (data, 2590)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
