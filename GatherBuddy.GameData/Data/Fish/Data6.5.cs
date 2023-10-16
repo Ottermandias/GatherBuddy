@@ -50,7 +50,7 @@ public static partial class Fish
             .Time(1080, 1320)
             .Transition(data, 149)
             .Weather(data, 2)
-            .Bite(data, HookSetPowerful, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41406, Patch.GrowingLight) // E.B.E.-852738
             .Bait(data, 36597)
             .Time(720, 960)
