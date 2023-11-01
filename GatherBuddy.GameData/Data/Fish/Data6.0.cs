@@ -94,7 +94,7 @@ public static partial class Fish
             .Bait      (data, 36588)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (36412, Patch.Endwalker) // Astacus Aetherius
-            .Bait      (data, 36589)
+            .Bait      (data, 36591)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (36414, Patch.Endwalker) // Labyrinthos Tilapia
             .Mooch     (data, 36589, 36412)
