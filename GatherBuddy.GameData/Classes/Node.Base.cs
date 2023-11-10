@@ -42,7 +42,8 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
 
     public string Folklore { get; init; }
 
-    public GatheringNode(GameData data, IReadOnlyDictionary<uint, List<uint>> gatheringPoint, IReadOnlyDictionary<uint, List<uint>> gatheringItemPoint, GatheringPointBase node)
+    public GatheringNode(GameData data, IReadOnlyDictionary<uint, List<uint>> gatheringPoint,
+        IReadOnlyDictionary<uint, List<uint>> gatheringItemPoint, GatheringPointBase node)
     {
         BaseNodeData = node;
 
@@ -89,11 +90,10 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
 
             foreach (var g in gatherableList)
             {
-                if (data.GatherablesByGatherId.TryGetValue(g, out var gatherable) && gatherable.GatheringData.IsHidden && !Items.Contains(gatherable))
-                {
+                if (data.GatherablesByGatherId.TryGetValue(g, out var gatherable)
+                 && gatherable.GatheringData.IsHidden
+                 && !Items.Contains(gatherable))
                     Items.Add(gatherable);
-                    data.Log.Information($"Added {gatherable.Name} {gatherable.GatheringId} to {this.Id}.");
-                }
             }
         }
 
