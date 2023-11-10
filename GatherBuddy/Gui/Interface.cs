@@ -84,7 +84,7 @@ public partial class Interface : Window, IDisposable
             return;
 
         _earliestKeyboardToggle = GatherBuddy.Time.ServerTime.AddMilliseconds(500);
-        Toggle();
+        IsOpen                  = !IsOpen;
     }
 
     public void Dispose()

@@ -42,13 +42,14 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
 
     public string Folklore { get; init; }
 
-    public GatheringNode(GameData data, GatheringPointBase node)
+    public GatheringNode(GameData data, IReadOnlyDictionary<uint, List<uint>> gatheringPoint, IReadOnlyDictionary<uint, List<uint>> gatheringItemPoint, GatheringPointBase node)
     {
         BaseNodeData = node;
 
         // Obtain the territory from the first node that has this as a base.
-        var nodes   = data.DataManager.GetExcelSheet<GatheringPoint>();
-        var nodeRow = nodes?.FirstOrDefault(n => n.GatheringPointBase.Row == node.RowId && n.PlaceName.Row > 0);
+        var nodes    = data.DataManager.GetExcelSheet<GatheringPoint>()!;
+        var nodeList = gatheringPoint.TryGetValue(node.RowId, out var nl) ? (IReadOnlyList<uint>)nl : Array.Empty<uint>();
+        var nodeRow  = nodeList.Count > 0 ? nodes.GetRow(nodeList[0]) : null;
         Territory = data.FindOrAddTerritory(nodeRow?.TerritoryType.Value) ?? Territory.Invalid;
         Name      = MultiString.ParseSeStringLumina(nodeRow?.PlaceName.Value?.Name);
         // Obtain the center of the coordinates. We do not care for the radius.
@@ -78,9 +79,24 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
         // Obtain the items and add the node to their individual lists.
         Items = node.Item
             .Select(i => data.GatherablesByGatherId.TryGetValue((uint)i, out var gatherable) ? gatherable : null)
-            .Where(g => g != null)
-            .Cast<Gatherable>()
+            .OfType<Gatherable>()
             .ToList();
+
+        foreach (var n in nodeList)
+        {
+            if (!gatheringItemPoint.TryGetValue(n, out var gatherableList))
+                break;
+
+            foreach (var g in gatherableList)
+            {
+                if (data.GatherablesByGatherId.TryGetValue(g, out var gatherable) && gatherable.GatheringData.IsHidden && !Items.Contains(gatherable))
+                {
+                    Items.Add(gatherable);
+                    data.Log.Information($"Added {gatherable.Name} {gatherable.GatheringId} to {this.Id}.");
+                }
+            }
+        }
+
         if (Territory.Id <= 0)
             return;
 

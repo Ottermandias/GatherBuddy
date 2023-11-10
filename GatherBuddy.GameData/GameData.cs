@@ -130,9 +130,19 @@ public class GameData
             GatherablesByGatherId = Gatherables.Values.ToDictionary(g => g.GatheringId, g => g);
             Log.Verbose("Collected {NumGatherables} different gatherable items.", Gatherables.Count);
 
+            // Create GatheringItemPoint dictionary.
+            var tmpGatheringItemPoint = DataManager.GetExcelSheet<GatheringItemPoint>()!
+                .GroupBy(row => row.GatheringPoint.Row)
+                .ToDictionary(group => group.Key, group => group.Select(g => g.RowId).Distinct().ToList());
+
+            var tmpGatheringPoints = DataManager.GetExcelSheet<GatheringPoint>()!
+                .Where(row => row.PlaceName.Row > 0)
+                .GroupBy(row => row.GatheringPointBase.Row)
+                .ToDictionary(group => group.Key, group => group.Select(g => g.RowId).Distinct().ToList());
+
             GatheringNodes = DataManager.GetExcelSheet<GatheringPointBase>()?
                     .Where(b => b.GatheringType.Row < (int)Enums.GatheringType.Spearfishing)
-                    .Select(b => new GatheringNode(this, b))
+                    .Select(b => new GatheringNode(this, tmpGatheringPoints, tmpGatheringItemPoint, b))
                     .Where(n => n.Territory.Id > 1 && n.Items.Count > 0)
                     .ToDictionary(n => n.Id, n => n)
              ?? new Dictionary<uint, GatheringNode>();
@@ -172,10 +182,7 @@ public class GameData
              ?? new Dictionary<uint, FishingSpot>();
             Log.Verbose("Collected {NumFishingSpots} different fishing spots.", FishingSpots.Count);
 
-            HiddenItems.Apply(this);
-            HiddenItems.ApplyDarkMatter(this);
             HiddenMaps.Apply(this);
-            HiddenSeeds.Apply(this);
             ForcedAetherytes.Apply(this);
 
             OceanRoutes   = SetupOceanRoutes(gameData, FishingSpots);
