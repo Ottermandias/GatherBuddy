@@ -1,7 +1,8 @@
 using System;
+using System.Collections.Generic;
 using System.Linq;
-using Dalamud.Logging;
 using Lumina.Excel.GeneratedSheets;
+using OtterGui.Log;
 
 namespace GatherBuddy.Structs;
 
@@ -11,10 +12,10 @@ public readonly struct CumulativeWeatherRates
 
     public readonly (Weather Weather, byte CumulativeRate)[] Rates;
 
-    public CumulativeWeatherRates(GameData data, WeatherRate rate)
+    public CumulativeWeatherRates(IReadOnlyDictionary<uint, Weather> weathers, WeatherRate rate, Logger log)
     {
         Rates = rate.UnkData0.Where(w => w.Rate > 0)
-            .Select(w => data.Weathers.TryGetValue((uint)w.Weather, out var weather)
+            .Select(w => weathers.TryGetValue((uint)w.Weather, out var weather)
                 ? (weather, w.Rate)
                 : (Weather.Invalid, w.Rate))
             .ToArray();
@@ -22,7 +23,7 @@ public readonly struct CumulativeWeatherRates
         for (var i = 0; i < Rates.Length; ++i)
         {
             if (Rates[i].Weather.Id == Weather.Invalid.Id)
-                data.Log.Error("Invalid Weather requested.");
+                log.Error("Invalid Weather requested.");
             Rates[i].CumulativeRate += lastRate;
             lastRate                =  Rates[i].CumulativeRate;
         }

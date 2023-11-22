@@ -1,8 +1,8 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud;
-using Dalamud.Logging;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using GatherBuddy.Classes;
@@ -20,51 +20,24 @@ using Weather = GatherBuddy.Structs.Weather;
 
 namespace GatherBuddy;
 
-public class OceanTimeline
-{
-    public int Count
-        => Aldenard.Count;
-
-    public IReadOnlyList<OceanRoute> Aldenard;
-    public IReadOnlyList<OceanRoute> Othard;
-
-    public IReadOnlyList<OceanRoute> this[OceanArea area]
-        => area switch
-        {
-            OceanArea.Aldenard => Aldenard,
-            OceanArea.Othard   => Othard,
-            _                  => Array.Empty<OceanRoute>(),
-        };
-
-    public OceanRoute this[OceanArea area, int idx]
-        => this[area][idx];
-
-    public OceanTimeline(IDataManager gameData, IReadOnlyList<OceanRoute> routes)
-    {
-        var timelineSheet = gameData.GetExcelSheet<IKDRouteTable>()!;
-        Aldenard = timelineSheet.Select(r => routes[(int)r.Route.Row - 1]).ToArray();
-        Othard   = timelineSheet.Skip(120).Concat(timelineSheet.Take(120)).Select(r => routes[(int)r.Unknown1 - 1]).ToArray();
-    }
-}
-
 public class GameData
 {
-    internal IDataManager                             DataManager { get; init; }
-    internal Dictionary<byte, CumulativeWeatherRates> CumulativeWeatherRates = new();
+    internal IDataManager                                      DataManager { get; init; }
+    internal IReadOnlyDictionary<byte, CumulativeWeatherRates> CumulativeWeatherRates;
 
     public readonly Logger Log;
 
-    public Dictionary<uint, Weather> Weathers           { get; init; } = new();
-    public Territory[]               WeatherTerritories { get; init; } = Array.Empty<Territory>();
+    public IReadOnlyDictionary<uint, Weather> Weathers           { get; init; }
+    public Territory[]                        WeatherTerritories { get; init; } = Array.Empty<Territory>();
 
-    public Dictionary<uint, Territory>     Territories           { get; init; } = new();
-    public Dictionary<uint, Aetheryte>     Aetherytes            { get; init; } = new();
-    public Dictionary<uint, Gatherable>    Gatherables           { get; init; } = new();
-    public Dictionary<uint, Gatherable>    GatherablesByGatherId { get; init; } = new();
-    public Dictionary<uint, GatheringNode> GatheringNodes        { get; init; } = new();
-    public Dictionary<uint, Bait>          Bait                  { get; init; } = new();
-    public Dictionary<uint, Fish>          Fishes                { get; init; } = new();
-    public Dictionary<uint, FishingSpot>   FishingSpots          { get; init; } = new();
+    public IReadOnlyDictionary<uint, Territory>     Territories           { get; init; }
+    public IReadOnlyDictionary<uint, Aetheryte>     Aetherytes            { get; init; }
+    public IReadOnlyDictionary<uint, Gatherable>    Gatherables           { get; init; }
+    public IReadOnlyDictionary<uint, Gatherable>    GatherablesByGatherId { get; init; }
+    public IReadOnlyDictionary<uint, GatheringNode> GatheringNodes        { get; init; }
+    public IReadOnlyDictionary<uint, Bait>          Bait                  { get; init; }
+    public IReadOnlyDictionary<uint, Fish>          Fishes                { get; init; }
+    public IReadOnlyDictionary<uint, FishingSpot>   FishingSpots          { get; init; }
 
     public IReadOnlyList<OceanRoute> OceanRoutes   { get; init; } = Array.Empty<OceanRoute>();
     public OceanTimeline             OceanTimeline { get; init; } = null!;
@@ -87,20 +60,31 @@ public class GameData
             _ => (null, null),
         };
 
+    private static IReadOnlyDictionary<uint, Weather> GetWeathers(IDataManager gameData, Logger log)
+    {
+        var ret = gameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!
+            .ToFrozenDictionary(w => w.RowId, w => new Weather(w));
+        log.Verbose("Collected {NumWeathers} different Weathers.", ret.Count);
+        return ret;
+    }
+
+    private static IReadOnlyDictionary<byte, CumulativeWeatherRates> GetCumulativeWeathers(IDataManager gameData,
+        IReadOnlyDictionary<uint, Weather> weathers, Logger log)
+        => gameData.GetExcelSheet<WeatherRate>()!
+            .ToFrozenDictionary(w => (byte)w.RowId, w => new CumulativeWeatherRates(weathers, w, log));
+
+    private static IReadOnlyList<Territory> GetWeatherTerritories(IDataManager gameData, )
+
     public GameData(IDataManager gameData, Logger log)
     {
         Log         = log;
         DataManager = gameData;
         try
         {
-            GatheringIcons = new GatheringIcons(gameData);
+            GatheringIcons         = new GatheringIcons(gameData);
+            Weathers               = GetWeathers(gameData, log);
+            CumulativeWeatherRates = GetCumulativeWeathers(gameData, Weathers, log);
 
-            Weathers = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!
-                .ToDictionary(w => w.RowId, w => new Weather(w));
-            Log.Verbose("Collected {NumWeathers} different Weathers.", Weathers.Count);
-
-            CumulativeWeatherRates = DataManager.GetExcelSheet<WeatherRate>()!
-                .ToDictionary(w => (byte)w.RowId, w => new CumulativeWeatherRates(this, w));
 
             WeatherTerritories = DataManager.GetExcelSheet<TerritoryType>()?
                     .Where(t => t.PCSearch && t.WeatherRate != 0)
