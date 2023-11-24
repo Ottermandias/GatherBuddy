@@ -129,7 +129,7 @@ public static partial class Fish
             .Bait      (data, 36592)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (36426, Patch.Endwalker) // Shadowdart Sardine
-            .Bait      (data, 36592)
+            .Bait      (data, 36593)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (36427, Patch.Endwalker) // Paksa Fish
             .Bait      (data, 36592)
