@@ -291,7 +291,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29784, Patch.EchoesOfAFallenStar) // Spectral Megalodon
-            .Bait      (data, 29716)
+            .Bait      (data, 29715)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 7, 8);
         data.Apply     (29785, Patch.EchoesOfAFallenStar) // Spectral Discus
