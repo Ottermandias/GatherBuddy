@@ -165,12 +165,12 @@ public static partial class Fish
             .Bait      (data, 27588)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (27456, Patch.Shadowbringers) // Henodus
-            .Mooch     (data, 27457, 27457)
+            .Mooch     (data, 27457)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1440)
             .Weather   (data, 4, 3);
         data.Apply     (27457, Patch.Shadowbringers) // Spearhead Squid
-            .Bait      (data, 27457)
+            .Bait      (data, 27588)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (27458, Patch.Shadowbringers) // Shadow Crab
             .Bait      (data, 27584)
