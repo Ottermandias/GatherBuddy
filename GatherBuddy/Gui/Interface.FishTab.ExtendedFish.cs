@@ -195,10 +195,10 @@ public partial class Interface
                     if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather))
                         return true;
 
-                    if (f.CurrentWeather.Intersect(fish.CurrentWeather).Count() < fish.CurrentWeather.Length)
+                    if (f.CurrentWeather.Intersect(fish.CurrentWeather).Count() < f.CurrentWeather.Length)
                         return true;
 
-                    if (f.PreviousWeather.Intersect(fish.PreviousWeather).Count() < fish.PreviousWeather.Length)
+                    if (f.PreviousWeather.Intersect(fish.PreviousWeather).Count() < f.PreviousWeather.Length)
                         return true;
                 }
 
