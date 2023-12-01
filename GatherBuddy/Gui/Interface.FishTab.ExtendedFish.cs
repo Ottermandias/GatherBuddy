@@ -198,7 +198,7 @@ public partial class Interface
                     if (f.CurrentWeather.Intersect(fish.CurrentWeather).Count() < fish.CurrentWeather.Length)
                         return true;
 
-                    if (f.PreviousWeather.Intersect(fish.PreviousWeather).Count() < fish.PreviousWeather.Length)
+                    if ((f.PreviousWeather.Intersect(fish.PreviousWeather).Count() < fish.PreviousWeather.Length) | fish.PreviousWeather.Length == 0)
                         return true;
                 }
 
