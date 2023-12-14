@@ -25,7 +25,7 @@ public static partial class Fish
             .Time(480, 720)
             .Transition(data, 3)
             .Weather(data, 2)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41402, Patch.GrowingLight) // Durdina Fish
             .Mooch(data, 36426)
             .Time(0, 240)
