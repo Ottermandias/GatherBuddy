@@ -59,7 +59,7 @@ public static partial class Fish
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(41419, Patch.GrowingLight) // Stargilt Lobster
             .Bait(data, 36594)
-            .Time(960, 1440)
+            .Time(1140, 1320)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
     }
     // @formatter:on
