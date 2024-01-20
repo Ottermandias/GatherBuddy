@@ -61,6 +61,22 @@ public static partial class Fish
             .Bait(data, 36594)
             .Time(1140, 1320)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
+        data.Apply(41298, Patch.GrowingLight) // Deadwood Shadow
+            .Mooch(data, 41302)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
+        data.Apply(41299, Patch.GrowingLight) // Ronkan Bullion
+            .Mooch(data, 41302)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
+        data.Apply(41300, Patch.GrowingLight) // Little Bounty
+            .Bait(data, 38808)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
+        data.Apply(41301, Patch.GrowingLight) // Saint Fathric's Face
+            .Bait(data, 38808)
+            .Bite(data, HookSet.Powerful, BiteType.Strong)
+            .Predators(data, 180, (41300, 3));
+        data.Apply(41302, Patch.GrowingLight)  // Golding
+            .Bait(data, 38808)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(41407, Patch.GrowingLight) // Hyphalosaurus
             .Bait(data, 36412)
             .Time(540, 720)
