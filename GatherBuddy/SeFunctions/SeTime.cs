@@ -39,7 +39,7 @@ public class SeTime
             return ServerTime.ConvertToEorzea();
 
         return Math.Abs(new TimeStamp(framework->ServerTime * 1000) - ServerTime) < 5000
-            ? new TimeStamp(framework->EorzeaTime * 1000)
+            ? new TimeStamp(framework->ClientTime.EorzeaTime * 1000)
             : ServerTime.ConvertToEorzea();
     }
 
