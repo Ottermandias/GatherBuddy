@@ -131,7 +131,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn("Framework Timestamp");
         ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->ServerTime.ToString());
         ImGuiUtil.DrawTableColumn("Framework Eorzea");
-        ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->EorzeaTime.ToString());
+        ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->ClientTime.EorzeaTime.ToString());
         ImGuiUtil.DrawTableColumn("Framework Func");
         ImGuiUtil.DrawTableColumn(FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.GetServerTime().ToString());
         ImGuiUtil.DrawTableColumn("DateTimeOffset");
