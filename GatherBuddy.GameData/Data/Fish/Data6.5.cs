@@ -114,8 +114,8 @@ public static partial class Fish
             .Bait(data, 36518)
             .Time(0, 480)
             .Predators(data, 600, (36521, 1), (36520, 2), (36519, 3))
-            .Transition(data, 149)
-            .Weather(data, 49)
+            .Transition(data, 49)
+            .Weather(data, 149)
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
     }
     // @formatter:on
