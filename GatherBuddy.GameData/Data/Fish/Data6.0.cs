@@ -359,7 +359,7 @@ public static partial class Fish
             .Bait      (data, 36597)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (36518, Patch.Endwalker) // Horizon Event
-            .Bait      (data, 36596)
+            .Bait      (data, 36597)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (36519, Patch.Endwalker) // E.B.E.-9318
             .Bait      (data, 36596)
