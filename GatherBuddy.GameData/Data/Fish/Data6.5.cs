@@ -62,7 +62,7 @@ public static partial class Fish
             .Time(1140, 1320)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(41298, Patch.GrowingLight) // Deadwood Shadow
-            .Mooch(data, 41302)
+            .Bait(data, 38808)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(41299, Patch.GrowingLight) // Ronkan Bullion
             .Mooch(data, 41302)
