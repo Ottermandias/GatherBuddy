@@ -35,14 +35,14 @@ public partial class FishingParser : IDisposable
     {
         _hookHook?.Enable();
         _catchHook?.Enable();
-        Dalamud.Chat.ChatMessage += OnMessageDelegate;
+        Dalamud.Chat.CheckMessageHandled += OnMessageDelegate;
     }
 
     public void Disable()
     {
         _catchHook?.Disable();
         _hookHook?.Disable();
-        Dalamud.Chat.ChatMessage -= OnMessageDelegate;
+        Dalamud.Chat.CheckMessageHandled -= OnMessageDelegate;
     }
 
     public void Dispose()
