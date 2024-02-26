@@ -420,4 +420,11 @@ public class Executor
 
         Teleporter.TeleportUnchecked(aetheryte.Id);
     }
+
+    public (ILocation?, TimeInterval) FindClosestLocation(IGatherable _gitem)
+    {
+        _item = _gitem;
+        FindClosestLocation();
+        return (_location, _uptime);
+    }
 }
