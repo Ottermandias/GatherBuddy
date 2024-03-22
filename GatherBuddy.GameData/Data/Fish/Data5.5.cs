@@ -26,6 +26,7 @@ public static partial class Fish
             .Mooch     (data, 27589, 28925)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1440)
+            .Transition(data, 1, 2)
             .Weather   (data, 4);
         data.Apply     (33240, Patch.DeathUntoDawn) // Aquamaton
             .Bait      (data, 27588)
