@@ -1,85 +1,105 @@
 ﻿using System;
-using Dalamud.ContextMenu;
-using Dalamud.Game.Text.SeStringHandling;
-using Dalamud.Game.Text.SeStringHandling.Payloads;
-using Dalamud.Plugin;
+using System.Collections.Generic;
+using Dalamud.Game.Gui.ContextMenu;
+using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using GatherBuddy.Interfaces;
 
 namespace GatherBuddy.Plugin;
 
 public class ContextMenu : IDisposable
 {
-    private readonly DalamudContextMenu _contextMenu;
-    private readonly Executor           _executor;
+    private readonly IContextMenu _contextMenu;
+    private readonly Executor     _executor;
+    private          IGatherable? _lastGatherable;
 
-    public ContextMenu(DalamudPluginInterface pi, Executor executor)
+    private readonly MenuItem _menuItem;
+
+    public ContextMenu(IContextMenu menu, Executor executor)
     {
-        _contextMenu = new DalamudContextMenu(pi);
+        _contextMenu = menu;
         _executor    = executor;
+
+        _menuItem = new MenuItem
+        {
+            IsEnabled   = true,
+            IsReturn    = false,
+            PrefixChar  = 'G',
+            Name        = "Gather",
+            OnClicked   = OnClick,
+            IsSubmenu   = false,
+            PrefixColor = 42,
+        };
+
         if (GatherBuddy.Config.AddIngameContextMenus)
             Enable();
     }
 
-    public void Enable()
+    private void OnClick(MenuItemClickedArgs args)
     {
-        _contextMenu.OnOpenGameObjectContextMenu += AddGameObjectItem;
-        _contextMenu.OnOpenInventoryContextMenu  += AddInventoryItem;
+        if (_lastGatherable != null)
+            _executor.GatherItem(_lastGatherable);
     }
+
+    public void Enable()
+        => _contextMenu.OnMenuOpened += OnContextMenuOpened;
 
     public void Disable()
-    {
-        _contextMenu.OnOpenGameObjectContextMenu -= AddGameObjectItem;
-        _contextMenu.OnOpenInventoryContextMenu  -= AddInventoryItem;
-    }
+        => _contextMenu.OnMenuOpened -= OnContextMenuOpened;
 
     public void Dispose()
+        => Disable();
+
+    private unsafe void OnContextMenuOpened(MenuOpenedArgs args)
     {
-        Disable();
-        _contextMenu.Dispose();
+        if (args.MenuType is ContextMenuType.Inventory)
+        {
+            var target = (MenuTargetInventory)args.Target;
+            _lastGatherable = target.TargetItem.HasValue ? HandleItem(target.TargetItem.Value.ItemId) : null;
+        }
+        else
+        {
+            _lastGatherable = args.AddonName switch
+            {
+                null                 => HandleSatisfactionSupply(),
+                "ContentsInfoDetail" => CheckGameObjectItem("ContentsInfo", Offsets.ContentsInfoDetailContextItemId), // Provisioning
+                "RecipeNote"         => CheckGameObjectItem("RecipeNote", Offsets.RecipeNoteContextItemId),
+                "RecipeTree"         => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
+                "RecipeMaterialList" => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
+                "GatheringNote"      => CheckGameObjectItem("GatheringNote", Offsets.GatheringNoteContextItemId),
+                "ItemSearch"         => HandleItem((uint)AgentContext.Instance()->UpdateCheckerParam),
+                "ChatLog"            => CheckGameObjectItem("ChatLog", Offsets.ChatLogContextItemId, ValidateChatLogContext),
+                _                    => null,
+            };
+        }
+
+        if (_lastGatherable != null)
+            args.AddMenuItem(_menuItem);
     }
 
-    private static readonly SeString GatherString = new(new TextPayload("Gather"));
-
-    private InventoryContextMenuItem? CheckInventoryItem(uint itemId)
+    private static IGatherable? HandleItem(uint itemId)
     {
-        if (itemId > 500000)
-            itemId -= 500000;
+        itemId %= 500000u;
 
-        if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var gatherable))
-            return new InventoryContextMenuItem(GatherString, _ => _executor.GatherItem(gatherable), true);
-        if (GatherBuddy.GameData.Fishes.TryGetValue(itemId, out var fish))
-            return new InventoryContextMenuItem(GatherString, _ => _executor.GatherItem(fish), true);
-
-        return null;
+        if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var g))
+            return g;
+        return GatherBuddy.GameData.Fishes.GetValueOrDefault(itemId);
     }
 
-    private GameObjectContextMenuItem? CheckGameObjectItem(uint itemId)
-    {
-        if (itemId > 500000)
-            itemId -= 500000;
+    private unsafe IGatherable? CheckGameObjectItem(IntPtr agent, int offset, Func<nint, bool> validate)
+        => agent != IntPtr.Zero && validate(agent) ? HandleItem(*(uint*)(agent + offset)) : null;
 
-        if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var gatherable))
-            return new GameObjectContextMenuItem(GatherString, _ => _executor.GatherItem(gatherable), true);
-        if (GatherBuddy.GameData.Fishes.TryGetValue(itemId, out var fish))
-            return new GameObjectContextMenuItem(GatherString, _ => _executor.GatherItem(fish), true);
+    private unsafe IGatherable? CheckGameObjectItem(IntPtr agent, int offset)
+        => agent != IntPtr.Zero ? HandleItem(*(uint*)(agent + offset)) : null;
 
-        return null;
-    }
-
-    private unsafe GameObjectContextMenuItem? CheckGameObjectItem(IntPtr agent, int offset, Func<nint, bool> validate)
-        => agent != IntPtr.Zero && validate(agent) ? CheckGameObjectItem(*(uint*)(agent + offset)) : null;
-
-    private unsafe GameObjectContextMenuItem? CheckGameObjectItem(IntPtr agent, int offset)
-        => agent != IntPtr.Zero ? CheckGameObjectItem(*(uint*)(agent + offset)) : null;
-
-    private GameObjectContextMenuItem? CheckGameObjectItem(string name, int offset, Func<nint, bool> validate)
+    private IGatherable? CheckGameObjectItem(string name, int offset, Func<nint, bool> validate)
         => CheckGameObjectItem(Dalamud.GameGui.FindAgentInterface(name), offset, validate);
 
-    private GameObjectContextMenuItem? CheckGameObjectItem(string name, int offset)
+    private IGatherable? CheckGameObjectItem(string name, int offset)
         => CheckGameObjectItem(Dalamud.GameGui.FindAgentInterface(name), offset);
 
-    private unsafe GameObjectContextMenuItem? HandleSatisfactionSupply()
+    private unsafe IGatherable? HandleSatisfactionSupply()
     {
         var agent = Dalamud.GameGui.FindAgentInterface("SatisfactionSupply");
         if (agent == IntPtr.Zero)
@@ -88,28 +108,10 @@ public class ContextMenu : IDisposable
         var itemIdx = *(byte*)(agent + Offsets.SatisfactionSupplyItemIdx);
         return itemIdx switch
         {
-            1 => CheckGameObjectItem(*(uint*)(agent + Offsets.SatisfactionSupplyItem1Id)),
-            2 => CheckGameObjectItem(*(uint*)(agent + Offsets.SatisfactionSupplyItem2Id)),
+            1 => HandleItem(*(uint*)(agent + Offsets.SatisfactionSupplyItem1Id)),
+            2 => HandleItem(*(uint*)(agent + Offsets.SatisfactionSupplyItem2Id)),
             _ => null,
         };
-    }
-
-    private void AddGameObjectItem(GameObjectContextMenuOpenArgs args)
-    {
-        var item = args.ParentAddonName switch
-        {
-            null                 => HandleSatisfactionSupply(),
-            "ContentsInfoDetail" => CheckGameObjectItem("ContentsInfo", Offsets.ContentsInfoDetailContextItemId), // Provisioning
-            "RecipeNote"         => CheckGameObjectItem("RecipeNote", Offsets.RecipeNoteContextItemId),
-            "RecipeTree"         => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
-            "RecipeMaterialList" => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
-            "GatheringNote"      => CheckGameObjectItem("GatheringNote", Offsets.GatheringNoteContextItemId),
-            "ItemSearch"         => CheckGameObjectItem(args.Agent, Offsets.ItemSearchContextItemId),
-            "ChatLog"            => CheckGameObjectItem("ChatLog", Offsets.ChatLogContextItemId, ValidateChatLogContext),
-            _                    => null,
-        };
-        if (item != null)
-            args.AddCustomItem(item);
     }
 
     private static unsafe bool ValidateChatLogContext(nint agent)
@@ -121,12 +123,5 @@ public class ContextMenu : IDisposable
         var agents   = uiModule->GetAgentModule();
         var agent    = agents->GetAgentByInternalId(id);
         return (IntPtr)agent;
-    }
-
-    private void AddInventoryItem(InventoryContextMenuOpenArgs args)
-    {
-        var item = CheckInventoryItem(args.ItemId);
-        if (item != null)
-            args.AddCustomItem(item);
     }
 }

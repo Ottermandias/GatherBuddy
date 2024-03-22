@@ -92,7 +92,7 @@ public partial class GatherBuddy : IDalamudPlugin
             CurrentWeather      = new CurrentWeather(Dalamud.SigScanner);
             TugType             = new SeTugType(Dalamud.SigScanner);
             Executor            = new Executor(this);
-            ContextMenu         = new ContextMenu(pluginInterface, Executor);
+            ContextMenu         = new ContextMenu(Dalamud.ContextMenu, Executor);
             GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
             LocationManager     = LocationManager.Load();
             AlarmManager        = AlarmManager.Load();
