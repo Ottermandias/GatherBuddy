@@ -80,10 +80,14 @@ public class ContextMenu : IDisposable
 
     private static IGatherable? HandleItem(uint itemId)
     {
-        itemId %= 500000u;
+        if (itemId >= 1000000u)
+            itemId -= 1000000u;
+        else if (itemId >= 500000u)
+            itemId -= 500000u;
 
         if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var g))
             return g;
+
         return GatherBuddy.GameData.Fishes.GetValueOrDefault(itemId);
     }
 
