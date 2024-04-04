@@ -212,7 +212,7 @@ public class Executor
             return;
         }
 
-        var territory = _location.Territory.Id;
+        var territory = _location.ClosestAetheryte?.Territory.Id ?? _location.Territory.Id;
         var time      = DateTime.UtcNow.AddSeconds(30);
         var waitTime  = DateTime.UtcNow.AddSeconds(_teleporting ? 6 : -1);
 
