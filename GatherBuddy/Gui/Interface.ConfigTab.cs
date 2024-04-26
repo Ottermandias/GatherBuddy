@@ -33,6 +33,19 @@ public partial class Interface
             ImGuiUtil.HoverTooltip($"Set the name of your {jobName.ToLowerInvariant()} set. Can also be the numerical id instead.");
         }
 
+        public static void DrawPenumbraCollectionInput(string jobName, string oldName, Action<string> setName)
+        {
+            var tmp = oldName;
+            ImGui.SetNextItemWidth(SetInputWidth);
+            if (ImGui.InputText($"{jobName} Collection", ref tmp, 15) && tmp != oldName)
+            {
+                setName(tmp);
+                GatherBuddy.Config.Save();
+            }
+
+            ImGuiUtil.HoverTooltip($"Set the name of your {jobName.ToLowerInvariant()} collection.");
+        }
+
         private static void DrawCheckbox(string label, string description, bool oldValue, Action<bool> setter)
         {
             if (ImGuiUtil.Checkbox(label, description, oldValue, setter))
@@ -84,6 +97,11 @@ public partial class Interface
             => DrawCheckbox("Enable Gear Change",
                 "Toggle whether to automatically switch gear to the correct job gear for a node.\nUses Miner Set, Botanist Set and Fisher Set.",
                 GatherBuddy.Config.UseGearChange, b => GatherBuddy.Config.UseGearChange = b);
+
+        public static void DrawPenumbraCollectionBox()
+            => DrawCheckbox("Enable Penumbra Collection Change",
+                "Toggle whether to automatically switch Penumbra Collections on gear change.\nUses Default set unless otherwise overridden.",
+                GatherBuddy.Config.UsePenumbraCollection, b => GatherBuddy.Config.UsePenumbraCollection = b);
 
         public static void DrawTeleportBox()
             => DrawCheckbox("Enable Teleport",
@@ -532,6 +550,18 @@ public partial class Interface
                 ConfigFunctions.DrawSetInput("Miner",    GatherBuddy.Config.MinerSetName,    s => GatherBuddy.Config.MinerSetName    = s);
                 ConfigFunctions.DrawSetInput("Botanist", GatherBuddy.Config.BotanistSetName, s => GatherBuddy.Config.BotanistSetName = s);
                 ConfigFunctions.DrawSetInput("Fisher",   GatherBuddy.Config.FisherSetName,   s => GatherBuddy.Config.FisherSetName   = s);
+                ImGui.TreePop();
+            }
+
+            if (ImGui.TreeNodeEx("Penumbra Collections"))
+            {
+                ConfigFunctions.DrawPenumbraCollectionBox();
+                if (GatherBuddy.Config.UsePenumbraCollection)
+                {
+                    ConfigFunctions.DrawPenumbraCollectionInput("Miner", GatherBuddy.Config.MinerPenumbraCollection, s => GatherBuddy.Config.MinerPenumbraCollection = s);
+                    ConfigFunctions.DrawPenumbraCollectionInput("Botanist", GatherBuddy.Config.BotanistPenumbraCollection, s => GatherBuddy.Config.BotanistPenumbraCollection = s);
+                    ConfigFunctions.DrawPenumbraCollectionInput("Fisher", GatherBuddy.Config.FisherPenumbraCollection, s => GatherBuddy.Config.FisherPenumbraCollection = s);
+                }
                 ImGui.TreePop();
             }
 

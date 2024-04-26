@@ -232,6 +232,18 @@ public class Executor
 
             _commandManager.Execute($"/gearset change \"{set}\"");
 
+            if (GatherBuddy.Config.UsePenumbraCollection)
+            {
+                var pcset = _location.GatheringType.ToGroup() switch
+                {
+                    GatheringType.Fisher => GatherBuddy.Config.FisherPenumbraCollection,
+                    GatheringType.Botanist => GatherBuddy.Config.BotanistPenumbraCollection,
+                    GatheringType.Miner => GatherBuddy.Config.MinerPenumbraCollection,
+                    _ => null,
+                };
+                _commandManager.Execute($"/penumbra collection Individual | {pcset} | <me>");
+            }
+
             if (_item is Fish fish)
                 GatherBuddy.CurrentBait.ChangeBait(fish.InitialBait.Id);
 

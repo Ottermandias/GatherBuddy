@@ -19,6 +19,11 @@ public partial class Configuration : IPluginConfiguration
     public string MinerSetName    { get; set; } = "Miner";
     public string FisherSetName   { get; set; } = "Fisher";
 
+    // Set Penumbra Collections
+    public string BotanistPenumbraCollection { get; set; } = "Default";
+    public string MinerPenumbraCollection { get; set; } = "Default";
+    public string FisherPenumbraCollection { get; set; } = "Default";
+
     // formats
     public string IdentifiedGatherableFormat { get; set; } = DefaultIdentifiedGatherableFormat;
     public string AlarmFormat                { get; set; } = DefaultAlarmFormat;
@@ -38,6 +43,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             MainWindowLockResize   { get; set; } = false;
     public bool             CloseOnEscape          { get; set; } = true;
     public bool             UseGearChange          { get; set; } = true;
+    public bool             UsePenumbraCollection  { get; set; } = true;
     public bool             UseTeleport            { get; set; } = true;
     public bool             UseCoordinates         { get; set; } = true;
     public bool             UseFlag                { get; set; } = true;
