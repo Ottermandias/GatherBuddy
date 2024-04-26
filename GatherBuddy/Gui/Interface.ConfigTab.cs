@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
@@ -552,17 +553,19 @@ public partial class Interface
                 ConfigFunctions.DrawSetInput("Fisher",   GatherBuddy.Config.FisherSetName,   s => GatherBuddy.Config.FisherSetName   = s);
                 ImGui.TreePop();
             }
-
-            if (ImGui.TreeNodeEx("Penumbra Collections"))
+            if (Dalamud.PluginInterface.InstalledPlugins.Any(pluginInfo => pluginInfo is { InternalName: "Penumbra", IsLoaded: true }))
             {
-                ConfigFunctions.DrawPenumbraCollectionBox();
-                if (GatherBuddy.Config.UsePenumbraCollection)
+                if (ImGui.TreeNodeEx("Penumbra Collections"))
                 {
-                    ConfigFunctions.DrawPenumbraCollectionInput("Miner", GatherBuddy.Config.MinerPenumbraCollection, s => GatherBuddy.Config.MinerPenumbraCollection = s);
-                    ConfigFunctions.DrawPenumbraCollectionInput("Botanist", GatherBuddy.Config.BotanistPenumbraCollection, s => GatherBuddy.Config.BotanistPenumbraCollection = s);
-                    ConfigFunctions.DrawPenumbraCollectionInput("Fisher", GatherBuddy.Config.FisherPenumbraCollection, s => GatherBuddy.Config.FisherPenumbraCollection = s);
+                    ConfigFunctions.DrawPenumbraCollectionBox();
+                    if (GatherBuddy.Config.UsePenumbraCollection)
+                    {
+                        ConfigFunctions.DrawPenumbraCollectionInput("Miner", GatherBuddy.Config.MinerPenumbraCollection, s => GatherBuddy.Config.MinerPenumbraCollection = s);
+                        ConfigFunctions.DrawPenumbraCollectionInput("Botanist", GatherBuddy.Config.BotanistPenumbraCollection, s => GatherBuddy.Config.BotanistPenumbraCollection = s);
+                        ConfigFunctions.DrawPenumbraCollectionInput("Fisher", GatherBuddy.Config.FisherPenumbraCollection, s => GatherBuddy.Config.FisherPenumbraCollection = s);
+                    }
+                    ImGui.TreePop();
                 }
-                ImGui.TreePop();
             }
 
             if (ImGui.TreeNodeEx("Alarms"))

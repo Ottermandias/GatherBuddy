@@ -43,7 +43,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             MainWindowLockResize   { get; set; } = false;
     public bool             CloseOnEscape          { get; set; } = true;
     public bool             UseGearChange          { get; set; } = true;
-    public bool             UsePenumbraCollection  { get; set; } = true;
+    public bool             UsePenumbraCollection  { get; set; } = false;
     public bool             UseTeleport            { get; set; } = true;
     public bool             UseCoordinates         { get; set; } = true;
     public bool             UseFlag                { get; set; } = true;
