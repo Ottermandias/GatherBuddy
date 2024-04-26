@@ -136,6 +136,7 @@ public unsafe class MacroManager : IDisposable
         CopyString(GatherBuddy.FullAdditionalInfo, ref Macro->LinesSpan[3]);
         CopyString(GatherBuddy.FullGearChange,     ref Macro->LinesSpan[4]);
         CopyString(GatherBuddy.FullSetWaymarks,    ref Macro->LinesSpan[5]);
+        CopyString(GatherBuddy.FullMount,          ref Macro->LinesSpan[6]);
     }
 
     public void Execute()

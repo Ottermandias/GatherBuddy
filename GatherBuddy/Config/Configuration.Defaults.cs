@@ -12,6 +12,7 @@ public partial class Configuration
 
     public const string DefaultIdentifiedGatherableFormat = "Identified {Item} for \"{Input}\".";
     public const string DefaultAlarmFormat                = "{Alarm} {Item} {DelayString} at {Location}.";
+    public const string DefaultMount                      = "Company Chocobo";
 
     public static readonly Dictionary<int, uint> ForegroundColors = Dalamud.GameData.GetExcelSheet<UIColor>()!
         .Where(c => (c.UIForeground & 0xFF) > 0)

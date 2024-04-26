@@ -47,6 +47,8 @@ public class Executor
     private          TimeStamp       _lastGatherReset      = TimeStamp.Epoch;
     private          bool            _teleporting          = false;
 
+    private unsafe   bool            isMoving() => AgentMap.Instance()->IsPlayerMoving == 1;
+
     private void FindGatherableLogged(string itemName)
     {
         _item = Identificator.IdentifyGatherable(itemName);
@@ -304,6 +306,50 @@ public class Executor
         Dalamud.ClientState.TerritoryChanged += DoWaymarkOnArrival;
     }
 
+    private void DoMount()
+    {
+        if (!GatherBuddy.Config.MountOnTeleport || _location == null)
+            return;
+
+        if (!GatherBuddy.Config.UseMountRoulette && GatherBuddy.Config.UseSetMount.Length == 0)
+        {
+            Communicator.PrintError("Use mount roulette disabled and no custom mount option set.");
+            return;
+        }
+
+        var territory = _location.ClosestAetheryte?.Territory.Id ?? _location.Territory.Id;
+        var time = DateTime.UtcNow.AddSeconds(30);
+        var waitTime = DateTime.UtcNow.AddSeconds(_teleporting ? 6 : -1);
+
+        void DoMountOnArrival(object _)
+        {
+            if (DateTime.UtcNow < waitTime
+             || Dalamud.Conditions[ConditionFlag.BetweenAreas]
+             || Dalamud.Conditions[ConditionFlag.Casting]
+             || territory != Dalamud.ClientState.TerritoryType)
+                return;
+
+            if (DateTime.UtcNow > time
+             || Dalamud.Conditions[ConditionFlag.Mounted]
+             || isMoving())
+            {
+                Dalamud.Framework.Update -= DoMountOnArrival;
+                return;
+            }
+
+            if (GatherBuddy.Config.UseMountRoulette) { _commandManager.Execute($"/action \"Mount Roulette\""); }
+            else { _commandManager.Execute($"/mount \"{GatherBuddy.Config.UseSetMount}\""); }
+
+            if (!Dalamud.Conditions[ConditionFlag.Mounted] 
+                && !isMoving())
+                return;
+
+            Dalamud.Framework.Update -= DoMountOnArrival;
+        }
+
+        Dalamud.Framework.Update += DoMountOnArrival;
+    }
+
     public bool DoCommand(string argument)
     {
         if (Dalamud.ClientState.LocalPlayer == null || Dalamud.Conditions[ConditionFlag.BetweenAreas])
@@ -330,6 +376,9 @@ public class Executor
                 return true;
             case GatherBuddy.SetWaymarksCommand:
                 DoWaymarks();
+                return true;
+            case GatherBuddy.MountCommand:
+                DoMount();
                 return true;
             default: return false;
         }
