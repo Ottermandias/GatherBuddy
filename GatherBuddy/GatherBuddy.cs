@@ -5,8 +5,10 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using Dalamud;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
+using Dalamud.Plugin.Services;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.CustomInfo;
@@ -55,6 +57,8 @@ public partial class GatherBuddy : IDalamudPlugin
     public static CurrentWeather CurrentWeather { get; private set; } = null!;
     public static SeTugType      TugType        { get; private set; } = null!;
     public static WaymarkManager WaymarkManager { get; private set; } = null!;
+    public static VNavmeshIpc Navmesh { get; private set; } = null!;
+
 
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
     internal readonly LocationManager                LocationManager;
@@ -111,8 +115,10 @@ public partial class GatherBuddy : IDalamudPlugin
             WindowSystem.AddWindow(new SpearfishingHelper(GameData));
             Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
             Dalamud.PluginInterface.UiBuilder.OpenConfigUi += Interface.Toggle;
+            Dalamud.Framework.Update += Update;
 
             Ipc = new GatherBuddyIpc(this);
+            Navmesh = new VNavmeshIpc();
             //Wotsit = new WotsitIpc();
         }
         catch
@@ -120,6 +126,13 @@ public partial class GatherBuddy : IDalamudPlugin
             ((IDisposable)this).Dispose();
             throw;
         }
+    }
+
+    private void Update(IFramework framework)
+    {
+        var objs = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
+        foreach (var obj in objs)
+            WorldData.AddLocation(obj.DataId, obj.Position);
     }
 
     void IDisposable.Dispose()

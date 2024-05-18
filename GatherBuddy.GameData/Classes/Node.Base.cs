@@ -58,6 +58,7 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
         var coordRow = coords?.GetRow(node.RowId);
         IntegralXCoord = coordRow != null ? Maps.NodeToMap(coordRow.X, Territory.SizeFactor) : 100;
         IntegralYCoord = coordRow != null ? Maps.NodeToMap(coordRow.Y, Territory.SizeFactor) : 100;
+        //WorldCoords = LookupWorldCoords(node.RowId);
 
         Radius = coordRow?.Radius ?? 10;
 

@@ -28,5 +28,6 @@ public class Dalamud
     [PluginService][RequiredVersion("1.0")] public static IGameInteropProvider   Interop         { get; private set; } = null!;
     [PluginService][RequiredVersion("1.0")] public static ITextureProvider       Textures        { get; private set; } = null!;
     [PluginService][RequiredVersion("1.0")] public static IContextMenu           ContextMenu     { get; private set; } = null!;
+    [PluginService][RequiredVersion("1.0")] public static IObjectTable           ObjectTable     { get; private set; } = null!;
     // @formatter:on
 }

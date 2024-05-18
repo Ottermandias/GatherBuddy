@@ -2,7 +2,9 @@
 using System.Globalization;
 using System.Linq;
 using Dalamud;
+using Dalamud.Game.ClientState.Objects.Enums;
 using GatherBuddy.Classes;
+using GatherBuddy.CustomInfo;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
@@ -509,6 +511,25 @@ public partial class Interface
             ImGui.Text(_plugin.Ipc._versionProvider != null ? "Available" : "Unavailable");
             ImGui.Text(_plugin.Ipc._identifyProvider != null ? "Available" : "Unavailable");
             ImGui.Text(_lastItemIdentified.ToString());
+        }
+
+        if (ImGui.CollapsingHeader("World Objects"))
+        {
+            using var group = ImRaii.Group();
+            ImGui.Text("Gatherables within 200 yalms");
+            var gatherables = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
+            foreach (var obj in gatherables)
+            {
+                ImGui.PushID(obj.ObjectId.ToString());
+                var node = GatherBuddy.GameData.GatheringNodes.TryGetValue(obj.ObjectId, out var n) ? n : null;
+                ImGui.Text($"{obj.ObjectId}: {obj.Name ?? "Unknown"} - DataId: {obj.DataId}");
+                ImGui.SameLine();
+                if (ImGui.SmallButton("NavTo"))
+                {
+                    GatherBuddy.Navmesh.PathfindAndMoveTo(obj.Position, true);
+                }
+                ImGui.PopID();
+            }
         }
     }
 }
