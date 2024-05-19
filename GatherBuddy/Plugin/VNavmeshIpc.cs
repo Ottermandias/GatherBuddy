@@ -15,12 +15,14 @@ namespace GatherBuddy.Plugin
         private readonly ICallGateSubscriber<bool> _isready;
         private readonly ICallGateSubscriber<bool> _reload;
         private readonly ICallGateSubscriber<Vector3, bool, bool> _pathfindAndMoveTo;
+        private readonly ICallGateSubscriber<bool> _isPathing;
         private readonly string _guid;
         public VNavmeshIpc() 
         {
             _isready = Dalamud.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
             _reload = Dalamud.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.Reload");
             _pathfindAndMoveTo = Dalamud.PluginInterface.GetIpcSubscriber<Vector3, bool, bool>("vnavmesh.SimpleMove.PathfindAndMoveTo");
+            _isPathing = Dalamud.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Path.IsRunning");
 
             try
             {
@@ -43,6 +45,18 @@ namespace GatherBuddy.Plugin
         public void Dispose()
         {
 
+        }
+
+        public bool IsPathing()
+        {
+            try
+            {
+                return _isPathing.InvokeFunc();
+            }
+            catch (IpcNotReadyError)
+            {
+                return true;
+            }
         }
 
         public bool IsReady()

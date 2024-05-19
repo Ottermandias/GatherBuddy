@@ -83,6 +83,7 @@ public partial class GatherBuddy : IDalamudPlugin
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             Backup.CreateAutomaticBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
             Config         = Configuration.Load();
+            Config.AutoGather = false;
             Language       = Dalamud.ClientState.ClientLanguage;
             GameData       = new GameData(Dalamud.GameData, Log);
             Time           = new SeTime();
@@ -133,6 +134,7 @@ public partial class GatherBuddy : IDalamudPlugin
         var objs = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
         foreach (var obj in objs)
             WorldData.AddLocation(obj.DataId, obj.Position);
+        Executor.AutoGather();
     }
 
     void IDisposable.Dispose()

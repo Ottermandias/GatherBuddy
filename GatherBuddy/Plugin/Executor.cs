@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.Text.SeStringHandling;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
@@ -12,6 +16,9 @@ using GatherBuddy.Time;
 using GatherBuddy.Utility;
 using CommandManager = GatherBuddy.SeFunctions.CommandManager;
 using GatheringType = GatherBuddy.Enums.GatheringType;
+using Lumina.Excel.GeneratedSheets2;
+using Aetheryte = GatherBuddy.Classes.Aetheryte;
+using MapType = FFXIVClientStructs.FFXIV.Client.UI.Agent.MapType;
 
 namespace GatherBuddy.Plugin;
 
@@ -333,6 +340,57 @@ public class Executor
                 return true;
             default: return false;
         }
+    }
+
+    public void AutoGather()
+    {
+        if (!GatherBuddy.Config.AutoGather) return;
+        var objs = Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
+            .Where(g => g.IsTargetable)
+            .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
+        if (objs == null)
+            return;
+
+        var targetObj = objs.FirstOrDefault();
+        if (targetObj == null)
+            return;
+
+        var distance = Vector3.Distance(targetObj.Position, Dalamud.ClientState.LocalPlayer.Position);
+        if (distance < 3 && Dalamud.Conditions[ConditionFlag.Mounted])
+            Dismount();
+        else if (distance > 3 && !Dalamud.Conditions[ConditionFlag.Mounted])
+            MountUp();
+        else if (distance > 3 && Dalamud.Conditions[ConditionFlag.Mounted] && GatherBuddy.Navmesh.IsReady() && !GatherBuddy.Navmesh.IsPathing())
+            GatherBuddy.Navmesh.PathfindAndMoveTo(targetObj.Position, true);
+    }
+
+    private unsafe uint GetMountId()
+    {
+        var ps = PlayerState.Instance();
+        var mounts = Dalamud.GameData.GetExcelSheet<Mount>();
+        if (mounts == null) return 0;
+        foreach (var mount in mounts)
+        {
+            if (ps->IsMountUnlocked(mount.RowId))
+            {
+                return mount.RowId;
+            }
+        }
+        return 0;
+    }
+
+    private unsafe void Dismount()
+    {
+        var am = ActionManager.Instance();
+        am->UseAction(ActionType.Mount, 0);
+    }
+
+    private unsafe void MountUp()
+    {
+        var am = ActionManager.Instance();
+        var mount = GetMountId();
+        if (am->GetActionStatus(ActionType.Mount, mount) != 0) return;
+        am->UseAction(ActionType.Mount, mount);
     }
 
     public void GatherLocation(ILocation location)

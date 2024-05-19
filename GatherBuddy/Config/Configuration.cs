@@ -34,6 +34,7 @@ public partial class Configuration : IPluginConfiguration
 
     // General Config
     public bool             OpenOnStart            { get; set; } = false;
+    public bool             AutoGather             { get; set; } = false;
     public bool             MainWindowLockPosition { get; set; } = false;
     public bool             MainWindowLockResize   { get; set; } = false;
     public bool             CloseOnEscape          { get; set; } = true;
