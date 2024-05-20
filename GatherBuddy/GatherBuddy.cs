@@ -73,6 +73,8 @@ public partial class GatherBuddy : IDalamudPlugin
     internal readonly GatherBuddyIpc Ipc;
     //    internal readonly WotsitIpc Wotsit;
 
+    public static string AutoStatus { get; set; } = "Not Running";
+
     public GatherBuddy(DalamudPluginInterface pluginInterface)
     {
         try
@@ -85,7 +87,7 @@ public partial class GatherBuddy : IDalamudPlugin
             Config         = Configuration.Load();
             Config.AutoGather = false;
             Language       = Dalamud.ClientState.ClientLanguage;
-            GameData       = new GameData(Dalamud.GameData, Log);
+            GameData       = new GameData(Dalamud.GameData, Log, WorldData.WorldLocationsByNodeId);
             Time           = new SeTime();
             WaymarkManager = new WaymarkManager();
 

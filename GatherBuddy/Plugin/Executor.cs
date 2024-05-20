@@ -19,6 +19,8 @@ using GatheringType = GatherBuddy.Enums.GatheringType;
 using Lumina.Excel.GeneratedSheets2;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
 using MapType = FFXIVClientStructs.FFXIV.Client.UI.Agent.MapType;
+using Dalamud.Game.ClientState.Objects.Types;
+using static FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMJIGatheringNoteBookData;
 
 namespace GatherBuddy.Plugin;
 
@@ -32,27 +34,27 @@ public class Executor
     }
 
     private readonly CommandManager _commandManager = new(Dalamud.GameGui, Dalamud.SigScanner);
-    private readonly MacroManager   _macroManager   = new();
-    private readonly GatherBuddy    _plugin;
-    public readonly  Identificator  Identificator = new();
+    private readonly MacroManager _macroManager = new();
+    private readonly GatherBuddy _plugin;
+    public readonly Identificator Identificator = new();
 
     public Executor(GatherBuddy plugin)
         => _plugin = plugin;
 
     private IdentifyType _identifyType = IdentifyType.None;
-    private string       _name         = string.Empty;
+    private string _name = string.Empty;
 
     private IGatherable? _item = null;
 
     private GatheringType? _gatheringType = null;
-    private ILocation?     _location      = null;
-    private TimeInterval   _uptime        = TimeInterval.Always;
+    private ILocation? _location = null;
+    private TimeInterval _uptime = TimeInterval.Always;
 
-    public           IGatherable?    LastItem { get; private set; } = null;
-    private readonly List<ILocation> _visitedLocations     = new();
-    private          bool            _keepVisitedLocations = false;
-    private          TimeStamp       _lastGatherReset      = TimeStamp.Epoch;
-    private          bool            _teleporting          = false;
+    public IGatherable? LastItem { get; private set; } = null;
+    private readonly List<ILocation> _visitedLocations = new();
+    private bool _keepVisitedLocations = false;
+    private TimeStamp _lastGatherReset = TimeStamp.Epoch;
+    private bool _teleporting = false;
 
     private void FindGatherableLogged(string itemName)
     {
@@ -155,9 +157,9 @@ public class Executor
 
         (_location, _uptime) = (_keepVisitedLocations, _gatheringType) switch
         {
-            (false, null)     => GatherBuddy.UptimeManager.BestLocation(_item),
+            (false, null) => GatherBuddy.UptimeManager.BestLocation(_item),
             (false, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime),
-            (true, null)      => GatherBuddy.UptimeManager.NextUptime(_item,             GatherBuddy.Time.ServerTime, _visitedLocations),
+            (true, null) => GatherBuddy.UptimeManager.NextUptime(_item, GatherBuddy.Time.ServerTime, _visitedLocations),
             (true, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime,
                 _visitedLocations),
         };
@@ -179,8 +181,8 @@ public class Executor
             // Check distance of player to node against distance of aetheryte to node.
             var playerPos = Dalamud.ClientState.LocalPlayer.Position;
             var aetheryte = _location.ClosestAetheryte;
-            var posX      = Maps.NodeToMap(playerPos.X, _location.Territory.SizeFactor);
-            var posY      = Maps.NodeToMap(playerPos.Z, _location.Territory.SizeFactor);
+            var posX = Maps.NodeToMap(playerPos.X, _location.Territory.SizeFactor);
+            var posY = Maps.NodeToMap(playerPos.Z, _location.Territory.SizeFactor);
             var distAetheryte = aetheryte != null
                 ? System.Math.Sqrt(aetheryte.WorldDistance(_location.Territory.Id, _location.IntegralXCoord, _location.IntegralYCoord))
                 : double.PositiveInfinity;
@@ -201,10 +203,10 @@ public class Executor
 
         var set = _location.GatheringType.ToGroup() switch
         {
-            GatheringType.Fisher   => GatherBuddy.Config.FisherSetName,
+            GatheringType.Fisher => GatherBuddy.Config.FisherSetName,
             GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
-            GatheringType.Miner    => GatherBuddy.Config.MinerSetName,
-            _                      => null,
+            GatheringType.Miner => GatherBuddy.Config.MinerSetName,
+            _ => null,
         };
         if (set == null)
         {
@@ -220,8 +222,8 @@ public class Executor
         }
 
         var territory = _location.ClosestAetheryte?.Territory.Id ?? _location.Territory.Id;
-        var time      = DateTime.UtcNow.AddSeconds(30);
-        var waitTime  = DateTime.UtcNow.AddSeconds(_teleporting ? 6 : -1);
+        var time = DateTime.UtcNow.AddSeconds(30);
+        var waitTime = DateTime.UtcNow.AddSeconds(_teleporting ? 6 : -1);
 
         void DoGearChangeOnArrival(object _)
         {
@@ -292,7 +294,7 @@ public class Executor
             return;
 
         var territory = _location.Territory.Id;
-        var markers   = _location.Markers;
+        var markers = _location.Markers;
         if (Dalamud.ClientState.TerritoryType == territory)
         {
             GatherBuddy.WaymarkManager.SetWaymarks(markers);
@@ -341,43 +343,187 @@ public class Executor
             default: return false;
         }
     }
+    
+    private DateTime _teleportInitiated = DateTime.MinValue;
 
     public void AutoGather()
     {
         if (!GatherBuddy.Config.AutoGather) return;
+
+        NavmeshStuckCheck();
+        InventoryCheck();
+        PreprocessDesiredNodeIds();
+
         var objs = Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
             .Where(g => g.IsTargetable)
+            .Where(IsDesiredNode)
             .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
-        if (objs == null)
-            return;
 
-        var targetObj = objs.FirstOrDefault();
-        if (targetObj == null)
-            return;
-
-        var distance = Vector3.Distance(targetObj.Position, Dalamud.ClientState.LocalPlayer.Position);
-        if (distance < 3 && Dalamud.Conditions[ConditionFlag.Mounted])
-            Dismount();
-        else if (distance > 3 && !Dalamud.Conditions[ConditionFlag.Mounted])
-            MountUp();
-        else if (distance > 3 && Dalamud.Conditions[ConditionFlag.Mounted] && GatherBuddy.Navmesh.IsReady() && !GatherBuddy.Navmesh.IsPathing())
-            GatherBuddy.Navmesh.PathfindAndMoveTo(targetObj.Position, true);
-    }
-
-    private unsafe uint GetMountId()
-    {
-        var ps = PlayerState.Instance();
-        var mounts = Dalamud.GameData.GetExcelSheet<Mount>();
-        if (mounts == null) return 0;
-        foreach (var mount in mounts)
+        if (!objs.Any())
         {
-            if (ps->IsMountUnlocked(mount.RowId))
+            var activeItems = _plugin.GatherWindowManager.ActiveItems;
+            if (!activeItems.Any())
             {
-                return mount.RowId;
+                GatherBuddy.Config.AutoGather = false;
+                GatherBuddy.AutoStatus = "No active items.";
+                GatherBuddy.Config.Save();
+                return;
+            }
+
+            var item = activeItems.FirstOrDefault();
+            if (item == null)
+                return;
+
+            var location = item.Locations.FirstOrDefault();
+            if (location == null)
+                return;
+
+            if (location.Territory.Id != Dalamud.ClientState.TerritoryType && _teleportInitiated < DateTime.Now)
+            {
+                _teleportInitiated = DateTime.Now.AddSeconds(15);
+                GatherBuddy.AutoStatus = "Teleporting to " + location.Territory.Name + "...";
+                GatherItem(item);
+                return;
+            }
+            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
+            {
+                GatherBuddy.AutoStatus = "Waiting for teleport...";
+                return;
+            }
+            else
+            {
+                //GatherBuddy.AutoStatus = "No nodes in area. Looking for known nodes...";
+                Gatherable gatherable = item as Gatherable;
+                if (gatherable == null)
+                    return;
+
+                var coords = gatherable.NodeList.SelectMany(n => n.WorldCoords.Values);
+                var combinedCoords = coords.SelectMany(c => c).Distinct().ToList();
+                if (!combinedCoords.Any())
+                {
+                    GatherBuddy.AutoStatus = "No known nodes for item " + item.Name[GatherBuddy.Language] + ".";
+                    GatherBuddy.Config.AutoGather = false;
+                    GatherBuddy.Config.Save();
+                }
+                else
+                {
+                    if (!Dalamud.Conditions[ConditionFlag.Mounted])
+                    {
+                        MountUp();
+                    }
+                    else
+                    {
+                        var closestCoord = combinedCoords.OrderBy(c => Vector3.Distance(c, Dalamud.ClientState.LocalPlayer.Position)).First();
+                        if (GatherBuddy.Navmesh.IsReady() && !GatherBuddy.Navmesh.IsPathing())
+                        {
+                            GatherBuddy.AutoStatus = "Moving to known node " + item.Name[GatherBuddy.Language] + " at " + closestCoord + ".";
+                            GatherBuddy.Navmesh.PathfindAndMoveTo(closestCoord, true);
+                        }
+                    }
+                }
             }
         }
-        return 0;
+        else
+        {
+            var targetObj = objs.FirstOrDefault();
+            if (targetObj == null)
+                return;
+
+            var distance = Vector3.Distance(targetObj.Position, Dalamud.ClientState.LocalPlayer.Position);
+            if (distance < 3 && Dalamud.Conditions[ConditionFlag.Mounted])
+            {
+                GatherBuddy.AutoStatus = "Waiting for node harvest...";
+                Dismount();
+            }
+            else if (distance > 3 && !Dalamud.Conditions[ConditionFlag.Mounted])
+            {
+                GatherBuddy.AutoStatus = "Mounting for travel...";
+                MountUp();
+            }
+            else if (distance > 3 && Dalamud.Conditions[ConditionFlag.Mounted] && GatherBuddy.Navmesh.IsReady() && !GatherBuddy.Navmesh.IsPathing())
+            {
+                GatherBuddy.AutoStatus = $"Moving to node {targetObj.Name} at {targetObj.Position}";
+                GatherBuddy.Navmesh.PathfindAndMoveTo(targetObj.Position, true);
+            }
+        }
     }
+
+
+    private unsafe void InventoryCheck()
+    {
+        var presets = _plugin.GatherWindowManager.Presets;
+        if (presets == null)
+            return;
+
+        var inventory = InventoryManager.Instance();
+        if (inventory == null) return;
+
+        foreach (var preset in presets)
+        {
+            var items = preset.Items;
+            if (items == null)
+                continue;
+
+            var indicesToRemove = new List<int>();
+
+            for (int i = 0; i < items.Count; i++)
+            {
+                var item = items[i];
+                var itemCount = inventory->GetInventoryItemCount(item.ItemId);
+                if (itemCount >= item.Quantity)
+                {
+                    _plugin.GatherWindowManager.RemoveItem(preset, i);
+                }
+            }
+        }
+    }
+
+
+    private DateTime _lastNavReset = DateTime.MinValue;
+    private void NavmeshStuckCheck()
+    {
+        if (_lastNavReset.AddSeconds(10) < DateTime.Now)
+        {
+            _lastNavReset = DateTime.Now;
+            GatherBuddy.Navmesh.Reload();
+        }
+    }
+
+    private HashSet<uint> _desiredNodeIds;
+
+    private void PreprocessDesiredNodeIds()
+    {
+        _desiredNodeIds = new HashSet<uint>();
+
+        var activeItems = _plugin.GatherWindowManager.ActiveItems;
+        if (activeItems == null)
+            return;
+
+        foreach (var item in activeItems)
+        {
+            if (item is Gatherable gatherable)
+            {
+                var nodes = gatherable.NodeList;
+                if (nodes == null)
+                    continue;
+
+                foreach (var node in nodes)
+                {
+                    foreach (var coord in node.WorldCoords.Keys)
+                    {
+                        _desiredNodeIds.Add(coord);
+                    }
+                }
+            }
+        }
+
+    }
+
+    private bool IsDesiredNode(GameObject gameObject)
+    {
+        return _desiredNodeIds.Contains(gameObject.DataId);
+    }
+
 
     private unsafe void Dismount()
     {
@@ -388,18 +534,18 @@ public class Executor
     private unsafe void MountUp()
     {
         var am = ActionManager.Instance();
-        var mount = GetMountId();
+        var mount = GatherBuddy.Config.AutoGatherMountId;
         if (am->GetActionStatus(ActionType.Mount, mount) != 0) return;
         am->UseAction(ActionType.Mount, mount);
     }
 
     public void GatherLocation(ILocation location)
     {
-        _identifyType  = IdentifyType.None;
-        _name          = string.Empty;
-        _item          = null;
+        _identifyType = IdentifyType.None;
+        _name = string.Empty;
+        _item = null;
         _gatheringType = location.GatheringType.ToGroup();
-        _location      = location;
+        _location = location;
         if (location is GatheringNode n)
             _uptime = n.Times.NextUptime(GatherBuddy.Time.ServerTime);
         else
@@ -413,12 +559,12 @@ public class Executor
         if (item == null)
             return;
 
-        _identifyType  = IdentifyType.None;
-        _name          = string.Empty;
-        _item          = item;
-        _location      = null;
+        _identifyType = IdentifyType.None;
+        _name = string.Empty;
+        _item = item;
+        _location = null;
         _gatheringType = type?.ToGroup();
-        _uptime        = TimeInterval.Always;
+        _uptime = TimeInterval.Always;
 
         _macroManager.Execute();
     }
@@ -428,12 +574,12 @@ public class Executor
         if (fishName.Length == 0)
             return;
 
-        _identifyType  = IdentifyType.Fish;
-        _name          = fishName.ToLowerInvariant();
-        _item          = null;
-        _location      = null;
+        _identifyType = IdentifyType.Fish;
+        _name = fishName.ToLowerInvariant();
+        _item = null;
+        _location = null;
         _gatheringType = null;
-        _uptime        = TimeInterval.Always;
+        _uptime = TimeInterval.Always;
 
         _macroManager.Execute();
     }
@@ -443,12 +589,12 @@ public class Executor
         if (itemName.Length == 0)
             return;
 
-        _identifyType  = IdentifyType.Item;
-        _name          = itemName.ToLowerInvariant();
-        _item          = null;
-        _location      = null;
+        _identifyType = IdentifyType.Item;
+        _name = itemName.ToLowerInvariant();
+        _item = null;
+        _location = null;
         _gatheringType = type;
-        _uptime        = TimeInterval.Always;
+        _uptime = TimeInterval.Always;
 
         _macroManager.Execute();
     }

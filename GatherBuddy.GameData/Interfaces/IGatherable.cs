@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using GatherBuddy.Classes;
 using GatherBuddy.Utility;
 using Lumina.Excel.GeneratedSheets;
 
@@ -19,4 +20,5 @@ public interface IGatherable
     public uint                   ItemId          { get; }
     public Item                   ItemData        { get; }
     public ObjectType             Type            { get; }
+    public uint                   Quantity        { get; set; }
 }

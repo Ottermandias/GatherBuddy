@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Numerics;
 using Dalamud;
 using Dalamud.Game.ClientState.Objects.Enums;
 using GatherBuddy.Classes;
@@ -64,6 +66,15 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(n.Folklore);
         ImGuiUtil.DrawTableColumn(n.Times.PrintHours(true));
         ImGuiUtil.DrawTableColumn(n.PrintItems());
+        ImGuiUtil.DrawTableColumn(ToCoordString(n.WorldCoords));
+    }
+
+    private static string ToCoordString(Dictionary<uint, List<Vector3>> worldCoords)
+    {
+        var result = string.Empty;
+        foreach (var (key, value) in worldCoords)
+            result += $"{key}: {string.Join('|', value)} ";
+        return result;
     }
 
     private static void DrawFishDebug(Fish f)
@@ -473,7 +484,7 @@ public partial class Interface
             DrawGatherableDebug, flags, "ItemId", "GatheringId", "Name", "Level", "#Nodes");
         ImGuiTable.DrawTabbedTable($"Gathering Nodes ({GatherBuddy.GameData.GatheringNodes.Count})", GatherBuddy.GameData.GatheringNodes.Values,
             DrawGatheringNodeDebug, flags, "Id", "Name", "Job", "Level", "Type", "Territory", "Coords", "Aetheryte", "Folklore", "Times",
-            "Items");
+            "Items", "World Coords");
         ImGuiTable.DrawTabbedTable($"Fish ({GatherBuddy.GameData.Fishes.Count})", GatherBuddy.GameData.Fishes.Values,
             DrawFishDebug, flags, "ItemId", "FishId", "Name", "Restrictions", "Folklore", "InLog", "Big", "Fishing Spots");
         ImGuiTable.DrawTabbedTable($"Fishing Spots ({GatherBuddy.GameData.FishingSpots.Count})", GatherBuddy.GameData.FishingSpots.Values,
@@ -527,6 +538,24 @@ public partial class Interface
                 if (ImGui.SmallButton("NavTo"))
                 {
                     GatherBuddy.Navmesh.PathfindAndMoveTo(obj.Position, true);
+                }
+                ImGui.PopID();
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Saved World Objects"))
+        {
+            using var group = ImRaii.Group();
+            ImGui.Text("Saved Gatherables");
+            foreach (var kvp in WorldData.WorldLocationsByNodeId)
+            {
+                ImGui.PushID(kvp.Key.ToString());
+                ImGui.Text($"{kvp.Key}");
+                foreach (var loc in kvp.Value)
+                {
+                    ImGui.Indent();
+                    ImGui.Text($"{loc}");
+                    ImGui.Unindent();
                 }
                 ImGui.PopID();
             }

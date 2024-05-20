@@ -18,5 +18,5 @@ public partial class GatheringNode
     public ushort Radius        { get; set; }
     public ushort DefaultRadius { get; internal set; }
 
-    public List<Vector3> WorldCoords { get; set; } = new();
+    public Dictionary<uint, List<Vector3>> WorldCoords { get; set; } = new();
 }

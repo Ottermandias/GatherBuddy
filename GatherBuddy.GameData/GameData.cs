@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Dalamud;
 using Dalamud.Logging;
 using Dalamud.Plugin.Services;
@@ -65,6 +66,7 @@ public class GameData
     public Dictionary<uint, Bait>          Bait                  { get; init; } = new();
     public Dictionary<uint, Fish>          Fishes                { get; init; } = new();
     public Dictionary<uint, FishingSpot>   FishingSpots          { get; init; } = new();
+    public Dictionary<uint, List<Vector3>> WorldCoords           { get; init; } = new();
 
     public IReadOnlyList<OceanRoute> OceanRoutes   { get; init; } = Array.Empty<OceanRoute>();
     public OceanTimeline             OceanTimeline { get; init; } = null!;
@@ -87,10 +89,11 @@ public class GameData
             _ => (null, null),
         };
 
-    public GameData(IDataManager gameData, Logger log)
+    public GameData(IDataManager gameData, Logger log, Dictionary<uint, List<Vector3>> worldCoordsDict)
     {
         Log         = log;
         DataManager = gameData;
+        WorldCoords = worldCoordsDict;
         try
         {
             GatheringIcons = new GatheringIcons(gameData);

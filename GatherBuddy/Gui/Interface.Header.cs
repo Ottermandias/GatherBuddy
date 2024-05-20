@@ -111,7 +111,6 @@ public partial class Interface
     private void DrawAlarmRow()
     {
         using var _ = ImRaii.Group();
-        ConfigFunctions.DrawAutoGatherToggle();
         ImGui.SameLine();
         ConfigFunctions.DrawAlarmToggle();
         ImGui.SameLine();

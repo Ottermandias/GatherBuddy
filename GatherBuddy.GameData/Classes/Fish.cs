@@ -59,6 +59,8 @@ public partial class Fish : IComparable<Fish>, IGatherable
 
     public string Folklore { get; init; }
 
+    public uint Quantity { get; set; } = 1;
+
     public Fish(IDataManager gameData, SpearFishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
     {
         ItemData         = fishRow.Item.Value ?? new ItemRow();
