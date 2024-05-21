@@ -1,15 +1,20 @@
 ﻿using System;
+using System.Linq;
 using System.Numerics;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
 using ImGuiNET;
+using Lumina.Excel.GeneratedSheets2;
 using OtterGui;
 using OtterGui.Widgets;
+using FishRecord = GatherBuddy.FishTimer.FishRecord;
+using GatheringType = GatherBuddy.Enums.GatheringType;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -211,6 +216,67 @@ public partial class Interface
                     else
                         _plugin.AlarmManager.Disable();
                 });
+
+        private static bool _gatherDebug = false;
+        public static void DrawAutoGatherConfigs()
+        {
+            DrawCheckbox("Auto-Gather", "If enabled, GatherBuddy will automatically move to nearby nodes that contain items listed in the gather window.",
+                       GatherBuddy.Config.AutoGather, b => GatherBuddy.Config.AutoGather = b);
+            ImGui.SameLine();
+            DrawMountSelector();
+            ImGui.SameLine();
+            ImGui.Text($" | Status: {GatherBuddy.AutoGather.AutoStatus}");
+            ImGui.SameLine();
+            ImGui.Checkbox("Debug", ref _gatherDebug);
+            if (_gatherDebug)
+            {
+                var desiredItem = GatherBuddy.AutoGather.DesiredItem;
+                var targetNode = GatherBuddy.AutoGather.ValidGatherables.FirstOrDefault();
+                var viableNodes = GatherBuddy.AutoGather.ValidGatherables;
+
+                ImGui.Text($"Desired Item: {desiredItem?.Name}");
+                ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");
+                if (ImGui.BeginChild("Viable Nodes", new Vector2(300, 200), true))
+                {
+                    foreach (var node in viableNodes)
+                    {
+                        ImGui.Text($"{node.Name} {node.Position}");
+                    }
+                    ImGui.EndChild();
+                }
+            }
+        }
+
+        private unsafe static void DrawMountSelector()
+        {
+            ImGui.PushItemWidth(300);
+            var ps = PlayerState.Instance();
+            var preview = Dalamud.GameData.GetExcelSheet<Mount>().First(x => x.RowId == GatherBuddy.Config.AutoGatherMountId).Singular.ToString();
+            if (ImGui.BeginCombo("Select Mount", preview))
+            {
+                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherMountId == 0))
+                {
+                    GatherBuddy.Config.AutoGatherMountId = 0;
+                    GatherBuddy.Config.Save();
+                }
+
+                foreach (var mount in Dalamud.GameData.GetExcelSheet<Mount>().OrderBy(x => x.Singular.ToString()))
+                {
+                    if (ps->IsMountUnlocked(mount.RowId))
+                    {
+                        var selected = ImGui.Selectable(mount.Singular.ToString(), GatherBuddy.Config.AutoGatherMountId == mount.RowId);
+
+                        if (selected)
+                        {
+                            GatherBuddy.Config.AutoGatherMountId = mount.RowId;
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
+        }
 
         public static void DrawAlarmsInDutyToggle()
             => DrawCheckbox("Enable Alarms in Duty", "Set whether alarms should trigger while you are bound by a duty.",

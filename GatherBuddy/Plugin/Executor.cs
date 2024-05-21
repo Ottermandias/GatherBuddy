@@ -1,8 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Game.ClientState.Conditions;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.Text.SeStringHandling;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
@@ -12,6 +16,11 @@ using GatherBuddy.Time;
 using GatherBuddy.Utility;
 using CommandManager = GatherBuddy.SeFunctions.CommandManager;
 using GatheringType = GatherBuddy.Enums.GatheringType;
+using Lumina.Excel.GeneratedSheets2;
+using Aetheryte = GatherBuddy.Classes.Aetheryte;
+using MapType = FFXIVClientStructs.FFXIV.Client.UI.Agent.MapType;
+using Dalamud.Game.ClientState.Objects.Types;
+using static FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMJIGatheringNoteBookData;
 
 namespace GatherBuddy.Plugin;
 
@@ -25,27 +34,27 @@ public class Executor
     }
 
     private readonly CommandManager _commandManager = new(Dalamud.GameGui, Dalamud.SigScanner);
-    private readonly MacroManager   _macroManager   = new();
-    private readonly GatherBuddy    _plugin;
-    public readonly  Identificator  Identificator = new();
+    private readonly MacroManager _macroManager = new();
+    private readonly GatherBuddy _plugin;
+    public readonly Identificator Identificator = new();
 
     public Executor(GatherBuddy plugin)
         => _plugin = plugin;
 
     private IdentifyType _identifyType = IdentifyType.None;
-    private string       _name         = string.Empty;
+    private string _name = string.Empty;
 
     private IGatherable? _item = null;
 
     private GatheringType? _gatheringType = null;
-    private ILocation?     _location      = null;
-    private TimeInterval   _uptime        = TimeInterval.Always;
+    private ILocation? _location = null;
+    private TimeInterval _uptime = TimeInterval.Always;
 
-    public           IGatherable?    LastItem { get; private set; } = null;
-    private readonly List<ILocation> _visitedLocations     = new();
-    private          bool            _keepVisitedLocations = false;
-    private          TimeStamp       _lastGatherReset      = TimeStamp.Epoch;
-    private          bool            _teleporting          = false;
+    public IGatherable? LastItem { get; private set; } = null;
+    private readonly List<ILocation> _visitedLocations = new();
+    private bool _keepVisitedLocations = false;
+    private TimeStamp _lastGatherReset = TimeStamp.Epoch;
+    private bool _teleporting = false;
 
     private void FindGatherableLogged(string itemName)
     {
@@ -148,9 +157,9 @@ public class Executor
 
         (_location, _uptime) = (_keepVisitedLocations, _gatheringType) switch
         {
-            (false, null)     => GatherBuddy.UptimeManager.BestLocation(_item),
+            (false, null) => GatherBuddy.UptimeManager.BestLocation(_item),
             (false, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime),
-            (true, null)      => GatherBuddy.UptimeManager.NextUptime(_item,             GatherBuddy.Time.ServerTime, _visitedLocations),
+            (true, null) => GatherBuddy.UptimeManager.NextUptime(_item, GatherBuddy.Time.ServerTime, _visitedLocations),
             (true, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime,
                 _visitedLocations),
         };
@@ -172,8 +181,8 @@ public class Executor
             // Check distance of player to node against distance of aetheryte to node.
             var playerPos = Dalamud.ClientState.LocalPlayer.Position;
             var aetheryte = _location.ClosestAetheryte;
-            var posX      = Maps.NodeToMap(playerPos.X, _location.Territory.SizeFactor);
-            var posY      = Maps.NodeToMap(playerPos.Z, _location.Territory.SizeFactor);
+            var posX = Maps.NodeToMap(playerPos.X, _location.Territory.SizeFactor);
+            var posY = Maps.NodeToMap(playerPos.Z, _location.Territory.SizeFactor);
             var distAetheryte = aetheryte != null
                 ? System.Math.Sqrt(aetheryte.WorldDistance(_location.Territory.Id, _location.IntegralXCoord, _location.IntegralYCoord))
                 : double.PositiveInfinity;
@@ -194,10 +203,10 @@ public class Executor
 
         var set = _location.GatheringType.ToGroup() switch
         {
-            GatheringType.Fisher   => GatherBuddy.Config.FisherSetName,
+            GatheringType.Fisher => GatherBuddy.Config.FisherSetName,
             GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
-            GatheringType.Miner    => GatherBuddy.Config.MinerSetName,
-            _                      => null,
+            GatheringType.Miner => GatherBuddy.Config.MinerSetName,
+            _ => null,
         };
         if (set == null)
         {
@@ -213,8 +222,8 @@ public class Executor
         }
 
         var territory = _location.ClosestAetheryte?.Territory.Id ?? _location.Territory.Id;
-        var time      = DateTime.UtcNow.AddSeconds(30);
-        var waitTime  = DateTime.UtcNow.AddSeconds(_teleporting ? 6 : -1);
+        var time = DateTime.UtcNow.AddSeconds(30);
+        var waitTime = DateTime.UtcNow.AddSeconds(_teleporting ? 6 : -1);
 
         void DoGearChangeOnArrival(object _)
         {
@@ -285,7 +294,7 @@ public class Executor
             return;
 
         var territory = _location.Territory.Id;
-        var markers   = _location.Markers;
+        var markers = _location.Markers;
         if (Dalamud.ClientState.TerritoryType == territory)
         {
             GatherBuddy.WaymarkManager.SetWaymarks(markers);
@@ -337,11 +346,11 @@ public class Executor
 
     public void GatherLocation(ILocation location)
     {
-        _identifyType  = IdentifyType.None;
-        _name          = string.Empty;
-        _item          = null;
+        _identifyType = IdentifyType.None;
+        _name = string.Empty;
+        _item = null;
         _gatheringType = location.GatheringType.ToGroup();
-        _location      = location;
+        _location = location;
         if (location is GatheringNode n)
             _uptime = n.Times.NextUptime(GatherBuddy.Time.ServerTime);
         else
@@ -355,12 +364,12 @@ public class Executor
         if (item == null)
             return;
 
-        _identifyType  = IdentifyType.None;
-        _name          = string.Empty;
-        _item          = item;
-        _location      = null;
+        _identifyType = IdentifyType.None;
+        _name = string.Empty;
+        _item = item;
+        _location = null;
         _gatheringType = type?.ToGroup();
-        _uptime        = TimeInterval.Always;
+        _uptime = TimeInterval.Always;
 
         _macroManager.Execute();
     }
@@ -370,12 +379,12 @@ public class Executor
         if (fishName.Length == 0)
             return;
 
-        _identifyType  = IdentifyType.Fish;
-        _name          = fishName.ToLowerInvariant();
-        _item          = null;
-        _location      = null;
+        _identifyType = IdentifyType.Fish;
+        _name = fishName.ToLowerInvariant();
+        _item = null;
+        _location = null;
         _gatheringType = null;
-        _uptime        = TimeInterval.Always;
+        _uptime = TimeInterval.Always;
 
         _macroManager.Execute();
     }
@@ -385,12 +394,12 @@ public class Executor
         if (itemName.Length == 0)
             return;
 
-        _identifyType  = IdentifyType.Item;
-        _name          = itemName.ToLowerInvariant();
-        _item          = null;
-        _location      = null;
+        _identifyType = IdentifyType.Item;
+        _name = itemName.ToLowerInvariant();
+        _item = null;
+        _location = null;
         _gatheringType = type;
-        _uptime        = TimeInterval.Always;
+        _uptime = TimeInterval.Always;
 
         _macroManager.Execute();
     }

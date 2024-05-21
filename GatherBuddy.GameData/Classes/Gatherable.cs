@@ -16,6 +16,8 @@ public class Gatherable : IComparable<Gatherable>, IGatherable
     public MultiString          Name          { get; }
     public IList<GatheringNode> NodeList      { get; } = new List<GatheringNode>();
 
+    public uint Quantity { get; set; } = 1;
+
     public int InternalLocationId { get; internal set; } = 0;
 
     public IEnumerable<ILocation> Locations

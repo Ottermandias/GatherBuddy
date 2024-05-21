@@ -176,6 +176,13 @@ public partial class Interface
             ImGui.SameLine();
             if (_gatherGroupCache.GatherableSelector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
                 _plugin.GatherWindowManager.ChangeItem(preset, GatherGroupCache.AllGatherables[newIdx], i);
+            ImGui.SameLine();
+            ImGui.Text("x");
+            ImGui.SameLine();
+            int quantity = (int)item.Quantity;
+            ImGui.SetNextItemWidth(100f);
+            if (ImGui.InputInt("##quantity", ref quantity, 1, 10, ImGuiInputTextFlags.EnterReturnsTrue))
+                _plugin.GatherWindowManager.ChangeQuantity(preset, quantity, i);
             group.Dispose();
 
             _gatherWindowCache.Selector.CreateDropSource(new GatherWindowDragDropData(preset, item, i), item.Name[GatherBuddy.Language]);
@@ -198,14 +205,15 @@ public partial class Interface
     private void DrawGatherWindowTab()
     {
         using var id  = ImRaii.PushId("GatherWindow");
-        using var tab = ImRaii.TabItem("Gather Window");
+        using var tab = ImRaii.TabItem("Shopping Lists");
 
         ImGuiUtil.HoverTooltip(
-            "Config window too big? Why can't you hold all this information?\n"
-          + "Prepare a small window with only those items that actually interest you!");
+            "Create shopping lists for Gatherbuddy to auto-gather");
 
         if (!tab)
             return;
+
+        ConfigFunctions.DrawAutoGatherConfigs();
 
         _gatherWindowCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

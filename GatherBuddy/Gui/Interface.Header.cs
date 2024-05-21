@@ -111,6 +111,7 @@ public partial class Interface
     private void DrawAlarmRow()
     {
         using var _ = ImRaii.Group();
+        ImGui.SameLine();
         ConfigFunctions.DrawAlarmToggle();
         ImGui.SameLine();
         _headerCache.AlarmButtonSize = (ImGui.GetContentRegionAvail().X - ItemSpacing.X) / 2 * Vector2.UnitX;
