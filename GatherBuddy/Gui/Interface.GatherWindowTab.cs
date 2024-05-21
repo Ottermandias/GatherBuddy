@@ -205,10 +205,10 @@ public partial class Interface
     private void DrawGatherWindowTab()
     {
         using var id  = ImRaii.PushId("GatherWindow");
-        using var tab = ImRaii.TabItem("Shopping Lists");
+        using var tab = ImRaii.TabItem("Auto-Gather");
 
         ImGuiUtil.HoverTooltip(
-            "Create shopping lists for Gatherbuddy to auto-gather");
+            "You read that right! Auto-gather!");
 
         if (!tab)
             return;

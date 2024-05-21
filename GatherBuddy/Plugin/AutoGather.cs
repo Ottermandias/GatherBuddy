@@ -2,12 +2,16 @@
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -53,7 +57,6 @@ namespace GatherBuddy.Plugin
                         .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
 
         }
-        private int _frameCounter = 0;
         public void DoAutoGather()
         {
             if (!GatherBuddy.Config.AutoGather) return;
@@ -77,6 +80,8 @@ namespace GatherBuddy.Plugin
         }
         private void PathfindToNode(Vector3 position)
         {
+            if (IsPathing)
+                return;
             GatherBuddy.Navmesh.PathfindAndMoveTo(position, true);
         }
 
@@ -86,13 +91,6 @@ namespace GatherBuddy.Plugin
             {
                 AutoState = AutoStateType.WaitingForNavmesh;
                 AutoStatus = "Waiting for Navmesh...";
-                return;
-            }
-
-            if (IsPathing)
-            {
-                AutoState = AutoStateType.Pathing;
-                AutoStatus = "Pathing to node...";
                 return;
             }
 
@@ -159,7 +157,7 @@ namespace GatherBuddy.Plugin
                 var targetGatherable = ValidGatherables.First();
                 var distance = Vector3.Distance(targetGatherable.Position, Dalamud.ClientState.LocalPlayer.Position);
 
-                if (distance < 10)
+                if (distance < 3)
                 {
                     if (Dalamud.Conditions[ConditionFlag.Mounted])
                     {
@@ -168,11 +166,19 @@ namespace GatherBuddy.Plugin
                         Dismount();
                         return;
                     }
-                    else
+                    else if (Dalamud.Conditions[ConditionFlag.Gathering])
                     {
                         // This is where you can handle additional logic when close to the node without being mounted.
                         AutoState = AutoStateType.GatheringNode;
                         AutoStatus = $"Gathering {targetGatherable.Name}...";
+                        //GatherNode();
+                        return;
+                    }
+                    else
+                    {
+                        AutoState = AutoStateType.GatheringNode;
+                        AutoStatus = $"Targeting {targetGatherable.Name}...";
+                        InteractNode(targetGatherable);
                         return;
                     }
                 }
@@ -197,7 +203,67 @@ namespace GatherBuddy.Plugin
             }
 
             AutoState = AutoStateType.Error;
-            AutoStatus = "Nothing to do...";
+            //AutoStatus = "Nothing to do...";
+        }
+
+        private unsafe void GatherNode()
+        {
+            var gatheringWindow = (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering", 1);
+            if (gatheringWindow == null) return;
+
+            var ids = new List<uint>()
+                    {
+                    gatheringWindow->GatheredItemId1,
+                    gatheringWindow->GatheredItemId2,
+                    gatheringWindow->GatheredItemId3,
+                    gatheringWindow->GatheredItemId4,
+                    gatheringWindow->GatheredItemId5,
+                    gatheringWindow->GatheredItemId6,
+                    gatheringWindow->GatheredItemId7,
+                    gatheringWindow->GatheredItemId8
+                    };
+
+            var itemIndex = ids.IndexOf(DesiredItem.ItemId);
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[25]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[24]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[23]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[22]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[21]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[20]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[19]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            gatheringWindow->AtkUnitBase.UldManager.NodeList[18]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+
+            var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);
+            var eventDelegate = Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress);
+
+            eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, AtkEventType.ButtonClick, (uint)itemIndex, null, null);
+        }
+
+        private unsafe delegate nint ReceiveEventDelegate(AtkEventListener* eventListener, AtkEventType eventType, uint eventParam, void* eventData, void* inputData);
+
+        private static unsafe ReceiveEventDelegate GetReceiveEvent(AtkEventListener* listener)
+        {
+            var receiveEventAddress = new IntPtr(listener->vfunc[2]);
+            return Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress)!;
+        }
+
+        private bool _isInteracting = false;
+        private unsafe void InteractNode(GameObject targetGatherable)
+        {
+            if (Dalamud.Conditions[ConditionFlag.Jumping])
+                return;
+            if (IsPlayerBusy()) return;
+            var targetSystem = TargetSystem.Instance();
+            if (targetSystem == null)
+                return;
+            if (_isInteracting) return;
+            _isInteracting = true;
+            Task.Run(() =>
+            {
+                System.Threading.Thread.Sleep(1000);
+                targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)targetGatherable.Address);
+                _isInteracting = false;
+            });
         }
 
         private bool IsPlayerBusy()
