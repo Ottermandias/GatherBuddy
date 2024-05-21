@@ -58,6 +58,7 @@ public partial class GatherBuddy : IDalamudPlugin
     public static SeTugType      TugType        { get; private set; } = null!;
     public static WaymarkManager WaymarkManager { get; private set; } = null!;
     public static VNavmeshIpc Navmesh { get; private set; } = null!;
+    public static AutoGather AutoGather { get; private set; } = null!;
 
 
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
@@ -72,8 +73,6 @@ public partial class GatherBuddy : IDalamudPlugin
 
     internal readonly GatherBuddyIpc Ipc;
     //    internal readonly WotsitIpc Wotsit;
-
-    public static string AutoStatus { get; set; } = "Not Running";
 
     public GatherBuddy(DalamudPluginInterface pluginInterface)
     {
@@ -104,6 +103,7 @@ public partial class GatherBuddy : IDalamudPlugin
             LocationManager     = LocationManager.Load();
             AlarmManager        = AlarmManager.Load();
             GatherWindowManager = GatherWindowManager.Load(AlarmManager);
+            AutoGather = new AutoGather(this);
             AlarmManager.ForceEnable();
 
             InitializeCommands();
@@ -136,7 +136,7 @@ public partial class GatherBuddy : IDalamudPlugin
         var objs = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
         foreach (var obj in objs)
             WorldData.AddLocation(obj.DataId, obj.Position);
-        Executor.AutoGather();
+        AutoGather.DoAutoGather();
     }
 
     void IDisposable.Dispose()

@@ -217,6 +217,7 @@ public partial class Interface
                         _plugin.AlarmManager.Disable();
                 });
 
+        private static bool _gatherDebug = false;
         public static void DrawAutoGatherConfigs()
         {
             DrawCheckbox("Auto-Gather", "If enabled, GatherBuddy will automatically move to nearby nodes that contain items listed in the gather window.",
@@ -224,7 +225,26 @@ public partial class Interface
             ImGui.SameLine();
             DrawMountSelector();
             ImGui.SameLine();
-            ImGui.Text($" | Status: {GatherBuddy.AutoStatus}");
+            ImGui.Text($" | Status: {GatherBuddy.AutoGather.AutoStatus}");
+            ImGui.SameLine();
+            ImGui.Checkbox("Debug", ref _gatherDebug);
+            if (_gatherDebug)
+            {
+                var desiredItem = GatherBuddy.AutoGather.DesiredItem;
+                var targetNode = GatherBuddy.AutoGather.ValidGatherables.FirstOrDefault();
+                var viableNodes = GatherBuddy.AutoGather.ValidGatherables;
+
+                ImGui.Text($"Desired Item: {desiredItem?.Name}");
+                ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");
+                if (ImGui.BeginChild("Viable Nodes", new Vector2(300, 200), true))
+                {
+                    foreach (var node in viableNodes)
+                    {
+                        ImGui.Text($"{node.Name} {node.Position}");
+                    }
+                    ImGui.EndChild();
+                }
+            }
         }
 
         private unsafe static void DrawMountSelector()
