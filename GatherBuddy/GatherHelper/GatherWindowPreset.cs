@@ -41,10 +41,11 @@ public class GatherWindowPreset
 
     public struct Config
     {
-        public const byte CurrentVersion = 1;
+        public const byte CurrentVersion = 2;
 
         public uint[]       ItemIds;
         public ObjectType[] ItemTypes;
+        public uint[] Quantities;
         public string       Name;
         public string       Description;
         public bool         Enabled;
@@ -53,6 +54,7 @@ public class GatherWindowPreset
         {
             ItemIds     = preset.Items.Select(i => i.ItemId).ToArray();
             ItemTypes   = preset.Items.Select(i => i.Type).ToArray();
+            Quantities = preset.Items.Select(i => i.Quantity).ToArray();
             Name        = preset.Name;
             Description = preset.Description;
             Enabled     = preset.Enabled;
@@ -77,7 +79,7 @@ public class GatherWindowPreset
 
                 var json = Encoding.UTF8.GetString(bytes.AsSpan()[1..]);
                 cfg = JsonConvert.DeserializeObject<Config>(json);
-                if (cfg.ItemIds == null || cfg.ItemTypes == null || cfg.Name == null || cfg.Description == null)
+                if (cfg.ItemIds == null || cfg.ItemTypes == null || cfg.Name == null || cfg.Description == null || cfg.Quantities == null)
                     return false;
 
                 return true;
@@ -107,6 +109,7 @@ public class GatherWindowPreset
                 ObjectType.Fish       => GatherBuddy.GameData.Fishes.TryGetValue(cfg.ItemIds[i], out var item) ? item : null,
                 _                     => null,
             };
+            gatherable.Quantity = cfg.Quantities[i];
             if (gatherable == null)
                 changes = true;
             else if (!ret.Add(gatherable))

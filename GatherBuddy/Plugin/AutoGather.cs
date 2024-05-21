@@ -159,7 +159,7 @@ namespace GatherBuddy.Plugin
                 var targetGatherable = ValidGatherables.First();
                 var distance = Vector3.Distance(targetGatherable.Position, Dalamud.ClientState.LocalPlayer.Position);
 
-                if (distance < 5)
+                if (distance < 10)
                 {
                     if (Dalamud.Conditions[ConditionFlag.Mounted])
                     {
