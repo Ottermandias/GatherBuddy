@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Conditions;
+﻿using ClickLib.Structures;
+using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -171,7 +172,7 @@ namespace GatherBuddy.Plugin
                         // This is where you can handle additional logic when close to the node without being mounted.
                         AutoState = AutoStateType.GatheringNode;
                         AutoStatus = $"Gathering {targetGatherable.Name}...";
-                        //GatherNode();
+                        GatherNode();
                         return;
                     }
                     else
@@ -223,23 +224,28 @@ namespace GatherBuddy.Plugin
                     gatheringWindow->GatheredItemId8
                     };
 
-            var itemIndex = ids.IndexOf(DesiredItem.ItemId);
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[25]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[24]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[23]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[22]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[21]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[20]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[19]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            gatheringWindow->AtkUnitBase.UldManager.NodeList[18]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            var itemIndex = ids.IndexOf(DesiredItem?.ItemId ?? 0);
+            if (itemIndex < 0) return;
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[25]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[24]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[23]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[22]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[21]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[20]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[19]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            //gatheringWindow->AtkUnitBase.UldManager.NodeList[18]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
 
             var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);
             var eventDelegate = Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress);
 
-            eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, AtkEventType.ButtonClick, (uint)itemIndex, null, null);
+            var target = AtkStage.GetSingleton();
+            var eventData = EventData.ForNormalTarget(target, &gatheringWindow->AtkUnitBase);
+            var inputData = InputData.Empty();
+
+            eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, ClickLib.Enums.EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data);
         }
 
-        private unsafe delegate nint ReceiveEventDelegate(AtkEventListener* eventListener, AtkEventType eventType, uint eventParam, void* eventData, void* inputData);
+        private unsafe delegate nint ReceiveEventDelegate(AtkEventListener* eventListener, ClickLib.Enums.EventType eventType, uint eventParam, void* eventData, void* inputData);
 
         private static unsafe ReceiveEventDelegate GetReceiveEvent(AtkEventListener* listener)
         {

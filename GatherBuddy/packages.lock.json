@@ -21,6 +21,21 @@
         "resolved": "8.0.0",
         "contentHash": "cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg=="
       },
+      "Reloaded.Memory": {
+        "type": "Transitive",
+        "resolved": "7.1.0",
+        "contentHash": "4Y5tCsRWdW/shj9W7RqJq37LStuW1VVtjxsBp4LKZilPcjudeQg9k+u+6fnDgacCEJiG3S2EtcaiNtVMTdaSnQ=="
+      },
+      "clicklib": {
+        "type": "Project",
+        "dependencies": {
+          "ECommons": "[2.2.0.2, )",
+          "Reloaded.Memory": "[7.1.0, )"
+        }
+      },
+      "ecommons": {
+        "type": "Project"
+      },
       "gatherbuddy.gamedata": {
         "type": "Project",
         "dependencies": {

@@ -21,6 +21,7 @@ using GatherBuddy.Spearfishing;
 using GatherBuddy.Weather;
 using OtterGui.Classes;
 using OtterGui.Log;
+using ECommons;
 
 namespace GatherBuddy;
 
@@ -79,6 +80,7 @@ public partial class GatherBuddy : IDalamudPlugin
         try
         {
             Dalamud.Initialize(pluginInterface);
+            ECommonsMain.Init(pluginInterface, this);
             Icons.InitDefaultStorage(Dalamud.Textures);
             Log     = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
@@ -156,6 +158,7 @@ public partial class GatherBuddy : IDalamudPlugin
         Time?.Dispose();
         Icons.DefaultStorage?.Dispose();
         HttpClient?.Dispose();
+        ECommonsMain.Dispose();
     }
 
     // Collect all relevant files for GatherBuddy configuration
