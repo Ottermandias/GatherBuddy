@@ -57,7 +57,15 @@ namespace GatherBuddy.Plugin
                         .Where(IsDesiredNode)
                         .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
 
-        public Gatherable? DesiredItem => _plugin.GatherWindowManager.ActiveItems.FirstOrDefault() as Gatherable;
+        public Gatherable? DesiredItem => _plugin.GatherWindowManager.ActiveItems.Where(g => InventoryLessThanQuantity(g)).FirstOrDefault() as Gatherable;
+
+        private unsafe InventoryManager* Inventory => InventoryManager.Instance();
+        private unsafe bool InventoryLessThanQuantity(IGatherable g)
+        {
+            var invCount = Inventory->GetInventoryItemCount(g.ItemId);
+            return invCount < g.Quantity;
+        }
+
         public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning();
         public bool NavReady => VNavmesh_IPCSubscriber.Nav_IsReady();
 
@@ -77,7 +85,6 @@ namespace GatherBuddy.Plugin
         {
             if (!GatherBuddy.Config.AutoGather) return;
             NavmeshStuckCheck();
-            InventoryCheck();
 
             DetermineAutoState();
         }
@@ -164,7 +171,7 @@ namespace GatherBuddy.Plugin
             VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position, true);
         }
 
-        private void DetermineAutoState()
+        private unsafe void DetermineAutoState()
         {
             if (!NavReady)
             {
@@ -183,7 +190,15 @@ namespace GatherBuddy.Plugin
             if (DesiredItem == null)
             {
                 AutoState = AutoStateType.Finish;
-                AutoStatus = "No active items in shopping list...";
+                AutoStatus = "No valid items in shopping list...";
+                return;
+            }
+            if (Dalamud.Conditions[ConditionFlag.Gathering])
+            {
+                // This is where you can handle additional logic when close to the node without being mounted.
+                AutoState = AutoStateType.GatheringNode;
+                AutoStatus = $"Gathering {DesiredItem.Name} from {Svc.Targets.Target?.Name ?? "Unknown Node"}...";
+                GatherNode();
                 return;
             }
 
@@ -247,14 +262,6 @@ namespace GatherBuddy.Plugin
                         AutoState = AutoStateType.Dismounting;
                         AutoStatus = "Dismounting...";
                         Dismount();
-                        return;
-                    }
-                    else if (Dalamud.Conditions[ConditionFlag.Gathering])
-                    {
-                        // This is where you can handle additional logic when close to the node without being mounted.
-                        AutoState = AutoStateType.GatheringNode;
-                        AutoStatus = $"Gathering {targetGatherable.Name}...";
-                        GatherNode();
                         return;
                     }
                     else
@@ -438,34 +445,6 @@ namespace GatherBuddy.Plugin
             return false;
         }
 
-        private unsafe void InventoryCheck()
-        {
-            var presets = _plugin.GatherWindowManager.Presets;
-            if (presets == null)
-                return;
-
-            var inventory = InventoryManager.Instance();
-            if (inventory == null) return;
-
-            foreach (var preset in presets)
-            {
-                var items = preset.Items;
-                if (items == null)
-                    continue;
-
-                var indicesToRemove = new List<int>();
-
-                for (int i = 0; i < items.Count; i++)
-                {
-                    var item = items[i];
-                    var itemCount = inventory->GetInventoryItemCount(item.ItemId);
-                    if (itemCount >= item.Quantity)
-                    {
-                        _plugin.GatherWindowManager.RemoveItem(preset, i);
-                    }
-                }
-            }
-        }
         private Vector3 _lastKnownPosition = Vector3.Zero;
         private DateTime _lastPositionCheckTime = DateTime.Now;
         private TimeSpan _stuckDurationThreshold = TimeSpan.FromSeconds(5);
@@ -481,7 +460,7 @@ namespace GatherBuddy.Plugin
                 var distance = Vector3.Distance(currentPosition, _lastKnownPosition);
 
                 // If the player has not moved a significant distance, consider them stuck
-                if (distance < 3)
+                if (IsPathing && distance < 3)
                 {
                     VNavmesh_IPCSubscriber.Nav_Reload();
                 }
