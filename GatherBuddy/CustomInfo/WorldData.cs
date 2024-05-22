@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -20,14 +21,33 @@ namespace GatherBuddy.CustomInfo
         private static void LoadLocationsFromFile()
         {
             var path = Path.Combine(Dalamud.PluginInterface.ConfigDirectory.FullName, "world_locations.json");
+
+            // Check if the file exists
             if (!File.Exists(path))
             {
-                File.Create(path).Close();
+                // Load the embedded resource
+                var assembly = typeof(GatherBuddy).Assembly;
+                var resourceName = "GatherBuddy.CustomInfo.world_locations.json";
+
+                using (var stream = assembly.GetManifestResourceStream(resourceName))
+                {
+                    if (stream == null)
+                        throw new FileNotFoundException("Embedded resource not found.", resourceName);
+
+                    using (var reader = new StreamReader(stream))
+                    {
+                        var defaultContent = reader.ReadToEnd();
+                        File.WriteAllText(path, defaultContent);
+                    }
+                }
             }
+
+            // Read the content of the file
             var locJson = File.ReadAllText(path);
             var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<uint, List<Vector3>>>(locJson);
             WorldLocationsByNodeId = obj ?? new();
         }
+
 
         public static void AddLocation(uint nodeId, Vector3 location)
         {

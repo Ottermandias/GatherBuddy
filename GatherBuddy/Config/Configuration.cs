@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
@@ -12,7 +13,7 @@ namespace GatherBuddy.Config;
 
 public partial class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 5;
+    public int Version { get; set; } = 6;
 
     // Set Names
     public string BotanistSetName { get; set; } = "Botanist";
@@ -75,6 +76,8 @@ public partial class Configuration : IPluginConfiguration
     public int SeColorCommands  = DefaultSeColorCommands;
     public int SeColorArguments = DefaultSeColorArguments;
     public int SeColorAlarm     = DefaultSeColorAlarm;
+
+    public Dictionary<uint, List<Vector3>> BlacklistedAutoGatherNodesByTerritoryId { get; set; } = new();
 
     // Fish Timer
     public bool   ShowFishTimer         { get; set; } = true;

@@ -72,7 +72,7 @@ namespace GatherBuddy.Plugin
         [EzIPC("vnavmesh.Window.SetOpen", applyPrefix: false)] internal static readonly Action<bool> Window_SetOpen;
 
         [EzIPC("vnavmesh.DTR.IsShown", applyPrefix: false)] internal static readonly Func<bool> DTR_IsShown;
-        [EzIPC("vnavmesh.DTR.SetShown", applyPrefix: false)] internal static readonly Action<bool> DTR_SetShown;
+        [EzIPC("vnavmesh.DTR.SetShown", applyPrefix: false)] internal static readonly Action<bool>  DTR_SetShown;
 
         internal static void Dispose() => IPCSubscriber_Common.DisposeAll(_disposalTokens);
     }
