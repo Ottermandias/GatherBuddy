@@ -3,6 +3,7 @@ using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface;
+using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
@@ -232,7 +233,7 @@ namespace GatherBuddy.Plugin
                 var targetGatherable = ValidGatherables.First();
                 var distance = Vector3.Distance(targetGatherable.Position, Dalamud.ClientState.LocalPlayer.Position);
 
-                if (distance < 1.5)
+                if (distance < 2.5)
                 {
                     if (Dalamud.Conditions[ConditionFlag.Mounted])
                     {
@@ -398,6 +399,7 @@ namespace GatherBuddy.Plugin
         }
 
         private bool _isInteracting = false;
+        private TaskManager _taskManager = new TaskManager();
         private unsafe void InteractNode(GameObject targetGatherable)
         {
             if (Dalamud.Conditions[ConditionFlag.Jumping])
@@ -408,9 +410,9 @@ namespace GatherBuddy.Plugin
                 return;
             if (_isInteracting) return;
             _isInteracting = true;
-            Task.Run(() =>
+            _taskManager.EnqueueDelay(1000);
+            _taskManager.Enqueue(() =>
             {
-                System.Threading.Thread.Sleep(1000);
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)targetGatherable.Address);
                 _isInteracting = false;
             });

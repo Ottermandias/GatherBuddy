@@ -11,6 +11,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{383AEE76-D423-431C-893A-7AB3DEA13630}"
 	ProjectSection(SolutionItems) = preProject
 		.editorconfig = .editorconfig
+		manifest.json = manifest.json
+		.github\workflows\publish.yaml = .github\workflows\publish.yaml
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GatherBuddy.GameData", "GatherBuddy.GameData\GatherBuddy.GameData.csproj", "{4DC34533-59B5-4F5A-9F0F-2CD49EFC7092}"
