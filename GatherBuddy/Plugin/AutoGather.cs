@@ -109,6 +109,7 @@ namespace GatherBuddy.Plugin
                 PathfindToNode(nearestPoint);
             }
         }
+        private int _currentNodeIndex = 0;
         private void PathfindToFarNode(Gatherable desiredItem)
         {
             if (desiredItem == null)
@@ -136,9 +137,9 @@ namespace GatherBuddy.Plugin
 
                 if (farNodes.Any())
                 {
-                    var random = new Random();
-                    var randomNode = farNodes[random.Next(farNodes.Count)];
-                    closestKnownNode = randomNode;
+                    _currentNodeIndex = (_currentNodeIndex + 1) % farNodes.Count;
+                    closestKnownNode = farNodes[_currentNodeIndex];
+
                     AutoStatus = "Pathing to a farther node...";
                     PathfindToNode(closestKnownNode);
                 }

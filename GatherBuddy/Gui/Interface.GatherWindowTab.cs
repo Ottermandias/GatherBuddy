@@ -2,6 +2,7 @@
 using System.Numerics;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.GatherHelper;
@@ -177,7 +178,11 @@ public partial class Interface
             if (_gatherGroupCache.GatherableSelector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
                 _plugin.GatherWindowManager.ChangeItem(preset, GatherGroupCache.AllGatherables[newIdx], i);
             ImGui.SameLine();
-            ImGui.Text("x");
+            ImGui.Text("Inventory: ");
+            ImGui.SameLine();
+            var invTotal = GetInventoryAmountForItem(item.ItemId);
+            ImGui.SetNextItemWidth(100f);
+            ImGui.Text($"{invTotal} / ");
             ImGui.SameLine();
             int quantity = (int)item.Quantity;
             ImGui.SetNextItemWidth(100f);
@@ -190,6 +195,17 @@ public partial class Interface
             var localIdx = i;
             _gatherWindowCache.Selector.CreateDropTarget<GatherWindowDragDropData>(d
                 => _plugin.GatherWindowManager.MoveItem(d.Preset, d.ItemIdx, localIdx));
+        }
+
+        unsafe int GetInventoryAmountForItem(uint itemid)
+        {
+            var inventory = InventoryManager.Instance();
+            if (inventory == null)
+                return 0;
+            else
+            {
+                return inventory->GetInventoryItemCount(itemid);
+            }
         }
 
         if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize,
