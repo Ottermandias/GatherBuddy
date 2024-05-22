@@ -10,6 +10,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
+using GatherBuddy.CustomInfo;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
 using ImGuiNET;
@@ -66,7 +67,7 @@ namespace GatherBuddy.Plugin
             return invCount < g.Quantity;
         }
 
-        public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning();
+        public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning() || VNavmesh_IPCSubscriber.Nav_PathfindInProgress();
         public bool NavReady => VNavmesh_IPCSubscriber.Nav_IsReady();
 
         public bool CanAct
@@ -193,7 +194,7 @@ namespace GatherBuddy.Plugin
         {
             if (IsPathing)
                 return;
-            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position, true);
+            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position.CorrectForMesh(), true);
         }
 
         private unsafe void DetermineAutoState()
@@ -216,7 +217,7 @@ namespace GatherBuddy.Plugin
             {
                 // This is where you can handle additional logic when close to the node without being mounted.
                 AutoState = AutoStateType.GatheringNode;
-                AutoStatus = $"Gathering {DesiredItem.Name} from {Svc.Targets.Target?.Name ?? "Unknown Node"}...";
+                AutoStatus = $"Gathering {DesiredItem?.Name.ToString() ?? "Goose Egg"} from {Svc.Targets.Target?.Name ?? "Unknown Node"}...";
                 GatherNode();
                 return;
             }
@@ -277,7 +278,13 @@ namespace GatherBuddy.Plugin
 
             if (ValidGatherables.Any())
             {
-                var targetGatherable = ValidGatherables.Where(g => !IsBlacklisted(g.Position)).First();
+                var targetGatherable = ValidGatherables.Where(g => !IsBlacklisted(g.Position)).FirstOrDefault();
+                if (targetGatherable == null)
+                {
+                    AutoState = AutoStateType.Error;
+                    AutoStatus = "No valid nodes found...";
+                    return;
+                }
                 var distance = Vector3.Distance(targetGatherable.Position, Dalamud.ClientState.LocalPlayer.Position);
 
                 if (distance < 2.5)

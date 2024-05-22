@@ -1,0 +1,36 @@
+﻿using GatherBuddy.Plugin;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GatherBuddy.CustomInfo
+{
+    public static class VectorExtensions
+    {
+        public static Vector3 Fuzz(this Vector3 value, float fuzziness = 0.2f)
+        {
+            var random = new Random();
+            return new Vector3(
+                                              value.X + (float)random.NextDouble() * fuzziness,
+                                                                                           value.Y + (float)random.NextDouble() * fuzziness,
+                                                                                                                                                       value.Z + (float)random.NextDouble() * fuzziness
+                                                                                                                                                                                                                              );
+        }
+        public static Vector3 CorrectForMesh(this Vector3 vector)
+        {
+            try
+            {
+                var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(vector, 0.5f, 0.5f);
+                return nearestPoint;
+            }
+            catch (Exception)
+            {
+                GatherBuddy.Log.Error("Failed to correct for mesh, returning original vector.");
+                return vector.Fuzz();
+            }
+        }
+    }
+}
