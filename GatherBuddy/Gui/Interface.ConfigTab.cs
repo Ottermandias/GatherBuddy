@@ -225,9 +225,8 @@ public partial class Interface
             ImGui.SameLine();
             DrawMountSelector();
             ImGui.SameLine();
-            ImGui.Text($" | Status: {GatherBuddy.AutoGather.AutoStatus}");
-            ImGui.SameLine();
             ImGui.Checkbox("Debug", ref _gatherDebug);
+            ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
             if (_gatherDebug)
             {
                 var desiredItem = GatherBuddy.AutoGather.DesiredItem;

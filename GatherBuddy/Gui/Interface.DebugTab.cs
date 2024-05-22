@@ -537,7 +537,7 @@ public partial class Interface
                 ImGui.SameLine();
                 if (ImGui.SmallButton("NavTo"))
                 {
-                    GatherBuddy.Navmesh.PathfindAndMoveTo(obj.Position, true);
+                    VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(obj.Position, true);
                 }
                 ImGui.PopID();
             }
