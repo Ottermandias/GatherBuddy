@@ -1,98 +1,80 @@
 ﻿using Dalamud.Plugin.Ipc;
 using Dalamud.Plugin.Ipc.Exceptions;
 using Dalamud.Plugin.Services;
+using ECommons.DalamudServices;
+using ECommons.EzIpcManager;
+using ECommons.Reflection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace GatherBuddy.Plugin
 {
-    public class VNavmeshIpc : IDisposable
+    internal class IPCSubscriber_Common
     {
-        private readonly ICallGateSubscriber<bool> _isready;
-        private readonly ICallGateSubscriber<bool> _reload;
-        private readonly ICallGateSubscriber<Vector3, bool, bool> _pathfindAndMoveTo;
-        private readonly ICallGateSubscriber<bool> _isPathing;
-        private readonly string _guid;
-        public VNavmeshIpc() 
-        {
-            _isready = Dalamud.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.IsReady");
-            _reload = Dalamud.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Nav.Reload");
-            _pathfindAndMoveTo = Dalamud.PluginInterface.GetIpcSubscriber<Vector3, bool, bool>("vnavmesh.SimpleMove.PathfindAndMoveTo");
-            _isPathing = Dalamud.PluginInterface.GetIpcSubscriber<bool>("vnavmesh.Path.IsRunning");
+        internal static bool IsReady(string pluginName) => DalamudReflector.TryGetDalamudPlugin(pluginName, out _, false, true);
 
-            try
+        internal static void DisposeAll(EzIPCDisposalToken[] _disposalTokens)
+        {
+            foreach (var token in _disposalTokens)
             {
-                var isReady = _isready.InvokeFunc();
-                if (isReady)
+                try
                 {
-                    _guid = Guid.NewGuid().ToString();
+                    token.Dispose();
                 }
-                else
+                catch (Exception ex)
                 {
-                    _guid = string.Empty;
+                    Svc.Log.Error($"Error while unregistering IPC: {ex}");
                 }
-            }
-            catch (IpcNotReadyError)
-            {
-                _guid = string.Empty;
-            }
-        }
-
-        public void Dispose()
-        {
-
-        }
-
-        public bool IsPathing()
-        {
-            try
-            {
-                return _isPathing.InvokeFunc();
-            }
-            catch (IpcNotReadyError)
-            {
-                return true;
-            }
-        }
-
-        public bool IsReady()
-        {
-            try
-            {
-                return _isready.InvokeFunc();
-            }
-            catch (IpcNotReadyError)
-            {
-                return false;
-            }
-        }
-
-        public bool Reload()
-        {
-            try
-            {
-                return _reload.InvokeFunc();
-            }
-            catch (IpcNotReadyError)
-            {
-                return false;
-            }
-        }
-
-        public bool PathfindAndMoveTo(Vector3 destination, bool fly = true)
-        {
-            try
-            {
-                return _pathfindAndMoveTo.InvokeFunc(destination, fly);
-            }
-            catch (IpcNotReadyError)
-            {
-                return false;
             }
         }
     }
+    internal static class VNavmesh_IPCSubscriber
+    {
+        private static EzIPCDisposalToken[] _disposalTokens = EzIPC.Init(typeof(VNavmesh_IPCSubscriber), "vnavmesh");
+
+        internal static bool IsEnabled => IPCSubscriber_Common.IsReady("vnavmesh");
+
+        [EzIPC("vnavmesh.Nav.IsReady", applyPrefix: false)] internal static readonly Func<bool> Nav_IsReady;
+        [EzIPC("vnavmesh.Nav.BuildProgress", applyPrefix: false)] internal static readonly Func<float> Nav_BuildProgress;
+        [EzIPC("vnavmesh.Nav.Reload", applyPrefix: false)] internal static readonly Func<bool> Nav_Reload;
+        [EzIPC("vnavmesh.Nav.Rebuild", applyPrefix: false)] internal static readonly Func<bool> Nav_Rebuild;
+        [EzIPC("vnavmesh.Nav.Pathfind", applyPrefix: false)] internal static readonly Func<Vector3, Vector3, bool, Task<List<Vector3>>> Nav_Pathfind;
+        [EzIPC("vnavmesh.Nav.PathfindCancelable", applyPrefix: false)] internal static readonly Func<Vector3, Vector3, bool, CancellationToken, Task<List<Vector3>>> Nav_PathfindCancelable;
+        [EzIPC("vnavmesh.Nav.PathfindCancelAll", applyPrefix: false)] internal static readonly Action Nav_PathfindCancelAll;
+        [EzIPC("vnavmesh.Nav.PathfindInProgress", applyPrefix: false)] internal static readonly Func<bool> Nav_PathfindInProgress;
+        [EzIPC("vnavmesh.Nav.PathfindNumQueued", applyPrefix: false)] internal static readonly Func<int> Nav_PathfindNumQueued;
+        [EzIPC("vnavmesh.Nav.IsAutoLoad", applyPrefix: false)] internal static readonly Func<bool> Nav_IsAutoLoad;
+        [EzIPC("vnavmesh.Nav.SetAutoLoad", applyPrefix: false)] internal static readonly Action<bool> Nav_SetAutoLoad;
+
+        [EzIPC("vnavmesh.Query.Mesh.NearestPoint", applyPrefix: false)] internal static readonly Func<Vector3, float, float, Vector3> Query_Mesh_NearestPoint;
+        [EzIPC("vnavmesh.Query.Mesh.PointOnFloor", applyPrefix: false)] internal static readonly Func<Vector3, float, Vector3> Query_Mesh_PointOnFloor;
+
+        [EzIPC("vnavmesh.Path.MoveTo", applyPrefix: false)] internal static readonly Action<List<Vector3>, bool> Path_MoveTo;
+        [EzIPC("vnavmesh.Path.Stop", applyPrefix: false)] internal static readonly Action Path_Stop;
+        [EzIPC("vnavmesh.Path.IsRunning", applyPrefix: false)] internal static readonly Func<bool> Path_IsRunning;
+        [EzIPC("vnavmesh.Path.NumWaypoints", applyPrefix: false)] internal static readonly Func<int> Path_NumWaypoints;
+        [EzIPC("vnavmesh.Path.GetMovementAllowed", applyPrefix: false)] internal static readonly Func<bool> Path_GetMovementAllowed;
+        [EzIPC("vnavmesh.Path.SetMovementAllowed", applyPrefix: false)] internal static readonly Action<bool> Path_SetMovementAllowed;
+        [EzIPC("vnavmesh.Path.GetAlignCamera", applyPrefix: false)] internal static readonly Func<bool> Path_GetAlignCamera;
+        [EzIPC("vnavmesh.Path.SetAlignCamera", applyPrefix: false)] internal static readonly Action<bool> Path_SetAlignCamera;
+        [EzIPC("vnavmesh.Path.GetTolerance", applyPrefix: false)] internal static readonly Func<float> Path_GetTolerance;
+        [EzIPC("vnavmesh.Path.SetTolerance", applyPrefix: false)] internal static readonly Action<float> Path_SetTolerance;
+
+        [EzIPC("vnavmesh.SimpleMove.PathfindAndMoveTo", applyPrefix: false)] internal static readonly Func<Vector3, bool, bool> SimpleMove_PathfindAndMoveTo;
+        [EzIPC("vnavmesh.SimpleMove.PathfindInProgress", applyPrefix: false)] internal static readonly Func<bool> SimpleMove_PathfindInProgress;
+
+        [EzIPC("vnavmesh.Window.IsOpen", applyPrefix: false)] internal static readonly Func<bool> Window_IsOpen;
+        [EzIPC("vnavmesh.Window.SetOpen", applyPrefix: false)] internal static readonly Action<bool> Window_SetOpen;
+
+        [EzIPC("vnavmesh.DTR.IsShown", applyPrefix: false)] internal static readonly Func<bool> DTR_IsShown;
+        [EzIPC("vnavmesh.DTR.SetShown", applyPrefix: false)] internal static readonly Action<bool> DTR_SetShown;
+
+        internal static void Dispose() => IPCSubscriber_Common.DisposeAll(_disposalTokens);
+    }
 }
+

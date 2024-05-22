@@ -140,32 +140,38 @@ public class Executor
 
     private void FindClosestLocation()
     {
-        if (_item == null)
-            return;
+        FindClosestLocation(_item);
+    }
 
-        if (!_item.Locations.Any())
+    public ILocation? FindClosestLocation(IGatherable item)
+    {
+        if (item == null)
+            return null;
+
+        if (!item.Locations.Any())
         {
-            Communicator.LocationNotFound(_item, _gatheringType);
-            return;
+            Communicator.LocationNotFound(item, _gatheringType);
+            return null;
         }
 
         _location = null;
         if (GatherBuddy.Config.PreferredGatheringType != GatheringType.Multiple
          && _gatheringType == null
-         && _item is Gatherable { GatheringType: GatheringType.Multiple })
+         && item is Gatherable { GatheringType: GatheringType.Multiple })
             _gatheringType = GatherBuddy.Config.PreferredGatheringType;
 
         (_location, _uptime) = (_keepVisitedLocations, _gatheringType) switch
         {
-            (false, null) => GatherBuddy.UptimeManager.BestLocation(_item),
-            (false, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime),
-            (true, null) => GatherBuddy.UptimeManager.NextUptime(_item, GatherBuddy.Time.ServerTime, _visitedLocations),
-            (true, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)_item, _gatheringType.Value, GatherBuddy.Time.ServerTime,
+            (false, null) => GatherBuddy.UptimeManager.BestLocation(item),
+            (false, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)item, _gatheringType.Value, GatherBuddy.Time.ServerTime),
+            (true, null) => GatherBuddy.UptimeManager.NextUptime(item, GatherBuddy.Time.ServerTime, _visitedLocations),
+            (true, not null) => GatherBuddy.UptimeManager.NextUptime((Gatherable)item, _gatheringType.Value, GatherBuddy.Time.ServerTime,
                 _visitedLocations),
         };
 
         if (_location == null)
-            Communicator.LocationNotFound(_item, _gatheringType);
+            Communicator.LocationNotFound(item, _gatheringType);
+        return _location;
     }
 
     private void DoTeleport()

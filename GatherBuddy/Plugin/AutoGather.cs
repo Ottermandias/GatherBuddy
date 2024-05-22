@@ -2,12 +2,18 @@
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Interface;
+using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
+using GatherBuddy.Utility;
+using ImGuiNET;
+using Lumina.Excel.GeneratedSheets2;
+using OtterGui;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,6 +21,7 @@ using System.Numerics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using static FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMJIFarmManagement;
 
 namespace GatherBuddy.Plugin
 {
@@ -47,8 +54,8 @@ namespace GatherBuddy.Plugin
         public IEnumerable<GameObject> ValidGatherables = new List<GameObject>();
 
         public Gatherable? DesiredItem => _plugin.GatherWindowManager.ActiveItems.FirstOrDefault() as Gatherable;
-        public bool IsPathing => GatherBuddy.Navmesh.IsPathing();
-        public bool NavReady => GatherBuddy.Navmesh.IsReady();
+        public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning();
+        public bool NavReady => VNavmesh_IPCSubscriber.Nav_IsReady();
 
         private void UpdateObjects()
         {
@@ -67,23 +74,86 @@ namespace GatherBuddy.Plugin
             UpdateObjects();
             DetermineAutoState();
         }
+        private unsafe static Vector2? GetFlagPosition()
+        {
+            var map = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
+            if (map == null || map->IsFlagMarkerSet == 0)
+                return null;
+            var marker = map->FlagMapMarker;
+            return new(marker.XFloat, marker.YFloat);
+        }
+        private unsafe void PathfindToFlag()
+        {
+            var flagPosition = GetFlagPosition();
+            if (flagPosition == null)
+                return;
+            var vector3 = new Vector3(flagPosition.Value.X, 1024, flagPosition.Value.Y);
+            var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(vector3, 0, 0);
+            if (nearestPoint == null)
+                return;
+            if (Vector3.Distance(nearestPoint, Dalamud.ClientState.LocalPlayer.Position) < 100)
+            {
+                AutoStatus = "We're close to the area but no nodes are available.";
+                return;
+            }
+            else
+            {
+                AutoStatus = "Pathing to flag...";
+                PathfindToNode(nearestPoint);
+            }
+        }
         private void PathfindToFarNode(Gatherable desiredItem)
         {
             if (desiredItem == null)
                 return;
+
             var nodeList = desiredItem.NodeList;
             if (nodeList == null)
                 return;
-            var closestKnownNode = nodeList.SelectMany(n => n.WorldCoords).SelectMany(w => w.Value).OrderBy(n => Vector3.Distance(n, Dalamud.ClientState.LocalPlayer.Position)).FirstOrDefault();
+
+            var currentPosition = Dalamud.ClientState.LocalPlayer.Position;
+            var coordList = nodeList.Where(n => n.Territory.Id == Dalamud.ClientState.TerritoryType)
+                                    .SelectMany(n => n.WorldCoords)
+                                    .SelectMany(w => w.Value)
+                                    .OrderBy(n => Vector3.Distance(n, currentPosition))
+                                    .ToList();
+
+            var closestKnownNode = coordList.FirstOrDefault();
             if (closestKnownNode == null)
                 return;
-            PathfindToNode(closestKnownNode);
+
+            // If the closest node is too close, filter out close nodes and select a random node from the rest
+            if (Vector3.Distance(closestKnownNode, currentPosition) < 30)
+            {
+                var farNodes = coordList.Where(n => Vector3.Distance(n, currentPosition) >= 150).ToList();
+
+                if (farNodes.Any())
+                {
+                    var random = new Random();
+                    var randomNode = farNodes[random.Next(farNodes.Count)];
+                    closestKnownNode = randomNode;
+                    AutoStatus = "Pathing to a farther node...";
+                    PathfindToNode(closestKnownNode);
+                }
+                else
+                {
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    AutoStatus = "No suitable nodes found to path.";
+                    // You can add additional logic here if needed when no suitable nodes are found
+                    return;
+                }
+            }
+            else
+            {
+                AutoStatus = "Pathing to the closest known node...";
+                PathfindToNode(closestKnownNode);
+            }
         }
         private void PathfindToNode(Vector3 position)
         {
             if (IsPathing)
                 return;
-            GatherBuddy.Navmesh.PathfindAndMoveTo(position, true);
+            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position, true);
         }
 
         private void DetermineAutoState()
@@ -113,7 +183,7 @@ namespace GatherBuddy.Plugin
 
             if (!ValidGatherables.Any())
             {
-                var location = DesiredItem.Locations.FirstOrDefault();
+                var location = _plugin.Executor.FindClosestLocation(DesiredItem);
                 if (location == null)
                 {
                     AutoState = AutoStateType.Error;
@@ -125,10 +195,15 @@ namespace GatherBuddy.Plugin
                 {
                     if (_teleportInitiated < DateTime.Now)
                     {
-                        _teleportInitiated = DateTime.Now.AddSeconds(15);
                         AutoState = AutoStateType.WaitingForTeleport;
                         AutoStatus = "Teleporting to " + location.Territory.Name + "...";
-                        _plugin.Executor.GatherItem(DesiredItem);
+                        if (IsPathing)
+                            VNavmesh_IPCSubscriber.Path_Stop();
+                        else
+                        {
+                            _teleportInitiated = DateTime.Now.AddSeconds(15);
+                            _plugin.Executor.GatherItem(DesiredItem);
+                        }
                         return;
                     }
                     else
@@ -148,7 +223,6 @@ namespace GatherBuddy.Plugin
                 }
 
                 AutoState = AutoStateType.Pathing;
-                AutoStatus = "Pathing to node...";
                 PathfindToFarNode(DesiredItem);
                 return;
             }
@@ -195,6 +269,7 @@ namespace GatherBuddy.Plugin
 
                     if (AutoState != AutoStateType.MovingToNode)
                     {
+                        _hiddenRevealed = false;
                         AutoState = AutoStateType.MovingToNode;
                         AutoStatus = $"Moving to node {targetGatherable.Name} at {targetGatherable.Position}";
                         PathfindToNode(targetGatherable.Position);
@@ -224,16 +299,10 @@ namespace GatherBuddy.Plugin
                     gatheringWindow->GatheredItemId8
                     };
 
+            UseActions(ids);
+
             var itemIndex = ids.IndexOf(DesiredItem?.ItemId ?? 0);
-            if (itemIndex < 0) return;
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[25]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[24]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[23]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[22]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[21]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[20]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[19]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
-            //gatheringWindow->AtkUnitBase.UldManager.NodeList[18]->GetAsAtkComponentNode()->Component->UldManager.NodeList[21]->GetAsAtkTextNode()->NodeText.ToString();
+            if (itemIndex < 0) itemIndex = ids.IndexOf(ids.FirstOrDefault(i => i > 0));
 
             var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);
             var eventDelegate = Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress);
@@ -243,6 +312,81 @@ namespace GatherBuddy.Plugin
             var inputData = InputData.Empty();
 
             eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, ClickLib.Enums.EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data);
+        }
+
+        private void UseActions(List<uint> itemIds)
+        {
+            UseLuck(itemIds);
+            Use100GPAction(itemIds);
+        }
+
+        private bool _hiddenRevealed = false;
+        private unsafe void UseLuck(List<uint> itemIds)
+        {
+            if (!DesiredItem?.GatheringData.IsHidden ?? false)
+                return;
+            if (itemIds.Count > 0 && itemIds.Any(i => i == DesiredItem?.ItemId))
+            {
+                return;
+            }
+            //if (Dalamud.ClientState.LocalPlayer.CurrentGp < 500) return;
+            if (_hiddenRevealed) return;
+            var actionManager = ActionManager.Instance();
+            switch (Svc.ClientState.LocalPlayer.ClassJob.Id)
+            {
+                case 17: //BTN
+                    if (actionManager->GetActionStatus(ActionType.Action, 4095) == 0)
+                    {
+                        actionManager->UseAction(ActionType.Action, 4095);
+                        _hiddenRevealed = true;
+                    }
+                    break;
+                case 16: //MIN
+                    if (actionManager->GetActionStatus(ActionType.Action, 4081) == 0)
+                    {
+                        actionManager->UseAction(ActionType.Action, 4081);
+                        _hiddenRevealed = true;
+                    }
+                    break;
+            }
+        }
+
+
+        private unsafe void Use100GPAction(List<uint> itemIds)
+        {
+            if (itemIds.Count > 0 && !itemIds.Any(i => i == DesiredItem?.ItemId))
+            {
+                return;
+            }
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1286 || s.StatusId == 756))
+                return;
+            if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < 100)
+                return;
+
+            var actionManager = ActionManager.Instance();
+            switch (Svc.ClientState.LocalPlayer.ClassJob.Id)
+            {
+                case 17:
+                    if (actionManager->GetActionStatus(ActionType.Action, 273) == 0)
+                    {
+                        actionManager->UseAction(ActionType.Action, 273);
+                    }
+                    else if (actionManager->GetActionStatus(ActionType.Action, 4087) == 0)
+                    {
+                        actionManager->UseAction(ActionType.Action, 4087);
+                    }
+                    break;
+                case 16:
+                    if (actionManager->GetActionStatus(ActionType.Action, 272) == 0)
+                    {
+                        actionManager->UseAction(ActionType.Action, 272);
+                    }
+                    else if (actionManager->GetActionStatus(ActionType.Action, 4073) == 0)
+                    {
+                        actionManager->UseAction(ActionType.Action, 4073);
+                    }
+                    break;
+            }
         }
 
         private unsafe delegate nint ReceiveEventDelegate(AtkEventListener* eventListener, ClickLib.Enums.EventType eventType, uint eventParam, void* eventData, void* inputData);
@@ -313,15 +457,32 @@ namespace GatherBuddy.Plugin
                 }
             }
         }
-        private DateTime _lastNavReset = DateTime.MinValue;
+        private Vector3 _lastKnownPosition = Vector3.Zero;
+        private DateTime _lastPositionCheckTime = DateTime.Now;
+        private TimeSpan _stuckDurationThreshold = TimeSpan.FromSeconds(5);
+
         private void NavmeshStuckCheck()
         {
-            if (_lastNavReset.AddSeconds(10) < DateTime.Now)
+            var currentPosition = Dalamud.ClientState.LocalPlayer.Position;
+            var currentTime = DateTime.Now;
+
+            // Check if enough time has passed since the last position check
+            if (currentTime - _lastPositionCheckTime >= _stuckDurationThreshold)
             {
-                _lastNavReset = DateTime.Now;
-                GatherBuddy.Navmesh.Reload();
+                var distance = Vector3.Distance(currentPosition, _lastKnownPosition);
+
+                // If the player has not moved a significant distance, consider them stuck
+                if (distance < 3)
+                {
+                    VNavmesh_IPCSubscriber.Nav_Reload();
+                }
+
+                // Update the last known position and time for the next check
+                _lastKnownPosition = currentPosition;
+                _lastPositionCheckTime = currentTime;
             }
         }
+
 
         private bool IsDesiredNode(GameObject gameObject)
         {

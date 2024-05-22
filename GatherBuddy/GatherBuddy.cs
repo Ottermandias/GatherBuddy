@@ -58,7 +58,6 @@ public partial class GatherBuddy : IDalamudPlugin
     public static CurrentWeather CurrentWeather { get; private set; } = null!;
     public static SeTugType      TugType        { get; private set; } = null!;
     public static WaymarkManager WaymarkManager { get; private set; } = null!;
-    public static VNavmeshIpc Navmesh { get; private set; } = null!;
     public static AutoGather AutoGather { get; private set; } = null!;
 
 
@@ -123,7 +122,6 @@ public partial class GatherBuddy : IDalamudPlugin
             Dalamud.Framework.Update += Update;
 
             Ipc = new GatherBuddyIpc(this);
-            Navmesh = new VNavmeshIpc();
             //Wotsit = new WotsitIpc();
         }
         catch
