@@ -40,6 +40,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="CustomInfo\world_locations.json" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="CustomInfo\world_locations.json" />
+  </ItemGroup>
+
+  <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.12" />
     <Reference Include="Dalamud">
 			<HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>

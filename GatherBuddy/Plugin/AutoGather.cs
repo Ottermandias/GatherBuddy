@@ -52,27 +52,33 @@ namespace GatherBuddy.Plugin
 
         private DateTime _teleportInitiated = DateTime.MinValue;
 
-        public IEnumerable<GameObject> ValidGatherables = new List<GameObject>();
+        public IEnumerable<GameObject> ValidGatherables => Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
+                        .Where(g => g.IsTargetable)
+                        .Where(IsDesiredNode)
+                        .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
 
         public Gatherable? DesiredItem => _plugin.GatherWindowManager.ActiveItems.FirstOrDefault() as Gatherable;
         public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning();
         public bool NavReady => VNavmesh_IPCSubscriber.Nav_IsReady();
 
-        private void UpdateObjects()
+        private bool IsBlacklisted(GameObject @object)
         {
-            ValidGatherables = Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
-                        .Where(g => g.IsTargetable)
-                        .Where(IsDesiredNode)
-                        .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
-
+            if (@object == null)
+                return true;
+            if (!GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(Dalamud.ClientState.TerritoryType, out var list))
+            {
+                list = new List<Vector3>();
+                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[Dalamud.ClientState.TerritoryType] = list;
+            }
+            return list.Contains(@object.Position);
         }
+
         public void DoAutoGather()
         {
             if (!GatherBuddy.Config.AutoGather) return;
             NavmeshStuckCheck();
             InventoryCheck();
 
-            UpdateObjects();
             DetermineAutoState();
         }
         private unsafe static Vector2? GetFlagPosition()
@@ -230,7 +236,7 @@ namespace GatherBuddy.Plugin
 
             if (ValidGatherables.Any())
             {
-                var targetGatherable = ValidGatherables.First();
+                var targetGatherable = ValidGatherables.Where(g => !IsBlacklisted(g)).First();
                 var distance = Vector3.Distance(targetGatherable.Position, Dalamud.ClientState.LocalPlayer.Position);
 
                 if (distance < 2.5)

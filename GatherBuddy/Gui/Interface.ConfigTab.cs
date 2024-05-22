@@ -1,17 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.Text;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility;
+using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
+using GatherBuddy.Plugin;
 using ImGuiNET;
 using Lumina.Excel.GeneratedSheets2;
 using OtterGui;
+using OtterGui.Table;
 using OtterGui.Widgets;
 using FishRecord = GatherBuddy.FishTimer.FishRecord;
 using GatheringType = GatherBuddy.Enums.GatheringType;
@@ -227,21 +232,72 @@ public partial class Interface
             ImGui.SameLine();
             ImGui.Checkbox("Debug", ref _gatherDebug);
             ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
+
             if (_gatherDebug)
             {
                 var desiredItem = GatherBuddy.AutoGather.DesiredItem;
                 var targetNode = GatherBuddy.AutoGather.ValidGatherables.FirstOrDefault();
-                var viableNodes = GatherBuddy.AutoGather.ValidGatherables;
+                var allNodes = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(g => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, g.Position));
 
+                if (ImGui.Button("Reset Nav"))
+                {
+                    VNavmesh_IPCSubscriber.Nav_Reload();
+                }
                 ImGui.Text($"Desired Item: {desiredItem?.Name}");
                 ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");
-                if (ImGui.BeginChild("Viable Nodes", new Vector2(300, 200), true))
+
+                if (ImGui.BeginTable("##gatherDebugTable", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
                 {
-                    foreach (var node in viableNodes)
+                    ImGui.TableSetupColumn("Name");
+                    ImGui.TableSetupColumn("Position");
+                    ImGui.TableSetupColumn("Distance");
+                    ImGui.TableSetupColumn("Action");
+
+                    ImGui.TableHeadersRow();
+
+                    foreach (var node in allNodes)
                     {
-                        ImGui.Text($"{node.Name} {node.Position}");
+                        ImGui.TableNextRow();
+                        ImGui.TableSetColumnIndex(0);
+                        ImGui.Text(node.Name.ToString());
+                        ImGui.TableSetColumnIndex(1);
+                        ImGui.Text(node.Position.ToString());
+                        ImGui.TableSetColumnIndex(2);
+                        var distance = Vector3.Distance(Player.Object.Position, node.Position);
+                        ImGui.Text(distance.ToString());
+                        ImGui.TableSetColumnIndex(3);
+
+                        var territoryId = Dalamud.ClientState.TerritoryType;
+                        var isBlacklisted = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node.Position);
+
+                        if (isBlacklisted)
+                        {
+                            if (ImGui.Button($"Unblacklist##{node.Position}"))
+                            {
+                                list.Remove(node.Position);
+                                if (list.Count == 0)
+                                {
+                                    GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.Remove(territoryId);
+                                }
+                                GatherBuddy.Config.Save();
+                            }
+                        }
+                        else
+                        {
+                            if (ImGui.Button($"Blacklist##{node.Position}"))
+                            {
+                                if (list == null)
+                                {
+                                    list = new List<Vector3>();
+                                    GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[territoryId] = list;
+                                }
+                                list.Add(node.Position);
+                                GatherBuddy.Config.Save();
+                            }
+                        }
                     }
-                    ImGui.EndChild();
+
+                    ImGui.EndTable();
                 }
             }
         }
