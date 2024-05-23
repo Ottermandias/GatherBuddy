@@ -497,6 +497,7 @@ namespace GatherBuddy.Plugin
         private void NavmeshStuckCheck()
         {
             if (Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42]) return;
+            if (VNavmesh_IPCSubscriber.Nav_BuildProgress() > 0) return;
             var currentPosition = Dalamud.ClientState.LocalPlayer.Position;
             var currentTime = DateTime.Now;
 
