@@ -464,6 +464,7 @@ namespace GatherBuddy.Plugin
         }
 
         private Vector3 _lastKnownPosition = Vector3.Zero;
+        private Vector3 _lastKnownPositionSuperStuck = Vector3.Zero;
         private DateTime _lastPositionCheckTime = DateTime.Now;
         private DateTime _lastSuperStuckPositionCheckTime = DateTime.Now;
         private TimeSpan _stuckDurationThreshold = TimeSpan.FromSeconds(5);
@@ -494,7 +495,7 @@ namespace GatherBuddy.Plugin
             }
             if (currentTime - _lastSuperStuckPositionCheckTime >= _superStuckDurationThreshold)
             {
-                var distance = Vector3.Distance(currentPosition, _lastKnownPosition);
+                var distance = Vector3.Distance(currentPosition, _lastKnownPositionSuperStuck);
 
                 // If the player has not moved a significant distance, consider them stuck
                 if (distance < 3)
@@ -504,7 +505,7 @@ namespace GatherBuddy.Plugin
                     VNavmesh_IPCSubscriber.Nav_Reload();
                 }
 
-                _lastKnownPosition = currentPosition;
+                _lastKnownPositionSuperStuck = currentPosition;
                 _lastSuperStuckPositionCheckTime = currentTime;
             }
         }
