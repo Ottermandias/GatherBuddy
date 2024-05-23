@@ -67,7 +67,8 @@ namespace GatherBuddy.Plugin
             return invCount < g.Quantity;
         }
 
-        public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning() || VNavmesh_IPCSubscriber.Nav_PathfindInProgress();
+        public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning();
+        public bool IsPathGenerating => VNavmesh_IPCSubscriber.Nav_PathfindInProgress();
         public bool NavReady => VNavmesh_IPCSubscriber.Nav_IsReady();
 
         public bool CanAct
@@ -108,7 +109,6 @@ namespace GatherBuddy.Plugin
         {
             if (!GatherBuddy.Config.AutoGather) return;
             if (!CanAct) return;
-            NavmeshStuckCheck();
 
             DetermineAutoState();
         }
@@ -192,7 +192,7 @@ namespace GatherBuddy.Plugin
         }
         private void PathfindToNode(Vector3 position)
         {
-            if (IsPathing)
+            if (IsPathing || IsPathGenerating)
                 return;
             VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position.CorrectForMesh(), true);
         }
@@ -228,6 +228,7 @@ namespace GatherBuddy.Plugin
                 return;
             }
 
+            NavmeshStuckCheck();
             var currentTerritory = Dalamud.ClientState.TerritoryType;
 
             if (!ValidGatherables.Any())
@@ -466,10 +467,11 @@ namespace GatherBuddy.Plugin
         private DateTime _lastPositionCheckTime = DateTime.Now;
         private DateTime _lastSuperStuckPositionCheckTime = DateTime.Now;
         private TimeSpan _stuckDurationThreshold = TimeSpan.FromSeconds(5);
-        private TimeSpan _superStuckDurationThreshold = TimeSpan.FromSeconds(30);
+        private TimeSpan _superStuckDurationThreshold = TimeSpan.FromSeconds(60);
 
         private void NavmeshStuckCheck()
         {
+            if (Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42]) return;
             var currentPosition = Dalamud.ClientState.LocalPlayer.Position;
             var currentTime = DateTime.Now;
 
