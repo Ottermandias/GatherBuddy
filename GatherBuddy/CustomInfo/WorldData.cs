@@ -1,4 +1,5 @@
-﻿using System;
+﻿using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -21,31 +22,59 @@ namespace GatherBuddy.CustomInfo
         private static void LoadLocationsFromFile()
         {
             var path = Path.Combine(Dalamud.PluginInterface.ConfigDirectory.FullName, "world_locations.json");
+            var assembly = typeof(GatherBuddy).Assembly;
+            var resourceName = "GatherBuddy.CustomInfo.world_locations.json";
+
+            Dictionary<uint, List<Vector3>> defaultObj;
+            // Load the embedded resource
+            using (var stream = assembly.GetManifestResourceStream(resourceName))
+            {
+                if (stream == null)
+                    throw new FileNotFoundException("Embedded resource not found.", resourceName);
+
+                using (var reader = new StreamReader(stream))
+                {
+                    var defaultContent = reader.ReadToEnd();
+                    defaultObj = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<uint, List<Vector3>>>(defaultContent);
+                }
+            }
 
             // Check if the file exists
             if (!File.Exists(path))
             {
-                // Load the embedded resource
-                var assembly = typeof(GatherBuddy).Assembly;
-                var resourceName = "GatherBuddy.CustomInfo.world_locations.json";
+                File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(defaultObj, Newtonsoft.Json.Formatting.Indented));
+            }
+            else
+            {
+                var fileContent = File.ReadAllText(path);
+                var existingObj = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<uint, List<Vector3>>>(fileContent) ?? new Dictionary<uint, List<Vector3>>();
 
-                using (var stream = assembly.GetManifestResourceStream(resourceName))
+                // Append new information from the default file to the existing file
+                foreach (var kvp in defaultObj)
                 {
-                    if (stream == null)
-                        throw new FileNotFoundException("Embedded resource not found.", resourceName);
-
-                    using (var reader = new StreamReader(stream))
+                    if (existingObj.TryGetValue(kvp.Key, out var existingList))
                     {
-                        var defaultContent = reader.ReadToEnd();
-                        File.WriteAllText(path, defaultContent);
+                        foreach (var vector in kvp.Value)
+                        {
+                            if (!existingList.Contains(vector))
+                            {
+                                existingList.Add(vector);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        existingObj[kvp.Key] = new List<Vector3>(kvp.Value);
                     }
                 }
+
+                File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(existingObj, Newtonsoft.Json.Formatting.Indented));
             }
 
             // Read the content of the file
             var locJson = File.ReadAllText(path);
             var obj = Newtonsoft.Json.JsonConvert.DeserializeObject<Dictionary<uint, List<Vector3>>>(locJson);
-            WorldLocationsByNodeId = obj ?? new();
+            WorldLocationsByNodeId = obj ?? new Dictionary<uint, List<Vector3>>();
         }
 
 
