@@ -30,6 +30,12 @@ public partial class GatherBuddy
         _commands["/gatherbuddy"] = new CommandInfo(OnGatherBuddy)
         {
             HelpMessage = "Use to open the GatherBuddy interface.",
+            ShowInHelp  = false,
+        };
+
+        _commands["/gbr"] = new CommandInfo(OnGatherBuddy)
+        {
+            HelpMessage = "Use to open the GatherBuddy interface.",
             ShowInHelp  = true,
         };
 

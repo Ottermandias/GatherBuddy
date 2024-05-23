@@ -13,17 +13,20 @@ namespace GatherBuddy.CustomInfo
         public static Vector3 Fuzz(this Vector3 value, float fuzziness = 0.2f)
         {
             var random = new Random();
-            return new Vector3(
+            var vector = new Vector3(
                                               value.X + (float)random.NextDouble() * fuzziness,
                                                                                            value.Y + (float)random.NextDouble() * fuzziness,
                                                                                                                                                        value.Z + (float)random.NextDouble() * fuzziness
                                                                                                                                                                                                                               );
+            GatherBuddy.Log.Verbose($"Fuzzed vector {value} to {vector}");
+            return vector;
         }
         public static Vector3 CorrectForMesh(this Vector3 vector)
         {
             try
             {
                 var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(vector, 0.5f, 0.5f);
+                GatherBuddy.Log.Verbose($"Corrected vector {vector} to {nearestPoint}");
                 return nearestPoint;
             }
             catch (Exception)
