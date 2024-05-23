@@ -199,10 +199,20 @@ namespace GatherBuddy.Plugin
 
         private unsafe void DetermineAutoState()
         {
-            if (!NavReady)
+            try
             {
+                if (!NavReady)
+                {
+                    AutoState = AutoStateType.WaitingForNavmesh;
+                    AutoStatus = "Waiting for Navmesh...";
+                    return;
+                }
+            }
+            catch (Exception e)
+            {
+                GatherBuddy.Log.Error(e.Message);
                 AutoState = AutoStateType.WaitingForNavmesh;
-                AutoStatus = "Waiting for Navmesh...";
+                AutoStatus = "vnavmesh communication failed. Do you have it installed??";
                 return;
             }
 
