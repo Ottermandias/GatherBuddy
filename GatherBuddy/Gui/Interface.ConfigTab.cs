@@ -246,9 +246,10 @@ public partial class Interface
                 ImGui.Text($"Desired Item: {desiredItem?.Name}");
                 ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");
 
-                if (ImGui.BeginTable("##gatherDebugTable", 4, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                if (ImGui.BeginTable("##gatherDebugTable", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
                 {
                     ImGui.TableSetupColumn("Name");
+                    ImGui.TableSetupColumn("Targetable");
                     ImGui.TableSetupColumn("Position");
                     ImGui.TableSetupColumn("Distance");
                     ImGui.TableSetupColumn("Action");
@@ -261,11 +262,13 @@ public partial class Interface
                         ImGui.TableSetColumnIndex(0);
                         ImGui.Text(node.Name.ToString());
                         ImGui.TableSetColumnIndex(1);
-                        ImGui.Text(node.Position.ToString());
+                        ImGui.Text(node.IsTargetable ? "Y" : "N");
                         ImGui.TableSetColumnIndex(2);
+                        ImGui.Text(node.Position.ToString());
+                        ImGui.TableSetColumnIndex(3);
                         var distance = Vector3.Distance(Player.Object.Position, node.Position);
                         ImGui.Text(distance.ToString());
-                        ImGui.TableSetColumnIndex(3);
+                        ImGui.TableSetColumnIndex(4);
 
                         var territoryId = Dalamud.ClientState.TerritoryType;
                         var isBlacklisted = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node.Position);
