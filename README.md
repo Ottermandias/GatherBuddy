@@ -12,6 +12,9 @@ GatherBuddyReborn is a community-made fork of the original GatherBuddy plugin fo
 
 - **AutoGather**: Automated pathing for gathering up to 10 full stacks (999 each) of a resource.
 - **Resource Queueing**: Create a list of resources you want and GBR will gather up to 10 stacks of each!
+- **Full BTN/MIN Automation**: GBR can find any BTN/MIN item in the world and gather it for you fully automatically, no user input required beyond initial setup
+
+**NOTE**: vnavmesh plugin is *required* for full automation. Please see the links section of this README for more information on vnavmesh.
   
 ## Installing
 - Enter `/xlsettings` in the chat window and go to the Experimental tab in the opening window.
