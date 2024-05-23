@@ -10,6 +10,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
+using GatherBuddy.CustomInfo;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
 using ImGuiNET;
@@ -67,24 +68,47 @@ namespace GatherBuddy.Plugin
         }
 
         public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning();
+        public bool IsPathGenerating => VNavmesh_IPCSubscriber.Nav_PathfindInProgress();
         public bool NavReady => VNavmesh_IPCSubscriber.Nav_IsReady();
 
-        private bool IsBlacklisted(GameObject @object)
+        public bool CanAct
         {
-            if (@object == null)
+            get
+            {
+                if (Dalamud.ClientState.LocalPlayer == null)
+                    return false;
+                if (Dalamud.Conditions[ConditionFlag.BetweenAreas] ||
+                    Dalamud.Conditions[ConditionFlag.BetweenAreas51] ||
+                    Dalamud.Conditions[ConditionFlag.BeingMoved] ||
+                    Dalamud.Conditions[ConditionFlag.Casting] ||
+                    Dalamud.Conditions[ConditionFlag.Casting87] ||
+                    Dalamud.Conditions[ConditionFlag.Jumping] ||
+                    Dalamud.Conditions[ConditionFlag.Jumping61] ||
+                    Dalamud.Conditions[ConditionFlag.LoggingOut] ||
+                    Dalamud.Conditions[ConditionFlag.Occupied] ||
+                    Dalamud.Conditions[ConditionFlag.Unconscious] ||
+                    Dalamud.ClientState.LocalPlayer.CurrentHp < 1)
+                    return false;
+                return true;
+            }
+        }
+
+        private bool IsBlacklisted(Vector3 position)
+        {
+            if (position == null)
                 return true;
             if (!GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(Dalamud.ClientState.TerritoryType, out var list))
             {
                 list = new List<Vector3>();
                 GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[Dalamud.ClientState.TerritoryType] = list;
             }
-            return list.Contains(@object.Position);
+            return list.Contains(position);
         }
 
         public void DoAutoGather()
         {
             if (!GatherBuddy.Config.AutoGather) return;
-            NavmeshStuckCheck();
+            if (!CanAct) return;
 
             DetermineAutoState();
         }
@@ -140,7 +164,9 @@ namespace GatherBuddy.Plugin
             // If the closest node is too close, filter out close nodes and select a random node from the rest
             if (Vector3.Distance(closestKnownNode, currentPosition) < 30)
             {
-                var farNodes = coordList.Where(n => Vector3.Distance(n, currentPosition) >= 150).ToList();
+                var farNodes = coordList.Where(n => Vector3.Distance(n, currentPosition) >= 150)
+                                        .Where(n => !IsBlacklisted(n))
+                                        .ToList();
 
                 if (farNodes.Any())
                 {
@@ -166,9 +192,9 @@ namespace GatherBuddy.Plugin
         }
         private void PathfindToNode(Vector3 position)
         {
-            if (IsPathing)
+            if (IsPathing || IsPathGenerating)
                 return;
-            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position, true);
+            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position.CorrectForMesh(), true);
         }
 
         private unsafe void DetermineAutoState()
@@ -180,28 +206,29 @@ namespace GatherBuddy.Plugin
                 return;
             }
 
-            if (IsPlayerBusy())
+            if (!CanAct)
             {
                 AutoState = AutoStateType.Idle;
                 AutoStatus = "Player is busy...";
                 return;
             }
 
+            if (Dalamud.Conditions[ConditionFlag.Gathering])
+            {
+                // This is where you can handle additional logic when close to the node without being mounted.
+                AutoState = AutoStateType.GatheringNode;
+                AutoStatus = $"Gathering {DesiredItem?.Name.ToString() ?? "Goose Egg"} from {Svc.Targets.Target?.Name ?? "Unknown Node"}...";
+                GatherNode();
+                return;
+            }
             if (DesiredItem == null)
             {
                 AutoState = AutoStateType.Finish;
                 AutoStatus = "No valid items in shopping list...";
                 return;
             }
-            if (Dalamud.Conditions[ConditionFlag.Gathering])
-            {
-                // This is where you can handle additional logic when close to the node without being mounted.
-                AutoState = AutoStateType.GatheringNode;
-                AutoStatus = $"Gathering {DesiredItem.Name} from {Svc.Targets.Target?.Name ?? "Unknown Node"}...";
-                GatherNode();
-                return;
-            }
 
+            NavmeshStuckCheck();
             var currentTerritory = Dalamud.ClientState.TerritoryType;
 
             if (!ValidGatherables.Any())
@@ -252,7 +279,13 @@ namespace GatherBuddy.Plugin
 
             if (ValidGatherables.Any())
             {
-                var targetGatherable = ValidGatherables.Where(g => !IsBlacklisted(g)).First();
+                var targetGatherable = ValidGatherables.Where(g => !IsBlacklisted(g.Position)).FirstOrDefault();
+                if (targetGatherable == null)
+                {
+                    AutoState = AutoStateType.Error;
+                    AutoStatus = "No valid nodes found...";
+                    return;
+                }
                 var distance = Vector3.Distance(targetGatherable.Position, Dalamud.ClientState.LocalPlayer.Position);
 
                 if (distance < 2.5)
@@ -416,9 +449,7 @@ namespace GatherBuddy.Plugin
         private TaskManager _taskManager = new TaskManager();
         private unsafe void InteractNode(GameObject targetGatherable)
         {
-            if (Dalamud.Conditions[ConditionFlag.Jumping])
-                return;
-            if (IsPlayerBusy()) return;
+            if (!CanAct) return;
             var targetSystem = TargetSystem.Instance();
             if (targetSystem == null)
                 return;
@@ -432,25 +463,15 @@ namespace GatherBuddy.Plugin
             });
         }
 
-        private bool IsPlayerBusy()
-        {
-            var player = Dalamud.ClientState.LocalPlayer;
-            if (player == null)
-                return true;
-            if (player.IsCasting)
-                return true;
-            if (player.IsDead)
-                return true;
-
-            return false;
-        }
-
         private Vector3 _lastKnownPosition = Vector3.Zero;
         private DateTime _lastPositionCheckTime = DateTime.Now;
+        private DateTime _lastSuperStuckPositionCheckTime = DateTime.Now;
         private TimeSpan _stuckDurationThreshold = TimeSpan.FromSeconds(5);
+        private TimeSpan _superStuckDurationThreshold = TimeSpan.FromSeconds(60);
 
         private void NavmeshStuckCheck()
         {
+            if (Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42]) return;
             var currentPosition = Dalamud.ClientState.LocalPlayer.Position;
             var currentTime = DateTime.Now;
 
@@ -462,12 +483,29 @@ namespace GatherBuddy.Plugin
                 // If the player has not moved a significant distance, consider them stuck
                 if (IsPathing && distance < 3)
                 {
+                    GatherBuddy.Log.Warning("Navmesh is stuck, reloading...");
+                    VNavmesh_IPCSubscriber.Path_Stop();
                     VNavmesh_IPCSubscriber.Nav_Reload();
                 }
 
                 // Update the last known position and time for the next check
                 _lastKnownPosition = currentPosition;
                 _lastPositionCheckTime = currentTime;
+            }
+            if (currentTime - _lastSuperStuckPositionCheckTime >= _superStuckDurationThreshold)
+            {
+                var distance = Vector3.Distance(currentPosition, _lastKnownPosition);
+
+                // If the player has not moved a significant distance, consider them stuck
+                if (distance < 3)
+                {
+                    GatherBuddy.Log.Warning("Navmesh is super stuck, hard reloading...");
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    VNavmesh_IPCSubscriber.Nav_Reload();
+                }
+
+                _lastKnownPosition = currentPosition;
+                _lastSuperStuckPositionCheckTime = currentTime;
             }
         }
 
