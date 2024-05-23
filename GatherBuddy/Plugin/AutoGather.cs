@@ -137,7 +137,7 @@ namespace GatherBuddy.Plugin
             else
             {
                 AutoStatus = "Pathing to flag...";
-                PathfindToNode(nearestPoint);
+                PathfindToNode(nearestPoint, true);
             }
         }
         private int _currentNodeIndex = 0;
@@ -174,7 +174,7 @@ namespace GatherBuddy.Plugin
                     closestKnownNode = farNodes[_currentNodeIndex];
 
                     AutoStatus = "Pathing to a farther node...";
-                    PathfindToNode(closestKnownNode);
+                    PathfindToNode(closestKnownNode, true);
                 }
                 else
                 {
@@ -187,14 +187,14 @@ namespace GatherBuddy.Plugin
             else
             {
                 AutoStatus = "Pathing to the closest known node...";
-                PathfindToNode(closestKnownNode);
+                PathfindToNode(closestKnownNode, true);
             }
         }
-        private void PathfindToNode(Vector3 position)
+        private void PathfindToNode(Vector3 position, bool correct)
         {
             if (IsPathing || IsPathGenerating)
                 return;
-            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position.CorrectForMesh(), true);
+            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correct ? position.CorrectForMesh() : position, true);
         }
 
         private unsafe void DetermineAutoState()
@@ -320,7 +320,15 @@ namespace GatherBuddy.Plugin
                         _hiddenRevealed = false;
                         AutoState = AutoStateType.MovingToNode;
                         AutoStatus = $"Moving to node {targetGatherable.Name} at {targetGatherable.Position}";
-                        PathfindToNode(targetGatherable.Position);
+                        PathfindToNode(targetGatherable.Position, true);
+                        return;
+                    }
+
+                    if (AutoState == AutoStateType.MovingToNode && Vector3.Distance(targetGatherable.Position.CorrectForMesh() , Dalamud.ClientState.LocalPlayer.Position) < 1)
+                    {
+                        AutoState = AutoStateType.MovingToNode;
+                        AutoStatus = $"Moving to node {targetGatherable.Name} at {targetGatherable.Position}";
+                        PathfindToNode(targetGatherable.Position, false);
                         return;
                     }
                 }
@@ -360,6 +368,12 @@ namespace GatherBuddy.Plugin
             var inputData = InputData.Empty();
 
             eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, ClickLib.Enums.EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data);
+        }
+
+        private bool IsRare(uint i)
+        {
+            var item = GatherBuddy.GameData.Gatherables[i];
+            return item?.Stars > 1;
         }
 
         private void UseActions(List<uint> itemIds)
