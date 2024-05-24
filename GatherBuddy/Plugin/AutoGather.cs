@@ -5,12 +5,15 @@ using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Interface;
 using ECommons.Automation.NeoTaskManager;
 using ECommons.DalamudServices;
+using ECommons.ExcelServices;
+using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
+using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
 using ImGuiNET;
@@ -52,6 +55,8 @@ namespace GatherBuddy.Plugin
         }
 
         private DateTime _teleportInitiated = DateTime.MinValue;
+
+        public bool ShouldAutoGather { get; set; } = false;
 
         public IEnumerable<GameObject> ValidGatherables => Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
                         .Where(g => g.IsTargetable)
@@ -107,7 +112,7 @@ namespace GatherBuddy.Plugin
 
         public void DoAutoGather()
         {
-            if (!GatherBuddy.Config.AutoGather) return;
+            if (!ShouldAutoGather) return;
             if (!CanAct) return;
 
             DetermineAutoState();
@@ -141,6 +146,7 @@ namespace GatherBuddy.Plugin
             }
         }
         private int _currentNodeIndex = 0;
+        public List<Vector3> RecentlyVistedNodes = new List<Vector3>();
         private void PathfindToFarNode(Gatherable desiredItem)
         {
             if (desiredItem == null)
@@ -166,6 +172,7 @@ namespace GatherBuddy.Plugin
             {
                 var farNodes = coordList.Where(n => Vector3.Distance(n, currentPosition) >= 150)
                                         .Where(n => !IsBlacklisted(n))
+                                        .Where(n => !RecentlyVistedNodes.Contains(n))
                                         .ToList();
 
                 if (farNodes.Any())
@@ -194,6 +201,7 @@ namespace GatherBuddy.Plugin
         {
             if (IsPathing || IsPathGenerating)
                 return;
+            RecentlyVistedNodes.Add(position);
             VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correct ? position.CorrectForMesh() : position, true);
         }
 
@@ -237,13 +245,24 @@ namespace GatherBuddy.Plugin
                 AutoStatus = "No valid items in shopping list...";
                 return;
             }
+            var location = _plugin.Executor.FindClosestLocation(DesiredItem);
+            var neededJob = GetECommonsJobFromDesiredItem();
+            if (neededJob != Player.Job && (location?.Territory.Id ?? 0) == Dalamud.ClientState.TerritoryType)
+            {
+                AutoState = AutoStateType.Error;
+                AutoStatus = $"Switching to {neededJob} for {DesiredItem.Name[GatherBuddy.Language]}...";
+                return;
+            }
 
             NavmeshStuckCheck();
             var currentTerritory = Dalamud.ClientState.TerritoryType;
+            var nodeCount = GatherBuddy.GameData.GatheringNodes.Where(g => g.Value.Territory.Id == currentTerritory).Count();
+            var blacklistedNodes = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(currentTerritory, out var list) ? list : new List<Vector3>();
+            if (RecentlyVistedNodes.Count >= nodeCount)
+                RecentlyVistedNodes.Clear();
 
             if (!ValidGatherables.Any())
             {
-                var location = _plugin.Executor.FindClosestLocation(DesiredItem);
                 if (location == null)
                 {
                     AutoState = AutoStateType.Error;
@@ -346,6 +365,22 @@ namespace GatherBuddy.Plugin
 
             AutoState = AutoStateType.Error;
             //AutoStatus = "Nothing to do...";
+        }
+
+        private Job GetECommonsJobFromDesiredItem()
+        {
+            if (DesiredItem == null)
+                return Job.ADV;
+            switch (_plugin.Executor.FindClosestLocation(DesiredItem)?.GatheringType.ToGroup() ?? Enums.GatheringType.Unknown)
+            {
+                case Enums.GatheringType.Botanist:
+                    return Job.BTN;
+                case Enums.GatheringType.Miner:
+                    return Job.MIN;
+                case Enums.GatheringType.Fisher:
+                    return Job.FSH;
+                default: return Job.ADV;
+            }
         }
 
         private unsafe void GatherNode()
@@ -528,6 +563,7 @@ namespace GatherBuddy.Plugin
                     GatherBuddy.Log.Warning("Navmesh is super stuck, hard reloading...");
                     VNavmesh_IPCSubscriber.Path_Stop();
                     VNavmesh_IPCSubscriber.Nav_Reload();
+                    RecentlyVistedNodes.Clear();
                 }
 
                 _lastKnownPositionSuperStuck = currentPosition;

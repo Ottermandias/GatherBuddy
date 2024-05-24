@@ -170,7 +170,7 @@ public partial class Interface
 
         public static void DrawPreferredJobSelect()
         {
-            var v       = GatherBuddy.Config.PreferredGatheringType;
+            var v = GatherBuddy.Config.PreferredGatheringType;
             var current = v == GatheringType.Multiple ? "No Preference" : v.ToString();
             ImGui.SetNextItemWidth(SetInputWidth);
             using var combo = ImRaii.Combo("Preferred Job", current);
@@ -226,7 +226,7 @@ public partial class Interface
         public static void DrawAutoGatherConfigs()
         {
             DrawCheckbox("Auto-Gather", "If enabled, GatherBuddy will automatically move to nearby nodes that contain items listed in the gather window.",
-                       GatherBuddy.Config.AutoGather, b => GatherBuddy.Config.AutoGather = b);
+                       GatherBuddy.AutoGather.ShouldAutoGather, b => GatherBuddy.AutoGather.ShouldAutoGather = b);
             ImGui.SameLine();
             DrawMountSelector();
             ImGui.SameLine();
@@ -243,68 +243,136 @@ public partial class Interface
                 {
                     VNavmesh_IPCSubscriber.Nav_Reload();
                 }
+                ImGui.SameLine();
+                if (ImGui.Button("Clear Recently Visited Nodes"))
+                {
+                    GatherBuddy.AutoGather.RecentlyVistedNodes.Clear();
+                }
                 ImGui.Text($"Desired Item: {desiredItem?.Name}");
                 ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");
-
-                if (ImGui.BeginTable("##gatherDebugTable", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
-                {
-                    ImGui.TableSetupColumn("Name");
-                    ImGui.TableSetupColumn("Targetable");
-                    ImGui.TableSetupColumn("Position");
-                    ImGui.TableSetupColumn("Distance");
-                    ImGui.TableSetupColumn("Action");
-
-                    ImGui.TableHeadersRow();
-
-                    foreach (var node in allNodes)
-                    {
-                        ImGui.TableNextRow();
-                        ImGui.TableSetColumnIndex(0);
-                        ImGui.Text(node.Name.ToString());
-                        ImGui.TableSetColumnIndex(1);
-                        ImGui.Text(node.IsTargetable ? "Y" : "N");
-                        ImGui.TableSetColumnIndex(2);
-                        ImGui.Text(node.Position.ToString());
-                        ImGui.TableSetColumnIndex(3);
-                        var distance = Vector3.Distance(Player.Object.Position, node.Position);
-                        ImGui.Text(distance.ToString());
-                        ImGui.TableSetColumnIndex(4);
-
-                        var territoryId = Dalamud.ClientState.TerritoryType;
-                        var isBlacklisted = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node.Position);
-
-                        if (isBlacklisted)
-                        {
-                            if (ImGui.Button($"Unblacklist##{node.Position}"))
-                            {
-                                list.Remove(node.Position);
-                                if (list.Count == 0)
-                                {
-                                    GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.Remove(territoryId);
-                                }
-                                GatherBuddy.Config.Save();
-                            }
-                        }
-                        else
-                        {
-                            if (ImGui.Button($"Blacklist##{node.Position}"))
-                            {
-                                if (list == null)
-                                {
-                                    list = new List<Vector3>();
-                                    GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[territoryId] = list;
-                                }
-                                list.Add(node.Position);
-                                GatherBuddy.Config.Save();
-                            }
-                        }
-                    }
-
-                    ImGui.EndTable();
-                }
+                DrawDebugTables();
             }
         }
 
+        private static void DrawDebugTables()
+        {
+            ImGui.Columns(2, "##gatherDebugColumns", true);
+
+            // First column: Nearby nodes table
+            if (ImGui.BeginTable("##nearbyNodesTable", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+            {
+                ImGui.TableSetupColumn("Name");
+                ImGui.TableSetupColumn("Targetable");
+                ImGui.TableSetupColumn("Position");
+                ImGui.TableSetupColumn("Distance");
+                ImGui.TableSetupColumn("Action");
+
+                ImGui.TableHeadersRow();
+
+                var playerPosition = Player.Object.Position;
+                foreach (var node in Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(o => Vector3.Distance(o.Position, playerPosition)))
+                {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.Text(node.Name.ToString());
+                    ImGui.TableSetColumnIndex(1);
+                    ImGui.Text(node.IsTargetable ? "Y" : "N");
+                    ImGui.TableSetColumnIndex(2);
+                    ImGui.Text(node.Position.ToString());
+                    ImGui.TableSetColumnIndex(3);
+                    var distance = Vector3.Distance(Player.Object.Position, node.Position);
+                    ImGui.Text(distance.ToString());
+                    ImGui.TableSetColumnIndex(4);
+
+                    var territoryId = Dalamud.ClientState.TerritoryType;
+                    var isBlacklisted = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node.Position);
+
+                    if (isBlacklisted)
+                    {
+                        if (ImGui.Button($"Unblacklist##{node.Position}"))
+                        {
+                            list.Remove(node.Position);
+                            if (list.Count == 0)
+                            {
+                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.Remove(territoryId);
+                            }
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                    else
+                    {
+                        if (ImGui.Button($"Blacklist##{node.Position}"))
+                        {
+                            if (list == null)
+                            {
+                                list = new List<Vector3>();
+                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[territoryId] = list;
+                            }
+                            list.Add(node.Position);
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                }
+
+                ImGui.EndTable();
+            }
+
+            ImGui.NextColumn(); // Move to the second column
+
+            // Second column: Recently seen nodes table
+            if (ImGui.BeginTable("##recentlySeenNodesTable", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+            {
+                ImGui.TableSetupColumn("Position");
+                ImGui.TableSetupColumn("Distance");
+                ImGui.TableSetupColumn("Action");
+
+                ImGui.TableHeadersRow();
+
+                foreach (var node in GatherBuddy.AutoGather.RecentlyVistedNodes)
+                {
+                    ImGui.TableNextRow();
+                    ImGui.TableSetColumnIndex(0);
+                    ImGui.Text(node.ToString());
+                    ImGui.TableSetColumnIndex(1);
+                    var distance = Vector3.Distance(Player.Object.Position, node);
+                    ImGui.Text(distance.ToString());
+                    ImGui.TableSetColumnIndex(2);
+
+                    var territoryId = Dalamud.ClientState.TerritoryType;
+                    var isBlacklisted = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node);
+
+                    if (isBlacklisted)
+                    {
+                        if (ImGui.Button($"Unblacklist##recentlySeen{node}"))
+                        {
+                            list.Remove(node);
+                            if (list.Count == 0)
+                            {
+                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.Remove(territoryId);
+                            }
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                    else
+                    {
+                        if (ImGui.Button($"Blacklist##recentlySeen{node}"))
+                        {
+                            if (list == null)
+                            {
+                                list = new List<Vector3>();
+                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[territoryId] = list;
+                            }
+                            list.Add(node);
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                }
+
+                ImGui.EndTable();
+            }
+
+            ImGui.Columns(1);
+        }
         private unsafe static void DrawMountSelector()
         {
             ImGui.PushItemWidth(300);
@@ -338,10 +406,10 @@ public partial class Interface
 
         public static void DrawAlarmsInDutyToggle()
             => DrawCheckbox("Enable Alarms in Duty", "Set whether alarms should trigger while you are bound by a duty.",
-                GatherBuddy.Config.AlarmsInDuty,     b => GatherBuddy.Config.AlarmsInDuty = b);
+                GatherBuddy.Config.AlarmsInDuty, b => GatherBuddy.Config.AlarmsInDuty = b);
 
         public static void DrawAlarmsOnlyWhenLoggedInToggle()
-            => DrawCheckbox("Enable Alarms Only In-Game",  "Set whether alarms should trigger while you are not logged into any character.",
+            => DrawCheckbox("Enable Alarms Only In-Game", "Set whether alarms should trigger while you are not logged into any character.",
                 GatherBuddy.Config.AlarmsOnlyWhenLoggedIn, b => GatherBuddy.Config.AlarmsOnlyWhenLoggedIn = b);
 
         private static void DrawAlarmPicker(string label, string description, Sounds current, Action<Sounds> setter)
@@ -355,11 +423,11 @@ public partial class Interface
 
         public static void DrawWeatherAlarmPicker()
             => DrawAlarmPicker("Weather Change Alarm", "Choose a sound that is played every 8 Eorzea hours on regular weather changes.",
-                GatherBuddy.Config.WeatherAlarm,       _plugin.AlarmManager.SetWeatherAlarm);
+                GatherBuddy.Config.WeatherAlarm, _plugin.AlarmManager.SetWeatherAlarm);
 
         public static void DrawHourAlarmPicker()
             => DrawAlarmPicker("Eorzea Hour Change Alarm", "Choose a sound that is played every time the current Eorzea hour changes.",
-                GatherBuddy.Config.HourAlarm,              _plugin.AlarmManager.SetHourAlarm);
+                GatherBuddy.Config.HourAlarm, _plugin.AlarmManager.SetHourAlarm);
 
         // Fish Timer
         public static void DrawFishTimerBox()
@@ -587,7 +655,7 @@ public partial class Interface
 
         public static void DrawAetherytePreference()
         {
-            var tmp     = GatherBuddy.Config.AetherytePreference == AetherytePreference.Cost;
+            var tmp = GatherBuddy.Config.AetherytePreference == AetherytePreference.Cost;
             var oldPref = GatherBuddy.Config.AetherytePreference;
             if (ImGui.RadioButton("Prefer Cheaper Aetherytes", tmp))
                 GatherBuddy.Config.AetherytePreference = AetherytePreference.Cost;
@@ -623,7 +691,7 @@ public partial class Interface
 
     private void DrawConfigTab()
     {
-        using var id  = ImRaii.PushId("Config");
+        using var id = ImRaii.PushId("Config");
         using var tab = ImRaii.TabItem("Config");
         ImGuiUtil.HoverTooltip("Set up your very own GatherBuddy to your meticulous specifications.\n"
           + "If you treat him well, he might even become a real boy.");
@@ -653,9 +721,9 @@ public partial class Interface
 
             if (ImGui.TreeNodeEx("Set Names"))
             {
-                ConfigFunctions.DrawSetInput("Miner",    GatherBuddy.Config.MinerSetName,    s => GatherBuddy.Config.MinerSetName    = s);
+                ConfigFunctions.DrawSetInput("Miner", GatherBuddy.Config.MinerSetName, s => GatherBuddy.Config.MinerSetName = s);
                 ConfigFunctions.DrawSetInput("Botanist", GatherBuddy.Config.BotanistSetName, s => GatherBuddy.Config.BotanistSetName = s);
-                ConfigFunctions.DrawSetInput("Fisher",   GatherBuddy.Config.FisherSetName,   s => GatherBuddy.Config.FisherSetName   = s);
+                ConfigFunctions.DrawSetInput("Fisher", GatherBuddy.Config.FisherSetName, s => GatherBuddy.Config.FisherSetName = s);
                 ImGui.TreePop();
             }
 
