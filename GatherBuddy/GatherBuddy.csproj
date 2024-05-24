@@ -85,4 +85,8 @@
 	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
 	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="AutoGather\Tasks\" />
+	</ItemGroup>
 </Project>

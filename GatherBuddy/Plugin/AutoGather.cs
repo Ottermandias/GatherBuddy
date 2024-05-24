@@ -601,20 +601,5 @@ namespace GatherBuddy.Plugin
             return DesiredItem?.NodeList.Any(n => n.WorldCoords.Keys.Any(k => k == gameObject.DataId)) ?? false;
         }
 
-
-        private unsafe void Dismount()
-        {
-            var am = ActionManager.Instance();
-            am->UseAction(ActionType.Mount, 0);
-        }
-
-        private unsafe void MountUp()
-        {
-            var am = ActionManager.Instance();
-            var mount = GatherBuddy.Config.AutoGatherMountId;
-            if (am->GetActionStatus(ActionType.Mount, mount) != 0) return;
-            am->UseAction(ActionType.Mount, mount);
-        }
-
     }
 }

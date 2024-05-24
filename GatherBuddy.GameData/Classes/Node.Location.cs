@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Numerics;
 
@@ -17,6 +18,5 @@ public partial class GatheringNode
 
     public ushort Radius        { get; set; }
     public ushort DefaultRadius { get; internal set; }
-
-    public Dictionary<uint, List<Vector3>> WorldCoords { get; set; } = new();
+    public Dictionary<uint, List<Vector3>> WorldPositions { get; internal set; } = new();
 }

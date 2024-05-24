@@ -9,6 +9,7 @@ using Lumina.Excel.GeneratedSheets;
 using ItemRow = Lumina.Excel.GeneratedSheets.Item;
 using FishRow = Lumina.Excel.GeneratedSheets.FishParameter;
 using SpearFishRow = Lumina.Excel.GeneratedSheets.SpearfishingItem;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace GatherBuddy.Classes;
 
@@ -60,6 +61,14 @@ public partial class Fish : IComparable<Fish>, IGatherable
     public string Folklore { get; init; }
 
     public uint Quantity { get; set; } = 1;
+    public unsafe int InventoryCount
+    {
+        get
+        {
+            var inventory = InventoryManager.Instance();
+            return inventory->GetInventoryItemCount(ItemId);
+        }
+    }
 
     public Fish(IDataManager gameData, SpearFishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
     {

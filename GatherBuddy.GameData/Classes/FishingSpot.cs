@@ -61,6 +61,8 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     public bool Spearfishing
         => _data is SpearfishingNotebook;
 
+    public Dictionary<uint, List<Vector3>> WorldPositions { get; internal set; } = new();
+
     public int CompareTo(FishingSpot? obj)
         => SheetId.CompareTo(obj?.SheetId ?? 0);
 
