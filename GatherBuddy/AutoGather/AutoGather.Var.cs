@@ -22,10 +22,13 @@ namespace GatherBuddy.AutoGather
                         .Where(IsDesiredNode)
                         .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
 
-        public GameObject NearestNode => ValidNodesInRange.FirstOrDefault();
+        public GameObject? NearestNode => ValidNodesInRange.FirstOrDefault();
         public float NearestNodeDistance => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, NearestNode.Position);
         public bool IsGathering => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
-
+        public bool? LastNavigationResult { get; set; } = null;
+        public Vector3? CurrentDestination { get; set; } = null;
+        public bool ShouldFly => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, CurrentDestination ?? Vector3.Zero) >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
+        public string AutoStatus { get; set; } = "Idle";
         public Dictionary<uint, List<Vector3>> DesiredNodesInZone
         {
             get
@@ -49,6 +52,8 @@ namespace GatherBuddy.AutoGather
                 return nodes;
             }
         }
+
+        public List<Vector3> DesiredNodeCoordsInZone => DesiredNodesInZone.SelectMany(n => n.Value).ToList();
 
         private bool IsDesiredNode(GameObject @object)
         {

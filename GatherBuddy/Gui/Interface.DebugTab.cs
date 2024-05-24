@@ -66,7 +66,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(n.Folklore);
         ImGuiUtil.DrawTableColumn(n.Times.PrintHours(true));
         ImGuiUtil.DrawTableColumn(n.PrintItems());
-        ImGuiUtil.DrawTableColumn(ToCoordString(n.WorldCoords));
+        ImGuiUtil.DrawTableColumn(ToCoordString(n.WorldPositions));
     }
 
     private static string ToCoordString(Dictionary<uint, List<Vector3>> worldCoords)

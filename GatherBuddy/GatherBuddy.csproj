@@ -40,6 +40,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Plugin\AutoGather.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="CustomInfo\world_locations.json" />
   </ItemGroup>
 
@@ -88,5 +92,9 @@
 
 	<ItemGroup>
 	  <Folder Include="AutoGather\Tasks\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Plugin\AutoGather.cs" />
 	</ItemGroup>
 </Project>

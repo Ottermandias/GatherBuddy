@@ -229,7 +229,7 @@ public partial class Interface
         if (!tab)
             return;
 
-        ConfigFunctions.DrawAutoGatherConfigs();
+        AutoGather.AutoGatherUI.DrawAutoGatherConfigs();
 
         _gatherWindowCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();

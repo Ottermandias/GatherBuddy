@@ -1,8 +1,11 @@
 ﻿using ClickLib.Bases;
 using ClickLib.Structures;
 using Dalamud.Game.ClientState.Objects.Types;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using GatherBuddy.Interfaces;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -18,8 +21,27 @@ namespace GatherBuddy.AutoGather
         {
             if (IsGathering)
             {
+                TaskManager.Enqueue(DoActionTasks);
                 TaskManager.Enqueue(DoGatherWindowTasks);
             }
+            else
+            {
+                HiddenRevealed = false;
+                TaskManager.Enqueue(InteractWithNode);
+            }
+        }
+
+        private unsafe void InteractWithNode()
+        {
+            if (!CanAct) return;
+            var targetSystem = TargetSystem.Instance();
+            if (targetSystem == null)
+                return;
+            TaskManager.EnqueueDelay(1000);
+            TaskManager.Enqueue(() =>
+            {
+                targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)NearestNode.Address);
+            });
         }
 
         private unsafe void DoGatherWindowTasks()
@@ -40,8 +62,8 @@ namespace GatherBuddy.AutoGather
                     };
 
 
-            TaskManager.Enqueue(DoActionTasks(ids));
-            var itemIndex = ids.IndexOf(DesiredItem?.ItemId ?? 0);
+            List<uint> desiredItemIds = ItemsToGather.Select(i => i.ItemId).ToList();
+            var itemIndex = ids.IndexOf(ids.FirstOrDefault(desiredItemIds.Contains));
             if (itemIndex < 0) itemIndex = ids.IndexOf(ids.FirstOrDefault(i => i > 0));
 
             var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);

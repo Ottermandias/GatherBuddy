@@ -36,6 +36,18 @@ namespace GatherBuddy.AutoGather
             {
                 TaskManager.Enqueue(MoveToCloseNode);
             }
+            else if (DesiredNodesInZone.Any())
+            {
+                TaskManager.Enqueue(MoveToFarNode);
+            }
+            else if (ItemsToGather.Any())
+            {
+                TaskManager.Enqueue(MoveToClosestAetheryte);
+            }
+            else
+            {
+                AutoStatus = "Nothing to do...";
+            }
         }
     }
 }

@@ -6,6 +6,7 @@ using Dalamud.Configuration;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Game.Text;
 using GatherBuddy.Alarms;
+using GatherBuddy.AutoGather;
 using GatherBuddy.Enums;
 using OtterGui.Classes;
 
@@ -35,7 +36,6 @@ public partial class Configuration : IPluginConfiguration
 
     // General Config
     public bool             OpenOnStart            { get; set; } = false;
-    public uint             AutoGatherMountId      { get; set; } = 1;
     public bool             MainWindowLockPosition { get; set; } = false;
     public bool             MainWindowLockResize   { get; set; } = false;
     public bool             CloseOnEscape          { get; set; } = true;
@@ -57,6 +57,9 @@ public partial class Configuration : IPluginConfiguration
     public bool             PlaceCustomWaymarks    { get; set; } = true;
     public GatheringType    PreferredGatheringType { get; set; } = GatheringType.Multiple;
 
+    // AutoGather Config
+    public AutoGatherConfig AutoGatherConfig { get; set; } = new();
+
     // Weather tab
     public bool ShowWeatherNames { get; set; } = true;
 
@@ -75,8 +78,6 @@ public partial class Configuration : IPluginConfiguration
     public int SeColorCommands  = DefaultSeColorCommands;
     public int SeColorArguments = DefaultSeColorArguments;
     public int SeColorAlarm     = DefaultSeColorAlarm;
-
-    public Dictionary<uint, List<Vector3>> BlacklistedAutoGatherNodesByTerritoryId { get; set; } = new();
 
     // Fish Timer
     public bool   ShowFishTimer         { get; set; } = true;
