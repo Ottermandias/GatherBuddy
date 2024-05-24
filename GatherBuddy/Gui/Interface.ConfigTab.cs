@@ -226,7 +226,7 @@ public partial class Interface
         public static void DrawAutoGatherConfigs()
         {
             DrawCheckbox("Auto-Gather", "If enabled, GatherBuddy will automatically move to nearby nodes that contain items listed in the gather window.",
-                       GatherBuddy.Config.AutoGather, b => GatherBuddy.Config.AutoGather = b);
+                       GatherBuddy.AutoGather.ShouldAutoGather, b => GatherBuddy.AutoGather.ShouldAutoGather = b);
             ImGui.SameLine();
             DrawMountSelector();
             ImGui.SameLine();

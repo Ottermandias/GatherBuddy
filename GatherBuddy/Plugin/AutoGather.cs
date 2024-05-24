@@ -53,6 +53,8 @@ namespace GatherBuddy.Plugin
 
         private DateTime _teleportInitiated = DateTime.MinValue;
 
+        public bool ShouldAutoGather { get; set; } = false;
+
         public IEnumerable<GameObject> ValidGatherables => Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
                         .Where(g => g.IsTargetable)
                         .Where(IsDesiredNode)
@@ -107,7 +109,7 @@ namespace GatherBuddy.Plugin
 
         public void DoAutoGather()
         {
-            if (!GatherBuddy.Config.AutoGather) return;
+            if (!ShouldAutoGather) return;
             if (!CanAct) return;
 
             DetermineAutoState();
