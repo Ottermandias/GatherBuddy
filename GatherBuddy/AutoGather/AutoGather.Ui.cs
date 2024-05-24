@@ -38,6 +38,8 @@ namespace GatherBuddy.AutoGather
 
                 if (ImGui.Button("Reset Nav"))
                 {
+                    GatherBuddy.AutoGather.CurrentDestination = null;
+                    VNavmesh_IPCSubscriber.Path_Stop();
                     VNavmesh_IPCSubscriber.Nav_Reload();
                 }
                 ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");

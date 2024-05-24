@@ -2,6 +2,7 @@
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
+using GatherBuddy.CustomInfo;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using System;
@@ -41,26 +42,74 @@ namespace GatherBuddy.AutoGather
         {
             if (NearestNodeDistance < 3)
             {
+                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                {
+                    TaskManager.Enqueue(Dismount);
+                }
                 TaskManager.Enqueue(DoGatherTasks);
                 return;
             }
             else
             {
                 CurrentDestination = NearestNode?.Position ?? null;
-                TaskManager.EnqueueDelay(500);
+                TaskManager.EnqueueDelay(3000);
                 TaskManager.Enqueue(MountUp);
                 TaskManager.Enqueue(Navigate);
                 TaskManager.Enqueue(WaitForDestination);
             }
         }
 
+        private Vector3? lastPosition = null;
+        private DateTime lastMovementTime;
+        private const int stuckThresholdSeconds = 2; // Define the time threshold for being stuck
+
         private void WaitForDestination()
         {
             if (CurrentDestination == null) return;
-            while (Vector3.Distance(Player.Object.Position, CurrentDestination.Value) > 3)
+
+            if (!IsCloseToDestination())
             {
-                TaskManager.EnqueueDelay(500);
+                // Check if character is stuck
+                if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 1.0f)
+                {
+                    // If the character hasn't moved much
+                    if ((DateTime.Now - lastMovementTime).TotalSeconds > stuckThresholdSeconds)
+                    {
+                        GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
+                        ResetNavigation();
+                        return;
+                    }
+                }
+                else
+                {
+                    // Character has moved, update last known position and time
+                    lastPosition = Player.Object.Position;
+                    lastMovementTime = DateTime.Now;
+                }
+
+                // If not close, enqueue the check again after a delay
+                TaskManager.Enqueue(() => TaskManager.EnqueueDelay(50));
+                TaskManager.Enqueue(WaitForDestination);
             }
+            else
+            {
+                // Arrived at the destination
+                GatherBuddy.Log.Verbose("Arrived at the destination");
+                lastPosition = null; // Reset last known position
+            }
+        }
+        private void ResetNavigation()
+        {
+            // Reset navigation logic here
+            // For example, reinitiate navigation to the destination
+            _lastNavigatedDestination = Vector3.Zero;
+            CurrentDestination = null;
+            VNavmesh_IPCSubscriber.Path_Stop();
+        }
+        private bool IsCloseToDestination()
+        {
+            if (CurrentDestination == null) return false;
+            return Vector3.Distance(Player.Object.Position, CurrentDestination.Value) <= 3;
         }
 
         private Vector3 _lastNavigatedDestination = Vector3.Zero;
@@ -78,7 +127,7 @@ namespace GatherBuddy.AutoGather
             {
                 GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
                 _lastNavigatedDestination = CurrentDestination.Value;
-                LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(CurrentDestination.Value, true);
+                LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(CurrentDestination.Value.CorrectForMesh(), ShouldFly);
             }
         }
 

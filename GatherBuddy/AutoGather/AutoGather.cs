@@ -28,11 +28,14 @@ namespace GatherBuddy.AutoGather
 
             if (TaskManager.Tasks.Count > 0)
             {
-                GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
+                //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
                 return;
             }
-
-            if (ValidNodesInRange.Any())
+            if (IsPathing)
+            {
+                TaskManager.Enqueue(WaitForDestination);
+            }
+            else if (ValidNodesInRange.Any())
             {
                 TaskManager.Enqueue(MoveToCloseNode);
             }

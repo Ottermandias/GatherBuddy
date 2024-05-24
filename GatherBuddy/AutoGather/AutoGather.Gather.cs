@@ -22,12 +22,12 @@ namespace GatherBuddy.AutoGather
             if (IsGathering)
             {
                 TaskManager.Enqueue(DoActionTasks);
-                TaskManager.Enqueue(DoGatherWindowTasks);
             }
             else
             {
                 HiddenRevealed = false;
                 TaskManager.Enqueue(InteractWithNode);
+                TaskManager.EnqueueDelay(1000);
             }
         }
 

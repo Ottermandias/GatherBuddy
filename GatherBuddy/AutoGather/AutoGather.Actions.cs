@@ -42,6 +42,7 @@ namespace GatherBuddy.AutoGather
             {
                 TaskManager.Enqueue(UseBYII);
             }
+            TaskManager.Enqueue(DoGatherWindowTasks);
         }
         public bool HiddenRevealed = false;
         private unsafe void UseLuck()
