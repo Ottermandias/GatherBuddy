@@ -232,6 +232,7 @@ public partial class Interface
             ImGui.SameLine();
             ImGui.Checkbox("Debug", ref _gatherDebug);
             ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
+            ImGui.Text($"Navigation: {(GatherBuddy.AutoGather.LastPathfindResult ? "Successful" : "Failing")}");
 
             if (_gatherDebug)
             {

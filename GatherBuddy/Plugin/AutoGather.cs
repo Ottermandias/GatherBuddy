@@ -197,12 +197,14 @@ namespace GatherBuddy.Plugin
                 PathfindToNode(closestKnownNode, true);
             }
         }
+        public bool LastPathfindResult = true;
         private void PathfindToNode(Vector3 position, bool correct)
         {
             if (IsPathing || IsPathGenerating)
                 return;
-            RecentlyVistedNodes.Add(position);
-            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correct ? position.CorrectForMesh() : position, true);
+            if (!RecentlyVistedNodes.Contains(position))
+                RecentlyVistedNodes.Add(position);
+            LastPathfindResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correct ? position.CorrectForMesh() : position, true);
         }
 
         private unsafe void DetermineAutoState()
@@ -256,9 +258,11 @@ namespace GatherBuddy.Plugin
 
             NavmeshStuckCheck();
             var currentTerritory = Dalamud.ClientState.TerritoryType;
-            var nodeCount = GatherBuddy.GameData.GatheringNodes.Where(g => g.Value.Territory.Id == currentTerritory).Count();
+            var nodeCount = GatherBuddy.GameData.GatheringNodes.Where(g => g.Value.Territory.Id == currentTerritory)
+                                                                .Where(NodeMatchesCurrentJob)
+                                                                .Where(NodeMatchesDesiredItem).Count();
             var blacklistedNodes = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(currentTerritory, out var list) ? list : new List<Vector3>();
-            if (RecentlyVistedNodes.Count >= nodeCount)
+            if (RecentlyVistedNodes.Count >= nodeCount - blacklistedNodes.Count())
                 RecentlyVistedNodes.Clear();
 
             if (!ValidGatherables.Any())
@@ -365,6 +369,26 @@ namespace GatherBuddy.Plugin
 
             AutoState = AutoStateType.Error;
             //AutoStatus = "Nothing to do...";
+        }
+
+        private bool NodeMatchesDesiredItem(KeyValuePair<uint, GatheringNode> pair)
+        {
+            var desiredItem = DesiredItem;
+            if (desiredItem == null)
+                return false;
+            return desiredItem.NodeList.Any(n => n.Id == pair.Value.Id);
+        }
+
+        private bool NodeMatchesCurrentJob(KeyValuePair<uint, GatheringNode> g)
+        {
+            var job = GetECommonsJobFromDesiredItem();
+            if (job == Job.ADV)
+                return false;
+            if (job == Job.BTN && g.Value.IsBotanist)
+                return true;
+            if (job == Job.MIN && g.Value.IsMiner)
+                return true;
+            return false;
         }
 
         private Job GetECommonsJobFromDesiredItem()
