@@ -61,7 +61,7 @@ namespace GatherBuddy.AutoGather
             {
                 TaskManager.Enqueue(UseBYII);
             }
-            else
+            else if (GatherBuddy.Config.AutoGatherConfig.DoGathering)
             {
                 TaskManager.Enqueue(() => DoGatherWindowTasks(ids, gatheringWindow));
                 TaskManager.EnqueueDelay(1200);
