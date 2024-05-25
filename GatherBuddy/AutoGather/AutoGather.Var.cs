@@ -20,10 +20,18 @@ namespace GatherBuddy.AutoGather
         public IEnumerable<GameObject> ValidNodesInRange => Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
                         .Where(g => g.IsTargetable)
                         .Where(IsDesiredNode)
+                        .Where(g => !IsBlacklisted(g.Position))
                         .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
 
+        private bool IsBlacklisted(Vector3 g)
+        {
+            var blacklisted = GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.ContainsKey(Dalamud.ClientState.TerritoryType) &&
+                GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId[Dalamud.ClientState.TerritoryType].Contains(g);
+            return blacklisted;
+        }
+
         public GameObject? NearestNode => ValidNodesInRange.FirstOrDefault();
-        public float NearestNodeDistance => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, NearestNode.Position);
+        public float NearestNodeDistance => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, NearestNode?.Position ?? Vector3.Zero);
         public bool IsGathering => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
         public bool? LastNavigationResult { get; set; } = null;
         public Vector3? CurrentDestination { get; set; } = null;
@@ -38,14 +46,18 @@ namespace GatherBuddy.AutoGather
                 {
                     foreach (var location in item.Locations)
                     {
-                        if (location.Id != Dalamud.ClientState.TerritoryType)
+                        if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
                             continue;
                         var allNodesInZone = location.WorldPositions;
                         foreach (var node in allNodesInZone)
                         {
                             if (!nodes.ContainsKey(node.Key))
                                 nodes[node.Key] = new List<Vector3>();
-                            nodes[node.Key].AddRange(node.Value);
+                            foreach (var pos in node.Value)
+                            {
+                                if (IsBlacklisted(pos)) continue;
+                                nodes[node.Key].Add(pos);
+                            }
                         }
                     }
                 }
@@ -55,7 +67,7 @@ namespace GatherBuddy.AutoGather
 
         public List<Vector3> DesiredNodeCoordsInZone => DesiredNodesInZone.SelectMany(n => n.Value).ToList();
 
-        private bool IsDesiredNode(GameObject @object)
+        public bool IsDesiredNode(GameObject @object)
         {
             if (@object == null)
                 return false;

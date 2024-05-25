@@ -16,44 +16,26 @@ namespace GatherBuddy.AutoGather
     public static class AutoGatherUI
     {
         private static bool _gatherDebug;
-        public static void DrawAutoGatherConfigs()
+        public static void DrawAutoGatherStatus()
         {
             var enabled = GatherBuddy.AutoGather.Enabled;
             if (ImGui.Checkbox("Enabled", ref enabled))
             {
                 GatherBuddy.AutoGather.Enabled = enabled;
             }
-            ImGui.SameLine();
-            DrawMountSelector();
-            ImGui.SameLine();
-            ImGui.Checkbox("Debug", ref _gatherDebug);
             ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
             var lastNavString = GatherBuddy.AutoGather.LastNavigationResult.HasValue ? GatherBuddy.AutoGather.LastNavigationResult.Value ? "Successful" : "Failed" : "None";
             ImGui.Text($"Navigation: {lastNavString}");
-
-            if (_gatherDebug)
-            {
-                var targetNode = GatherBuddy.AutoGather.NearestNode;
-                var allNodes = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(g => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, g.Position));
-
-                if (ImGui.Button("Reset Nav"))
-                {
-                    GatherBuddy.AutoGather.CurrentDestination = null;
-                    VNavmesh_IPCSubscriber.Path_Stop();
-                    VNavmesh_IPCSubscriber.Nav_Reload();
-                }
-                ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");
-                DrawDebugTables();
-            }
         }
 
-        private static void DrawDebugTables()
+        public static void DrawDebugTables()
         {
             // First column: Nearby nodes table
-            if (ImGui.BeginTable("##nearbyNodesTable", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+            if (ImGui.BeginTable("##nearbyNodesTable", 6, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
             {
                 ImGui.TableSetupColumn("Name");
                 ImGui.TableSetupColumn("Targetable");
+                ImGui.TableSetupColumn("Desirable");
                 ImGui.TableSetupColumn("Position");
                 ImGui.TableSetupColumn("Distance");
                 ImGui.TableSetupColumn("Action");
@@ -69,11 +51,13 @@ namespace GatherBuddy.AutoGather
                     ImGui.TableSetColumnIndex(1);
                     ImGui.Text(node.IsTargetable ? "Y" : "N");
                     ImGui.TableSetColumnIndex(2);
-                    ImGui.Text(node.Position.ToString());
+                    ImGui.Text(GatherBuddy.AutoGather.IsDesiredNode(node) ? "Y" : "N");
                     ImGui.TableSetColumnIndex(3);
+                    ImGui.Text(node.Position.ToString());
+                    ImGui.TableSetColumnIndex(4);
                     var distance = Vector3.Distance(Player.Object.Position, node.Position);
                     ImGui.Text(distance.ToString());
-                    ImGui.TableSetColumnIndex(4);
+                    ImGui.TableSetColumnIndex(5);
 
                     var territoryId = Dalamud.ClientState.TerritoryType;
                     var isBlacklisted = GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node.Position);
@@ -108,7 +92,7 @@ namespace GatherBuddy.AutoGather
                 ImGui.EndTable();
             }
         }
-        private unsafe static void DrawMountSelector()
+        public unsafe static void DrawMountSelector()
         {
             ImGui.PushItemWidth(300);
             var ps = PlayerState.Instance();

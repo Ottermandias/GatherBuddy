@@ -1,5 +1,8 @@
 ﻿using ECommons.DalamudServices;
+using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.UI;
+using GatherBuddy.Classes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,39 +13,59 @@ namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        public bool ShouldUseLuck()
+        public bool ShouldUseLuck(List<uint> ids)
         {
-            if (HiddenRevealed)
-                return false;
-            var targetNodeDataId = NearestNode.DataId;
-            foreach (var node in DesiredNodesInZone)
+            var gatherable = ItemsToGather.FirstOrDefault() as Gatherable;
+            if (gatherable == null) return false;
+            if (!gatherable.GatheringData.IsHidden) return false;
+            if (ids.Count > 0 && ids.Any(i => i == gatherable.ItemId))
             {
-                if (node.Key == targetNodeDataId)
-                {
-                    return true;
-                }
+                return false;
             }
-            return false;
+            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP) return false;
+            if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP) return false;
+            if (HiddenRevealed) return false;
+            return GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction;
         }
         public bool ShoulduseBYII()
         {
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1286 || s.StatusId == 756))
                 return false;
-            if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < 100)
+            if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP)
                 return false;
-            return true;
+            if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) > GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP)
+                return false;
+            return GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction;
         }
-        private void DoActionTasks()
+        private unsafe void DoActionTasks()
         {
-            if (ShouldUseLuck())
+            var gatheringWindow = (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering", 1);
+            if (gatheringWindow == null) return;
+
+            var ids = new List<uint>()
+            {
+                gatheringWindow->GatheredItemId1,
+                gatheringWindow->GatheredItemId2,
+                gatheringWindow->GatheredItemId3,
+                gatheringWindow->GatheredItemId4,
+                gatheringWindow->GatheredItemId5,
+                gatheringWindow->GatheredItemId6,
+                gatheringWindow->GatheredItemId7,
+                gatheringWindow->GatheredItemId8
+            };
+            if (ShouldUseLuck(ids))
             {
                 TaskManager.Enqueue(UseLuck);
             }
-            if (ShoulduseBYII())
+            else if (ShoulduseBYII())
             {
                 TaskManager.Enqueue(UseBYII);
             }
-            TaskManager.Enqueue(DoGatherWindowTasks);
+            else
+            {
+                TaskManager.Enqueue(() => DoGatherWindowTasks(ids, gatheringWindow));
+                TaskManager.EnqueueDelay(1200);
+            }
         }
         public bool HiddenRevealed = false;
         private unsafe void UseLuck()

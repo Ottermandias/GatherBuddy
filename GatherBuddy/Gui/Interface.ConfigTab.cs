@@ -9,6 +9,7 @@ using Dalamud.Interface.Utility;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Alarms;
+using GatherBuddy.AutoGather;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
@@ -55,8 +56,40 @@ public partial class Interface
             if (Widget.DrawChatTypeSelector(label, description, currentValue, setter))
                 GatherBuddy.Config.Save();
         }
+        
+        // Auto-Gather Config
+        public static void DrawBYIIBox()
+            => DrawCheckbox("Use BYII", "Toggle whether to use BYII for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
 
+        public static void DrawBYIIMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP;
+            ImGui.DragInt("BYII Min GP", ref tmp, 1, 100, 30000);
+            GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP = (uint)tmp;
+        }
 
+        public static void DrawBYIIMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP;
+            ImGui.DragInt("BYII Max GP", ref tmp, 1, 100, 30000);
+            GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP = (uint)tmp;
+        }
+
+        public static void DrawLuckBox()
+            => DrawCheckbox("Use Luck", "Toggle whether to use Luck for gathering.", GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction = b);
+
+        public static void DrawLuckMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP;
+            ImGui.DragInt("Luck Min GP", ref tmp, 1, 200, 30000);
+            GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP = (uint)tmp;
+        }
+        public static void DrawLuckMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP;
+            ImGui.DragInt("Luck Max GP", ref tmp, 1, 200, 30000);
+            GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP = (uint)tmp;
+        }
         // General Config
         public static void DrawOpenOnStartBox()
             => DrawCheckbox("Open Config UI On Start",
@@ -521,6 +554,33 @@ public partial class Interface
         using var child = ImRaii.Child("ConfigTab");
         if (!child)
             return;
+
+        if (ImGui.CollapsingHeader("Auto-Gather"))
+        {
+            if (ImGui.TreeNodeEx("General##autoGeneral"))
+            {
+                AutoGatherUI.DrawMountSelector();
+                ImGui.TreePop();
+            }
+            if (ImGui.TreeNodeEx("Actions"))
+            {
+                if (ImGui.TreeNodeEx("Bountiful Yield"))
+                {
+                    ConfigFunctions.DrawBYIIBox();
+                    ConfigFunctions.DrawBYIIMinGP();
+                    ConfigFunctions.DrawBYIIMaxGP();
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Luck"))
+                {
+                    ConfigFunctions.DrawLuckBox();
+                    ConfigFunctions.DrawLuckMinGP();
+                    ConfigFunctions.DrawLuckMaxGP();
+                    ImGui.TreePop();
+                }
+                ImGui.TreePop();
+            }
+        }
 
         if (ImGui.CollapsingHeader("General"))
         {

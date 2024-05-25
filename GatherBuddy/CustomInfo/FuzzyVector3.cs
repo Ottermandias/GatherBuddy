@@ -25,13 +25,22 @@ namespace GatherBuddy.CustomInfo
         {
             try
             {
-                var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(vector, 0.5f, 0.5f);
-                GatherBuddy.Log.Verbose($"Corrected vector {vector} to {nearestPoint}");
-                return nearestPoint;
+                try
+                {
+                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(vector, 0.5f, 0.5f);
+                    GatherBuddy.Log.Verbose($"Corrected vector {vector} to floor point {nearestPoint}");
+                    return nearestPoint;
+                }
+                catch (Exception)
+                {
+                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(vector, 0.5f, 0.5f);
+                    GatherBuddy.Log.Verbose($"Corrected vector {vector} to {nearestPoint}");
+                    return nearestPoint;
+                }
             }
             catch (Exception)
             {
-                GatherBuddy.Log.Error("Failed to correct for mesh, returning original vector.");
+                GatherBuddy.Log.Debug("Failed to correct for mesh, returning original vector.");
                 return vector.Fuzz();
             }
         }

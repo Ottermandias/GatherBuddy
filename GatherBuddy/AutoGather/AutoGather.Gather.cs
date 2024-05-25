@@ -1,9 +1,11 @@
 ﻿using ClickLib.Bases;
+using ClickLib.Enums;
 using ClickLib.Structures;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
+using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using Lumina.Excel.GeneratedSheets;
 using System;
@@ -17,19 +19,6 @@ namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        private void DoGatherTasks()
-        {
-            if (IsGathering)
-            {
-                TaskManager.Enqueue(DoActionTasks);
-            }
-            else
-            {
-                HiddenRevealed = false;
-                TaskManager.Enqueue(InteractWithNode);
-                TaskManager.EnqueueDelay(1000);
-            }
-        }
 
         private unsafe void InteractWithNode()
         {
@@ -44,27 +33,10 @@ namespace GatherBuddy.AutoGather
             });
         }
 
-        private unsafe void DoGatherWindowTasks()
+        private unsafe void DoGatherWindowTasks(List<uint> ids, AddonGathering* gatheringWindow)
         {
-            var gatheringWindow = (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering", 1);
-            if (gatheringWindow == null) return;
 
-            var ids = new List<uint>()
-                    {
-                    gatheringWindow->GatheredItemId1,
-                    gatheringWindow->GatheredItemId2,
-                    gatheringWindow->GatheredItemId3,
-                    gatheringWindow->GatheredItemId4,
-                    gatheringWindow->GatheredItemId5,
-                    gatheringWindow->GatheredItemId6,
-                    gatheringWindow->GatheredItemId7,
-                    gatheringWindow->GatheredItemId8
-                    };
-
-
-            List<uint> desiredItemIds = ItemsToGather.Select(i => i.ItemId).ToList();
-            var itemIndex = ids.IndexOf(ids.FirstOrDefault(desiredItemIds.Contains));
-            if (itemIndex < 0) itemIndex = ids.IndexOf(ids.FirstOrDefault(i => i > 0));
+            var itemIndex = GetIndexOfItemToClick(ids);
 
             var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);
             var eventDelegate = Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress);
@@ -73,8 +45,44 @@ namespace GatherBuddy.AutoGather
             var eventData = EventData.ForNormalTarget(target, &gatheringWindow->AtkUnitBase);
             var inputData = InputData.Empty();
 
-            eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, ClickLib.Enums.EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data);
+            eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data);
+        }
 
+        private int GetIndexOfItemToClick(List<uint> ids)
+        {
+            // Check each ID in the list against ItemsToGather
+            for (int i = 0; i < ids.Count; i++)
+            {
+                var id = ids[i];
+                var item = ItemsToGather.FirstOrDefault(it => it.ItemId == id);
+                var gatherable = item as Gatherable;
+                if (gatherable == null)
+                {
+                    continue;
+                }
+                if (!gatherable.GatheringData.IsHidden || (gatherable.GatheringData.IsHidden && (HiddenRevealed || !ShouldUseLuck(ids))))
+                {
+                    return i;
+                }
+            }
+
+            // If no matching item is found, return the index of the first non-hidden item
+            for (int i = 0; i < ids.Count; i++)
+            {
+                var id = ids[i];
+                var gatherable = GatherBuddy.GameData.Gatherables.FirstOrDefault(it => it.Key == id).Value;
+                if (gatherable == null)
+                {
+                    continue;
+                }
+                if (!gatherable.GatheringData.IsHidden || (gatherable.GatheringData.IsHidden && HiddenRevealed))
+                {
+                    return i;
+                }
+            }
+
+            // If all items are hidden or none found, return -1
+            return 0;
         }
     }
 }
