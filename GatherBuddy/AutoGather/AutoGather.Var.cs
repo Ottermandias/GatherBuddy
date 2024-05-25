@@ -35,7 +35,18 @@ namespace GatherBuddy.AutoGather
         public bool IsGathering => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
         public bool? LastNavigationResult { get; set; } = null;
         public Vector3? CurrentDestination { get; set; } = null;
-        public bool ShouldFly => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, CurrentDestination ?? Vector3.Zero) >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
+        public bool ShouldFly
+        {
+            get
+            {
+                if (GatherBuddy.Config.AutoGatherConfig.ForceWalking)
+                {
+                    return false;
+                }
+
+                return Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, CurrentDestination ?? Vector3.Zero) >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
+            }
+        }
         public string AutoStatus { get; set; } = "Idle";
         public Dictionary<uint, List<Vector3>> DesiredNodesInZone
         {
