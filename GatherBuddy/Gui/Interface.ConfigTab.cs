@@ -59,7 +59,7 @@ public partial class Interface
         
         // Auto-Gather Config
         public static void DrawAutoGatherBox()
-            => DrawCheckbox("Enable Gathering Window Interaction (UNSUPPORTED)", "Toggle whether to automatically gather items. (Disable this for 'nav only mode')", GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
+            => DrawCheckbox("Enable Gathering Window Interaction (DISABLING THIS IS UNSUPPORTED)", "Toggle whether to automatically gather items. (Disable this for 'nav only mode')", GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
 
         public static void DrawBYIIBox()
             => DrawCheckbox("Use BYII", "Toggle whether to use BYII for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
