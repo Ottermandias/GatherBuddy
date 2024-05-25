@@ -21,4 +21,5 @@ public interface IGatherable
     public Item                   ItemData        { get; }
     public ObjectType             Type            { get; }
     public uint                   Quantity        { get; set; }
+    public int                    InventoryCount { get; }
 }

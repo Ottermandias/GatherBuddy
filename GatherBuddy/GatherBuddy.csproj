@@ -40,6 +40,10 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Plugin\AutoGather.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Remove="CustomInfo\world_locations.json" />
   </ItemGroup>
 
@@ -84,5 +88,13 @@
 	  <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
 	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
 	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <Folder Include="AutoGather\Tasks\" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <None Include="Plugin\AutoGather.cs" />
 	</ItemGroup>
 </Project>

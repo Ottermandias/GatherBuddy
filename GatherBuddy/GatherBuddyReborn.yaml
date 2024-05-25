@@ -1,10 +1,10 @@
-name: GatherBuddy
-author: Ottermandias
+name: GatherBuddy Reborn
+author: The Combat Reborn Team
 description: |-
   Adds commands to simplify gathering by finding nodes and fish and their locations
   via item name and a UI to keep track of special uptime and weather conditions.
 punchline: Simplify Gathering and Fishing.
-repo_url: https://github.com/Ottermandias/GatherBuddy
+repo_url: https://github.com/FFXIV-CombatReborn/GatherBuddyReborn
 tags:
   - Gathering
   - Fishing

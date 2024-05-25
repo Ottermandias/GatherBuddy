@@ -483,42 +483,6 @@ namespace GatherBuddy.Plugin
         }
 
 
-        private unsafe void Use100GPAction(List<uint> itemIds)
-        {
-            if (itemIds.Count > 0 && !itemIds.Any(i => i == DesiredItem?.ItemId))
-            {
-                return;
-            }
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1286 || s.StatusId == 756))
-                return;
-            if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < 100)
-                return;
-
-            var actionManager = ActionManager.Instance();
-            switch (Svc.ClientState.LocalPlayer.ClassJob.Id)
-            {
-                case 17:
-                    if (actionManager->GetActionStatus(ActionType.Action, 273) == 0)
-                    {
-                        actionManager->UseAction(ActionType.Action, 273);
-                    }
-                    else if (actionManager->GetActionStatus(ActionType.Action, 4087) == 0)
-                    {
-                        actionManager->UseAction(ActionType.Action, 4087);
-                    }
-                    break;
-                case 16:
-                    if (actionManager->GetActionStatus(ActionType.Action, 272) == 0)
-                    {
-                        actionManager->UseAction(ActionType.Action, 272);
-                    }
-                    else if (actionManager->GetActionStatus(ActionType.Action, 4073) == 0)
-                    {
-                        actionManager->UseAction(ActionType.Action, 4073);
-                    }
-                    break;
-            }
-        }
 
         private unsafe delegate nint ReceiveEventDelegate(AtkEventListener* eventListener, ClickLib.Enums.EventType eventType, uint eventParam, void* eventData, void* inputData);
 
@@ -599,21 +563,6 @@ namespace GatherBuddy.Plugin
         private bool IsDesiredNode(GameObject gameObject)
         {
             return DesiredItem?.NodeList.Any(n => n.WorldCoords.Keys.Any(k => k == gameObject.DataId)) ?? false;
-        }
-
-
-        private unsafe void Dismount()
-        {
-            var am = ActionManager.Instance();
-            am->UseAction(ActionType.Mount, 0);
-        }
-
-        private unsafe void MountUp()
-        {
-            var am = ActionManager.Instance();
-            var mount = GatherBuddy.Config.AutoGatherMountId;
-            if (am->GetActionStatus(ActionType.Mount, mount) != 0) return;
-            am->UseAction(ActionType.Mount, mount);
         }
 
     }

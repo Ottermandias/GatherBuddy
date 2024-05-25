@@ -347,8 +347,8 @@ public class Executor
                 DoWaymarks();
                 return true;
             case GatherBuddy.AutoCommand:
-                GatherBuddy.AutoGather.ShouldAutoGather = !GatherBuddy.AutoGather.ShouldAutoGather;
-                Communicator.Print(GatherBuddy.AutoGather.ShouldAutoGather ? "Auto-gathering enabled." : "Auto-gathering disabled.");
+                GatherBuddy.AutoGather.Enabled = !GatherBuddy.AutoGather.Enabled;
+                Communicator.Print(GatherBuddy.AutoGather.Enabled ? "Auto-gathering enabled." : "Auto-gathering disabled.");
                 return true;
             default: return false;
         }

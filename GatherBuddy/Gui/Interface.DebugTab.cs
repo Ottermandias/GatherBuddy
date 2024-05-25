@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud;
 using Dalamud.Game.ClientState.Objects.Enums;
+using GatherBuddy.AutoGather;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Levenshtein;
@@ -66,7 +67,7 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(n.Folklore);
         ImGuiUtil.DrawTableColumn(n.Times.PrintHours(true));
         ImGuiUtil.DrawTableColumn(n.PrintItems());
-        ImGuiUtil.DrawTableColumn(ToCoordString(n.WorldCoords));
+        ImGuiUtil.DrawTableColumn(ToCoordString(n.WorldPositions));
     }
 
     private static string ToCoordString(Dictionary<uint, List<Vector3>> worldCoords)
@@ -473,6 +474,7 @@ public partial class Interface
         DrawDebugFishingState();
         DrawDebugFishingTimes();
         DrawAlarmDebug();
+        DrawAutoGatherDebug();
         ImGuiTable.DrawTabbedTable($"Aetherytes ({GatherBuddy.GameData.Aetherytes.Count})", GatherBuddy.GameData.Aetherytes.Values,
             DrawDebugAetheryte, flags, "Id", "Name", "Territory", "Coords", "Aetherstream");
         ImGuiTable.DrawTabbedTable($"Territories ({GatherBuddy.GameData.WeatherTerritories.Length})", GatherBuddy.GameData.WeatherTerritories,
@@ -539,6 +541,7 @@ public partial class Interface
                 {
                     VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(obj.Position, true);
                 }
+                ImGui.SameLine();
                 ImGui.PopID();
             }
         }
@@ -560,5 +563,33 @@ public partial class Interface
                 ImGui.PopID();
             }
         }
+    }
+
+    private void DrawAutoGatherDebug()
+    {
+        if (!ImGui.CollapsingHeader("AutoGather"))
+            return;
+
+        ImGui.Text($"Enabled: {GatherBuddy.AutoGather.Enabled}");
+        ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
+        ImGui.Text($"Navigation: {GatherBuddy.AutoGather.LastNavigationResult}");
+        ImGui.Text($"Target Node: {GatherBuddy.AutoGather.NearestNode?.Name} {GatherBuddy.AutoGather.NearestNode?.Position}");
+        ImGui.Text($"Current Destination: {GatherBuddy.AutoGather.CurrentDestination}");
+        ImGui.Text($"ShouldFly: {GatherBuddy.AutoGather.ShouldFly}");
+        ImGui.Text($"IsGathering: {GatherBuddy.AutoGather.IsGathering}");
+        ImGui.Text($"IsPathing: {GatherBuddy.AutoGather.IsPathing}");
+        ImGui.Text($"IsPathGenerating: {GatherBuddy.AutoGather.IsPathGenerating}");
+        ImGui.Text($"NavReady: {GatherBuddy.AutoGather.NavReady}");
+        ImGui.Text($"CanAct: {GatherBuddy.AutoGather.CanAct}");
+        ImGui.Text($"NearestNodeDistance: {GatherBuddy.AutoGather.NearestNodeDistance}");
+        ImGui.Text($"DesiredNodesInZone: {GatherBuddy.AutoGather.DesiredNodesInZone.Count}");
+        ImGui.Text($"DesiredNodeCoordsInZone: {GatherBuddy.AutoGather.DesiredNodeCoordsInZone.Count}");
+        ImGui.Text($"ValidNodesInRange: {GatherBuddy.AutoGather.ValidNodesInRange.Count()}");
+        ImGui.Text($"BlacklistedNodes: {GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.Count}");
+        ImGui.Text($"ItemsToGatherInZone: {GatherBuddy.AutoGather.ItemsToGatherInZone.Count()}");
+        ImGui.Text($"ItemsToGather: {GatherBuddy.AutoGather.ItemsToGather.Count()}");
+
+
+        AutoGatherUI.DrawDebugTables();
     }
 }

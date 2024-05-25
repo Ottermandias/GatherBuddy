@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using Dalamud.Logging;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
@@ -17,6 +18,14 @@ public class Gatherable : IComparable<Gatherable>, IGatherable
     public IList<GatheringNode> NodeList      { get; } = new List<GatheringNode>();
 
     public uint Quantity { get; set; } = 1;
+    public unsafe int InventoryCount
+    {
+        get
+        {
+            var inventory = InventoryManager.Instance();
+            return inventory->GetInventoryItemCount(ItemId);
+        }
+    }
 
     public int InternalLocationId { get; internal set; } = 0;
 

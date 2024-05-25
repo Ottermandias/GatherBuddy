@@ -1,0 +1,183 @@
+﻿using Dalamud.Game.ClientState.Conditions;
+using ECommons.GameHelpers;
+using ECommons.Throttlers;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using GatherBuddy.Classes;
+using GatherBuddy.CustomInfo;
+using GatherBuddy.Interfaces;
+using GatherBuddy.Plugin;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Numerics;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace GatherBuddy.AutoGather
+{
+    public partial class AutoGather
+    {
+        private unsafe void Dismount()
+        {
+            if (!Dalamud.Conditions[ConditionFlag.Mounted]) return;
+            var am = ActionManager.Instance();
+            am->UseAction(ActionType.Mount, 0);
+        }
+
+        private void MoveToClosestAetheryte()
+        {
+            var item = ItemsToGather.FirstOrDefault();
+            if (item == null) return;
+            var location = _plugin.Executor.FindClosestLocation(item);
+            if (location == null) return;
+            if (location.Territory.Id == Dalamud.ClientState.TerritoryType) return;
+            VNavmesh_IPCSubscriber.Path_Stop();
+            TaskManager.Enqueue(() => _plugin.Executor.GatherItem(item));
+            TaskManager.EnqueueDelay(8000);
+        }
+
+        private unsafe void MountUp()
+        {
+            EzThrottler.Throttle("MountUp", 3000);
+            if (!ShouldFly) return;
+            var am = ActionManager.Instance();
+            var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
+            if (am->GetActionStatus(ActionType.Mount, mount) != 0) return;
+            am->UseAction(ActionType.Mount, mount);
+        }
+
+        private void MoveToCloseNode()
+        {
+            if (NearestNodeDistance < 3)
+            {
+                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                {
+                    TaskManager.Enqueue(Dismount);
+                }
+                else
+                {
+                    TaskManager.Enqueue(InteractWithNode);
+                }
+                return;
+            }
+            else if (NearestNodeDistance > 3 && NearestNodeDistance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
+            {
+                CurrentDestination = NearestNode?.Position ?? null;
+                if (Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(Dismount);
+                TaskManager.Enqueue(() => Navigate(false));
+                TaskManager.Enqueue(WaitForDestination);
+            }
+            else
+            {
+                CurrentDestination = NearestNode?.Position ?? null;
+                if (!Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(MountUp);
+                TaskManager.Enqueue(() => Navigate(ShouldFly));
+                TaskManager.Enqueue(WaitForDestination);
+            }
+        }
+
+        private Vector3? lastPosition = null;
+        private DateTime lastMovementTime;
+        private const int stuckThresholdSeconds = 2; // Define the time threshold for being stuck
+
+        private void WaitForDestination()
+        {
+            if (CurrentDestination == null) return;
+
+            if (!IsCloseToDestination())
+            {
+                if (IsPathGenerating)
+                {
+                    TaskManager.Enqueue(() => TaskManager.EnqueueDelay(50));
+                    TaskManager.Enqueue(WaitForDestination);
+                    return;
+                }
+                // Check if character is stuck
+                if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 1.0f)
+                {
+                    // If the character hasn't moved much
+                    if ((DateTime.Now - lastMovementTime).TotalSeconds > stuckThresholdSeconds)
+                    {
+                        GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
+                        ResetNavigation();
+                        return;
+                    }
+                }
+                else
+                {
+                    // Character has moved, update last known position and time
+                    lastPosition = Player.Object.Position;
+                    lastMovementTime = DateTime.Now;
+                }
+
+                // If not close, enqueue the check again after a delay
+                TaskManager.Enqueue(() => TaskManager.EnqueueDelay(50));
+                TaskManager.Enqueue(WaitForDestination);
+            }
+            else
+            {
+                // Arrived at the destination
+                GatherBuddy.Log.Verbose("Arrived at the destination");
+                lastPosition = null; // Reset last known position
+            }
+        }
+        private void ResetNavigation()
+        {
+            // Reset navigation logic here
+            // For example, reinitiate navigation to the destination
+            _lastNavigatedDestination = Vector3.Zero;
+            CurrentDestination = null;
+            VNavmesh_IPCSubscriber.Path_Stop();
+        }
+        private bool IsCloseToDestination()
+        {
+            if (CurrentDestination == null) return false;
+            return Vector3.Distance(Player.Object.Position, CurrentDestination.Value) <= 3;
+        }
+
+        private Vector3 _lastNavigatedDestination = Vector3.Zero;
+        private void Navigate(bool shouldFly)
+        {
+            if (CurrentDestination == null)
+            {
+                GatherBuddy.Log.Verbose("No destination set, skipping navigation");
+            }
+            else if (_lastNavigatedDestination == CurrentDestination)
+            {
+                GatherBuddy.Log.Verbose("Already navigated to destination, skipping navigation");
+            }
+            else
+            {
+                VNavmesh_IPCSubscriber.Path_Stop();
+                GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
+                _lastNavigatedDestination = CurrentDestination.Value;
+                var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh() : CurrentDestination.Value;
+                LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+            }
+        }
+
+        public int CurrentFarNodeIndex = 0;
+        private void MoveToFarNode()
+        {
+            var farNode = DesiredNodeCoordsInZone.ElementAt(CurrentFarNodeIndex);
+            if (Vector3.Distance(Player.Object.Position, farNode) < 150)
+            {
+                CurrentFarNodeIndex++;
+                if (CurrentFarNodeIndex >= DesiredNodeCoordsInZone.Count)
+                {
+                    CurrentFarNodeIndex = 0;
+                }
+                CurrentDestination = null;
+                return;
+            }
+            else
+            {
+                CurrentDestination = farNode;
+                TaskManager.EnqueueDelay(500);
+                if (!Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(MountUp);
+                TaskManager.Enqueue(() => Navigate(ShouldFly));
+                TaskManager.Enqueue(WaitForDestination);
+            }
+        }
+    }
+}

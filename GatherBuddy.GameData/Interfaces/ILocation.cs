@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Numerics;
 using GatherBuddy.Enums;
 
 namespace GatherBuddy.Interfaces;
@@ -11,5 +12,7 @@ public interface ILocation : IMarkable, ITeleportable
     public IEnumerable<IGatherable> Gatherables   { get; }
     public int AetheryteDistance()
         => ClosestAetheryte?.WorldDistance(Territory.Id, IntegralXCoord, IntegralYCoord) ?? int.MaxValue;
+
+    public Dictionary<uint, List<Vector3>> WorldPositions { get; }
 
 }

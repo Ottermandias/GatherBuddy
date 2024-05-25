@@ -42,6 +42,7 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
 
     public string Folklore { get; init; }
 
+
     public GatheringNode(GameData data, IReadOnlyDictionary<uint, List<uint>> gatheringPoint,
         IReadOnlyDictionary<uint, List<uint>> gatheringItemPoint, GatheringPointBase node)
     {
@@ -62,7 +63,7 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
         foreach (var nodeRow2 in nodeList)
         {
             var worldCoords = data.WorldCoords.TryGetValue(nodeRow2, out var wc) ? wc : new List<Vector3>();
-            WorldCoords[nodeRow2] = worldCoords;
+            WorldPositions[nodeRow2] = worldCoords;
         }
 
         Radius = coordRow?.Radius ?? 10;

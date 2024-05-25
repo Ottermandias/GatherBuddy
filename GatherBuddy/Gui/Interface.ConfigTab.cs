@@ -9,6 +9,7 @@ using Dalamud.Interface.Utility;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Alarms;
+using GatherBuddy.AutoGather;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
@@ -55,8 +56,40 @@ public partial class Interface
             if (Widget.DrawChatTypeSelector(label, description, currentValue, setter))
                 GatherBuddy.Config.Save();
         }
+        
+        // Auto-Gather Config
+        public static void DrawBYIIBox()
+            => DrawCheckbox("Use BYII", "Toggle whether to use BYII for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
 
+        public static void DrawBYIIMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP;
+            ImGui.DragInt("BYII Min GP", ref tmp, 1, 100, 30000);
+            GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP = (uint)tmp;
+        }
 
+        public static void DrawBYIIMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP;
+            ImGui.DragInt("BYII Max GP", ref tmp, 1, 100, 30000);
+            GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP = (uint)tmp;
+        }
+
+        public static void DrawLuckBox()
+            => DrawCheckbox("Use Luck", "Toggle whether to use Luck for gathering.", GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction = b);
+
+        public static void DrawLuckMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP;
+            ImGui.DragInt("Luck Min GP", ref tmp, 1, 200, 30000);
+            GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP = (uint)tmp;
+        }
+        public static void DrawLuckMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP;
+            ImGui.DragInt("Luck Max GP", ref tmp, 1, 200, 30000);
+            GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP = (uint)tmp;
+        }
         // General Config
         public static void DrawOpenOnStartBox()
             => DrawCheckbox("Open Config UI On Start",
@@ -223,188 +256,6 @@ public partial class Interface
                 });
 
         private static bool _gatherDebug = false;
-        public static void DrawAutoGatherConfigs()
-        {
-            DrawCheckbox("Auto-Gather", "If enabled, GatherBuddy will automatically move to nearby nodes that contain items listed in the gather window.",
-                       GatherBuddy.AutoGather.ShouldAutoGather, b => GatherBuddy.AutoGather.ShouldAutoGather = b);
-            ImGui.SameLine();
-            DrawMountSelector();
-            ImGui.SameLine();
-            ImGui.Checkbox("Debug", ref _gatherDebug);
-            ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
-            ImGui.Text($"Navigation: {(GatherBuddy.AutoGather.LastPathfindResult ? "Successful" : "Failing")}");
-
-            if (_gatherDebug)
-            {
-                var desiredItem = GatherBuddy.AutoGather.DesiredItem;
-                var targetNode = GatherBuddy.AutoGather.ValidGatherables.FirstOrDefault();
-                var allNodes = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(g => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, g.Position));
-
-                if (ImGui.Button("Reset Nav"))
-                {
-                    VNavmesh_IPCSubscriber.Nav_Reload();
-                }
-                ImGui.SameLine();
-                if (ImGui.Button("Clear Recently Visited Nodes"))
-                {
-                    GatherBuddy.AutoGather.RecentlyVistedNodes.Clear();
-                }
-                ImGui.Text($"Desired Item: {desiredItem?.Name}");
-                ImGui.Text($"Target Node: {targetNode?.Name} {targetNode?.Position}");
-                DrawDebugTables();
-            }
-        }
-
-        private static void DrawDebugTables()
-        {
-            ImGui.Columns(2, "##gatherDebugColumns", true);
-
-            // First column: Nearby nodes table
-            if (ImGui.BeginTable("##nearbyNodesTable", 5, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
-            {
-                ImGui.TableSetupColumn("Name");
-                ImGui.TableSetupColumn("Targetable");
-                ImGui.TableSetupColumn("Position");
-                ImGui.TableSetupColumn("Distance");
-                ImGui.TableSetupColumn("Action");
-
-                ImGui.TableHeadersRow();
-
-                var playerPosition = Player.Object.Position;
-                foreach (var node in Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(o => Vector3.Distance(o.Position, playerPosition)))
-                {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.Text(node.Name.ToString());
-                    ImGui.TableSetColumnIndex(1);
-                    ImGui.Text(node.IsTargetable ? "Y" : "N");
-                    ImGui.TableSetColumnIndex(2);
-                    ImGui.Text(node.Position.ToString());
-                    ImGui.TableSetColumnIndex(3);
-                    var distance = Vector3.Distance(Player.Object.Position, node.Position);
-                    ImGui.Text(distance.ToString());
-                    ImGui.TableSetColumnIndex(4);
-
-                    var territoryId = Dalamud.ClientState.TerritoryType;
-                    var isBlacklisted = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node.Position);
-
-                    if (isBlacklisted)
-                    {
-                        if (ImGui.Button($"Unblacklist##{node.Position}"))
-                        {
-                            list.Remove(node.Position);
-                            if (list.Count == 0)
-                            {
-                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.Remove(territoryId);
-                            }
-                            GatherBuddy.Config.Save();
-                        }
-                    }
-                    else
-                    {
-                        if (ImGui.Button($"Blacklist##{node.Position}"))
-                        {
-                            if (list == null)
-                            {
-                                list = new List<Vector3>();
-                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[territoryId] = list;
-                            }
-                            list.Add(node.Position);
-                            GatherBuddy.Config.Save();
-                        }
-                    }
-                }
-
-                ImGui.EndTable();
-            }
-
-            ImGui.NextColumn(); // Move to the second column
-
-            // Second column: Recently seen nodes table
-            if (ImGui.BeginTable("##recentlySeenNodesTable", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
-            {
-                ImGui.TableSetupColumn("Position");
-                ImGui.TableSetupColumn("Distance");
-                ImGui.TableSetupColumn("Action");
-
-                ImGui.TableHeadersRow();
-
-                foreach (var node in GatherBuddy.AutoGather.RecentlyVistedNodes)
-                {
-                    ImGui.TableNextRow();
-                    ImGui.TableSetColumnIndex(0);
-                    ImGui.Text(node.ToString());
-                    ImGui.TableSetColumnIndex(1);
-                    var distance = Vector3.Distance(Player.Object.Position, node);
-                    ImGui.Text(distance.ToString());
-                    ImGui.TableSetColumnIndex(2);
-
-                    var territoryId = Dalamud.ClientState.TerritoryType;
-                    var isBlacklisted = GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node);
-
-                    if (isBlacklisted)
-                    {
-                        if (ImGui.Button($"Unblacklist##recentlySeen{node}"))
-                        {
-                            list.Remove(node);
-                            if (list.Count == 0)
-                            {
-                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId.Remove(territoryId);
-                            }
-                            GatherBuddy.Config.Save();
-                        }
-                    }
-                    else
-                    {
-                        if (ImGui.Button($"Blacklist##recentlySeen{node}"))
-                        {
-                            if (list == null)
-                            {
-                                list = new List<Vector3>();
-                                GatherBuddy.Config.BlacklistedAutoGatherNodesByTerritoryId[territoryId] = list;
-                            }
-                            list.Add(node);
-                            GatherBuddy.Config.Save();
-                        }
-                    }
-                }
-
-                ImGui.EndTable();
-            }
-
-            ImGui.Columns(1);
-        }
-        private unsafe static void DrawMountSelector()
-        {
-            ImGui.PushItemWidth(300);
-            var ps = PlayerState.Instance();
-            var preview = Dalamud.GameData.GetExcelSheet<Mount>().First(x => x.RowId == GatherBuddy.Config.AutoGatherMountId).Singular.ToString();
-            if (ImGui.BeginCombo("Select Mount", preview))
-            {
-                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherMountId == 0))
-                {
-                    GatherBuddy.Config.AutoGatherMountId = 0;
-                    GatherBuddy.Config.Save();
-                }
-
-                foreach (var mount in Dalamud.GameData.GetExcelSheet<Mount>().OrderBy(x => x.Singular.ToString()))
-                {
-                    if (ps->IsMountUnlocked(mount.RowId))
-                    {
-                        var selected = ImGui.Selectable(mount.Singular.ToString(), GatherBuddy.Config.AutoGatherMountId == mount.RowId);
-
-                        if (selected)
-                        {
-                            GatherBuddy.Config.AutoGatherMountId = mount.RowId;
-                            GatherBuddy.Config.Save();
-                        }
-                    }
-                }
-
-                ImGui.EndCombo();
-            }
-        }
-
         public static void DrawAlarmsInDutyToggle()
             => DrawCheckbox("Enable Alarms in Duty", "Set whether alarms should trigger while you are bound by a duty.",
                 GatherBuddy.Config.AlarmsInDuty, b => GatherBuddy.Config.AlarmsInDuty = b);
@@ -703,6 +554,33 @@ public partial class Interface
         using var child = ImRaii.Child("ConfigTab");
         if (!child)
             return;
+
+        if (ImGui.CollapsingHeader("Auto-Gather"))
+        {
+            if (ImGui.TreeNodeEx("General##autoGeneral"))
+            {
+                AutoGatherUI.DrawMountSelector();
+                ImGui.TreePop();
+            }
+            if (ImGui.TreeNodeEx("Actions"))
+            {
+                if (ImGui.TreeNodeEx("Bountiful Yield"))
+                {
+                    ConfigFunctions.DrawBYIIBox();
+                    ConfigFunctions.DrawBYIIMinGP();
+                    ConfigFunctions.DrawBYIIMaxGP();
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Luck"))
+                {
+                    ConfigFunctions.DrawLuckBox();
+                    ConfigFunctions.DrawLuckMinGP();
+                    ConfigFunctions.DrawLuckMaxGP();
+                    ImGui.TreePop();
+                }
+                ImGui.TreePop();
+            }
+        }
 
         if (ImGui.CollapsingHeader("General"))
         {
