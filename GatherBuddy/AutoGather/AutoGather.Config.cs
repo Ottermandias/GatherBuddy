@@ -15,6 +15,7 @@ namespace GatherBuddy.AutoGather
 
     public ActionConfig BYIIConfig { get; set; } = new(true, 100, uint.MaxValue);
     public ActionConfig LuckConfig { get; set; } = new(true, 200, uint.MaxValue);
+    public bool DoGathering { get; set; } = true;
 
     public class ActionConfig
     {
