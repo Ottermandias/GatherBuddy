@@ -79,6 +79,8 @@ namespace GatherBuddy.AutoGather
         private Vector3? lastPosition = null;
         private DateTime lastMovementTime;
         private const int stuckThresholdSeconds = 2; // Define the time threshold for being stuck
+        private DateTime lastResetTime;
+        private const int resetCooldownSeconds = 5; // Cooldown period before resetting again
 
         private void WaitForDestination()
         {
@@ -92,15 +94,21 @@ namespace GatherBuddy.AutoGather
                     TaskManager.Enqueue(WaitForDestination);
                     return;
                 }
+
                 // Check if character is stuck
                 if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 1.0f)
                 {
                     // If the character hasn't moved much
                     if ((DateTime.Now - lastMovementTime).TotalSeconds > stuckThresholdSeconds)
                     {
-                        GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
-                        ResetNavigation();
-                        return;
+                        // Check if enough time has passed since the last reset
+                        if ((DateTime.Now - lastResetTime).TotalSeconds > resetCooldownSeconds)
+                        {
+                            GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
+                            ResetNavigation();
+                            lastResetTime = DateTime.Now;
+                            return;
+                        }
                     }
                 }
                 else

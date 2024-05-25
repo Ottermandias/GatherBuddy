@@ -17,6 +17,7 @@ namespace GatherBuddy.AutoGather
         {
             var gatherable = ItemsToGather.FirstOrDefault() as Gatherable;
             if (gatherable == null) return false;
+            if (Player.Level < 55) return false;
             if (!gatherable.GatheringData.IsHidden) return false;
             if (ids.Count > 0 && ids.Any(i => i == gatherable.ItemId))
             {
@@ -29,6 +30,7 @@ namespace GatherBuddy.AutoGather
         }
         public bool ShoulduseBYII()
         {
+            if (Player.Level < 68) return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1286 || s.StatusId == 756))
                 return false;
             if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP)

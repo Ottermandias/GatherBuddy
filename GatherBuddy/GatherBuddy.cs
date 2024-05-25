@@ -140,7 +140,7 @@ public partial class GatherBuddy : IDalamudPlugin
             if (plugin.Name == "GatherBuddy")
             {
                 Log.Error("First Party GatherBuddy detected. Please uninstall it to use this version.");
-                Communicator.PrintError("[GatherBuddyReborn] First Party GatherBuddy detected. Please uninstall it and restart your game to use this version.");
+                Communicator.PrintError("[GatherBuddy Reborn] First Party GatherBuddy detected. Please uninstall it and restart your game to use this version.");
                 break;
             }
         }
