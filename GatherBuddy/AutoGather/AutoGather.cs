@@ -68,11 +68,13 @@ namespace GatherBuddy.AutoGather
             else if (IsGathering)
             {
                 AutoStatus = "Gathering...";
+                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(DoActionTasks);
             }
             else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
             {
                 AutoStatus = $"Teleporting to {location.Territory.Name}...";
+                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(MoveToClosestAetheryte);
             }
             else if (IsPathGenerating)

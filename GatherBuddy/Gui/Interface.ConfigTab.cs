@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.Text;
@@ -92,6 +93,29 @@ public partial class Interface
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP;
             ImGui.DragInt("Luck Max GP", ref tmp, 1, 200, 30000);
             GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP = (uint)tmp;
+        }
+        public static void DrawMountUpDistance()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
+            ImGui.DragFloat("Mount Up Distance", ref tmp, 0.1f, 0.1f, 100f);
+            ImGuiUtil.HoverTooltip("The distance at which you will mount up to move to a node.");
+            GatherBuddy.Config.AutoGatherConfig.MountUpDistance = tmp;
+        }
+        public static void DrawAntiStuckCooldown()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.NavResetCooldown;
+            ImGui.DragFloat("Anti-Stuck Cooldown", ref tmp, 0.1f, 0.1f, 10f);
+            ImGuiUtil.HoverTooltip("The time in seconds before the navigation system will reset if you are stuck.");
+            GatherBuddy.Config.AutoGatherConfig.NavResetCooldown = tmp;
+        }
+        public static void DrawForceWalkingBox()
+            => DrawCheckbox("Force Walking", "Force walking to nodes instead of using mounts.", GatherBuddy.Config.AutoGatherConfig.ForceWalking, b => GatherBuddy.Config.AutoGatherConfig.ForceWalking = b);
+        public static void DrawStuckThreshold()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.NavResetThreshold;
+            ImGui.DragFloat("Stuck Threshold", ref tmp, 0.1f, 0.1f, 10f);
+            ImGuiUtil.HoverTooltip("The time in seconds before the navigation system will consider you stuck.");
+            GatherBuddy.Config.AutoGatherConfig.NavResetThreshold = tmp;
         }
         // General Config
         public static void DrawOpenOnStartBox()
@@ -563,6 +587,7 @@ public partial class Interface
             if (ImGui.TreeNodeEx("General##autoGeneral"))
             {
                 AutoGatherUI.DrawMountSelector();
+                ConfigFunctions.DrawMountUpDistance();
                 ImGui.TreePop();
             }
             if (ImGui.TreeNodeEx("Actions"))
@@ -586,6 +611,9 @@ public partial class Interface
             if (ImGui.TreeNodeEx("Advanced"))
             {
                 ConfigFunctions.DrawAutoGatherBox();
+                ConfigFunctions.DrawForceWalkingBox();
+                ConfigFunctions.DrawAntiStuckCooldown();
+                ConfigFunctions.DrawStuckThreshold();
                 ImGui.TreePop();
             }
         }

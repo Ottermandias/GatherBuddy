@@ -39,8 +39,8 @@ namespace GatherBuddy.AutoGather
         private unsafe void MountUp()
         {
             EzThrottler.Throttle("MountUp", 3000);
-            if (!ShouldFly) return;
             var am = ActionManager.Instance();
+            if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero) <= GatherBuddy.Config.AutoGatherConfig.MountUpDistance) return;
             var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
             if (am->GetActionStatus(ActionType.Mount, mount) != 0) return;
             am->UseAction(ActionType.Mount, mount);
@@ -71,6 +71,7 @@ namespace GatherBuddy.AutoGather
             {
                 CurrentDestination = NearestNode?.Position ?? null;
                 if (!Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(MountUp);
+                TaskManager.EnqueueDelay(1500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
@@ -78,9 +79,7 @@ namespace GatherBuddy.AutoGather
 
         private Vector3? lastPosition = null;
         private DateTime lastMovementTime;
-        private const int stuckThresholdSeconds = 2; // Define the time threshold for being stuck
         private DateTime lastResetTime;
-        private const int resetCooldownSeconds = 5; // Cooldown period before resetting again
 
         private void WaitForDestination()
         {
@@ -99,10 +98,10 @@ namespace GatherBuddy.AutoGather
                 if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 1.0f)
                 {
                     // If the character hasn't moved much
-                    if ((DateTime.Now - lastMovementTime).TotalSeconds > stuckThresholdSeconds)
+                    if ((DateTime.Now - lastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
                     {
                         // Check if enough time has passed since the last reset
-                        if ((DateTime.Now - lastResetTime).TotalSeconds > resetCooldownSeconds)
+                        if ((DateTime.Now - lastResetTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
                         {
                             GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
                             ResetNavigation();
@@ -183,6 +182,7 @@ namespace GatherBuddy.AutoGather
                 CurrentDestination = farNode;
                 TaskManager.EnqueueDelay(500);
                 if (!Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(MountUp);
+                TaskManager.EnqueueDelay(1500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
