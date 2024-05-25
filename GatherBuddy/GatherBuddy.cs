@@ -122,12 +122,27 @@ public partial class GatherBuddy : IDalamudPlugin
             Dalamud.Framework.Update += Update;
 
             Ipc = new GatherBuddyIpc(this);
+            CheckForOGGB();
             //Wotsit = new WotsitIpc();
         }
         catch
         {
             ((IDisposable)this).Dispose();
             throw;
+        }
+    }
+
+    private void CheckForOGGB()
+    {
+        var plugins = Dalamud.PluginInterface.InstalledPlugins;
+        foreach (var plugin in plugins)
+        {
+            if (plugin.Name == "GatherBuddy")
+            {
+                Log.Error("First Party GatherBuddy detected. Please uninstall it to use this version.");
+                Communicator.PrintError("[GatherBuddyReborn] First Party GatherBuddy detected. Please uninstall it and restart your game to use this version.");
+                break;
+            }
         }
     }
 
