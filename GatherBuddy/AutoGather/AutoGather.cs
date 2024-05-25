@@ -65,15 +65,15 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Player is busy...";
                 return;
             }
-            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
-            {
-                AutoStatus = $"Teleporting to {location.Territory.Name}...";
-                TaskManager.Enqueue(MoveToClosestAetheryte);
-            }
             else if (IsGathering)
             {
                 AutoStatus = "Gathering...";
                 TaskManager.Enqueue(DoActionTasks);
+            }
+            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
+            {
+                AutoStatus = $"Teleporting to {location.Territory.Name}...";
+                TaskManager.Enqueue(MoveToClosestAetheryte);
             }
             else if (IsPathGenerating)
             {
