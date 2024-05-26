@@ -71,12 +71,6 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(DoActionTasks);
             }
-            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
-            {
-                AutoStatus = $"Teleporting to {location.Territory.Name}...";
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(MoveToClosestAetheryte);
-            }
             else if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
@@ -91,6 +85,12 @@ namespace GatherBuddy.AutoGather
             {
                 AutoStatus = "Moving to far node...";
                 TaskManager.Enqueue(MoveToFarNode);
+            }
+            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
+            {
+                AutoStatus = $"Teleporting to {location.Territory.Name}...";
+                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
+                TaskManager.Enqueue(MoveToClosestAetheryte);
             }
             else
             {
