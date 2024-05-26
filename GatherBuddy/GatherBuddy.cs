@@ -137,7 +137,7 @@ public partial class GatherBuddy : IDalamudPlugin
         var plugins = Dalamud.PluginInterface.InstalledPlugins;
         foreach (var plugin in plugins)
         {
-            if (plugin.Name == "GatherBuddy")
+            if (plugin.Name == "GatherBuddy" && plugin.IsLoaded)
             {
                 Log.Error("First Party GatherBuddy detected. Please uninstall it to use this version.");
                 Communicator.PrintError("[GatherBuddy Reborn] First Party GatherBuddy detected. Please uninstall it and restart your game to use this version.");
