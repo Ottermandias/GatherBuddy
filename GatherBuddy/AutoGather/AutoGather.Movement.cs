@@ -90,7 +90,6 @@ namespace GatherBuddy.AutoGather
                 if (IsPathGenerating)
                 {
                     TaskManager.Enqueue(() => TaskManager.EnqueueDelay(50));
-                    TaskManager.Enqueue(WaitForDestination);
                     return;
                 }
 
@@ -167,7 +166,7 @@ namespace GatherBuddy.AutoGather
         private void MoveToFarNode()
         {
             var farNode = DesiredNodeCoordsInZone.ElementAt(CurrentFarNodeIndex);
-            if (Vector3.Distance(Player.Object.Position, farNode) < 150)
+            if (Vector3.Distance(Player.Object.Position, farNode) < 50)
             {
                 CurrentFarNodeIndex++;
                 if (CurrentFarNodeIndex >= DesiredNodeCoordsInZone.Count)
