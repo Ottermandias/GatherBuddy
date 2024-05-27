@@ -87,16 +87,16 @@ namespace GatherBuddy.AutoGather
                 HiddenRevealed = false;
                 TaskManager.Enqueue(MoveToCloseNode);
             }
-            else if (DesiredNodesInZone.Any())
-            {
-                AutoStatus = "Moving to far node...";
-                TaskManager.Enqueue(MoveToFarNode);
-            }
             else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
             {
                 AutoStatus = $"Teleporting to {location.Territory.Name}...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(MoveToClosestAetheryte);
+            }
+            else if (DesiredNodesInZone.Any())
+            {
+                AutoStatus = "Moving to far node...";
+                TaskManager.Enqueue(MoveToFarNode);
             }
             else
             {
