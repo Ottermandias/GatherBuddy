@@ -62,6 +62,12 @@ public partial class Interface
         public static void DrawAutoGatherBox()
             => DrawCheckbox("Enable Gathering Window Interaction (DISABLING THIS IS UNSUPPORTED)", "Toggle whether to automatically gather items. (Disable this for 'nav only mode')", GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
 
+        public static void DrawMinimumGPGathering()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
+            ImGui.DragInt("Minimum GP for Gathering", ref tmp, 1, 0, 30000);
+            GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering = (uint)tmp;
+        }
         public static void DrawBYIIBox()
             => DrawCheckbox("Use BYII", "Toggle whether to use BYII for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
 
@@ -588,6 +594,7 @@ public partial class Interface
             {
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
+                ConfigFunctions.DrawMinimumGPGathering();
                 ImGui.TreePop();
             }
             if (ImGui.TreeNodeEx("Actions"))

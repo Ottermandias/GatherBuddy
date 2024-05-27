@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ECommons.GameHelpers;
 
 namespace GatherBuddy.AutoGather
 {
@@ -77,20 +78,25 @@ namespace GatherBuddy.AutoGather
             }
             else if (ValidNodesInRange.Any())
             {
+                if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
+                {
+                    AutoStatus = "Waiting for GP to regenerate...";
+                    return;
+                }
                 AutoStatus = "Moving to node...";
                 HiddenRevealed = false;
                 TaskManager.Enqueue(MoveToCloseNode);
-            }
-            else if (DesiredNodesInZone.Any())
-            {
-                AutoStatus = "Moving to far node...";
-                TaskManager.Enqueue(MoveToFarNode);
             }
             else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
             {
                 AutoStatus = $"Teleporting to {location.Territory.Name}...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(MoveToClosestAetheryte);
+            }
+            else if (DesiredNodesInZone.Any())
+            {
+                AutoStatus = "Moving to far node...";
+                TaskManager.Enqueue(MoveToFarNode);
             }
             else
             {

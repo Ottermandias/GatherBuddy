@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
@@ -157,7 +158,7 @@ public partial class Interface
         {
             try
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:14500/{addressEnd}");
+                using var request  = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:14500/{addressEnd}");
                 using var response = GatherBuddy.HttpClient.Send(request);
             }
             catch
@@ -206,6 +207,38 @@ public partial class Interface
             Communicator.Print(SeString.CreateItemLink(item.ItemId));
         DrawOpenInGarlandTools(item.ItemId);
         DrawOpenInTeamCraft(item.ItemId);
+        DrawAddToAutoGather(item);
+    }
+
+    private const string PresetName = "From Gatherables List";
+
+    private static void DrawAddToAutoGather(IGatherable item)
+    {
+        if (ImGui.Selectable($"Add to Auto-Gather List"))
+        {
+            // Fetch preset if exists.
+            var preset = _plugin.GatherWindowManager.Presets.FirstOrDefault(p => p.Name == PresetName);
+
+            // Create and add preset if it doesn't exist.
+            preset = preset ?? CreateAndAddPreset(item);
+
+            // Add item to existing preset.
+            _plugin.GatherWindowManager.AddItem(preset, item);
+        }
+    }
+
+    private static GatherWindowPreset CreateAndAddPreset(IGatherable item)
+    {
+        var preset = new GatherWindowPreset
+        {
+            Enabled     = true,
+            Items       = new List<IGatherable> { item },
+            Description = AutomaticallyGenerated,
+            Name        = PresetName,
+        };
+        _plugin.GatherWindowManager.AddPreset(preset);
+
+        return preset;
     }
 
     public static void CreateGatherWindowContextMenu(IGatherable item, bool clicked)
