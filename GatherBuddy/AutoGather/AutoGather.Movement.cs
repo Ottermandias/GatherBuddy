@@ -166,7 +166,7 @@ namespace GatherBuddy.AutoGather
         private void MoveToFarNode()
         {
             var farNode = DesiredNodeCoordsInZone.ElementAt(CurrentFarNodeIndex);
-            if (Vector3.Distance(Player.Object.Position, farNode) < 50)
+            if (Vector3.Distance(Player.Object.Position, farNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
             {
                 CurrentFarNodeIndex++;
                 if (CurrentFarNodeIndex >= DesiredNodeCoordsInZone.Count)
