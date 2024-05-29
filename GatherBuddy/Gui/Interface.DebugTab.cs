@@ -598,7 +598,7 @@ public partial class Interface
         {
             for (int i = 0; i < GatherBuddy.AutoGather.ItemsToGather.Count(); i++)
             {
-                var item = GatherBuddy.AutoGather.ItemsToGatherInZone.ElementAt(i);
+                var item = GatherBuddy.AutoGather.ItemsToGather.ElementAt(i);
                 ImGui.Text($"{item.Name} - Priority {i}");
             }
         }
