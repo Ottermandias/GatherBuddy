@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ECommons.GameHelpers;
+using GatherBuddy.CustomInfo;
 
 namespace GatherBuddy.AutoGather
 {
@@ -93,7 +94,12 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(MoveToClosestAetheryte);
             }
-            else if (DesiredNodesInZone.Any())
+            else if (MapFlagPosition != null && MapFlagPosition.Value.DistanceToPlayer() > 150 && !GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing)
+            {
+                AutoStatus = "Moving to farming area...";
+                TaskManager.Enqueue(MoveToFlag);
+            }
+            else if (DesiredNodeCoordsInZone.Any())
             {
                 AutoStatus = "Moving to far node...";
                 TaskManager.Enqueue(MoveToFarNode);

@@ -9,6 +9,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using GatherBuddy.CustomInfo;
 
 namespace GatherBuddy.AutoGather
 {
@@ -35,6 +36,29 @@ namespace GatherBuddy.AutoGather
         public bool IsGathering => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
         public bool? LastNavigationResult { get; set; } = null;
         public Vector3? CurrentDestination { get; set; } = null;
+
+        public unsafe Vector3? MapFlagPosition
+        {
+            get
+            {
+                var map = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
+                if (map == null || map->IsFlagMarkerSet == 0)
+                    return null;
+                if (map->CurrentTerritoryId != Dalamud.ClientState.TerritoryType)
+                    return null;
+                var marker             = map->FlagMapMarker;
+                var mapPosition        = new Vector2(marker.XFloat, marker.YFloat);
+                var uncorrectedVector3 = new Vector3(mapPosition.X, 1024, mapPosition.Y);
+                var correctedVector3   = uncorrectedVector3.CorrectForMesh();
+                if (uncorrectedVector3 == correctedVector3)
+                    return null;
+                else
+                {
+                    return correctedVector3;
+                }
+            }
+        }
+
         public bool ShouldFly
         {
             get

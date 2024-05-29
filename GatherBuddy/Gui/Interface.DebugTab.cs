@@ -585,6 +585,23 @@ public partial class Interface
         ImGui.Text($"BlacklistedNodes: {GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.Count}");
         ImGui.Text($"ItemsToGatherInZone: {GatherBuddy.AutoGather.ItemsToGatherInZone.Count()}");
         ImGui.Text($"ItemsToGather: {GatherBuddy.AutoGather.ItemsToGather.Count()}");
+        if (ImGui.CollapsingHeader("Item Priority (Current Zone)"))
+        {
+            for (int i = 0; i < GatherBuddy.AutoGather.ItemsToGatherInZone.Count(); i++)
+            {
+                var item = GatherBuddy.AutoGather.ItemsToGatherInZone.ElementAt(i);
+                ImGui.Text($"{item.Name} - Priority {i}");
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Item Priority (All)"))
+        {
+            for (int i = 0; i < GatherBuddy.AutoGather.ItemsToGather.Count(); i++)
+            {
+                var item = GatherBuddy.AutoGather.ItemsToGatherInZone.ElementAt(i);
+                ImGui.Text($"{item.Name} - Priority {i}");
+            }
+        }
 
 
         AutoGatherUI.DrawDebugTables();

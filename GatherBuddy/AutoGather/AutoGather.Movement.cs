@@ -186,5 +186,15 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(WaitForDestination);
             }
         }
+
+        private void MoveToFlag()
+        {
+            CurrentDestination = MapFlagPosition;
+            if (!Dalamud.Conditions[ConditionFlag.Mounted])
+                TaskManager.Enqueue(MountUp);
+            TaskManager.EnqueueDelay(1500);
+            TaskManager.Enqueue(() => Navigate(ShouldFly));
+            TaskManager.Enqueue(WaitForDestination);
+        }
     }
 }

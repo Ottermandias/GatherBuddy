@@ -21,6 +21,7 @@ namespace GatherBuddy.AutoGather
         public float        NavResetThreshold     { get; set; } = 2.0f;
         public bool         ForceWalking          { get; set; } = false;
         public float        FarNodeFilterDistance { get; set; } = 50.0f;
+        public bool         DisableFlagPathing    { get; set; } = false;
 
         public class ActionConfig
         {
