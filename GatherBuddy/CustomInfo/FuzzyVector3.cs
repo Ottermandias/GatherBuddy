@@ -5,6 +5,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using ECommons.GameHelpers;
 
 namespace GatherBuddy.CustomInfo
 {
@@ -43,6 +44,12 @@ namespace GatherBuddy.CustomInfo
                 GatherBuddy.Log.Debug("Failed to correct for mesh, returning original vector.");
                 return vector.Fuzz();
             }
+        }
+
+        public static float DistanceToPlayer(this Vector3 vector)
+        {
+            var distance = Vector3.Distance(vector, Player.Object.Position);
+            return distance;
         }
     }
 }

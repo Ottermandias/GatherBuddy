@@ -19,7 +19,9 @@ namespace GatherBuddy.AutoGather
     {
         private unsafe void Dismount()
         {
-            if (!Dalamud.Conditions[ConditionFlag.Mounted]) return;
+            if (!Dalamud.Conditions[ConditionFlag.Mounted])
+                return;
+
             var am = ActionManager.Instance();
             am->UseAction(ActionType.Mount, 0);
         }
@@ -27,22 +29,32 @@ namespace GatherBuddy.AutoGather
         private void MoveToClosestAetheryte()
         {
             var item = ItemsToGather.FirstOrDefault();
-            if (item == null) return;
+            if (item == null)
+                return;
+
             var location = _plugin.Executor.FindClosestLocation(item);
-            if (location == null) return;
-            if (location.Territory.Id == Dalamud.ClientState.TerritoryType) return;
+            if (location == null)
+                return;
+            if (location.Territory.Id == Dalamud.ClientState.TerritoryType)
+                return;
+
             VNavmesh_IPCSubscriber.Path_Stop();
             TaskManager.Enqueue(() => _plugin.Executor.GatherItem(item));
-            TaskManager.EnqueueDelay(8000);
+            TaskManager.EnqueueDelay(10000);
         }
 
         private unsafe void MountUp()
         {
             EzThrottler.Throttle("MountUp", 3000);
             var am = ActionManager.Instance();
-            if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero) <= GatherBuddy.Config.AutoGatherConfig.MountUpDistance) return;
+            if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero)
+             <= GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
+                return;
+
             var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
-            if (am->GetActionStatus(ActionType.Mount, mount) != 0) return;
+            if (am->GetActionStatus(ActionType.Mount, mount) != 0)
+                return;
+
             am->UseAction(ActionType.Mount, mount);
         }
 
@@ -58,19 +70,20 @@ namespace GatherBuddy.AutoGather
                 {
                     TaskManager.Enqueue(InteractWithNode);
                 }
+
                 return;
             }
             else if (NearestNodeDistance > 3 && NearestNodeDistance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
             {
                 CurrentDestination = NearestNode?.Position ?? null;
-                if (Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(Dismount);
                 TaskManager.Enqueue(() => Navigate(false));
                 TaskManager.Enqueue(WaitForDestination);
             }
             else
             {
                 CurrentDestination = NearestNode?.Position ?? null;
-                if (!Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(MountUp);
+                if (!Dalamud.Conditions[ConditionFlag.Mounted])
+                    TaskManager.Enqueue(MountUp);
                 TaskManager.EnqueueDelay(1500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
@@ -83,7 +96,8 @@ namespace GatherBuddy.AutoGather
 
         private void WaitForDestination()
         {
-            if (CurrentDestination == null) return;
+            if (CurrentDestination == null)
+                return;
 
             if (!IsCloseToDestination())
             {
@@ -112,7 +126,7 @@ namespace GatherBuddy.AutoGather
                 else
                 {
                     // Character has moved, update last known position and time
-                    lastPosition = Player.Object.Position;
+                    lastPosition     = Player.Object.Position;
                     lastMovementTime = DateTime.Now;
                 }
 
@@ -124,24 +138,34 @@ namespace GatherBuddy.AutoGather
             {
                 // Arrived at the destination
                 GatherBuddy.Log.Verbose("Arrived at the destination");
+                if (Vector3.Distance(Player.Object.Position, (MapFlagPosition.HasValue ? MapFlagPosition.Value : Player.Object.Position)) < 50 )
+                {
+                    HasSeenFlag = true;
+                }
+
                 lastPosition = null; // Reset last known position
             }
         }
+
         private void ResetNavigation()
         {
             // Reset navigation logic here
             // For example, reinitiate navigation to the destination
             _lastNavigatedDestination = Vector3.Zero;
-            CurrentDestination = null;
+            CurrentDestination        = null;
             VNavmesh_IPCSubscriber.Path_Stop();
         }
+
         private bool IsCloseToDestination()
         {
-            if (CurrentDestination == null) return false;
+            if (CurrentDestination == null)
+                return false;
+
             return Vector3.Distance(Player.Object.Position, CurrentDestination.Value) <= 3;
         }
 
         private Vector3 _lastNavigatedDestination = Vector3.Zero;
+
         private void Navigate(bool shouldFly)
         {
             if (CurrentDestination == null)
@@ -163,28 +187,43 @@ namespace GatherBuddy.AutoGather
         }
 
         public int CurrentFarNodeIndex = 0;
+
         private void MoveToFarNode()
         {
-            var farNode = DesiredNodeCoordsInZone.ElementAt(CurrentFarNodeIndex);
-            if (Vector3.Distance(Player.Object.Position, farNode) < 50)
+            var farNode = DesiredNodeCoordsInZone.ElementAtOrDefault(CurrentFarNodeIndex);
+            if (farNode == null || Vector3.Distance(Player.Object.Position, farNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
             {
                 CurrentFarNodeIndex++;
                 if (CurrentFarNodeIndex >= DesiredNodeCoordsInZone.Count)
                 {
                     CurrentFarNodeIndex = 0;
                 }
+
                 CurrentDestination = null;
+                AutoStatus         = "Looking for far away nodes...";
                 return;
             }
             else
             {
+                AutoStatus = "Moving to far node...";
                 CurrentDestination = farNode;
                 TaskManager.EnqueueDelay(500);
-                if (!Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.Enqueue(MountUp);
+                if (!Dalamud.Conditions[ConditionFlag.Mounted])
+                    TaskManager.Enqueue(MountUp);
                 TaskManager.EnqueueDelay(1500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
+        }
+
+        private void MoveToFlag()
+        {
+            CurrentDestination = MapFlagPosition;
+            if (!Dalamud.Conditions[ConditionFlag.Mounted])
+                TaskManager.Enqueue(MountUp);
+            TaskManager.EnqueueDelay(1500);
+            TaskManager.Enqueue(() => Navigate(ShouldFly));
+            TaskManager.Enqueue(WaitForDestination);
         }
     }
 }

@@ -6,6 +6,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ECommons.GameHelpers;
+using GatherBuddy.CustomInfo;
+using GatherBuddy.Enums;
 
 namespace GatherBuddy.AutoGather
 {
@@ -87,15 +89,20 @@ namespace GatherBuddy.AutoGather
                 HiddenRevealed = false;
                 TaskManager.Enqueue(MoveToCloseNode);
             }
-            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
+            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType || location.GatheringType.ToGroup() != JobAsGatheringType)
             {
-                AutoStatus = $"Teleporting to {location.Territory.Name}...";
+                AutoStatus  = $"Moving to gather item in {location.Territory.Name}...";
+                HasSeenFlag = false;
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(MoveToClosestAetheryte);
             }
-            else if (DesiredNodesInZone.Any())
+            else if (MapFlagPosition != null && MapFlagPosition.Value.DistanceToPlayer() > 150 && ShouldUseFlag)
             {
-                AutoStatus = "Moving to far node...";
+                AutoStatus  = "Moving to farming area...";
+                TaskManager.Enqueue(MoveToFlag);
+            }
+            else if (DesiredNodeCoordsInZone.Any())
+            {
                 TaskManager.Enqueue(MoveToFarNode);
             }
             else
