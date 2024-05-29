@@ -9,7 +9,10 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using ECommons.ExcelServices;
+using ECommons.GameHelpers;
 using GatherBuddy.CustomInfo;
+using GatherBuddy.Enums;
 
 namespace GatherBuddy.AutoGather
 {
@@ -36,6 +39,35 @@ namespace GatherBuddy.AutoGather
         public bool IsGathering => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
         public bool? LastNavigationResult { get; set; } = null;
         public Vector3? CurrentDestination { get; set; } = null;
+        public bool HasSeenFlag { get; set; } = false;
+
+        public GatheringType JobAsGatheringType
+        {
+            get
+            {
+                var job = Player.Job;
+                switch (job)
+                {
+                    case Job.MIN: return GatheringType.Miner;
+                    case Job.BTN: return GatheringType.Botanist;
+                    case Job.FSH: return GatheringType.Fisher;
+                    default:      return GatheringType.Unknown;
+                }
+            }
+        }
+
+        public bool ShouldUseFlag
+        {
+            get
+            {
+                if (GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing)
+                    return false;
+                if (HasSeenFlag)
+                    return false;
+
+                return true;
+            }
+        }
 
         public unsafe Vector3? MapFlagPosition
         {

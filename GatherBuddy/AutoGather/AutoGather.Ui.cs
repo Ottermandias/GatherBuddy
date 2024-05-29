@@ -24,7 +24,7 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.AutoGather.Enabled = enabled;
             }
             ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
-            var lastNavString = GatherBuddy.AutoGather.LastNavigationResult.HasValue ? GatherBuddy.AutoGather.LastNavigationResult.Value ? "Successful" : "Failed" : "None";
+            var lastNavString = GatherBuddy.AutoGather.LastNavigationResult.HasValue ? GatherBuddy.AutoGather.LastNavigationResult.Value ? "Successful" : "Failed (If you're seeing this you probably need to restart your game)" : "None";
             ImGui.Text($"Navigation: {lastNavString}");
         }
 
@@ -96,7 +96,7 @@ namespace GatherBuddy.AutoGather
         {
             ImGui.PushItemWidth(300);
             var ps = PlayerState.Instance();
-            var preview = Dalamud.GameData.GetExcelSheet<Mount>().First(x => x.RowId == GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId).Singular.ToString();
+            var preview = Dalamud.GameData.GetExcelSheet<Mount>().First(x => x.RowId == GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId).Singular.ToString().ToProperCase();
             if (ImGui.BeginCombo("Select Mount", preview))
             {
                 if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == 0))
@@ -105,11 +105,11 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Config.Save();
                 }
 
-                foreach (var mount in Dalamud.GameData.GetExcelSheet<Mount>().OrderBy(x => x.Singular.ToString()))
+                foreach (var mount in Dalamud.GameData.GetExcelSheet<Mount>().OrderBy(x => x.Singular.ToString().ToProperCase()))
                 {
                     if (ps->IsMountUnlocked(mount.RowId))
                     {
-                        var selected = ImGui.Selectable(mount.Singular.ToString(), GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == mount.RowId);
+                        var selected = ImGui.Selectable(mount.Singular.ToString().ToProperCase(), GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == mount.RowId);
 
                         if (selected)
                         {
@@ -122,7 +122,16 @@ namespace GatherBuddy.AutoGather
                 ImGui.EndCombo();
             }
         }
-
+        
+/// <summary>
+/// Extension method to convert the strings to Proper Case.
+/// </summary>
+/// <param name="input">The string input.</param>
+/// <returns>The string in Proper Case.</returns>
+public static string ToProperCase(this string input)
+{
+    return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input.ToLower());
+}
 
     }
 }

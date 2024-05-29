@@ -69,6 +69,9 @@ public partial class Interface
             GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering = (uint)tmp;
         }
 
+        public static void DrawUseFlagBox()
+            => DrawCheckbox("Disable flag navigation",                  "Whether or not to navigate to the flag on the map",
+                GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing, b => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing = b);
         public static void DrawFarNodeFilterDistance()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance;
@@ -626,6 +629,7 @@ public partial class Interface
             if (ImGui.TreeNodeEx("Advanced"))
             {
                 ConfigFunctions.DrawAutoGatherBox();
+                ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();

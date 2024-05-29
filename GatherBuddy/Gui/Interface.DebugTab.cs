@@ -585,6 +585,9 @@ public partial class Interface
         ImGui.Text($"BlacklistedNodes: {GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.Count}");
         ImGui.Text($"ItemsToGatherInZone: {GatherBuddy.AutoGather.ItemsToGatherInZone.Count()}");
         ImGui.Text($"ItemsToGather: {GatherBuddy.AutoGather.ItemsToGather.Count()}");
+        ImGui.Text($"ShouldUseFlag: {GatherBuddy.AutoGather.ShouldUseFlag}");
+        ImGui.Text(($"HasSeenFlag: {GatherBuddy.AutoGather.HasSeenFlag}"));
+        
         if (ImGui.CollapsingHeader("Item Priority (Current Zone)"))
         {
             for (int i = 0; i < GatherBuddy.AutoGather.ItemsToGatherInZone.Count(); i++)
