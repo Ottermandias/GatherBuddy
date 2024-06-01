@@ -255,10 +255,15 @@ public class GatherWindow : Window
 
     public override void Draw()
     {
+        if (ImGui.Selectable($"AutoGather: {GatherBuddy.AutoGather.AutoStatus}"))
+        {
+            GatherBuddy.AutoGather.Enabled = !GatherBuddy.AutoGather.Enabled;
+        }
+        ImGuiUtil.HoverTooltip("Click to enable/disable auto-gather");
         using var table = ImRaii.Table("##table", GatherBuddy.Config.ShowGatherWindowTimers ? 2 : 1);
         if (!table)
             return;
-
+        
         foreach (var (item, loc, time) in _data)
             DrawItem(item, loc, time);
 
