@@ -1,5 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Numerics;
+using System.Text.RegularExpressions;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -136,6 +139,48 @@ public partial class Interface
         {
             var preset = new AlarmGroup(_gatherWindowCache.Selector.Current!);
             _plugin.AlarmManager.AddGroup(preset);
+        }
+
+        if (ImGuiUtil.DrawDisabledButton("Import from TeamCraft", Vector2.Zero, "Populate list from clipboard contents (TeamCraft format)",
+                _gatherWindowCache.Selector.Current == null))
+        {
+            var clipboardText = ImGuiUtil.GetClipboardText();
+            if (!string.IsNullOrEmpty(clipboardText))
+            {
+                try
+                {
+                    Dictionary<string, int> items = new Dictionary<string, int>();
+
+                    // Regex pattern
+                    var pattern = @"\b(\d+)x\s(.+)\b";
+                    var matches = Regex.Matches(clipboardText, pattern);
+
+                    // Loop through matches and add them to dictionary
+                    foreach (Match match in matches)
+                    {
+                        var quantity = int.Parse(match.Groups[1].Value);
+                        var itemName = match.Groups[2].Value;
+                        items[itemName] = quantity;
+                    }
+                    
+                    var preset = _gatherWindowCache.Selector.Current;
+
+                    foreach (var item in items)
+                    {
+                        var gatherable =
+                            GatherBuddy.GameData.Gatherables.Values.FirstOrDefault(g => g.Name[Dalamud.ClientState.ClientLanguage] == item.Key);
+                        if (gatherable == null)
+                            continue;
+
+                        gatherable.Quantity = (uint)item.Value;
+                        preset.Add(gatherable);
+                    }
+                }
+                catch (Exception e)
+                {
+                    Communicator.PrintClipboardMessage("Error importing gather window preset", e.ToString());
+                }
+            }
         }
 
         ImGuiComponents.HelpMarker(

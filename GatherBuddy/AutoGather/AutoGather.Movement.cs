@@ -84,7 +84,7 @@ namespace GatherBuddy.AutoGather
                 CurrentDestination = NearestNode?.Position ?? null;
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                     TaskManager.Enqueue(MountUp);
-                TaskManager.EnqueueDelay(1500);
+                TaskManager.EnqueueDelay(2500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
@@ -207,10 +207,9 @@ namespace GatherBuddy.AutoGather
             {
                 AutoStatus = "Moving to far node...";
                 CurrentDestination = farNode;
-                TaskManager.EnqueueDelay(500);
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                     TaskManager.Enqueue(MountUp);
-                TaskManager.EnqueueDelay(1500);
+                TaskManager.EnqueueDelay(2500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
