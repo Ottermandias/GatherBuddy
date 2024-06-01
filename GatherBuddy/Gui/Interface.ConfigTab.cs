@@ -57,83 +57,125 @@ public partial class Interface
             if (Widget.DrawChatTypeSelector(label, description, currentValue, setter))
                 GatherBuddy.Config.Save();
         }
-        
+
         // Auto-Gather Config
         public static void DrawAutoGatherBox()
-            => DrawCheckbox("Enable Gathering Window Interaction (DISABLING THIS IS UNSUPPORTED)", "Toggle whether to automatically gather items. (Disable this for 'nav only mode')", GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
+            => DrawCheckbox("Enable Gathering Window Interaction (DISABLING THIS IS UNSUPPORTED)",
+                "Toggle whether to automatically gather items. (Disable this for 'nav only mode')",
+                GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
 
         public static void DrawMinimumGPGathering()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
-            ImGui.DragInt("Minimum GP for Gathering", ref tmp, 1, 0, 30000);
-            GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering = (uint)tmp;
+            if (ImGui.DragInt("Minimum GP for Gathering", ref tmp, 1, 0, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
         }
 
         public static void DrawUseFlagBox()
             => DrawCheckbox("Disable flag navigation",                  "Whether or not to navigate to the flag on the map",
                 GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing, b => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing = b);
+
         public static void DrawFarNodeFilterDistance()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance;
-            ImGui.DragFloat("Far Node Filter Distance", ref tmp, 0.1f, 0.1f, 100f);
-            ImGuiUtil.HoverTooltip("When looking for non-empty nodes GBR will filter out any nodes that are closer to you than this. Prevents checking nodes you can already see are empty.");
-            GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance = tmp;
+            if (ImGui.DragFloat("Far Node Filter Distance", ref tmp, 0.1f, 0.1f, 100f))
+            {
+                GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance = tmp;
+                GatherBuddy.Config.Save();
+            }
+            ImGuiUtil.HoverTooltip(
+                "When looking for non-empty nodes GBR will filter out any nodes that are closer to you than this. Prevents checking nodes you can already see are empty.");
         }
+
         public static void DrawBYIIBox()
-            => DrawCheckbox("Use BYII", "Toggle whether to use BYII for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
+            => DrawCheckbox("Use BYII", "Toggle whether to use BYII for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
 
         public static void DrawBYIIMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP;
-            ImGui.DragInt("BYII Min GP", ref tmp, 1, 100, 30000);
-            GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP = (uint)tmp;
+            if (ImGui.DragInt("BYII Min GP", ref tmp, 1, 100, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
         }
 
         public static void DrawBYIIMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP;
-            ImGui.DragInt("BYII Max GP", ref tmp, 1, 100, 30000);
-            GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP = (uint)tmp;
+            if (ImGui.DragInt("BYII Max GP", ref tmp, 1, 100, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
         }
 
         public static void DrawLuckBox()
-            => DrawCheckbox("Use Luck", "Toggle whether to use Luck for gathering.", GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction, b => GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction = b);
+            => DrawCheckbox("Use Luck", "Toggle whether to use Luck for gathering.", GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction = b);
 
         public static void DrawLuckMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP;
-            ImGui.DragInt("Luck Min GP", ref tmp, 1, 200, 30000);
-            GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP = (uint)tmp;
+            if (ImGui.DragInt("Luck Min GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
         }
+
         public static void DrawLuckMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP;
-            ImGui.DragInt("Luck Max GP", ref tmp, 1, 200, 30000);
-            GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP = (uint)tmp;
+            if (ImGui.DragInt("Luck Max GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
         }
+
         public static void DrawMountUpDistance()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
-            ImGui.DragFloat("Mount Up Distance", ref tmp, 0.1f, 0.1f, 100f);
+            if (ImGui.DragFloat("Mount Up Distance", ref tmp, 0.1f, 0.1f, 100f))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MountUpDistance = tmp;
+                GatherBuddy.Config.Save();
+            }
             ImGuiUtil.HoverTooltip("The distance at which you will mount up to move to a node.");
-            GatherBuddy.Config.AutoGatherConfig.MountUpDistance = tmp;
         }
+
         public static void DrawAntiStuckCooldown()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.NavResetCooldown;
-            ImGui.DragFloat("Anti-Stuck Cooldown", ref tmp, 0.1f, 0.1f, 10f);
+            if (ImGui.DragFloat("Anti-Stuck Cooldown", ref tmp, 0.1f, 0.1f, 10f))
+            {
+                GatherBuddy.Config.AutoGatherConfig.NavResetCooldown = tmp;
+                GatherBuddy.Config.Save();
+            }
             ImGuiUtil.HoverTooltip("The time in seconds before the navigation system will reset if you are stuck.");
-            GatherBuddy.Config.AutoGatherConfig.NavResetCooldown = tmp;
         }
+
         public static void DrawForceWalkingBox()
-            => DrawCheckbox("Force Walking", "Force walking to nodes instead of using mounts.", GatherBuddy.Config.AutoGatherConfig.ForceWalking, b => GatherBuddy.Config.AutoGatherConfig.ForceWalking = b);
+            => DrawCheckbox("Force Walking",                      "Force walking to nodes instead of using mounts.",
+                GatherBuddy.Config.AutoGatherConfig.ForceWalking, b => GatherBuddy.Config.AutoGatherConfig.ForceWalking = b);
+
         public static void DrawStuckThreshold()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.NavResetThreshold;
-            ImGui.DragFloat("Stuck Threshold", ref tmp, 0.1f, 0.1f, 10f);
+            if (ImGui.DragFloat("Stuck Threshold", ref tmp, 0.1f, 0.1f, 10f))
+            {
+                GatherBuddy.Config.AutoGatherConfig.NavResetThreshold = tmp;
+                GatherBuddy.Config.Save();
+            }
+
             ImGuiUtil.HoverTooltip("The time in seconds before the navigation system will consider you stuck.");
-            GatherBuddy.Config.AutoGatherConfig.NavResetThreshold = tmp;
         }
+
         // General Config
         public static void DrawOpenOnStartBox()
             => DrawCheckbox("Open Config UI On Start",
@@ -247,7 +289,7 @@ public partial class Interface
 
         public static void DrawPreferredJobSelect()
         {
-            var v = GatherBuddy.Config.PreferredGatheringType;
+            var v       = GatherBuddy.Config.PreferredGatheringType;
             var current = v == GatheringType.Multiple ? "No Preference" : v.ToString();
             ImGui.SetNextItemWidth(SetInputWidth);
             using var combo = ImRaii.Combo("Preferred Job", current);
@@ -300,12 +342,13 @@ public partial class Interface
                 });
 
         private static bool _gatherDebug = false;
+
         public static void DrawAlarmsInDutyToggle()
             => DrawCheckbox("Enable Alarms in Duty", "Set whether alarms should trigger while you are bound by a duty.",
-                GatherBuddy.Config.AlarmsInDuty, b => GatherBuddy.Config.AlarmsInDuty = b);
+                GatherBuddy.Config.AlarmsInDuty,     b => GatherBuddy.Config.AlarmsInDuty = b);
 
         public static void DrawAlarmsOnlyWhenLoggedInToggle()
-            => DrawCheckbox("Enable Alarms Only In-Game", "Set whether alarms should trigger while you are not logged into any character.",
+            => DrawCheckbox("Enable Alarms Only In-Game",  "Set whether alarms should trigger while you are not logged into any character.",
                 GatherBuddy.Config.AlarmsOnlyWhenLoggedIn, b => GatherBuddy.Config.AlarmsOnlyWhenLoggedIn = b);
 
         private static void DrawAlarmPicker(string label, string description, Sounds current, Action<Sounds> setter)
@@ -319,11 +362,11 @@ public partial class Interface
 
         public static void DrawWeatherAlarmPicker()
             => DrawAlarmPicker("Weather Change Alarm", "Choose a sound that is played every 8 Eorzea hours on regular weather changes.",
-                GatherBuddy.Config.WeatherAlarm, _plugin.AlarmManager.SetWeatherAlarm);
+                GatherBuddy.Config.WeatherAlarm,       _plugin.AlarmManager.SetWeatherAlarm);
 
         public static void DrawHourAlarmPicker()
             => DrawAlarmPicker("Eorzea Hour Change Alarm", "Choose a sound that is played every time the current Eorzea hour changes.",
-                GatherBuddy.Config.HourAlarm, _plugin.AlarmManager.SetHourAlarm);
+                GatherBuddy.Config.HourAlarm,              _plugin.AlarmManager.SetHourAlarm);
 
         // Fish Timer
         public static void DrawFishTimerBox()
@@ -551,7 +594,7 @@ public partial class Interface
 
         public static void DrawAetherytePreference()
         {
-            var tmp = GatherBuddy.Config.AetherytePreference == AetherytePreference.Cost;
+            var tmp     = GatherBuddy.Config.AetherytePreference == AetherytePreference.Cost;
             var oldPref = GatherBuddy.Config.AetherytePreference;
             if (ImGui.RadioButton("Prefer Cheaper Aetherytes", tmp))
                 GatherBuddy.Config.AetherytePreference = AetherytePreference.Cost;
@@ -587,7 +630,7 @@ public partial class Interface
 
     private void DrawConfigTab()
     {
-        using var id = ImRaii.PushId("Config");
+        using var id  = ImRaii.PushId("Config");
         using var tab = ImRaii.TabItem("Config");
         ImGuiUtil.HoverTooltip("Set up your very own GatherBuddy to your meticulous specifications.\n"
           + "If you treat him well, he might even become a real boy.");
@@ -608,6 +651,7 @@ public partial class Interface
                 ConfigFunctions.DrawMinimumGPGathering();
                 ImGui.TreePop();
             }
+
             if (ImGui.TreeNodeEx("Actions"))
             {
                 if (ImGui.TreeNodeEx("Bountiful Yield"))
@@ -617,6 +661,7 @@ public partial class Interface
                     ConfigFunctions.DrawBYIIMaxGP();
                     ImGui.TreePop();
                 }
+
                 if (ImGui.TreeNodeEx("Luck"))
                 {
                     ConfigFunctions.DrawLuckBox();
@@ -624,8 +669,10 @@ public partial class Interface
                     ConfigFunctions.DrawLuckMaxGP();
                     ImGui.TreePop();
                 }
+
                 ImGui.TreePop();
             }
+
             if (ImGui.TreeNodeEx("Advanced"))
             {
                 ConfigFunctions.DrawAutoGatherBox();
@@ -656,9 +703,9 @@ public partial class Interface
 
             if (ImGui.TreeNodeEx("Set Names"))
             {
-                ConfigFunctions.DrawSetInput("Miner", GatherBuddy.Config.MinerSetName, s => GatherBuddy.Config.MinerSetName = s);
+                ConfigFunctions.DrawSetInput("Miner",    GatherBuddy.Config.MinerSetName,    s => GatherBuddy.Config.MinerSetName    = s);
                 ConfigFunctions.DrawSetInput("Botanist", GatherBuddy.Config.BotanistSetName, s => GatherBuddy.Config.BotanistSetName = s);
-                ConfigFunctions.DrawSetInput("Fisher", GatherBuddy.Config.FisherSetName, s => GatherBuddy.Config.FisherSetName = s);
+                ConfigFunctions.DrawSetInput("Fisher",   GatherBuddy.Config.FisherSetName,   s => GatherBuddy.Config.FisherSetName   = s);
                 ImGui.TreePop();
             }
 
