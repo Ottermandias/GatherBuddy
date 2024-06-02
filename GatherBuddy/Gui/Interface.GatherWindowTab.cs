@@ -231,7 +231,7 @@ public partial class Interface
             ImGui.SameLine();
             int quantity = (int)item.Quantity;
             ImGui.SetNextItemWidth(100f);
-            if (ImGui.InputInt("##quantity", ref quantity, 1, 10, ImGuiInputTextFlags.EnterReturnsTrue))
+            if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
                 _plugin.GatherWindowManager.ChangeQuantity(preset, quantity, i);
             group.Dispose();
 
