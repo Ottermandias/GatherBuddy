@@ -131,6 +131,7 @@ namespace GatherBuddy.AutoGather
 
             if (collectibility < 99999)
             {
+                LastCollectability = collectibility;
                 if (ShouldUseScrutiny(collectibility))
                     TaskManager.Enqueue(() => UseAction(Actions.Scrutiny));
                 if (ShouldUseMeticulous(collectibility))

@@ -10,11 +10,37 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.UI;
 
 namespace GatherBuddy.AutoGather
 {
     public static class AutoGatherUI
     {
+        public class CollectableDebugUi : Window
+        {
+            public unsafe override bool DrawConditions()
+            {
+                var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
+                if (gatheringMasterpiece == null)
+                    return false;
+
+                return !gatheringMasterpiece->AtkUnitBase.IsVisible;
+            }
+
+            public CollectableDebugUi() : base("GBR Collectable Replacement", ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoNavFocus, false)
+            {
+                Size          = new Vector2(100, 60);
+                SizeCondition = ImGuiCond.FirstUseEver;
+                IsOpen        = true;
+            }
+
+            public override void Draw()
+            {
+                ImGui.Text($"GBR Collectable Replacement Window");
+                ImGui.Text($"Collectable Score: {GatherBuddy.AutoGather.LastCollectability}");
+            }
+        }
         private static bool _gatherDebug;
         public static void DrawAutoGatherStatus()
         {
@@ -27,6 +53,7 @@ namespace GatherBuddy.AutoGather
             var lastNavString = GatherBuddy.AutoGather.LastNavigationResult.HasValue ? GatherBuddy.AutoGather.LastNavigationResult.Value ? "Successful" : "Failed (If you're seeing this you probably need to restart your game)" : "None";
             ImGui.Text($"Navigation: {lastNavString}");
         }
+        
 
         public static void DrawDebugTables()
         {
