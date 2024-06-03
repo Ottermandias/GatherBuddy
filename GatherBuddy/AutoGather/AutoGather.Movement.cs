@@ -28,34 +28,36 @@ namespace GatherBuddy.AutoGather
 
         private void MoveToClosestAetheryte()
         {
-            var item = ItemsToGather.FirstOrDefault();
-            if (item == null)
-                return;
+            if (EzThrottler.Throttle("Teleport", 10000))
+            {
+                var item = ItemsToGather.FirstOrDefault();
+                if (item == null)
+                    return;
 
-            var location = _plugin.Executor.FindClosestLocation(item);
-            if (location == null)
-                return;
-            if (location.Territory.Id == Dalamud.ClientState.TerritoryType)
-                return;
+                var location = _plugin.Executor.FindClosestLocation(item);
+                if (location == null)
+                    return;
 
-            VNavmesh_IPCSubscriber.Path_Stop();
-            TaskManager.Enqueue(() => _plugin.Executor.GatherItem(item));
-            TaskManager.EnqueueDelay(10000);
+                VNavmesh_IPCSubscriber.Path_Stop();
+                TaskManager.Enqueue(() => _plugin.Executor.GatherItem(item));
+            }
         }
 
         private unsafe void MountUp()
         {
-            EzThrottler.Throttle("MountUp", 3000);
-            var am = ActionManager.Instance();
-            if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero)
-             <= GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
-                return;
+            if (EzThrottler.Throttle("MountUp", ActionCooldown))
+            {
+                var am = ActionManager.Instance();
+                if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero)
+                 <= GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
+                    return;
 
-            var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
-            if (am->GetActionStatus(ActionType.Mount, mount) != 0)
-                return;
+                var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
+                if (am->GetActionStatus(ActionType.Mount, mount) != 0)
+                    return;
 
-            am->UseAction(ActionType.Mount, mount);
+                am->UseAction(ActionType.Mount, mount);
+            }
         }
 
         private void MoveToCloseNode()
@@ -84,7 +86,7 @@ namespace GatherBuddy.AutoGather
                 CurrentDestination = NearestNode?.Position ?? null;
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                     TaskManager.Enqueue(MountUp);
-                TaskManager.EnqueueDelay(2500);
+                TaskManager.DelayNext(2500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
@@ -103,12 +105,12 @@ namespace GatherBuddy.AutoGather
             {
                 if (IsPathGenerating)
                 {
-                    TaskManager.Enqueue(() => TaskManager.EnqueueDelay(50));
+                    TaskManager.DelayNext(50);
                     return;
                 }
 
                 // Check if character is stuck
-                if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 1.0f)
+                if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 2.0f)
                 {
                     // If the character hasn't moved much
                     if ((DateTime.Now - lastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
@@ -131,14 +133,14 @@ namespace GatherBuddy.AutoGather
                 }
 
                 // If not close, enqueue the check again after a delay
-                TaskManager.Enqueue(() => TaskManager.EnqueueDelay(50));
+                TaskManager.DelayNext(50);
                 TaskManager.Enqueue(WaitForDestination);
             }
             else
             {
                 // Arrived at the destination
                 GatherBuddy.Log.Verbose("Arrived at the destination");
-                if (Vector3.Distance(Player.Object.Position, (MapFlagPosition.HasValue ? MapFlagPosition.Value : Player.Object.Position)) < 50 )
+                if (Vector3.Distance(Player.Object.Position, (MapFlagPosition.HasValue ? MapFlagPosition.Value : Player.Object.Position)) < 50)
                 {
                     HasSeenFlag = true;
                 }
@@ -191,7 +193,8 @@ namespace GatherBuddy.AutoGather
         private void MoveToFarNode()
         {
             var farNode = DesiredNodeCoordsInZone.ElementAtOrDefault(CurrentFarNodeIndex);
-            if (farNode == null || Vector3.Distance(Player.Object.Position, farNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
+            if (farNode == null
+             || Vector3.Distance(Player.Object.Position, farNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
             {
                 CurrentFarNodeIndex++;
                 if (CurrentFarNodeIndex >= DesiredNodeCoordsInZone.Count)
@@ -205,11 +208,11 @@ namespace GatherBuddy.AutoGather
             }
             else
             {
-                AutoStatus = "Moving to far node...";
+                AutoStatus         = "Moving to far node...";
                 CurrentDestination = farNode;
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                     TaskManager.Enqueue(MountUp);
-                TaskManager.EnqueueDelay(2500);
+                TaskManager.DelayNext(2500);
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
@@ -220,7 +223,7 @@ namespace GatherBuddy.AutoGather
             CurrentDestination = MapFlagPosition;
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
                 TaskManager.Enqueue(MountUp);
-            TaskManager.EnqueueDelay(1500);
+            TaskManager.DelayNext(1500);
             TaskManager.Enqueue(() => Navigate(ShouldFly));
             TaskManager.Enqueue(WaitForDestination);
         }

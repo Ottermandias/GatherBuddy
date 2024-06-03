@@ -1,4 +1,4 @@
-﻿using ECommons.Automation.NeoTaskManager;
+﻿using ECommons.Automation.LegacyTaskManager;
 using GatherBuddy.Plugin;
 using System;
 using System.Collections.Generic;
@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using ECommons.GameHelpers;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 
@@ -25,18 +26,11 @@ namespace GatherBuddy.AutoGather
         public TaskManager TaskManager { get; }
         public bool Enabled { get; set; } = false;
 
-        public void DoAutoGather()
+        public unsafe void DoAutoGather()
         {
-            if (!Enabled)
-                return;
-            if (TaskManager.Tasks.Count > 0)
-            {
-                //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
-                return;
-            }
             try
             {
-                if (!NavReady)
+                if (!NavReady && Enabled)
                 {
                     AutoStatus = "Waiting for Navmesh...";
                     return;
@@ -48,10 +42,35 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "vnavmesh communication failed. Do you have it installed??";
                 return;
             }
+            if (!Enabled)
+            {
+                AutoStatus = "Not running...";
+                //Do Reset Tasks
+                var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
+                if (gatheringMasterpiece != null && !gatheringMasterpiece->AtkUnitBase.IsVisible)
+                {
+                    gatheringMasterpiece->AtkUnitBase.IsVisible = true;
+                }
+
+                if (IsPathing || IsPathGenerating)
+                {
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                }
+
+                HasSeenFlag    = false;
+                HiddenRevealed = false;
+                return;
+            }
+            if (TaskManager.NumQueuedTasks > 0)
+            {
+                //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
+                return;
+            }
             if (!ItemsToGather.Any())
             {
-                AutoStatus = "No items to gather...";
-                Enabled = false;
+                AutoStatus         = "No items to gather...";
+                Enabled            = false;
+                CurrentDestination = null;
                 VNavmesh_IPCSubscriber.Path_Stop();
                 return;
             }

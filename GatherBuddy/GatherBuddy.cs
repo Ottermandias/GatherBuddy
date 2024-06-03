@@ -117,6 +117,7 @@ public partial class GatherBuddy : IDalamudPlugin
             WindowSystem.AddWindow(new GatherWindow(this));
             WindowSystem.AddWindow(new FishTimerWindow(FishRecorder));
             WindowSystem.AddWindow(new SpearfishingHelper(GameData));
+            WindowSystem.AddWindow(new AutoGatherUI.CollectableDebugUi());
             Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
             Dalamud.PluginInterface.UiBuilder.OpenConfigUi += Interface.Toggle;
             Dalamud.Framework.Update += Update;

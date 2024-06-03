@@ -15,6 +15,11 @@ namespace GatherBuddy.AutoGather
 
         public ActionConfig BYIIConfig            { get; set; } = new(true, 100, uint.MaxValue);
         public ActionConfig LuckConfig            { get; set; } = new(true, 200, uint.MaxValue);
+        public ActionConfig ScrutinyConfig        { get; set; } = new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue);
+        public ActionConfig MeticulousConfig      { get; set; } = new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue);
+        public ActionConfig SolidAgeConfig        { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue);
+        public ActionConfig WiseConfig            { get; set; } = new(true, (uint)AutoGather.Actions.Wise.GpCost, uint.MaxValue);
+        public ActionConfig CollectConfig         { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue);
         public bool         DoGathering           { get; set; } = true;
         public uint         MinimumGPForGathering { get; set; } = 0;
         public float        NavResetCooldown      { get; set; } = 3.0f;
