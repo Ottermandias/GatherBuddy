@@ -225,7 +225,7 @@ public partial class Interface
             ImGui.SameLine();
             ImGui.Text("Inventory: ");
             ImGui.SameLine();
-            var invTotal = GetInventoryAmountForItem(item.ItemId);
+            var invTotal = item.InventoryCount;
             ImGui.SetNextItemWidth(100f);
             ImGui.Text($"{invTotal} / ");
             ImGui.SameLine();
@@ -240,17 +240,6 @@ public partial class Interface
             var localIdx = i;
             _gatherWindowCache.Selector.CreateDropTarget<GatherWindowDragDropData>(d
                 => _plugin.GatherWindowManager.MoveItem(d.Preset, d.ItemIdx, localIdx));
-        }
-
-        unsafe int GetInventoryAmountForItem(uint itemid)
-        {
-            var inventory = InventoryManager.Instance();
-            if (inventory == null)
-                return 0;
-            else
-            {
-                return inventory->GetInventoryItemCount(itemid);
-            }
         }
 
         if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize,

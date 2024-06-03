@@ -20,6 +20,7 @@ using Lumina.Excel.GeneratedSheets2;
 using OtterGui;
 using OtterGui.Table;
 using OtterGui.Widgets;
+using Action = System.Action;
 using FishRecord = GatherBuddy.FishTimer.FishRecord;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -138,6 +139,28 @@ public partial class Interface
             }
         }
 
+        public static void DrawScrutinyCheckbox()
+            => DrawCheckbox("Use Scrutiny", "Use scrutiny to gather collectibles", GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction = b);
+
+        public static void DrawMeticulousCheckbox()
+            => DrawCheckbox("Use Meticulous", "Use Meticulous to gather collectibles",
+                GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction = b);
+        
+        public static void DrawSolidAgeCheckbox()
+            => DrawCheckbox("Use Solid/Age", "Use Solid/Age to gather collectibles",
+                GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction = b);
+
+        public static void DrawWiseCheckbox()
+            => DrawCheckbox("Use Wise", "Use Wise to gather collectibles",
+                GatherBuddy.Config.AutoGatherConfig.WiseConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.WiseConfig.UseAction = b);
+        public static void DrawCollectCheckbox()
+            => DrawCheckbox("Use Collect (Collectibles)", "Use Collect to gather collectibles",
+                GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction = b);
         public static void DrawMountUpDistance()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
@@ -147,6 +170,102 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
             ImGuiUtil.HoverTooltip("The distance at which you will mount up to move to a node.");
+        }
+        public static void DrawScrutinyMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP;
+            if (ImGui.DragInt("Scrutiny Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Scrutiny.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        public static void DrawMeticulousMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP;
+            if (ImGui.DragInt("Meticulous Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Meticulous.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawSolidAgeMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP;
+            if (ImGui.DragInt("Solid/Age Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.SolidAge.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        public static void DrawWiseMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.WiseConfig.MaximumGP;
+            if (ImGui.DragInt("Wise Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Wise.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.WiseConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawCollectMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP;
+            if (ImGui.DragInt("Luck Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Collect.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawScrutinyMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP;
+            if (ImGui.DragInt("Scrutiny Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Scrutiny.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        public static void DrawMeticulousMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP;
+            if (ImGui.DragInt("Meticulous Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Meticulous.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawSolidAgeMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MinimumGP;
+            if (ImGui.DragInt("Solid/Age Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.SolidAge.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawWiseMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.WiseConfig.MinimumGP;
+            if (ImGui.DragInt("Wise Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Wise.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.WiseConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawCollectMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP;
+            if (ImGui.DragInt("Collect Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Collect.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
         }
 
         public static void DrawAntiStuckCooldown()
@@ -667,6 +786,51 @@ public partial class Interface
                     ConfigFunctions.DrawLuckBox();
                     ConfigFunctions.DrawLuckMinGP();
                     ConfigFunctions.DrawLuckMaxGP();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Collectible Actions"))
+                {
+
+                    if (ImGui.TreeNodeEx("Scrutiny"))
+                    {
+                        ConfigFunctions.DrawScrutinyCheckbox();
+                        ConfigFunctions.DrawScrutinyMinGp();
+                        ConfigFunctions.DrawScrutinyMaxGp();
+                        ImGui.TreePop();
+                    }
+
+                    if (ImGui.TreeNodeEx("Meticulous"))
+                    {
+                        ConfigFunctions.DrawMeticulousCheckbox();
+                        ConfigFunctions.DrawMeticulousMinGp();
+                        ConfigFunctions.DrawMeticulousMaxGp();
+                        ImGui.TreePop();
+                    }
+
+                    if (ImGui.TreeNodeEx("Solid/Age"))
+                    {
+                        ConfigFunctions.DrawSolidAgeCheckbox();
+                        ConfigFunctions.DrawSolidAgeMinGp();
+                        ConfigFunctions.DrawScrutinyMaxGp();
+                        ImGui.TreePop();
+                    }
+
+                    if (ImGui.TreeNodeEx("Wise"))
+                    {
+                        ConfigFunctions.DrawWiseCheckbox();
+                        ConfigFunctions.DrawWiseMinGp();
+                        ConfigFunctions.DrawWiseMaxGp();
+                        ImGui.TreePop();
+                    }
+
+                    if (ImGui.TreeNodeEx("Collect"))
+                    {
+                        ConfigFunctions.DrawCollectCheckbox();
+                        ConfigFunctions.DrawCollectMinGp();
+                        ConfigFunctions.DrawCollectMaxGp();
+                        ImGui.TreePop();
+                    }
                     ImGui.TreePop();
                 }
 
