@@ -10,8 +10,10 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Dalamud.Interface.Colors;
 using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using OtterGui.Raii;
 
 namespace GatherBuddy.AutoGather
 {
@@ -39,6 +41,7 @@ namespace GatherBuddy.AutoGather
             {
                 ImGui.Text($"GBR Collectable Replacement Window");
                 ImGui.Text($"Collectable Score: {GatherBuddy.AutoGather.LastCollectability}");
+                ImGui.Text($"Integrity: {GatherBuddy.AutoGather.LastIntegrity}/4");
             }
         }
         private static bool _gatherDebug;
@@ -52,6 +55,12 @@ namespace GatherBuddy.AutoGather
             ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
             var lastNavString = GatherBuddy.AutoGather.LastNavigationResult.HasValue ? GatherBuddy.AutoGather.LastNavigationResult.Value ? "Successful" : "Failed (If you're seeing this you probably need to restart your game)" : "None";
             ImGui.Text($"Navigation: {lastNavString}");
+            if (GatherBuddy.AutoGather.ItemsToGatherInZone.Count() > 1)
+            {
+                using var color = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed);
+                ImGui.Text($"WARNING: There is more than 1 desired item in the zone. GBR may behave unexpectedly.");
+                color.Pop();
+            }
         }
         
 

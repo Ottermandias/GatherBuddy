@@ -49,6 +49,8 @@ namespace GatherBuddy.AutoGather
                 gatheringWindow->GatheredItemId8,
             };
             var itemIndex = GetIndexOfItemToClick(ids, item);
+            if (itemIndex < 0)
+                itemIndex = ids.FindIndex(i => i > 0);
 
             var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);
             var eventDelegate       = Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress);

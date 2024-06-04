@@ -24,7 +24,35 @@ namespace GatherBuddy.AutoGather
         private GatherBuddy _plugin;
 
         public TaskManager TaskManager { get; }
-        public bool Enabled { get; set; } = false;
+
+        private bool _enabled { get; set; } = false;
+
+        public unsafe bool Enabled
+        {
+            get => _enabled;
+            set
+            {
+                if (!value)
+                {
+                    //Do Reset Tasks
+                    var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
+                    if (gatheringMasterpiece != null && !gatheringMasterpiece->AtkUnitBase.IsVisible)
+                    {
+                        gatheringMasterpiece->AtkUnitBase.IsVisible = true;
+                    }
+
+                    if (IsPathing || IsPathGenerating)
+                    {
+                        VNavmesh_IPCSubscriber.Path_Stop();
+                    }
+
+                    HasSeenFlag    = false;
+                    HiddenRevealed = false;
+                }
+
+                _enabled = value;
+            }
+        }
 
         public unsafe void DoAutoGather()
         {
@@ -45,20 +73,6 @@ namespace GatherBuddy.AutoGather
             if (!Enabled)
             {
                 AutoStatus = "Not running...";
-                //Do Reset Tasks
-                var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
-                if (gatheringMasterpiece != null && !gatheringMasterpiece->AtkUnitBase.IsVisible)
-                {
-                    gatheringMasterpiece->AtkUnitBase.IsVisible = true;
-                }
-
-                if (IsPathing || IsPathGenerating)
-                {
-                    VNavmesh_IPCSubscriber.Path_Stop();
-                }
-
-                HasSeenFlag    = false;
-                HiddenRevealed = false;
                 return;
             }
             if (TaskManager.NumQueuedTasks > 0)
