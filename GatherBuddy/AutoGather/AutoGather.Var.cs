@@ -105,6 +105,7 @@ namespace GatherBuddy.AutoGather
         }
         public string AutoStatus { get; set; } = "Idle";
         public int    LastCollectability = 0;
+        public int    LastIntegrity      = 0;
         public Dictionary<uint, List<Vector3>> DesiredNodesInZone
         {
             get

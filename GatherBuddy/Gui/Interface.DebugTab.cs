@@ -587,6 +587,8 @@ public partial class Interface
         ImGui.Text($"ItemsToGather: {GatherBuddy.AutoGather.ItemsToGather.Count()}");
         ImGui.Text($"ShouldUseFlag: {GatherBuddy.AutoGather.ShouldUseFlag}");
         ImGui.Text(($"HasSeenFlag: {GatherBuddy.AutoGather.HasSeenFlag}"));
+        ImGui.Text($"LastIntegrity: {GatherBuddy.AutoGather.LastIntegrity}");
+        ImGui.Text($"LastCollectScore: {GatherBuddy.AutoGather.LastCollectability}");
         
         if (ImGui.CollapsingHeader("Item Priority (Current Zone)"))
         {
