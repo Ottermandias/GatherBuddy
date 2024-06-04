@@ -72,7 +72,6 @@ namespace GatherBuddy.AutoGather
             }
             if (!Enabled)
             {
-                AutoStatus = "Not running...";
                 return;
             }
             if (TaskManager.NumQueuedTasks > 0)
@@ -80,19 +79,11 @@ namespace GatherBuddy.AutoGather
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
                 return;
             }
-            if (!ItemsToGather.Any())
+            if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
             {
                 AutoStatus         = "No items to gather...";
                 Enabled            = false;
                 CurrentDestination = null;
-                VNavmesh_IPCSubscriber.Path_Stop();
-                return;
-            }
-            var location = _plugin.Executor.FindClosestLocation(ItemsToGather.FirstOrDefault());
-            if (location == null)
-            {
-                AutoStatus = "No locations found...";
-                Enabled = false;
                 VNavmesh_IPCSubscriber.Path_Stop();
                 return;
             }
@@ -110,6 +101,12 @@ namespace GatherBuddy.AutoGather
             else if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
+            }
+            var location = _plugin.Executor.FindClosestLocation(ItemsToGather.FirstOrDefault());
+            if (location == null)
+            {
+                AutoStatus = "No locations to travel to ...";
+                return;
             }
             else if (ValidNodesInRange.Any())
             {
