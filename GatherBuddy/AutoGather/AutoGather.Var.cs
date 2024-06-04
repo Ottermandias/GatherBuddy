@@ -14,6 +14,7 @@ using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
+using GatherBuddy.Time;
 
 namespace GatherBuddy.AutoGather
 {
@@ -161,7 +162,7 @@ namespace GatherBuddy.AutoGather
                     if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                     {
                         var location = GatherBuddy.UptimeManager.BestLocation(item);
-                        if (location.Interval.InRange(GatherBuddy.Time.ServerTime)) 
+                        if (location.Interval.InRange(GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog)))
                             toGather.Add(item);
                     }
                     else
