@@ -48,6 +48,7 @@ namespace GatherBuddy.AutoGather
 
                     HasSeenFlag    = false;
                     HiddenRevealed = false;
+                    AutoStatus     = "Idle...";
                 }
 
                 _enabled = value;
