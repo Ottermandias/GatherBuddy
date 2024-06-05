@@ -50,8 +50,7 @@ namespace GatherBuddy.AutoGather
             };
             var itemIndex = GetIndexOfItemToClick(ids, item);
             if (itemIndex < 0)
-                itemIndex = ids.FindIndex(i => i > 0);
-
+                itemIndex = GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key)).FirstOrDefault();
             var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);
             var eventDelegate       = Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress);
 
@@ -68,7 +67,7 @@ namespace GatherBuddy.AutoGather
             var gatherable = item as Gatherable;
             if (gatherable == null)
             {
-                return 0;
+                return GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key)).FirstOrDefault();;
             }
 
             if (!gatherable.GatheringData.IsHidden
@@ -94,7 +93,7 @@ namespace GatherBuddy.AutoGather
             }
 
             // If all items are hidden or none found, return -1
-            return 0;
+            return GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key)).FirstOrDefault();;
         }
     }
 }

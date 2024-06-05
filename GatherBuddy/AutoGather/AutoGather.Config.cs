@@ -20,6 +20,8 @@ namespace GatherBuddy.AutoGather
         public ActionConfig SolidAgeConfig        { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue);
         public ActionConfig WiseConfig            { get; set; } = new(true, (uint)AutoGather.Actions.Wise.GpCost, uint.MaxValue);
         public ActionConfig CollectConfig         { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue);
+        public ActionConfig ScourConfig           { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue);
+        public int          TimedNodePrecog       { get; set; } = 120;
         public bool         DoGathering           { get; set; } = true;
         public uint         MinimumGPForGathering { get; set; } = 0;
         public float        NavResetCooldown      { get; set; } = 3.0f;

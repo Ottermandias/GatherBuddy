@@ -143,6 +143,8 @@ namespace GatherBuddy.AutoGather
                 LastIntegrity      = integrity;
                 if (ShouldUseScrutiny(collectibility, integrity))
                     TaskManager.Enqueue(() => UseAction(Actions.Scrutiny));
+                if (ShouldUseScour(collectibility, integrity))
+                    TaskManager.Enqueue(() => UseAction(Actions.Scour));
                 if (ShouldUseMeticulous(collectibility, integrity))
                     TaskManager.Enqueue(() => UseAction((Actions.Meticulous)));
                 if (ShouldUseSolidAge(collectibility, integrity))
@@ -152,6 +154,23 @@ namespace GatherBuddy.AutoGather
                 if (ShouldCollect(collectibility, integrity))
                     TaskManager.Enqueue(() => UseAction(Actions.Collect));
             }
+        }
+
+        private bool ShouldUseScour(int collectibility, int integrity)
+        {
+            if (Player.Level < Actions.Scour.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.Scour.GpCost)
+                return false;
+            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.ScourConfig.MinimumGP
+             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP)
+                return false;
+
+            if (collectibility is < 1000 and >= 800 && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418) && integrity > 0)
+            {
+                return true;
+            }
+            return false;
         }
 
         private bool ShouldUseWise(int collectability, int integrity)
@@ -195,7 +214,9 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP)
                 return false;
-            if (collectability < 1000 && integrity >= 1)
+            if (collectability is >= 800 and < 1000 && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418))
+                return true;
+            if (collectability < 1000 && integrity > 0)
                 return true;
 
             return false;

@@ -9,10 +9,12 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using ECommons;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
+using GatherBuddy.Time;
 
 namespace GatherBuddy.AutoGather
 {
@@ -149,7 +151,29 @@ namespace GatherBuddy.AutoGather
             return false;
         }
 
-        public IEnumerable<IGatherable> ItemsToGather => _plugin.GatherWindowManager.ActiveItems.Where(i => i.InventoryCount < i.Quantity);
+        public IEnumerable<IGatherable> ItemsToGather
+        {
+            get
+            {
+                List<IGatherable> toGather       = new();
+                var                      allActiveItems = _plugin.GatherWindowManager.ActiveItems.Where(i => i.InventoryCount < i.Quantity);
+                foreach (var item in allActiveItems)
+                {
+                    if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
+                    {
+                        var location = GatherBuddy.UptimeManager.BestLocation(item);
+                        if (location.Interval.InRange(GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog)))
+                            toGather.Add(item);
+                    }
+                    else
+                    {
+                        toGather.Add(item);
+                    }
+                }
+
+                return toGather;
+            }
+        }
         public IEnumerable<IGatherable> ItemsToGatherInZone => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType));
         public bool CanAct
         {

@@ -91,6 +91,17 @@ public partial class Interface
                 "When looking for non-empty nodes GBR will filter out any nodes that are closer to you than this. Prevents checking nodes you can already see are empty.");
         }
 
+        public static void DrawTimedNodePrecog()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog;
+            if (ImGui.DragInt("Timed Node Precognition (Seconds)", ref tmp, 1, 0, 600))
+            {
+                GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog = tmp;
+                GatherBuddy.Config.Save();
+            }
+            ImGuiUtil.HoverTooltip("How far in advance of the node actually being up GBR should consider the node to be up");
+        }
+
         public static void DrawBYIIBox()
             => DrawCheckbox("Use BYII", "Toggle whether to use BYII for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
@@ -845,6 +856,7 @@ public partial class Interface
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawFarNodeFilterDistance();
+                ConfigFunctions.DrawTimedNodePrecog();
                 ImGui.TreePop();
             }
         }
