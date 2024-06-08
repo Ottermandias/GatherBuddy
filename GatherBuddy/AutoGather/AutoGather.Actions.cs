@@ -66,7 +66,7 @@ namespace GatherBuddy.AutoGather
 
                 var desiredItem = ItemsToGatherInZone.FirstOrDefault();
 
-                if (gatheringMasterpiece != null && (desiredItem?.ItemData.IsCollectable ?? false))
+                if (gatheringMasterpiece != null)
                 {
                     DoCollectibles(gatheringMasterpiece);
                 }
@@ -83,22 +83,25 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoGatherWindowActions(AddonGathering* gatheringWindow, IGatherable? desiredItem)
         {
-            List<uint> ids = new List<uint>()
+            if (EzThrottler.Throttle("Gather Window", 1000))
             {
-                gatheringWindow->GatheredItemId1,
-                gatheringWindow->GatheredItemId2,
-                gatheringWindow->GatheredItemId3,
-                gatheringWindow->GatheredItemId4,
-                gatheringWindow->GatheredItemId5,
-                gatheringWindow->GatheredItemId6,
-                gatheringWindow->GatheredItemId7,
-                gatheringWindow->GatheredItemId8,
-            };
-            if (ShouldUseLuck(ids, desiredItem as Gatherable))
-                TaskManager.Enqueue(() => UseAction(Actions.Luck));
-            if (ShoulduseBYII())
-                TaskManager.Enqueue(() => UseAction(Actions.Bountiful));
-            TaskManager.Enqueue(() => DoGatherWindowTasks(gatheringWindow, desiredItem));
+                List<uint> ids = new List<uint>()
+                {
+                    gatheringWindow->GatheredItemId1,
+                    gatheringWindow->GatheredItemId2,
+                    gatheringWindow->GatheredItemId3,
+                    gatheringWindow->GatheredItemId4,
+                    gatheringWindow->GatheredItemId5,
+                    gatheringWindow->GatheredItemId6,
+                    gatheringWindow->GatheredItemId7,
+                    gatheringWindow->GatheredItemId8,
+                };
+                if (ShouldUseLuck(ids, desiredItem as Gatherable))
+                    TaskManager.Enqueue(() => UseAction(Actions.Luck));
+                if (ShoulduseBYII())
+                    TaskManager.Enqueue(() => UseAction(Actions.Bountiful));
+                TaskManager.Enqueue(() => DoGatherWindowTasks(gatheringWindow, desiredItem));
+            }
         }
 
         private unsafe void UseAction(Actions.BaseAction act)
@@ -115,44 +118,48 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoCollectibles(AddonGatheringMasterpiece* gatheringMasterpiece)
         {
-            if (gatheringMasterpiece->AtkUnitBase.IsVisible)
+            if (EzThrottler.Throttle("Collectibles", 1000))
             {
-                gatheringMasterpiece->AtkUnitBase.IsVisible = false;
-            }
-            var textNode = gatheringMasterpiece->AtkUnitBase.GetTextNodeById(47);
-            var text     = textNode->NodeText.ToString();
+                if (gatheringMasterpiece->AtkUnitBase.IsVisible)
+                {
+                    gatheringMasterpiece->AtkUnitBase.IsVisible = false;
+                }
 
-            var integrityNode = gatheringMasterpiece->AtkUnitBase.GetTextNodeById(126);
-            var integrityText = integrityNode->NodeText.ToString();
+                var textNode = gatheringMasterpiece->AtkUnitBase.GetTextNodeById(47);
+                var text     = textNode->NodeText.ToString();
 
-            if (!int.TryParse(text, out var collectibility))
-            {
-                collectibility = 99999; // default value
-                //Communicator.Print("Parsing failed, item is not collectable.");
-            }
+                var integrityNode = gatheringMasterpiece->AtkUnitBase.GetTextNodeById(126);
+                var integrityText = integrityNode->NodeText.ToString();
 
-            if (!int.TryParse(integrityText, out var integrity))
-            {
-                collectibility = 99999;
-                integrity      = 99999;
-            }
+                if (!int.TryParse(text, out var collectibility))
+                {
+                    collectibility = 99999; // default value
+                    //Communicator.Print("Parsing failed, item is not collectable.");
+                }
 
-            if (collectibility < 99999)
-            {
-                LastCollectability = collectibility;
-                LastIntegrity      = integrity;
-                if (ShouldUseScrutiny(collectibility, integrity))
-                    TaskManager.Enqueue(() => UseAction(Actions.Scrutiny));
-                if (ShouldUseScour(collectibility, integrity))
-                    TaskManager.Enqueue(() => UseAction(Actions.Scour));
-                if (ShouldUseMeticulous(collectibility, integrity))
-                    TaskManager.Enqueue(() => UseAction((Actions.Meticulous)));
-                if (ShouldUseSolidAge(collectibility, integrity))
-                    TaskManager.Enqueue(() => UseAction(Actions.SolidAge));
-                if (ShouldUseWise(collectibility, integrity))
-                    TaskManager.Enqueue(() => UseAction((Actions.Wise)));
-                if (ShouldCollect(collectibility, integrity))
-                    TaskManager.Enqueue(() => UseAction(Actions.Collect));
+                if (!int.TryParse(integrityText, out var integrity))
+                {
+                    collectibility = 99999;
+                    integrity      = 99999;
+                }
+
+                if (collectibility < 99999)
+                {
+                    LastCollectability = collectibility;
+                    LastIntegrity      = integrity;
+                    if (ShouldUseScrutiny(collectibility, integrity))
+                        TaskManager.Enqueue(() => UseAction(Actions.Scrutiny));
+                    if (ShouldUseScour(collectibility, integrity))
+                        TaskManager.Enqueue(() => UseAction(Actions.Scour));
+                    if (ShouldUseMeticulous(collectibility, integrity))
+                        TaskManager.Enqueue(() => UseAction((Actions.Meticulous)));
+                    if (ShouldUseSolidAge(collectibility, integrity))
+                        TaskManager.Enqueue(() => UseAction(Actions.SolidAge));
+                    if (ShouldUseWise(collectibility, integrity))
+                        TaskManager.Enqueue(() => UseAction((Actions.Wise)));
+                    if (ShouldCollect(collectibility, integrity))
+                        TaskManager.Enqueue(() => UseAction(Actions.Collect));
+                }
             }
         }
 

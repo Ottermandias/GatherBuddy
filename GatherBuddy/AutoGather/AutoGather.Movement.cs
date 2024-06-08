@@ -47,6 +47,7 @@ namespace GatherBuddy.AutoGather
         {
             if (EzThrottler.Throttle("MountUp", ActionCooldown))
             {
+                VNavmesh_IPCSubscriber.Path_Stop();
                 var am = ActionManager.Instance();
                 if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero)
                  <= GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
@@ -64,6 +65,12 @@ namespace GatherBuddy.AutoGather
         {
             if (NearestNodeDistance < 3)
             {
+                if (!Dalamud.Conditions[ConditionFlag.Gathering] && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
+                {
+                    AutoStatus = "Waiting for GP to regenerate...";
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    return;
+                }
                 if (Dalamud.Conditions[ConditionFlag.Mounted])
                 {
                     TaskManager.Enqueue(Dismount);
@@ -78,6 +85,7 @@ namespace GatherBuddy.AutoGather
             else if (NearestNodeDistance > 3 && NearestNodeDistance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
             {
                 CurrentDestination = NearestNode?.Position ?? null;
+                TaskManager.DelayNext(2500);
                 TaskManager.Enqueue(() => Navigate(false));
                 TaskManager.Enqueue(WaitForDestination);
             }
@@ -90,6 +98,7 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
                 TaskManager.Enqueue(WaitForDestination);
             }
+            AutoStatus = "Moving to node...";
         }
 
         private Vector3? lastPosition = null;
@@ -98,54 +107,56 @@ namespace GatherBuddy.AutoGather
 
         private void WaitForDestination()
         {
-            if (CurrentDestination == null)
-                return;
-
-            if (!IsCloseToDestination())
+            if (EzThrottler.Throttle("WaitForDestination", 50))
             {
-                if (IsPathGenerating)
-                {
-                    TaskManager.DelayNext(50);
+                if (CurrentDestination == null)
                     return;
-                }
 
-                // Check if character is stuck
-                if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 2.0f)
+                if (!IsCloseToDestination())
                 {
-                    // If the character hasn't moved much
-                    if ((DateTime.Now - lastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
+                    if (IsPathGenerating)
                     {
-                        // Check if enough time has passed since the last reset
-                        if ((DateTime.Now - lastResetTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
+                        return;
+                    }
+
+                    // Check if character is stuck
+                    if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 2.0f)
+                    {
+                        // If the character hasn't moved much
+                        if ((DateTime.Now - lastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
                         {
-                            GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
-                            ResetNavigation();
-                            lastResetTime = DateTime.Now;
-                            return;
+                            // Check if enough time has passed since the last reset
+                            if ((DateTime.Now - lastResetTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
+                            {
+                                GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
+                                ResetNavigation();
+                                lastResetTime = DateTime.Now;
+                                return;
+                            }
                         }
                     }
+                    else
+                    {
+                        // Character has moved, update last known position and time
+                        lastPosition     = Player.Object.Position;
+                        lastMovementTime = DateTime.Now;
+                    }
+
+                    // If not close, enqueue the check again after a delay
+                    TaskManager.Enqueue(WaitForDestination);
                 }
                 else
                 {
-                    // Character has moved, update last known position and time
-                    lastPosition     = Player.Object.Position;
-                    lastMovementTime = DateTime.Now;
-                }
+                    // Arrived at the destination
+                    GatherBuddy.Log.Verbose("Arrived at the destination");
+                    if (Vector3.Distance(Player.Object.Position, (MapFlagPosition.HasValue ? MapFlagPosition.Value : Player.Object.Position))
+                      < 50)
+                    {
+                        HasSeenFlag = true;
+                    }
 
-                // If not close, enqueue the check again after a delay
-                TaskManager.DelayNext(50);
-                TaskManager.Enqueue(WaitForDestination);
-            }
-            else
-            {
-                // Arrived at the destination
-                GatherBuddy.Log.Verbose("Arrived at the destination");
-                if (Vector3.Distance(Player.Object.Position, (MapFlagPosition.HasValue ? MapFlagPosition.Value : Player.Object.Position)) < 50)
-                {
-                    HasSeenFlag = true;
+                    lastPosition = null; // Reset last known position
                 }
-
-                lastPosition = null; // Reset last known position
             }
         }
 
@@ -170,21 +181,24 @@ namespace GatherBuddy.AutoGather
 
         private void Navigate(bool shouldFly)
         {
-            if (CurrentDestination == null)
+            if (EzThrottler.Throttle("Navigate", 1000))
             {
-                GatherBuddy.Log.Verbose("No destination set, skipping navigation");
-            }
-            else if (_lastNavigatedDestination == CurrentDestination)
-            {
-                GatherBuddy.Log.Verbose("Already navigated to destination, skipping navigation");
-            }
-            else
-            {
-                VNavmesh_IPCSubscriber.Path_Stop();
-                GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
-                _lastNavigatedDestination = CurrentDestination.Value;
-                var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh() : CurrentDestination.Value;
-                LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+                if (CurrentDestination == null)
+                {
+                    GatherBuddy.Log.Verbose("No destination set, skipping navigation");
+                }
+                else if (IsPathing)
+                {
+                    GatherBuddy.Log.Verbose("Already navigating, skipping navigation");
+                }
+                else
+                {
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
+                    _lastNavigatedDestination = CurrentDestination.Value;
+                    var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh() : CurrentDestination.Value;
+                    LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+                }
             }
         }
 
