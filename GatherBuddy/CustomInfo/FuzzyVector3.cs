@@ -42,7 +42,7 @@ namespace GatherBuddy.CustomInfo
             catch (Exception)
             {
                 GatherBuddy.Log.Debug("Failed to correct for mesh, returning original vector.");
-                return vector.Fuzz();
+                return vector;
             }
         }
 

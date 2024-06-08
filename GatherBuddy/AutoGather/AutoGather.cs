@@ -45,7 +45,8 @@ namespace GatherBuddy.AutoGather
                     {
                         VNavmesh_IPCSubscriber.Path_Stop();
                     }
-
+                    
+                    TaskManager.Abort();
                     HasSeenFlag    = false;
                     HiddenRevealed = false;
                     AutoStatus     = "Idle...";
@@ -111,12 +112,6 @@ namespace GatherBuddy.AutoGather
             }
             else if (ValidNodesInRange.Any())
             {
-                if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
-                {
-                    AutoStatus = "Waiting for GP to regenerate...";
-                    return;
-                }
-                AutoStatus = "Moving to node...";
                 HiddenRevealed = false;
                 TaskManager.Enqueue(MoveToCloseNode);
             }
