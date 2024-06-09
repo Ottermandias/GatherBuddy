@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using ECommons;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Time;
@@ -174,7 +175,14 @@ namespace GatherBuddy.AutoGather
                 return toGather;
             }
         }
-        public IEnumerable<IGatherable> ItemsToGatherInZone => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType));
+        public  IEnumerable<IGatherable> ItemsToGatherInZone => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType)).Where(GatherableMatchesJob);
+
+        private bool GatherableMatchesJob(IGatherable arg)
+        {
+            var gatherable = arg as Gatherable;
+            return gatherable != null && gatherable.GatheringType.ToGroup() == JobAsGatheringType;
+        }
+
         public bool CanAct
         {
             get
