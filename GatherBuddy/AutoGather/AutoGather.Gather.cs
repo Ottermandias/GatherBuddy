@@ -35,30 +35,34 @@ namespace GatherBuddy.AutoGather
             });
         }
 
-        private unsafe void DoGatherWindowTasks(AddonGathering* gatheringWindow, IGatherable item)
+        private unsafe void DoGatherWindowTasks(IGatherable item)
         {
+            if (GatheringAddon == null)
+                return;
+
             List<uint> ids = new List<uint>()
             {
-                gatheringWindow->GatheredItemId1,
-                gatheringWindow->GatheredItemId2,
-                gatheringWindow->GatheredItemId3,
-                gatheringWindow->GatheredItemId4,
-                gatheringWindow->GatheredItemId5,
-                gatheringWindow->GatheredItemId6,
-                gatheringWindow->GatheredItemId7,
-                gatheringWindow->GatheredItemId8,
+                GatheringAddon->GatheredItemId1,
+                GatheringAddon->GatheredItemId2,
+                GatheringAddon->GatheredItemId3,
+                GatheringAddon->GatheredItemId4,
+                GatheringAddon->GatheredItemId5,
+                GatheringAddon->GatheredItemId6,
+                GatheringAddon->GatheredItemId7,
+                GatheringAddon->GatheredItemId8,
             };
             var itemIndex = GetIndexOfItemToClick(ids, item);
             if (itemIndex < 0)
-                itemIndex = GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key)).FirstOrDefault();
-            var receiveEventAddress = new nint(gatheringWindow->AtkUnitBase.AtkEventListener.vfunc[2]);
+                itemIndex = GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key))
+                    .FirstOrDefault();
+            var receiveEventAddress = new nint(GatheringAddon->AtkUnitBase.AtkEventListener.vfunc[2]);
             var eventDelegate       = Marshal.GetDelegateForFunctionPointer<ReceiveEventDelegate>(receiveEventAddress);
 
             var target    = AtkStage.GetSingleton();
-            var eventData = EventData.ForNormalTarget(target, &gatheringWindow->AtkUnitBase);
+            var eventData = EventData.ForNormalTarget(target, &GatheringAddon->AtkUnitBase);
             var inputData = InputData.Empty();
 
-            eventDelegate.Invoke(&gatheringWindow->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
+            eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
                 inputData.Data);
         }
 
@@ -67,7 +71,10 @@ namespace GatherBuddy.AutoGather
             var gatherable = item as Gatherable;
             if (gatherable == null)
             {
-                return GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key)).FirstOrDefault();;
+                return GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key))
+                    .FirstOrDefault();
+
+                ;
             }
 
             if (!gatherable.GatheringData.IsHidden
@@ -79,7 +86,7 @@ namespace GatherBuddy.AutoGather
             // If no matching item is found, return the index of the first non-hidden item
             for (int i = 0; i < ids.Count; i++)
             {
-                var id         = ids[i];
+                var id = ids[i];
                 gatherable = GatherBuddy.GameData.Gatherables.FirstOrDefault(it => it.Key == id).Value;
                 if (gatherable == null)
                 {
@@ -93,7 +100,10 @@ namespace GatherBuddy.AutoGather
             }
 
             // If all items are hidden or none found, return -1
-            return GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key)).FirstOrDefault();;
+            return GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key))
+                .FirstOrDefault();
+
+            ;
         }
     }
 }

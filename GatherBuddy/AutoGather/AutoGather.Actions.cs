@@ -58,49 +58,49 @@ namespace GatherBuddy.AutoGather
         {
             if (EzThrottler.Throttle("Gather", 1600))
             {
-                var gatheringWindow = (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering", 1);
-
-                var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
-                if (gatheringWindow == null && gatheringMasterpiece == null)
+                if (GatheringAddon == null && MasterpieceAddon == null)
                     return;
 
                 var desiredItem = ItemsToGatherInZone.FirstOrDefault();
 
-                if (gatheringMasterpiece != null)
+                if (MasterpieceAddon != null)
                 {
-                    DoCollectibles(gatheringMasterpiece);
+                    DoCollectibles();
                 }
-                else if (gatheringWindow != null && !(desiredItem?.ItemData.IsCollectable ?? false))
+                else if (GatheringAddon != null && !(desiredItem?.ItemData.IsCollectable ?? false))
                 {
-                    TaskManager.Enqueue(() => DoGatherWindowActions(gatheringWindow, desiredItem));
+                    TaskManager.Enqueue(() => DoGatherWindowActions(desiredItem));
                 }
-                else if (gatheringWindow != null && (desiredItem?.ItemData.IsCollectable ?? false))
+                else if (GatheringAddon != null && (desiredItem?.ItemData.IsCollectable ?? false))
                 {
-                    TaskManager.Enqueue(() => DoGatherWindowTasks(gatheringWindow, desiredItem));
+                    TaskManager.Enqueue(() => DoGatherWindowTasks(desiredItem));
                 }
             }
         }
 
-        private unsafe void DoGatherWindowActions(AddonGathering* gatheringWindow, IGatherable? desiredItem)
+        private unsafe void DoGatherWindowActions(IGatherable? desiredItem)
         {
+            if (GatheringAddon == null)
+                return;
+
             if (EzThrottler.Throttle("Gather Window", 1000))
             {
                 List<uint> ids = new List<uint>()
                 {
-                    gatheringWindow->GatheredItemId1,
-                    gatheringWindow->GatheredItemId2,
-                    gatheringWindow->GatheredItemId3,
-                    gatheringWindow->GatheredItemId4,
-                    gatheringWindow->GatheredItemId5,
-                    gatheringWindow->GatheredItemId6,
-                    gatheringWindow->GatheredItemId7,
-                    gatheringWindow->GatheredItemId8,
+                    GatheringAddon->GatheredItemId1,
+                    GatheringAddon->GatheredItemId2,
+                    GatheringAddon->GatheredItemId3,
+                    GatheringAddon->GatheredItemId4,
+                    GatheringAddon->GatheredItemId5,
+                    GatheringAddon->GatheredItemId6,
+                    GatheringAddon->GatheredItemId7,
+                    GatheringAddon->GatheredItemId8,
                 };
                 if (ShouldUseLuck(ids, desiredItem as Gatherable))
                     TaskManager.Enqueue(() => UseAction(Actions.Luck));
                 if (ShoulduseBYII())
                     TaskManager.Enqueue(() => UseAction(Actions.Bountiful));
-                TaskManager.Enqueue(() => DoGatherWindowTasks(gatheringWindow, desiredItem));
+                TaskManager.Enqueue(() => DoGatherWindowTasks(desiredItem));
             }
         }
 
@@ -116,19 +116,22 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private unsafe void DoCollectibles(AddonGatheringMasterpiece* gatheringMasterpiece)
+        private unsafe void DoCollectibles()
         {
             if (EzThrottler.Throttle("Collectibles", 1000))
             {
-                if (gatheringMasterpiece->AtkUnitBase.IsVisible)
+                if (MasterpieceAddon == null)
+                    return;
+
+                if (MasterpieceAddon->AtkUnitBase.IsVisible)
                 {
-                    gatheringMasterpiece->AtkUnitBase.IsVisible = false;
+                    MasterpieceAddon->AtkUnitBase.IsVisible = false;
                 }
 
-                var textNode = gatheringMasterpiece->AtkUnitBase.GetTextNodeById(47);
+                var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(47);
                 var text     = textNode->NodeText.ToString();
 
-                var integrityNode = gatheringMasterpiece->AtkUnitBase.GetTextNodeById(126);
+                var integrityNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(126);
                 var integrityText = integrityNode->NodeText.ToString();
 
                 if (!int.TryParse(text, out var collectibility))
@@ -173,10 +176,13 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP)
                 return false;
 
-            if (collectibility is < 1000 and >= 800 && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418) && integrity > 0)
+            if (collectibility is < 1000 and >= 800
+             && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418)
+             && integrity > 0)
             {
                 return true;
             }
+
             return false;
         }
 
@@ -189,6 +195,7 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.WiseConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.WiseConfig.MaximumGP)
                 return false;
+
             if (collectability == 1000 && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765) && integrity < 4)
             {
                 return true;

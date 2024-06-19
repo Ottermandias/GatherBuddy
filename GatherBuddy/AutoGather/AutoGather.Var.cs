@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using ECommons;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
@@ -175,6 +176,9 @@ namespace GatherBuddy.AutoGather
                 return toGather;
             }
         }
+        
+        public unsafe AddonGathering* GatheringAddon => (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering", 1);
+        public unsafe AddonGatheringMasterpiece* MasterpieceAddon => (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
         public  IEnumerable<IGatherable> ItemsToGatherInZone => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType)).Where(GatherableMatchesJob);
 
         private bool GatherableMatchesJob(IGatherable arg)
