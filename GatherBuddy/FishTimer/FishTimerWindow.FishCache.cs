@@ -1,15 +1,13 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
-using GatherBuddy.Gui;
 using GatherBuddy.Time;
 using ImGuiNET;
-using ImGuiScene;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
 
@@ -19,16 +17,16 @@ public partial class FishTimerWindow
 {
     private readonly struct FishCache
     {
-        private readonly ExtendedFish?         _fish;
-        private readonly string                _textLine;
-        private readonly IDalamudTextureWrap   _icon;
-        private readonly FishRecordTimes.Times _all;
-        private readonly FishRecordTimes.Times _baitSpecific;
-        private readonly ColorId               _color;
-        public readonly  bool                  Uncaught;
-        public readonly  bool                  Unavailable;
-        public readonly  ulong                 SortOrder;
-        public readonly  TimeInterval          NextUptime;
+        private readonly ExtendedFish?           _fish;
+        private readonly string                  _textLine;
+        private readonly ISharedImmediateTexture _icon;
+        private readonly FishRecordTimes.Times   _all;
+        private readonly FishRecordTimes.Times   _baitSpecific;
+        private readonly ColorId                 _color;
+        public readonly  bool                    Uncaught;
+        public readonly  bool                    Unavailable;
+        public readonly  ulong                   SortOrder;
+        public readonly  TimeInterval            NextUptime;
 
 
         private static ulong MakeSortOrder(ushort min, ushort max)
@@ -95,7 +93,7 @@ public partial class FishTimerWindow
             if (Uncaught)
                 SortOrder |= 1ul << 33;
 
-            _icon       = Icons.DefaultStorage[fish.ItemData.Icon];
+            _icon       = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(fish.ItemData.Icon));
             Unavailable = false;
             if (fish.Predators.Length > 0 && !recorder.Record.Flags.HasFlag(FishRecord.Effects.Intuition))
             {
@@ -189,7 +187,11 @@ public partial class FishTimerWindow
             DrawMarkers(ptr, pos, size.Y, size.X);
 
             // Icon
-            ImGui.Image(_icon.ImGuiHandle, window._iconSize);
+            if (_icon.TryGetWrap(out var wrap, out _))
+                ImGui.Image(wrap.ImGuiHandle, window._iconSize);
+            else
+                ImGui.Dummy(window._iconSize);
+
             var hovered = ImGui.IsItemHovered();
 
             // Name

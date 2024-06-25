@@ -98,8 +98,8 @@ public partial class FishRecorder
             return;
 
         Record.ContentIdHash = GetContentHash(uiState->PlayerState.ContentId);
-        Record.Gathering     = (ushort)uiState->PlayerState.Attributes[GatheringIdx];
-        Record.Perception    = (ushort)uiState->PlayerState.Attributes[PerceptionIdx];
+        Record.Gathering     = (ushort)uiState->PlayerState.Attributes[(int)GatheringIdx];
+        Record.Perception    = (ushort)uiState->PlayerState.Attributes[(int)PerceptionIdx];
     }
 
 

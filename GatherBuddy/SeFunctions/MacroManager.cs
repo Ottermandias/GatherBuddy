@@ -18,7 +18,7 @@ public unsafe class MacroManager : IDisposable
     public const int NumRequiredLines = 6;
 
     public RaptureShellModule* Module
-        => Framework.Instance()->GetUiModule()->GetRaptureShellModule();
+        => Framework.Instance()->GetUIModule()->GetRaptureShellModule();
 
     public RaptureMacroModule.Macro* Macro;
 
@@ -38,7 +38,7 @@ public unsafe class MacroManager : IDisposable
     public static void ClearString(ref Utf8String ret)
     {
         ret.BufUsed      = 1;
-        ret.IsEmpty      = 1;
+        ret.IsEmpty      = true;
         ret.StringLength = 0;
         ret.StringPtr[0] = 0;
     }
@@ -46,7 +46,7 @@ public unsafe class MacroManager : IDisposable
     public static void CreateEmptyString(ref Utf8String ret)
     {
         ret.BufSize             = 0x40;
-        ret.IsUsingInlineBuffer = 1;
+        ret.IsUsingInlineBuffer = true;
         fixed (byte* ptr = ret.InlineBuffer)
         {
             ret.StringPtr = ptr;
@@ -58,7 +58,7 @@ public unsafe class MacroManager : IDisposable
     public static void CreateTempString(ref Utf8String ret)
     {
         ret.BufSize             = DefaultLineSize;
-        ret.IsUsingInlineBuffer = 0;
+        ret.IsUsingInlineBuffer = false;
         ret.StringPtr           = (byte*)Marshal.AllocHGlobal(DefaultLineSize);
         ClearString(ref ret);
     }
@@ -98,15 +98,15 @@ public unsafe class MacroManager : IDisposable
     {
         CreateEmptyString(ref macro->Name);
         for (var i = 0; i < NumRequiredLines; ++i)
-            CreateTempString(ref macro->LinesSpan[i]);
+            CreateTempString(ref macro->Lines[i]);
         for (var i = NumRequiredLines; i < NumMacroLines; ++i)
-            CreateEmptyString(ref macro->LinesSpan[i]);
+            CreateEmptyString(ref macro->Lines[i]);
     }
 
     public static void DisposeMacro(RaptureMacroModule.Macro* macro)
     {
         for (var i = 0; i < NumRequiredLines; ++i)
-            DisposeString(ref macro->LinesSpan[i]);
+            DisposeString(ref macro->Lines[i]);
     }
 
     public bool ExecuteMacroLines(IList<SeString> lines)
@@ -114,12 +114,12 @@ public unsafe class MacroManager : IDisposable
         Debug.Assert(lines.Count <= NumRequiredLines);
         for (var i = 0; i < lines.Count; ++i)
         {
-            if (!CopyString(lines[i], ref Macro->LinesSpan[i]))
+            if (!CopyString(lines[i], ref Macro->Lines[i]))
                 return false;
         }
 
         for (var i = lines.Count; i < NumRequiredLines; ++i)
-            ClearString(ref Macro->LinesSpan[i]);
+            ClearString(ref Macro->Lines[i]);
 
         Module->ExecuteMacro(Macro);
         return true;
@@ -130,12 +130,12 @@ public unsafe class MacroManager : IDisposable
 
     public void PrepareDefault()
     {
-        CopyString(GatherBuddy.FullIdentify,       ref Macro->LinesSpan[0]);
-        CopyString(GatherBuddy.FullMapMarker,      ref Macro->LinesSpan[1]);
-        CopyString(GatherBuddy.FullTeleport,       ref Macro->LinesSpan[2]);
-        CopyString(GatherBuddy.FullAdditionalInfo, ref Macro->LinesSpan[3]);
-        CopyString(GatherBuddy.FullGearChange,     ref Macro->LinesSpan[4]);
-        CopyString(GatherBuddy.FullSetWaymarks,    ref Macro->LinesSpan[5]);
+        CopyString(GatherBuddy.FullIdentify,       ref Macro->Lines[0]);
+        CopyString(GatherBuddy.FullMapMarker,      ref Macro->Lines[1]);
+        CopyString(GatherBuddy.FullTeleport,       ref Macro->Lines[2]);
+        CopyString(GatherBuddy.FullAdditionalInfo, ref Macro->Lines[3]);
+        CopyString(GatherBuddy.FullGearChange,     ref Macro->Lines[4]);
+        CopyString(GatherBuddy.FullSetWaymarks,    ref Macro->Lines[5]);
     }
 
     public void Execute()

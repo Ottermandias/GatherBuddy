@@ -1,7 +1,6 @@
 ﻿using System.Linq;
-using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures;
 using GatherBuddy.Weather;
-using ImGuiScene;
 
 namespace GatherBuddy.Gui;
 
@@ -11,8 +10,8 @@ public partial class Interface
     {
         public const int NumWeathers = 12;
 
-        private readonly WeatherTimeline                          _timeline;
-        public readonly  (Structs.Weather, IDalamudTextureWrap)[] Weathers;
+        private readonly WeatherTimeline                              _timeline;
+        public readonly  (Structs.Weather, ISharedImmediateTexture)[] Weathers;
 
         public string Zone
             => _timeline.Territory.Name;
@@ -20,7 +19,7 @@ public partial class Interface
         private CachedWeather(WeatherTimeline t)
         {
             _timeline = t;
-            Weathers  = new (Structs.Weather, IDalamudTextureWrap)[NumWeathers];
+            Weathers  = new (Structs.Weather, ISharedImmediateTexture)[NumWeathers];
         }
 
         public void Update()
@@ -29,7 +28,7 @@ public partial class Interface
             for (var i = 0; i < NumWeathers; ++i)
             {
                 var weather = _timeline.List[i].Weather;
-                Weathers[i] = (weather, Icons.DefaultStorage[weather.Data.Icon]);
+                Weathers[i] = (weather, Icons.DefaultStorage.TextureProvider.GetFromGameIcon(weather.Data.Icon));
             }
         }
 

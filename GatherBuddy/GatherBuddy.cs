@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using Dalamud;
+using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
 using GatherBuddy.Alarms;
@@ -74,7 +75,7 @@ public partial class GatherBuddy : IDalamudPlugin
         try
         {
             Dalamud.Initialize(pluginInterface);
-            Icons.InitDefaultStorage(Dalamud.Textures);
+            Icons.Init(Dalamud.GameData, Dalamud.Textures);
             Log     = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             Backup.CreateAutomaticBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
@@ -137,7 +138,6 @@ public partial class GatherBuddy : IDalamudPlugin
         WindowSystem?.RemoveAllWindows();
         DisposeCommands();
         Time?.Dispose();
-        Icons.DefaultStorage?.Dispose();
         HttpClient?.Dispose();
     }
 

@@ -42,7 +42,7 @@ public partial class FishingParser
     private const XivChatType FishingMessage = (XivChatType)2243;
 
 
-    private void OnMessageDelegate(XivChatType type, uint senderId, ref SeString sender, ref SeString message, ref bool isHandled)
+    private void OnMessageDelegate(XivChatType type, int timeStamp, ref SeString sender, ref SeString message, ref bool isHandled)
     {
         switch (type)
         {

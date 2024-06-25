@@ -129,7 +129,7 @@ public partial class Interface
 
         var fw = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
         ImGuiUtil.DrawTableColumn("Framework Timestamp");
-        ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->UtcTime.TimeStamp.ToString());
+        ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->UtcTime.Timestamp.ToString());
         ImGuiUtil.DrawTableColumn("Framework Eorzea");
         ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->ClientTime.EorzeaTime.ToString());
         ImGuiUtil.DrawTableColumn("Framework Func");
