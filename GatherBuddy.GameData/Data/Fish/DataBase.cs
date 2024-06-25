@@ -328,6 +328,7 @@ public static partial class Fish
         data.ApplyGodsRevelLandsTremble();
         data.ApplyTheDarkThrone();
         data.ApplyGrowingLight();
+        data.ApplyDawntrail();
         data.ApplyMooches();
     }
 }
