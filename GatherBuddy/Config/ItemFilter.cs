@@ -21,9 +21,10 @@ public enum ItemFilter
     Stormblood     = 0x000400,
     Shadowbringers = 0x000800,
     Endwalker      = 0x001000,
+    Dawntrail      = 0x002000,
 
     Available    = 0x010000,
     Unavailable  = 0x020000,
 
-    All = 0x071FFF,
+    All = 0x073FFF,
 }

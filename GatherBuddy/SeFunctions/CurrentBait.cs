@@ -7,7 +7,7 @@ namespace GatherBuddy.SeFunctions;
 public sealed class CurrentBait : SeAddressBase
 {
     public CurrentBait(ISigScanner sigScanner)
-        : base(sigScanner, "3B 05 ?? ?? ?? ?? 75 ?? C6 43")
+        : base(sigScanner, "3B 05 ?? ?? ?? ?? 75 ?? 80 7E")
     {
         Dalamud.Interop.InitializeFromAttributes(this);
     }
@@ -17,7 +17,7 @@ public sealed class CurrentBait : SeAddressBase
 
     private delegate byte ExecuteCommandDelegate(int id, int unk1, uint baitId, int unk2, int unk3);
 
-    [Signature("E8 ?? ?? ?? ?? 8D 43 0A")]
+    [Signature("E8 ?? ?? ?? ?? 41 C6 04 24")]
     private readonly ExecuteCommandDelegate _executeCommand = null!;
 
     public enum ChangeBaitReturn

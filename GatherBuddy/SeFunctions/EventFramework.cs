@@ -16,10 +16,13 @@ public enum FishingState : byte
     Waiting2   = 9,
 }
 
-public sealed class EventFramework : SeAddressBase
+public sealed class EventFramework
 {
     private const int FishingManagerOffset = 0x70;
     private const int FishingStateOffset   = 0x220;
+
+    public unsafe nint Address
+        => (nint) FFXIVClientStructs.FFXIV.Client.Game.Event.EventFramework.Instance();
 
     internal unsafe IntPtr FishingManager
     {
@@ -28,7 +31,7 @@ public sealed class EventFramework : SeAddressBase
             if (Address == IntPtr.Zero)
                 return IntPtr.Zero;
 
-            var managerPtr = *(IntPtr*)Address + FishingManagerOffset;
+            var managerPtr = Address + FishingManagerOffset;
             if (managerPtr == IntPtr.Zero)
                 return IntPtr.Zero;
 
@@ -56,9 +59,4 @@ public sealed class EventFramework : SeAddressBase
             return ptr != IntPtr.Zero ? *(FishingState*)ptr : FishingState.None;
         }
     }
-
-    public EventFramework(ISigScanner sigScanner)
-        : base(sigScanner,
-            "48 8B 2D ?? ?? ?? ?? 48 8B F1 48 8B 85 ?? ?? ?? ?? 48 8B 18 48 3B D8 74 35 0F 1F 00 F6 83 ?? ?? ?? ?? ?? 75 1D 48 8B 46 28 48 8D 4E 28 48 8B 93 ?? ?? ?? ??")
-    { }
 }

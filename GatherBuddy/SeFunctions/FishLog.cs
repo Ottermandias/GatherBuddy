@@ -25,7 +25,7 @@ public unsafe class FishLog
 
     public FishLog(ISigScanner sigScanner, IDataManager gameData)
     {
-        _numFish      = (uint)(gameData.GetExcelSheet<FishParameter>()?.Count(f => f.IsInLog) ?? 0);
+        _numFish      = (gameData.GetExcelSheet<FishParameter>()?.RowCount ?? 0);
         _numSpearFish = gameData.GetExcelSheet<SpearfishingItem>()?.RowCount ?? 0;
 
         _fish      = (byte*)new FishLogData(sigScanner).Address;

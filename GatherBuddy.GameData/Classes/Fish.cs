@@ -48,7 +48,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
         => _fishData is SpearFishRow;
 
     public bool IsBigFish
-        => BigFishOverride.Value ?? FishData?.IsHidden ?? false;
+        => BigFishOverride.Value ?? false;
 
     public OceanArea OceanArea { get; internal set; } = OceanArea.None;
 

@@ -278,8 +278,8 @@ public partial class Interface
             public ExpansionColumn()
             {
                 SetFlags(ItemFilter.ARealmReborn, ItemFilter.Heavensward, ItemFilter.Stormblood, ItemFilter.Shadowbringers,
-                    ItemFilter.Endwalker);
-                SetNames("A Realm Reborn", "Heavensward", "Stormblood", "Shadowbringers", "Endwalker");
+                    ItemFilter.Endwalker, ItemFilter.Dawntrail);
+                SetNames("A Realm Reborn", "Heavensward", "Stormblood", "Shadowbringers", "Endwalker", "Dawntrail");
             }
 
             public override void DrawColumn(ExtendedGatherable item, int _)
@@ -297,6 +297,7 @@ public partial class Interface
                     2 => FilterValue.HasFlag(ItemFilter.Stormblood),
                     3 => FilterValue.HasFlag(ItemFilter.Shadowbringers),
                     4 => FilterValue.HasFlag(ItemFilter.Endwalker),
+                    5 => FilterValue.HasFlag(ItemFilter.Dawntrail),
                     _ => false,
                 };
             }

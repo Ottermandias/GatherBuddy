@@ -54,6 +54,7 @@ public partial class Interface
                 2 => "SB",
                 3 => "ShB",
                 4 => "EW",
+                5 => "DT",
                 _ => "Unk",
             };
             Aetherytes = string.Join("\n",

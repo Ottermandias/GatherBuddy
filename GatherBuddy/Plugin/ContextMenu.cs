@@ -36,7 +36,7 @@ public class ContextMenu : IDisposable
             Enable();
     }
 
-    private void OnClick(MenuItemClickedArgs args)
+    private void OnClick(IMenuItemClickedArgs args)
     {
         if (_lastGatherable != null)
             _executor.GatherItem(_lastGatherable);
@@ -51,7 +51,7 @@ public class ContextMenu : IDisposable
     public void Dispose()
         => Disable();
 
-    private unsafe void OnContextMenuOpened(MenuOpenedArgs args)
+    private unsafe void OnContextMenuOpened(IMenuOpenedArgs args)
     {
         if (args.MenuType is ContextMenuType.Inventory)
         {
