@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 using System.Text.RegularExpressions;
-using Dalamud;
+using Dalamud.Game;
 
 namespace GatherBuddy.FishTimer.Parser;
 

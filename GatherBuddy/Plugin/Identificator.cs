@@ -1,7 +1,7 @@
 ﻿using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
-using Dalamud;
+using Dalamud.Game;
 using GatherBuddy.Classes;
 
 namespace GatherBuddy.Plugin;

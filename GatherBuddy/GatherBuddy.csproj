@@ -5,7 +5,7 @@
     <PlatformTarget>x64</PlatformTarget>
 		<RootNamespace>GatherBuddy</RootNamespace>
 		<AssemblyName>GatherBuddy</AssemblyName>
-		<Version>3.3.2.0</Version>
+		<Version>3.4.0.0</Version>
 		<Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2023</Copyright>
@@ -36,7 +36,8 @@
 	</PropertyGroup>
 
   <PropertyGroup>
-    <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+    <DalamudLibPath>H:\Projects\FFPlugins\Dalamud\bin\Release\</DalamudLibPath>
+    <!--    <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>-->
   </PropertyGroup>
 
   <ItemGroup>

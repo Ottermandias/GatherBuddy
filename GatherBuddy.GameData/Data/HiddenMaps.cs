@@ -1,4 +1,5 @@
 using Dalamud.Logging;
+using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.Data;
 
@@ -22,6 +23,8 @@ public static class HiddenMaps
         (36611, new uint[]{847, 848, 825, 826}),                                         // Saigaskin
         (36612, new uint[]{847, 848, 825, 826}),                                         // Kumbhiraskin
         (39591, new uint[]{846, 844, 824, 823}),                                         // Ophiotauroskin
+        (43556, new uint[]{}),                                                           // Loboskin
+        (43557, new uint[]{}),                                                           // Br'aaxskin
     };
     // @formatter:on
 

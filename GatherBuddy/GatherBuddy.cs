@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Reflection;
 using Dalamud;
+using Dalamud.Game;
 using Dalamud.Interface.Internal;
 using Dalamud.Interface.Windowing;
 using Dalamud.Plugin;
@@ -74,7 +75,7 @@ public partial class GatherBuddy : IDalamudPlugin
     internal readonly GatherBuddyIpc Ipc;
     //    internal readonly WotsitIpc Wotsit;
 
-    public GatherBuddy(DalamudPluginInterface pluginInterface)
+    public GatherBuddy(IDalamudPluginInterface pluginInterface)
     {
         try
         {
