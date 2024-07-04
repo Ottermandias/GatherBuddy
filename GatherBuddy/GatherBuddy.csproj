@@ -1,67 +1,66 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-		<TargetFramework>net8.0-windows</TargetFramework>
-		<LangVersion>preview</LangVersion>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <LangVersion>preview</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
-		<RootNamespace>GatherBuddy</RootNamespace>
-		<AssemblyName>GatherBuddy</AssemblyName>
-		<Version>3.4.0.1</Version>
-		<Company>SoftOtter</Company>
+    <RootNamespace>GatherBuddy</RootNamespace>
+    <AssemblyName>GatherBuddy</AssemblyName>
+    <Version>3.4.0.2</Version>
+    <Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2023</Copyright>
-		<Deterministic>true</Deterministic>
-		<OutputType>Library</OutputType>
-		<WarningLevel>4</WarningLevel>
-		<AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-		<Nullable>enable</Nullable>
-		<OutputPath>bin\$(Configuration)\</OutputPath>
-		<MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
+    <Deterministic>true</Deterministic>
+    <OutputType>Library</OutputType>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+    <OutputPath>bin\$(Configuration)\</OutputPath>
+    <MSBuildWarningsAsMessages>$(MSBuildWarningsAsMessages);MSB3277</MSBuildWarningsAsMessages>
     <ProduceReferenceAssembly>false</ProduceReferenceAssembly>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <RestorePackagesWithLockFile>true</RestorePackagesWithLockFile>
     <CopyLocalLockfileAssemblies>true</CopyLocalLockfileAssemblies>
-	</PropertyGroup>
+  </PropertyGroup>
 
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-		<DebugSymbols>true</DebugSymbols>
-		<DebugType>full</DebugType>
-		<Optimize>false</Optimize>
-		<DefineConstants>DEBUG;TRACE</DefineConstants>
-	</PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+  </PropertyGroup>
 
-	<PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-		<DebugType>pdbonly</DebugType>
-		<Optimize>true</Optimize>
-		<DefineConstants>TRACE</DefineConstants>
-	</PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <DefineConstants>TRACE</DefineConstants>
+  </PropertyGroup>
 
   <PropertyGroup>
-    <DalamudLibPath>H:\Projects\FFPlugins\Dalamud\bin\Release\</DalamudLibPath>
-    <!--    <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>-->
+    <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.13" />
     <Reference Include="Dalamud">
-			<HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
+      <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
       <Private>False</Private>
-		</Reference>
-		<Reference Include="ImGui.NET">
-			<HintPath>$(DalamudLibPath)ImGui.NET.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGui.NET">
+      <HintPath>$(DalamudLibPath)ImGui.NET.dll</HintPath>
       <Private>False</Private>
-		</Reference>
-		<Reference Include="ImGuiScene">
-			<HintPath>$(DalamudLibPath)ImGuiScene.dll</HintPath>
+    </Reference>
+    <Reference Include="ImGuiScene">
+      <HintPath>$(DalamudLibPath)ImGuiScene.dll</HintPath>
       <Private>False</Private>
-		</Reference>
+    </Reference>
     <Reference Include="Lumina">
-			<HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
+      <HintPath>$(DalamudLibPath)Lumina.dll</HintPath>
       <Private>False</Private>
-		</Reference>
+    </Reference>
     <Reference Include="Lumina.Excel">
-			<HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
+      <HintPath>$(DalamudLibPath)Lumina.Excel.dll</HintPath>
       <Private>False</Private>
-		</Reference>
+    </Reference>
     <Reference Include="FFXIVClientStructs">
       <HintPath>$(DalamudLibPath)FFXIVClientStructs.dll</HintPath>
       <Private>False</Private>
@@ -72,8 +71,8 @@
     </Reference>
   </ItemGroup>
 
-	<ItemGroup>
-	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
-	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
-	</ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
+    <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
+  </ItemGroup>
 </Project>
