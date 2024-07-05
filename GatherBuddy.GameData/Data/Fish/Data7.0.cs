@@ -230,10 +230,10 @@ public static partial class Fish
             .Spear(data, SpearfishSize.Large, SpearfishSpeed.VeryFast);
         data.Apply(43841, Patch.Dawntrail) // Iq Rrax Crab
             .Spear(data, SpearfishSize.Small, SpearfishSpeed.VeryFast)
-            .Predators(data, 300, (43836, 14), (43842, 2), (43833, 3));
+            .Predators(data, 300, (43836, 16), (43842, 2), (43833, 3));
         data.Apply(43842, Patch.Dawntrail) // Wivre Cod
             .Spear(data, SpearfishSize.Large, SpearfishSpeed.SuperFast)
-            .Predators(data, 300, (43836, 14));
+            .Predators(data, 300, (43836, 16));
         data.Apply(43843, Patch.Dawntrail) // Warmouth
             .Spear(data, SpearfishSize.Small, SpearfishSpeed.VerySlow);
         data.Apply(43844, Patch.Dawntrail) // Shaaloani Goby

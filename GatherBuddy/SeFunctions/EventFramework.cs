@@ -1,5 +1,4 @@
-﻿using System;
-using Dalamud.Game;
+﻿using System.Runtime.InteropServices;
 
 namespace GatherBuddy.SeFunctions;
 
@@ -16,47 +15,101 @@ public enum FishingState : byte
     Waiting2   = 9,
 }
 
-public sealed class EventFramework
+public sealed unsafe class EventFramework
 {
     private const int FishingManagerOffset = 0x70;
-    private const int FishingStateOffset   = 0x220;
 
-    public unsafe nint Address
-        => (nint) FFXIVClientStructs.FFXIV.Client.Game.Event.EventFramework.Instance();
+    [StructLayout(LayoutKind.Explicit)]
+    internal struct FishingManagerStruct
+    {
+        [FieldOffset(0x220)]
+        public FishingState FishingState;
 
-    internal unsafe IntPtr FishingManager
+        [FieldOffset(0x234)]
+        public byte CurrentSelectedSwimBait;
+
+        [FieldOffset(0x238)]
+        public uint SwimBaitId1;
+
+        [FieldOffset(0x23C)]
+        public uint SwimBaitId2;
+
+        [FieldOffset(0x240)]
+        public uint SwimBaitId3;
+    }
+
+    public nint Address
+        => (nint)FFXIVClientStructs.FFXIV.Client.Game.Event.EventFramework.Instance();
+
+    internal FishingManagerStruct* FishingManager
     {
         get
         {
-            if (Address == IntPtr.Zero)
-                return IntPtr.Zero;
+            if (Address == nint.Zero)
+                return null;
 
             var managerPtr = Address + FishingManagerOffset;
-            if (managerPtr == IntPtr.Zero)
-                return IntPtr.Zero;
+            if (managerPtr == nint.Zero)
+                return null;
 
-            return *(IntPtr*)managerPtr;
+            return *(FishingManagerStruct**)managerPtr;
         }
     }
 
-    internal IntPtr FishingStatePtr
+    public uint? CurrentSwimBait
     {
         get
         {
             var ptr = FishingManager;
-            if (ptr == IntPtr.Zero)
-                return IntPtr.Zero;
+            if (ptr == null)
+                return null;
 
-            return ptr + FishingStateOffset;
+            return ptr->CurrentSelectedSwimBait switch
+            {
+                0x00 when ptr->SwimBaitId1 != 0 => ptr->SwimBaitId1,
+                0x01 when ptr->SwimBaitId2 != 0 => ptr->SwimBaitId2,
+                0x02 when ptr->SwimBaitId3 != 0 => ptr->SwimBaitId3,
+                _                               => null,
+            };
         }
     }
 
-    public unsafe FishingState FishingState
+    public uint? SwimBait(int idx)
+    {
+        var ptr = FishingManager;
+        if (ptr == null)
+            return null;
+
+        return idx switch
+        {
+            0x00 when ptr->SwimBaitId1 != 0 => ptr->SwimBaitId1,
+            0x01 when ptr->SwimBaitId2 != 0 => ptr->SwimBaitId2,
+            0x02 when ptr->SwimBaitId3 != 0 => ptr->SwimBaitId3,
+            _                               => null,
+        };
+    }
+
+
+    public int NumSwimBait
     {
         get
         {
-            var ptr = FishingStatePtr;
-            return ptr != IntPtr.Zero ? *(FishingState*)ptr : FishingState.None;
+            var ptr = FishingManager;
+            if (ptr == null)
+                return 0;
+
+            return (ptr->SwimBaitId1 != 0 ? 1 : 0)
+              + (ptr->SwimBaitId2 != 0 ? 1 : 0)
+              + (ptr->SwimBaitId3 != 0 ? 1 : 0);
+        }
+    }
+
+    public FishingState FishingState
+    {
+        get
+        {
+            var ptr = FishingManager;
+            return ptr != null ? ptr->FishingState : FishingState.None;
         }
     }
 }
