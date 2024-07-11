@@ -487,7 +487,7 @@ public partial class Interface
                 var disabled = (FishRecord.Effects)(((ulong)_filter >> 32) & (ulong)Mask);
                 var flags    = item.Flags & (FishRecord.Effects)Mask;
                 var invFlags = ~flags & (FishRecord.Effects)Mask;
-                return (flags & enabled) != 0 && (invFlags & disabled) != 0;
+                return (flags & enabled) == flags && (invFlags & disabled) == invFlags;
             }
 
             public override int Compare(FishRecord lhs, FishRecord rhs)
