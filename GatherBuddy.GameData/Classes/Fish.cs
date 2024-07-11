@@ -81,13 +81,13 @@ public partial class Fish : IComparable<Fish>, IGatherable
         var note = catchData.GetRow(fishRow.RowId);
         FishRestrictions = (note is { TimeRestriction: 1 } ? FishRestrictions.Time : FishRestrictions.None)
           | (note is { WeatherRestriction: 1 } ? FishRestrictions.Weather : FishRestrictions.None);
-        Name      = MultiString.FromItem(gameData, ItemData.RowId);
-        Folklore  = MultiString.ParseSeStringLumina(fishRow.GatheringSubCategory.Value?.FolkloreBook);
-        Size      = SpearfishSize.None;
-        Speed     = SpearfishSpeed.None;
-        BiteType  = BiteType.Unknown;
-        Snagging  = Snagging.Unknown;
-        HookSet   = HookSet.Unknown;
+        Name     = MultiString.FromItem(gameData, ItemData.RowId);
+        Folklore = MultiString.ParseSeStringLumina(fishRow.GatheringSubCategory.Value?.FolkloreBook);
+        Size     = SpearfishSize.None;
+        Speed    = SpearfishSpeed.None;
+        BiteType = BiteType.Unknown;
+        Snagging = Snagging.Unknown;
+        HookSet  = HookSet.Unknown;
     }
 
     public int CompareTo(Fish? obj)

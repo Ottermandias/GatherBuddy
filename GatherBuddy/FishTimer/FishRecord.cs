@@ -28,6 +28,14 @@ public static class EffectsExtensions
             FishRecord.Effects.ModestLure2 => 2,
             _                              => 3,
         };
+
+    public const FishRecord.Effects Lures = FishRecord.Effects.ModestLure1
+      | FishRecord.Effects.ModestLure2
+      | FishRecord.Effects.AmbitiousLure1
+      | FishRecord.Effects.AmbitiousLure2;
+
+    public static bool HasLure(this FishRecord.Effects effects)
+        => (effects & Lures) != 0;
 }
 
 public struct FishRecord

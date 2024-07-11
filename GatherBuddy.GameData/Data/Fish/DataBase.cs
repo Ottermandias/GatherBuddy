@@ -99,6 +99,15 @@ public static partial class Fish
         return fish;
     }
 
+    private static Classes.Fish? Lure(this Classes.Fish? fish, Lure lure)
+    {
+        if (fish == null)
+            return null;
+
+        fish.Lure = lure;
+        return fish;
+    }
+
     private static Classes.Fish? Mooch(this Classes.Fish? fish, GameData data, uint moochId)
     {
         if (fish == null)

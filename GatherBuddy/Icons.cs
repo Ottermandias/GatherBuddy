@@ -17,6 +17,9 @@ public static class Icons
     public static ISharedImmediateTexture LargeGig         = null!;
     public static ISharedImmediateTexture Gigs             = null!;
 
+    public static ISharedImmediateTexture AmbitiousLure = null!;
+    public static ISharedImmediateTexture ModestLure = null!;
+
     public static ISharedImmediateTexture SuperSlow     = null!;
     public static ISharedImmediateTexture ExtremelySlow = null!;
     public static ISharedImmediateTexture VerySlow      = null!;
@@ -38,6 +41,8 @@ public static class Icons
         PrecisionHookSet = textures.GetFromGameIcon(1116);
         PowerfulHookSet  = textures.GetFromGameIcon(1115);
         Snagging         = textures.GetFromGameIcon(1109);
+        AmbitiousLure    = textures.GetFromGameIcon(1146);
+        ModestLure       = textures.GetFromGameIcon(1147);
         Gigs             = textures.GetFromGameIcon(60037);
         SmallGig         = textures.GetFromGameIcon(60671);
         NormalGig        = textures.GetFromGameIcon(60672);

@@ -64,6 +64,7 @@ public partial class Interface
         public ISharedImmediateTexture[] TransitionIcons;
         public BaitOrder[]               Bait;
         public ISharedImmediateTexture?  Snagging;
+        public ISharedImmediateTexture?  Lure;
         public Predator[]                Predators;
         public string                    Patch;
         public string                    UptimeString;
@@ -179,6 +180,20 @@ public partial class Interface
                 : null;
         }
 
+        private static ISharedImmediateTexture? SetLure(Fish fish, IEnumerable<BaitOrder> baitOrder)
+        {
+            var lure = fish.Lure;
+            if (lure is Enums.Lure.None)
+                lure = baitOrder.Select(b => b.Fish).OfType<Fish>().FirstOrDefault(f => f.Lure is not Enums.Lure.None)?.Lure ?? Enums.Lure.None;
+
+            return lure switch
+            {
+                Enums.Lure.Ambitious => Icons.AmbitiousLure,
+                Enums.Lure.Modest    => Icons.ModestLure,
+                _                    => null,
+            };
+        }
+
         private static bool SetUptimeDependency(Fish fish, IEnumerable<BaitOrder> baitOrder)
         {
             foreach (var bait in baitOrder)
@@ -269,6 +284,7 @@ public partial class Interface
             Predators        = SetPredators(data);
             Bait             = SetBait(data);
             Snagging         = SetSnagging(data, Bait);
+            Lure             = SetLure(data, Bait);
             UptimeDependency = SetUptimeDependency(data, Bait);
             Intuition        = SetIntuition(data);
             Unlocked         = GatherBuddy.FishLog.IsUnlocked(data);
@@ -371,6 +387,15 @@ public partial class Interface
             if (fish.Snagging != null)
             {
                 if (fish.Snagging.TryGetWrap(out var wrap, out _))
+                    ImGui.Image(wrap.ImGuiHandle, iconSize);
+                else
+                    ImGui.Dummy(iconSize);
+                ImGui.SameLine();
+            }
+
+            if (fish.Lure != null)
+            {
+                if (fish.Lure.TryGetWrap(out var wrap, out _))
                     ImGui.Image(wrap.ImGuiHandle, iconSize);
                 else
                     ImGui.Dummy(iconSize);
