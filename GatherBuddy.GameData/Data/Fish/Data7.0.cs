@@ -411,8 +411,7 @@ public static partial class Fish
         data.Apply(43795, Patch.Dawntrail) // Copper Shark
             .Bait(data, 43859)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
-            .Lure(Enums.Lure.Ambitious)
-            .Weather(data, 3, 4);
+            .Lure(Enums.Lure.Ambitious);
         data.Apply(43796, Patch.Dawntrail) // Golden Day
             .Bait(data, 29717)
             .Bite(data, HookSet.Precise, BiteType.Weak);
