@@ -31,7 +31,7 @@ namespace GatherBuddy.AutoGather
             TaskManager.DelayNext(1000);
             TaskManager.Enqueue(() =>
             {
-                targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)NearestNode.Address);
+                targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)NearestNode?.Address);
             });
         }
 
