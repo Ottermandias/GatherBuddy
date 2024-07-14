@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
-using Dalamud;
+using Dalamud.Game;
 using Dalamud.Plugin.Services;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
@@ -39,6 +39,15 @@ public partial class FishRecorder
 
     private static Bait GetCurrentBait()
     {
+        if (GatherBuddy.EventFramework.CurrentSwimBait is { } fishId)
+        {
+            if (GatherBuddy.GameData.Fishes.TryGetValue(fishId, out var fish))
+                return new Bait(fish.ItemData);
+
+            GatherBuddy.Log.Error($"Item with id {fishId} is not a known type of fish to be used as bait.");
+            return Bait.Unknown;
+        }
+
         var baitId = GatherBuddy.CurrentBait.Current;
         if (GatherBuddy.GameData.Bait.TryGetValue(baitId, out var bait))
             return bait;
@@ -63,6 +72,7 @@ public partial class FishRecorder
                 1804 => FishRecord.Effects.IdenticalCast,
                 1803 => FishRecord.Effects.SurfaceSlap,
                 2780 => FishRecord.Effects.PrizeCatch,
+                3907 => FishRecord.Effects.BigGameFishing,
                 850  => FishRecord.Effects.Patience,
                 765  => FishRecord.Effects.Patience2,
                 _    => FishRecord.Effects.None,
@@ -72,6 +82,26 @@ public partial class FishRecorder
         if (Record.Flags.HasFlag(FishRecord.Effects.Patience)
          && Record.Flags.HasFlag(FishRecord.Effects.Patience2))
             Record.Flags &= ~FishRecord.Effects.Patience;
+    }
+
+    private void UpdateLure()
+    {
+        if (Dalamud.ClientState.LocalPlayer?.StatusList == null)
+            return;
+
+        foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
+        {
+            Record.Flags |= buff.StatusId switch
+            {
+                3972 when buff.StackCount == 1 => FishRecord.Effects.AmbitiousLure1,
+                3972 when buff.StackCount == 2 => FishRecord.Effects.AmbitiousLure2,
+                3972 when buff.StackCount == 3 => FishRecord.Effects.AmbitiousLure1 | FishRecord.Effects.AmbitiousLure2,
+                3973 when buff.StackCount == 1 => FishRecord.Effects.ModestLure1,
+                3973 when buff.StackCount == 2 => FishRecord.Effects.ModestLure2,
+                3973 when buff.StackCount == 3 => FishRecord.Effects.ModestLure1 | FishRecord.Effects.ModestLure2,
+                _                              => FishRecord.Effects.None,
+            };
+        }
     }
 
     private static readonly uint GatheringIdx =
@@ -98,8 +128,8 @@ public partial class FishRecorder
             return;
 
         Record.ContentIdHash = GetContentHash(uiState->PlayerState.ContentId);
-        Record.Gathering     = (ushort)uiState->PlayerState.Attributes[GatheringIdx];
-        Record.Perception    = (ushort)uiState->PlayerState.Attributes[PerceptionIdx];
+        Record.Gathering     = (ushort)uiState->PlayerState.Attributes[(int)GatheringIdx];
+        Record.Perception    = (ushort)uiState->PlayerState.Attributes[(int)PerceptionIdx];
     }
 
 
@@ -143,6 +173,7 @@ public partial class FishRecorder
     private void OnBite()
     {
         Timer.Stop();
+        UpdateLure();
         Record.SetTugHook(GatherBuddy.TugType.Bite, Record.Hook);
         Step |= CatchSteps.FishBit;
         GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds}.");
@@ -203,6 +234,7 @@ public partial class FishRecorder
             return;
 
         Record.Bite = (ushort)Math.Clamp(Timer.ElapsedMilliseconds, 0, ushort.MaxValue);
+        UpdateLure();
         if (!Record.VerifyValidity())
             Record.Flags &= ~FishRecord.Effects.Valid;
 

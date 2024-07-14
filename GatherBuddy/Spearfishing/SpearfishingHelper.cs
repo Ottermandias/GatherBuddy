@@ -21,7 +21,7 @@ public partial class SpearfishingHelper
     {
         var points = Dalamud.GameData.GetExcelSheet<GatheringPoint>()!;
 
-        // We go through all fishingspots and correspond them to their gathering point base.
+        // We go through all fishing spots and correspond them to their gathering point base.
         var baseNodes = gameData.FishingSpots.Values
             .Where(fs => fs.Spearfishing)
             .ToDictionary(fs => fs.SpearfishingSpotData!.GatheringPointBase.Row, fs => fs);
@@ -52,7 +52,7 @@ public partial class SpearfishingHelper
             return null;
 
         var id = Dalamud.Targets.Target.DataId;
-        return !SpearfishingSpots.TryGetValue(id, out var spot) ? null : spot;
+        return SpearfishingSpots.GetValueOrDefault(id);
     }
 
     // Given the current spot we can read the spearfish window and correspond fish to their speed and size.

@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Plugin;
@@ -18,14 +18,14 @@ public partial class Interface
     {
         public readonly Vector4 LastWeatherTint = new(1f, 0.5f, 0.5f, 1f);
 
-        private uint                 _currentTerritory;
-        public  Structs.Weather      LastWeather    = Structs.Weather.Invalid;
-        public  Structs.Weather      CurrentWeather = Structs.Weather.Invalid;
-        public  Structs.Weather      NextWeather    = Structs.Weather.Invalid;
-        public  IDalamudTextureWrap? LastWeatherIcon;
-        public  IDalamudTextureWrap? CurrentWeatherIcon;
-        public  IDalamudTextureWrap? NextWeatherIcon;
-        public  Vector2              AlarmButtonSize = Vector2.Zero;
+        private uint                     _currentTerritory;
+        public  Structs.Weather          LastWeather    = Structs.Weather.Invalid;
+        public  Structs.Weather          CurrentWeather = Structs.Weather.Invalid;
+        public  Structs.Weather          NextWeather    = Structs.Weather.Invalid;
+        public  ISharedImmediateTexture? LastWeatherIcon;
+        public  ISharedImmediateTexture? CurrentWeatherIcon;
+        public  ISharedImmediateTexture? NextWeatherIcon;
+        public  Vector2                  AlarmButtonSize = Vector2.Zero;
 
         private void NullWeather()
         {
@@ -48,9 +48,9 @@ public partial class Interface
                 (LastWeather, CurrentWeather, NextWeather) = GatherBuddy.WeatherManager.FindLastCurrentNextWeather(_currentTerritory);
                 if (LastWeather.Id != 0)
                 {
-                    LastWeatherIcon    = Icons.DefaultStorage[LastWeather.Data.Icon];
-                    CurrentWeatherIcon = Icons.DefaultStorage[CurrentWeather.Data.Icon];
-                    NextWeatherIcon    = Icons.DefaultStorage[NextWeather.Data.Icon];
+                    LastWeatherIcon    = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(LastWeather.Data.Icon);
+                    CurrentWeatherIcon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(CurrentWeather.Data.Icon);
+                    NextWeatherIcon    = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(NextWeather.Data.Icon);
                 }
                 else
                 {
@@ -75,7 +75,7 @@ public partial class Interface
         }
     }
 
-    private HeaderCache _headerCache = new();
+    private readonly HeaderCache _headerCache = new();
 
     private void DrawLastAlarm(bool which, string failureText)
     {
@@ -135,9 +135,9 @@ public partial class Interface
     private static void DrawNextEorzeaHour(string hour, Vector2 size)
         => ImGuiUtil.DrawTextButton(hour, size, ColorId.HeaderNextHour.Value());
 
-    private static void DrawIconTint(Structs.Weather weather, IDalamudTextureWrap? wrap, Vector2 size, Vector4 tint)
+    private static void DrawIconTint(Structs.Weather weather, ISharedImmediateTexture? icon, Vector2 size, Vector4 tint)
     {
-        if (wrap != null)
+        if (icon != null && icon.TryGetWrap(out var wrap, out _))
         {
             ImGui.Image(wrap.ImGuiHandle, size, Vector2.Zero, Vector2.One, tint);
             ImGuiUtil.HoverTooltip($"{weather.Name} ({weather.Id})");
@@ -148,7 +148,7 @@ public partial class Interface
         }
     }
 
-    private static void DrawIcon(Structs.Weather weather, IDalamudTextureWrap? wrap, Vector2 size)
+    private static void DrawIcon(Structs.Weather weather, ISharedImmediateTexture? wrap, Vector2 size)
         => DrawIconTint(weather, wrap, size, Vector4.One);
 
     private void DrawNextWeather(string nextWeather)

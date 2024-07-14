@@ -1,5 +1,5 @@
 ﻿using System.Linq;
-using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
@@ -11,15 +11,15 @@ public partial class Interface
 {
     public class ExtendedGatherable
     {
-        public Gatherable          Data;
-        public IDalamudTextureWrap Icon;
-        public string              Territories;
-        public string              Uptimes;
-        public string              Folklore;
-        public string              Level;
-        public string              NodeNames;
-        public string              Expansion;
-        public string              Aetherytes;
+        public Gatherable              Data;
+        public ISharedImmediateTexture Icon;
+        public string                  Territories;
+        public string                  Uptimes;
+        public string                  Folklore;
+        public string                  Level;
+        public string                  NodeNames;
+        public string                  Expansion;
+        public string                  Aetherytes;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -27,7 +27,7 @@ public partial class Interface
         public ExtendedGatherable(Gatherable data)
         {
             Data = data;
-            Icon = Icons.DefaultStorage[data.ItemData.Icon];
+            Icon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
 
             Territories = string.Join("\n", data.NodeList.Select(n => n.Territory.Name).Distinct());
             if (!Territories.Contains('\n'))
@@ -54,6 +54,7 @@ public partial class Interface
                 2 => "SB",
                 3 => "ShB",
                 4 => "EW",
+                5 => "DT",
                 _ => "Unk",
             };
             Aetherytes = string.Join("\n",

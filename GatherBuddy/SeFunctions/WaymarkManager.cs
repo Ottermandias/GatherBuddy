@@ -18,13 +18,13 @@ public unsafe class WaymarkManager
     public WaymarkManager()
     {
         _markingController = MarkingController.Instance();
-        Count              = _markingController->FieldMarkerArraySpan.Length;
+        Count              = _markingController->FieldMarkers.Length;
     }
 
     public FieldMarker this[int idx]
         => _markingController == null
             ? default
-            : _markingController->FieldMarkerArraySpan[idx];
+            : _markingController->FieldMarkers[idx];
 
     public IList<Vector3> GetWaymarks()
     {
@@ -47,7 +47,7 @@ public unsafe class WaymarkManager
         if (idx is < 0 || idx > Count || _markingController == null)
             return;
 
-        _markingController->FieldMarkerArraySpan[idx] = default;
+        _markingController->FieldMarkers[idx] = default;
     }
 
     public void SetWaymark(int idx)
@@ -55,7 +55,7 @@ public unsafe class WaymarkManager
         if (idx is < 0 || idx > Count || _markingController == null || Dalamud.ClientState.LocalPlayer == null)
             return;
 
-        ref var marker = ref _markingController->FieldMarkerArraySpan[idx];
+        ref var marker = ref _markingController->FieldMarkers[idx];
         var     pos    = Dalamud.ClientState.LocalPlayer.Position;
         marker.Position = pos;
         marker.X        = (int)(pos.X * 1000 + 0.9f);
@@ -72,7 +72,7 @@ public unsafe class WaymarkManager
         var idx = 0;
         foreach (var waymark in waymarks.Take(Count))
         {
-            ref var marker = ref _markingController->FieldMarkerArraySpan[idx++];
+            ref var marker = ref _markingController->FieldMarkers[idx++];
             marker.Position = waymark;
             marker.X        = (int)(waymark.X * 1000 + 0.9f);
             marker.Y        = (int)(waymark.Y * 1000 + 0.9f);
@@ -81,6 +81,6 @@ public unsafe class WaymarkManager
         }
 
         for (; idx < Count; ++idx)
-            _markingController->FieldMarkerArraySpan[idx] = default;
+            _markingController->FieldMarkers[idx] = default;
     }
 }

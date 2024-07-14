@@ -6,7 +6,6 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
-using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
 using OtterGui;
@@ -78,13 +77,22 @@ public partial class SpearfishingHelper : Window
             }
             else
             {
-                ImGui.Image(IconId.FromSpeed(fish.Speed).ImGuiHandle, iconSize);
+                if (Icons.FromSpeed(fish.Speed).TryGetWrap(out var speedWrap, out _))
+                    ImGui.Image(speedWrap.ImGuiHandle, iconSize);
+                else
+                    ImGui.Dummy(iconSize);
                 ImGui.SameLine();
-                ImGui.Image(IconId.FromSize(fish.Size).ImGuiHandle, iconSize);
+                if (Icons.FromSize(fish.Size).TryGetWrap(out var sizeWrap, out _))
+                    ImGui.Image(sizeWrap.ImGuiHandle, iconSize);
+                else
+                    ImGui.Dummy(iconSize);
                 ImGui.SameLine();
             }
 
-            ImGui.Image(Icons.DefaultStorage[fish.ItemData.Icon].ImGuiHandle, iconSize);
+            if (Icons.DefaultStorage.TryLoadIcon(fish.ItemData.Icon, out var icon))
+                ImGui.Image(icon.ImGuiHandle, iconSize);
+            else
+                ImGui.Dummy(iconSize);
             var pos = ImGui.GetCursorPos();
             ImGui.SameLine();
             ImGui.SetCursorPosY(ImGui.GetCursorPosY() + (iconSize.Y - ImGui.GetTextLineHeight()) / 2);

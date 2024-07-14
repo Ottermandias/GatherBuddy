@@ -208,7 +208,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (4930, Patch.ARealmReborn) // Princess Trout
             .Bait      (data, 2588)
-            .Bite      (data, HookSet.Powerful, BiteType.Strong);
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (4931, Patch.ARealmReborn) // Dusk Goby
             .Bait      (data, 2588)
             .Bite      (data, HookSet.Precise, BiteType.Weak);

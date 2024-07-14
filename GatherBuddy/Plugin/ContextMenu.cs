@@ -36,7 +36,7 @@ public class ContextMenu : IDisposable
             Enable();
     }
 
-    private void OnClick(MenuItemClickedArgs args)
+    private void OnClick(IMenuItemClickedArgs args)
     {
         if (_lastGatherable != null)
             _executor.GatherItem(_lastGatherable);
@@ -51,7 +51,7 @@ public class ContextMenu : IDisposable
     public void Dispose()
         => Disable();
 
-    private unsafe void OnContextMenuOpened(MenuOpenedArgs args)
+    private unsafe void OnContextMenuOpened(IMenuOpenedArgs args)
     {
         if (args.MenuType is ContextMenuType.Inventory)
         {
@@ -67,7 +67,7 @@ public class ContextMenu : IDisposable
                 "RecipeNote"         => CheckGameObjectItem("RecipeNote", Offsets.RecipeNoteContextItemId),
                 "RecipeTree"         => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
                 "RecipeMaterialList" => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
-                "GatheringNote"      => CheckGameObjectItem("GatheringNote", Offsets.GatheringNoteContextItemId),
+                "GatheringNote"      => CheckGatheringNote(args),
                 "ItemSearch"         => HandleItem((uint)AgentContext.Instance()->UpdateCheckerParam),
                 "ChatLog"            => CheckGameObjectItem("ChatLog", Offsets.ChatLogContextItemId, ValidateChatLogContext),
                 _                    => null,
@@ -76,6 +76,21 @@ public class ContextMenu : IDisposable
 
         if (_lastGatherable != null)
             args.AddMenuItem(_menuItem);
+    }
+
+    private static unsafe IGatherable? CheckGatheringNote(IMenuOpenedArgs args)
+    {
+        var agent = Dalamud.GameGui.FindAgentInterface("GatheringNote");
+        if (agent == IntPtr.Zero)
+            return null;
+
+        // This seems to be 1 when a location context is opened,
+        // and 4 when an item context is opened.
+        var discriminator = *(byte*)(args.AgentPtr + Offsets.GatheringNoteContextDiscriminator);
+        if (discriminator != 4)
+            return null;
+
+        return HandleItem(*(uint*)(agent + Offsets.GatheringNoteContextItemId));
     }
 
     private static IGatherable? HandleItem(uint itemId)

@@ -35,6 +35,7 @@ public enum Patch : ushort
     GodsRevelLandsTremble      = 630,
     TheDarkThrone              = 640,
     GrowingLight               = 650,
+    Dawntrail                  = 700,
 }
 
 [Flags]
@@ -70,6 +71,7 @@ public enum PatchFlag : ulong
     GodsRevelLandsTremble      = 1 << 27,
     TheDarkThrone              = 1 << 28,
     GrowingLight               = 1 << 29,
+    Dawntrail                  = 1 << 30,
 }
 
 public static class PatchExtensions
@@ -126,6 +128,7 @@ public static class PatchExtensions
             63 => "Gods Revel, Lands Tremble",
             64 => "The Dark Throne",
             65 => "Growing Light",
+            70 => "Dawntrail",
             _  => "Unknown",
         };
     }
@@ -164,6 +167,7 @@ public static class PatchExtensions
             Patch.GodsRevelLandsTremble      => PatchFlag.GodsRevelLandsTremble,
             Patch.TheDarkThrone              => PatchFlag.TheDarkThrone,
             Patch.GrowingLight               => PatchFlag.GrowingLight,
+            Patch.Dawntrail                  => PatchFlag.Dawntrail,
             _                                => 0,
         };
     }
@@ -202,6 +206,7 @@ public static class PatchExtensions
             PatchFlag.GodsRevelLandsTremble      => Patch.GodsRevelLandsTremble,
             PatchFlag.TheDarkThrone              => Patch.TheDarkThrone,
             PatchFlag.GrowingLight               => Patch.GrowingLight,
+            PatchFlag.Dawntrail                  => Patch.Dawntrail,
             _                                    => Patch.Unknown,
         };
     }

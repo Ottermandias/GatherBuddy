@@ -1,6 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Linq;
-using Dalamud;
+using Dalamud.Game;
 using GatherBuddy.Classes;
 
 namespace GatherBuddy.Plugin;
@@ -9,9 +10,9 @@ public class Identificator
 {
     public const int MaxDistance = 4;
 
-    private readonly GameData                         _data;
-    private readonly Dictionary<string, Gatherable>[] _gatherableFromLanguage;
-    private readonly Dictionary<string, Fish>[]       _fishFromLanguage;
+    private readonly GameData                               _data;
+    private readonly FrozenDictionary<string, Gatherable>[] _gatherableFromLanguage;
+    private readonly FrozenDictionary<string, Fish>[]       _fishFromLanguage;
 
     public Identificator()
     {
@@ -24,12 +25,43 @@ public class Identificator
             (ClientLanguage)(((int)GatherBuddy.Language + 3) % 4),
         };
 
-        _gatherableFromLanguage = languages.Select(l => _data.Gatherables.Values.ToDictionary(g => g.Name[l].ToLowerInvariant(), g => g))
-            .ToArray();
-        _fishFromLanguage = languages.Select(l => _data.Fishes.Values.ToDictionary(f => f.Name[l].ToLowerInvariant(), f => f)).ToArray();
+        _gatherableFromLanguage = languages.Select(CreateGatherableDictionary).ToArray();
+        _fishFromLanguage       = languages.Select(CreateFishDictionary).ToArray();
     }
 
-    private static bool SearchContains<T>(Dictionary<string, T> dict, string name, out T? ret) where T : class
+    private FrozenDictionary<string, Gatherable> CreateGatherableDictionary(ClientLanguage l)
+    {
+        var dict = new Dictionary<string, Gatherable>(_data.Gatherables.Count);
+        foreach (var (gatherable, name) in _data.Gatherables.Values.Select(g => (g, g.Name[l].ToLowerInvariant())))
+        {
+            if (!dict.TryAdd(name, gatherable))
+            {
+#if DEBUG
+                GatherBuddy.Log.Warning($"Item Name Overlap in {l}: {gatherable.ItemId} and {dict[name].ItemId} resolve to {name}.");
+#endif
+            }
+        }
+
+        return dict.ToFrozenDictionary();
+    }
+
+    private FrozenDictionary<string, Fish> CreateFishDictionary(ClientLanguage l)
+    {
+        var dict = new Dictionary<string, Fish>(_data.Fishes.Count);
+        foreach (var (fish, name) in _data.Fishes.Values.Select(f => (f, f.Name[l].ToLowerInvariant())))
+        {
+            if (!dict.TryAdd(name, fish))
+            {
+#if DEBUG
+                GatherBuddy.Log.Warning($"Item Name Overlap in {l}: {fish.ItemId} and {dict[name].ItemId} resolve to {name}.");
+#endif
+            }
+        }
+
+        return dict.ToFrozenDictionary();
+    }
+
+    private static bool SearchContains<T>(FrozenDictionary<string, T> dict, string name, out T? ret) where T : class
     {
         ret = null;
         var length = int.MaxValue;

@@ -217,7 +217,7 @@ public partial class Interface
         if (ImGui.Combo("##Sound", ref idx, AlarmCache.SoundIdNames))
         {
             _plugin.AlarmManager.ChangeAlarmSound(group, alarmIdx, AlarmCache.SoundIds[idx]);
-            _plugin.AlarmManager.PreviewAlarm(AlarmCache.SoundIds[idx]);
+            AlarmManager.PreviewAlarm(AlarmCache.SoundIds[idx]);
         }
         ImGuiUtil.HoverTooltip("Play this sound effect when this alarm is triggered.");
 
