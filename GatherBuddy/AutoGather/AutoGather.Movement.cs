@@ -45,7 +45,7 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void MountUp()
         {
-            if (EzThrottler.Throttle("MountUp", ActionCooldown))
+            if (EzThrottler.Throttle("MountUp", 10))
             {
                 VNavmesh_IPCSubscriber.Path_Stop();
                 var am = ActionManager.Instance();
@@ -85,7 +85,7 @@ namespace GatherBuddy.AutoGather
             else if (NearestNodeDistance > 3 && NearestNodeDistance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
             {
                 CurrentDestination = NearestNode?.Position ?? null;
-                TaskManager.DelayNext(2500);
+                //TaskManager.DelayNext(2500);
                 TaskManager.Enqueue(() => Navigate(false));
                 TaskManager.Enqueue(WaitForDestination);
             }
@@ -107,57 +107,57 @@ namespace GatherBuddy.AutoGather
 
         private void WaitForDestination()
         {
-            if (EzThrottler.Throttle("WaitForDestination", 50))
-            {
-                if (CurrentDestination == null)
-                    return;
-
-                if (!IsCloseToDestination())
-                {
-                    if (IsPathGenerating)
-                    {
-                        return;
-                    }
-
-                    // Check if character is stuck
-                    if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 2.0f)
-                    {
-                        // If the character hasn't moved much
-                        if ((DateTime.Now - lastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
-                        {
-                            // Check if enough time has passed since the last reset
-                            if ((DateTime.Now - lastResetTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
-                            {
-                                GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
-                                ResetNavigation();
-                                lastResetTime = DateTime.Now;
-                                return;
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Character has moved, update last known position and time
-                        lastPosition     = Player.Object.Position;
-                        lastMovementTime = DateTime.Now;
-                    }
-
-                    // If not close, enqueue the check again after a delay
-                    TaskManager.Enqueue(WaitForDestination);
-                }
-                else
-                {
-                    // Arrived at the destination
-                    GatherBuddy.Log.Verbose("Arrived at the destination");
-                    if (Vector3.Distance(Player.Object.Position, (MapFlagPosition.HasValue ? MapFlagPosition.Value : Player.Object.Position))
-                      < 50)
-                    {
-                        HasSeenFlag = true;
-                    }
-
-                    lastPosition = null; // Reset last known position
-                }
-            }
+            // if (EzThrottler.Throttle("WaitForDestination", 5))
+            // {
+            //     if (CurrentDestination == null)
+            //         return;
+            //
+            //     if (!IsCloseToDestination())
+            //     {
+            //         if (IsPathGenerating)
+            //         {
+            //             return;
+            //         }
+            //
+            //         // Check if character is stuck
+            //         if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 2.0f)
+            //         {
+            //             // If the character hasn't moved much
+            //             if ((DateTime.Now - lastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
+            //             {
+            //                 // Check if enough time has passed since the last reset
+            //                 if ((DateTime.Now - lastResetTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
+            //                 {
+            //                     GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
+            //                     ResetNavigation();
+            //                     lastResetTime = DateTime.Now;
+            //                     return;
+            //                 }
+            //             }
+            //         }
+            //         else
+            //         {
+            //             // Character has moved, update last known position and time
+            //             lastPosition     = Player.Object.Position;
+            //             lastMovementTime = DateTime.Now;
+            //         }
+            //
+            //         // If not close, enqueue the check again after a delay
+            //         TaskManager.Enqueue(WaitForDestination);
+            //     }
+            //     else
+            //     {
+            //         // Arrived at the destination
+            //         GatherBuddy.Log.Verbose("Arrived at the destination");
+            //         if (Vector3.Distance(Player.Object.Position, (MapFlagPosition.HasValue ? MapFlagPosition.Value : Player.Object.Position))
+            //           < 50)
+            //         {
+            //             HasSeenFlag = true;
+            //         }
+            //
+            //         lastPosition = null; // Reset last known position
+            //     }
+            // }
         }
 
         private void ResetNavigation()
@@ -181,7 +181,7 @@ namespace GatherBuddy.AutoGather
 
         private void Navigate(bool shouldFly)
         {
-            if (EzThrottler.Throttle("Navigate", 1000))
+            if (EzThrottler.Throttle("Navigate", 10))
             {
                 if (CurrentDestination == null)
                 {

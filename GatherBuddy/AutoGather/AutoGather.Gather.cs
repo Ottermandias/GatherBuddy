@@ -27,12 +27,12 @@ namespace GatherBuddy.AutoGather
             var targetSystem = TargetSystem.Instance();
             if (targetSystem == null)
                 return;
-
-            TaskManager.DelayNext(1000);
+            
             TaskManager.Enqueue(() =>
             {
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)NearestNode?.Address);
             });
+            TaskManager.DelayNext(1000);
         }
 
         private unsafe void DoGatherWindowTasks(IGatherable item)
