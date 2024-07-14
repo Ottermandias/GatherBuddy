@@ -101,7 +101,7 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43694, Patch.Dawntrail) // Plattershell
             .Bait(data, 43852)
-            .Bite(data, HookSet.Precise, BiteType.Weak);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43695, Patch.Dawntrail) // Candiru
             .Bait(data, 43849)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
