@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
 using GatherBuddy.Classes;
@@ -7,6 +8,35 @@ using GatherBuddy.Structs;
 using GatherBuddy.Time;
 
 namespace GatherBuddy.FishTimer;
+
+public static class EffectsExtensions
+{
+    public static byte AmbitiousLure(this FishRecord.Effects effects)
+        => (effects & (FishRecord.Effects.AmbitiousLure1 | FishRecord.Effects.AmbitiousLure2)) switch
+        {
+            0                                 => 0,
+            FishRecord.Effects.AmbitiousLure1 => 1,
+            FishRecord.Effects.AmbitiousLure2 => 2,
+            _                                 => 3,
+        };
+
+    public static byte ModestLure(this FishRecord.Effects effects)
+        => (effects & (FishRecord.Effects.ModestLure1 | FishRecord.Effects.ModestLure2)) switch
+        {
+            0                              => 0,
+            FishRecord.Effects.ModestLure1 => 1,
+            FishRecord.Effects.ModestLure2 => 2,
+            _                              => 3,
+        };
+
+    public const FishRecord.Effects Lures = FishRecord.Effects.ModestLure1
+      | FishRecord.Effects.ModestLure2
+      | FishRecord.Effects.AmbitiousLure1
+      | FishRecord.Effects.AmbitiousLure2;
+
+    public static bool HasLure(this FishRecord.Effects effects)
+        => (effects & Lures) != 0;
+}
 
 public struct FishRecord
 {
@@ -21,20 +51,25 @@ public struct FishRecord
     [Flags]
     public enum Effects : uint
     {
-        None          = 0x00000000,
-        Snagging      = 0x00000001,
-        Chum          = 0x00000002,
-        Intuition     = 0x00000004,
-        FishEyes      = 0x00000008,
-        IdenticalCast = 0x00000010,
-        SurfaceSlap   = 0x00000020,
-        PrizeCatch    = 0x00000040,
-        Patience      = 0x00000080,
-        Patience2     = 0x00000100,
-        Collectible   = 0x00002000,
-        Large         = 0x00004000,
-        Valid         = 0x00008000,
-        Legacy        = 0x00010000,
+        None           = 0x00000000,
+        Snagging       = 0x00000001,
+        Chum           = 0x00000002,
+        Intuition      = 0x00000004,
+        FishEyes       = 0x00000008,
+        IdenticalCast  = 0x00000010,
+        SurfaceSlap    = 0x00000020,
+        PrizeCatch     = 0x00000040,
+        Patience       = 0x00000080,
+        Patience2      = 0x00000100,
+        Collectible    = 0x00002000,
+        Large          = 0x00004000,
+        Valid          = 0x00008000,
+        Legacy         = 0x00010000,
+        BigGameFishing = 0x00020000,
+        AmbitiousLure1 = 0x00040000,
+        AmbitiousLure2 = 0x00080000,
+        ModestLure1    = 0x00100000,
+        ModestLure2    = 0x00200000,
     }
 
     private uint    _bait;
@@ -58,7 +93,7 @@ public struct FishRecord
 
     public FishingSpot? FishingSpot
     {
-        get => HasSpot ? GatherBuddy.GameData.FishingSpots.TryGetValue(_fishingSpot, out var s) ? s : null : null;
+        get => HasSpot ? GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_fishingSpot) : null;
         set => _fishingSpot = (ushort)(value?.Id ?? 0);
     }
 
@@ -79,7 +114,7 @@ public struct FishRecord
 
     public Fish? Catch
     {
-        get => HasCatch ? GatherBuddy.GameData.Fishes.TryGetValue(_catch, out var f) ? f : null : null;
+        get => HasCatch ? GatherBuddy.GameData.Fishes.GetValueOrDefault(_catch) : null;
         set => _catch = value?.ItemId ?? 0;
     }
 
@@ -178,6 +213,9 @@ public struct FishRecord
         public bool     PrizeCatch;
         public bool     Patience;
         public bool     Patience2;
+        public bool     BigGameFishing;
+        public byte     AmbitiousLure;
+        public byte     ModestLure;
         public ushort   BiteTime;
         public BiteType Tug;
         public HookSet  HookSet;
@@ -191,30 +229,33 @@ public struct FishRecord
     internal JsonStruct ToJson()
         => new()
         {
-            ContentIdHash = (uint) ContentIdHash,
-            Gathering     = Gathering,
-            Perception    = Perception,
-            Valid         = Flags.HasFlag(Effects.Valid),
-            TimeStamp     = _timeStamp,
-            BaitItemId    = BaitId,
-            FishingSpotId = SpotId,
-            Snagging      = Flags.HasFlag(Effects.Snagging),
-            Chum          = Flags.HasFlag(Effects.Chum),
-            Intuition     = Flags.HasFlag(Effects.Intuition),
-            FishEyes      = Flags.HasFlag(Effects.FishEyes),
-            IdenticalCast = Flags.HasFlag(Effects.IdenticalCast),
-            SurfaceSlap   = Flags.HasFlag(Effects.SurfaceSlap),
-            PrizeCatch    = Flags.HasFlag(Effects.PrizeCatch),
-            Patience      = Flags.HasFlag(Effects.Patience),
-            Patience2     = Flags.HasFlag(Effects.Patience2),
-            BiteTime      = Bite,
-            Tug           = Tug,
-            HookSet       = Hook,
-            CatchItemId   = CatchId,
-            Amount        = Amount,
-            Size          = Size / 10f,
-            Collectible   = Flags.HasFlag(Effects.Collectible),
-            Large         = Flags.HasFlag(Effects.Large),
+            ContentIdHash  = (uint)ContentIdHash,
+            Gathering      = Gathering,
+            Perception     = Perception,
+            Valid          = Flags.HasFlag(Effects.Valid),
+            TimeStamp      = _timeStamp,
+            BaitItemId     = BaitId,
+            FishingSpotId  = SpotId,
+            Snagging       = Flags.HasFlag(Effects.Snagging),
+            Chum           = Flags.HasFlag(Effects.Chum),
+            Intuition      = Flags.HasFlag(Effects.Intuition),
+            FishEyes       = Flags.HasFlag(Effects.FishEyes),
+            IdenticalCast  = Flags.HasFlag(Effects.IdenticalCast),
+            SurfaceSlap    = Flags.HasFlag(Effects.SurfaceSlap),
+            PrizeCatch     = Flags.HasFlag(Effects.PrizeCatch),
+            Patience       = Flags.HasFlag(Effects.Patience),
+            Patience2      = Flags.HasFlag(Effects.Patience2),
+            BigGameFishing = Flags.HasFlag(Effects.BigGameFishing),
+            AmbitiousLure  = Flags.AmbitiousLure(),
+            ModestLure     = Flags.ModestLure(),
+            BiteTime       = Bite,
+            Tug            = Tug,
+            HookSet        = Hook,
+            CatchItemId    = CatchId,
+            Amount         = Amount,
+            Size           = Size / 10f,
+            Collectible    = Flags.HasFlag(Effects.Collectible),
+            Large          = Flags.HasFlag(Effects.Large),
         };
 
     private static ushort From2Bytes(ReadOnlySpan<byte> bytes, int from)
@@ -261,6 +302,8 @@ public struct FishRecord
          || _fishingSpot == 0)
             return false;
 
+        if ((Flags & (Effects.AmbitiousLure1 | Effects.AmbitiousLure2)) != 0 && (Flags & (Effects.ModestLure1 | Effects.ModestLure2)) != 0)
+            return false;
 
         if (_catch == 0 && (Amount > 0 || Size != 0 || Flags.HasFlag(Effects.Collectible | Effects.Large)))
             return false;

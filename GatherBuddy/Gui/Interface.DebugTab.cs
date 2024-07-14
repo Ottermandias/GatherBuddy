@@ -6,6 +6,8 @@ using System.Numerics;
 using Dalamud;
 using Dalamud.Game.ClientState.Objects.Enums;
 using GatherBuddy.AutoGather;
+using Dalamud.Game;
+using ECommons.DalamudServices;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Levenshtein;
@@ -143,7 +145,7 @@ public partial class Interface
 
         var fw = FFXIVClientStructs.FFXIV.Client.System.Framework.Framework.Instance();
         ImGuiUtil.DrawTableColumn("Framework Timestamp");
-        ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->UtcTime.TimeStamp.ToString());
+        ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->UtcTime.Timestamp.ToString());
         ImGuiUtil.DrawTableColumn("Framework Eorzea");
         ImGuiUtil.DrawTableColumn(fw == null ? "NULL" : fw->ClientTime.EorzeaTime.ToString());
         ImGuiUtil.DrawTableColumn("Framework Func");
@@ -183,11 +185,19 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn("Event Framework Address");
         ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.Address.ToString("X"));
         ImGuiUtil.DrawTableColumn("Fishing Manager Address");
-        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.FishingManager.ToString("X"));
-        ImGuiUtil.DrawTableColumn("Fishing State Address");
-        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.FishingStatePtr.ToString("X"));
+        ImGuiUtil.DrawTableColumn($"0x{(nint)GatherBuddy.EventFramework.FishingManager:X}");
         ImGuiUtil.DrawTableColumn("Fishing State");
         ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.FishingState.ToString());
+        ImGuiUtil.DrawTableColumn("Num SwimBait");
+        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.NumSwimBait.ToString());
+        ImGuiUtil.DrawTableColumn("Selected SwimBait");
+        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.CurrentSwimBait?.ToString() ?? "NULL");
+        ImGuiUtil.DrawTableColumn("SwimBait 1");
+        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.SwimBait(0)?.ToString() ?? "NULL");
+        ImGuiUtil.DrawTableColumn("SwimBait 2");
+        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.SwimBait(1)?.ToString() ?? "NULL");
+        ImGuiUtil.DrawTableColumn("SwimBait 3");
+        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.SwimBait(2)?.ToString() ?? "NULL");
         ImGuiUtil.DrawTableColumn("Bite Type Address");
         ImGuiUtil.DrawTableColumn(GatherBuddy.TugType.Address.ToString("X"));
         ImGuiUtil.DrawTableColumn("Bite Type");
@@ -527,12 +537,12 @@ public partial class Interface
         {
             using var group = ImRaii.Group();
             ImGui.Text("Gatherables within 200 yalms");
-            var gatherables = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
+            var gatherables = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
             foreach (var obj in gatherables)
             {
-                ImGui.PushID(obj.ObjectId.ToString());
-                var node = GatherBuddy.GameData.GatheringNodes.TryGetValue(obj.ObjectId, out var n) ? n : null;
-                ImGui.Text($"{obj.ObjectId}: {obj.Name ?? "Unknown"} - DataId: {obj.DataId}");
+                ImGui.PushID(obj.GameObjectId.ToString());
+                var node = GatherBuddy.GameData.GatheringNodes.TryGetValue((uint)obj.GameObjectId, out var n) ? n : null;
+                ImGui.Text($"{obj.GameObjectId}: {obj.Name ?? "Unknown"} - DataId: {obj.DataId}");
                 ImGui.SameLine();
                 if (ImGui.SmallButton("NavTo"))
                 {

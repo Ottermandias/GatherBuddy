@@ -237,7 +237,7 @@ namespace GatherBuddy.AutoGather
             CurrentDestination = MapFlagPosition;
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
                 TaskManager.Enqueue(MountUp);
-            TaskManager.DelayNext(1500);
+            TaskManager.DelayNext(2500);
             TaskManager.Enqueue(() => Navigate(ShouldFly));
             TaskManager.Enqueue(WaitForDestination);
         }

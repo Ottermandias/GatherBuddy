@@ -1,8 +1,7 @@
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
 using System.Linq;
-using Dalamud;
+using Dalamud.Game;
 using GatherBuddy.Enums;
 
 namespace GatherBuddy.Classes;

@@ -77,7 +77,7 @@ public partial class FishRecorder : IDisposable
 
     private void AddRecordToTimes(FishRecord record)
     {
-        if (record.Catch == null || !record.Flags.HasFlag(FishRecord.Effects.Valid))
+        if (record.Catch == null || !record.Flags.HasFlag(FishRecord.Effects.Valid) || record.Flags.HasLure())
             return;
 
         if (!Times.TryGetValue(record.Catch.ItemId, out var times))
@@ -122,7 +122,10 @@ public partial class FishRecorder : IDisposable
 
         data.Data.Remove(record.Bait.Id);
         foreach (var rec in Records.Where(r
-                     => r.Flags.HasFlag(FishRecord.Effects.Valid) && r.Catch?.ItemId == record.Catch.ItemId && r.Bait.Id == record.Bait.Id))
+                     => r.Flags.HasFlag(FishRecord.Effects.Valid)
+                  && !record.Flags.HasLure()
+                  && r.Catch?.ItemId == record.Catch.ItemId
+                  && r.Bait.Id == record.Bait.Id))
             data.Apply(rec.Bait.Id, rec.Bite, rec.Flags.HasFlag(FishRecord.Effects.Chum));
 
         if (data.Data.Count != 0)

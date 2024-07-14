@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using Dalamud;
 using Dalamud.Logging;
+using Dalamud.Game;
 using Dalamud.Plugin.Services;
 using Dalamud.Utility;
 using GatherBuddy.Classes;
@@ -82,10 +83,10 @@ public class GameData
     public (IGatherable? Item, ILocation? Location) GetConfig(ObjectType type, uint itemId, uint locationId)
         => type switch
         {
-            ObjectType.Gatherable => (itemId == 0 ? null : Gatherables.TryGetValue(itemId, out var g)        ? g : null,
-                locationId == 0                   ? null : GatheringNodes.TryGetValue(locationId, out var l) ? l : null),
-            ObjectType.Fish => (itemId == 0 ? null : Fishes.TryGetValue(itemId, out var f)           ? f : null,
-                locationId == 0             ? null : FishingSpots.TryGetValue(locationId, out var l) ? l : null),
+            ObjectType.Gatherable => (itemId == 0 ? null : Gatherables.GetValueOrDefault(itemId),
+                locationId == 0                   ? null : GatheringNodes.GetValueOrDefault(locationId)),
+            ObjectType.Fish => (itemId == 0 ? null : Fishes.GetValueOrDefault(itemId),
+                locationId == 0             ? null : FishingSpots.GetValueOrDefault(locationId)),
             _ => (null, null),
         };
 
@@ -114,7 +115,7 @@ public class GameData
                     .Select(group => group.First())
                     .OrderBy(t => t.Name)
                     .ToArray()
-             ?? Array.Empty<Territory>();
+             ?? [];
             Log.Verbose("Collected {NumWeatherTerritories} different territories with dynamic weather.", WeatherTerritories.Length);
 
             Aetherytes = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()?

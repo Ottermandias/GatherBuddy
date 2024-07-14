@@ -6,3 +6,10 @@ public enum Snagging : byte
     None     = 1,
     Required = 2,
 }
+
+public enum Lure : byte
+{
+    None = 0,
+    Ambitious = 1,
+    Modest = 2,
+}

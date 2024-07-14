@@ -3,9 +3,9 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
-using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
 using Newtonsoft.Json;
 using OtterGui;
@@ -16,10 +16,9 @@ namespace GatherBuddy.Alarms;
 public partial class AlarmManager : IDisposable
 {
     private const    string    FileName = "alarms.json";
-    private readonly PlaySound _sounds;
 
-    public   List<AlarmGroup>                  Alarms        { get; init; } = new();
-    internal List<(Alarm, TimeStamp)>          ActiveAlarms  { get; init; } = new();
+    public   List<AlarmGroup>                  Alarms        { get; init; } = [];
+    internal List<(Alarm, TimeStamp)>          ActiveAlarms  { get; init; } = [];
     public   (Alarm, ILocation, TimeInterval)? LastItemAlarm { get; private set; }
     public   (Alarm, ILocation, TimeInterval)? LastFishAlarm { get; private set; }
 
@@ -63,14 +62,14 @@ public partial class AlarmManager : IDisposable
         GatherBuddy.Config.Save();
     }
 
-    private void TriggerWeatherAlarm()
-        => _sounds.Play(GatherBuddy.Config.WeatherAlarm);
+    private static void TriggerWeatherAlarm()
+        => UIModule.PlaySound((uint)GatherBuddy.Config.WeatherAlarm);
 
-    private void TriggerHourAlarm()
-        => _sounds.Play(GatherBuddy.Config.HourAlarm);
+    private static void TriggerHourAlarm()
+        => UIModule.PlaySound((uint)GatherBuddy.Config.HourAlarm);
 
-    public void PreviewAlarm(Sounds id)
-        => _sounds.Play(id);
+    public static void PreviewAlarm(Sounds id)
+        => UIModule.PlaySound((uint)id);
 
 
     public void AddActiveAlarm(Alarm alarm, bool trigger = true)
@@ -104,7 +103,6 @@ public partial class AlarmManager : IDisposable
 
     public AlarmManager()
     {
-        _sounds = new PlaySound(Dalamud.SigScanner);
         if (GatherBuddy.Config.WeatherAlarm != Sounds.None)
             GatherBuddy.Time.WeatherChanged += TriggerWeatherAlarm;
         if (GatherBuddy.Config.HourAlarm != Sounds.None)
@@ -232,7 +230,7 @@ public partial class AlarmManager : IDisposable
             LastItemAlarm = (alarm, location, uptime);
 
         if (alarm.SoundId > Sounds.Unknown)
-            _sounds.Play(alarm.SoundId);
+            UIModule.PlaySound((uint)alarm.SoundId);
 
         // Some lax rounding for display.
         var newUptime = uptime;

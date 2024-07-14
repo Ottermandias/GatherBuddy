@@ -51,7 +51,7 @@ public class Gatherable : IComparable<Gatherable>, IGatherable
                     for (int i = 0; i < container->Size; i++)
                     {
                         var item = container->GetInventorySlot(i);
-                        if (item == null || item->ItemID == 0 || item->ItemID != ItemId) continue;
+                        if (item == null || item->ItemId == 0 || item->ItemId != ItemId) continue;
 
                         count++;
                     }

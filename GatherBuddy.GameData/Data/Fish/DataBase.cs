@@ -1,4 +1,7 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using GatherBuddy.Enums;
 using GatherBuddy.Structs;
@@ -93,6 +96,15 @@ public static partial class Fish
             data.Log.Error(e.Message);
         }
 
+        return fish;
+    }
+
+    private static Classes.Fish? Lure(this Classes.Fish? fish, Lure lure)
+    {
+        if (fish == null)
+            return null;
+
+        fish.Lure = lure;
         return fish;
     }
 
@@ -218,7 +230,8 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? Spear(this Classes.Fish? fish, GameData data, SpearfishSize size, SpearfishSpeed speed = SpearfishSpeed.Unknown)
+    private static Classes.Fish? Spear(this Classes.Fish? fish, GameData data, SpearfishSize size,
+        SpearfishSpeed speed = SpearfishSpeed.Unknown)
     {
         if (fish == null)
             return null;
@@ -328,6 +341,35 @@ public static partial class Fish
         data.ApplyGodsRevelLandsTremble();
         data.ApplyTheDarkThrone();
         data.ApplyGrowingLight();
+        data.ApplyDawntrail();
         data.ApplyMooches();
+    }
+
+    public static void DumpUnknown(Patch patch, IEnumerable<Classes.Fish> fish, string directory)
+    {
+        try
+        {
+            var       path   = Path.Combine(directory, $"Data{patch.ToMajor()}.{patch.ToMinor()}.cs");
+            using var stream = File.Open(path, FileMode.Create);
+            using var w      = new StreamWriter(stream);
+            w.WriteLine("using GatherBuddy.Enums;");
+            w.WriteLine(string.Empty);
+            w.WriteLine("namespace GatherBuddy.Data;");
+            w.WriteLine(string.Empty);
+            w.WriteLine("public static partial class Fish");
+            w.WriteLine("{");
+            w.WriteLine("    // @formatter:off");
+            w.WriteLine($"    private static void Apply{patch}(this GameData data)");
+            w.WriteLine("    {");
+            foreach (var f in fish.Where(f => f.Patch is Patch.Unknown && f.InLog).OrderBy(f => f.IsSpearFish).ThenBy(f => f.ItemId))
+                w.WriteLine($"        data.Apply({f.ItemId}, Patch.{patch}); // {f.Name.English}");
+            w.WriteLine("    }");
+            w.WriteLine("    // @formatter:on");
+            w.WriteLine("}");
+        }
+        catch
+        {
+            // ignored
+        }
     }
 }

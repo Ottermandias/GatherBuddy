@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
@@ -12,7 +11,7 @@ using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
 using ImRaii = OtterGui.Raii.ImRaii;
-using Dalamud.Interface.Internal;
+using Dalamud.Interface.Textures;
 
 namespace GatherBuddy.Gui;
 
@@ -22,19 +21,19 @@ public partial class Interface
     {
         public struct BaitOrder
         {
-            public IDalamudTextureWrap  Icon;
-            public string               Name;
-            public object?              Fish;
-            public IDalamudTextureWrap? HookSet;
-            public (string, uint)       Bite;
+            public ISharedImmediateTexture  Icon;
+            public string                   Name;
+            public object?                  Fish;
+            public ISharedImmediateTexture? HookSet;
+            public (string, uint)           Bite;
         }
 
         public struct Predator
         {
-            public Fish                Fish;
-            public IDalamudTextureWrap Icon;
-            public string              Name;
-            public string              Amount;
+            public Fish                    Fish;
+            public ISharedImmediateTexture Icon;
+            public string                  Name;
+            public string                  Amount;
         }
 
         public static class Bites
@@ -54,26 +53,27 @@ public partial class Interface
                 };
         }
 
-        public Fish                Data;
-        public IDalamudTextureWrap Icon;
-        public string              Territories;
-        public string              SpotNames;
-        public string              Aetherytes;
+        public Fish                    Data;
+        public ISharedImmediateTexture Icon;
+        public string                  Territories;
+        public string                  SpotNames;
+        public string                  Aetherytes;
 
-        public string                Time;
-        public IDalamudTextureWrap[] WeatherIcons;
-        public IDalamudTextureWrap[] TransitionIcons;
-        public BaitOrder[]           Bait;
-        public IDalamudTextureWrap?  Snagging;
-        public Predator[]            Predators;
-        public string                Patch;
-        public string                UptimeString;
-        public string                Intuition;
-        public string                FishType;
-        public bool                  UptimeDependency;
-        public ushort                UptimePercent;
-        public bool                  Unlocked = false;
-        public bool                  Collectible;
+        public string                    Time;
+        public ISharedImmediateTexture[] WeatherIcons;
+        public ISharedImmediateTexture[] TransitionIcons;
+        public BaitOrder[]               Bait;
+        public ISharedImmediateTexture?  Snagging;
+        public ISharedImmediateTexture?  Lure;
+        public Predator[]                Predators;
+        public string                    Patch;
+        public string                    UptimeString;
+        public string                    Intuition;
+        public string                    FishType;
+        public bool                      UptimeDependency;
+        public ushort                    UptimePercent;
+        public bool                      Unlocked = false;
+        public bool                      Collectible;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -97,33 +97,35 @@ public partial class Interface
             return bestUptime;
         }
 
-        private static IDalamudTextureWrap[] SetWeather(Fish fish)
+        private static ISharedImmediateTexture[] SetWeather(Fish fish)
         {
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather) || fish.CurrentWeather.Length == 0)
-                return Array.Empty<IDalamudTextureWrap>();
+                return [];
 
-            return fish.CurrentWeather.Select(w => Icons.DefaultStorage[(uint)w.Data.Icon]).ToArray();
+            return fish.CurrentWeather.Select(w
+                => Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup((uint)w.Data.Icon))).ToArray();
         }
 
-        private static IDalamudTextureWrap[] SetTransition(Fish fish)
+        private static ISharedImmediateTexture[] SetTransition(Fish fish)
         {
             if (!fish.FishRestrictions.HasFlag(FishRestrictions.Weather) || fish.PreviousWeather.Length == 0)
-                return Array.Empty<IDalamudTextureWrap>();
+                return [];
 
-            return fish.PreviousWeather.Select(w => Icons.DefaultStorage[(uint)w.Data.Icon]).ToArray();
+            return fish.PreviousWeather.Select(w
+                => Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup((uint)w.Data.Icon))).ToArray();
         }
 
         private static Predator[] SetPredators(Fish fish)
         {
             if (fish.Predators.Length == 0)
-                return Array.Empty<Predator>();
+                return [];
 
             return fish.Predators.Select(p => new Predator
             {
                 Fish   = p.Item1,
                 Amount = p.Item2.ToString(),
                 Name   = p.Item1.Name[GatherBuddy.Language],
-                Icon   = Icons.DefaultStorage[p.Item1.ItemData.Icon],
+                Icon   = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(p.Item1.ItemData.Icon)),
             }).ToArray();
         }
 
@@ -136,7 +138,7 @@ public partial class Interface
                     {
                         Name    = string.Intern($"{fish.Size.ToName()} and {fish.Speed.ToName()}"),
                         Fish    = null,
-                        Icon    = IconId.FromSize(fish.Size),
+                        Icon    = Icons.FromSize(fish.Size),
                         Bite    = Bites.Unknown,
                         HookSet = null,
                     },
@@ -146,40 +148,65 @@ public partial class Interface
             var bait = fish.InitialBait;
             ret[0] = new BaitOrder()
             {
-                Icon = Icons.DefaultStorage[bait.Data.Icon],
+                Icon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(bait.Data.Icon)),
                 Name = bait.Name,
                 Fish = bait,
             };
             for (var idx = 0; idx < fish.Mooches.Length; ++idx)
             {
                 var f = fish.Mooches[idx];
-                ret[idx].HookSet = IconId.FromHookSet(f.HookSet);
+                ret[idx].HookSet = Icons.FromHookSet(f.HookSet);
                 ret[idx].Bite    = Bites.FromBiteType(f.BiteType);
                 ret[idx + 1] = new BaitOrder()
                 {
-                    Icon = Icons.DefaultStorage[f.ItemData.Icon],
+                    Icon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(f.ItemData.Icon)),
                     Name = f.Name[GatherBuddy.Language],
                     Fish = f,
                 };
             }
 
-            ret[^1].HookSet = IconId.FromHookSet(fish.HookSet);
+            ret[^1].HookSet = Icons.FromHookSet(fish.HookSet);
             ret[^1].Bite    = Bites.FromBiteType(fish.BiteType);
             return ret;
         }
 
-        private static IDalamudTextureWrap? SetSnagging(Fish fish, IEnumerable<BaitOrder> baitOrder)
+        private static ISharedImmediateTexture? SetSnagging(Fish fish, IEnumerable<BaitOrder> baitOrder)
         {
             if (fish.Snagging == Enums.Snagging.Required)
-                return IconId.GetSnagging();
+                return Icons.Snagging;
 
             return baitOrder.Any(bait => bait.Fish is Fish { Snagging: Enums.Snagging.Required })
-                ? IconId.GetSnagging()
+                ? Icons.Snagging
                 : null;
+        }
+
+        private static ISharedImmediateTexture? SetLure(Fish fish, IEnumerable<BaitOrder> baitOrder)
+        {
+            var lure = fish.Lure;
+            if (lure is Enums.Lure.None)
+                lure = baitOrder.Select(b => b.Fish).OfType<Fish>().FirstOrDefault(f => f.Lure is not Enums.Lure.None)?.Lure ?? Enums.Lure.None;
+
+            return lure switch
+            {
+                Enums.Lure.Ambitious => Icons.AmbitiousLure,
+                Enums.Lure.Modest    => Icons.ModestLure,
+                _                    => null,
+            };
         }
 
         private static bool SetUptimeDependency(Fish fish, IEnumerable<BaitOrder> baitOrder)
         {
+            foreach (var bait in baitOrder)
+            {
+                if (bait.Fish is not Fish f)
+                    continue;
+
+                if (CheckRestrictions(f))
+                    return true;
+            }
+
+            return fish.Predators.Any(p => CheckRestrictions(p.Item1));
+
             bool CheckRestrictions(Fish f)
             {
                 if (f.FishRestrictions.HasFlag(FishRestrictions.Time))
@@ -204,17 +231,6 @@ public partial class Interface
 
                 return false;
             }
-
-            foreach (var bait in baitOrder)
-            {
-                if (bait.Fish is not Fish f)
-                    continue;
-
-                if (CheckRestrictions(f))
-                    return true;
-            }
-
-            return fish.Predators.Any(p => CheckRestrictions(p.Item1));
         }
 
         private static string SetIntuition(Fish data)
@@ -235,7 +251,7 @@ public partial class Interface
         {
             Data        = data;
             Collectible = data.ItemData.IsCollectable;
-            Icon        = Icons.DefaultStorage[data.ItemData.Icon];
+            Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
             Territories = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
             if (!Territories.Contains("\n"))
                 Territories = '\0' + Territories;
@@ -268,6 +284,7 @@ public partial class Interface
             Predators        = SetPredators(data);
             Bait             = SetBait(data);
             Snagging         = SetSnagging(data, Bait);
+            Lure             = SetLure(data, Bait);
             UptimeDependency = SetUptimeDependency(data, Bait);
             Intuition        = SetIntuition(data);
             Unlocked         = GatherBuddy.FishLog.IsUnlocked(data);
@@ -312,7 +329,10 @@ public partial class Interface
                 foreach (var w in fish.TransitionIcons)
                 {
                     ImGui.SameLine();
-                    ImGui.Image(w.ImGuiHandle, weatherIconSize);
+                    if (w.TryGetWrap(out var wrap, out _))
+                        ImGui.Image(wrap.ImGuiHandle, weatherIconSize);
+                    else
+                        ImGui.Dummy(weatherIconSize);
                 }
 
                 style.Pop();
@@ -330,7 +350,10 @@ public partial class Interface
                     foreach (var w in fish.WeatherIcons)
                     {
                         ImGui.SameLine();
-                        ImGui.Image(w.ImGuiHandle, weatherIconSize);
+                        if (w.TryGetWrap(out var wrap, out _))
+                            ImGui.Image(wrap.ImGuiHandle, weatherIconSize);
+                        else
+                            ImGui.Dummy(weatherIconSize);
                     }
                 }
             }
@@ -341,7 +364,10 @@ public partial class Interface
                 foreach (var w in fish.WeatherIcons)
                 {
                     ImGui.SameLine();
-                    ImGui.Image(w.ImGuiHandle, weatherIconSize);
+                    if (w.TryGetWrap(out var wrap, out _))
+                        ImGui.Image(wrap.ImGuiHandle, weatherIconSize);
+                    else
+                        ImGui.Dummy(weatherIconSize);
                 }
             }
         }
@@ -360,7 +386,19 @@ public partial class Interface
             var size     = Vector2.Zero;
             if (fish.Snagging != null)
             {
-                ImGui.Image(fish.Snagging.ImGuiHandle, iconSize);
+                if (fish.Snagging.TryGetWrap(out var wrap, out _))
+                    ImGui.Image(wrap.ImGuiHandle, iconSize);
+                else
+                    ImGui.Dummy(iconSize);
+                ImGui.SameLine();
+            }
+
+            if (fish.Lure != null)
+            {
+                if (fish.Lure.TryGetWrap(out var wrap, out _))
+                    ImGui.Image(wrap.ImGuiHandle, iconSize);
+                else
+                    ImGui.Dummy(iconSize);
                 ImGui.SameLine();
             }
 
@@ -369,7 +407,10 @@ public partial class Interface
             foreach (var bait in fish.Bait)
             {
                 size = iconSize;
-                ImGui.Image(bait.Icon.ImGuiHandle, size);
+                if (bait.Icon.TryGetWrap(out var wrap, out _))
+                    ImGui.Image(wrap.ImGuiHandle, size);
+                else
+                    ImGui.Dummy(size);
 
                 if (!fish.Data.IsSpearFish)
                 {
@@ -377,7 +418,10 @@ public partial class Interface
                     ImGui.SameLine();
                     using var _ = ImRaii.Group();
                     style.Push(ImGuiStyleVar.FramePadding, Vector2.Zero);
-                    ImGui.Image(bait.HookSet!.ImGuiHandle, smallIconSize);
+                    if (bait.HookSet!.TryGetWrap(out wrap, out var _))
+                        ImGui.Image(wrap.ImGuiHandle, smallIconSize);
+                    else
+                        ImGui.Dummy(smallIconSize);
                     using var color = ImRaii.PushColor(ImGuiCol.Button, bait.Bite.Item2);
                     ImGui.Button(bait.Bite.Item1, smallIconSize);
                     style.Pop(2);
@@ -432,7 +476,10 @@ public partial class Interface
                 using var group = ImRaii.Group();
                 ImGui.Button(predator.Amount, size);
                 ImGui.SameLine();
-                ImGui.Image(predator.Icon.ImGuiHandle, size);
+                if (predator.Icon.TryGetWrap(out var wrap, out _))
+                    ImGui.Image(wrap.ImGuiHandle, size);
+                else
+                    ImGui.Dummy(size);
                 style.Push(ImGuiStyleVar.ItemSpacing, new Vector2(3 * ImGuiHelpers.GlobalScale, 0));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(pos + offset);

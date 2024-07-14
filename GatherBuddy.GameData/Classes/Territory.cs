@@ -29,9 +29,9 @@ public class Territory : IComparable<Territory>, IEquatable<Territory>
         Data       = data;
         Name       = MultiString.ParseSeStringLumina(data.PlaceName.Value?.Name);
         SizeFactor = (data.Map.Value?.SizeFactor ?? 100f) / 100f;
-        XStream    = aether?.Unknown0 ?? 0;
-        YStream    = aether?.Unknown1 ?? 0;
-        Plane      = aether?.Unknown3 ?? 0;
+        XStream    = aether?.X ?? 0;
+        YStream    = aether?.Y ?? 0;
+        Plane      = (ushort) (aether?.TelepoRelay.Row ?? 0);
 
         WeatherRates = gameData.CumulativeWeatherRates.TryGetValue(data.WeatherRate, out var wr)
             ? wr
