@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Windowing;
+using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using OtterGui.Raii;
 
@@ -79,7 +80,7 @@ namespace GatherBuddy.AutoGather
                 ImGui.TableHeadersRow();
 
                 var playerPosition = Player.Object.Position;
-                foreach (var node in Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(o => Vector3.Distance(o.Position, playerPosition)))
+                foreach (var node in Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(o => Vector3.Distance(o.Position, playerPosition)))
                 {
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);

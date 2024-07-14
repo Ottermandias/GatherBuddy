@@ -10,6 +10,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using ECommons;
+using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -25,7 +26,7 @@ namespace GatherBuddy.AutoGather
         public bool IsPathing => VNavmesh_IPCSubscriber.Path_IsRunning();
         public bool IsPathGenerating => VNavmesh_IPCSubscriber.Nav_PathfindInProgress();
         public bool NavReady => VNavmesh_IPCSubscriber.Nav_IsReady();
-        public IEnumerable<GameObject> ValidNodesInRange => Dalamud.ObjectTable.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
+        public IEnumerable<IGameObject> ValidNodesInRange => Svc.Objects.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
                         .Where(g => g.IsTargetable)
                         .Where(IsDesiredNode)
                         .Where(g => !IsBlacklisted(g.Position))
@@ -38,7 +39,7 @@ namespace GatherBuddy.AutoGather
             return blacklisted;
         }
 
-        public GameObject? NearestNode => ValidNodesInRange.FirstOrDefault();
+        public IGameObject? NearestNode => ValidNodesInRange.FirstOrDefault();
         public float NearestNodeDistance => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, NearestNode?.Position ?? Vector3.Zero);
         public bool IsGathering => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
         public bool? LastNavigationResult { get; set; } = null;
@@ -140,7 +141,7 @@ namespace GatherBuddy.AutoGather
 
         public List<Vector3> DesiredNodeCoordsInZone => DesiredNodesInZone.SelectMany(n => n.Value).ToList();
 
-        public bool IsDesiredNode(GameObject @object)
+        public bool IsDesiredNode(IGameObject @object)
         {
             if (@object == null)
                 return false;

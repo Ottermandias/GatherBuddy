@@ -7,6 +7,7 @@ using Dalamud;
 using Dalamud.Game.ClientState.Objects.Enums;
 using GatherBuddy.AutoGather;
 using Dalamud.Game;
+using ECommons.DalamudServices;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Levenshtein;
@@ -536,12 +537,12 @@ public partial class Interface
         {
             using var group = ImRaii.Group();
             ImGui.Text("Gatherables within 200 yalms");
-            var gatherables = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
+            var gatherables = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
             foreach (var obj in gatherables)
             {
-                ImGui.PushID(obj.ObjectId.ToString());
-                var node = GatherBuddy.GameData.GatheringNodes.TryGetValue(obj.ObjectId, out var n) ? n : null;
-                ImGui.Text($"{obj.ObjectId}: {obj.Name ?? "Unknown"} - DataId: {obj.DataId}");
+                ImGui.PushID(obj.GameObjectId.ToString());
+                var node = GatherBuddy.GameData.GatheringNodes.TryGetValue((uint)obj.GameObjectId, out var n) ? n : null;
+                ImGui.Text($"{obj.GameObjectId}: {obj.Name ?? "Unknown"} - DataId: {obj.DataId}");
                 ImGui.SameLine();
                 if (ImGui.SmallButton("NavTo"))
                 {

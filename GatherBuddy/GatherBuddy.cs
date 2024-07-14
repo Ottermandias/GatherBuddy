@@ -27,6 +27,7 @@ using OtterGui;
 using OtterGui.Classes;
 using OtterGui.Log;
 using ECommons;
+using ECommons.DalamudServices;
 using GatherBuddy.AutoGather;
 
 namespace GatherBuddy;
@@ -86,7 +87,6 @@ public partial class GatherBuddy : IDalamudPlugin
         {
             Dalamud.Initialize(pluginInterface);
             ECommonsMain.Init(pluginInterface, this);
-            Icons.InitDefaultStorage(Dalamud.Textures);
             Icons.Init(Dalamud.GameData, Dalamud.Textures);
             Log     = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
@@ -157,7 +157,7 @@ public partial class GatherBuddy : IDalamudPlugin
 
     private void Update(IFramework framework)
     {
-        var objs = Dalamud.ObjectTable.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
+        var objs = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
         foreach (var obj in objs)
             WorldData.AddLocation(obj.DataId, obj.Position);
         AutoGather.DoAutoGather();
