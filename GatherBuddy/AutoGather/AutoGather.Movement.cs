@@ -12,6 +12,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace GatherBuddy.AutoGather
 {
@@ -212,6 +213,10 @@ namespace GatherBuddy.AutoGather
 
         private void MoveToFlag()
         {
+            if (Vector3.Distance(MapFlagPosition.Value, Player.Object.Position) < 50)
+            {
+                HasSeenFlag = true;
+            }
             CurrentDestination = MapFlagPosition;
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
             {
