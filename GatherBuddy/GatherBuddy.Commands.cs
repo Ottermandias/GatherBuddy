@@ -17,6 +17,8 @@ public partial class GatherBuddy
     public const string AdditionalInfoCommand = "information";
     public const string SetWaymarksCommand    = "waymarks";
     public const string AutoCommand           = "auto";
+    public const string AutoOnCommand         = "auto on";
+    public const string AutoOffCommand        = "auto off";
     public const string FullIdentify          = $"/gatherbuddy {IdentifyCommand}";
     public const string FullGearChange        = $"/gatherbuddy {GearChangeCommand}";
     public const string FullTeleport          = $"/gatherbuddy {TeleportCommand}";
@@ -24,6 +26,8 @@ public partial class GatherBuddy
     public const string FullAdditionalInfo    = $"/gatherbuddy {AdditionalInfoCommand}";
     public const string FullSetWaymarks       = $"/gatherbuddy {SetWaymarksCommand}";
     public const string FullAuto              = $"/gatherbuddy {AutoCommand}";
+    public const string FullAutoOn            = $"/gatherbuddy {AutoOnCommand}";
+    public const string FullAutoOff           = $"/gatherbuddy {AutoOffCommand}";
 
     private readonly Dictionary<string, CommandInfo> _commands = new();
 
