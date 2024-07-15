@@ -185,7 +185,7 @@ namespace GatherBuddy.AutoGather
         private bool GatherableMatchesJob(IGatherable arg)
         {
             var gatherable = arg as Gatherable;
-            return gatherable != null && gatherable.GatheringType.ToGroup() == JobAsGatheringType;
+            return gatherable != null && (gatherable.GatheringType.ToGroup() == JobAsGatheringType || gatherable.GatheringType.ToGroup() == GatheringType.Multiple);
         }
 
         public bool CanAct
