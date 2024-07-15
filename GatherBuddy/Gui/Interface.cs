@@ -75,7 +75,7 @@ public partial class Interface : Window, IDisposable
             Flags |= ImGuiWindowFlags.NoResize;
         else
             Flags &= ~ImGuiWindowFlags.NoResize;
-        RespectCloseHotkey = GatherBuddy.Config.CloseOnEscape;
+        //RespectCloseHotkey = GatherBuddy.Config.CloseOnEscape;
     }
 
     public override void PreOpenCheck()
