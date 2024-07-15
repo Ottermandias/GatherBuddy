@@ -58,6 +58,10 @@ namespace GatherBuddy.AutoGather
 
         public unsafe void DoAutoGather()
         {
+            if (!Enabled)
+            {
+                return;
+            }
             try
             {
                 if (!NavReady && Enabled)
@@ -72,10 +76,8 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "vnavmesh communication failed. Do you have it installed??";
                 return;
             }
-            if (!Enabled)
-            {
-                return;
-            }
+
+            DoSafetyChecks();
             if (TaskManager.NumQueuedTasks > 0)
             {
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
@@ -88,6 +90,10 @@ namespace GatherBuddy.AutoGather
                 CurrentDestination = null;
                 VNavmesh_IPCSubscriber.Path_Stop();
                 return;
+            }
+            if (IsPathing)
+            {
+                TaskManager.Enqueue(StuckCheck);
             }
             if (!CanAct)
             {
@@ -134,6 +140,15 @@ namespace GatherBuddy.AutoGather
             else
             {
                 AutoStatus = "Nothing to do...";
+            }
+        }
+
+        private void DoSafetyChecks()
+        {
+            if (VNavmesh_IPCSubscriber.Path_GetAlignCamera())
+            {
+                GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
+                VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
             }
         }
     }
