@@ -1,4 +1,5 @@
-﻿using GatherBuddy.Interfaces;
+﻿using System.Linq;
+using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 
 namespace GatherBuddy.Alarms;
@@ -70,6 +71,8 @@ public partial class AlarmManager
 
         RemoveActiveAlarm(alarm);
         alarm.Item = item;
+        if (alarm.PreferLocation != null && !alarm.PreferLocation.Gatherables.Contains(item))
+            alarm.PreferLocation = null;
         if (group.Enabled && alarm.Enabled)
             AddActiveAlarm(alarm);
         Save();
