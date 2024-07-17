@@ -27,7 +27,7 @@ namespace GatherBuddy.AutoGather
             var targetSystem = TargetSystem.Instance();
             if (targetSystem == null)
                 return;
-            
+
             TaskManager.Enqueue(() =>
             {
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)NearestNode?.Address);
@@ -41,7 +41,7 @@ namespace GatherBuddy.AutoGather
                 return;
 
             uint[] ids       = GatheringAddon->ItemIds.ToArray();
-            var        itemIndex = GetIndexOfItemToClick(ids, item);
+            var    itemIndex = GetIndexOfItemToClick(ids, item);
             if (itemIndex < 0)
                 itemIndex = GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key))
                     .FirstOrDefault();

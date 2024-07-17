@@ -106,7 +106,7 @@ namespace GatherBuddy.AutoGather
 
                 if (!correctedVector3.SanityCheck())
                     return null;
-                
+
                 return correctedVector3;
             }
         }
