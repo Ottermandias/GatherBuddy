@@ -174,6 +174,13 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
                     _lastNavigatedDestination = CurrentDestination.Value;
                     var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh() : CurrentDestination.Value;
+                    if (!correctedDestination.SanityCheck())
+                    {
+                        GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
+                        CurrentDestination = null;
+                        ResetNavigation();
+                        return;
+                    }
                     LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
                 }
             }

@@ -350,6 +350,14 @@ public class Executor
                 GatherBuddy.AutoGather.Enabled = !GatherBuddy.AutoGather.Enabled;
                 Communicator.Print(GatherBuddy.AutoGather.Enabled ? "Auto-gathering enabled." : "Auto-gathering disabled.");
                 return true;
+            case GatherBuddy.AutoOnCommand:
+                GatherBuddy.AutoGather.Enabled = true;
+                Communicator.Print("Auto-gathering enabled.");
+                return true;
+            case GatherBuddy.AutoOffCommand:
+                GatherBuddy.AutoGather.Enabled = false;
+                Communicator.Print("Auto-gathering disabled.");
+                return true;
             default: return false;
         }
     }
