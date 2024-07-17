@@ -94,11 +94,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (IsPathing)
-            {
-                TaskManager.Enqueue(StuckCheck);
-            }
-
             if (!CanAct)
             {
                 AutoStatus = "Player is busy...";
@@ -117,6 +112,11 @@ namespace GatherBuddy.AutoGather
             {
                 AutoStatus = "Generating path...";
                 return;
+            }
+
+            if (IsPathing)
+            {
+                StuckCheck();
             }
 
             var location = _plugin.Executor.FindClosestLocation(ItemsToGather.FirstOrDefault());
