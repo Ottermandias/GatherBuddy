@@ -181,6 +181,7 @@ namespace GatherBuddy.AutoGather
                         ResetNavigation();
                         return;
                     }
+
                     LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
                 }
             }
@@ -224,6 +225,7 @@ namespace GatherBuddy.AutoGather
             {
                 HasSeenFlag = true;
             }
+
             CurrentDestination = MapFlagPosition;
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
             {

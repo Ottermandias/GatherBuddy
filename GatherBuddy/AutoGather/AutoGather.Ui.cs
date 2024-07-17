@@ -31,7 +31,9 @@ namespace GatherBuddy.AutoGather
                 return !gatheringMasterpiece->AtkUnitBase.IsVisible;
             }
 
-            public CollectableDebugUi() : base("GBR Collectable Replacement", ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoNavFocus, false)
+            public CollectableDebugUi()
+                : base("GBR Collectable Replacement",
+                    ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoNavFocus, false)
             {
                 Size          = new Vector2(100, 60);
                 SizeCondition = ImGuiCond.FirstUseEver;
@@ -45,7 +47,9 @@ namespace GatherBuddy.AutoGather
                 ImGui.Text($"Integrity: {GatherBuddy.AutoGather.LastIntegrity}/4");
             }
         }
+
         private static bool _gatherDebug;
+
         public static void DrawAutoGatherStatus()
         {
             var enabled = GatherBuddy.AutoGather.Enabled;
@@ -53,8 +57,13 @@ namespace GatherBuddy.AutoGather
             {
                 GatherBuddy.AutoGather.Enabled = enabled;
             }
+
             ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
-            var lastNavString = GatherBuddy.AutoGather.LastNavigationResult.HasValue ? GatherBuddy.AutoGather.LastNavigationResult.Value ? "Successful" : "Failed (If you're seeing this you probably need to restart your game)" : "None";
+            var lastNavString = GatherBuddy.AutoGather.LastNavigationResult.HasValue
+                ? GatherBuddy.AutoGather.LastNavigationResult.Value
+                    ? "Successful"
+                    : "Failed (If you're seeing this you probably need to restart your game)"
+                : "None";
             ImGui.Text($"Navigation: {lastNavString}");
             if (GatherBuddy.AutoGather.ItemsToGatherInZone.Count() > 1)
             {
@@ -63,7 +72,7 @@ namespace GatherBuddy.AutoGather
                 color.Pop();
             }
         }
-        
+
 
         public static void DrawDebugTables()
         {
@@ -80,7 +89,8 @@ namespace GatherBuddy.AutoGather
                 ImGui.TableHeadersRow();
 
                 var playerPosition = Player.Object.Position;
-                foreach (var node in Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).OrderBy(o => Vector3.Distance(o.Position, playerPosition)))
+                foreach (var node in Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint)
+                             .OrderBy(o => Vector3.Distance(o.Position, playerPosition)))
                 {
                     ImGui.TableNextRow();
                     ImGui.TableSetColumnIndex(0);
@@ -97,7 +107,8 @@ namespace GatherBuddy.AutoGather
                     ImGui.TableSetColumnIndex(5);
 
                     var territoryId = Dalamud.ClientState.TerritoryType;
-                    var isBlacklisted = GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.TryGetValue(territoryId, out var list) && list.Contains(node.Position);
+                    var isBlacklisted = GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.TryGetValue(territoryId, out var list)
+                     && list.Contains(node.Position);
 
                     if (isBlacklisted)
                     {
@@ -108,6 +119,7 @@ namespace GatherBuddy.AutoGather
                             {
                                 GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.Remove(territoryId);
                             }
+
                             GatherBuddy.Config.Save();
                         }
                     }
@@ -117,9 +129,10 @@ namespace GatherBuddy.AutoGather
                         {
                             if (list == null)
                             {
-                                list = new List<Vector3>();
+                                list                                                                           = new List<Vector3>();
                                 GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId[territoryId] = list;
                             }
+
                             list.Add(node.Position);
                             GatherBuddy.Config.Save();
                         }
@@ -129,11 +142,13 @@ namespace GatherBuddy.AutoGather
                 ImGui.EndTable();
             }
         }
+
         public unsafe static void DrawMountSelector()
         {
             ImGui.PushItemWidth(300);
             var ps = PlayerState.Instance();
-            var preview = Dalamud.GameData.GetExcelSheet<Mount>().First(x => x.RowId == GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId).Singular.ToString().ToProperCase();
+            var preview = Dalamud.GameData.GetExcelSheet<Mount>().First(x => x.RowId == GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId)
+                .Singular.ToString().ToProperCase();
             if (ImGui.BeginCombo("Select Mount", preview))
             {
                 if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == 0))
@@ -146,7 +161,8 @@ namespace GatherBuddy.AutoGather
                 {
                     if (ps->IsMountUnlocked(mount.RowId))
                     {
-                        var selected = ImGui.Selectable(mount.Singular.ToString().ToProperCase(), GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == mount.RowId);
+                        var selected = ImGui.Selectable(mount.Singular.ToString().ToProperCase(),
+                            GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == mount.RowId);
 
                         if (selected)
                         {
@@ -159,16 +175,15 @@ namespace GatherBuddy.AutoGather
                 ImGui.EndCombo();
             }
         }
-        
-/// <summary>
-/// Extension method to convert the strings to Proper Case.
-/// </summary>
-/// <param name="input">The string input.</param>
-/// <returns>The string in Proper Case.</returns>
-public static string ToProperCase(this string input)
-{
-    return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input.ToLower());
-}
 
+        /// <summary>
+        /// Extension method to convert the strings to Proper Case.
+        /// </summary>
+        /// <param name="input">The string input.</param>
+        /// <returns>The string in Proper Case.</returns>
+        public static string ToProperCase(this string input)
+        {
+            return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input.ToLower());
+        }
     }
 }
