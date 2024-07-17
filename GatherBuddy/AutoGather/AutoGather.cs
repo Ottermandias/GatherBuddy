@@ -18,7 +18,7 @@ namespace GatherBuddy.AutoGather
         {
             // Initialize the task manager
             TaskManager = new();
-            _plugin = plugin;
+            _plugin     = plugin;
         }
 
         private GatherBuddy _plugin;
@@ -45,7 +45,7 @@ namespace GatherBuddy.AutoGather
                     {
                         VNavmesh_IPCSubscriber.Path_Stop();
                     }
-                    
+
                     TaskManager.Abort();
                     HasSeenFlag    = false;
                     HiddenRevealed = false;
@@ -62,6 +62,7 @@ namespace GatherBuddy.AutoGather
             {
                 return;
             }
+
             try
             {
                 if (!NavReady && Enabled)
@@ -83,6 +84,7 @@ namespace GatherBuddy.AutoGather
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
                 return;
             }
+
             if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
             {
                 AutoStatus         = "No items to gather...";
@@ -91,56 +93,69 @@ namespace GatherBuddy.AutoGather
                 VNavmesh_IPCSubscriber.Path_Stop();
                 return;
             }
+
             if (IsPathing)
             {
                 TaskManager.Enqueue(StuckCheck);
             }
+
             if (!CanAct)
             {
                 AutoStatus = "Player is busy...";
                 return;
             }
-            else if (IsGathering)
+
+            if (IsGathering)
             {
                 AutoStatus = "Gathering...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(DoActionTasks);
+                return;
             }
-            else if (IsPathGenerating)
+
+            if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
+                return;
             }
+
             var location = _plugin.Executor.FindClosestLocation(ItemsToGather.FirstOrDefault());
             if (location == null)
             {
                 AutoStatus = "No locations to travel to ...";
                 return;
             }
-            else if (ValidNodesInRange.Any())
+
+            if (ValidNodesInRange.Any())
             {
                 HiddenRevealed = false;
                 TaskManager.Enqueue(MoveToCloseNode);
+                return;
             }
-            else if (location.Territory.Id != Dalamud.ClientState.TerritoryType || location.GatheringType.ToGroup() != JobAsGatheringType)
+
+            if (location.Territory.Id != Dalamud.ClientState.TerritoryType || location.GatheringType.ToGroup() != JobAsGatheringType)
             {
                 AutoStatus  = $"Moving to gather item in {location.Territory.Name}...";
                 HasSeenFlag = false;
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(MoveToClosestAetheryte);
+                return;
             }
-            else if (MapFlagPosition != null && MapFlagPosition.Value.DistanceToPlayer() > 150 && ShouldUseFlag)
+
+            if (MapFlagPosition != null && MapFlagPosition.Value.DistanceToPlayer() > 150 && ShouldUseFlag)
             {
-                AutoStatus  = "Moving to farming area...";
+                AutoStatus = "Moving to farming area...";
                 TaskManager.Enqueue(MoveToFlag);
+                return;
             }
-            else if (DesiredNodeCoordsInZone.Any())
+
+            if (DesiredNodeCoordsInZone.Any())
             {
                 TaskManager.Enqueue(MoveToFarNode);
+                return;
             }
-            else
-            {
-                AutoStatus = "Nothing to do...";
-            }
+
+            AutoStatus = "Nothing to do...";
         }
 
         private void DoSafetyChecks()
