@@ -46,6 +46,17 @@ namespace GatherBuddy.CustomInfo
             }
         }
 
+        public static bool SanityCheck(this Vector3 vector)
+        {
+            if (vector.X == 0)
+                return false;
+            if (vector.Y == 0)
+                return false;
+            if (vector.Z == 0)
+                return false;
+
+            return true;
+        }
         public static float DistanceToPlayer(this Vector3 vector)
         {
             var distance = Vector3.Distance(vector, Player.Object.Position);
