@@ -268,6 +268,7 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43749, Patch.Dawntrail) // Chain Shark
             .Mooch(data, 43747)
+            .Time(1080, 1200)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43750, Patch.Dawntrail) // Bonytail Chub
             .Bait(data, 43855)
