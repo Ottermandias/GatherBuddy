@@ -164,7 +164,7 @@ namespace GatherBuddy.AutoGather
             var closeNodes          = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position) && o.IsTargetable).ToList().OrderBy(o => Vector3.Distance(Player.Position, o.Position));
             if (closeNodes.Any())
             {
-                TaskManager.Enqueue(() =>MoveToCloseNode(closeNodes.First(), targetItem));
+                TaskManager.Enqueue(() =>MoveToCloseNode(closeNodes.First(n => !IsBlacklisted(n.Position)), targetItem));
                 return;
             }
             else
