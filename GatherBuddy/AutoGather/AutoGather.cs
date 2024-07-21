@@ -126,7 +126,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
             
-            if (IsGathering)
+            if (IsGathering && GatherBuddy.Config.AutoGatherConfig.DoGathering)
             {
                 AutoStatus = "Gathering...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
