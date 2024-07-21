@@ -580,7 +580,6 @@ public partial class Interface
         ImGui.Text($"Enabled: {GatherBuddy.AutoGather.Enabled}");
         ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
         ImGui.Text($"Navigation: {GatherBuddy.AutoGather.LastNavigationResult}");
-        ImGui.Text($"Target Node: {GatherBuddy.AutoGather.NearestNode?.Name} {GatherBuddy.AutoGather.NearestNode?.Position}");
         ImGui.Text($"Current Destination: {GatherBuddy.AutoGather.CurrentDestination}");
         ImGui.Text($"ShouldFly: {GatherBuddy.AutoGather.ShouldFly}");
         ImGui.Text($"IsGathering: {GatherBuddy.AutoGather.IsGathering}");
@@ -588,10 +587,6 @@ public partial class Interface
         ImGui.Text($"IsPathGenerating: {GatherBuddy.AutoGather.IsPathGenerating}");
         ImGui.Text($"NavReady: {GatherBuddy.AutoGather.NavReady}");
         ImGui.Text($"CanAct: {GatherBuddy.AutoGather.CanAct}");
-        ImGui.Text($"NearestNodeDistance: {GatherBuddy.AutoGather.NearestNodeDistance}");
-        ImGui.Text($"DesiredNodesInZone: {GatherBuddy.AutoGather.DesiredNodesInZone.Count}");
-        ImGui.Text($"DesiredNodeCoordsInZone: {GatherBuddy.AutoGather.DesiredNodeCoordsInZone.Count}");
-        ImGui.Text($"ValidNodesInRange: {GatherBuddy.AutoGather.ValidNodesInRange.Count()}");
         ImGui.Text($"BlacklistedNodes: {GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.Count}");
         ImGui.Text($"ItemsToGatherInZone: {GatherBuddy.AutoGather.ItemsToGatherInZone.Count()}");
         ImGui.Text($"ItemsToGather: {GatherBuddy.AutoGather.ItemsToGather.Count()}");

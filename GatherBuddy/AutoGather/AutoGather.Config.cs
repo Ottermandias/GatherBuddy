@@ -15,6 +15,8 @@ namespace GatherBuddy.AutoGather
 
         public ActionConfig BYIIConfig            { get; set; } = new(true, 100, uint.MaxValue);
         public ActionConfig LuckConfig            { get; set; } = new(true, 200, uint.MaxValue);
+        public ActionConfig YieldIIConfig         { get; set; } = new(true, 500, uint.MaxValue);
+        public ActionConfig YieldIConfig          { get; set; } = new(true, 400, uint.MaxValue);
         public ActionConfig ScrutinyConfig        { get; set; } = new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue);
         public ActionConfig MeticulousConfig      { get; set; } = new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue);
         public ActionConfig SolidAgeConfig        { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue);

@@ -18,6 +18,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Time;
+using OtterGui.Log;
 
 namespace GatherBuddy.AutoGather
 {
@@ -32,25 +33,12 @@ namespace GatherBuddy.AutoGather
         public bool NavReady
             => VNavmesh_IPCSubscriber.Nav_IsReady();
 
-        public IEnumerable<IGameObject> ValidNodesInRange
-            => Svc.Objects.Where(g => g.ObjectKind == ObjectKind.GatheringPoint)
-                .Where(g => g.IsTargetable)
-                .Where(IsDesiredNode)
-                .Where(g => !IsBlacklisted(g.Position))
-                .OrderBy(g => Vector3.Distance(g.Position, Dalamud.ClientState.LocalPlayer.Position));
-
         private bool IsBlacklisted(Vector3 g)
         {
             var blacklisted = GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.ContainsKey(Dalamud.ClientState.TerritoryType)
              && GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId[Dalamud.ClientState.TerritoryType].Contains(g);
             return blacklisted;
         }
-
-        public IGameObject? NearestNode
-            => ValidNodesInRange.FirstOrDefault();
-
-        public float NearestNodeDistance
-            => Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, NearestNode?.Position ?? Vector3.Zero);
 
         public bool IsGathering
             => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
@@ -129,79 +117,31 @@ namespace GatherBuddy.AutoGather
         public int    LastCollectability = 0;
         public int    LastIntegrity      = 0;
 
-        public Dictionary<uint, List<Vector3>> DesiredNodesInZone
+        public List<IGatherable> TimedItemsToGather = new();
+        public List<IGatherable> ItemsToGather      = new();
+
+        public List<uint> TimedNodesGatheredThisTrip = new();
+        public void UpdateItemsToGather()
         {
-            get
+            TimedItemsToGather.Clear();
+            ItemsToGather.Clear();
+            var activeItems = _plugin.GatherWindowManager.ActiveItems;
+            foreach (var item in activeItems)
             {
-                var nodes = new Dictionary<uint, List<Vector3>>();
-                foreach (var item in ItemsToGatherInZone)
+                if (item.InventoryCount > item.Quantity)
+                    continue;
+                if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                 {
-                    foreach (var location in item.Locations)
-                    {
-                        if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
-                            continue;
-
-                        var allNodesInZone = location.WorldPositions;
-                        foreach (var node in allNodesInZone)
-                        {
-                            if (!nodes.ContainsKey(node.Key))
-                                nodes[node.Key] = new List<Vector3>();
-                            foreach (var pos in node.Value)
-                            {
-                                if (IsBlacklisted(pos))
-                                    continue;
-
-                                nodes[node.Key].Add(pos);
-                            }
-                        }
-                    }
+                    var location = GatherBuddy.UptimeManager.BestLocation(item);
+                    if (location.Interval.InRange(GatherBuddy.Time.ServerTime) && !TimedNodesGatheredThisTrip.Contains(item.ItemId))
+                        TimedItemsToGather.Add(item);
                 }
-
-                return nodes;
-            }
-        }
-
-        public List<Vector3> DesiredNodeCoordsInZone
-            => DesiredNodesInZone.SelectMany(n => n.Value).ToList();
-
-        public bool IsDesiredNode(IGameObject @object)
-        {
-            if (@object == null)
-                return false;
-
-            var dataId = @object.DataId;
-            foreach (var item in ItemsToGather)
-            {
-                if (item.Locations.Any(l => l.WorldPositions.ContainsKey(dataId)))
-                    return true;
-            }
-
-            return false;
-        }
-
-        public IEnumerable<IGatherable> ItemsToGather
-        {
-            get
-            {
-                List<IGatherable> toGather       = new();
-                var               allActiveItems = _plugin.GatherWindowManager.ActiveItems.Where(i => i.InventoryCount < i.Quantity);
-                foreach (var item in allActiveItems)
+                else
                 {
-                    if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
-                    {
-                        var location = GatherBuddy.UptimeManager.BestLocation(item);
-                        if (location.Interval.InRange(
-                                GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog)))
-                            toGather.Add(item);
-                    }
-                    else
-                    {
-                        toGather.Add(item);
-                    }
+                    ItemsToGather.Add(item);
                 }
-
-                return toGather;
             }
+            //GatherBuddy.Log.Verbose($"Sorted {activeItems.Count} items into {TimedItemsToGather.Count} timed items and {ItemsToGather.Count} static items");
         }
 
         public unsafe AddonGathering* GatheringAddon
