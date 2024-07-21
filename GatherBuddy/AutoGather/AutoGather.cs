@@ -59,9 +59,13 @@ namespace GatherBuddy.AutoGather
                     TaskManager.Abort();
                     HasSeenFlag    = false;
                     HiddenRevealed = false;
-                    TimedNodesGatheredThisTrip.Clear();
                     ResetNavigation();
                     AutoStatus         = "Idle...";
+                }
+
+                if (value)
+                {
+                    UpdateItemsToGather();
                 }
 
                 _enabled = value;
@@ -112,11 +116,21 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            Gatherable? targetItem = (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
+            
+            if (targetItem == null)
+            {
+                UpdateItemsToGather();
+                //GatherBuddy.Log.Warning("No items to gather");
+                AutoStatus = "No available items to gather";
+                return;
+            }
+            
             if (IsGathering)
             {
                 AutoStatus = "Gathering...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(DoActionTasks);
+                TaskManager.Enqueue(() => DoActionTasks(targetItem));
                 return;
             }
 
@@ -132,15 +146,6 @@ namespace GatherBuddy.AutoGather
             }
             
             UpdateItemsToGather();
-
-
-            Gatherable? targetItem = (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
-            if (targetItem == null)
-            {
-                //GatherBuddy.Log.Warning("No items to gather");
-                AutoStatus = "No available items to gather";
-                return;
-            }
 
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
             if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
