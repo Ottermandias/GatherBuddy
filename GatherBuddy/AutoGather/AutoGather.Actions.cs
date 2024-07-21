@@ -56,8 +56,8 @@ namespace GatherBuddy.AutoGather
 
         public uint[] GatheringUpStatuses = new uint[]
         {
-            756, //BYII
-            219, //KYII
+            756,  //BYII
+            219,  //KYII
             1286, //KYI
         };
 
@@ -71,6 +71,7 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP
              || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP)
                 return false;
+
             return GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.UseAction;
         }
 
@@ -84,17 +85,16 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP
              || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP)
                 return false;
+
             return GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction;
         }
 
-        private unsafe void DoActionTasks()
+        private unsafe void DoActionTasks(Gatherable desiredItem)
         {
             if (EzThrottler.Throttle("Gather", 10))
             {
                 if (GatheringAddon == null && MasterpieceAddon == null)
                     return;
-
-                var desiredItem = ItemsToGatherInZone.FirstOrDefault();
 
                 if (MasterpieceAddon != null)
                 {
@@ -203,7 +203,8 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP)
                 return false;
 
-            if (collectibility is < 1000 and >= 800
+            if (collectibility <= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
+             && collectibility >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8
              && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418)
              && integrity > 0)
             {
@@ -223,7 +224,9 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.WiseConfig.MaximumGP)
                 return false;
 
-            if (collectability == 1000 && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765) && integrity < 4)
+            if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
+             && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765)
+             && integrity < 4)
             {
                 return true;
             }
@@ -240,7 +243,7 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP)
                 return false;
-            if (collectability == 1000 && integrity > 0)
+            if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore && integrity > 0)
                 return true;
 
             return false;
@@ -255,9 +258,10 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP)
                 return false;
-            if (collectability is >= 800 and < 1000 && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418))
+            if (collectability <= (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8)
+             && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418))
                 return true;
-            if (collectability < 1000 && integrity > 0)
+            if (collectability <= (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore) && integrity > 0)
                 return true;
 
             return false;
@@ -272,7 +276,7 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP)
                 return false;
-            if (collectability < 800 && integrity > 2)
+            if (collectability < (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8) && integrity > 2)
                 return true;
 
             return false;
@@ -287,7 +291,7 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP)
                 return false;
-            if (collectability == 1000 && integrity < 4)
+            if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore && integrity < 4)
                 return true;
 
             return false;

@@ -75,6 +75,16 @@ public partial class Interface
             }
         }
 
+        public static void DrawMinimumCollectibilityScore()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore;
+            if (ImGui.DragInt("Minimum Collectibility Score", ref tmp, 1, 1000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
         public static void DrawUseFlagBox()
             => DrawCheckbox("Disable flag navigation",                  "Whether or not to navigate to the flag on the map",
                 GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing, b => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing = b);
@@ -829,6 +839,7 @@ public partial class Interface
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
+                ConfigFunctions.DrawMinimumCollectibilityScore();
                 ImGui.TreePop();
             }
 
