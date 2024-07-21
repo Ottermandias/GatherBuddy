@@ -44,7 +44,7 @@ namespace GatherBuddy.AutoGather
         {
             if (Player.Level < Actions.Bountiful.MinLevel)
                 return false;
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1286 || s.StatusId == 756))
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
                 return false;
             if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP)
                 return false;
@@ -52,6 +52,35 @@ namespace GatherBuddy.AutoGather
                 return false;
 
             return GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction;
+        }
+
+        public uint[] GatheringUpStatuses = new uint[]
+        {
+            756, //BYII
+            219, //KYII
+            1286, //KYI
+        };
+
+        public bool ShouldUseKingII()
+        {
+            if (Player.Level < Actions.Yield2.MinLevel)
+                return false;
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
+                return false;
+            
+            //TODO: Add action configs
+            return true;
+        }
+
+        public bool ShouldUseKingI()
+        {
+            if (Player.Level < Actions.Yield1.MinLevel)
+                return false;
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
+                return false;
+            
+            //TODO: Add action configs
+            return true;
         }
 
         private unsafe void DoActionTasks()
@@ -88,6 +117,10 @@ namespace GatherBuddy.AutoGather
                 Span<uint> ids = GatheringAddon->ItemIds;
                 if (ShouldUseLuck(ids, desiredItem as Gatherable))
                     TaskManager.Enqueue(() => UseAction(Actions.Luck));
+                if (ShouldUseKingII())
+                    TaskManager.Enqueue(() => UseAction(Actions.Yield2));
+                if (ShouldUseKingI())
+                    TaskManager.Enqueue(() => UseAction(Actions.Yield1));
                 if (ShoulduseBYII())
                     TaskManager.Enqueue(() => UseAction(Actions.Bountiful));
                 TaskManager.Enqueue(() => DoGatherWindowTasks(desiredItem));
