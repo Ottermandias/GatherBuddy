@@ -133,7 +133,7 @@ namespace GatherBuddy.AutoGather
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                 {
                     var location = GatherBuddy.UptimeManager.BestLocation(item);
-                    if (location.Interval.InRange(GatherBuddy.Time.ServerTime) && !TimedNodesGatheredThisTrip.Contains(item.ItemId))
+                    if (location.Interval.InRange(GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog)) && !TimedNodesGatheredThisTrip.Contains(item.ItemId))
                         TimedItemsToGather.Add(item);
                 }
                 else
