@@ -60,7 +60,7 @@ namespace GatherBuddy.AutoGather
                     HasSeenFlag    = false;
                     HiddenRevealed = false;
                     ResetNavigation();
-                    AutoStatus         = "Idle...";
+                    AutoStatus = "Idle...";
                 }
 
                 if (value)
@@ -116,8 +116,9 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            Gatherable? targetItem = (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
-            
+            Gatherable? targetItem =
+                (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
+
             if (targetItem == null)
             {
                 UpdateItemsToGather();
@@ -125,7 +126,7 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "No available items to gather";
                 return;
             }
-            
+
             if (IsGathering && GatherBuddy.Config.AutoGatherConfig.DoGathering)
             {
                 AutoStatus = "Gathering...";
@@ -144,7 +145,7 @@ namespace GatherBuddy.AutoGather
             {
                 StuckCheck();
             }
-            
+
             UpdateItemsToGather();
 
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
@@ -164,17 +165,28 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            var validNodesForItem   = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value).ToList();
-            var closeNodes          = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position) && o.IsTargetable).ToList().OrderBy(o => Vector3.Distance(Player.Position, o.Position));
+            var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
+                .ToList();
+            var closeNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position) && o.IsTargetable).ToList()
+                .OrderBy(o => Vector3.Distance(Player.Position, o.Position));
             if (closeNodes.Any())
             {
-                TaskManager.Enqueue(() =>MoveToCloseNode(closeNodes.First(n => !IsBlacklisted(n.Position)), targetItem));
+                TaskManager.Enqueue(() => MoveToCloseNode(closeNodes.First(n => !IsBlacklisted(n.Position)), targetItem));
                 return;
             }
             else
             {
-                var selectedNode = matchingNodesInZone[CurrentFarNodeIndex];
+                Vector3 selectedNode;
+                if (CurrentFarNodeIndex < matchingNodesInZone.Count)
+                {
+                    selectedNode = matchingNodesInZone[CurrentFarNodeIndex];
+                }
+                else
+                {
+                    selectedNode = matchingNodesInZone.First();
+                }
+
                 if (Vector3.Distance(Player.Object.Position, selectedNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
                 {
                     CurrentFarNodeIndex++;
@@ -187,6 +199,7 @@ namespace GatherBuddy.AutoGather
                     AutoStatus         = "Looking for far away nodes...";
                     return;
                 }
+
                 TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
                 return;
             }
