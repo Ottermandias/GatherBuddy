@@ -12,6 +12,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace GatherBuddy.AutoGather
@@ -62,9 +63,10 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private void MoveToCloseNode()
+        private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem)
         {
-            if (NearestNodeDistance < 3)
+            var distance = Vector3.Distance(Player.Position, gameObject.Position);
+            if (distance < 3)
             {
                 VNavmesh_IPCSubscriber.Path_Stop();
                 if (!Dalamud.Conditions[ConditionFlag.Gathering]
@@ -80,17 +82,17 @@ namespace GatherBuddy.AutoGather
                     TaskManager.DelayNext(1000);
                 }
 
-                TaskManager.Enqueue(InteractWithNode);
+                TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
                 return;
             }
-            else if (NearestNodeDistance > 3 && NearestNodeDistance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
+            else if (distance > 3 && distance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
             {
-                CurrentDestination = NearestNode?.Position ?? null;
+                CurrentDestination = gameObject?.Position ?? null;
                 TaskManager.Enqueue(() => Navigate(false));
             }
             else
             {
-                CurrentDestination = NearestNode?.Position ?? null;
+                CurrentDestination = gameObject?.Position ?? null;
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                 {
                     TaskManager.Enqueue(MountUp);
@@ -189,34 +191,19 @@ namespace GatherBuddy.AutoGather
 
         public int CurrentFarNodeIndex = 0;
 
-        private void MoveToFarNode()
+        private void MoveToFarNode(Vector3 position)
         {
-            var farNode = DesiredNodeCoordsInZone.ElementAtOrDefault(CurrentFarNodeIndex);
-            if (farNode == null
-             || Vector3.Distance(Player.Object.Position, farNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
-            {
-                CurrentFarNodeIndex++;
-                if (CurrentFarNodeIndex >= DesiredNodeCoordsInZone.Count)
-                {
-                    CurrentFarNodeIndex = 0;
-                }
+            var farNode = position;
 
-                CurrentDestination = null;
-                AutoStatus         = "Looking for far away nodes...";
-                return;
-            }
-            else
+            AutoStatus         = "Moving to far node...";
+            CurrentDestination = farNode;
+            if (!Dalamud.Conditions[ConditionFlag.Mounted])
             {
-                AutoStatus         = "Moving to far node...";
-                CurrentDestination = farNode;
-                if (!Dalamud.Conditions[ConditionFlag.Mounted])
-                {
-                    TaskManager.Enqueue(MountUp);
-                    TaskManager.DelayNext(2500);
-                }
-
-                TaskManager.Enqueue(() => Navigate(ShouldFly));
+                TaskManager.Enqueue(MountUp);
+                TaskManager.DelayNext(2500);
             }
+
+            TaskManager.Enqueue(() => Navigate(ShouldFly));
         }
 
         private void MoveToFlag()
@@ -234,6 +221,12 @@ namespace GatherBuddy.AutoGather
             }
 
             TaskManager.Enqueue(() => Navigate(ShouldFly));
+        }
+
+        private void MoveToTerritory(ILocation location)
+        {
+            TaskManager.EnqueueImmediate(() => _plugin.Executor.GatherLocation(location));
+            TaskManager.DelayNextImmediate(10000);
         }
     }
 }

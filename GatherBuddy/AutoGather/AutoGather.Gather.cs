@@ -19,7 +19,7 @@ namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        private unsafe void InteractWithNode()
+        private unsafe void InteractWithNode(IGameObject gameObject, Gatherable targetItem)
         {
             if (!CanAct)
                 return;
@@ -30,9 +30,10 @@ namespace GatherBuddy.AutoGather
 
             TaskManager.Enqueue(() =>
             {
-                targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)NearestNode?.Address);
+                targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
             });
             TaskManager.DelayNext(1000);
+            if (GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem)) TaskManager.Enqueue(() => TimedNodesGatheredThisTrip.Add(targetItem.ItemId));
         }
 
         private unsafe void DoGatherWindowTasks(IGatherable item)

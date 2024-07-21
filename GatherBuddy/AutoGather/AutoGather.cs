@@ -3,12 +3,16 @@ using GatherBuddy.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
+using GatherBuddy.Interfaces;
 
 namespace GatherBuddy.AutoGather
 {
@@ -17,8 +21,14 @@ namespace GatherBuddy.AutoGather
         public AutoGather(GatherBuddy plugin)
         {
             // Initialize the task manager
-            TaskManager = new();
-            _plugin     = plugin;
+            TaskManager                            =  new();
+            _plugin                                =  plugin;
+            GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
+        }
+
+        private void UptimeChange(IGatherable obj)
+        {
+            TimedNodesGatheredThisTrip.Remove(obj.ItemId);
         }
 
         private GatherBuddy _plugin;
@@ -49,7 +59,9 @@ namespace GatherBuddy.AutoGather
                     TaskManager.Abort();
                     HasSeenFlag    = false;
                     HiddenRevealed = false;
-                    AutoStatus     = "Idle...";
+                    TimedNodesGatheredThisTrip.Clear();
+                    ResetNavigation();
+                    AutoStatus         = "Idle...";
                 }
 
                 _enabled = value;
@@ -118,40 +130,59 @@ namespace GatherBuddy.AutoGather
             {
                 StuckCheck();
             }
+            
+            UpdateItemsToGather();
 
-            var location = _plugin.Executor.FindClosestLocation(ItemsToGather.FirstOrDefault());
-            if (location == null)
+
+            Gatherable? targetItem = (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
+            if (targetItem == null)
             {
-                AutoStatus = "No locations to travel to ...";
+                //GatherBuddy.Log.Warning("No items to gather");
+                AutoStatus = "No available items to gather";
                 return;
             }
 
-            if (ValidNodesInRange.Any())
+            var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
+            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
             {
-                HiddenRevealed = false;
-                TaskManager.Enqueue(MoveToCloseNode);
-                return;
-            }
-
-            if (location.Territory.Id != Dalamud.ClientState.TerritoryType || location.GatheringType.ToGroup() != JobAsGatheringType)
-            {
-                AutoStatus  = $"Moving to gather item in {location.Territory.Name}...";
                 HasSeenFlag = false;
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(MoveToClosestAetheryte);
+                TaskManager.Enqueue(() => MoveToTerritory(location.Location));
                 return;
             }
 
             if (MapFlagPosition != null && MapFlagPosition.Value.DistanceToPlayer() > 150 && ShouldUseFlag)
             {
-                AutoStatus = "Moving to farming area...";
+                HasSeenFlag = true;
+                AutoStatus  = "Moving to farming area...";
                 TaskManager.Enqueue(MoveToFlag);
                 return;
             }
 
-            if (DesiredNodeCoordsInZone.Any())
+            var validNodesForItem   = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value).ToList();
+            var closeNodes          = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position) && o.IsTargetable).ToList().OrderBy(o => Vector3.Distance(Player.Position, o.Position));
+            if (closeNodes.Any())
             {
-                TaskManager.Enqueue(MoveToFarNode);
+                TaskManager.Enqueue(() =>MoveToCloseNode(closeNodes.First(), targetItem));
+                return;
+            }
+            else
+            {
+                var selectedNode = matchingNodesInZone[CurrentFarNodeIndex];
+                if (Vector3.Distance(Player.Object.Position, selectedNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
+                {
+                    CurrentFarNodeIndex++;
+                    if (CurrentFarNodeIndex >= matchingNodesInZone.Count)
+                    {
+                        CurrentFarNodeIndex = 0;
+                    }
+
+                    CurrentDestination = null;
+                    AutoStatus         = "Looking for far away nodes...";
+                    return;
+                }
+                TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
                 return;
             }
 
