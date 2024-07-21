@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using ECommons;
 using ECommons.Automation.UIInput;
 using OtterGui;
+using NodeType = GatherBuddy.Enums.NodeType;
 
 namespace GatherBuddy.AutoGather
 {
@@ -33,7 +34,7 @@ namespace GatherBuddy.AutoGather
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
             });
             TaskManager.DelayNext(1000);
-            if (GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem)) TaskManager.Enqueue(() => TimedNodesGatheredThisTrip.Add(targetItem.ItemId));
+            if (GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem) && targetItem.NodeType != NodeType.Ephemeral) TaskManager.Enqueue(() => TimedNodesGatheredThisTrip.Add(targetItem.ItemId));
         }
 
         private unsafe void DoGatherWindowTasks(IGatherable item)
