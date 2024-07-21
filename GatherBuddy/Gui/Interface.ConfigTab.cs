@@ -87,8 +87,8 @@ public partial class Interface
 
         public static void DrawGatherIfLastIntegrity()
             => DrawCheckbox(
-                "Gather instead of losing the node",
-                "Will gather the node instead of losing it if the collectibility score hasn't been reached",
+                "Gather instead losing the node",
+                "Will gather the node instead losing it if the collectibility score hasn't been reached",
                 GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity,
                 b => GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity = b);
 
