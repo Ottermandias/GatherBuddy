@@ -78,9 +78,26 @@ public partial class Interface
         public static void DrawMinimumCollectibilityScore()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore;
-            if (ImGui.DragInt("Minimum Collectibility Score", ref tmp, 1, 1000))
+            if (ImGui.DragInt("Collectibility score to reach before gathering", ref tmp, 1, 1, 1000))
             {
                 GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawGatherIfLastIntegrity()
+            => DrawCheckbox(
+                "Gather instead losing the node",
+                "Will gather the node instead losing it if the collectibility score hasn't been reached",
+                GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity,
+                b => GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity = b);
+
+        public static void DrawGatherIfLastIntegrityMinimumCollectibility()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrityMinimumCollectibility;
+            if (ImGui.DragInt("Minimum collectibility score to reach before gathering on the last integrity point", ref tmp, 1, 1000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrityMinimumCollectibility = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -840,6 +857,11 @@ public partial class Interface
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
                 ConfigFunctions.DrawMinimumCollectibilityScore();
+                ConfigFunctions.DrawGatherIfLastIntegrity();
+
+                if (GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity)
+                    ConfigFunctions.DrawGatherIfLastIntegrityMinimumCollectibility();
+
                 ImGui.TreePop();
             }
 
