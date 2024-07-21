@@ -150,6 +150,56 @@ public partial class Interface
             }
         }
 
+        public static void DrawYieldIIMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP;
+            if (ImGui.DragInt("Yield II Max GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawYieldIIMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP;
+            if (ImGui.DragInt("Yield II Min GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawYieldIMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP;
+            if (ImGui.DragInt("Yield I Max GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawYieldIMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP;
+            if (ImGui.DragInt("Yield I Min GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawYieldIICheckbox()
+            => DrawCheckbox("Use Kings Yield/Bountiful Harvest II", "Use these actions when available",
+                GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.UseAction = b);
+
+        public static void DrawYieldICheckbox()
+            => DrawCheckbox("Use Kings Yield/Bountiful Harvest I", "Use these actions when available",
+                GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction = b);
+
         public static void DrawScrutinyCheckbox()
             => DrawCheckbox("Use Scrutiny", "Use scrutiny to gather collectibles", GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction = b);
@@ -789,6 +839,22 @@ public partial class Interface
                     ConfigFunctions.DrawBYIIBox();
                     ConfigFunctions.DrawBYIIMinGP();
                     ConfigFunctions.DrawBYIIMaxGP();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Kings Yield/Bountiful Harvest II"))
+                {
+                    ConfigFunctions.DrawYieldIICheckbox();
+                    ConfigFunctions.DrawYieldIIMinGP();
+                    ConfigFunctions.DrawYieldIIMaxGP();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Kings Yield/Bountiful Harvest I"))
+                {
+                    ConfigFunctions.DrawYieldICheckbox();
+                    ConfigFunctions.DrawYieldIMinGP();
+                    ConfigFunctions.DrawYieldIIMaxGP();
                     ImGui.TreePop();
                 }
 

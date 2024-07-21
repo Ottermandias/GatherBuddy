@@ -67,9 +67,11 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
                 return false;
-            
-            //TODO: Add action configs
-            return true;
+
+            if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP
+             || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP)
+                return false;
+            return GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.UseAction;
         }
 
         public bool ShouldUseKingI()
@@ -78,9 +80,11 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
                 return false;
-            
-            //TODO: Add action configs
-            return true;
+
+            if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP
+             || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP)
+                return false;
+            return GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction;
         }
 
         private unsafe void DoActionTasks()
