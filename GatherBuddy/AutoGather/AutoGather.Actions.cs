@@ -182,7 +182,10 @@ namespace GatherBuddy.AutoGather
                     if (LastIntegrity == 1  
                      && GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity
                      && LastCollectability >= GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrityMinimumCollectibility)
+                    {
                         TaskManager.Enqueue(() => UseAction(Actions.Collect));
+                        return;
+                    }
 
                     if (ShouldUseScrutiny(collectibility, integrity))
                         TaskManager.Enqueue(() => UseAction(Actions.Scrutiny));
