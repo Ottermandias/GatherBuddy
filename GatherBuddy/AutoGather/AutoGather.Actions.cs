@@ -46,7 +46,7 @@ namespace GatherBuddy.AutoGather
         {
             if (Player.Level < Actions.Bountiful.MinLevel)
                 return false;
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => BountifulYieldStatuses.Contains(s.StatusId)))
                 return false;
             if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP)
                 return false;
@@ -58,18 +58,22 @@ namespace GatherBuddy.AutoGather
             return GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction;
         }
 
-        public uint[] GatheringUpStatuses = new uint[]
+        public uint[] KingsYieldStatuses = new uint[]
         {
-            756,  //BYII
-            219,  //KYII
-            1286, //KYI
+            219,  //KYI and KYII
+        };
+
+        public uint[] BountifulYieldStatuses = new uint[]
+        {
+            756, //BYI?
+            1286, //BYII
         };
 
         public bool ShouldUseKingII(Gatherable gatherable)
         {
             if (Player.Level < Actions.Yield2.MinLevel)
                 return false;
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
                 return false;
 
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP
@@ -85,7 +89,7 @@ namespace GatherBuddy.AutoGather
         {
             if (Player.Level < Actions.Yield1.MinLevel)
                 return false;
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => GatheringUpStatuses.Contains(s.StatusId)))
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
                 return false;
 
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP
