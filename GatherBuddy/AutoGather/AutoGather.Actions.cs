@@ -330,7 +330,7 @@ namespace GatherBuddy.AutoGather
             if (!int.TryParse(maxIntegrityText, out var maxIntegrity))
                 maxIntegrity = 0;
 
-            if (config.Conditions.MinimumIntegrity > maxIntegrity)
+            if (config.Conditions.RequiredIntegrity > maxIntegrity)
                 return false;
 
             if (config.Conditions.UseOnlyOnFirstStep && currentIntegrity != maxIntegrity)

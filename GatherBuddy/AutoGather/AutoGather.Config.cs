@@ -53,13 +53,13 @@ namespace GatherBuddy.AutoGather
 
         public class ActionConditions
         {
-            public ActionConditions(bool useCondition, bool onlyFirstStep, bool filterNodeTypes, uint minIntegrity)
+            public ActionConditions(bool useCondition, bool onlyFirstStep, bool filterNodeTypes, uint requiredIntegrity)
             {
                 UseConditions      = useCondition;
                 UseOnlyOnFirstStep = onlyFirstStep;
                 FilterNodeTypes    = filterNodeTypes;
                 NodeFilter         = new NodeFilters();
-                MinimumIntegrity   = minIntegrity;
+                RequiredIntegrity   = requiredIntegrity;
             }
 
             public ActionConditions()
@@ -68,7 +68,7 @@ namespace GatherBuddy.AutoGather
                 UseOnlyOnFirstStep = false;
                 FilterNodeTypes    = false;
                 NodeFilter         = new NodeFilters();
-                MinimumIntegrity   = 1;
+                RequiredIntegrity   = 1;
             }
 
             public class NodeFilters
@@ -91,7 +91,7 @@ namespace GatherBuddy.AutoGather
             public bool        UseOnlyOnFirstStep { get; set; }
             public bool        FilterNodeTypes    { get; set; }
             public NodeFilters NodeFilter         { get; set; }
-            public uint        MinimumIntegrity   { get; set; }
+            public uint        RequiredIntegrity   { get; set; }
         }
     }
 }

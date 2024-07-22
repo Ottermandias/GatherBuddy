@@ -231,10 +231,10 @@ public partial class Interface
                     config.Conditions.UseOnlyOnFirstStep,
                     b => config.Conditions.UseOnlyOnFirstStep = b);
                 
-                int tmp = (int)config.Conditions.MinimumIntegrity;
-                if (ImGui.DragInt("Minimum integrity to use", ref tmp, 0.1f, 1, 10))
+                int tmp = (int)config.Conditions.RequiredIntegrity;
+                if (ImGui.DragInt("Total node integrity required to use", ref tmp, 0.1f, 1, 10))
                 {
-                    config.Conditions.MinimumIntegrity = (uint)tmp;
+                    config.Conditions.RequiredIntegrity = (uint)tmp;
                     GatherBuddy.Config.Save();
                 }
                 
