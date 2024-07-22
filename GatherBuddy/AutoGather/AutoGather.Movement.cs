@@ -233,21 +233,14 @@ namespace GatherBuddy.AutoGather
             TaskManager.Enqueue(() => Navigate(ShouldFly));
         }
 
-        private void MoveToFlag()
+        private void MoveToSpecialNode(List<Vector3> potentialNodes)
         {
-            if (Vector3.Distance(MapFlagPosition.Value, Player.Object.Position) < 50)
-            {
-                HasSeenFlag = true;
-            }
-
-            CurrentDestination = MapFlagPosition;
-            if (!Dalamud.Conditions[ConditionFlag.Mounted])
-            {
-                TaskManager.Enqueue(MountUp);
-                TaskManager.DelayNext(2500);
-            }
-
-            TaskManager.Enqueue(() => Navigate(ShouldFly));
+            if (TimedNodePosition == null)
+                return;
+            var timedNode = potentialNodes
+                .Where(o => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Y, TimedNodePosition.Value.Y), o) < 10).OrderBy(o
+                    => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault(); 
+            TaskManager.Enqueue(() => MoveToFarNode(timedNode));
         }
 
         private void MoveToTerritory(ILocation location)

@@ -577,6 +577,12 @@ public partial class Interface
         if (!ImGui.CollapsingHeader("AutoGather"))
             return;
 
+        if (ImGui.Button("Clear Timed Node Memory"))
+        {
+            GatherBuddy.Log.Information("Timed node memory cleared manually!");
+            GatherBuddy.AutoGather.TimedNodesGatheredThisTrip.Clear();
+        }
+
         ImGui.Text($"Enabled: {GatherBuddy.AutoGather.Enabled}");
         ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
         ImGui.Text($"Navigation: {GatherBuddy.AutoGather.LastNavigationResult}");

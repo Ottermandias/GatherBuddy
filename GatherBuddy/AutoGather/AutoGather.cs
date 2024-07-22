@@ -126,7 +126,7 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(() => DoActionTasks(targetItem));
                 return;
             }
-            
+
             if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
             {
                 AutoStatus         = "No items to gather...";
@@ -158,16 +158,9 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (MapFlagPosition != null && MapFlagPosition.Value.DistanceToPlayer() > 150 && ShouldUseFlag)
-            {
-                HasSeenFlag = true;
-                AutoStatus  = "Moving to farming area...";
-                TaskManager.Enqueue(MoveToFlag);
-                return;
-            }
-
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
+                .Where(v => !IsBlacklisted(v))
                 .ToList();
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
             var closeNodes = allNodes.Where(o => o.IsTargetable)
@@ -177,29 +170,36 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(() => MoveToCloseNode(closeNodes.First(n => !IsBlacklisted(n.Position)), targetItem));
                 return;
             }
-            else
+
+            if (TimedNodePosition != null && ShouldUseFlag)
             {
-                var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
-                if (selectedNode == Vector3.Zero)
-                {
-                    FarNodesSeenSoFar.Clear();
-                    GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
-                    return;
-                }
-
-                if (allNodes.Any(n => n.Position == selectedNode))
-                {
-                    FarNodesSeenSoFar.Add(selectedNode);
-
-                    CurrentDestination = null;
-                    VNavmesh_IPCSubscriber.Path_Stop();
-                    AutoStatus         = "Looking for far away nodes...";
-                    return;
-                }
-
-                TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
+                HasSeenFlag = true;
+                AutoStatus  = "Moving to farming area...";
+                TaskManager.Enqueue(() => MoveToSpecialNode(matchingNodesInZone));
                 return;
             }
+
+            var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
+            if (selectedNode == Vector3.Zero)
+            {
+                FarNodesSeenSoFar.Clear();
+                GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
+                return;
+            }
+
+            if (allNodes.Any(n => n.Position == selectedNode))
+            {
+                FarNodesSeenSoFar.Add(selectedNode);
+
+                CurrentDestination = null;
+                VNavmesh_IPCSubscriber.Path_Stop();
+                AutoStatus = "Looking for far away nodes...";
+                return;
+            }
+
+            TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
+            return;
+
 
             AutoStatus = "Nothing to do...";
         }

@@ -113,6 +113,30 @@ namespace GatherBuddy.AutoGather
             }
         }
 
+        public unsafe Vector2? TimedNodePosition
+        {
+            get
+            {
+                var      map     = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
+                var      markers = map->MiniMapGatheringMarkers;
+                if (markers == null)
+                    return null;
+                Vector2? result  = null;
+                foreach (var miniMapGatheringMarker in markers)
+                {
+                    if (miniMapGatheringMarker.MapMarker.X != 0 && miniMapGatheringMarker.MapMarker.Y != 0)
+                    {
+                        // ReSharper disable twice PossibleLossOfFraction
+                        result = new Vector2(miniMapGatheringMarker.MapMarker.X / 16, miniMapGatheringMarker.MapMarker.Y / 16);
+                        break;
+                    }
+                    // GatherBuddy.Log.Information(miniMapGatheringMarker.MapMarker.IconId +  " => X: " + miniMapGatheringMarker.MapMarker.X / 16 + " Y: " + miniMapGatheringMarker.MapMarker.Y / 16);
+                }
+
+                return result;
+            }
+        }
+
         public string AutoStatus { get; set; } = "Idle";
         public int    LastCollectability = 0;
         public int    LastIntegrity      = 0;
@@ -121,6 +145,7 @@ namespace GatherBuddy.AutoGather
         public List<IGatherable> ItemsToGather      = new();
 
         public List<uint> TimedNodesGatheredThisTrip = new();
+
         public void UpdateItemsToGather()
         {
             TimedItemsToGather.Clear();
@@ -130,10 +155,12 @@ namespace GatherBuddy.AutoGather
             {
                 if (item.InventoryCount > item.Quantity)
                     continue;
+
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                 {
                     var location = GatherBuddy.UptimeManager.BestLocation(item);
-                    if (location.Interval.InRange(GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog)) && !TimedNodesGatheredThisTrip.Contains(item.ItemId))
+                    if (location.Interval.InRange(GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog))
+                     && !TimedNodesGatheredThisTrip.Contains(item.ItemId))
                         TimedItemsToGather.Add(item);
                 }
                 else

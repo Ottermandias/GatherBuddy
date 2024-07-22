@@ -107,7 +107,7 @@ public partial class Interface
         }
 
         public static void DrawUseFlagBox()
-            => DrawCheckbox("Disable flag navigation",                  "Whether or not to navigate to the flag on the map",
+            => DrawCheckbox("Disable map marker navigation",                  "Whether or not to navigate using map markers (timed nodes only)",
                 GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing, b => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing = b);
 
         public static void DrawFarNodeFilterDistance()
