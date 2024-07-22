@@ -217,6 +217,57 @@ public partial class Interface
             }
         }
 
+        public static void DrawConditions(AutoGatherConfig.ActionConfig config)
+        {
+            DrawCheckbox("Use conditions", "Apply specific conditions to the action",
+                config.Conditions.UseConditions,
+                b => config.Conditions.UseConditions = b);
+
+            if (config.Conditions.UseConditions)
+            {
+                if (ImGui.TreeNodeEx("Action conditions"))
+                {
+                    DrawCheckbox("Use only on first step", "Use only if this is the first action done in the gathering",
+                        config.Conditions.UseOnlyOnFirstStep,
+                        b => config.Conditions.UseOnlyOnFirstStep = b);
+
+                    int tmp = (int)config.Conditions.RequiredIntegrity;
+                    if (ImGui.DragInt("Total node integrity required to use", ref tmp, 0.1f, 1, 10))
+                    {
+                        config.Conditions.RequiredIntegrity = (uint)tmp;
+                        GatherBuddy.Config.Save();
+                    }
+
+                    DrawCheckbox("Use node type filter", "Use only on specific node types",
+                        config.Conditions.FilterNodeTypes,
+                        b => config.Conditions.FilterNodeTypes = b);
+
+                    if (config.Conditions.FilterNodeTypes)
+                    {
+                        if (ImGui.TreeNodeEx("Node filters"))
+                        {
+                            DrawCheckbox("Use on regular nodes", "Use the action on regular nodes",
+                                config.Conditions.NodeFilter.UseOnRegularNode,
+                                b => config.Conditions.NodeFilter.UseOnRegularNode = b);
+
+                            DrawCheckbox("Use on unspoiled nodes", "Use the action on unspoiled nodes",
+                                config.Conditions.NodeFilter.UseOnUnspoiledNode,
+                                b => config.Conditions.NodeFilter.UseOnUnspoiledNode = b);
+
+                            DrawCheckbox("Use on ephemeral nodes", "Use the action on ephemeral nodes",
+                                config.Conditions.NodeFilter.UseOnEphemeralNode,
+                                b => config.Conditions.NodeFilter.UseOnEphemeralNode = b);
+
+                            DrawCheckbox("Use on legendary nodes", "Use the action on legendary nodes",
+                                config.Conditions.NodeFilter.UseOnLegendaryNode,
+                                b => config.Conditions.NodeFilter.UseOnLegendaryNode = b);
+                        }
+                    }
+
+                }
+            }
+        }
+
         public static void DrawYieldIICheckbox()
             => DrawCheckbox("Use Kings Yield/Bountiful Harvest II", "Use these actions when available",
                 GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.UseAction,
@@ -872,6 +923,7 @@ public partial class Interface
                     ConfigFunctions.DrawBYIIBox();
                     ConfigFunctions.DrawBYIIMinGP();
                     ConfigFunctions.DrawBYIIMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BYIIConfig);
                     ImGui.TreePop();
                 }
 
@@ -880,6 +932,7 @@ public partial class Interface
                     ConfigFunctions.DrawYieldIICheckbox();
                     ConfigFunctions.DrawYieldIIMinGP();
                     ConfigFunctions.DrawYieldIIMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.YieldIIConfig);
                     ImGui.TreePop();
                 }
 
@@ -888,6 +941,7 @@ public partial class Interface
                     ConfigFunctions.DrawYieldICheckbox();
                     ConfigFunctions.DrawYieldIMinGP();
                     ConfigFunctions.DrawYieldIIMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.YieldIConfig);
                     ImGui.TreePop();
                 }
 
@@ -896,6 +950,7 @@ public partial class Interface
                     ConfigFunctions.DrawLuckBox();
                     ConfigFunctions.DrawLuckMinGP();
                     ConfigFunctions.DrawLuckMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.LuckConfig);
                     ImGui.TreePop();
                 }
 
