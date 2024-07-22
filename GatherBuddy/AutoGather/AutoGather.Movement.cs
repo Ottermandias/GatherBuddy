@@ -13,6 +13,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Objects.Types;
+using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace GatherBuddy.AutoGather
@@ -68,22 +69,49 @@ namespace GatherBuddy.AutoGather
             var distance = Vector3.Distance(Player.Position, gameObject.Position);
             if (distance < 3)
             {
-                VNavmesh_IPCSubscriber.Path_Stop();
                 if (!Dalamud.Conditions[ConditionFlag.Gathering]
                  && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
                 {
+                    if (IsPathing || IsPathGenerating)
+                        VNavmesh_IPCSubscriber.Path_Stop();
                     AutoStatus = "Waiting for GP to regenerate...";
                     return;
                 }
 
-                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                if (Dalamud.Conditions[ConditionFlag.InFlight] && GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation)
                 {
-                    TaskManager.Enqueue(Dismount);
+                    Vector3 floorPoint;
+                    try
+                    {
+                        floorPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, 1f, 1f);
+                        GatherBuddy.Log.Debug($"Got floor point {floorPoint} from vnavmesh while trying to land");
+                    }
+                    catch
+                    {
+                        AutoStatus = "We're stuck in flight and navmesh can't see the floor!";
+                        return;
+                    }
+
+                    CurrentDestination = floorPoint;
+                    TaskManager.Enqueue(() => Navigate(ShouldFly));
                     TaskManager.DelayNext(1000);
                 }
 
-                TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
-                return;
+                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                {
+                    TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
+                    TaskManager.Enqueue(Dismount);
+                    TaskManager.DelayNext(1000);
+                    return;
+                }
+
+                if (!Dalamud.Conditions[ConditionFlag.Mounted] && !Dalamud.Conditions[ConditionFlag.Jumping])
+                {
+                    TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
+                    return;
+                }
+
+                AutoStatus = "We fell out of a loop that it shouldn't be possible to fall out of. What did you do?!?!";
             }
             else if (distance > 3 && distance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
             {
@@ -179,7 +207,6 @@ namespace GatherBuddy.AutoGather
                     if (!correctedDestination.SanityCheck())
                     {
                         GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
-                        CurrentDestination = null;
                         ResetNavigation();
                         return;
                     }
@@ -189,7 +216,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        public int CurrentFarNodeIndex = 0;
+        public List<Vector3> FarNodesSeenSoFar = new();
 
         private void MoveToFarNode(Vector3 position)
         {
@@ -206,21 +233,14 @@ namespace GatherBuddy.AutoGather
             TaskManager.Enqueue(() => Navigate(ShouldFly));
         }
 
-        private void MoveToFlag()
+        private void MoveToSpecialNode(List<Vector3> potentialNodes)
         {
-            if (Vector3.Distance(MapFlagPosition.Value, Player.Object.Position) < 50)
-            {
-                HasSeenFlag = true;
-            }
-
-            CurrentDestination = MapFlagPosition;
-            if (!Dalamud.Conditions[ConditionFlag.Mounted])
-            {
-                TaskManager.Enqueue(MountUp);
-                TaskManager.DelayNext(2500);
-            }
-
-            TaskManager.Enqueue(() => Navigate(ShouldFly));
+            if (TimedNodePosition == null)
+                return;
+            var timedNode = potentialNodes
+                .Where(o => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Y, TimedNodePosition.Value.Y), o) < 10).OrderBy(o
+                    => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault(); 
+            TaskManager.Enqueue(() => MoveToFarNode(timedNode));
         }
 
         private void MoveToTerritory(ILocation location)

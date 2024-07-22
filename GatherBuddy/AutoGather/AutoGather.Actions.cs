@@ -61,12 +61,12 @@ namespace GatherBuddy.AutoGather
 
         public uint[] KingsYieldStatuses = new uint[]
         {
-            219,  //KYI and KYII
+            219, //KYI and KYII
         };
 
         public uint[] BountifulYieldStatuses = new uint[]
         {
-            756, //BYI?
+            756,  //BYI?
             1286, //BYII
         };
 
@@ -127,7 +127,7 @@ namespace GatherBuddy.AutoGather
         {
             if (GatheringAddon == null)
                 return;
-            
+
             Span<uint> ids = GatheringAddon->ItemIds;
             if (ShouldUseLuck(ids, desiredItem as Gatherable))
                 TaskManager.Enqueue(() => UseAction(Actions.Luck));
@@ -149,6 +149,7 @@ namespace GatherBuddy.AutoGather
                 if (amInstance->GetActionStatus(ActionType.Action, act.ActionID) == 0)
                 {
                     amInstance->UseAction(ActionType.Action, act.ActionID);
+                    TaskManager.DelayNextImmediate(2000);
                 }
             }
         }
@@ -157,7 +158,7 @@ namespace GatherBuddy.AutoGather
         {
             if (MasterpieceAddon == null)
                 return;
-           
+
             var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
             var text     = textNode->NodeText.ToString();
 
@@ -182,7 +183,7 @@ namespace GatherBuddy.AutoGather
                 LastIntegrity      = integrity;
 
                 // Check if we need to gather on the last integrity point
-                if (LastIntegrity == 1  
+                if (LastIntegrity == 1
                  && GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity
                  && LastCollectability >= GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrityMinimumCollectibility)
                 {
@@ -215,8 +216,8 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP)
                 return false;
 
-            if (collectibility <= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
-             && collectibility >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8
+            if (collectibility < GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
+             && collectibility > GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.79
              && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418)
              && integrity > 0)
             {
@@ -272,8 +273,8 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (collectability <= (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8)
              && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418))
-                return true;
-            if (collectability <= (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore) && integrity > 0)
+                return GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction;
+            if (collectability < (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore) && integrity > 0)
                 return GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction;
 
             return false;
@@ -288,7 +289,9 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP)
                 return false;
-            if (collectability < (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8) && integrity > 2)
+            if (collectability < (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8)
+             && integrity > 2
+             && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 757))
                 return GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction;
 
             return false;
@@ -304,8 +307,8 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP)
                 return false;
             if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
-                && !(Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765))
-                && integrity < 4)
+             && !(Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765))
+             && integrity < 4)
                 return GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction;
 
             return false;
@@ -315,12 +318,12 @@ namespace GatherBuddy.AutoGather
         {
             if (!config.Conditions.UseConditions)
                 return true;
-            
+
             var currentIntegrityNode = GatheringAddon->AtkUnitBase.GetTextNodeById(9);
             var currentIntegrityText = currentIntegrityNode->NodeText.ToString();
             if (!int.TryParse(currentIntegrityText, out var currentIntegrity))
                 currentIntegrity = 0;
-            
+
             var maxIntegrityNode = GatheringAddon->AtkUnitBase.GetTextNodeById(12);
             var maxIntegrityText = maxIntegrityNode->NodeText.ToString();
             if (!int.TryParse(maxIntegrityText, out var maxIntegrity))
@@ -337,24 +340,29 @@ namespace GatherBuddy.AutoGather
                 switch (gatherable.NodeType)
                 {
                     case Enums.NodeType.Unknown: break;
-                    case Enums.NodeType.Regular:   
+                    case Enums.NodeType.Regular:
                         if (!config.Conditions.NodeFilter.UseOnRegularNode)
                             return false;
+
                         break;
                     case Enums.NodeType.Unspoiled:
                         if (!config.Conditions.NodeFilter.UseOnUnspoiledNode)
                             return false;
+
                         break;
                     case Enums.NodeType.Ephemeral:
                         if (!config.Conditions.NodeFilter.UseOnEphemeralNode)
                             return false;
+
                         break;
                     case Enums.NodeType.Legendary:
                         if (!config.Conditions.NodeFilter.UseOnLegendaryNode)
                             return false;
+
                         break;
                 }
             }
+
             return true;
         }
 

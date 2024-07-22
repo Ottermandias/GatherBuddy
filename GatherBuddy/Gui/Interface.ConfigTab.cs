@@ -65,6 +65,10 @@ public partial class Interface
                 "Toggle whether to automatically gather items. (Disable this for 'nav only mode')",
                 GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
 
+        public static void DrawAdvancedNavBox()
+            => DrawCheckbox("Enable Experimental Navigation", "Use advanced navigation techniques to try and work around vnavmesh limitations",
+                GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation,
+                b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation = b);
         public static void DrawMinimumGPGathering()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
@@ -103,7 +107,7 @@ public partial class Interface
         }
 
         public static void DrawUseFlagBox()
-            => DrawCheckbox("Disable flag navigation",                  "Whether or not to navigate to the flag on the map",
+            => DrawCheckbox("Disable map marker navigation",                  "Whether or not to navigate using map markers (timed nodes only)",
                 GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing, b => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing = b);
 
         public static void DrawFarNodeFilterDistance()
@@ -1007,9 +1011,9 @@ public partial class Interface
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
+                ConfigFunctions.DrawAdvancedNavBox();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
-                ConfigFunctions.DrawFarNodeFilterDistance();
                 ConfigFunctions.DrawTimedNodePrecog();
                 ImGui.TreePop();
             }

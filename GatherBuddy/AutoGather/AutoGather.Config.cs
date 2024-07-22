@@ -23,7 +23,7 @@ namespace GatherBuddy.AutoGather
         public ActionConfig WiseConfig                                 { get; set; } = new(true, (uint)AutoGather.Actions.Wise.GpCost, uint.MaxValue, new ActionConditions());
         public ActionConfig CollectConfig                              { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue, new ActionConditions());
         public ActionConfig ScourConfig                                { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
-        public int          TimedNodePrecog                            { get; set; } = 120;
+        public int          TimedNodePrecog                            { get; set; } = 20;
         public bool         DoGathering                                { get; set; } = true;
         public uint         MinimumGPForGathering                      { get; set; } = 0;
         public float        NavResetCooldown                           { get; set; } = 3.0f;
@@ -34,6 +34,7 @@ namespace GatherBuddy.AutoGather
         public uint         MinimumCollectibilityScore                 { get; set; } = 1000;
         public bool         GatherIfLastIntegrity                      { get; set; } = false;
         public uint         GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
+        public bool UseExperimentalNavigation { get; set; } = false;
 
         public class ActionConfig
         {
