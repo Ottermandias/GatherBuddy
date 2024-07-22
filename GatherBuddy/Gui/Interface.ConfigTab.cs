@@ -225,45 +225,46 @@ public partial class Interface
 
             if (config.Conditions.UseConditions)
             {
-               ImGui.Indent();
-               
-                DrawCheckbox("Use only on first step", "Use only if this is the first action done in the gathering",
-                    config.Conditions.UseOnlyOnFirstStep,
-                    b => config.Conditions.UseOnlyOnFirstStep = b);
-                
-                int tmp = (int)config.Conditions.RequiredIntegrity;
-                if (ImGui.DragInt("Total node integrity required to use", ref tmp, 0.1f, 1, 10))
+                if (ImGui.TreeNodeEx("Action conditions"))
                 {
-                    config.Conditions.RequiredIntegrity = (uint)tmp;
-                    GatherBuddy.Config.Save();
+                    DrawCheckbox("Use only on first step", "Use only if this is the first action done in the gathering",
+                        config.Conditions.UseOnlyOnFirstStep,
+                        b => config.Conditions.UseOnlyOnFirstStep = b);
+
+                    int tmp = (int)config.Conditions.RequiredIntegrity;
+                    if (ImGui.DragInt("Total node integrity required to use", ref tmp, 0.1f, 1, 10))
+                    {
+                        config.Conditions.RequiredIntegrity = (uint)tmp;
+                        GatherBuddy.Config.Save();
+                    }
+
+                    DrawCheckbox("Use node type filter", "Use only on specific node types",
+                        config.Conditions.FilterNodeTypes,
+                        b => config.Conditions.FilterNodeTypes = b);
+
+                    if (config.Conditions.FilterNodeTypes)
+                    {
+                        if (ImGui.TreeNodeEx("Node filters"))
+                        {
+                            DrawCheckbox("Use on regular nodes", "Use the action on regular nodes",
+                                config.Conditions.NodeFilter.UseOnRegularNode,
+                                b => config.Conditions.NodeFilter.UseOnRegularNode = b);
+
+                            DrawCheckbox("Use on unspoiled nodes", "Use the action on unspoiled nodes",
+                                config.Conditions.NodeFilter.UseOnUnspoiledNode,
+                                b => config.Conditions.NodeFilter.UseOnUnspoiledNode = b);
+
+                            DrawCheckbox("Use on ephemeral nodes", "Use the action on ephemeral nodes",
+                                config.Conditions.NodeFilter.UseOnEphemeralNode,
+                                b => config.Conditions.NodeFilter.UseOnEphemeralNode = b);
+
+                            DrawCheckbox("Use on legendary nodes", "Use the action on legendary nodes",
+                                config.Conditions.NodeFilter.UseOnLegendaryNode,
+                                b => config.Conditions.NodeFilter.UseOnLegendaryNode = b);
+                        }
+                    }
+
                 }
-                
-                DrawCheckbox("Use node type filter", "Use only on specific node types",
-                    config.Conditions.FilterNodeTypes,
-                    b => config.Conditions.FilterNodeTypes = b);
-
-                if (config.Conditions.FilterNodeTypes)
-                {
-                    ImGui.Indent();
-                    DrawCheckbox("Use on regular nodes", "Use the action on regular nodes",
-                        config.Conditions.NodeFilter.UseOnRegularNode,
-                        b => config.Conditions.NodeFilter.UseOnRegularNode = b);
-
-                    DrawCheckbox("Use on unspoiled nodes", "Use the action on unspoiled nodes",
-                        config.Conditions.NodeFilter.UseOnUnspoiledNode,
-                        b => config.Conditions.NodeFilter.UseOnUnspoiledNode = b);
-
-                    DrawCheckbox("Use on ephemeral nodes", "Use the action on ephemeral nodes",
-                        config.Conditions.NodeFilter.UseOnEphemeralNode,
-                        b => config.Conditions.NodeFilter.UseOnEphemeralNode = b);
-
-                    DrawCheckbox("Use on legendary nodes", "Use the action on legendary nodes",
-                        config.Conditions.NodeFilter.UseOnLegendaryNode,
-                        b => config.Conditions.NodeFilter.UseOnLegendaryNode = b);
-                    ImGui.Unindent();
-                }
-                
-                ImGui.Unindent();
             }
         }
 
