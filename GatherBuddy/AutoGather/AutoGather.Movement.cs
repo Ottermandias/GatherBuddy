@@ -107,6 +107,8 @@ namespace GatherBuddy.AutoGather
 
                 if (!Dalamud.Conditions[ConditionFlag.Mounted] && !Dalamud.Conditions[ConditionFlag.Jumping])
                 {
+                    // Use consumables with cast time just before gathering a node when player is surely not mounted
+                    DoUseConsumablesWithCastTime();
                     TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
                     return;
                 }
