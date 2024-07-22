@@ -100,6 +100,7 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoActionTasks(Gatherable desiredItem)
         {
+            TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Gathering42]);
 
             if (GatheringAddon == null && MasterpieceAddon == null)
                 return;
