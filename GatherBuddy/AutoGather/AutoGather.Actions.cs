@@ -157,11 +157,6 @@ namespace GatherBuddy.AutoGather
             {
                 if (MasterpieceAddon == null)
                     return;
-
-                if (MasterpieceAddon->AtkUnitBase.IsVisible)
-                {
-                    MasterpieceAddon->AtkUnitBase.IsVisible = false;
-                }
                 var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
                 var text     = textNode->NodeText.ToString();
 
