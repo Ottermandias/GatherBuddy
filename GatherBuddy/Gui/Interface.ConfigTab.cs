@@ -1009,7 +1009,6 @@ public partial class Interface
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
-                ConfigFunctions.DrawFarNodeFilterDistance();
                 ConfigFunctions.DrawTimedNodePrecog();
                 ImGui.TreePop();
             }
