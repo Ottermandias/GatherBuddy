@@ -13,16 +13,16 @@ namespace GatherBuddy.AutoGather
         public uint                            AutoGatherMountId             { get; set; } = 1;
         public Dictionary<uint, List<Vector3>> BlacklistedNodesByTerritoryId { get; set; } = new();
 
-        public ActionConfig BYIIConfig                                 { get; set; } = new(true, 100, uint.MaxValue);
-        public ActionConfig LuckConfig                                 { get; set; } = new(true, 200, uint.MaxValue);
-        public ActionConfig YieldIIConfig                              { get; set; } = new(true, 500, uint.MaxValue);
-        public ActionConfig YieldIConfig                               { get; set; } = new(true, 400, uint.MaxValue);
-        public ActionConfig ScrutinyConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue);
-        public ActionConfig MeticulousConfig                           { get; set; } = new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue);
-        public ActionConfig SolidAgeConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue);
-        public ActionConfig WiseConfig                                 { get; set; } = new(true, (uint)AutoGather.Actions.Wise.GpCost, uint.MaxValue);
-        public ActionConfig CollectConfig                              { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue);
-        public ActionConfig ScourConfig                                { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue);
+        public ActionConfig BYIIConfig                                 { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions());
+        public ActionConfig LuckConfig                                 { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
+        public ActionConfig YieldIIConfig                              { get; set; } = new(true, 500, uint.MaxValue, new ActionConditions());
+        public ActionConfig YieldIConfig                               { get; set; } = new(true, 400, uint.MaxValue, new ActionConditions());
+        public ActionConfig ScrutinyConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig MeticulousConfig                           { get; set; } = new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig SolidAgeConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig WiseConfig                                 { get; set; } = new(true, (uint)AutoGather.Actions.Wise.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig CollectConfig                              { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig ScourConfig                                { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
         public int          TimedNodePrecog                            { get; set; } = 120;
         public bool         DoGathering                                { get; set; } = true;
         public uint         MinimumGPForGathering                      { get; set; } = 0;
@@ -37,16 +37,61 @@ namespace GatherBuddy.AutoGather
 
         public class ActionConfig
         {
-            public ActionConfig(bool useAction, uint minGP, uint maximumGP)
+            public ActionConfig(bool useAction, uint minGP, uint maximumGP, ActionConditions conditions)
             {
-                UseAction = useAction;
-                MinimumGP = minGP;
-                MaximumGP = maximumGP;
+                UseAction  = useAction;
+                MinimumGP  = minGP;
+                MaximumGP  = maximumGP;
+                Conditions = conditions;
             }
 
             public bool UseAction { get; set; }
             public uint MinimumGP { get; set; }
             public uint MaximumGP { get; set; }
+            public ActionConditions Conditions { get; set; }
+        }
+
+        public class ActionConditions
+        {
+            public ActionConditions(bool useCondition, bool onlyFirstStep, bool filterNodeTypes, uint minIntegrity)
+            {
+                UseConditions      = useCondition;
+                UseOnlyOnFirstStep = onlyFirstStep;
+                FilterNodeTypes    = filterNodeTypes;
+                NodeFilter         = new NodeFilters();
+                MinimumIntegrity   = minIntegrity;
+            }
+
+            public ActionConditions()
+            {
+                UseConditions      = false;
+                UseOnlyOnFirstStep = false;
+                FilterNodeTypes    = false;
+                NodeFilter         = new NodeFilters();
+                MinimumIntegrity   = 1;
+            }
+
+            public class NodeFilters
+            {
+                public NodeFilters()
+                {
+                    UseOnRegularNode   = true;
+                    UseOnUnspoiledNode = true;
+                    UseOnEphemeralNode = true;
+                    UseOnLegendaryNode = true;
+                }
+                
+                public bool UseOnRegularNode   { get; set; }
+                public bool UseOnUnspoiledNode { get; set; }
+                public bool UseOnEphemeralNode { get; set; }
+                public bool UseOnLegendaryNode { get; set; }
+            }
+            
+            public bool        UseConditions      { get; set; }
+            public bool        UseOnlyOnFirstStep { get; set; }
+            public bool        FilterNodeTypes    { get; set; }
+            public NodeFilters NodeFilter         { get; set; }
+            public uint        MinimumIntegrity   { get; set; }
         }
     }
 }

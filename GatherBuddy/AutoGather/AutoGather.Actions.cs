@@ -36,11 +36,13 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP)
                 return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.LuckConfig, gatherable))
+                return false;
 
             return GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction;
         }
 
-        public bool ShoulduseBYII()
+        public bool ShoulduseBYII(Gatherable gatherable)
         {
             if (Player.Level < Actions.Bountiful.MinLevel)
                 return false;
@@ -49,6 +51,8 @@ namespace GatherBuddy.AutoGather
             if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP)
                 return false;
             if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) > GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP)
+                return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.BYIIConfig, gatherable))
                 return false;
 
             return GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction;
@@ -61,7 +65,7 @@ namespace GatherBuddy.AutoGather
             1286, //KYI
         };
 
-        public bool ShouldUseKingII()
+        public bool ShouldUseKingII(Gatherable gatherable)
         {
             if (Player.Level < Actions.Yield2.MinLevel)
                 return false;
@@ -71,11 +75,13 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP
              || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP)
                 return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.YieldIIConfig, gatherable))
+                return false;
 
             return GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.UseAction;
         }
 
-        public bool ShouldUseKingI()
+        public bool ShouldUseKingI(Gatherable gatherable)
         {
             if (Player.Level < Actions.Yield1.MinLevel)
                 return false;
@@ -84,6 +90,8 @@ namespace GatherBuddy.AutoGather
 
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP
              || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP)
+                return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.YieldIConfig, gatherable))
                 return false;
 
             return GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction;
@@ -121,11 +129,11 @@ namespace GatherBuddy.AutoGather
                 Span<uint> ids = GatheringAddon->ItemIds;
                 if (ShouldUseLuck(ids, desiredItem as Gatherable))
                     TaskManager.Enqueue(() => UseAction(Actions.Luck));
-                if (ShouldUseKingII())
+                if (ShouldUseKingII(desiredItem as Gatherable))
                     TaskManager.Enqueue(() => UseAction(Actions.Yield2));
-                if (ShouldUseKingI())
+                if (ShouldUseKingI(desiredItem as Gatherable))
                     TaskManager.Enqueue(() => UseAction(Actions.Yield1));
-                if (ShoulduseBYII())
+                if (ShoulduseBYII(desiredItem as Gatherable))
                     TaskManager.Enqueue(() => UseAction(Actions.Bountiful));
                 TaskManager.Enqueue(() => DoGatherWindowTasks(desiredItem));
             }
@@ -305,6 +313,53 @@ namespace GatherBuddy.AutoGather
                 return GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction;
 
             return false;
+        }
+
+        private unsafe bool CheckConditions(AutoGatherConfig.ActionConfig config, Gatherable gatherable)
+        {
+            if (!config.Conditions.UseConditions)
+                return true;
+            
+            var currentIntegrityNode = GatheringAddon->AtkUnitBase.GetTextNodeById(9);
+            var currentIntegrityText = currentIntegrityNode->NodeText.ToString();
+            if (!int.TryParse(currentIntegrityText, out var currentIntegrity))
+                currentIntegrity = 0;
+            
+            var maxIntegrityNode = GatheringAddon->AtkUnitBase.GetTextNodeById(12);
+            var maxIntegrityText = maxIntegrityNode->NodeText.ToString();
+            if (!int.TryParse(maxIntegrityText, out var maxIntegrity))
+                maxIntegrity = 0;
+
+            if (config.Conditions.MinimumIntegrity > maxIntegrity)
+                return false;
+
+            if (config.Conditions.UseOnlyOnFirstStep && currentIntegrity != maxIntegrity)
+                return false;
+
+            if (config.Conditions.FilterNodeTypes)
+            {
+                switch (gatherable.NodeType)
+                {
+                    case Enums.NodeType.Unknown: break;
+                    case Enums.NodeType.Regular:   
+                        if (!config.Conditions.NodeFilter.UseOnRegularNode)
+                            return false;
+                        break;
+                    case Enums.NodeType.Unspoiled:
+                        if (!config.Conditions.NodeFilter.UseOnUnspoiledNode)
+                            return false;
+                        break;
+                    case Enums.NodeType.Ephemeral:
+                        if (!config.Conditions.NodeFilter.UseOnEphemeralNode)
+                            return false;
+                        break;
+                    case Enums.NodeType.Legendary:
+                        if (!config.Conditions.NodeFilter.UseOnLegendaryNode)
+                            return false;
+                        break;
+                }
+            }
+            return true;
         }
 
 
