@@ -173,6 +173,7 @@ namespace GatherBuddy.AutoGather
 
             if (TimedNodePosition != null && ShouldUseFlag)
             {
+                //TODO: Add node to far node tracking so we don't bonk our noses on it
                 HasSeenFlag = true;
                 AutoStatus  = "Moving to farming area...";
                 TaskManager.Enqueue(() => MoveToSpecialNode(matchingNodesInZone));
