@@ -34,7 +34,19 @@ namespace GatherBuddy.AutoGather
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
             });
             TaskManager.DelayNext(1000);
-            if (GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem) && targetItem.NodeType != NodeType.Ephemeral) TaskManager.Enqueue(() => TimedNodesGatheredThisTrip.Add(targetItem.ItemId));
+            if (GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem)
+             && targetItem.NodeType != NodeType.Ephemeral)
+                TaskManager.Enqueue(() =>
+                {
+                    foreach (GatheringNode nodes in targetItem.NodeList)
+                    {
+                        foreach (var item in nodes.Items)
+                        {
+                            if (TimedItemsToGather.Contains(item))
+                                TimedNodesGatheredThisTrip.Add(item.ItemId);
+                        }
+                    }
+                });
         }
 
         private unsafe void DoGatherWindowTasks(IGatherable item)
