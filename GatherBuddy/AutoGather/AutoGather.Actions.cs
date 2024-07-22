@@ -215,8 +215,8 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP)
                 return false;
 
-            if (collectibility <= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
-             && collectibility >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8
+            if (collectibility < GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
+             && collectibility > GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.79
              && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418)
              && integrity > 0)
             {
@@ -272,8 +272,8 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (collectability <= (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8)
              && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418))
-                return true;
-            if (collectability <= (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore) && integrity > 0)
+                return GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction;
+            if (collectability < (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore) && integrity > 0)
                 return GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction;
 
             return false;
