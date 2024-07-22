@@ -301,7 +301,9 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP)
                 return false;
-            if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore && integrity < 4)
+            if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
+                && Dalamud.ClientState.LocalPlayer.StatusList.All(s => s.StatusId != 2765)
+                && integrity < 4)
                 return GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction;
 
             return false;
