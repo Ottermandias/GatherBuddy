@@ -149,6 +149,7 @@ namespace GatherBuddy.AutoGather
                 if (amInstance->GetActionStatus(ActionType.Action, act.ActionID) == 0)
                 {
                     amInstance->UseAction(ActionType.Action, act.ActionID);
+                    TaskManager.DelayNextImmediate(2000);
                 }
             }
         }
