@@ -6,6 +6,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using ECommons;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -101,15 +102,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
-            {
-                AutoStatus         = "No items to gather...";
-                Enabled            = false;
-                CurrentDestination = null;
-                VNavmesh_IPCSubscriber.Path_Stop();
-                return;
-            }
-
             if (!CanAct)
             {
                 AutoStatus = "Player is busy...";
@@ -132,6 +124,15 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Gathering...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(() => DoActionTasks(targetItem));
+                return;
+            }
+            
+            if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
+            {
+                AutoStatus         = "No items to gather...";
+                Enabled            = false;
+                CurrentDestination = null;
+                VNavmesh_IPCSubscriber.Path_Stop();
                 return;
             }
 
@@ -168,7 +169,8 @@ namespace GatherBuddy.AutoGather
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .ToList();
-            var closeNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position) && o.IsTargetable).ToList()
+            var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
+            var closeNodes = allNodes.Where(o => o.IsTargetable)
                 .OrderBy(o => Vector3.Distance(Player.Position, o.Position));
             if (closeNodes.Any())
             {
@@ -177,25 +179,20 @@ namespace GatherBuddy.AutoGather
             }
             else
             {
-                Vector3 selectedNode;
-                if (CurrentFarNodeIndex < matchingNodesInZone.Count)
+                var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
+                if (selectedNode == Vector3.Zero)
                 {
-                    selectedNode = matchingNodesInZone[CurrentFarNodeIndex];
-                }
-                else
-                {
-                    selectedNode = matchingNodesInZone.First();
+                    FarNodesSeenSoFar.Clear();
+                    GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
+                    return;
                 }
 
-                if (Vector3.Distance(Player.Object.Position, selectedNode) < GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance)
+                if (allNodes.Any(n => n.Position == selectedNode))
                 {
-                    CurrentFarNodeIndex++;
-                    if (CurrentFarNodeIndex >= matchingNodesInZone.Count)
-                    {
-                        CurrentFarNodeIndex = 0;
-                    }
+                    FarNodesSeenSoFar.Add(selectedNode);
 
                     CurrentDestination = null;
+                    VNavmesh_IPCSubscriber.Path_Stop();
                     AutoStatus         = "Looking for far away nodes...";
                     return;
                 }
