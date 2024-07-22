@@ -218,7 +218,7 @@ namespace GatherBuddy.AutoGather
              && !Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418)
              && integrity > 0)
             {
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction;
             }
 
             return false;
@@ -238,7 +238,7 @@ namespace GatherBuddy.AutoGather
              && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765)
              && integrity < 4)
             {
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.WiseConfig.UseAction;
             }
 
             return false;
@@ -254,7 +254,7 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP)
                 return false;
             if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore && integrity > 0)
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction;
 
             return false;
         }
@@ -272,7 +272,7 @@ namespace GatherBuddy.AutoGather
              && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2418))
                 return true;
             if (collectability <= (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore) && integrity > 0)
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction;
 
             return false;
         }
@@ -287,7 +287,7 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP)
                 return false;
             if (collectability < (GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore * 0.8) && integrity > 2)
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction;
 
             return false;
         }
@@ -302,7 +302,7 @@ namespace GatherBuddy.AutoGather
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP)
                 return false;
             if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore && integrity < 4)
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction;
 
             return false;
         }
