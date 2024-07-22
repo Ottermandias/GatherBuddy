@@ -34,6 +34,7 @@ namespace GatherBuddy.AutoGather
         public uint         MinimumCollectibilityScore                 { get; set; } = 1000;
         public bool         GatherIfLastIntegrity                      { get; set; } = false;
         public uint         GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
+        public bool UseExperimentalNavigation { get; set; } = false;
 
         public class ActionConfig
         {

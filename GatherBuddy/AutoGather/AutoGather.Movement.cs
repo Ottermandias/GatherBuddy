@@ -78,7 +78,7 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
-                if (Dalamud.Conditions[ConditionFlag.InFlight])
+                if (Dalamud.Conditions[ConditionFlag.InFlight] && GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation)
                 {
                     Vector3 floorPoint;
                     try
@@ -94,10 +94,12 @@ namespace GatherBuddy.AutoGather
 
                     CurrentDestination = floorPoint;
                     TaskManager.Enqueue(() => Navigate(ShouldFly));
+                    TaskManager.DelayNext(1000);
                 }
 
                 if (Dalamud.Conditions[ConditionFlag.Mounted])
                 {
+                    TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
                     TaskManager.Enqueue(Dismount);
                     TaskManager.DelayNext(1000);
                     return;
