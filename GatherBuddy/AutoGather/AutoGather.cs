@@ -29,6 +29,7 @@ namespace GatherBuddy.AutoGather
 
         private void UptimeChange(IGatherable obj)
         {
+            GatherBuddy.Log.Verbose($"Timer for {obj.Name[GatherBuddy.Language]} has expired and the item has been removed from memory.");
             TimedNodesGatheredThisTrip.Remove(obj.ItemId);
         }
 
@@ -96,7 +97,7 @@ namespace GatherBuddy.AutoGather
             }
 
             DoSafetyChecks();
-            if (TaskManager.NumQueuedTasks > 0)
+            if (TaskManager.IsBusy)
             {
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
                 return;
@@ -113,6 +114,14 @@ namespace GatherBuddy.AutoGather
 
             if (targetItem == null)
             {
+                if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
+                {
+                    AutoStatus         = "No items to gather...";
+                    Enabled            = false;
+                    CurrentDestination = null;
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    return;
+                }
                 UpdateItemsToGather();
                 //GatherBuddy.Log.Warning("No items to gather");
                 AutoStatus = "No available items to gather";
@@ -127,14 +136,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
-            {
-                AutoStatus         = "No items to gather...";
-                Enabled            = false;
-                CurrentDestination = null;
-                VNavmesh_IPCSubscriber.Path_Stop();
-                return;
-            }
+
 
             if (IsPathGenerating)
             {
