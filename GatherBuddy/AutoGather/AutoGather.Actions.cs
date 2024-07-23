@@ -104,8 +104,6 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoActionTasks(Gatherable desiredItem)
         {
-            TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Gathering42]);
-
             if (GatheringAddon == null && MasterpieceAddon == null)
                 return;
 
@@ -143,14 +141,11 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void UseAction(Actions.BaseAction act)
         {
-            if (EzThrottler.Throttle($"Action: {act.Name}", 10))
+            var amInstance = ActionManager.Instance();
+            if (amInstance->GetActionStatus(ActionType.Action, act.ActionID) == 0)
             {
-                var amInstance = ActionManager.Instance();
-                if (amInstance->GetActionStatus(ActionType.Action, act.ActionID) == 0)
-                {
-                    amInstance->UseAction(ActionType.Action, act.ActionID);
-                    TaskManager.DelayNextImmediate(2500);
-                }
+                amInstance->UseAction(ActionType.Action, act.ActionID);
+                TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Gathering42]);
             }
         }
 
