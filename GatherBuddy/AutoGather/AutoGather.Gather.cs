@@ -11,6 +11,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading.Tasks;
+using Dalamud.Game;
 using ECommons;
 using ECommons.Automation.UIInput;
 using OtterGui;
@@ -34,19 +35,6 @@ namespace GatherBuddy.AutoGather
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
             });
             TaskManager.DelayNext(1000);
-            if (GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem)
-             && targetItem.NodeType != NodeType.Ephemeral)
-                TaskManager.Enqueue(() =>
-                {
-                    foreach (GatheringNode nodes in targetItem.NodeList)
-                    {
-                        foreach (var item in nodes.Items)
-                        {
-                            if (TimedItemsToGather.Contains(item))
-                                TimedNodesGatheredThisTrip.Add(item.ItemId);
-                        }
-                    }
-                });
         }
 
         private unsafe void DoGatherWindowTasks(IGatherable item)
@@ -55,6 +43,15 @@ namespace GatherBuddy.AutoGather
                 return;
 
             uint[] ids       = GatheringAddon->ItemIds.ToArray();
+            foreach (var id in ids)
+            {
+                var gatherable = GatherBuddy.GameData.Gatherables.FirstOrDefault(it => it.Key == id).Value;
+                if (GatherBuddy.UptimeManager.TimedGatherables.Contains(gatherable) && gatherable.NodeType != NodeType.Ephemeral && !TimedNodesGatheredThisTrip.Contains(gatherable.ItemId))
+                {
+                    GatherBuddy.Log.Information($"Saw timed item {gatherable.Name[GatherBuddy.Language]} in node. We should remember that.");
+                    TimedNodesGatheredThisTrip.Add(gatherable.ItemId);
+                }
+            }
             var    itemIndex = GetIndexOfItemToClick(ids, item);
             if (itemIndex < 0)
                 itemIndex = GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key))

@@ -600,22 +600,28 @@ public partial class Interface
         ImGui.Text(($"HasSeenFlag: {GatherBuddy.AutoGather.HasSeenFlag}"));
         ImGui.Text($"LastIntegrity: {GatherBuddy.AutoGather.LastIntegrity}");
         ImGui.Text($"LastCollectScore: {GatherBuddy.AutoGather.LastCollectability}");
-        
-        if (ImGui.CollapsingHeader("Item Priority (Current Zone)"))
+
+        if (ImGui.CollapsingHeader("Timed Node Memory"))
         {
-            for (int i = 0; i < GatherBuddy.AutoGather.ItemsToGatherInZone.Count(); i++)
+            foreach (var itemId in GatherBuddy.AutoGather.TimedNodesGatheredThisTrip)
             {
-                var item = GatherBuddy.AutoGather.ItemsToGatherInZone.ElementAt(i);
-                ImGui.Text($"{item.Name} - Priority {i}");
+                ImGui.Text(itemId.ToString());
             }
         }
 
-        if (ImGui.CollapsingHeader("Item Priority (All)"))
+        if (ImGui.CollapsingHeader("Timed Nodes To Gather"))
         {
-            for (int i = 0; i < GatherBuddy.AutoGather.ItemsToGather.Count(); i++)
+            foreach (var item in GatherBuddy.AutoGather.TimedItemsToGather)
             {
-                var item = GatherBuddy.AutoGather.ItemsToGather.ElementAt(i);
-                ImGui.Text($"{item.Name} - Priority {i}");
+                ImGui.Text(item.Name[GatherBuddy.Language]);
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Static Nodes to Gather"))
+        {
+            foreach (var item in GatherBuddy.AutoGather.ItemsToGather)
+            {
+                ImGui.Text(item.Name[GatherBuddy.Language]);
             }
         }
 
