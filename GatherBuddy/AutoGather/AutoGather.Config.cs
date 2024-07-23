@@ -19,6 +19,7 @@ namespace GatherBuddy.AutoGather
         public ActionConfig YieldIConfig                               { get; set; } = new(true, 400, uint.MaxValue, new ActionConditions());
         public ActionConfig ScrutinyConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue, new ActionConditions());
         public ActionConfig MeticulousConfig                           { get; set; } = new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig BrazenConfig                               { get; set; } = new(true, (uint)AutoGather.Actions.Brazen.GpCost, uint.MaxValue, new ActionConditions());
         public ActionConfig SolidAgeConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue, new ActionConditions());
         public ActionConfig WiseConfig                                 { get; set; } = new(true, (uint)AutoGather.Actions.Wise.GpCost, uint.MaxValue, new ActionConditions());
         public ActionConfig CollectConfig                              { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue, new ActionConditions());
@@ -26,6 +27,7 @@ namespace GatherBuddy.AutoGather
         public int          TimedNodePrecog                            { get; set; } = 20;
         public bool         DoGathering                                { get; set; } = true;
         public uint         MinimumGPForGathering                      { get; set; } = 0;
+        public uint         MinimumGPForCollectableRotation            { get; set; } = 700;
         public float        NavResetCooldown                           { get; set; } = 3.0f;
         public float        NavResetThreshold                          { get; set; } = 2.0f;
         public bool         ForceWalking                               { get; set; } = false;

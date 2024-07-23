@@ -78,6 +78,16 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        
+        public static void DrawMinimumGPCollectibleRotation()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation;
+            if (ImGui.DragInt("Minimum GP for using skills on collectibles", ref tmp, 1, 0, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
 
         public static void DrawMinimumCollectibilityScore()
         {
@@ -291,6 +301,16 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction = b);
         
+        public static void DrawScourCheckbox()
+            => DrawCheckbox("Use Scour", "Use Scour to gather collectibles when appropriate",
+                GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction = b);
+        
+        public static void DrawBrazenCheckbox()
+            => DrawCheckbox("Use Brazen", "Use Brazen to gather collectibles when appropriate",
+                GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction = b);
+        
         public static void DrawSolidAgeCheckbox()
             => DrawCheckbox("Use Solid/Age", "Use Solid/Age to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction,
@@ -329,6 +349,26 @@ public partial class Interface
             if (ImGui.DragInt("Meticulous Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Meticulous.GpCost, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawScourMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP;
+            if (ImGui.DragInt("Scour Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Scour.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawBrazenMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MaximumGP;
+            if (ImGui.DragInt("Brazen Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Brazen.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -376,7 +416,27 @@ public partial class Interface
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP;
             if (ImGui.DragInt("Meticulous Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Meticulous.GpCost, 30000))
             {
-                GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawScourMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScourConfig.MinimumGP;
+            if (ImGui.DragInt("Scour Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Scour.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ScourConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawBrazenMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MinimumGP;
+            if (ImGui.DragInt("Brazen Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Brazen.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -911,6 +971,7 @@ public partial class Interface
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
+                ConfigFunctions.DrawMinimumGPCollectibleRotation();
                 ConfigFunctions.DrawMinimumCollectibilityScore();
                 ConfigFunctions.DrawGatherIfLastIntegrity();
 
@@ -974,6 +1035,22 @@ public partial class Interface
                         ConfigFunctions.DrawMeticulousCheckbox();
                         ConfigFunctions.DrawMeticulousMinGp();
                         ConfigFunctions.DrawMeticulousMaxGp();
+                        ImGui.TreePop();
+                    }
+                    
+                    if (ImGui.TreeNodeEx("Scour"))
+                    {
+                        ConfigFunctions.DrawScourCheckbox();
+                        ConfigFunctions.DrawScourMinGp();
+                        ConfigFunctions.DrawScourMaxGp();
+                        ImGui.TreePop();
+                    }
+                    
+                    if (ImGui.TreeNodeEx("Brazen"))
+                    {
+                        ConfigFunctions.DrawBrazenCheckbox();
+                        ConfigFunctions.DrawBrazenMinGp();
+                        ConfigFunctions.DrawBrazenMaxGp();
                         ImGui.TreePop();
                     }
 
