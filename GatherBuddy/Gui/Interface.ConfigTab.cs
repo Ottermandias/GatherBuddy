@@ -78,6 +78,16 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        
+        public static void DrawMinimumGPCollectable()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable;
+            if (ImGui.DragInt("Minimum GP for Gathering Collectables", ref tmp, 1, 0, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
 
         public static void DrawMinimumCollectibilityScore()
         {
@@ -911,6 +921,7 @@ public partial class Interface
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
+                ConfigFunctions.DrawMinimumGPCollectable();
                 ConfigFunctions.DrawMinimumCollectibilityScore();
                 ConfigFunctions.DrawGatherIfLastIntegrity();
 
