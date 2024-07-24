@@ -251,17 +251,6 @@ namespace GatherBuddy.AutoGather
             TaskManager.Enqueue(() => Navigate(ShouldFly));
         }
 
-        private void MoveToSpecialNode(List<Vector3> potentialNodes)
-        {
-            if (TimedNodePosition == null)
-                return;
-
-            var timedNode = potentialNodes
-                .Where(o => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Y, TimedNodePosition.Value.Y), o) < 10).OrderBy(o
-                    => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault();
-            TaskManager.Enqueue(() => MoveToFarNode(timedNode));
-        }
-
         private void MoveToTerritory(ILocation location)
         {
             TaskManager.EnqueueImmediate(() => _plugin.Executor.GatherLocation(location));

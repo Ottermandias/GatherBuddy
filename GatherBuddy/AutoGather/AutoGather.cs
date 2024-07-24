@@ -173,21 +173,19 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (TimedNodePosition != null && ShouldUseFlag)
-            {
-                //TODO: Add node to far node tracking so we don't bonk our noses on it
-                HasSeenFlag = true;
-                AutoStatus  = "Moving to farming area...";
-                TaskManager.Enqueue(() => MoveToSpecialNode(matchingNodesInZone));
-                return;
-            }
-
             var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
             if (selectedNode == Vector3.Zero)
             {
                 FarNodesSeenSoFar.Clear();
                 GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
                 return;
+            }
+            if (TimedNodePosition != null && ShouldUseFlag)
+            {
+                AutoStatus  = "Moving to farming area...";
+                selectedNode = matchingNodesInZone
+                    .Where(o => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Y, TimedNodePosition.Value.Y), o) < 10).OrderBy(o
+                        => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault();
             }
 
             if (allNodes.Any(n => n.Position == selectedNode))
