@@ -188,7 +188,7 @@ namespace GatherBuddy.AutoGather
                         => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault();
             }
 
-            if (allNodes.Any(n => n.Position == selectedNode))
+            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 100))
             {
                 FarNodesSeenSoFar.Add(selectedNode);
 
