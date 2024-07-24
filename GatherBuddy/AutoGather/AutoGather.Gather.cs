@@ -14,6 +14,7 @@ using System.Threading.Tasks;
 using Dalamud.Game;
 using ECommons;
 using ECommons.Automation.UIInput;
+using GatherBuddy.Plugin;
 using OtterGui;
 using NodeType = GatherBuddy.Enums.NodeType;
 
@@ -63,8 +64,9 @@ namespace GatherBuddy.AutoGather
             var eventData = EventData.ForNormalTarget(target, &GatheringAddon->AtkUnitBase);
             var inputData = InputData.Empty();
 
-            eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
-                inputData.Data);
+            Communicator.Print("Queuing click.");
+            EnqueueGatherAction(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
+                inputData.Data));
         }
 
         private int GetIndexOfItemToClick(uint[] ids, IGatherable item)

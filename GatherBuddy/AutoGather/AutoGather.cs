@@ -132,7 +132,7 @@ namespace GatherBuddy.AutoGather
             {
                 AutoStatus = "Gathering...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(() => DoActionTasks(targetItem));
+                DoActionTasks(targetItem);
                 return;
             }
 

@@ -104,7 +104,8 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoActionTasks(Gatherable desiredItem)
         {
-            if (GatheringAddon == null && MasterpieceAddon == null)
+            if (GatheringAddon == null && MasterpieceAddon == null
+              || Svc.Condition[ConditionFlag.Gathering42])
                 return;
 
             if (MasterpieceAddon != null)
@@ -113,11 +114,11 @@ namespace GatherBuddy.AutoGather
             }
             else if (GatheringAddon != null && !(desiredItem?.ItemData.IsCollectable ?? false))
             {
-                TaskManager.Enqueue(() => DoGatherWindowActions(desiredItem));
+                DoGatherWindowActions(desiredItem);
             }
             else if (GatheringAddon != null && (desiredItem?.ItemData.IsCollectable ?? false))
             {
-                TaskManager.Enqueue(() => DoGatherWindowTasks(desiredItem));
+                DoGatherWindowTasks(desiredItem);
             }
 
             if (MasterpieceAddon == null)
@@ -131,15 +132,15 @@ namespace GatherBuddy.AutoGather
 
             Span<uint> ids = GatheringAddon->ItemIds;
             if (ShouldUseLuck(ids, desiredItem as Gatherable))
-                TaskManager.Enqueue(() => UseAction(Actions.Luck));
+                EnqueueGatherAction(() => UseAction(Actions.Luck));
             else if (ShouldUseKingII(desiredItem as Gatherable))
-                TaskManager.Enqueue(() => UseAction(Actions.Yield2));
+                EnqueueGatherAction(() => UseAction(Actions.Yield2));
             else if (ShouldUseKingI(desiredItem as Gatherable))
-                TaskManager.Enqueue(() => UseAction(Actions.Yield1));
+                EnqueueGatherAction(() => UseAction(Actions.Yield1));
             else if (ShoulduseBYII(desiredItem as Gatherable))
-                TaskManager.Enqueue(() => UseAction(Actions.Bountiful));
+                EnqueueGatherAction(() => UseAction(Actions.Bountiful));
             else
-                TaskManager.Enqueue(() => DoGatherWindowTasks(desiredItem));
+                DoGatherWindowTasks(desiredItem);
         }
 
         private unsafe void UseAction(Actions.BaseAction act)
@@ -147,10 +148,18 @@ namespace GatherBuddy.AutoGather
             var amInstance = ActionManager.Instance();
             if (amInstance->GetActionStatus(ActionType.Action, act.ActionID) == 0)
             {
+                Communicator.Print("Action used: " + act.Name);
                 amInstance->UseAction(ActionType.Action, act.ActionID);
-                TaskManager.EnqueueImmediate(() => !Svc.Condition[ConditionFlag.Gathering42]);
-                TaskManager.Enqueue(() => Communicator.Print("Ready for next action."));
             }
+        }
+
+        private void EnqueueGatherAction(Action action, int additionalDelay = 0)
+        {
+            TaskManager.Enqueue(action);
+            if (additionalDelay > 0)
+                TaskManager.DelayNextImmediate(additionalDelay);
+            TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Gathering42]);
+            Communicator.Print("Ready for next action.");
         }
 
         private unsafe void DoCollectibles()
@@ -182,7 +191,10 @@ namespace GatherBuddy.AutoGather
                 LastCollectability = collectibility;
                 LastIntegrity      = integrity;
 
-                TaskManager.Enqueue(() => UseAction(CurrentRotation.GetNextAction(MasterpieceAddon)));
+                EnqueueGatherAction(() =>
+                {
+                    UseAction(CurrentRotation.GetNextAction(MasterpieceAddon));
+                }, 250);
             }
         }
 
