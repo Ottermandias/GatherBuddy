@@ -79,6 +79,15 @@ public partial class Interface
             }
         }
         
+        public static void DrawMinimumGPCollectibleRotation()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation;
+            if (ImGui.DragInt("Minimum GP for using skills on collectibles", ref tmp, 1, 0, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
         public static void DrawMinimumGPCollectable()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable;
@@ -301,6 +310,16 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction = b);
         
+        public static void DrawScourCheckbox()
+            => DrawCheckbox("Use Scour", "Use Scour to gather collectibles when appropriate",
+                GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction = b);
+        
+        public static void DrawBrazenCheckbox()
+            => DrawCheckbox("Use Brazen", "Use Brazen to gather collectibles when appropriate",
+                GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction = b);
+        
         public static void DrawSolidAgeCheckbox()
             => DrawCheckbox("Use Solid/Age", "Use Solid/Age to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction,
@@ -339,6 +358,26 @@ public partial class Interface
             if (ImGui.DragInt("Meticulous Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Meticulous.GpCost, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawScourMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP;
+            if (ImGui.DragInt("Scour Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Scour.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawBrazenMaxGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MaximumGP;
+            if (ImGui.DragInt("Brazen Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Brazen.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -386,7 +425,27 @@ public partial class Interface
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP;
             if (ImGui.DragInt("Meticulous Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Meticulous.GpCost, 30000))
             {
-                GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawScourMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScourConfig.MinimumGP;
+            if (ImGui.DragInt("Scour Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Scour.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ScourConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        
+        public static void DrawBrazenMinGp()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MinimumGP;
+            if (ImGui.DragInt("Brazen Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Brazen.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -420,6 +479,68 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+
+        public static void DrawCordialCheckbox()
+            => DrawCheckbox(
+                "Use Cordial",
+                "Use Cordial if item is available, not on cooldown and GP is within the specified range.",
+                GatherBuddy.Config.AutoGatherConfig.CordialConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.CordialConfig.UseConsumable = b);
+
+        public static void DrawCordialMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CordialConfig.MinimumGP;
+            if (ImGui.DragInt("Cordial Min GP", ref tmp, 1, 0, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.CordialConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawCordialMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CordialConfig.MaximumGP;
+            if (ImGui.DragInt("Cordial Max GP", ref tmp, 1, 1000, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.CordialConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawFoodCheckbox()
+            => DrawCheckbox(
+                "Use Food",
+                "Use food if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.FoodConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.FoodConfig.UseConsumable = b);
+
+        public static void DrawPotionCheckbox()
+            => DrawCheckbox(
+                "Use Potion",
+                "Use potion if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.PotionConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.PotionConfig.UseConsumable = b);
+
+        public static void DrawManualCheckbox()
+            => DrawCheckbox(
+                "Use Manual",
+                "Use manual if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.ManualConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.ManualConfig.UseConsumable = b);
+
+        public static void DrawSquadronManualCheckbox()
+            => DrawCheckbox(
+                "Use Squadron Manual",
+                "Use squadron manual if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.UseConsumable = b);
+
+        public static void DrawSquadronPassCheckbox()
+            => DrawCheckbox(
+                "Use Squadron Pass",
+                "Use squadron pass if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.UseConsumable = b);
 
         public static void DrawAntiStuckCooldown()
         {
@@ -921,6 +1042,7 @@ public partial class Interface
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
+                ConfigFunctions.DrawMinimumGPCollectibleRotation();
                 ConfigFunctions.DrawMinimumGPCollectable();
                 ConfigFunctions.DrawMinimumCollectibilityScore();
                 ConfigFunctions.DrawGatherIfLastIntegrity();
@@ -987,6 +1109,22 @@ public partial class Interface
                         ConfigFunctions.DrawMeticulousMaxGp();
                         ImGui.TreePop();
                     }
+                    
+                    if (ImGui.TreeNodeEx("Scour"))
+                    {
+                        ConfigFunctions.DrawScourCheckbox();
+                        ConfigFunctions.DrawScourMinGp();
+                        ConfigFunctions.DrawScourMaxGp();
+                        ImGui.TreePop();
+                    }
+                    
+                    if (ImGui.TreeNodeEx("Brazen"))
+                    {
+                        ConfigFunctions.DrawBrazenCheckbox();
+                        ConfigFunctions.DrawBrazenMinGp();
+                        ConfigFunctions.DrawBrazenMaxGp();
+                        ImGui.TreePop();
+                    }
 
                     if (ImGui.TreeNodeEx("Solid/Age"))
                     {
@@ -1017,7 +1155,55 @@ public partial class Interface
                 ImGui.TreePop();
             }
 
-            if (ImGui.TreeNodeEx("Advanced"))
+            if (ImGui.TreeNodeEx("Consumables"))
+            {
+                if (ImGui.TreeNodeEx("Cordial"))
+                {
+                    ConfigFunctions.DrawCordialCheckbox();
+                    ConfigFunctions.DrawCordialMinGP();
+                    ConfigFunctions.DrawCordialMaxGP();
+                    AutoGatherUI.DrawCordialSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Food"))
+                {
+                    ConfigFunctions.DrawFoodCheckbox();
+                    AutoGatherUI.DrawFoodSelector();
+                    ImGui.TreePop();
+                }
+                
+                if (ImGui.TreeNodeEx("Potion"))
+                {
+                    ConfigFunctions.DrawPotionCheckbox();
+                    AutoGatherUI.DrawPotionSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Manual"))
+                {
+                    ConfigFunctions.DrawManualCheckbox();
+                    AutoGatherUI.DrawManualSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Squadron Manual"))
+                {
+                    ConfigFunctions.DrawSquadronManualCheckbox();
+                    AutoGatherUI.DrawSquadronManualSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Squadron Pass"))
+                {
+                    ConfigFunctions.DrawSquadronPassCheckbox();
+                    AutoGatherUI.DrawSquadronPassSelector();
+                    ImGui.TreePop();
+                }
+                ImGui.TreePop();
+            }
+
+                if (ImGui.TreeNodeEx("Advanced"))
             {
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
