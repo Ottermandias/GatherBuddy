@@ -1,6 +1,7 @@
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System.Linq;
+using GatherBuddy.Plugin;
 
 namespace GatherBuddy.AutoGather
 {
@@ -18,7 +19,12 @@ namespace GatherBuddy.AutoGather
             private bool shouldUseFullRotation = false;
 
             public Actions.BaseAction? GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
-                => shouldUseFullRotation ? FullRotation(MasterpieceAddon) : FillerRotation(MasterpieceAddon);
+            {
+                var action = shouldUseFullRotation ? FullRotation(MasterpieceAddon) : FillerRotation(MasterpieceAddon);
+                //Communicator.Print("Resolving action: " + action.Name);
+                return action;
+            }
+            
 
             private Actions.BaseAction? FullRotation(AddonGatheringMasterpiece* MasterpieceAddon)
             {
