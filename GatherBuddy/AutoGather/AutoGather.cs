@@ -10,6 +10,7 @@ using ECommons;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using GatherBuddy.AutoGather.Movement;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
@@ -24,6 +25,7 @@ namespace GatherBuddy.AutoGather
             // Initialize the task manager
             TaskManager                            =  new();
             _plugin                                =  plugin;
+            _movementController                    =  new OverrideMovement();
             GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
         }
 
@@ -33,7 +35,9 @@ namespace GatherBuddy.AutoGather
             TimedNodesGatheredThisTrip.Remove(obj.ItemId);
         }
 
-        private GatherBuddy _plugin;
+        private readonly OverrideMovement _movementController;
+
+        private readonly GatherBuddy _plugin;
 
         public TaskManager TaskManager { get; }
 
@@ -59,8 +63,10 @@ namespace GatherBuddy.AutoGather
                     }
 
                     TaskManager.Abort();
-                    HasSeenFlag    = false;
-                    HiddenRevealed = false;
+                    HasSeenFlag                         = false;
+                    HiddenRevealed                      = false;
+                    _movementController.Enabled         = false;
+                    _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
                     AutoStatus = "Idle...";
                 }
@@ -96,6 +102,13 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (_movementController.Enabled)
+            {
+                AutoStatus = $"Advanced unstuck in progress!";
+                AdvancedUnstuckCheck();
+                return;
+            }
+
             DoSafetyChecks();
             if (TaskManager.IsBusy)
             {
@@ -108,7 +121,6 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Player is busy...";
                 return;
             }
-
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
 
@@ -139,12 +151,14 @@ namespace GatherBuddy.AutoGather
             if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
+                AdvancedUnstuckCheck();
                 return;
             }
 
             if (IsPathing)
             {
                 StuckCheck();
+                AdvancedUnstuckCheck();
             }
 
             UpdateItemsToGather();
@@ -163,6 +177,7 @@ namespace GatherBuddy.AutoGather
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
+                .OrderBy(v => Vector3.Distance(Player.Position, v))
                 .ToList();
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
             var closeNodes = allNodes.Where(o => o.IsTargetable)
@@ -188,7 +203,7 @@ namespace GatherBuddy.AutoGather
                         => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault();
             }
 
-            if (allNodes.Any(n => n.Position == selectedNode))
+            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 150))
             {
                 FarNodesSeenSoFar.Add(selectedNode);
 

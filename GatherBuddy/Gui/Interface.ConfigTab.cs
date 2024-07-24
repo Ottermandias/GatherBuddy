@@ -69,6 +69,13 @@ public partial class Interface
             => DrawCheckbox("Enable Experimental Navigation", "Use advanced navigation techniques to try and work around vnavmesh limitations",
                 GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation,
                 b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation = b);
+
+        public static void DrawAdvancedUnstuckBox()
+            => DrawCheckbox("Enable Experimental Unstuck Method",
+                "Use super special movement techniques to manually move your character without navmesh when stuck",
+                GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck,
+                b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck = b);
+
         public static void DrawMinimumGPGathering()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
@@ -78,7 +85,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawMinimumGPCollectibleRotation()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation;
@@ -88,6 +95,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+
         public static void DrawMinimumGPCollectable()
         {
             ImGui.PushItemWidth(300);
@@ -127,7 +135,7 @@ public partial class Interface
         }
 
         public static void DrawUseFlagBox()
-            => DrawCheckbox("Disable map marker navigation",                  "Whether or not to navigate using map markers (timed nodes only)",
+            => DrawCheckbox("Disable map marker navigation",            "Whether or not to navigate using map markers (timed nodes only)",
                 GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing, b => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing = b);
 
         public static void DrawFarNodeFilterDistance()
@@ -138,6 +146,7 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.FarNodeFilterDistance = tmp;
                 GatherBuddy.Config.Save();
             }
+
             ImGuiUtil.HoverTooltip(
                 "When looking for non-empty nodes GBR will filter out any nodes that are closer to you than this. Prevents checking nodes you can already see are empty.");
         }
@@ -150,6 +159,7 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog = tmp;
                 GatherBuddy.Config.Save();
             }
+
             ImGuiUtil.HoverTooltip("How far in advance of the node actually being up GBR should consider the node to be up");
         }
 
@@ -210,7 +220,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawYieldIIMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP;
@@ -220,7 +230,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawYieldIMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP;
@@ -230,7 +240,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawYieldIMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP;
@@ -287,7 +297,6 @@ public partial class Interface
                                 b => config.Conditions.NodeFilter.UseOnLegendaryNode = b);
                         }
                     }
-
                 }
             }
         }
@@ -310,12 +319,12 @@ public partial class Interface
             => DrawCheckbox("Use Meticulous", "Use Meticulous to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction = b);
-        
+
         public static void DrawScourCheckbox()
             => DrawCheckbox("Use Scour", "Use Scour to gather collectibles when appropriate",
                 GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction = b);
-        
+
         public static void DrawBrazenCheckbox()
             => DrawCheckbox("Use Brazen", "Use Brazen to gather collectibles when appropriate",
                 GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction,
@@ -335,6 +344,7 @@ public partial class Interface
             => DrawCheckbox("Use Collect (Collectibles)", "Use Collect to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction = b);
+
         public static void DrawMountUpDistance()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
@@ -343,8 +353,10 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.MountUpDistance = tmp;
                 GatherBuddy.Config.Save();
             }
+
             ImGuiUtil.HoverTooltip("The distance at which you will mount up to move to a node.");
         }
+
         public static void DrawScrutinyMaxGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP;
@@ -354,6 +366,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+
         public static void DrawMeticulousMaxGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP;
@@ -363,7 +376,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawScourMaxGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP;
@@ -373,7 +386,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawBrazenMaxGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MaximumGP;
@@ -413,7 +426,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawCollectMaxGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP;
@@ -423,7 +436,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawScrutinyMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP;
@@ -433,6 +446,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+
         public static void DrawMeticulousMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP;
@@ -442,7 +456,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawScourMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScourConfig.MinimumGP;
@@ -452,7 +466,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawBrazenMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MinimumGP;
@@ -482,7 +496,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawCollectMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP;
@@ -563,6 +577,7 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.NavResetCooldown = tmp;
                 GatherBuddy.Config.Save();
             }
+
             ImGuiUtil.HoverTooltip("The time in seconds before the navigation system will reset if you are stuck.");
         }
 
@@ -1064,10 +1079,10 @@ public partial class Interface
                 ConfigFunctions.DrawMinimumGPCollectibleRotation();
                 ConfigFunctions.DrawMinimumCollectibilityScore();
                 ConfigFunctions.DrawGatherIfLastIntegrity();
-                
+
                 if (GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity)
                     ConfigFunctions.DrawGatherIfLastIntegrityMinimumCollectibility();
-                
+
                 ImGui.TreePop();
             }
 
@@ -1192,7 +1207,7 @@ public partial class Interface
                     AutoGatherUI.DrawFoodSelector();
                     ImGui.TreePop();
                 }
-                
+
                 if (ImGui.TreeNodeEx("Potion"))
                 {
                     ConfigFunctions.DrawPotionCheckbox();
@@ -1220,15 +1235,17 @@ public partial class Interface
                     AutoGatherUI.DrawSquadronPassSelector();
                     ImGui.TreePop();
                 }
+
                 ImGui.TreePop();
             }
 
-                if (ImGui.TreeNodeEx("Advanced"))
+            if (ImGui.TreeNodeEx("Advanced"))
             {
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawAdvancedNavBox();
+                ConfigFunctions.DrawAdvancedUnstuckBox();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();
