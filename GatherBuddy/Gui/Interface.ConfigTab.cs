@@ -1042,14 +1042,19 @@ public partial class Interface
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
-                ConfigFunctions.DrawMinimumGPCollectibleRotation();
+                ImGui.TreePop();
+            }
+
+            if (ImGui.TreeNodeEx("Collectables"))
+            {
                 ConfigFunctions.DrawMinimumGPCollectable();
+                ConfigFunctions.DrawMinimumGPCollectibleRotation();
                 ConfigFunctions.DrawMinimumCollectibilityScore();
                 ConfigFunctions.DrawGatherIfLastIntegrity();
-
+                
                 if (GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity)
                     ConfigFunctions.DrawGatherIfLastIntegrityMinimumCollectibility();
-
+                
                 ImGui.TreePop();
             }
 
