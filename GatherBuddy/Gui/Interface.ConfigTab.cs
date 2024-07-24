@@ -322,12 +322,12 @@ public partial class Interface
                 b => GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction = b);
         
         public static void DrawSolidAgeCollectablesCheckbox()
-            => DrawCheckbox("Use Solid/Age", "Use Solid/Age to gather collectibles",
+            => DrawCheckbox("Use Solid/Age (Collectibles)", "Use Solid/Age to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.UseAction = b);
         
         public static void DrawSolidAgeGatherablesCheckbox()
-            => DrawCheckbox("Use Solid/Age", "Use Solid/Age to gather collectibles",
+            => DrawCheckbox("Use Solid/Age (Gatherables)", "Use Solid/Age to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction = b);
         
