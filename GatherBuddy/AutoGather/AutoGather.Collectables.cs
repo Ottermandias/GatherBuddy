@@ -21,7 +21,7 @@ namespace GatherBuddy.AutoGather
             public Actions.BaseAction? GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
             {
                 var action = shouldUseFullRotation ? FullRotation(MasterpieceAddon) : FillerRotation(MasterpieceAddon);
-                Communicator.Print("Resolving action: " + action.Name);
+                //Communicator.Print("Resolving action: " + action.Name);
                 return action;
             }
             

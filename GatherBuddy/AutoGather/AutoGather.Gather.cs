@@ -64,7 +64,7 @@ namespace GatherBuddy.AutoGather
             var eventData = EventData.ForNormalTarget(target, &GatheringAddon->AtkUnitBase);
             var inputData = InputData.Empty();
 
-            Communicator.Print("Queuing click.");
+            //Communicator.Print("Queuing click.");
             EnqueueGatherAction(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
                 inputData.Data));
         }

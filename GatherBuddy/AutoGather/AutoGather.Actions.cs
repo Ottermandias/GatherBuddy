@@ -148,7 +148,7 @@ namespace GatherBuddy.AutoGather
             var amInstance = ActionManager.Instance();
             if (amInstance->GetActionStatus(ActionType.Action, act.ActionID) == 0)
             {
-                Communicator.Print("Action used: " + act.Name);
+                //Communicator.Print("Action used: " + act.Name);
                 amInstance->UseAction(ActionType.Action, act.ActionID);
             }
         }
@@ -159,7 +159,7 @@ namespace GatherBuddy.AutoGather
             if (additionalDelay > 0)
                 TaskManager.DelayNextImmediate(additionalDelay);
             TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Gathering42]);
-            Communicator.Print("Ready for next action.");
+            //Communicator.Print("Ready for next action.");
         }
 
         private unsafe void DoCollectibles()
@@ -199,7 +199,7 @@ namespace GatherBuddy.AutoGather
                 }
                 EnqueueGatherAction(() =>
                 {
-                    UseAction(CurrentRotation.GetNextAction(MasterpieceAddon));
+                    UseAction(collectibleAction);
                 }, 250);
             }
         }
