@@ -129,8 +129,15 @@ namespace GatherBuddy.AutoGather
         {
             if (GatheringAddon == null)
                 return;
+            
+            int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(9)->NodeText.ToString());
+            int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(12)->NodeText.ToString());
 
             Span<uint> ids = GatheringAddon->ItemIds;
+            if (ShouldUseWiseGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
+                EnqueueGatherAction(() => UseAction(Actions.Wise));
+            if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
+                EnqueueGatherAction(() => UseAction(Actions.SolidAge));
             if (ShouldUseLuck(ids, desiredItem as Gatherable))
                 EnqueueGatherAction(() => UseAction(Actions.Luck));
             else if (ShouldUseKingII(desiredItem as Gatherable))
@@ -204,21 +211,29 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private static bool ShouldUseWise()
+        private static bool ShouldUseWiseCollectables(int integrity, int maxIntegrity)
+            => ShouldUseWise(GatherBuddy.Config.AutoGatherConfig.WiseCollectablesConfig, integrity, maxIntegrity);
+
+        private bool ShouldUseWiseGatherables(int integrity, int maxIntegrity, Gatherable gatherable)
+            => CheckConditions(GatherBuddy.Config.AutoGatherConfig.WiseGatherablesConfig, gatherable) 
+             && ShouldUseWise(GatherBuddy.Config.AutoGatherConfig.WiseGatherablesConfig, integrity, maxIntegrity);
+
+        private static bool ShouldUseWise(AutoGatherConfig.ActionConfig wiseConfig, int integrity, int maxIntegrity)
         {
             if (Player.Level < Actions.Wise.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < Actions.Wise.GpCost)
                 return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.WiseConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.WiseConfig.MaximumGP)
+            if (Player.Object.CurrentGp < wiseConfig.MinimumGP
+             || Player.Object.CurrentGp > wiseConfig.MaximumGP)
                 return false;
 
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765))
-                return GatherBuddy.Config.AutoGatherConfig.WiseConfig.UseAction;
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765) && integrity < maxIntegrity)
+                return wiseConfig.UseAction;
 
             return false;
         }
+        
 
         private static bool ShouldUseMeticulous()
         {
@@ -273,19 +288,26 @@ namespace GatherBuddy.AutoGather
 
             return false;
         }
+        
+        private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity)
+            => ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig, integrity, maxIntegrity);
 
-        private static bool ShouldUseSolidAge(int integrity)
+        private bool ShouldUseSolidAgeGatherables(int integrity, int maxIntegrity, Gatherable gatherable)
+            => CheckConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, gatherable) 
+             && ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, integrity, maxIntegrity);
+        
+        private static bool ShouldUseSolidAge(AutoGatherConfig.ActionConfig SolidAgeConfig, int integrity, int maxIntegrity)
         {
             if (Player.Level < Actions.SolidAge.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < Actions.SolidAge.GpCost)
                 return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP)
+            if (Player.Object.CurrentGp < SolidAgeConfig.MinimumGP
+             || Player.Object.CurrentGp > SolidAgeConfig.MaximumGP)
                 return false;
             if (!(Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765))
-             && integrity < 4)
-                return GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction;
+             && integrity < maxIntegrity)
+                return SolidAgeConfig.UseAction;
 
             return false;
         }
