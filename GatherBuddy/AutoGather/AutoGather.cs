@@ -135,8 +135,6 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(() => DoActionTasks(targetItem));
                 return;
             }
-
-            DoUseConsumablesWithoutCastTime();
             
             if (IsPathGenerating)
             {
@@ -160,6 +158,8 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            DoUseConsumablesWithoutCastTime();
+            
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
