@@ -177,6 +177,7 @@ namespace GatherBuddy.AutoGather
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
+                .OrderBy(v => Vector3.Distance(Player.Position, v))
                 .ToList();
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
             var closeNodes = allNodes.Where(o => o.IsTargetable)
@@ -202,7 +203,7 @@ namespace GatherBuddy.AutoGather
                         => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault();
             }
 
-            if (allNodes.Any(n => n.Position == selectedNode))
+            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 150))
             {
                 FarNodesSeenSoFar.Add(selectedNode);
 

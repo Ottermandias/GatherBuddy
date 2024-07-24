@@ -88,7 +88,7 @@ namespace GatherBuddy.CustomInfo
             if (!WorldLocationsByNodeId[nodeId].Contains(location))
             {
                 WorldLocationsByNodeId[nodeId].Add(location);
-                SaveLocationsToFile();
+                Task.Run(SaveLocationsToFile);
                 GatherBuddy.Log.Debug($"Added location {location} to node {nodeId}");
             }
         }
