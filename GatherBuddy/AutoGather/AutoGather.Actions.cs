@@ -191,6 +191,12 @@ namespace GatherBuddy.AutoGather
                 LastCollectability = collectibility;
                 LastIntegrity      = integrity;
 
+                var collectibleAction = CurrentRotation.GetNextAction(MasterpieceAddon);
+                if (collectibleAction == null)
+                {
+                    GatherBuddy.Log.Debug("Collectible action was null, all actions are disabled by user");
+                    return;
+                }
                 EnqueueGatherAction(() =>
                 {
                     UseAction(CurrentRotation.GetNextAction(MasterpieceAddon));
