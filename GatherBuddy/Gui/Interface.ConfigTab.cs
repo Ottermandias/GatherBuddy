@@ -90,6 +90,7 @@ public partial class Interface
         }
         public static void DrawMinimumGPCollectable()
         {
+            ImGui.PushItemWidth(300);
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable;
             if (ImGui.DragInt("Minimum GP for Gathering Collectables", ref tmp, 1, 0, 30000))
             {
