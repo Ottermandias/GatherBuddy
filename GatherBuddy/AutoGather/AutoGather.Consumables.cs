@@ -199,6 +199,7 @@ namespace GatherBuddy.AutoGather
                 )
                 {
                     TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
+                    return;
                 }
 
                 if (GatherBuddy.Config.AutoGatherConfig.FoodConfig.UseConsumable
@@ -208,6 +209,7 @@ namespace GatherBuddy.AutoGather
                     )
                 {
                     TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
+                    return;
                 }
 
                 if (GatherBuddy.Config.AutoGatherConfig.PotionConfig.UseConsumable
@@ -217,6 +219,7 @@ namespace GatherBuddy.AutoGather
                     )
                 {
                     TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
+                    return;
                 }
             }
         }
@@ -231,6 +234,7 @@ namespace GatherBuddy.AutoGather
                 )
             {
                 TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId));
+                return;
             }
 
             if (GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.UseConsumable
@@ -240,6 +244,7 @@ namespace GatherBuddy.AutoGather
                 )
             {
                 TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId));
+                return;
             }
 
             if (GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.UseConsumable
@@ -249,6 +254,7 @@ namespace GatherBuddy.AutoGather
                 )
             {
                 TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId));
+                return;
             }
         }
     }
