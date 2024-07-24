@@ -138,8 +138,8 @@ namespace GatherBuddy.AutoGather
             if (GatheringAddon == null)
                 return;
             
-            int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(9)->NodeText.ToString());
-            int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(12)->NodeText.ToString());
+            int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(33)->NodeText.ToString());
+            int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(31)->NodeText.ToString());
 
             Span<uint> ids = GatheringAddon->ItemIds;
             if (ShouldUseWise(currentIntegrity, maxIntegrity))
