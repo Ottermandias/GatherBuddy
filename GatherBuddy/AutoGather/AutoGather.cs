@@ -10,6 +10,7 @@ using ECommons;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using GatherBuddy.AutoGather.Movement;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
@@ -24,6 +25,7 @@ namespace GatherBuddy.AutoGather
             // Initialize the task manager
             TaskManager                            =  new();
             _plugin                                =  plugin;
+            _movementController                    =  new OverrideMovement();
             GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
         }
 
@@ -33,7 +35,9 @@ namespace GatherBuddy.AutoGather
             TimedNodesGatheredThisTrip.Remove(obj.ItemId);
         }
 
-        private GatherBuddy _plugin;
+        private readonly OverrideMovement _movementController;
+
+        private readonly GatherBuddy _plugin;
 
         public TaskManager TaskManager { get; }
 
@@ -59,8 +63,10 @@ namespace GatherBuddy.AutoGather
                     }
 
                     TaskManager.Abort();
-                    HasSeenFlag    = false;
-                    HiddenRevealed = false;
+                    HasSeenFlag                         = false;
+                    HiddenRevealed                      = false;
+                    _movementController.Enabled         = false;
+                    _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
                     AutoStatus = "Idle...";
                 }
@@ -96,6 +102,13 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (_movementController.Enabled)
+            {
+                AutoStatus = $"Advanced unstuck in progress!";
+                AdvancedUnstuckCheck();
+                return;
+            }
+
             DoSafetyChecks();
             if (TaskManager.IsBusy)
             {
@@ -108,7 +121,6 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Player is busy...";
                 return;
             }
-
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
 
@@ -139,12 +151,14 @@ namespace GatherBuddy.AutoGather
             if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
+                AdvancedUnstuckCheck();
                 return;
             }
 
             if (IsPathing)
             {
                 StuckCheck();
+                AdvancedUnstuckCheck();
             }
 
             UpdateItemsToGather();

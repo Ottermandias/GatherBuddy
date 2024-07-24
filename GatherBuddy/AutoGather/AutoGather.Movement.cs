@@ -70,8 +70,9 @@ namespace GatherBuddy.AutoGather
             if (distance < 3)
             {
                 if (!Dalamud.Conditions[ConditionFlag.Gathering]
-                 && (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable 
-                     || !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering))
+                 && (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable
+                     || !targetItem.ItemData.IsCollectable
+                     && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering))
                 {
                     if (IsPathing || IsPathGenerating)
                         VNavmesh_IPCSubscriber.Path_Stop();
@@ -100,6 +101,7 @@ namespace GatherBuddy.AutoGather
 
                 if (Dalamud.Conditions[ConditionFlag.Mounted])
                 {
+                    AdvancedUnstuckCheck();
                     TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
                     TaskManager.Enqueue(Dismount);
                     TaskManager.DelayNext(1000);
@@ -256,6 +258,43 @@ namespace GatherBuddy.AutoGather
         {
             TaskManager.EnqueueImmediate(() => _plugin.Executor.GatherLocation(location));
             TaskManager.DelayNextImmediate(10000);
+        }
+
+        private Vector3? advandedLastPosition = null;
+        private DateTime advancedLastMovementTime;
+        private DateTime advancedMovementStart = DateTime.MinValue;
+
+        private void AdvancedUnstuckCheck()
+        {
+            if (!GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
+                return;
+            if (advandedLastPosition.HasValue && Vector3.Distance(Player.Object.Position, advandedLastPosition.Value) < 2.0f && !_movementController.Enabled)
+            {
+                // If the character hasn't moved much
+                if ((DateTime.Now - advancedLastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
+                {
+                    GatherBuddy.Log.Warning($"Character is stuck, using advanced unstuck methods");
+                    if (!_movementController.Enabled)
+                    {
+                        Vector3 newPosition = Player.Position + new Vector3(10, 0, 10);
+                        _movementController.DesiredPosition = newPosition;
+                        _movementController.Enabled         = true;
+                        advancedMovementStart               = DateTime.Now;
+                        VNavmesh_IPCSubscriber.Path_Stop();
+                    }
+                }
+            }
+            else if (_movementController.Enabled && (DateTime.Now - advancedMovementStart).TotalSeconds > 1.5)
+            {
+                _movementController.Enabled         = false;
+                _movementController.DesiredPosition = Vector3.Zero;
+            }
+            else
+            {
+                // Character has moved, update last known position and time
+                advandedLastPosition     = Player.Object.Position;
+                advancedLastMovementTime = DateTime.Now;
+            }
         }
     }
 }
