@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
+using ECommons;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Interfaces;
@@ -158,6 +159,33 @@ namespace GatherBuddy.AutoGather
                 DoGatherWindowTasks(desiredItem);
         }
 
+        private unsafe int GetCurrentYield(int itemPosition)
+        {
+            var gatherWindow = GatheringAddon;
+
+            var itemCheckbox = itemPosition switch
+            {
+                0 => gatherWindow->GatheredItemComponentCheckBox1,
+                1 => gatherWindow->GatheredItemComponentCheckBox2,
+                2 => gatherWindow->GatheredItemComponentCheckBox3,
+                3 => gatherWindow->GatheredItemComponentCheckBox4,
+                4 => gatherWindow->GatheredItemComponentCheckBox5,
+                5 => gatherWindow->GatheredItemComponentCheckBox6,
+                6 => gatherWindow->GatheredItemComponentCheckBox7,
+                7 => gatherWindow->GatheredItemComponentCheckBox8,
+                _ => gatherWindow->GatheredItemComponentCheckBox1
+            };
+
+            var icon= itemCheckbox->UldManager.SearchNodeById(31)->GetAsAtkComponentNode();
+            var itemYield= icon->Component->UldManager.SearchNodeById(7)->GetAsAtkTextNode();
+            
+            
+            var yield = itemYield->NodeText.ExtractText();
+            if (!int.TryParse(yield, out int result))
+                result = 1;
+            return result;
+        }
+
         private unsafe void UseAction(Actions.BaseAction act)
         {
             var amInstance = ActionManager.Instance();
@@ -291,9 +319,23 @@ namespace GatherBuddy.AutoGather
             => ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig, integrity, maxIntegrity);
 
         private bool ShouldUseSolidAgeGatherables(int integrity, int maxIntegrity, Gatherable gatherable)
-            => CheckConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, gatherable) 
-             && ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, integrity, maxIntegrity);
-        
+        {
+            uint[] ids = GetGatherableIds();
+            var targetItemId= GetIndexOfItemToClick(ids, gatherable);
+
+            if (GetCurrentYield(targetItemId)
+              < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
+                return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, gatherable))
+                return false;
+
+            if (!ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, integrity, maxIntegrity))
+                return false;
+
+            return true;
+
+        }
+
         private static bool ShouldUseSolidAge(AutoGatherConfig.ActionConfig SolidAgeConfig, int integrity, int maxIntegrity)
         {
             if (Player.Level < Actions.SolidAge.MinLevel)

@@ -13,52 +13,75 @@ namespace GatherBuddy.AutoGather
         public uint                            AutoGatherMountId             { get; set; } = 1;
         public Dictionary<uint, List<Vector3>> BlacklistedNodesByTerritoryId { get; set; } = new();
 
-        public ActionConfig BYIIConfig                                 { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions());
-        public ActionConfig LuckConfig                                 { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
-        public ActionConfig YieldIIConfig                              { get; set; } = new(true, 500, uint.MaxValue, new ActionConditions());
-        public ActionConfig YieldIConfig                               { get; set; } = new(true, 400, uint.MaxValue, new ActionConditions());
-        public ActionConfig ScrutinyConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue, new ActionConditions());
-        public ActionConfig MeticulousConfig                           { get; set; } = new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue, new ActionConditions());
-        public ActionConfig BrazenConfig                               { get; set; } = new(true, (uint)AutoGather.Actions.Brazen.GpCost, uint.MaxValue, new ActionConditions());
-        public ActionConfig SolidAgeCollectablesConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue, new ActionConditions());
-        public ActionConfig SolidAgeGatherablesConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue, new ActionConditions());
-        public ActionConfig CollectConfig                              { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue, new ActionConditions());
-        public ActionConfig ScourConfig                                { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
-        public int          TimedNodePrecog                            { get; set; } = 20;
-        public bool         DoGathering                                { get; set; } = true;
-        public uint         MinimumGPForGathering                      { get; set; } = 0;
-        public uint         MinimumGPForCollectableRotation            { get; set; } = 700;
-        public uint         MinimumGPForCollectable                    { get; set; } = 0;
-        public float        NavResetCooldown                           { get; set; } = 3.0f;
-        public float        NavResetThreshold                          { get; set; } = 2.0f;
-        public bool         ForceWalking                               { get; set; } = false;
-        public float        FarNodeFilterDistance                      { get; set; } = 50.0f;
-        public bool         DisableFlagPathing                         { get; set; } = false;
-        public uint         MinimumCollectibilityScore                 { get; set; } = 1000;
-        public bool         GatherIfLastIntegrity                      { get; set; } = false;
-        public uint         GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
-        public bool UseExperimentalNavigation { get; set; } = false;
-        public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
-        public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig ManualConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig SquadronManualConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
+        public ActionConfig     BYIIConfig                                 { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions());
+        public ActionConfig     LuckConfig                                 { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
+        public ActionConfig     YieldIIConfig                              { get; set; } = new(true, 500, uint.MaxValue, new ActionConditions());
+        public ActionConfig     YieldIConfig                               { get; set; } = new(true, 400, uint.MaxValue, new ActionConditions());
+        public ActionConfig     ScrutinyConfig                             { get; set; } = new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig     MeticulousConfig                           { get; set; } = new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig     BrazenConfig                               { get; set; } = new(true, (uint)AutoGather.Actions.Brazen.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig     SolidAgeCollectablesConfig                 { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig     SolidAgeGatherablesConfig                  { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue, new ActionConditions(),new Dictionary<string, object>{{"MinimumYield", (uint) 1}});
+        public ActionConfig     CollectConfig                              { get; set; } = new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig     ScourConfig                                { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
+        public int              TimedNodePrecog                            { get; set; } = 20;
+        public bool             DoGathering                                { get; set; } = true;
+        public uint             MinimumGPForGathering                      { get; set; } = 0;
+        public uint             MinimumGPForCollectableRotation            { get; set; } = 700;
+        public uint             MinimumGPForCollectable                    { get; set; } = 0;
+        public float            NavResetCooldown                           { get; set; } = 3.0f;
+        public float            NavResetThreshold                          { get; set; } = 2.0f;
+        public bool             ForceWalking                               { get; set; } = false;
+        public float            FarNodeFilterDistance                      { get; set; } = 50.0f;
+        public bool             DisableFlagPathing                         { get; set; } = false;
+        public uint             MinimumCollectibilityScore                 { get; set; } = 1000;
+        public bool             GatherIfLastIntegrity                      { get; set; } = false;
+        public uint             GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
+        public bool             UseExperimentalNavigation                  { get; set; } = false;
+        public ConsumableConfig CordialConfig                              { get; set; } = new(false, 0, 700, 0);
+        public ConsumableConfig FoodConfig                                 { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig PotionConfig                               { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig ManualConfig                               { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig SquadronManualConfig                       { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig SquadronPassConfig                         { get; set; } = new(false, 0, 0, 0);
 
         public class ActionConfig
         {
-            public ActionConfig(bool useAction, uint minGP, uint maximumGP, ActionConditions conditions)
+            public ActionConfig(bool useAction, uint minGP, uint maximumGP, ActionConditions conditions, Dictionary<string, object> optionalProperties = null)
             {
-                UseAction  = useAction;
-                MinimumGP  = minGP;
-                MaximumGP  = maximumGP;
-                Conditions = conditions;
+                UseAction          = useAction;
+                MinimumGP          = minGP;
+                MaximumGP          = maximumGP;
+                Conditions         = conditions;
+                OptionalProperties = optionalProperties ?? new Dictionary<string, object>();
             }
 
             public bool UseAction { get; set; }
             public uint MinimumGP { get; set; }
             public uint MaximumGP { get; set; }
             public ActionConditions Conditions { get; set; }
+            public Dictionary<string, object> OptionalProperties { get; set; }
+            
+            public void SetOptionalProperty(string key, object value)
+            {
+                OptionalProperties[key] = value;
+            }
+
+            public void RemoveOptionalProperty(string key)
+            {
+                if (OptionalProperties.ContainsKey(key))
+                {
+                    OptionalProperties.Remove(key);
+                }
+            }
+            public T GetOptionalProperty<T>(string key)
+            {
+                if (OptionalProperties.TryGetValue(key, out var value))
+                {
+                    return (T)Convert.ChangeType(value, typeof(T));
+                }
+                throw new KeyNotFoundException($"Optional property with key '{key}' not found.");
+            }
         }
 
         public class ActionConditions

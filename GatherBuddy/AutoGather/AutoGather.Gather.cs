@@ -43,16 +43,7 @@ namespace GatherBuddy.AutoGather
             if (GatheringAddon == null)
                 return;
 
-            uint[] ids       = GatheringAddon->ItemIds.ToArray();
-            foreach (var id in ids)
-            {
-                var gatherable = GatherBuddy.GameData.Gatherables.FirstOrDefault(it => it.Key == id).Value;
-                if (GatherBuddy.UptimeManager.TimedGatherables.Contains(gatherable) && gatherable.NodeType != NodeType.Ephemeral && !TimedNodesGatheredThisTrip.Contains(gatherable.ItemId))
-                {
-                    GatherBuddy.Log.Information($"Saw timed item {gatherable.Name[GatherBuddy.Language]} in node. We should remember that.");
-                    TimedNodesGatheredThisTrip.Add(gatherable.ItemId);
-                }
-            }
+            uint[] ids = GetGatherableIds();
             var    itemIndex = GetIndexOfItemToClick(ids, item);
             if (itemIndex < 0)
                 itemIndex = GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key))
@@ -69,6 +60,21 @@ namespace GatherBuddy.AutoGather
                 inputData.Data));
         }
 
+        private unsafe uint[] GetGatherableIds()
+        {
+            uint[] ids = GatheringAddon->ItemIds.ToArray();
+            foreach (var id in ids)
+            {
+                var gatherable = GatherBuddy.GameData.Gatherables.FirstOrDefault(it => it.Key == id).Value;
+                if (GatherBuddy.UptimeManager.TimedGatherables.Contains(gatherable) && gatherable.NodeType != NodeType.Ephemeral && !TimedNodesGatheredThisTrip.Contains(gatherable.ItemId))
+                {
+                    GatherBuddy.Log.Information($"Saw timed item {gatherable.Name[GatherBuddy.Language]} in node. We should remember that.");
+                    TimedNodesGatheredThisTrip.Add(gatherable.ItemId);
+                }
+            }
+
+            return ids;
+        }
         private int GetIndexOfItemToClick(uint[] ids, IGatherable item)
         {
             var gatherable = item as Gatherable;
