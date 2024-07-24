@@ -471,6 +471,68 @@ public partial class Interface
             }
         }
 
+        public static void DrawCordialCheckbox()
+            => DrawCheckbox(
+                "Use Cordial",
+                "Use Cordial if item is available, not on cooldown and GP is within the specified range.",
+                GatherBuddy.Config.AutoGatherConfig.CordialConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.CordialConfig.UseConsumable = b);
+
+        public static void DrawCordialMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CordialConfig.MinimumGP;
+            if (ImGui.DragInt("Cordial Min GP", ref tmp, 1, 0, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.CordialConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawCordialMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CordialConfig.MaximumGP;
+            if (ImGui.DragInt("Cordial Max GP", ref tmp, 1, 1000, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.CordialConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawFoodCheckbox()
+            => DrawCheckbox(
+                "Use Food",
+                "Use food if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.FoodConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.FoodConfig.UseConsumable = b);
+
+        public static void DrawPotionCheckbox()
+            => DrawCheckbox(
+                "Use Potion",
+                "Use potion if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.PotionConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.PotionConfig.UseConsumable = b);
+
+        public static void DrawManualCheckbox()
+            => DrawCheckbox(
+                "Use Manual",
+                "Use manual if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.ManualConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.ManualConfig.UseConsumable = b);
+
+        public static void DrawSquadronManualCheckbox()
+            => DrawCheckbox(
+                "Use Squadron Manual",
+                "Use squadron manual if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.UseConsumable = b);
+
+        public static void DrawSquadronPassCheckbox()
+            => DrawCheckbox(
+                "Use Squadron Pass",
+                "Use squadron pass if item is available and buff is not up.",
+                GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.UseConsumable,
+                b => GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.UseConsumable = b);
+
         public static void DrawAntiStuckCooldown()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.NavResetCooldown;
@@ -1083,7 +1145,55 @@ public partial class Interface
                 ImGui.TreePop();
             }
 
-            if (ImGui.TreeNodeEx("Advanced"))
+            if (ImGui.TreeNodeEx("Consumables"))
+            {
+                if (ImGui.TreeNodeEx("Cordial"))
+                {
+                    ConfigFunctions.DrawCordialCheckbox();
+                    ConfigFunctions.DrawCordialMinGP();
+                    ConfigFunctions.DrawCordialMaxGP();
+                    AutoGatherUI.DrawCordialSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Food"))
+                {
+                    ConfigFunctions.DrawFoodCheckbox();
+                    AutoGatherUI.DrawFoodSelector();
+                    ImGui.TreePop();
+                }
+                
+                if (ImGui.TreeNodeEx("Potion"))
+                {
+                    ConfigFunctions.DrawPotionCheckbox();
+                    AutoGatherUI.DrawPotionSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Manual"))
+                {
+                    ConfigFunctions.DrawManualCheckbox();
+                    AutoGatherUI.DrawManualSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Squadron Manual"))
+                {
+                    ConfigFunctions.DrawSquadronManualCheckbox();
+                    AutoGatherUI.DrawSquadronManualSelector();
+                    ImGui.TreePop();
+                }
+
+                if (ImGui.TreeNodeEx("Squadron Pass"))
+                {
+                    ConfigFunctions.DrawSquadronPassCheckbox();
+                    AutoGatherUI.DrawSquadronPassSelector();
+                    ImGui.TreePop();
+                }
+                ImGui.TreePop();
+            }
+
+                if (ImGui.TreeNodeEx("Advanced"))
             {
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();

@@ -136,8 +136,8 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-
-
+            DoUseConsumablesWithoutCastTime();
+            
             if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";

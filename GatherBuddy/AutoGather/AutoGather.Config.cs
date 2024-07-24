@@ -37,6 +37,12 @@ namespace GatherBuddy.AutoGather
         public bool         GatherIfLastIntegrity                      { get; set; } = false;
         public uint         GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
         public bool UseExperimentalNavigation { get; set; } = false;
+        public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
+        public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig ManualConfig { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig SquadronManualConfig { get; set; } = new(false, 0, 0, 0);
+        public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
 
         public class ActionConfig
         {
@@ -95,6 +101,22 @@ namespace GatherBuddy.AutoGather
             public bool        FilterNodeTypes    { get; set; }
             public NodeFilters NodeFilter         { get; set; }
             public uint        RequiredIntegrity   { get; set; }
+        }
+
+        public class ConsumableConfig
+        {
+            public ConsumableConfig(bool useConsumable, uint minGP, uint maximumGP, uint itemId)
+            {
+                UseConsumable = useConsumable;
+                MinimumGP = minGP;
+                MaximumGP = maximumGP;
+                ItemId = itemId;
+            }
+
+            public bool UseConsumable { get; set; }
+            public uint MinimumGP { get; set; }
+            public uint MaximumGP { get; set; }
+            public uint ItemId { get; set; }
         }
     }
 }

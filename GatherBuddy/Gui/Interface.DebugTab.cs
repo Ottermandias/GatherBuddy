@@ -600,6 +600,12 @@ public partial class Interface
         ImGui.Text(($"HasSeenFlag: {GatherBuddy.AutoGather.HasSeenFlag}"));
         ImGui.Text($"LastIntegrity: {GatherBuddy.AutoGather.LastIntegrity}");
         ImGui.Text($"LastCollectScore: {GatherBuddy.AutoGather.LastCollectability}");
+        ImGui.Text($"IsCordialOnCooldown: {GatherBuddy.AutoGather.IsCordialOnCooldown}");
+        ImGui.Text($"IsFoodBuffUp: {GatherBuddy.AutoGather.IsFoodBuffUp}");
+        ImGui.Text($"IsPotionBuffUp: {GatherBuddy.AutoGather.IsPotionBuffUp}");
+        ImGui.Text($"IsManualBuffUp: {GatherBuddy.AutoGather.IsManualBuffUp}");
+        ImGui.Text($"IsSquadronManualBuffUp: {GatherBuddy.AutoGather.IsSquadronManualBuffUp}");
+        ImGui.Text($"IsSquadronPassBuffUp: {GatherBuddy.AutoGather.IsSquadronPassBuffUp}");
 
         if (ImGui.CollapsingHeader("Timed Node Memory"))
         {

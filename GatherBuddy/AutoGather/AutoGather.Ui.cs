@@ -3,7 +3,7 @@ using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Plugin;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets2;
+using Lumina.Excel.GeneratedSheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -184,6 +184,192 @@ namespace GatherBuddy.AutoGather
         public static string ToProperCase(this string input)
         {
             return System.Globalization.CultureInfo.CurrentCulture.TextInfo.ToTitleCase(input.ToLower());
+        }
+
+        public static unsafe void DrawCordialSelector()
+        {
+            // HQ items have IDs 100000 more than their NQ counterparts
+            var previewItem = AutoGather.PossibleCordials.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
+            // PluginLog.Information(JsonConvert.SerializeObject(previewItem.ItemAction));
+            if (ImGui.BeginCombo("Select Cordial", previewItem is null
+                ? ""
+                : $"{(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId > 100000 ? " " : "")}{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId)})"))
+            {
+                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId == 0))
+                {
+                    GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId = 0;
+                    GatherBuddy.Config.Save();
+                }
+
+                foreach (var item in AutoGather.PossibleCordials.OrderBy(item => item.Name.ToString()))
+                {
+                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId == item.RowId))
+                    {
+                        GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.Save();
+                    }
+                    if (item.CanBeHq)
+                    {
+                        if (ImGui.Selectable($" {item.Name} ({AutoGather.GetInventoryItemCount(item.RowId + 100000)})", GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId == item.RowId + 100000))
+                        {
+                            GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId = item.RowId + 100000;
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
+        }
+
+        public static unsafe void DrawFoodSelector()
+        {
+            // HQ items have IDs 100000 more than their NQ counterparts
+            var previewItem = AutoGather.PossibleFoods.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
+            // PluginLog.Information(JsonConvert.SerializeObject(previewItem.ItemAction));
+            if (ImGui.BeginCombo("Select Food", previewItem is null
+                ? ""
+                : $"{(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId > 100000 ? " " : "")}{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId)})"))
+            {
+                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId == 0))
+                {
+                    GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId = 0;
+                    GatherBuddy.Config.Save();
+                }
+
+                foreach (var item in AutoGather.PossibleFoods.OrderBy(item => item.Name.ToString()))
+                {
+                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId == item.RowId))
+                    {
+                        GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.Save();
+                    }
+                    if (item.CanBeHq)
+                    {
+                        if (ImGui.Selectable($" {item.Name} ({AutoGather.GetInventoryItemCount(item.RowId + 100000)})", GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId == item.RowId + 100000))
+                        {
+                            GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId = item.RowId + 100000;
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
+        }
+
+        public static unsafe void DrawPotionSelector()
+        {
+            // HQ items have IDs 100000 more than their NQ counterparts
+            var previewItem = AutoGather.PossiblePotions.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
+            // PluginLog.Information(JsonConvert.SerializeObject(previewItem.ItemAction));
+            if (ImGui.BeginCombo("Select Potion", previewItem is null
+                ? ""
+                : $"{(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId > 100000 ? " " : "")}{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId)})"))
+            {
+                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId == 0))
+                {
+                    GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId = 0;
+                    GatherBuddy.Config.Save();
+                }
+
+                foreach (var item in AutoGather.PossiblePotions.OrderBy(item => item.Name.ToString()))
+                {
+                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId == item.RowId))
+                    {
+                        GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.Save();
+                    }
+                    if (item.CanBeHq)
+                    {
+                        if (ImGui.Selectable($" {item.Name} ({AutoGather.GetInventoryItemCount(item.RowId + 100000)})", GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId == item.RowId + 100000))
+                        {
+                            GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId = item.RowId + 100000;
+                            GatherBuddy.Config.Save();
+                        }
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
+        }
+
+        public static unsafe void DrawManualSelector()
+        {
+            var previewItem = AutoGather.PossibleManuals.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId);
+            if (ImGui.BeginCombo("Select Manual", previewItem is null
+                ? ""
+                : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId)})"))
+            {
+                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == 0))
+                {
+                    GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = 0;
+                    GatherBuddy.Config.Save();
+                }
+
+                foreach (var item in AutoGather.PossibleManuals.OrderBy(item => item.Name.ToString()))
+                {
+                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == item.RowId))
+                    {
+                        GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.Save();
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
+        }
+
+        public static unsafe void DrawSquadronManualSelector()
+        {
+            var previewItem = AutoGather.PossibleSquadronManuals.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId);
+            if (ImGui.BeginCombo("Select Squadron Manual", previewItem is null
+                ? ""
+                : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId)})"))
+            {
+                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == 0))
+                {
+                    GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = 0;
+                    GatherBuddy.Config.Save();
+                }
+
+                foreach (var item in AutoGather.PossibleSquadronManuals.OrderBy(item => item.Name.ToString()))
+                {
+                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == item.RowId))
+                    {
+                        GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.Save();
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
+        }
+
+        public static unsafe void DrawSquadronPassSelector()
+        {
+            var previewItem = AutoGather.PossibleSquadronPasses.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId);
+            if (ImGui.BeginCombo("Select Squadron Pass", previewItem is null
+                ? ""
+                : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId)})"))
+            {
+                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == 0))
+                {
+                    GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = 0;
+                    GatherBuddy.Config.Save();
+                }
+
+                foreach (var item in AutoGather.PossibleSquadronPasses.OrderBy(item => item.Name.ToString()))
+                {
+                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == item.RowId))
+                    {
+                        GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.Save();
+                    }
+                }
+
+                ImGui.EndCombo();
+            }
         }
     }
 }
