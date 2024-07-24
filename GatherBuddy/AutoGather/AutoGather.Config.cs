@@ -28,6 +28,7 @@ namespace GatherBuddy.AutoGather
         public bool         DoGathering                                { get; set; } = true;
         public uint         MinimumGPForGathering                      { get; set; } = 0;
         public uint         MinimumGPForCollectableRotation            { get; set; } = 700;
+        public uint         MinimumGPForCollectable                    { get; set; } = 0;
         public float        NavResetCooldown                           { get; set; } = 3.0f;
         public float        NavResetThreshold                          { get; set; } = 2.0f;
         public bool         ForceWalking                               { get; set; } = false;

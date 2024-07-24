@@ -70,7 +70,8 @@ namespace GatherBuddy.AutoGather
             if (distance < 3)
             {
                 if (!Dalamud.Conditions[ConditionFlag.Gathering]
-                 && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
+                 && (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable 
+                     || !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering))
                 {
                     if (IsPathing || IsPathGenerating)
                         VNavmesh_IPCSubscriber.Path_Stop();
