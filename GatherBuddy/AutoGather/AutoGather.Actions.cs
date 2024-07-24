@@ -183,6 +183,10 @@ namespace GatherBuddy.AutoGather
             var yield = itemYield->NodeText.ExtractText();
             if (!int.TryParse(yield, out int result))
                 result = 1;
+
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => BountifulYieldStatuses.Contains(s.StatusId))) // Has BYII. This is a quality check as Solid will take priority over BYII anyway.
+                result -= 3; //I consider the maximum proc, I don't know if we have a way to make a better check.
+            
             return result;
         }
 
