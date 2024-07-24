@@ -180,7 +180,7 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
                 return;
             }
-            if (TimedNodePosition != null && ShouldUseFlag)
+            if (TimedNodePosition != null && ShouldUseFlag && GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem))
             {
                 AutoStatus  = "Moving to farming area...";
                 selectedNode = matchingNodesInZone
