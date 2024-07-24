@@ -1085,7 +1085,7 @@ public partial class Interface
                 {
                     ConfigFunctions.DrawYieldICheckbox();
                     ConfigFunctions.DrawYieldIMinGP();
-                    ConfigFunctions.DrawYieldIIMaxGP();
+                    ConfigFunctions.DrawYieldIMaxGP();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.YieldIConfig);
                     ImGui.TreePop();
                 }
@@ -1149,7 +1149,7 @@ public partial class Interface
                 {
                     ConfigFunctions.DrawSolidAgeCollectablesCheckbox();
                     ConfigFunctions.DrawSolidAgeCollectablesMinGp();
-                    ConfigFunctions.DrawScrutinyMaxGp();
+                    ConfigFunctions.DrawSolidAgeCollectablesMaxGp();
                     ImGui.TreePop();
                 }
 
