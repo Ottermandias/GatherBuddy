@@ -203,7 +203,23 @@ namespace GatherBuddy.AutoGather
                     VNavmesh_IPCSubscriber.Path_Stop();
                     GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
                     _lastNavigatedDestination = CurrentDestination.Value;
-                    var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh() : CurrentDestination.Value;
+                    var loop                 = 1;
+                    var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(0.5f) : CurrentDestination.Value;
+                    while (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10 && loop < 8)
+                    {
+                        GatherBuddy.Log.Information("Distance last node and gatherpoint is too big : "
+                          + Vector3.Distance(correctedDestination, CurrentDestination.Value));
+                        correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(loop * 0.5f) : CurrentDestination.Value;
+                        loop++;
+                    }
+
+                    if (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10)
+                    {
+                        GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
+                        ResetNavigation();
+                        return;
+                    }
+
                     if (!correctedDestination.SanityCheck())
                     {
                         GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
@@ -237,9 +253,10 @@ namespace GatherBuddy.AutoGather
         {
             if (TimedNodePosition == null)
                 return;
+
             var timedNode = potentialNodes
                 .Where(o => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Y, TimedNodePosition.Value.Y), o) < 10).OrderBy(o
-                    => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault(); 
+                    => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault();
             TaskManager.Enqueue(() => MoveToFarNode(timedNode));
         }
 

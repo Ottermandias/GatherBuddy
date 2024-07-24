@@ -15,30 +15,33 @@ namespace GatherBuddy.CustomInfo
         {
             var random = new Random();
             var vector = new Vector3(
-                                              value.X + (float)random.NextDouble() * fuzziness,
-                                                                                           value.Y + (float)random.NextDouble() * fuzziness,
-                                                                                                                                                       value.Z + (float)random.NextDouble() * fuzziness
-                                                                                                                                                                                                                              );
+                value.X + (float)random.NextDouble() * fuzziness,
+                value.Y + (float)random.NextDouble() * fuzziness,
+                value.Z + (float)random.NextDouble() * fuzziness
+            );
             GatherBuddy.Log.Verbose($"Fuzzed vector {value} to {vector}");
             return vector;
         }
-        public static Vector3 CorrectForMesh(this Vector3 vector)
+
+        public static Vector3 CorrectForMesh(this Vector3 vector, float distance)
         {
             try
             {
                 try
                 {
-                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(vector, 0.5f, 0.5f);
+                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(vector, distance, distance);
                     if (!nearestPoint.SanityCheck())
                         return vector;
+
                     GatherBuddy.Log.Verbose($"Corrected vector {vector} to floor point {nearestPoint}");
                     return nearestPoint;
                 }
                 catch (Exception)
                 {
-                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(vector, 0.5f, 0.5f);
+                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(vector, distance, distance);
                     if (!nearestPoint.SanityCheck())
                         return vector;
+
                     GatherBuddy.Log.Verbose($"Corrected vector {vector} to {nearestPoint}");
                     return nearestPoint;
                 }
@@ -61,6 +64,7 @@ namespace GatherBuddy.CustomInfo
 
             return true;
         }
+
         public static float DistanceToPlayer(this Vector3 vector)
         {
             var distance = Vector3.Distance(vector, Player.Object.Position);

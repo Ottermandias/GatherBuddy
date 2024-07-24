@@ -88,7 +88,7 @@ namespace GatherBuddy.AutoGather
                 var marker             = map->FlagMapMarker;
                 var mapPosition        = new Vector2(marker.XFloat, marker.YFloat);
                 var uncorrectedVector3 = new Vector3(mapPosition.X, 1024, mapPosition.Y);
-                var correctedVector3   = uncorrectedVector3.CorrectForMesh();
+                var correctedVector3   = uncorrectedVector3.CorrectForMesh(0.5f);
                 if (uncorrectedVector3 == correctedVector3)
                     return null;
 
