@@ -134,7 +134,7 @@ namespace GatherBuddy.AutoGather
             int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(12)->NodeText.ToString());
 
             Span<uint> ids = GatheringAddon->ItemIds;
-            if (ShouldUseWiseGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
+            if (ShouldUseWise(currentIntegrity, maxIntegrity))
                 EnqueueGatherAction(() => UseAction(Actions.Wise));
             if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
                 EnqueueGatherAction(() => UseAction(Actions.SolidAge));
@@ -211,25 +211,15 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private static bool ShouldUseWiseCollectables(int integrity, int maxIntegrity)
-            => ShouldUseWise(GatherBuddy.Config.AutoGatherConfig.WiseCollectablesConfig, integrity, maxIntegrity);
-
-        private bool ShouldUseWiseGatherables(int integrity, int maxIntegrity, Gatherable gatherable)
-            => CheckConditions(GatherBuddy.Config.AutoGatherConfig.WiseGatherablesConfig, gatherable) 
-             && ShouldUseWise(GatherBuddy.Config.AutoGatherConfig.WiseGatherablesConfig, integrity, maxIntegrity);
-
-        private static bool ShouldUseWise(AutoGatherConfig.ActionConfig wiseConfig, int integrity, int maxIntegrity)
+        private static bool ShouldUseWise(int integrity, int maxIntegrity)
         {
             if (Player.Level < Actions.Wise.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < Actions.Wise.GpCost)
                 return false;
-            if (Player.Object.CurrentGp < wiseConfig.MinimumGP
-             || Player.Object.CurrentGp > wiseConfig.MaximumGP)
-                return false;
 
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765) && integrity < maxIntegrity)
-                return wiseConfig.UseAction;
+                return true;
 
             return false;
         }

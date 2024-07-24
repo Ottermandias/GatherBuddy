@@ -36,7 +36,7 @@ namespace GatherBuddy.AutoGather
                 int brazenColl       = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString().Substring(2));
 
                 if (currentIntegrity < maxIntegrity 
-                 && ShouldUseWiseCollectables(currentIntegrity, maxIntegrity))
+                 && ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
 
                 if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore)
