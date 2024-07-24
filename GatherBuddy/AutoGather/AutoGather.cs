@@ -180,12 +180,20 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
                 return;
             }
-            if (TimedNodePosition != null && ShouldUseFlag && GatherBuddy.UptimeManager.TimedGatherables.Contains(targetItem))
+
+            // only Legendary and Unspoiled show marker
+            if (ShouldUseFlag && targetItem.NodeType is NodeType.Legendary or NodeType.Unspoiled)
             {
-                AutoStatus  = "Moving to farming area...";
+                // marker not yet loaded on game
+                if (TimedNodePosition == null)
+                {
+                    AutoStatus = "Waiting on flag show up";
+                    return;
+                }
+                AutoStatus = "Moving to farming area...";
                 selectedNode = matchingNodesInZone
-                    .Where(o => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Y, TimedNodePosition.Value.Y), o) < 10).OrderBy(o
-                        => Vector3.Distance(new Vector3(TimedNodePosition.Value.X, o.Z, TimedNodePosition.Value.Y), o)).FirstOrDefault();
+                    .Where(o => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z)) < 10).OrderBy(o
+                        => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault(); 
             }
 
             if (allNodes.Any(n => n.Position == selectedNode))
