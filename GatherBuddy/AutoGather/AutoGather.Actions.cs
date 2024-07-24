@@ -25,6 +25,8 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (Player.Level < Actions.Luck.MinLevel)
                 return false;
+            if (Player.Object.CurrentGp < Actions.Luck.GpCost)
+                return false;
             if (!gatherable.GatheringData.IsHidden)
                 return false;
 
@@ -46,6 +48,8 @@ namespace GatherBuddy.AutoGather
         public bool ShoulduseBYII(Gatherable gatherable)
         {
             if (Player.Level < Actions.Bountiful.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.Bountiful.GpCost)
                 return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => BountifulYieldStatuses.Contains(s.StatusId)))
                 return false;
@@ -74,6 +78,8 @@ namespace GatherBuddy.AutoGather
         {
             if (Player.Level < Actions.Yield2.MinLevel)
                 return false;
+            if (Player.Object.CurrentGp < Actions.Yield2.GpCost)
+                return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
                 return false;
 
@@ -89,6 +95,8 @@ namespace GatherBuddy.AutoGather
         public bool ShouldUseKingI(Gatherable gatherable)
         {
             if (Player.Level < Actions.Yield1.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.Yield1.GpCost)
                 return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
                 return false;
