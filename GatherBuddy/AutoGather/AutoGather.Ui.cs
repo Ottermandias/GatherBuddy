@@ -163,6 +163,17 @@ namespace GatherBuddy.AutoGather
                         }
                     }
 
+                    if (ImGui.Button($"Navigate##{node.Position}"))
+                    {
+                        if (GatherBuddy.AutoGather.Enabled)
+                        {
+                            Communicator.PrintError("[GatherBuddyReborn] Auto-Gather is enabled! Unable to navigate.");
+                            return;
+                        }
+                        VNavmesh_IPCSubscriber.Path_Stop();
+                        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly);
+                    }
+
                     var offset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == node.Position);
                     if (offset != null)
                     {
