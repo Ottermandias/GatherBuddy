@@ -76,6 +76,10 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck,
                 b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck = b);
 
+        public static void DrawHonkModeBox()
+            => DrawCheckbox("Play a sound when done gathering", "Play a sound when auto-gathering shuts down because your list is complete",
+                GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
+
         public static void DrawMaterialExtraction()
             => DrawCheckbox("Enable materia Extraction",
                 "You need YesAlready installed with : Bothers -> MaterializeDialog",
@@ -1093,6 +1097,7 @@ public partial class Interface
         {
             if (ImGui.TreeNodeEx("General##autoGeneral"))
             {
+                ConfigFunctions.DrawHonkModeBox();
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
