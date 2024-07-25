@@ -177,6 +177,9 @@ namespace GatherBuddy.AutoGather
         public unsafe AddonGatheringMasterpiece* MasterpieceAddon
             => (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
 
+        public unsafe AddonMaterializeDialog* MaterializeAddon
+            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize", 1);
+        
         public IEnumerable<IGatherable> ItemsToGatherInZone
             => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType)).Where(GatherableMatchesJob);
 
