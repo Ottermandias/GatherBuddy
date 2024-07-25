@@ -1,20 +1,12 @@
 ﻿using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Classes;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons;
-using ECommons.Throttlers;
-using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Interfaces;
-using GatherBuddy.Plugin;
-using Lumina.Data.Parsing;
 
 namespace GatherBuddy.AutoGather
 {
@@ -114,7 +106,7 @@ namespace GatherBuddy.AutoGather
         private unsafe void DoActionTasks(Gatherable desiredItem)
         {
             if (GatheringAddon == null && MasterpieceAddon == null
-              || Svc.Condition[ConditionFlag.Gathering42])
+             || Svc.Condition[ConditionFlag.Gathering42])
                 return;
 
             if (MasterpieceAddon != null)
@@ -138,7 +130,7 @@ namespace GatherBuddy.AutoGather
         {
             if (GatheringAddon == null)
                 return;
-            
+
             int currentIntegrity = int.Parse(GatheringAddon->AtkUnitBase.GetTextNodeById(9)->NodeText.ToString());
             int maxIntegrity     = int.Parse(GatheringAddon->AtkUnitBase.GetTextNodeById(12)->NodeText.ToString());
 
@@ -176,17 +168,19 @@ namespace GatherBuddy.AutoGather
                 _ => gatherWindow->GatheredItemComponentCheckBox1
             };
 
-            var icon= itemCheckbox->UldManager.SearchNodeById(31)->GetAsAtkComponentNode();
-            var itemYield= icon->Component->UldManager.SearchNodeById(7)->GetAsAtkTextNode();
-            
-            
+            var icon      = itemCheckbox->UldManager.SearchNodeById(31)->GetAsAtkComponentNode();
+            var itemYield = icon->Component->UldManager.SearchNodeById(7)->GetAsAtkTextNode();
+
+
             var yield = itemYield->NodeText.ExtractText();
             if (!int.TryParse(yield, out int result))
                 result = 1;
 
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => BountifulYieldStatuses.Contains(s.StatusId))) // Has BYII. This is a quality check as Solid will take priority over BYII anyway.
-                result -= 3; //I consider the maximum proc, I don't know if we have a way to make a better check.
-            
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s
+                    => BountifulYieldStatuses
+                        .Contains(s.StatusId))) // Has BYII. This is a quality check as Solid will take priority over BYII anyway.
+                result -= 3;                    //I consider the maximum proc, I don't know if we have a way to make a better check.
+
             return result;
         }
 
@@ -213,6 +207,7 @@ namespace GatherBuddy.AutoGather
         {
             if (MasterpieceAddon == null)
                 return;
+
             if (CurrentRotation == null)
                 CurrentRotation = new CollectableRotation(GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation);
 
@@ -244,10 +239,8 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Log.Debug("Collectible action was null, all actions are disabled by user");
                     return;
                 }
-                EnqueueGatherAction(() =>
-                {
-                    UseAction(collectibleAction);
-                }, 250);
+
+                EnqueueGatherAction(() => { UseAction(collectibleAction); }, 250);
             }
         }
 
@@ -263,7 +256,7 @@ namespace GatherBuddy.AutoGather
 
             return false;
         }
-        
+
 
         private static bool ShouldUseMeticulous()
         {
@@ -277,7 +270,7 @@ namespace GatherBuddy.AutoGather
 
             return GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction;
         }
-        
+
         private static bool ShouldUseScour()
         {
             if (Player.Level < Actions.Brazen.MinLevel)
@@ -290,7 +283,7 @@ namespace GatherBuddy.AutoGather
 
             return GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction;
         }
-        
+
         private static bool ShouldUseBrazen()
         {
             if (Player.Level < Actions.Meticulous.MinLevel)
@@ -318,14 +311,14 @@ namespace GatherBuddy.AutoGather
 
             return false;
         }
-        
+
         private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity)
             => ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig, integrity, maxIntegrity);
 
         private bool ShouldUseSolidAgeGatherables(int integrity, int maxIntegrity, Gatherable gatherable)
         {
-            uint[] ids = GetGatherableIds();
-            var targetItemId= GetIndexOfItemToClick(ids, gatherable);
+            uint[] ids          = GetGatherableIds();
+            var    targetItemId = GetIndexOfItemToClick(ids, gatherable);
 
             if (GetCurrentYield(targetItemId)
               < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
@@ -337,7 +330,6 @@ namespace GatherBuddy.AutoGather
                 return false;
 
             return true;
-
         }
 
         private static bool ShouldUseSolidAge(AutoGatherConfig.ActionConfig SolidAgeConfig, int integrity, int maxIntegrity)
@@ -379,35 +371,19 @@ namespace GatherBuddy.AutoGather
 
             if (config.Conditions.FilterNodeTypes)
             {
-                switch (gatherable.NodeType)
-                {
-                    case Enums.NodeType.Unknown: break;
-                    case Enums.NodeType.Regular:
-                        if (!config.Conditions.NodeFilter.UseOnRegularNode)
-                            return false;
+                var node = config.Conditions.NodeFilter.GetNodeConfig(gatherable.NodeType);
 
-                        break;
-                    case Enums.NodeType.Unspoiled:
-                        if (!config.Conditions.NodeFilter.UseOnUnspoiledNode)
-                            return false;
-
-                        break;
-                    case Enums.NodeType.Ephemeral:
-                        if (!config.Conditions.NodeFilter.UseOnEphemeralNode)
-                            return false;
-
-                        break;
-                    case Enums.NodeType.Legendary:
-                        if (!config.Conditions.NodeFilter.UseOnLegendaryNode)
-                            return false;
-
-                        break;
-                }
+                if (!node.Use || (gatherable.Level < node.NodeLevel && !(node.AvoidCap && IsGpMax)))
+                    return false;
+                
+                Svc.Log.Debug($"Item Level {gatherable.Level} < node {node.NodeLevel}: {gatherable.Level < node.NodeLevel}, !(AvoidCap && IsGpMax): {!(node.AvoidCap && IsGpMax)}");
             }
 
             return true;
         }
 
+        private static bool IsGpMax
+            => Dalamud.ClientState.LocalPlayer?.CurrentGp == Dalamud.ClientState.LocalPlayer?.MaxGp;
 
         public bool HiddenRevealed = false;
 
