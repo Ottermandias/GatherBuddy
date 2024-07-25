@@ -24,6 +24,7 @@ namespace GatherBuddy.AutoGather
         {
             // Initialize the task manager
             TaskManager                            =  new();
+            TaskManager.ShowDebug                  =  false;
             _plugin                                =  plugin;
             _movementController                    =  new OverrideMovement();
             GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
