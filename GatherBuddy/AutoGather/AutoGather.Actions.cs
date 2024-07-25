@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
+using ECommons;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Interfaces;
@@ -24,6 +25,8 @@ namespace GatherBuddy.AutoGather
             if (gatherable == null)
                 return false;
             if (Player.Level < Actions.Luck.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.Luck.GpCost)
                 return false;
             if (!gatherable.GatheringData.IsHidden)
                 return false;
@@ -46,6 +49,8 @@ namespace GatherBuddy.AutoGather
         public bool ShoulduseBYII(Gatherable gatherable)
         {
             if (Player.Level < Actions.Bountiful.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.Bountiful.GpCost)
                 return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => BountifulYieldStatuses.Contains(s.StatusId)))
                 return false;
@@ -74,6 +79,8 @@ namespace GatherBuddy.AutoGather
         {
             if (Player.Level < Actions.Yield2.MinLevel)
                 return false;
+            if (Player.Object.CurrentGp < Actions.Yield2.GpCost)
+                return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
                 return false;
 
@@ -89,6 +96,8 @@ namespace GatherBuddy.AutoGather
         public bool ShouldUseKingI(Gatherable gatherable)
         {
             if (Player.Level < Actions.Yield1.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.Yield1.GpCost)
                 return false;
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
                 return false;
@@ -129,8 +138,15 @@ namespace GatherBuddy.AutoGather
         {
             if (GatheringAddon == null)
                 return;
+            
+            int currentIntegrity = int.Parse(GatheringAddon->AtkUnitBase.GetTextNodeById(9)->NodeText.ToString());
+            int maxIntegrity     = int.Parse(GatheringAddon->AtkUnitBase.GetTextNodeById(12)->NodeText.ToString());
 
             Span<uint> ids = GatheringAddon->ItemIds;
+            if (ShouldUseWise(currentIntegrity, maxIntegrity))
+                EnqueueGatherAction(() => UseAction(Actions.Wise));
+            if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
+                EnqueueGatherAction(() => UseAction(Actions.SolidAge));
             if (ShouldUseLuck(ids, desiredItem as Gatherable))
                 EnqueueGatherAction(() => UseAction(Actions.Luck));
             else if (ShouldUseKingII(desiredItem as Gatherable))
@@ -141,6 +157,37 @@ namespace GatherBuddy.AutoGather
                 EnqueueGatherAction(() => UseAction(Actions.Bountiful));
             else
                 DoGatherWindowTasks(desiredItem);
+        }
+
+        private unsafe int GetCurrentYield(int itemPosition)
+        {
+            var gatherWindow = GatheringAddon;
+
+            var itemCheckbox = itemPosition switch
+            {
+                0 => gatherWindow->GatheredItemComponentCheckBox1,
+                1 => gatherWindow->GatheredItemComponentCheckBox2,
+                2 => gatherWindow->GatheredItemComponentCheckBox3,
+                3 => gatherWindow->GatheredItemComponentCheckBox4,
+                4 => gatherWindow->GatheredItemComponentCheckBox5,
+                5 => gatherWindow->GatheredItemComponentCheckBox6,
+                6 => gatherWindow->GatheredItemComponentCheckBox7,
+                7 => gatherWindow->GatheredItemComponentCheckBox8,
+                _ => gatherWindow->GatheredItemComponentCheckBox1
+            };
+
+            var icon= itemCheckbox->UldManager.SearchNodeById(31)->GetAsAtkComponentNode();
+            var itemYield= icon->Component->UldManager.SearchNodeById(7)->GetAsAtkTextNode();
+            
+            
+            var yield = itemYield->NodeText.ExtractText();
+            if (!int.TryParse(yield, out int result))
+                result = 1;
+
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => BountifulYieldStatuses.Contains(s.StatusId))) // Has BYII. This is a quality check as Solid will take priority over BYII anyway.
+                result -= 3; //I consider the maximum proc, I don't know if we have a way to make a better check.
+            
+            return result;
         }
 
         private unsafe void UseAction(Actions.BaseAction act)
@@ -204,21 +251,19 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private static bool ShouldUseWise()
+        private static bool ShouldUseWise(int integrity, int maxIntegrity)
         {
             if (Player.Level < Actions.Wise.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < Actions.Wise.GpCost)
                 return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.WiseConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.WiseConfig.MaximumGP)
-                return false;
 
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765))
-                return GatherBuddy.Config.AutoGatherConfig.WiseConfig.UseAction;
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765) && integrity < maxIntegrity)
+                return true;
 
             return false;
         }
+        
 
         private static bool ShouldUseMeticulous()
         {
@@ -273,19 +318,40 @@ namespace GatherBuddy.AutoGather
 
             return false;
         }
+        
+        private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity)
+            => ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig, integrity, maxIntegrity);
 
-        private static bool ShouldUseSolidAge(int integrity)
+        private bool ShouldUseSolidAgeGatherables(int integrity, int maxIntegrity, Gatherable gatherable)
+        {
+            uint[] ids = GetGatherableIds();
+            var targetItemId= GetIndexOfItemToClick(ids, gatherable);
+
+            if (GetCurrentYield(targetItemId)
+              < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
+                return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, gatherable))
+                return false;
+
+            if (!ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, integrity, maxIntegrity))
+                return false;
+
+            return true;
+
+        }
+
+        private static bool ShouldUseSolidAge(AutoGatherConfig.ActionConfig SolidAgeConfig, int integrity, int maxIntegrity)
         {
             if (Player.Level < Actions.SolidAge.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < Actions.SolidAge.GpCost)
                 return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.MaximumGP)
+            if (Player.Object.CurrentGp < SolidAgeConfig.MinimumGP
+             || Player.Object.CurrentGp > SolidAgeConfig.MaximumGP)
                 return false;
             if (!(Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 2765))
-             && integrity < 4)
-                return GatherBuddy.Config.AutoGatherConfig.SolidAgeConfig.UseAction;
+             && integrity < maxIntegrity)
+                return SolidAgeConfig.UseAction;
 
             return false;
         }
