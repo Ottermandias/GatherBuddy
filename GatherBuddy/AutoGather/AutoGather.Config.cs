@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using GatherBuddy.Enums;
 
 namespace GatherBuddy.AutoGather
 {
@@ -108,18 +109,30 @@ namespace GatherBuddy.AutoGather
 
             public class NodeFilters
             {
-                public NodeFilters()
+                public class NodeConfig
                 {
-                    UseOnRegularNode   = true;
-                    UseOnUnspoiledNode = true;
-                    UseOnEphemeralNode = true;
-                    UseOnLegendaryNode = true;
+                    public bool Use   { get; set; } = true;
+                    public int  NodeLevel { get; set; } = 100;
+                    public bool AvoidCap { get; set; } = false;
+                    
                 }
                 
-                public bool UseOnRegularNode   { get; set; }
-                public bool UseOnUnspoiledNode { get; set; }
-                public bool UseOnEphemeralNode { get; set; }
-                public bool UseOnLegendaryNode { get; set; }
+                public NodeConfig RegularNode   { get; set; } = new();
+                public NodeConfig UnspoiledNode { get; set; } = new();
+                public NodeConfig EphemeralNode { get; set; } = new();
+                public NodeConfig LegendaryNode { get; set; } = new();
+                
+                public NodeConfig GetNodeConfig(NodeType nodeType)
+                {
+                    return nodeType switch
+                    {
+                        NodeType.Regular   => RegularNode,
+                        NodeType.Unspoiled => UnspoiledNode,
+                        NodeType.Ephemeral => EphemeralNode,
+                        NodeType.Legendary => LegendaryNode,
+                        _                  => RegularNode
+                    };
+                }
             }
             
             public bool        UseConditions      { get; set; }
