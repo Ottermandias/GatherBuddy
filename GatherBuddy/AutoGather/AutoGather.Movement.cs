@@ -116,6 +116,7 @@ namespace GatherBuddy.AutoGather
                     {
                         DoMateriaExtraction();
                     }
+
                     TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
                     return;
                 }
@@ -199,45 +200,36 @@ namespace GatherBuddy.AutoGather
         {
             if (EzThrottler.Throttle("Navigate", 10))
             {
-                if (CurrentDestination == null)
+                if (CurrentDestination == null || IsPathing)
+                    return;
+                VNavmesh_IPCSubscriber.Path_Stop();
+                GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
+                _lastNavigatedDestination = CurrentDestination.Value;
+                var loop                 = 1;
+                var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(0.5f) : CurrentDestination.Value;
+                while (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10 && loop < 8)
                 {
-                    GatherBuddy.Log.Verbose("No destination set, skipping navigation");
+                    GatherBuddy.Log.Information("Distance last node and gatherpoint is too big : "
+                      + Vector3.Distance(correctedDestination, CurrentDestination.Value));
+                    correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(loop * 0.5f) : CurrentDestination.Value;
+                    loop++;
                 }
-                else if (IsPathing)
+
+                if (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10)
                 {
-                    GatherBuddy.Log.Verbose("Already navigating, skipping navigation");
+                    GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
+                    ResetNavigation();
+                    return;
                 }
-                else
+
+                if (!correctedDestination.SanityCheck())
                 {
-                    VNavmesh_IPCSubscriber.Path_Stop();
-                    GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
-                    _lastNavigatedDestination = CurrentDestination.Value;
-                    var loop                 = 1;
-                    var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(0.5f) : CurrentDestination.Value;
-                    while (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10 && loop < 8)
-                    {
-                        GatherBuddy.Log.Information("Distance last node and gatherpoint is too big : "
-                          + Vector3.Distance(correctedDestination, CurrentDestination.Value));
-                        correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(loop * 0.5f) : CurrentDestination.Value;
-                        loop++;
-                    }
-
-                    if (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10)
-                    {
-                        GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
-                        ResetNavigation();
-                        return;
-                    }
-
-                    if (!correctedDestination.SanityCheck())
-                    {
-                        GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
-                        ResetNavigation();
-                        return;
-                    }
-
-                    LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+                    GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
+                    ResetNavigation();
+                    return;
                 }
+
+                LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
             }
         }
 
@@ -272,7 +264,10 @@ namespace GatherBuddy.AutoGather
         {
             if (!GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
                 return;
-            if (advandedLastPosition.HasValue && Vector3.Distance(Player.Object.Position, advandedLastPosition.Value) < 2.0f && !_movementController.Enabled)
+
+            if (advandedLastPosition.HasValue
+             && Vector3.Distance(Player.Object.Position, advandedLastPosition.Value) < 2.0f
+             && !_movementController.Enabled)
             {
                 // If the character hasn't moved much
                 if ((DateTime.Now - advancedLastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
