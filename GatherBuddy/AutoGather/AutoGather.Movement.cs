@@ -112,6 +112,10 @@ namespace GatherBuddy.AutoGather
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
                     DoUseConsumablesWithCastTime();
+                    if (SpiritBondMax > 0)
+                    {
+                        DoMateriaExtraction();
+                    }
                     TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
                     return;
                 }

@@ -45,6 +45,7 @@ namespace GatherBuddy.AutoGather
         public ConsumableConfig ManualConfig { get; set; } = new(false, 0, 0, 0);
         public ConsumableConfig SquadronManualConfig { get; set; } = new(false, 0, 0, 0);
         public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
+        public bool DoMaterialize { get; set; } = false;
 
         public class ActionConfig
         {

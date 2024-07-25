@@ -76,6 +76,12 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck,
                 b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck = b);
 
+        public static void DrawMaterialExtraction()
+            => DrawCheckbox("Enable materia Extraction",
+                "You need YesAlready installed with : Bothers -> MaterializeDialog",
+                GatherBuddy.Config.AutoGatherConfig.DoMaterialize,
+                b => GatherBuddy.Config.AutoGatherConfig.DoMaterialize = b);
+        
         public static void DrawMinimumGPGathering()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
@@ -1234,6 +1240,7 @@ public partial class Interface
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawAdvancedNavBox();
                 ConfigFunctions.DrawAdvancedUnstuckBox();
+                ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();
