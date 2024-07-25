@@ -27,6 +27,7 @@ namespace GatherBuddy.AutoGather
             TaskManager.ShowDebug                  =  false;
             _plugin                                =  plugin;
             _movementController                    =  new OverrideMovement();
+            _soundHelper                           =  new SoundHelper();
             GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
         }
 
@@ -39,6 +40,7 @@ namespace GatherBuddy.AutoGather
         private readonly OverrideMovement _movementController;
 
         private readonly GatherBuddy _plugin;
+        private readonly SoundHelper _soundHelper;
 
         public TaskManager TaskManager { get; }
 
@@ -133,6 +135,8 @@ namespace GatherBuddy.AutoGather
                     Enabled            = false;
                     CurrentDestination = null;
                     VNavmesh_IPCSubscriber.Path_Stop();
+                    if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
+                        _soundHelper.PlayHonkSound(3);
                     return;
                 }
                 UpdateItemsToGather();

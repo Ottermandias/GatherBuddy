@@ -40,10 +40,14 @@
     <EmbeddedResource Include="CustomInfo\world_locations.json" />
     <None Remove="CustomInfo\node_offsets.json" />
     <EmbeddedResource Include="CustomInfo\node_offsets.json" />
+    <None Remove="CustomInfo\honk-sound.mp3" />
+    <EmbeddedResource Include="CustomInfo\honk-sound.mp3" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="2.1.13" />
+    <PackageReference Include="NAudio" Version="2.2.1" />
+    <PackageReference Include="NAudio.Core" Version="2.2.1" />
     <Reference Include="Dalamud">
       <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
       <Private>False</Private>
