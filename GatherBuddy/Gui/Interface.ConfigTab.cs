@@ -81,7 +81,7 @@ public partial class Interface
                 "You need YesAlready installed with : Bothers -> MaterializeDialog",
                 GatherBuddy.Config.AutoGatherConfig.DoMaterialize,
                 b => GatherBuddy.Config.AutoGatherConfig.DoMaterialize = b);
-        
+
         public static void DrawMinimumGPGathering()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
@@ -286,26 +286,46 @@ public partial class Interface
                     {
                         if (ImGui.TreeNodeEx("Node filters"))
                         {
-                            DrawCheckbox("Use on regular nodes", "Use the action on regular nodes",
-                                config.Conditions.NodeFilter.UseOnRegularNode,
-                                b => config.Conditions.NodeFilter.UseOnRegularNode = b);
-
-                            DrawCheckbox("Use on unspoiled nodes", "Use the action on unspoiled nodes",
-                                config.Conditions.NodeFilter.UseOnUnspoiledNode,
-                                b => config.Conditions.NodeFilter.UseOnUnspoiledNode = b);
-
-                            DrawCheckbox("Use on ephemeral nodes", "Use the action on ephemeral nodes",
-                                config.Conditions.NodeFilter.UseOnEphemeralNode,
-                                b => config.Conditions.NodeFilter.UseOnEphemeralNode = b);
-
-                            DrawCheckbox("Use on legendary nodes", "Use the action on legendary nodes",
-                                config.Conditions.NodeFilter.UseOnLegendaryNode,
-                                b => config.Conditions.NodeFilter.UseOnLegendaryNode = b);
+                            var node = config.Conditions.NodeFilter;
+                            DrawNodeFilter("Regular",   node.RegularNode);
+                            DrawNodeFilter("Unspoiled", node.UnspoiledNode);
+                            DrawNodeFilter("Ephemeral", node.EphemeralNode);
+                            DrawNodeFilter("Legendary", node.LegendaryNode);
                         }
                     }
                 }
             }
         }
+
+        private static void DrawNodeFilter(string name, AutoGatherConfig.ActionConditions.NodeFilters.NodeConfig node)
+        {
+            using var id = ImRaii.PushId(name);
+            if (ImGuiUtil.Checkbox($"Use on {name} Nodes", $"Use the action on {name} Nodes", node.Use, b => node.Use = b))
+                GatherBuddy.Config.Save();
+
+            if (!node.Use)
+                return;
+
+            ImGui.Indent();
+            var tmp = node.NodeLevel;
+
+            ImGui.AlignTextToFramePadding();
+            ImGuiUtil.TextWrapped("Minimum node level: ");
+            ImGui.SameLine();
+            ImGui.SetNextItemWidth(100 * ImGuiHelpers.GlobalScale);
+            if (ImGui.InputInt($"", ref tmp, 1, 1))
+            {
+                // make sure the level is within bounds, max 100
+                node.NodeLevel = Math.Clamp(tmp, 1, 100);
+                GatherBuddy.Config.Save();
+            }
+
+            if (ImGuiUtil.Checkbox($"Allow lower level nodes if GP is full", "Helpful to avoid gp overcap in some situations", node.AvoidCap,
+                    b => node.AvoidCap = b))
+                GatherBuddy.Config.Save();
+            ImGui.Unindent();
+        }
+
 
         public static void DrawYieldIICheckbox()
             => DrawCheckbox("Use Kings Yield/Bountiful Harvest II", "Use these actions when available",
@@ -335,17 +355,17 @@ public partial class Interface
             => DrawCheckbox("Use Brazen", "Use Brazen to gather collectibles when appropriate",
                 GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction = b);
-        
+
         public static void DrawSolidAgeCollectablesCheckbox()
             => DrawCheckbox("Use Solid/Age (Collectibles)", "Use Solid/Age to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.UseAction = b);
-        
+
         public static void DrawSolidAgeGatherablesCheckbox()
             => DrawCheckbox("Use Solid/Age (Gatherables)", "Use Solid/Age to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction = b);
-        
+
         public static void DrawCollectCheckbox()
             => DrawCheckbox("Use Collect (Collectibles)", "Use Collect to gather collectibles",
                 GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction,
@@ -402,7 +422,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawSolidAgeCollectablesMaxGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.MaximumGP;
@@ -412,7 +432,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawSolidAgeGatherablesMaxGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.MaximumGP;
@@ -422,7 +442,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawSolidAgeGatherablesMinYield()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield");
@@ -482,7 +502,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawSolidAgeCollectablesMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.MinimumGP;
@@ -492,7 +512,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-        
+
         public static void DrawSolidAgeGatherablesMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.MinimumGP;
@@ -1120,7 +1140,7 @@ public partial class Interface
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.YieldIConfig);
                     ImGui.TreePop();
                 }
-                
+
                 if (ImGui.TreeNodeEx("Solid/Age"))
                 {
                     ConfigFunctions.DrawSolidAgeGatherablesCheckbox();
@@ -1160,7 +1180,7 @@ public partial class Interface
                     ConfigFunctions.DrawMeticulousMaxGp();
                     ImGui.TreePop();
                 }
-                
+
                 if (ImGui.TreeNodeEx("Scour"))
                 {
                     ConfigFunctions.DrawScourCheckbox();
@@ -1168,7 +1188,7 @@ public partial class Interface
                     ConfigFunctions.DrawScourMaxGp();
                     ImGui.TreePop();
                 }
-                
+
                 if (ImGui.TreeNodeEx("Brazen"))
                 {
                     ConfigFunctions.DrawBrazenCheckbox();
@@ -1192,7 +1212,7 @@ public partial class Interface
                     ConfigFunctions.DrawCollectMaxGp();
                     ImGui.TreePop();
                 }
-                
+
                 ImGui.TreePop();
             }
 
