@@ -13,7 +13,11 @@ using System.Threading.Tasks;
 using Dalamud.Interface.Colors;
 using Dalamud.Interface.Windowing;
 using ECommons.DalamudServices;
+using ECommons.ImGuiMethods;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using GatherBuddy.CustomInfo;
+using Newtonsoft.Json;
+using OtterGui;
 using OtterGui.Raii;
 
 namespace GatherBuddy.AutoGather
@@ -76,6 +80,27 @@ namespace GatherBuddy.AutoGather
 
         public static void DrawDebugTables()
         {
+            if (ImGui.Button("Import Node Offsets from Clipboard"))
+            {
+                var settings = new JsonSerializerSettings();
+                var                          text    = ImGuiUtil.GetClipboardText();
+                List<OffsetPair> vectors = JsonConvert.DeserializeObject<List<OffsetPair>>(text, settings) ?? new System.Collections.Generic.List<OffsetPair>();
+                foreach (var offset in vectors)
+                {
+                    WorldData.NodeOffsets.Add(offset);
+                    GatherBuddy.Log.Information($"Added offset {offset} to dictionary");
+                }
+                WorldData.SaveOffsetsToFile();
+                GatherBuddy.Log.Information("Import complete");
+            }
+            ImGui.SameLine();
+            if (ImGui.Button("Export Node Offsets to Clipboard"))
+            {
+                var settings = new JsonSerializerSettings();
+                var offsetString = JsonConvert.SerializeObject(WorldData.NodeOffsets, Formatting.Indented, settings);
+                ImGui.SetClipboardText(offsetString);
+                GatherBuddy.Log.Information("Node offsets exported to clipboard");
+            }
             // First column: Nearby nodes table
             if (ImGui.BeginTable("##nearbyNodesTable", 6, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
             {
@@ -137,6 +162,26 @@ namespace GatherBuddy.AutoGather
                             GatherBuddy.Config.Save();
                         }
                     }
+
+                    var offset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == node.Position);
+                    if (offset != null)
+                    {
+                        if (ImGui.Button($"Remove Offset##{node.Position}"))
+                        {
+                            WorldData.NodeOffsets.Remove(offset);
+                            WorldData.SaveOffsetsToFile();
+                        }
+                        ImGui.Text(offset.Offset.ToString());
+                    }
+                    else
+                    {
+                        if (ImGui.Button($"Add Offset##{node.Position}"))
+                        {
+                            WorldData.AddOffset(node.Position, playerPosition);
+                        }
+                        ImGui.Text(playerPosition.ToString());
+                    }
+                    
                 }
 
                 ImGui.EndTable();

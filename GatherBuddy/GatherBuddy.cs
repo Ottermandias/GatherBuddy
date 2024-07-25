@@ -168,6 +168,7 @@ public partial class GatherBuddy : IDalamudPlugin
         FishRecorder?.Dispose();
         ContextMenu?.Dispose();
         UptimeManager?.Dispose();
+        AutoGather.Dispose();
         Ipc?.Dispose();
         //Wotsit?.Dispose();
         if (Interface != null)
