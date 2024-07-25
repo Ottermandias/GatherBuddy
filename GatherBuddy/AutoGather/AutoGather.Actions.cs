@@ -375,8 +375,6 @@ namespace GatherBuddy.AutoGather
 
                 if (!node.Use || (gatherable.Level < node.NodeLevel && !(node.AvoidCap && IsGpMax)))
                     return false;
-                
-                Svc.Log.Debug($"Item Level {gatherable.Level} < node {node.NodeLevel}: {gatherable.Level < node.NodeLevel}, !(AvoidCap && IsGpMax): {!(node.AvoidCap && IsGpMax)}");
             }
 
             return true;
