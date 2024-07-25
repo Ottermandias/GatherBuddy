@@ -18,7 +18,7 @@ using GatherBuddy.Interfaces;
 
 namespace GatherBuddy.AutoGather
 {
-    public partial class AutoGather
+    public partial class AutoGather : IDisposable
     {
         public AutoGather(GatherBuddy plugin)
         {
@@ -236,6 +236,11 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
                 VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
             }
+        }
+
+        public void Dispose()
+        {
+            _movementController.Dispose();
         }
     }
 }

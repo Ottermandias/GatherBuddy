@@ -15,6 +15,7 @@ using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.AutoGather
 {
@@ -206,8 +207,8 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
                 _lastNavigatedDestination = CurrentDestination.Value;
                 var loop                 = 1;
-                var correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(0.5f) : CurrentDestination.Value;
-                while (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10 && loop < 8)
+                Vector3 correctedDestination = GetCorrectedDestination(shouldFly);
+                while (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 15 && loop < 8)
                 {
                     GatherBuddy.Log.Information("Distance last node and gatherpoint is too big : "
                       + Vector3.Distance(correctedDestination, CurrentDestination.Value));
@@ -230,6 +231,19 @@ namespace GatherBuddy.AutoGather
                 }
 
                 LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+            }
+        }
+
+        private Vector3 GetCorrectedDestination(bool shouldFly)
+        {
+            var selectedOffset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == CurrentDestination.Value);
+            if (selectedOffset != null)
+            {
+                return selectedOffset.Offset;
+            }
+            else
+            {
+                return shouldFly ? CurrentDestination.Value.CorrectForMesh(0.5f) : CurrentDestination.Value;
             }
         }
 

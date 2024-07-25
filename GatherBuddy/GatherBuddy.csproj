@@ -38,6 +38,8 @@
 
   <ItemGroup>
     <EmbeddedResource Include="CustomInfo\world_locations.json" />
+    <None Remove="CustomInfo\node_offsets.json" />
+    <EmbeddedResource Include="CustomInfo\node_offsets.json" />
   </ItemGroup>
 
   <ItemGroup>
