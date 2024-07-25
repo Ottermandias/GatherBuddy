@@ -289,11 +289,11 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Log.Warning($"Character is stuck, using advanced unstuck methods");
                     if (!_movementController.Enabled)
                     {
-                        Vector3 newPosition = Player.Position + new Vector3(10, 0, 10);
+                        Vector3 newPosition = CurrentDestination ?? Player.Position + new Vector3(1, 1, 1);
                         _movementController.DesiredPosition = newPosition;
                         _movementController.Enabled         = true;
                         advancedMovementStart               = DateTime.Now;
-                        VNavmesh_IPCSubscriber.Path_Stop();
+                        //VNavmesh_IPCSubscriber.Path_Stop();
                     }
                 }
             }
