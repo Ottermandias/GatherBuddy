@@ -150,7 +150,7 @@ namespace GatherBuddy.AutoGather
         {
             TimedItemsToGather.Clear();
             ItemsToGather.Clear();
-            var activeItems = _plugin.GatherWindowManager.ActiveItems;
+            var activeItems = _plugin.GatherWindowManager.ActiveItems.OrderBy(i => i.Locations.First().Id);
             foreach (var item in activeItems)
             {
                 if (item.InventoryCount > item.Quantity)
