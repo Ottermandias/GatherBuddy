@@ -150,7 +150,7 @@ namespace GatherBuddy.AutoGather
         {
             TimedItemsToGather.Clear();
             ItemsToGather.Clear();
-            var activeItems = _plugin.GatherWindowManager.ActiveItems.OrderBy(i => i.Locations.First().Id);
+            List<IGatherable> activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems).ToList();
             foreach (var item in activeItems)
             {
                 if (item.InventoryCount > item.Quantity)
@@ -169,6 +169,17 @@ namespace GatherBuddy.AutoGather
                 }
             }
             //GatherBuddy.Log.Verbose($"Sorted {activeItems.Count} items into {TimedItemsToGather.Count} timed items and {ItemsToGather.Count} static items");
+        }
+
+        private IEnumerable<IGatherable> OrderActiveItems(List<IGatherable> activeItems)
+        {
+            switch (GatherBuddy.Config.AutoGatherConfig.SortingMethod)
+            {
+                case AutoGatherConfig.SortingType.Location: return activeItems.OrderBy(i => i.Locations.First().Id);
+                case AutoGatherConfig.SortingType.None:
+                default:
+                    return activeItems;
+            }
         }
 
         public unsafe AddonGathering* GatheringAddon

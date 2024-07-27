@@ -627,6 +627,29 @@ public partial class Interface
             ImGuiUtil.HoverTooltip("The time in seconds before the navigation system will consider you stuck.");
         }
 
+        public static void DrawSortingMethodCombo()
+        {
+            var v = GatherBuddy.Config.AutoGatherConfig.SortingMethod;
+            ImGui.SetNextItemWidth(SetInputWidth);
+
+            using var combo = ImRaii.Combo("Item Sorting Method", v.ToString());
+            ImGuiUtil.HoverTooltip("What method to use when sorting items internally");
+            if (!combo)
+                return;
+
+            if (ImGui.Selectable(AutoGatherConfig.SortingType.Location.ToString(), v == AutoGatherConfig.SortingType.Location))
+            {
+                GatherBuddy.Config.AutoGatherConfig.SortingMethod = AutoGatherConfig.SortingType.Location;
+                GatherBuddy.Config.Save();
+            }
+
+            if (ImGui.Selectable(AutoGatherConfig.SortingType.None.ToString(), v == AutoGatherConfig.SortingType.None))
+            {
+                GatherBuddy.Config.AutoGatherConfig.SortingMethod = AutoGatherConfig.SortingType.None;
+                GatherBuddy.Config.Save();
+            }
+        }
+
         // General Config
         public static void DrawOpenOnStartBox()
             => DrawCheckbox("Open Config UI On Start",
@@ -1101,6 +1124,7 @@ public partial class Interface
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
+                ConfigFunctions.DrawSortingMethodCombo();
                 ImGui.TreePop();
             }
 

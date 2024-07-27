@@ -61,7 +61,13 @@ namespace GatherBuddy.AutoGather
         public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
         public bool DoMaterialize { get; set; } = false;
         public bool HonkMode { get; set; } = true;
+        public SortingType SortingMethod { get; set; } = SortingType.Location;
 
+        public enum SortingType
+        {
+            None = 0,
+            Location = 1,
+        }
         public class ActionConfig
         {
             public ActionConfig(bool useAction, uint minGP, uint maximumGP, ActionConditions conditions,
