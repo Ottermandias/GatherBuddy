@@ -69,12 +69,6 @@ namespace GatherBuddy.AutoGather
                     : "Failed (If you're seeing this you probably need to restart your game)"
                 : "None";
             ImGui.Text($"Navigation: {lastNavString}");
-            if (GatherBuddy.AutoGather.ItemsToGatherInZone.Count() > 1)
-            {
-                using var color = ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed);
-                ImGui.Text($"WARNING: There is more than 1 desired item in the zone. GBR may behave unexpectedly.");
-                color.Pop();
-            }
         }
 
 

@@ -5,6 +5,8 @@ description: |-
   via item name and a UI to keep track of special uptime and weather conditions.
 punchline: Simplify Gathering and Fishing.
 repo_url: https://github.com/FFXIV-CombatReborn/GatherBuddyReborn
+DalamudApiLevel: 10
+TestingDalamudApiLevel: 10
 tags:
   - Gathering
   - Fishing
