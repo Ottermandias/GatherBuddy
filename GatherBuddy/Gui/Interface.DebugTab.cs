@@ -606,6 +606,7 @@ public partial class Interface
         ImGui.Text($"IsManualBuffUp: {GatherBuddy.AutoGather.IsManualBuffUp}");
         ImGui.Text($"IsSquadronManualBuffUp: {GatherBuddy.AutoGather.IsSquadronManualBuffUp}");
         ImGui.Text($"IsSquadronPassBuffUp: {GatherBuddy.AutoGather.IsSquadronPassBuffUp}");
+        ImGui.Text($"SortingMethodType: {GatherBuddy.Config.AutoGatherConfig.SortingMethod.ToString()}");
 
         if (ImGui.CollapsingHeader("Timed Node Memory"))
         {
