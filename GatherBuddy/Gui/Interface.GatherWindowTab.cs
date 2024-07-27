@@ -172,7 +172,7 @@ public partial class Interface
                         if (gatherable == null)
                             continue;
 
-                        gatherable.Quantity = (uint)item.Value;
+                        gatherable.Quantity += (uint)item.Value;
                         preset.Add(gatherable);
                     }
                 }
