@@ -20,14 +20,6 @@ namespace GatherBuddy.AutoGather
 
             public Actions.BaseAction? GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
             {
-                var action = shouldUseFullRotation ? FullRotation(MasterpieceAddon) : FillerRotation(MasterpieceAddon);
-                //Communicator.Print("Resolving action: " + action.Name);
-                return action;
-            }
-            
-
-            private Actions.BaseAction? FullRotation(AddonGatheringMasterpiece* MasterpieceAddon)
-            {
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
                 int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
@@ -41,7 +33,7 @@ namespace GatherBuddy.AutoGather
 
                 if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore)
                 {
-                    if (currentIntegrity <= maxIntegrity
+                    if (currentIntegrity <= maxIntegrity && (shouldUseFullRotation || GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables)
                      && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity))
                         return Actions.SolidAge;
 
@@ -55,7 +47,7 @@ namespace GatherBuddy.AutoGather
                  && ShouldCollect())
                     return Actions.Collect;
 
-                if (NeedScrutiny(collectability, scourColl, meticulousColl, brazenColl) && ShouldUseScrutiny())
+                if (shouldUseFullRotation && NeedScrutiny(collectability, scourColl, meticulousColl, brazenColl) && ShouldUseScrutiny())
                     return Actions.Scrutiny;
 
                 if (meticulousColl + collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
@@ -68,51 +60,6 @@ namespace GatherBuddy.AutoGather
                 if (scourColl + collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
                  && ShouldUseScour())
                     return Actions.Scour;
-
-                if (ShouldUseMeticulous())
-                    return Actions.Meticulous;
-
-                return null;
-            }
-
-            private Actions.BaseAction? FillerRotation(AddonGatheringMasterpiece* MasterpieceAddon)
-            {
-                int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
-                int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
-                int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
-                int scourColl        = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString().Substring(2));
-                int meticulousColl   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString().Substring(2));
-
-                if (currentIntegrity < maxIntegrity
-                 && ShouldUseWise(currentIntegrity, maxIntegrity))
-                    return Actions.Wise;
-
-                if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore)
-                {
-                    if (currentIntegrity <= maxIntegrity && GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables
-                     && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity))
-                        return Actions.SolidAge;
-
-                    if (ShouldCollect())
-                        return Actions.Collect;
-                }
-
-                if (currentIntegrity == 1
-                 && GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity
-                 && collectability >= GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrityMinimumCollectibility
-                 && ShouldCollect())
-                    return Actions.Collect;
-
-                if (meticulousColl + collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
-                 && ShouldUseMeticulous())
-                    return Actions.Meticulous;
-
-                if (scourColl + collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
-                 && ShouldUseScour())
-                    return Actions.Scour;
-
-                if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 3911) && ShouldUseBrazen())
-                    return Actions.Brazen;
 
                 if (ShouldUseMeticulous())
                     return Actions.Meticulous;
