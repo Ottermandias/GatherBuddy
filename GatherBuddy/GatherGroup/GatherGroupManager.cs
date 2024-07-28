@@ -131,6 +131,8 @@ public class GatherGroupManager
             if (!ReferenceEquals(node.Item, item))
                 changes = true;
             node.Item = item;
+            if (node.PreferLocation != null && !node.PreferLocation.Gatherables.Contains(item))
+                node.PreferLocation = null;
         }
 
         if (start != null)

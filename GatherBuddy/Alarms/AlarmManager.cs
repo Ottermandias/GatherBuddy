@@ -15,7 +15,7 @@ namespace GatherBuddy.Alarms;
 
 public partial class AlarmManager : IDisposable
 {
-    private const    string    FileName = "alarms.json";
+    private const string FileName = "alarms.json";
 
     public   List<AlarmGroup>                  Alarms        { get; init; } = [];
     internal List<(Alarm, TimeStamp)>          ActiveAlarms  { get; init; } = [];
@@ -178,8 +178,9 @@ public partial class AlarmManager : IDisposable
         return alarm.PreferLocation switch
         {
             GatheringNode node => (node, node.Times.NextUptime(GatherBuddy.Time.ServerTime)),
-            FishingSpot spot   => (spot, GatherBuddy.UptimeManager.NextUptime((Fish)alarm.Item, spot.Territory, GatherBuddy.Time.ServerTime)),
-            _                  => (alarm.PreferLocation, TimeInterval.Never),
+            FishingSpot spot when alarm.Item is Fish fish => (spot,
+                GatherBuddy.UptimeManager.NextUptime(fish, spot.Territory, GatherBuddy.Time.ServerTime)),
+            _ => (alarm.PreferLocation, TimeInterval.Never),
         };
     }
 
@@ -190,9 +191,9 @@ public partial class AlarmManager : IDisposable
 
         return alarm.PreferLocation switch
         {
-            GatheringNode node => (node, node.Times.NextUptime(now)),
-            FishingSpot spot   => (spot, GatherBuddy.UptimeManager.NextUptime((Fish)alarm.Item, spot.Territory, now)),
-            _                  => (alarm.PreferLocation, TimeInterval.Never),
+            GatheringNode node                            => (node, node.Times.NextUptime(now)),
+            FishingSpot spot when alarm.Item is Fish fish => (spot, GatherBuddy.UptimeManager.NextUptime(fish, spot.Territory, now)),
+            _                                             => (alarm.PreferLocation, TimeInterval.Never),
         };
     }
 

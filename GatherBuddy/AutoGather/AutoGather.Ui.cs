@@ -177,6 +177,16 @@ namespace GatherBuddy.AutoGather
                             WorldData.SaveOffsetsToFile();
                         }
                         ImGui.Text(offset.Offset.ToString());
+                        if (ImGui.Button($"Navigate to Offset##{node.Position}"))
+                        {
+                            if (GatherBuddy.AutoGather.Enabled)
+                            {
+                                Communicator.PrintError("[GatherBuddyReborn] Auto-Gather is enabled! Unable to navigate.");
+                                return;
+                            }
+                            VNavmesh_IPCSubscriber.Path_Stop();
+                            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset.Offset, GatherBuddy.AutoGather.ShouldFly);
+                        }
                     }
                     else
                     {
