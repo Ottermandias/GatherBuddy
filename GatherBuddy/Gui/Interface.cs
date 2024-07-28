@@ -35,18 +35,21 @@ public partial class Interface : Window, IDisposable
         _locationTable     = new LocationTable();
         _alarmCache        = new AlarmCache(_plugin.AlarmManager);
         _recordTable       = new RecordTable();
-        SizeConstraints = new WindowSizeConstraints()
-        {
-            MinimumSize = new Vector2(MinSize,     17 * ImGui.GetTextLineHeightWithSpacing() / ImGuiHelpers.GlobalScale),
-            MaximumSize = new Vector2(MinSize * 4, ImGui.GetIO().DisplaySize.Y * 15 / 16 / ImGuiHelpers.GlobalScale),
-        };
         IsOpen             = GatherBuddy.Config.OpenOnStart;
         UpdateFlags();
     }
 
-    public override void Draw()
+    public override void PreDraw()
     {
         SetupValues();
+        // Skip dalamud size constraints because that would just require unscaling, then scaling.
+        var minSize = new Vector2(MinSize,     17 * ImGui.GetTextLineHeightWithSpacing());
+        var maxSize = new Vector2(MinSize * 4, ImGui.GetIO().DisplaySize.Y * 15 / 16);
+        ImGui.SetNextWindowSizeConstraints(minSize, maxSize);
+    }
+
+    public override void Draw()
+    {
         DrawHeader();
         using var tab = ImRaii.TabBar("ConfigTabs###GatherBuddyConfigTabs", ImGuiTabBarFlags.Reorderable);
         if (!tab)

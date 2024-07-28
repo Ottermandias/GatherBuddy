@@ -87,7 +87,7 @@ public partial class Fish : IComparable<Fish>, IGatherable
 
     public Fish(IDataManager gameData, FishRow fishRow, ExcelSheet<FishingNoteInfo> catchData)
     {
-        ItemData  = gameData.GetExcelSheet<ItemRow>()?.GetRow((uint)fishRow.Item) ?? new Item();
+        ItemData  = gameData.GetExcelSheet<ItemRow>()?.GetRow((uint)fishRow.Item) ?? new ItemRow();
         _fishData = fishRow;
         var note = catchData.GetRow(fishRow.RowId);
         FishRestrictions = (note is { TimeRestriction: 1 } ? FishRestrictions.Time : FishRestrictions.None)
