@@ -153,7 +153,7 @@ namespace GatherBuddy.AutoGather
             List<IGatherable> activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems).ToList();
             foreach (var item in activeItems)
             {
-                if (item.InventoryCount > item.Quantity)
+                if (item.InventoryCount >= item.Quantity)
                     continue;
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
