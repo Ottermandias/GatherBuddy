@@ -277,7 +277,7 @@ public partial class Interface
         public static void DrawYieldIIMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP;
-            if (ImGui.DragInt("Yield II Max GP", ref tmp, 1, 150, 30000))
+            if (ImGui.DragInt("Yield II Max GP", ref tmp, 1, 200, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
