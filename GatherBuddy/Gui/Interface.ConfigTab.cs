@@ -257,7 +257,7 @@ public partial class Interface
         public static void DrawTwelvesBountyMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MinimumGP;
-            if (ImGui.DragInt("The Twelve's Bounty Min GP", ref tmp, 1, 200, 30000))
+            if (ImGui.DragInt("The Twelve's Bounty Min GP", ref tmp, 1, 150, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
@@ -267,7 +267,7 @@ public partial class Interface
         public static void DrawTwelvesBountyMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MaximumGP;
-            if (ImGui.DragInt("The Twelve's Bounty Max GP", ref tmp, 1, 200, 30000))
+            if (ImGui.DragInt("The Twelve's Bounty Max GP", ref tmp, 1, 150, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
@@ -277,7 +277,7 @@ public partial class Interface
         public static void DrawYieldIIMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP;
-            if (ImGui.DragInt("Yield II Max GP", ref tmp, 1, 200, 30000))
+            if (ImGui.DragInt("Yield II Max GP", ref tmp, 1, 150, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
