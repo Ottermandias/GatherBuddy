@@ -62,9 +62,7 @@ namespace GatherBuddy.AutoGather
                  && ShouldUseMeticulous())
                     return Actions.Meticulous;
 
-                if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 3911)
-                 && brazenColl + collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
-                 && ShouldUseBrazen())
+                if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 3911) && ShouldUseBrazen())
                     return Actions.Brazen;
 
                 if (scourColl + collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
