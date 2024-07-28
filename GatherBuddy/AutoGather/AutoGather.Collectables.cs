@@ -81,11 +81,23 @@ namespace GatherBuddy.AutoGather
             {
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
+                int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
                 int scourColl        = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString().Substring(2));
                 int meticulousColl   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString().Substring(2));
 
-                if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore && ShouldCollect())
-                    return Actions.Collect;
+                if (currentIntegrity < maxIntegrity
+                 && ShouldUseWise(currentIntegrity, maxIntegrity))
+                    return Actions.Wise;
+
+                if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore)
+                {
+                    if (currentIntegrity <= maxIntegrity && GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables
+                     && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity))
+                        return Actions.SolidAge;
+
+                    if (ShouldCollect())
+                        return Actions.Collect;
+                }
 
                 if (currentIntegrity == 1
                  && GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity

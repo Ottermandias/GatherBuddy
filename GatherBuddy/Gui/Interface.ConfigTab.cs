@@ -105,6 +105,9 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        public static void DrawAlwaysUseSolidAgeCollectables()
+            => DrawCheckbox("Ignore the above setting for Solid Reason / Ageless Words", "Use Solid Reason / Ageless Words regardless of starting GP if target collectability score is reached",
+                GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables, b => GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables = b);
 
         public static void DrawMinimumGPCollectable()
         {
@@ -1195,6 +1198,7 @@ public partial class Interface
             {
                 ConfigFunctions.DrawMinimumGPCollectable();
                 ConfigFunctions.DrawMinimumGPCollectibleRotation();
+                ConfigFunctions.DrawAlwaysUseSolidAgeCollectables();
                 ConfigFunctions.DrawMinimumCollectibilityScore();
                 ConfigFunctions.DrawGatherIfLastIntegrity();
 
