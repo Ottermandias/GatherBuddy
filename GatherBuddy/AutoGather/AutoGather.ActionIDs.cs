@@ -45,5 +45,6 @@ public partial class AutoGather
         public static BaseAction Scrutiny      = new BaseAction(22189, 22185, "Scrutiny",       50, 200);
         public static BaseAction Luck          = new BaseAction(4095,  4081,  "Luck",           55, 200);
         public static BaseAction Wise          = new BaseAction(26522, 26521, "Wise",           90, 0);
+        public static BaseAction GivingLand    = new BaseAction(4590,  4589,  "GivingLand",     74, 200);
     }
 }

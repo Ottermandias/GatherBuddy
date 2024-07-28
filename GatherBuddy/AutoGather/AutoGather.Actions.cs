@@ -50,6 +50,8 @@ namespace GatherBuddy.AutoGather
                 return false;
             if ((Dalamud.ClientState.LocalPlayer?.CurrentGp ?? 0) > GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP)
                 return false;
+            if (gatherable != null && IsCrystal(gatherable) && !GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<bool>("UseWithCystals"))
+                return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.BYIIConfig, gatherable))
                 return false;
 
@@ -79,6 +81,8 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP
              || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP)
                 return false;
+            if (gatherable != null && IsCrystal(gatherable) && !GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.GetOptionalProperty<bool>("UseWithCystals"))
+                return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.YieldIIConfig, gatherable))
                 return false;
 
@@ -97,11 +101,77 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP
              || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP)
                 return false;
+            if (gatherable != null && IsCrystal(gatherable) && !GatherBuddy.Config.AutoGatherConfig.YieldIConfig.GetOptionalProperty<bool>("UseWithCystals"))
+                return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.YieldIConfig, gatherable))
                 return false;
 
             return GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction;
         }
+
+        private static unsafe bool IsCrystal(Gatherable item)
+        {
+            return item.ItemData.FilterGroup == 11;
+        }
+
+        private unsafe static Gatherable? GetAnyCrystalInNode(Span<uint> ids)
+        {
+            foreach (var id in ids)
+            {
+                if (GatherBuddy.GameData.Gatherables.TryGetValue(id, out var item) && IsCrystal(item) && item.InventoryCount < 9999)
+                    return item;
+            }
+            return null;
+        }
+
+        private unsafe bool ShouldUseGivingLand(Gatherable item, Span<uint> ids)
+        {
+            if (item == null)
+                return false;
+            if (!GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.UseAction)
+                return false;
+            if (Player.Level < Actions.GivingLand.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.GivingLand.GpCost)
+                return false;
+            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MinimumGP
+             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MaximumGP)
+                return false;
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1802))
+                return false;
+            if (!ActionManager.Instance()->IsActionOffCooldown(ActionType.Action, Actions.GivingLand.ActionID))
+                return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.GivingLandConfig, item))
+                return false;
+            if (!IsCrystal(item) && !(item.NodeType == Enums.NodeType.Regular && GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && GetAnyCrystalInNode(ids) != null))
+                return false;
+
+            return true;
+        }
+
+        private unsafe bool ShouldUseTwelvesBounty(Gatherable item)
+        {
+            if (item == null)
+                return false;
+            if (!IsCrystal(item))
+                return false;
+            if (!GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.UseAction)
+                return false;
+            if (Player.Level < Actions.TwelvesBounty.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < Actions.TwelvesBounty.GpCost)
+                return false;
+            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MinimumGP
+             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MaximumGP)
+                return false;
+            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 825))
+                return false;
+            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig, item))
+                return false;
+
+            return true;
+        }
+
 
         private unsafe void DoActionTasks(Gatherable desiredItem)
         {
@@ -135,11 +205,21 @@ namespace GatherBuddy.AutoGather
             int maxIntegrity     = int.Parse(GatheringAddon->AtkUnitBase.GetTextNodeById(12)->NodeText.ToString());
 
             Span<uint> ids = GatheringAddon->ItemIds;
+
+            if (desiredItem != null && !IsCrystal(desiredItem as Gatherable) && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1802))
+            {
+                desiredItem = GetAnyCrystalInNode(ids) ?? desiredItem;                
+            }
+
             if (ShouldUseWise(currentIntegrity, maxIntegrity))
                 EnqueueGatherAction(() => UseAction(Actions.Wise));
             if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
                 EnqueueGatherAction(() => UseAction(Actions.SolidAge));
-            if (ShouldUseLuck(ids, desiredItem as Gatherable))
+            if (ShouldUseGivingLand(desiredItem as Gatherable, ids))
+                EnqueueGatherAction(() => UseAction(Actions.GivingLand));
+            else if (ShouldUseTwelvesBounty(desiredItem as Gatherable))
+                EnqueueGatherAction(() => UseAction(Actions.TwelvesBounty));
+            else if (ShouldUseLuck(ids, desiredItem as Gatherable))
                 EnqueueGatherAction(() => UseAction(Actions.Luck));
             else if (ShouldUseKingII(desiredItem as Gatherable))
                 EnqueueGatherAction(() => UseAction(Actions.Yield2));
@@ -322,6 +402,8 @@ namespace GatherBuddy.AutoGather
 
             if (GetCurrentYield(targetItemId)
               < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
+                return false;
+            if (gatherable != null && IsCrystal(gatherable) && !GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<bool>("UseWithCystals"))
                 return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, gatherable))
                 return false;

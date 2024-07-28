@@ -196,6 +196,9 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        public static void DrawBYIIUseWithCrystals()
+            => DrawCheckbox("Use when gathering crystals", "", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<bool>("UseWithCystals"),
+                b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.SetOptionalProperty("UseWithCystals", b));
 
         public static void DrawLuckBox()
             => DrawCheckbox("Use Luck", "Toggle whether to use Luck for gathering.", GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction,
@@ -221,6 +224,56 @@ public partial class Interface
             }
         }
 
+        public static void DrawGivingLandBox()
+            => DrawCheckbox("Use The Giving Land", "Toggle whether to use The Giving Land for gathering crystals.", GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.UseAction = b);
+
+        public static void DrawGivingLandMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MinimumGP;
+            if (ImGui.DragInt("The Giving Land Min GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawGivingLandMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MaximumGP;
+            if (ImGui.DragInt("The Giving Land Max GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        public static void DrawUseGivingLandOnCooldown()
+            => DrawCheckbox("Gather any crystals when The Giving Land is off cooldown", "Gather random crystals on any regular node when The Giving Land is avaiable regardles of current target item.", GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown,
+                b => GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown = b);
+        public static void DrawTwelvesBountyBox()
+            => DrawCheckbox("Use The Twelve's Bounty", "Toggle whether to use The Twelve's Bounty for gathering crystals.", GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.UseAction = b);
+
+        public static void DrawTwelvesBountyMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MinimumGP;
+            if (ImGui.DragInt("The Twelve's Bounty Min GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawTwelvesBountyMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MaximumGP;
+            if (ImGui.DragInt("The Twelve's Bounty Max GP", ref tmp, 1, 200, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
         public static void DrawYieldIIMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP;
@@ -240,6 +293,9 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        public static void DrawYieldIIUseWithCrystals()
+            => DrawCheckbox("Use when gathering crystals", "", GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.GetOptionalProperty<bool>("UseWithCystals"),
+                b => GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.SetOptionalProperty("UseWithCystals", b));
 
         public static void DrawYieldIMaxGP()
         {
@@ -260,6 +316,9 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        public static void DrawYieldIUseWithCrystals()
+            => DrawCheckbox("Use when gathering crystals", "", GatherBuddy.Config.AutoGatherConfig.YieldIConfig.GetOptionalProperty<bool>("UseWithCystals"),
+                b => GatherBuddy.Config.AutoGatherConfig.YieldIConfig.SetOptionalProperty("UseWithCystals", b));
 
         public static void DrawConditions(AutoGatherConfig.ActionConfig config)
         {
@@ -446,6 +505,9 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        public static void DrawSolidAgeGatherablesUseWithCrystals()
+            => DrawCheckbox("Use when gathering crystals", "", GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<bool>("UseWithCystals"),
+                b => GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.SetOptionalProperty("UseWithCystals", b));
 
         public static void DrawSolidAgeGatherablesMinYield()
         {
@@ -1125,6 +1187,7 @@ public partial class Interface
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawMinimumGPGathering();
                 ConfigFunctions.DrawSortingMethodCombo();
+                ConfigFunctions.DrawUseGivingLandOnCooldown();
                 ImGui.TreePop();
             }
 
@@ -1148,6 +1211,7 @@ public partial class Interface
                     ConfigFunctions.DrawBYIIBox();
                     ConfigFunctions.DrawBYIIMinGP();
                     ConfigFunctions.DrawBYIIMaxGP();
+                    ConfigFunctions.DrawBYIIUseWithCrystals();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BYIIConfig);
                     ImGui.TreePop();
                 }
@@ -1157,6 +1221,7 @@ public partial class Interface
                     ConfigFunctions.DrawYieldIICheckbox();
                     ConfigFunctions.DrawYieldIIMinGP();
                     ConfigFunctions.DrawYieldIIMaxGP();
+                    ConfigFunctions.DrawYieldIIUseWithCrystals();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.YieldIIConfig);
                     ImGui.TreePop();
                 }
@@ -1166,6 +1231,7 @@ public partial class Interface
                     ConfigFunctions.DrawYieldICheckbox();
                     ConfigFunctions.DrawYieldIMinGP();
                     ConfigFunctions.DrawYieldIMaxGP();
+                    ConfigFunctions.DrawYieldIUseWithCrystals();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.YieldIConfig);
                     ImGui.TreePop();
                 }
@@ -1175,6 +1241,7 @@ public partial class Interface
                     ConfigFunctions.DrawSolidAgeGatherablesCheckbox();
                     ConfigFunctions.DrawSolidAgeGatherablesMinGp();
                     ConfigFunctions.DrawSolidAgeGatherablesMaxGp();
+                    ConfigFunctions.DrawSolidAgeGatherablesUseWithCrystals();
                     ConfigFunctions.DrawSolidAgeGatherablesMinYield();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig);
                     ImGui.TreePop();
@@ -1186,6 +1253,22 @@ public partial class Interface
                     ConfigFunctions.DrawLuckMinGP();
                     ConfigFunctions.DrawLuckMaxGP();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.LuckConfig);
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("The Giving Land"))
+                {
+                    ConfigFunctions.DrawGivingLandBox();
+                    ConfigFunctions.DrawGivingLandMinGP();
+                    ConfigFunctions.DrawGivingLandMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.GivingLandConfig);
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("The Twelve's Bounty"))
+                {
+                    ConfigFunctions.DrawTwelvesBountyBox();
+                    ConfigFunctions.DrawTwelvesBountyMinGP();
+                    ConfigFunctions.DrawTwelvesBountyMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig);
                     ImGui.TreePop();
                 }
 
