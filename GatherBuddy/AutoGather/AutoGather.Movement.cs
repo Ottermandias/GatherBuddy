@@ -61,8 +61,28 @@ namespace GatherBuddy.AutoGather
                 if (am->GetActionStatus(ActionType.Mount, mount) != 0)
                     return;
 
+                if (!IsMountUnlocked(mount))
+                {
+                    if (am->GetActionStatus(ActionType.GeneralAction, 24) != 0)
+                    {
+                        return;
+                    }
+
+                    am->UseAction(ActionType.GeneralAction, 24);
+                    return;
+                }
+
                 am->UseAction(ActionType.Mount, mount);
             }
+        }
+
+        private unsafe bool IsMountUnlocked(uint mount)
+        {
+            var instance = PlayerState.Instance();
+            if (instance == null)
+                return false;
+
+            return instance->IsMountUnlocked(mount);
         }
 
         private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem)

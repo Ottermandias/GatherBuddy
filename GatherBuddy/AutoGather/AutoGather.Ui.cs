@@ -209,9 +209,11 @@ namespace GatherBuddy.AutoGather
             var ps = PlayerState.Instance();
             var preview = Dalamud.GameData.GetExcelSheet<Mount>().First(x => x.RowId == GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId)
                 .Singular.ToString().ToProperCase();
+            if (string.IsNullOrEmpty(preview))
+                preview = "Mount Roulette";
             if (ImGui.BeginCombo("Select Mount", preview))
             {
-                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == 0))
+                if (ImGui.Selectable("Mount Roulette", GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId == 0))
                 {
                     GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId = 0;
                     GatherBuddy.Config.Save();
