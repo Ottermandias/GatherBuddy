@@ -229,5 +229,22 @@ namespace GatherBuddy.AutoGather
 
         private uint QuantityTotal(IGatherable gatherable)
             => _plugin.GatherWindowManager.GetTotalQuantitiesForItem(gatherable);
+
+        private int GetNodeTypeAsPriority(IGatherable item)
+        {
+            if (GatherBuddy.Config.AutoGatherConfig.SortingMethod == AutoGatherConfig.SortingType.None)
+                return 0;
+            Gatherable gatherable = item as Gatherable;
+            switch (gatherable?.NodeType)
+            {
+                case NodeType.Legendary: return 0;
+                case NodeType.Unspoiled: return 1;
+                case NodeType.Ephemeral: return 2;
+                case NodeType.Regular:   return 9;
+                case NodeType.Unknown:   return 99;
+            }
+
+            return 99;
+        }
     }
 }

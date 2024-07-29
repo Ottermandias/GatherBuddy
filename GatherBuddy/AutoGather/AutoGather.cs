@@ -125,7 +125,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
             Gatherable? targetItem =
-                (TimedItemsToGather.Count > 0 ? TimedItemsToGather.FirstOrDefault() : ItemsToGather.FirstOrDefault()) as Gatherable;
+                (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
 
             if (targetItem == null)
             {
