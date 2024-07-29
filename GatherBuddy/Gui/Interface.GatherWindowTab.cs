@@ -5,6 +5,7 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
+using ECommons;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
@@ -172,7 +173,14 @@ public partial class Interface
                         if (gatherable == null)
                             continue;
 
-                        gatherable.Quantity += (uint)item.Value;
+                        if (preset.Quantities.TryGetValue(gatherable.ItemId, out var quantity))
+                        {
+                            preset.Quantities[gatherable.ItemId] += (uint)item.Value;
+                        }
+                        else
+                        {
+                            preset.Quantities.Add(gatherable.ItemId, (uint)item.Value);
+                        }
                         preset.Add(gatherable);
                     }
                 }
@@ -225,14 +233,14 @@ public partial class Interface
             ImGui.SameLine();
             ImGui.Text("Inventory: ");
             ImGui.SameLine();
-            var invTotal = item.InventoryCount;
+            var invTotal = _plugin.GatherWindowManager.GetInventoryCountForItem(item);
             ImGui.SetNextItemWidth(100f);
             ImGui.Text($"{invTotal} / ");
             ImGui.SameLine();
-            int quantity = (int)item.Quantity;
+            int quantity = (int)preset.Quantities[item.ItemId];
             ImGui.SetNextItemWidth(100f);
             if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
-                _plugin.GatherWindowManager.ChangeQuantity(preset, quantity, i);
+                _plugin.GatherWindowManager.ChangeQuantity(preset, (uint)quantity, item.ItemId);
             group.Dispose();
 
             _gatherWindowCache.Selector.CreateDropSource(new GatherWindowDragDropData(preset, item, i), item.Name[GatherBuddy.Language]);

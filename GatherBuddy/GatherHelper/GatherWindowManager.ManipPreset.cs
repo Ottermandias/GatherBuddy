@@ -93,21 +93,19 @@ public partial class GatherWindowManager
             SetActiveItems();
     }
 
-    public void ChangeQuantity(GatherWindowPreset preset, int quantity, int idx)
+    public void ChangeQuantity(GatherWindowPreset preset, uint quantity, uint itemId)
     {
-        if (idx < 0 || idx >= preset.Items.Count)
+        if (!preset.Quantities.TryGetValue(itemId, out var presetQuantity))
             return;
-
-        if (preset.Items[idx].Quantity == quantity)
+        if (presetQuantity == quantity)
             return;
         
         if (quantity < 1)
             quantity = 1;
         if (quantity > 9999)
             quantity = 9999;
-
-        var item = preset.Items[idx];
-        item.Quantity = (uint)quantity;
+        
+        preset.Quantities[itemId] = quantity;
         Save();
         if (preset.Enabled)
             SetActiveItems();

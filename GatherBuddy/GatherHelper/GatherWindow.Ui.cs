@@ -125,8 +125,10 @@ public class GatherWindow : Window
             ImGui.SameLine();
             var colorId = time == TimeInterval.Always    ? ColorId.GatherWindowText :
                 time.Start > GatherBuddy.Time.ServerTime ? ColorId.GatherWindowUpcoming : ColorId.GatherWindowAvailable;
-            using var color = ImRaii.PushColor(ImGuiCol.Text, colorId.Value());
-            if (ImGui.Selectable($"{item.Name[GatherBuddy.Language]} ({item.InventoryCount}/{item.Quantity})", false))
+            using var color          = ImRaii.PushColor(ImGuiCol.Text, colorId.Value());
+            var       inventoryCount = _plugin.GatherWindowManager.GetInventoryCountForItem(item);
+            var       quantity       = _plugin.GatherWindowManager.GetTotalQuantitiesForItem(item);
+            if (ImGui.Selectable($"{item.Name[GatherBuddy.Language]} ({inventoryCount}/{quantity})", false))
             {
                 if (_plugin.Executor.LastItem != item)
                     _plugin.Executor.GatherItem(item);

@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Alarms;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -74,6 +75,68 @@ public partial class GatherWindowManager : IDisposable
                 => GatherBuddy.UptimeManager.BestLocation(lhs).Interval.Compare(GatherBuddy.UptimeManager.BestLocation(rhs).Interval));
 
         return SortedItems;
+    }
+
+    public uint GetTotalQuantitiesForItem(IGatherable gatherable)
+    {
+        uint total = 0;
+        foreach (var preset in Presets)
+        {
+            if (!preset.Enabled)
+                continue;
+            if (preset.Quantities.TryGetValue(gatherable.ItemId, out var quantity))
+            {
+                total += quantity;
+            }
+        }
+
+        return total;
+    }
+
+    public unsafe int GetInventoryCountForItem(IGatherable gatherable)
+    {
+        if (gatherable.ItemData.IsCollectable)
+        {
+            int count   = 0;
+            var manager = InventoryManager.Instance();
+            if (manager == null)
+                return count;
+            foreach (var inv in InventoryTypes)
+            {
+                var container = manager->GetInventoryContainer(inv);
+                if (container == null || container->Loaded == 0)
+                    continue;
+                for (int i = 0; i < container->Size; i++)
+                {
+                    var item = container->GetInventorySlot(i);
+                    if (item == null || item->ItemId == 0 || item->ItemId != gatherable.ItemId) continue;
+        
+                    count++;
+                }
+            }
+        
+            return count;
+        }
+        else
+        {
+            var inventory = InventoryManager.Instance();
+            return inventory->GetInventoryItemCount(gatherable.ItemId);
+        }
+    }
+    
+    public List<InventoryType> InventoryTypes
+    {
+        get
+        {
+            List<InventoryType> types = new List<InventoryType>()
+            {
+                InventoryType.Inventory1,
+                InventoryType.Inventory2,
+                InventoryType.Inventory3,
+                InventoryType.Inventory4,
+            };
+            return types;
+        }
     }
 
     public void Save()

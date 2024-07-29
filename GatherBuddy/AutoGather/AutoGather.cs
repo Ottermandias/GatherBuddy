@@ -129,7 +129,7 @@ namespace GatherBuddy.AutoGather
 
             if (targetItem == null)
             {
-                if (!_plugin.GatherWindowManager.ActiveItems.Any(i => i.InventoryCount < i.Quantity))
+                if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i)))
                 {
                     AutoStatus         = "No items to gather...";
                     Enabled            = false;

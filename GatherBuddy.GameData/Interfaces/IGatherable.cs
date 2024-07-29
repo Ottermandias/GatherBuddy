@@ -20,6 +20,4 @@ public interface IGatherable
     public uint                   ItemId          { get; }
     public Item                   ItemData        { get; }
     public ObjectType             Type            { get; }
-    public uint                   Quantity        { get; set; }
-    public int                    InventoryCount { get; }
 }
