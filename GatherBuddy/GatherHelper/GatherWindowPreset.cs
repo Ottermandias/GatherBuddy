@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using GatherBuddy.Alarms;
+using GatherBuddy.Classes;
 using GatherBuddy.GatherGroup;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -13,10 +14,11 @@ namespace GatherBuddy.GatherHelper;
 
 public class GatherWindowPreset
 {
-    public List<IGatherable> Items       { get; init; } = new();
-    public string            Name        { get; set; }  = string.Empty;
-    public string            Description { get; set; }  = string.Empty;
-    public bool              Enabled     { get; set; }  = false;
+    public List<IGatherable>      Items       { get; init; } = new();
+    public Dictionary<uint, uint> Quantities  { get; set; } = new();
+    public string                 Name        { get; set; }  = string.Empty;
+    public string                 Description { get; set; }  = string.Empty;
+    public bool                   Enabled     { get; set; }  = false;
 
     public GatherWindowPreset Clone()
         => new()
@@ -33,6 +35,7 @@ public class GatherWindowPreset
             return false;
 
         Items.Add(item);
+        Quantities.TryAdd(item.ItemId, 1);
         return true;
     }
 
@@ -43,18 +46,18 @@ public class GatherWindowPreset
     {
         public const byte CurrentVersion = 2;
 
-        public uint[]       ItemIds;
-        public ObjectType[] ItemTypes;
-        public uint[] Quantities;
-        public string       Name;
-        public string       Description;
-        public bool         Enabled;
+        public uint[]        ItemIds;
+        public ObjectType[]  ItemTypes;
+        public Dictionary<uint, uint> Quantities;
+        public string        Name;
+        public string        Description;
+        public bool          Enabled;
 
         public Config(GatherWindowPreset preset)
         {
             ItemIds     = preset.Items.Select(i => i.ItemId).ToArray();
             ItemTypes   = preset.Items.Select(i => i.Type).ToArray();
-            Quantities = preset.Items.Select(i => i.Quantity).ToArray();
+            Quantities  = preset.Quantities;
             Name        = preset.Name;
             Description = preset.Description;
             Enabled     = preset.Enabled;
@@ -109,7 +112,7 @@ public class GatherWindowPreset
                 ObjectType.Fish       => GatherBuddy.GameData.Fishes.TryGetValue(cfg.ItemIds[i], out var item) ? item : null,
                 _                     => null,
             };
-            gatherable.Quantity = cfg.Quantities[i];
+            ret.Quantities = cfg.Quantities;
             if (gatherable == null)
                 changes = true;
             else if (!ret.Add(gatherable))

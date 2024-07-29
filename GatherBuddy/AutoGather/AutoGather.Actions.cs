@@ -114,11 +114,11 @@ namespace GatherBuddy.AutoGather
             return item.ItemData.FilterGroup == 11;
         }
 
-        private unsafe static Gatherable? GetAnyCrystalInNode(Span<uint> ids)
+        private unsafe Gatherable? GetAnyCrystalInNode(Span<uint> ids)
         {
             foreach (var id in ids)
             {
-                if (GatherBuddy.GameData.Gatherables.TryGetValue(id, out var item) && IsCrystal(item) && item.InventoryCount < 9999)
+                if (GatherBuddy.GameData.Gatherables.TryGetValue(id, out var item) && IsCrystal(item) && InventoryCount(item) < 9999)
                     return item;
             }
             return null;

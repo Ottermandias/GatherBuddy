@@ -153,7 +153,7 @@ namespace GatherBuddy.AutoGather
             List<IGatherable> activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems).ToList();
             foreach (var item in activeItems)
             {
-                if (item.InventoryCount >= item.Quantity)
+                if (InventoryCount(item) >= QuantityTotal(item))
                     continue;
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
@@ -223,5 +223,11 @@ namespace GatherBuddy.AutoGather
                 return true;
             }
         }
+
+        private int InventoryCount(IGatherable gatherable)
+            => _plugin.GatherWindowManager.GetInventoryCountForItem(gatherable);
+
+        private uint QuantityTotal(IGatherable gatherable)
+            => _plugin.GatherWindowManager.GetTotalQuantitiesForItem(gatherable);
     }
 }
