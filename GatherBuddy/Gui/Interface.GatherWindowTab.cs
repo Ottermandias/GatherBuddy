@@ -183,6 +183,9 @@ public partial class Interface
                         }
                         preset.Add(gatherable);
                     }
+                    
+                    if (preset.Enabled)
+                        _plugin.GatherWindowManager.SetActiveItems();
                 }
                 catch (Exception e)
                 {
