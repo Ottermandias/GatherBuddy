@@ -198,37 +198,47 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoGatherWindowActions(IGatherable? desiredItem)
         {
-            if (GatheringAddon == null)
-                return;
-
-            int currentIntegrity = int.Parse(GatheringAddon->AtkUnitBase.GetTextNodeById(9)->NodeText.ToString());
-            int maxIntegrity     = int.Parse(GatheringAddon->AtkUnitBase.GetTextNodeById(12)->NodeText.ToString());
-
-            Span<uint> ids = GatheringAddon->ItemIds;
-
-            if (desiredItem != null && !IsCrystal(desiredItem as Gatherable) && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1802))
+            if (GatheringAddon != null)
             {
-                desiredItem = GetAnyCrystalInNode(ids) ?? desiredItem;                
-            }
+                var node9  = GatheringAddon->AtkUnitBase.GetTextNodeById(9);
+                var node12 = GatheringAddon->AtkUnitBase.GetTextNodeById(12);
 
-            if (ShouldUseWise(currentIntegrity, maxIntegrity))
-                EnqueueGatherAction(() => UseAction(Actions.Wise));
-            if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
-                EnqueueGatherAction(() => UseAction(Actions.SolidAge));
-            if (ShouldUseGivingLand(desiredItem as Gatherable, ids))
-                EnqueueGatherAction(() => UseAction(Actions.GivingLand));
-            else if (ShouldUseTwelvesBounty(desiredItem as Gatherable))
-                EnqueueGatherAction(() => UseAction(Actions.TwelvesBounty));
-            else if (ShouldUseLuck(ids, desiredItem as Gatherable))
-                EnqueueGatherAction(() => UseAction(Actions.Luck));
-            else if (ShouldUseKingII(desiredItem as Gatherable))
-                EnqueueGatherAction(() => UseAction(Actions.Yield2));
-            else if (ShouldUseKingI(desiredItem as Gatherable))
-                EnqueueGatherAction(() => UseAction(Actions.Yield1));
-            else if (ShoulduseBYII(desiredItem as Gatherable))
-                EnqueueGatherAction(() => UseAction(Actions.Bountiful));
-            else
-                DoGatherWindowTasks(desiredItem);
+                if (node9 != null && node12 != null)
+                {
+                    if (int.TryParse(node9->NodeText.ToString(),  out int currentIntegrity)
+                     && int.TryParse(node12->NodeText.ToString(), out int maxIntegrity))
+                    {
+
+                        Span<uint> ids = GatheringAddon->ItemIds;
+
+                        if (desiredItem != null
+                         && !IsCrystal(desiredItem as Gatherable)
+                         && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1802))
+                        {
+                            desiredItem = GetAnyCrystalInNode(ids) ?? desiredItem;
+                        }
+
+                        if (ShouldUseWise(currentIntegrity, maxIntegrity))
+                            EnqueueGatherAction(() => UseAction(Actions.Wise));
+                        if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
+                            EnqueueGatherAction(() => UseAction(Actions.SolidAge));
+                        if (ShouldUseGivingLand(desiredItem as Gatherable, ids))
+                            EnqueueGatherAction(() => UseAction(Actions.GivingLand));
+                        else if (ShouldUseTwelvesBounty(desiredItem as Gatherable))
+                            EnqueueGatherAction(() => UseAction(Actions.TwelvesBounty));
+                        else if (ShouldUseLuck(ids, desiredItem as Gatherable))
+                            EnqueueGatherAction(() => UseAction(Actions.Luck));
+                        else if (ShouldUseKingII(desiredItem as Gatherable))
+                            EnqueueGatherAction(() => UseAction(Actions.Yield2));
+                        else if (ShouldUseKingI(desiredItem as Gatherable))
+                            EnqueueGatherAction(() => UseAction(Actions.Yield1));
+                        else if (ShoulduseBYII(desiredItem as Gatherable))
+                            EnqueueGatherAction(() => UseAction(Actions.Bountiful));
+                        else
+                            DoGatherWindowTasks(desiredItem);
+                    }
+                }
+            }
         }
 
         private unsafe int GetCurrentYield(int itemPosition)
