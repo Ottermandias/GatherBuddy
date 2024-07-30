@@ -235,7 +235,9 @@ public partial class Interface
             Items       = new List<IGatherable> { item },
             Description = AutomaticallyGenerated,
             Name        = PresetName,
+            Quantities = new Dictionary<uint, uint>(),
         };
+        preset.Quantities.TryAdd(item.ItemId, 1);
         _plugin.GatherWindowManager.AddPreset(preset);
 
         return preset;
