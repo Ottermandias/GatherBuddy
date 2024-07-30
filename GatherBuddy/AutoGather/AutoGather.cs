@@ -216,7 +216,7 @@ namespace GatherBuddy.AutoGather
                         => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault(); 
             }
 
-            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 150))
+            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 100))
             {
                 FarNodesSeenSoFar.Add(selectedNode);
 
