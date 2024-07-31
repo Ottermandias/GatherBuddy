@@ -9,13 +9,13 @@ namespace GatherBuddy.AutoGather;
 
 public partial class AutoGather
 {
-    unsafe InventoryContainer* inventory = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
 
     unsafe int SpiritBondMax
     {
         get
         {
-            var result = 0;
+            var inventory = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
+            var result    = 0;
             for (var slot = 0; slot < inventory->Size; slot++)
             {
                 var inventoryItem = inventory->GetInventorySlot(slot);
