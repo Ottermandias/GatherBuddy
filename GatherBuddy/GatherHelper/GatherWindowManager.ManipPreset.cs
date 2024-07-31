@@ -72,6 +72,9 @@ public partial class GatherWindowManager
     {
         if (idx < 0 || idx >= preset.Items.Count)
             return;
+        
+        if (preset.Quantities.ContainsKey(preset.Items[idx].ItemId))
+            preset.Quantities.Remove(preset.Items[idx].ItemId);
 
         preset.Items.RemoveAt(idx);
         Save();
