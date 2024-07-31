@@ -170,7 +170,7 @@ public partial class Interface
                     {
                         var gatherable =
                             GatherBuddy.GameData.Gatherables.Values.FirstOrDefault(g => g.Name[Dalamud.ClientState.ClientLanguage] == item.Key);
-                        if (gatherable == null)
+                        if (gatherable == null || gatherable.NodeList.Count == 0)
                             continue;
 
                         if (preset.Quantities.TryGetValue(gatherable.ItemId, out var quantity))
