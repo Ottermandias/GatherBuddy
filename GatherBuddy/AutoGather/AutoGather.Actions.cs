@@ -302,9 +302,13 @@ namespace GatherBuddy.AutoGather
                 CurrentRotation = new CollectableRotation(GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation);
 
             var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
-            var text     = textNode->NodeText.ToString();
+            if (textNode == null)
+                return;
+            var text = textNode->NodeText.ToString();
 
             var integrityNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(126);
+            if (integrityNode == null)
+                return;
             var integrityText = integrityNode->NodeText.ToString();
 
             if (!int.TryParse(text, out var collectibility))
