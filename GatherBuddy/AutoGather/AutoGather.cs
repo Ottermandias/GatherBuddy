@@ -271,11 +271,11 @@ namespace GatherBuddy.AutoGather
 
         private void DoSafetyChecks()
         {
-            if (VNavmesh_IPCSubscriber.Path_GetAlignCamera())
-            {
-                GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
-                VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
-            }
+            // if (VNavmesh_IPCSubscriber.Path_GetAlignCamera())
+            // {
+            //     GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
+            //     VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
+            // }
         }
 
         public void Dispose()
