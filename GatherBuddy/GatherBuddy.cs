@@ -29,6 +29,7 @@ using OtterGui.Log;
 using ECommons;
 using ECommons.DalamudServices;
 using GatherBuddy.AutoGather;
+using Module = ECommons.Module;
 
 namespace GatherBuddy;
 
@@ -86,7 +87,7 @@ public partial class GatherBuddy : IDalamudPlugin
         try
         {
             Dalamud.Initialize(pluginInterface);
-            ECommonsMain.Init(pluginInterface, this);
+            ECommonsMain.Init(pluginInterface, this, Module.DalamudReflector);
             Icons.Init(Dalamud.GameData, Dalamud.Textures);
             Log     = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
