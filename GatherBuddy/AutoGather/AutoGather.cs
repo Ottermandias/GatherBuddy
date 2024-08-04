@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using ECommons;
+using ECommons.Automation;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -15,6 +16,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
+using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.AutoGather
 {
@@ -26,9 +28,15 @@ namespace GatherBuddy.AutoGather
             TaskManager                            =  new();
             TaskManager.ShowDebug                  =  false;
             _plugin                                =  plugin;
+            _chat                                  =  new Chat();
             _movementController                    =  new OverrideMovement();
             _soundHelper                           =  new SoundHelper();
             GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
+            var territories = Svc.Data.GetExcelSheet<TerritoryType>().Where(t => t.Unknown13);
+            foreach (var territory in territories)
+            {
+                _homeTerritories.Add(territory.RowId);
+            }
         }
 
         private void UptimeChange(IGatherable obj)
@@ -41,8 +49,10 @@ namespace GatherBuddy.AutoGather
 
         private readonly GatherBuddy _plugin;
         private readonly SoundHelper _soundHelper;
+        private readonly Chat        _chat;
 
-        public TaskManager TaskManager { get; }
+        private readonly List<uint> _homeTerritories = new List<uint>();
+        public           TaskManager     TaskManager { get; }
 
         private bool _enabled { get; set; } = false;
 
@@ -81,6 +91,18 @@ namespace GatherBuddy.AutoGather
 
                 _enabled = value;
             }
+        }
+
+        public void GoHome()
+        {
+            if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
+                return;
+            if (_homeTerritories.Contains(Svc.ClientState.TerritoryType))
+            {
+                GatherBuddy.Log.Debug("Skipping home teleport, already in a residential area.");
+                return;
+            }
+            TaskManager.Enqueue(() => _chat.ExecuteCommand("/li auto"));
         }
 
         public unsafe void DoAutoGather()
@@ -129,6 +151,7 @@ namespace GatherBuddy.AutoGather
 
             if (targetItem == null)
             {
+                UpdateItemsToGather();
                 if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i)))
                 {
                     AutoStatus         = "No items to gather...";
@@ -137,9 +160,10 @@ namespace GatherBuddy.AutoGather
                     VNavmesh_IPCSubscriber.Path_Stop();
                     if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
                         _soundHelper.PlayHonkSound(3);
+                    TaskManager.Enqueue(GoHome);
                     return;
                 }
-                UpdateItemsToGather();
+                TaskManager.Enqueue(GoHome);
                 //GatherBuddy.Log.Warning("No items to gather");
                 AutoStatus = "No available items to gather";
                 return;

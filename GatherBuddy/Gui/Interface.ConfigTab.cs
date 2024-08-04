@@ -65,6 +65,9 @@ public partial class Interface
                 "Toggle whether to automatically gather items. (Disable this for 'nav only mode')",
                 GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
 
+        public static void DrawGoHomeBox()
+            => DrawCheckbox("Go home when idle", "Uses the '/li auto' command to take you home when done gathering or waiting for timed nodes",
+                GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
         public static void DrawAdvancedNavBox()
             => DrawCheckbox("Enable Experimental Navigation", "Use advanced navigation techniques to try and work around vnavmesh limitations",
                 GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation,
@@ -1188,6 +1191,7 @@ public partial class Interface
                 ConfigFunctions.DrawMinimumGPGathering();
                 ConfigFunctions.DrawSortingMethodCombo();
                 ConfigFunctions.DrawUseGivingLandOnCooldown();
+                ConfigFunctions.DrawGoHomeBox();
                 ImGui.TreePop();
             }
 
