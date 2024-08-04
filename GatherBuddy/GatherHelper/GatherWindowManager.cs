@@ -184,6 +184,7 @@ public partial class GatherWindowManager : IDisposable
         catch (Exception e)
         {
             GatherBuddy.Log.Error($"Error deserializing gather window data:\n{e}");
+            Communicator.PrintError($"[GatherBuddy Reborn] Gather Window Presets failed to load. Gathering Lists have been reset.");
             ret.Save();
         }
 
