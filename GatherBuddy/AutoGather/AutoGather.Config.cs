@@ -65,6 +65,7 @@ namespace GatherBuddy.AutoGather
         public bool DoMaterialize { get; set; } = false;
         public bool HonkMode { get; set; } = true;
         public SortingType SortingMethod { get; set; } = SortingType.Location;
+        public bool GoHomeWhenIdle { get; set; } = true;
 
         public enum SortingType
         {

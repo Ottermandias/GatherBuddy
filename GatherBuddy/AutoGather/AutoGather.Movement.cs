@@ -287,7 +287,12 @@ namespace GatherBuddy.AutoGather
         private void MoveToTerritory(ILocation location)
         {
             TaskManager.EnqueueImmediate(() => _plugin.Executor.GatherLocation(location));
-            TaskManager.DelayNextImmediate(10000);
+            if (location.Id != Svc.ClientState.TerritoryType)
+            {
+                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
+                TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
+                TaskManager.DelayNext(3000);
+            }
         }
 
         private Vector3? advandedLastPosition = null;

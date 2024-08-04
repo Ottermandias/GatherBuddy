@@ -6,7 +6,9 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using Dalamud.Game.ClientState.Conditions;
 using ECommons;
+using ECommons.Automation;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -15,6 +17,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
+using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.AutoGather
 {
@@ -29,6 +32,11 @@ namespace GatherBuddy.AutoGather
             _movementController                    =  new OverrideMovement();
             _soundHelper                           =  new SoundHelper();
             GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
+            var territories = Svc.Data.GetExcelSheet<TerritoryType>().Where(t => t.Unknown13);
+            foreach (var territory in territories)
+            {
+                _homeTerritories.Add(territory.RowId);
+            }
         }
 
         private void UptimeChange(IGatherable obj)
@@ -42,7 +50,8 @@ namespace GatherBuddy.AutoGather
         private readonly GatherBuddy _plugin;
         private readonly SoundHelper _soundHelper;
 
-        public TaskManager TaskManager { get; }
+        private readonly List<uint>  _homeTerritories = new List<uint>();
+        public           TaskManager TaskManager { get; }
 
         private bool _enabled { get; set; } = false;
 
@@ -81,6 +90,28 @@ namespace GatherBuddy.AutoGather
 
                 _enabled = value;
             }
+        }
+
+        public void GoHome()
+        {
+            if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle || !CanAct)
+                return;
+
+            if (_homeTerritories.Contains(Svc.ClientState.TerritoryType)  || Lifestream_IPCSubscriber.IsBusy())
+            {
+                GatherBuddy.Log.Debug("Skipping home teleport, already in a residential area.");
+                return;
+            }
+
+            if (Lifestream_IPCSubscriber.IsEnabled)
+            {
+                TaskManager.Enqueue(() => Lifestream_IPCSubscriber.ExecuteCommand("auto"));
+                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
+                TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
+                TaskManager.DelayNext(3000);
+            }
+            else 
+                GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
         public unsafe void DoAutoGather()
@@ -124,11 +155,13 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Player is busy...";
                 return;
             }
+
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
 
             if (targetItem == null)
             {
+                UpdateItemsToGather();
                 if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i)))
                 {
                     AutoStatus         = "No items to gather...";
@@ -137,9 +170,11 @@ namespace GatherBuddy.AutoGather
                     VNavmesh_IPCSubscriber.Path_Stop();
                     if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
                         _soundHelper.PlayHonkSound(3);
+                    GoHome();
                     return;
                 }
-                UpdateItemsToGather();
+
+                GoHome();
                 //GatherBuddy.Log.Warning("No items to gather");
                 AutoStatus = "No available items to gather";
                 return;
@@ -152,7 +187,7 @@ namespace GatherBuddy.AutoGather
                 DoActionTasks(targetItem);
                 return;
             }
-            
+
             if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
@@ -178,7 +213,7 @@ namespace GatherBuddy.AutoGather
             }
 
             DoUseConsumablesWithoutCastTime();
-            
+
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
@@ -210,10 +245,11 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "Waiting on flag show up";
                     return;
                 }
+
                 AutoStatus = "Moving to farming area...";
                 selectedNode = matchingNodesInZone
                     .Where(o => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z)) < 10).OrderBy(o
-                        => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault(); 
+                        => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault();
             }
 
             if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 100))
@@ -235,11 +271,11 @@ namespace GatherBuddy.AutoGather
 
         private void DoSafetyChecks()
         {
-            if (VNavmesh_IPCSubscriber.Path_GetAlignCamera())
-            {
-                GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
-                VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
-            }
+            // if (VNavmesh_IPCSubscriber.Path_GetAlignCamera())
+            // {
+            //     GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
+            //     VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
+            // }
         }
 
         public void Dispose()
