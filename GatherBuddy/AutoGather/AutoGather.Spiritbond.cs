@@ -22,7 +22,7 @@ public partial class AutoGather
                 if (inventoryItem == null || inventoryItem->ItemId <= 0)
                     continue;
 
-                GatherBuddy.Log.Debug("Slot " + slot + " has " + inventoryItem->Spiritbond + " Spiritbond");
+                //GatherBuddy.Log.Debug("Slot " + slot + " has " + inventoryItem->Spiritbond + " Spiritbond");
                 if (inventoryItem->Spiritbond == 10000)
                 {
                     result++;
@@ -35,14 +35,12 @@ public partial class AutoGather
 
     unsafe void DoMateriaExtraction()
     {
-        if (!GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
-            return;
-
         if (MaterializeAddon == null)
         {
             TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
             TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
             TaskManager.Enqueue(() => MaterializeAddon != null);
+            return;
         }
 
         for (var i = SpiritBondMax; i > 0; i--)
@@ -51,7 +49,6 @@ public partial class AutoGather
             TaskManager.DelayNext(1000);
             TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39]);
         }
-
-        TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
+        //TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
     }
 }
