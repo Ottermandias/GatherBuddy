@@ -125,8 +125,7 @@ namespace GatherBuddy.AutoGather
                     AdvancedUnstuckCheck();
                     TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
                     TaskManager.Enqueue(Dismount);
-                    TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Mounted]);
-                    TaskManager.DelayNext(1000);
+                    TaskManager.DelayNext(1500);
                     return;
                 }
 
