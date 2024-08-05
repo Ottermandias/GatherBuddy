@@ -28,7 +28,6 @@ namespace GatherBuddy.AutoGather
             // Initialize the task manager
             TaskManager                            =  new();
             TaskManager.ShowDebug                  =  false;
-            TaskManager.TimeLimitMS                =  1500;
             _plugin                                =  plugin;
             _movementController                    =  new OverrideMovement();
             _soundHelper                           =  new SoundHelper();
