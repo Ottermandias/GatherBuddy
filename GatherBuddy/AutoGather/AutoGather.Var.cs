@@ -148,6 +148,8 @@ namespace GatherBuddy.AutoGather
 
         public void UpdateItemsToGather()
         {
+            if (IsGathering)
+                return;
             TimedItemsToGather.Clear();
             ItemsToGather.Clear();
             List<IGatherable> activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems).ToList();

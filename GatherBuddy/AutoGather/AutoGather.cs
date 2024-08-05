@@ -83,11 +83,6 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "Idle...";
                 }
 
-                if (value)
-                {
-                    UpdateItemsToGather();
-                }
-
                 _enabled = value;
             }
         }
@@ -99,22 +94,27 @@ namespace GatherBuddy.AutoGather
 
             if (_homeTerritories.Contains(Svc.ClientState.TerritoryType)  || Lifestream_IPCSubscriber.IsBusy())
             {
-                GatherBuddy.Log.Debug("Skipping home teleport, already in a residential area.");
+                if (SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
+                {
+                    DoMateriaExtraction();
+                    return;
+                }
                 return;
             }
 
             if (Lifestream_IPCSubscriber.IsEnabled)
             {
+                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(() => Lifestream_IPCSubscriber.ExecuteCommand("auto"));
                 TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
                 TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.DelayNext(3000);
+                TaskManager.DelayNext(1000);
             }
             else 
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
-        public unsafe void DoAutoGather()
+        public void DoAutoGather()
         {
             if (!Enabled)
             {
@@ -155,13 +155,13 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Player is busy...";
                 return;
             }
-
+            
+            UpdateItemsToGather();
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
 
             if (targetItem == null)
             {
-                UpdateItemsToGather();
                 if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i)))
                 {
                     AutoStatus         = "No items to gather...";
@@ -201,8 +201,6 @@ namespace GatherBuddy.AutoGather
                 AdvancedUnstuckCheck();
             }
 
-            UpdateItemsToGather();
-
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
             if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
             {
@@ -213,6 +211,11 @@ namespace GatherBuddy.AutoGather
             }
 
             DoUseConsumablesWithoutCastTime();
+            if (SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
+            {
+                DoMateriaExtraction();
+                return;
+            }
 
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
@@ -246,7 +249,7 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
-                AutoStatus = "Moving to farming area...";
+                //AutoStatus = "Moving to farming area...";
                 selectedNode = matchingNodesInZone
                     .Where(o => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z)) < 10).OrderBy(o
                         => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault();

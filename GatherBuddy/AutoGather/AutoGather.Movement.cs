@@ -125,7 +125,7 @@ namespace GatherBuddy.AutoGather
                     AdvancedUnstuckCheck();
                     TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
                     TaskManager.Enqueue(Dismount);
-                    TaskManager.DelayNext(1000);
+                    TaskManager.DelayNext(1500);
                     return;
                 }
 
@@ -133,10 +133,6 @@ namespace GatherBuddy.AutoGather
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
                     DoUseConsumablesWithCastTime();
-                    if (SpiritBondMax > 0)
-                    {
-                        DoMateriaExtraction();
-                    }
 
                     TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
                     return;
@@ -155,7 +151,7 @@ namespace GatherBuddy.AutoGather
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                 {
                     TaskManager.Enqueue(MountUp);
-                    TaskManager.DelayNext(2500);
+                    TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted]);
                 }
 
                 TaskManager.Enqueue(() => Navigate(ShouldFly));
@@ -278,7 +274,7 @@ namespace GatherBuddy.AutoGather
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
             {
                 TaskManager.Enqueue(MountUp);
-                TaskManager.DelayNext(2500);
+                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted]);
             }
 
             TaskManager.Enqueue(() => Navigate(ShouldFly));
