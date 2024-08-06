@@ -26,5 +26,5 @@ public enum ItemFilter
     Available    = 0x010000,
     Unavailable  = 0x020000,
 
-    All = 0x073FFF,
+    All = 0x033FFF,
 }
