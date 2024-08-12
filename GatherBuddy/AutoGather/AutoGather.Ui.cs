@@ -24,34 +24,6 @@ namespace GatherBuddy.AutoGather
 {
     public static class AutoGatherUI
     {
-        public class CollectableDebugUi : Window
-        {
-            public unsafe override bool DrawConditions()
-            {
-                var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
-                if (gatheringMasterpiece == null)
-                    return false;
-
-                return !gatheringMasterpiece->AtkUnitBase.IsVisible;
-            }
-
-            public CollectableDebugUi()
-                : base("GBR Collectable Replacement",
-                    ImGuiWindowFlags.Modal | ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoTitleBar | ImGuiWindowFlags.NoNavFocus, false)
-            {
-                Size          = new Vector2(100, 60);
-                SizeCondition = ImGuiCond.FirstUseEver;
-                IsOpen        = true;
-            }
-
-            public override void Draw()
-            {
-                ImGui.Text($"GBR Collectable Replacement Window");
-                ImGui.Text($"Collectable Score: {GatherBuddy.AutoGather.LastCollectability}");
-                ImGui.Text($"Integrity: {GatherBuddy.AutoGather.LastIntegrity}/4");
-            }
-        }
-
         private static bool _gatherDebug;
 
         public static void DrawAutoGatherStatus()
