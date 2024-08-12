@@ -35,6 +35,11 @@ public partial class AutoGather
 
     unsafe void DoMateriaExtraction()
     {
+        if (Svc.Condition[ConditionFlag.Mounted])
+        {
+            TaskManager.Enqueue(Dismount);
+            TaskManager.DelayNext(1500);
+        }
         if (MaterializeAddon == null)
         {
             TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
