@@ -18,6 +18,7 @@ using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using Lumina.Excel.GeneratedSheets;
+using HousingManager = GatherBuddy.SeFunctions.HousingManager;
 
 namespace GatherBuddy.AutoGather
 {
@@ -32,11 +33,6 @@ namespace GatherBuddy.AutoGather
             _movementController                    =  new OverrideMovement();
             _soundHelper                           =  new SoundHelper();
             GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
-            var territories = Svc.Data.GetExcelSheet<TerritoryType>().Where(t => t.Unknown13);
-            foreach (var territory in territories)
-            {
-                _homeTerritories.Add(territory.RowId);
-            }
         }
 
         private void UptimeChange(IGatherable obj)
@@ -49,8 +45,7 @@ namespace GatherBuddy.AutoGather
 
         private readonly GatherBuddy _plugin;
         private readonly SoundHelper _soundHelper;
-
-        private readonly List<uint>  _homeTerritories = new List<uint>();
+        
         public           TaskManager TaskManager { get; }
 
         private bool _enabled { get; set; } = false;
@@ -92,7 +87,7 @@ namespace GatherBuddy.AutoGather
             if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle || !CanAct)
                 return;
 
-            if (_homeTerritories.Contains(Svc.ClientState.TerritoryType)  || Lifestream_IPCSubscriber.IsBusy())
+            if (HousingManager.IsInHousing() || Lifestream_IPCSubscriber.IsBusy())
             {
                 if (SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
                 {
