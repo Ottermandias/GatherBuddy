@@ -109,6 +109,96 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
+        // Cache k-means clustering for the current Gatherables
+        private Dictionary<uint, List<Vector3>> kMeansClusters = new(); // Dictionary of itemId and their k-means cluster centers\
+        private readonly int kMeansClusterCount = 3; // Number of clusters
+        private readonly uint clusteringMaxIterations = 100; // Maximum number of iterations for k-means
+
+        private void PrecalculateKMeans(Gatherable gatherable)
+        {
+            // Check if we already have the k-means for this gatherable
+            if (kMeansClusters.ContainsKey(gatherable.ItemId))
+                return;
+
+            // Get the location of this gatherable
+            var location = GatherBuddy.UptimeManager.BestLocation(gatherable);
+
+            // If we're currently not in the same territory as the gatherable, we can't calculate the k-means
+            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType)
+                return;
+
+            // Get the nodes for this gatherable
+            var validNodesForItem = gatherable.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
+            var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
+                .Where(v => !IsBlacklisted(v))
+                .ToList();
+
+            // Debug print all nodes
+            GatherBuddy.Log.Verbose($"All nodes for {gatherable.Name[GatherBuddy.Language]}:");
+            foreach (var node in matchingNodesInZone)
+                GatherBuddy.Log.Verbose(node.ToString());
+
+            // Select k random nodes as the initial cluster centers
+            var clusterCenters = new List<Vector3>();
+            for (var i = 0; i < kMeansClusterCount; i++)
+            {
+                // Don't actually randomly initialize them as if any two nodes are the same, the k-means will fail
+                var randomNode = matchingNodesInZone[i];
+                clusterCenters.Add(randomNode);
+            }
+            // Debug
+            GatherBuddy.Log.Verbose($"Initial cluster centers for {gatherable.Name[GatherBuddy.Language]}:");
+            for (var i = 0; i < kMeansClusterCount; i++)
+                GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
+
+            // Run k-means clustering
+            for (var iteration = 0; iteration < kMeansClusterCount; iteration++)
+            {
+                // Calculate which cluster each node belongs to
+                // List of clusters, each cluster is a list of node indices
+                var clusters = new List<List<int>>();
+                for (var i = 0; i < kMeansClusterCount; i++)
+                    clusters.Add(new List<int>());
+
+                for (var i = 0; i < matchingNodesInZone.Count; i++)
+                {
+
+                    var node = matchingNodesInZone[i];
+                    var minDistance = float.MaxValue;
+                    var minCluster = 0;
+                    for (var j = 0; j < kMeansClusterCount; j++)
+                    {
+                        var distance = Vector3.Distance(node, clusterCenters[j]);
+                        if (distance < minDistance)
+                        {
+                            minDistance = distance;
+                            minCluster = j;
+                        }
+                    }
+
+                    clusters[minCluster].Add(i);
+                }
+
+                // Calculate new cluster centers
+                clusterCenters = clusters.Select(
+                    cluster => cluster.Aggregate(Vector3.Zero, (acc, index) => acc + matchingNodesInZone[index]) / cluster.Count
+                ).ToList();
+
+            }
+            // Do a debug print
+            GatherBuddy.Log.Verbose($"K-means for {gatherable.Name[GatherBuddy.Language]}:");
+            for (var i = 0; i < kMeansClusterCount; i++)
+                GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
+
+            // Save the cluster centers
+            kMeansClusters[gatherable.ItemId] = clusterCenters;
+        }
+
+        // Save which cluster we are currently in
+        private int currentCluster = 0;
+        private uint lastGatheredItemId = 0;
+        private int gatheringsInCluster = 0;
+
         public void DoAutoGather()
         {
             if (!Enabled)
@@ -196,6 +286,20 @@ namespace GatherBuddy.AutoGather
                 AdvancedUnstuckCheck();
             }
 
+            // Generate the kmeans clusters
+            if (GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans)
+            {
+                PrecalculateKMeans(targetItem);
+
+                // Check if we need to update the cluster
+                if (lastGatheredItemId != targetItem.ItemId)
+                {
+                    lastGatheredItemId = targetItem.ItemId;
+                    currentCluster = 0;
+                }
+            }
+
+
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
             if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
             {
@@ -212,10 +316,12 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
-                .OrderBy(v => Vector3.Distance(Player.Position, v))
+                //.OrderBy(v => Vector3.Distance(Player.Position, v))
+                .OrderBy(v => Vector3.Distance(GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans ? kMeansClusters[targetItem.ItemId][currentCluster] : Player.Position, v))
                 .ToList();
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
             var closeNodes = allNodes.Where(o => o.IsTargetable)
@@ -226,13 +332,8 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
-            if (selectedNode == Vector3.Zero)
-            {
-                FarNodesSeenSoFar.Clear();
-                GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
-                return;
-            }
+            // Find the first node that is not in the blacklist and not yet in the far node list
+            var selectedNode = matchingNodesInZone.FirstOrDefault();
 
             // only Legendary and Unspoiled show marker
             if (ShouldUseFlag && targetItem.NodeType is NodeType.Legendary or NodeType.Unspoiled)

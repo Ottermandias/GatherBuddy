@@ -31,6 +31,21 @@ namespace GatherBuddy.AutoGather
             if (targetSystem == null)
                 return;
 
+            // Check if the target item needs clustering
+            // Only supports regular nodes for now
+            if (GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans && targetItem.Level >= 51 && targetItem.NodeType == NodeType.Regular)
+            {
+                GatherBuddy.Log.Verbose($"Attempting to gather from node {targetItem.Name[GatherBuddy.Language]}, incrementing gathering tally.");
+                // Advance the cluster gathering state
+                gatheringsInCluster++;
+                // If this is the 2nd node in a cluster, we need to advance
+                if (gatheringsInCluster >= 2)
+                {
+                    currentCluster = (currentCluster + 1) % kMeansClusterCount;
+                    gatheringsInCluster = 0;
+                }
+            }
+
             TaskManager.Enqueue(() =>
             {
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
