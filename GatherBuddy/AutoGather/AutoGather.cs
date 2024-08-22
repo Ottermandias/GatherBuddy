@@ -194,6 +194,13 @@ namespace GatherBuddy.AutoGather
             kMeansClusters[gatherable.ItemId] = clusterCenters;
         }
 
+        public bool ShouldKMeansCluster(Gatherable gatherable)
+        {
+            return GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans &&
+                gatherable.NodeType == NodeType.Regular &&
+                gatherable.Level >= 51;
+        }
+
         // Save which cluster we are currently in
         private int currentCluster = 0;
         private uint lastGatheredItemId = 0;
@@ -287,7 +294,7 @@ namespace GatherBuddy.AutoGather
             }
 
             // Generate the kmeans clusters
-            if (GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans)
+            if (ShouldKMeansCluster(targetItem))
             {
                 PrecalculateKMeans(targetItem);
 
@@ -323,6 +330,7 @@ namespace GatherBuddy.AutoGather
                 //.OrderBy(v => Vector3.Distance(Player.Position, v))
                 .OrderBy(v => Vector3.Distance(GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans ? kMeansClusters[targetItem.ItemId][currentCluster] : Player.Position, v))
                 .ToList();
+
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
             var closeNodes = allNodes.Where(o => o.IsTargetable)
                 .OrderBy(o => Vector3.Distance(Player.Position, o.Position));
@@ -333,7 +341,13 @@ namespace GatherBuddy.AutoGather
             }
 
             // Find the first node that is not in the blacklist and not yet in the far node list
-            var selectedNode = matchingNodesInZone.FirstOrDefault();
+            var selectedNode = matchingNodesInZone.FirstOrDefault(n => ShouldKMeansCluster(targetItem) || !FarNodesSeenSoFar.Contains(n));
+            if (selectedNode == Vector3.Zero)
+            {
+                FarNodesSeenSoFar.Clear();
+                GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
+                return;
+            }
 
             // only Legendary and Unspoiled show marker
             if (ShouldUseFlag && targetItem.NodeType is NodeType.Legendary or NodeType.Unspoiled)

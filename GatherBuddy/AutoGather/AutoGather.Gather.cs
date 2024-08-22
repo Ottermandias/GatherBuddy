@@ -33,7 +33,7 @@ namespace GatherBuddy.AutoGather
 
             // Check if the target item needs clustering
             // Only supports regular nodes for now
-            if (GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans && targetItem.Level >= 51 && targetItem.NodeType == NodeType.Regular)
+            if (ShouldKMeansCluster(targetItem))
             {
                 GatherBuddy.Log.Verbose($"Attempting to gather from node {targetItem.Name[GatherBuddy.Language]}, incrementing gathering tally.");
                 // Advance the cluster gathering state
