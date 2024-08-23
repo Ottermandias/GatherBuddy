@@ -17,6 +17,7 @@ using ECommons.Automation.UIInput;
 using GatherBuddy.Plugin;
 using OtterGui;
 using NodeType = GatherBuddy.Enums.NodeType;
+using System.Numerics;
 
 namespace GatherBuddy.AutoGather
 {
@@ -35,6 +36,17 @@ namespace GatherBuddy.AutoGather
             // Only supports regular nodes for now
             if (ShouldKMeansCluster(targetItem))
             {
+                // Check if we're gathering from a different cluster than the current expected one
+                // Calculate distances of the node and all clusters
+                var distances = kMeansClusters[targetItem.ItemId].Select(c => Vector3.DistanceSquared(gameObject.Position, c));
+                var minCluster = distances.IndexOf(distances.Min());
+                if (minCluster != currentCluster)
+                {
+                    GatherBuddy.Log.Verbose($"Node {targetItem.Name[GatherBuddy.Language]} is in cluster {minCluster}, expected {currentCluster}.");
+                    currentCluster = minCluster;
+                }
+
+
                 GatherBuddy.Log.Verbose($"Attempting to gather from node {targetItem.Name[GatherBuddy.Language]}, incrementing gathering tally.");
                 // Advance the cluster gathering state
                 gatheringsInCluster++;
