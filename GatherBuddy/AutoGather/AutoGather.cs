@@ -340,6 +340,70 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (ShouldKMeansCluster(targetItem))
+            {
+                // If we're doing KMeans clustering, check if we're going clockwise or counter clockwise. 
+
+                // Get the center of all clusters
+                var clustersCenter = kMeansClusters[targetItem.ItemId].Aggregate(Vector3.Zero, (acc, cluster) => acc + cluster) / kMeansClusterCount;
+                
+                // Using the line from the player to the center of the clusters, calculate if we're going to the left or right of it.
+                // Left = clockwise, Right = counter clockwise
+                var playerToCenter = Vector2.Normalize(new Vector2(clustersCenter.X - Player.Position.X, clustersCenter.Z - Player.Position.Z));
+
+                // Get position of the current cluster we're going to
+                var currentClusterPosition = new Vector2(
+                    kMeansClusters[targetItem.ItemId][currentCluster].X,
+                    kMeansClusters[targetItem.ItemId][currentCluster].Z
+                );
+
+                // currentClusterPosition = Player.Position + t1 * playerToCenter + t2 * perpendicular
+                // t2 is how far left/right we are from the line
+
+                var b = currentClusterPosition - new Vector2(Player.Position.X, Player.Position.Z);
+
+                //var t1 = ( playerToCenter.X * b.X + playerToCenter.Y * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y);
+                var t2 = (-playerToCenter.Y * b.X + playerToCenter.X * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y);
+
+                // Sanity check
+                // TODO: Delete these debug prints for final pull request
+                // var pos = new Vector2(Player.Position.X, Player.Position.Z) + t1 * playerToCenter + t2 * new Vector2(-playerToCenter.Y, playerToCenter.X);
+
+                //GatherBuddy.Log.Verbose($"Player position: {Player.Position.X}, {Player.Position.Z}");
+                //GatherBuddy.Log.Verbose($"Cluster position: {currentClusterPosition.X}, {currentClusterPosition.Y}");
+                //GatherBuddy.Log.Verbose($"Player to center: {playerToCenter.X}, {playerToCenter.Y}");
+                //GatherBuddy.Log.Verbose($"t1: {t1}, t2: {t2}");
+                //GatherBuddy.Log.Verbose($"Position: {pos.X}, {pos.Y}");
+
+                var sign = Math.Sign(t2);
+
+                // Now, for the current cluster, we want to find the node that is the most clockwise or counter clockwise
+                matchingNodesInZone = matchingNodesInZone
+                .Where(n => {
+                    // Our node is closest to our cluster center
+                    // Get all distances
+                    var distances = kMeansClusters[targetItem.ItemId]
+                        .Select(c => Vector3.DistanceSquared(n, c))
+                        .ToList();
+
+                    var minCluster = distances.IndexOf(distances.Min());
+                    return minCluster == currentCluster;
+
+                })
+                .OrderBy(n => {
+                    // Using the line from the player to the center of the current cluster
+                    var nodePosition = new Vector2(n.X, n.Z);
+                    var b2 = nodePosition - new Vector2(Player.Position.X, Player.Position.Z);
+
+                    var playerToClusterCenter = Vector2.Normalize(currentClusterPosition - new Vector2(Player.Position.X, Player.Position.Z));
+
+                    // Calculate "t2" for the node
+                    var t2Node = (-playerToClusterCenter.Y * b2.X + playerToClusterCenter.X * b2.Y) / (playerToClusterCenter.X * playerToClusterCenter.X + playerToClusterCenter.Y * playerToClusterCenter.Y);
+
+                    return -sign * t2Node;
+                }).ToList();
+            }
+
             // Find the first node that is not in the blacklist and not yet in the far node list
             var selectedNode = matchingNodesInZone.FirstOrDefault(n => ShouldKMeansCluster(targetItem) || !FarNodesSeenSoFar.Contains(n));
             if (selectedNode == Vector3.Zero)
