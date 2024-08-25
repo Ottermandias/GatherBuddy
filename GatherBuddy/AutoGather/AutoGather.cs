@@ -143,8 +143,19 @@ namespace GatherBuddy.AutoGather
             for (var i = 0; i < kMeansClusterCount; i++)
             {
                 // Don't actually randomly initialize them as if any two nodes are the same, the k-means will fail
-                var randomNode = matchingNodesInZone[i];
-                clusterCenters.Add(randomNode);
+                // We will use farthest point sampling instead
+                if (i == 0)
+                {
+                    // Select the first node as the first cluster center, since there are no other nodes to compare to
+                    clusterCenters.Add(matchingNodesInZone[0]);
+                    continue;
+                }
+
+                // Otherwise find the node that is the farthest from all other cluster centers
+                var node = matchingNodesInZone
+                    .OrderBy(n => clusterCenters.Min(center => Vector3.Distance(n, center)))
+                    .Last();
+                clusterCenters.Add(node);
             }
             // Debug
             GatherBuddy.Log.Verbose($"Initial cluster centers for {gatherable.Name[GatherBuddy.Language]}:");
@@ -152,7 +163,7 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
 
             // Run k-means clustering
-            for (var iteration = 0; iteration < kMeansClusterCount; iteration++)
+            for (var iteration = 0; iteration < clusteringMaxIterations; iteration++)
             {
                 // Calculate which cluster each node belongs to
                 // List of clusters, each cluster is a list of node indices
@@ -162,10 +173,12 @@ namespace GatherBuddy.AutoGather
 
                 for (var i = 0; i < matchingNodesInZone.Count; i++)
                 {
-
+                    // For each node...
                     var node = matchingNodesInZone[i];
                     var minDistance = float.MaxValue;
                     var minCluster = 0;
+
+                    // ... find the closest cluster center
                     for (var j = 0; j < kMeansClusterCount; j++)
                     {
                         var distance = Vector3.Distance(node, clusterCenters[j]);
@@ -180,15 +193,45 @@ namespace GatherBuddy.AutoGather
                 }
 
                 // Calculate new cluster centers
-                clusterCenters = clusters.Select(
+                var newClusterCenters = clusters.Select(
                     cluster => cluster.Aggregate(Vector3.Zero, (acc, index) => acc + matchingNodesInZone[index]) / cluster.Count
                 ).ToList();
+
+                // Check for early stopping
+                const float epsilon = 0.01f; // Stop if the cluster centers don't change by more than epsilon, in total.
+
+                var totalChange = newClusterCenters.Zip(clusterCenters, (a, b) => Vector3.Distance(a, b)).Sum();
+                if (totalChange < epsilon)
+                {
+                    GatherBuddy.Log.Verbose($"Early stopping at iteration {iteration} for {gatherable.Name[GatherBuddy.Language]}");
+                    break;
+                }
+
+                // Update the cluster centers
+                clusterCenters = newClusterCenters;
+
+                //GatherBuddy.Log.Verbose($"Iteration {iteration} for {gatherable.Name[GatherBuddy.Language]}:");
+                //for (var i = 0; i < kMeansClusterCount; i++)
+                //    GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
 
             }
             // Do a debug print
             GatherBuddy.Log.Verbose($"K-means for {gatherable.Name[GatherBuddy.Language]}:");
             for (var i = 0; i < kMeansClusterCount; i++)
                 GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
+
+            // Count how many nodes are in each cluster
+            for (var c = 0; c < kMeansClusterCount; c++)
+            {
+                var count = 0;
+                foreach (var node in matchingNodesInZone)
+                {
+                    if (Vector3.Distance(node, clusterCenters[c]) <= clusterCenters.Min(center => Vector3.Distance(node, center)))
+                        count++;
+                }
+
+                GatherBuddy.Log.Verbose($"Cluster {c} has {count} nodes");
+            }
 
             // Save the cluster centers
             kMeansClusters[gatherable.ItemId] = clusterCenters;
@@ -365,16 +408,6 @@ namespace GatherBuddy.AutoGather
                 //var t1 = ( playerToCenter.X * b.X + playerToCenter.Y * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y);
                 var t2 = (-playerToCenter.Y * b.X + playerToCenter.X * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y);
 
-                // Sanity check
-                // TODO: Delete these debug prints for final pull request
-                // var pos = new Vector2(Player.Position.X, Player.Position.Z) + t1 * playerToCenter + t2 * new Vector2(-playerToCenter.Y, playerToCenter.X);
-
-                //GatherBuddy.Log.Verbose($"Player position: {Player.Position.X}, {Player.Position.Z}");
-                //GatherBuddy.Log.Verbose($"Cluster position: {currentClusterPosition.X}, {currentClusterPosition.Y}");
-                //GatherBuddy.Log.Verbose($"Player to center: {playerToCenter.X}, {playerToCenter.Y}");
-                //GatherBuddy.Log.Verbose($"t1: {t1}, t2: {t2}");
-                //GatherBuddy.Log.Verbose($"Position: {pos.X}, {pos.Y}");
-
                 var sign = Math.Sign(t2);
 
                 // Now, for the current cluster, we want to find the node that is the most clockwise or counter clockwise
@@ -402,6 +435,12 @@ namespace GatherBuddy.AutoGather
 
                     return -sign * t2Node;
                 }).ToList();
+
+                //GatherBuddy.Log.Verbose($"Current cluster: {currentCluster}");
+                //GatherBuddy.Log.Verbose($"Current cluster centers: {kMeansClusters[targetItem.ItemId].Select(n => n.ToString()).Join(", ")}");
+                //GatherBuddy.Log.Verbose($"matchingNodesInZone:");
+                //foreach (var node in matchingNodesInZone)
+                //    GatherBuddy.Log.Verbose(node.ToString());
             }
 
             // Find the first node that is not in the blacklist and not yet in the far node list
