@@ -44,6 +44,9 @@ namespace GatherBuddy.AutoGather
                 {
                     GatherBuddy.Log.Verbose($"Node {targetItem.Name[GatherBuddy.Language]} is in cluster {minCluster}, expected {currentCluster}.");
                     currentCluster = minCluster;
+                    gatheringsInCluster = 0;
+
+                    FarNodesSeenSoFar.Clear();
                 }
 
 
@@ -55,6 +58,7 @@ namespace GatherBuddy.AutoGather
                 {
                     currentCluster = (currentCluster + 1) % kMeansClusterCount;
                     gatheringsInCluster = 0;
+                    FarNodesSeenSoFar.Clear();
                 }
             }
 

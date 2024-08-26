@@ -371,7 +371,7 @@ namespace GatherBuddy.AutoGather
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
                 //.OrderBy(v => Vector3.Distance(Player.Position, v))
-                .OrderBy(v => Vector3.Distance(GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans ? kMeansClusters[targetItem.ItemId][currentCluster] : Player.Position, v))
+                .OrderBy(v => Vector3.Distance(Player.Position, v))
                 .ToList();
 
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
@@ -444,7 +444,7 @@ namespace GatherBuddy.AutoGather
             }
 
             // Find the first node that is not in the blacklist and not yet in the far node list
-            var selectedNode = matchingNodesInZone.FirstOrDefault(n => ShouldKMeansCluster(targetItem) || !FarNodesSeenSoFar.Contains(n));
+            var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
             if (selectedNode == Vector3.Zero)
             {
                 FarNodesSeenSoFar.Clear();
@@ -468,14 +468,20 @@ namespace GatherBuddy.AutoGather
                         => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault();
             }
 
-            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 100))
+            // FIX: Using Epsilon instead of == to avoid floating point errors
+            if (Vector3.Distance(selectedNode, Player.Position) < 100)
             {
-                FarNodesSeenSoFar.Add(selectedNode);
+                GatherBuddy.Log.Verbose($"Selected node is too close to player, checking if it should be skipped...");
+                if (allNodes.Any(n => Vector3.Distance(n.Position, selectedNode) < 2.5))
+                {
+                    GatherBuddy.Log.Verbose($"Node fails test, skipping...");
+                    FarNodesSeenSoFar.Add(selectedNode);
 
-                CurrentDestination = null;
-                VNavmesh_IPCSubscriber.Path_Stop();
-                AutoStatus = "Looking for far away nodes...";
-                return;
+                    CurrentDestination = null;
+                    VNavmesh_IPCSubscriber.Path_Stop();
+                    AutoStatus = "Looking for far away nodes...";
+                    return;
+                }
             }
 
             TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
