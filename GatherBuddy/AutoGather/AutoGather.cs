@@ -76,6 +76,9 @@ namespace GatherBuddy.AutoGather
                     _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
                     AutoStatus = "Idle...";
+
+                    currentCluster = 0;
+                    gatheringsInCluster = 0;
                 }
 
                 _enabled = value;
@@ -297,7 +300,7 @@ namespace GatherBuddy.AutoGather
 
             if (targetItem == null)
             {
-                if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i)))
+                if (_plugin.GatherWindowManager.ActiveItems.All(i => InventoryCount(i) >= QuantityTotal(i)))
                 {
                     AutoStatus         = "No items to gather...";
                     Enabled            = false;
