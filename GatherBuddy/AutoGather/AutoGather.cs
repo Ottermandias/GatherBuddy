@@ -213,10 +213,6 @@ namespace GatherBuddy.AutoGather
                 // Update the cluster centers
                 clusterCenters = newClusterCenters;
 
-                //GatherBuddy.Log.Verbose($"Iteration {iteration} for {gatherable.Name[GatherBuddy.Language]}:");
-                //for (var i = 0; i < kMeansClusterCount; i++)
-                //    GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
-
             }
             // Do a debug print
             GatherBuddy.Log.Verbose($"K-means for {gatherable.Name[GatherBuddy.Language]}:");
@@ -408,10 +404,7 @@ namespace GatherBuddy.AutoGather
 
                 var b = currentClusterPosition - new Vector2(Player.Position.X, Player.Position.Z);
 
-                //var t1 = ( playerToCenter.X * b.X + playerToCenter.Y * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y);
-                var t2 = (-playerToCenter.Y * b.X + playerToCenter.X * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y);
-
-                var sign = Math.Sign(t2);
+                var sign = Math.Sign((-playerToCenter.Y * b.X + playerToCenter.X * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y));
 
                 // Now, for the current cluster, we want to find the node that is the most clockwise or counter clockwise
                 matchingNodesInZone = matchingNodesInZone
@@ -429,21 +422,16 @@ namespace GatherBuddy.AutoGather
                 .OrderBy(n => {
                     // Using the line from the player to the center of the current cluster
                     var nodePosition = new Vector2(n.X, n.Z);
-                    var b2 = nodePosition - new Vector2(Player.Position.X, Player.Position.Z);
+                    var targetDirection = nodePosition - new Vector2(Player.Position.X, Player.Position.Z);
 
                     var playerToClusterCenter = Vector2.Normalize(currentClusterPosition - new Vector2(Player.Position.X, Player.Position.Z));
 
-                    // Calculate "t2" for the node
-                    var t2Node = (-playerToClusterCenter.Y * b2.X + playerToClusterCenter.X * b2.Y) / (playerToClusterCenter.X * playerToClusterCenter.X + playerToClusterCenter.Y * playerToClusterCenter.Y);
+                    // Calculate for the new node
+                    var perpendicularUnitsNode = (-playerToClusterCenter.Y * targetDirection.X + playerToClusterCenter.X * targetDirection.Y) / 
+                                                 (playerToClusterCenter.X * playerToClusterCenter.X + playerToClusterCenter.Y * playerToClusterCenter.Y);
 
-                    return -sign * t2Node;
+                    return -sign * perpendicularUnitsNode;
                 }).ToList();
-
-                //GatherBuddy.Log.Verbose($"Current cluster: {currentCluster}");
-                //GatherBuddy.Log.Verbose($"Current cluster centers: {kMeansClusters[targetItem.ItemId].Select(n => n.ToString()).Join(", ")}");
-                //GatherBuddy.Log.Verbose($"matchingNodesInZone:");
-                //foreach (var node in matchingNodesInZone)
-                //    GatherBuddy.Log.Verbose(node.ToString());
             }
 
             // Find the first node that is not in the blacklist and not yet in the far node list
