@@ -378,7 +378,22 @@ namespace GatherBuddy.AutoGather
                 .OrderBy(o => Vector3.Distance(Player.Position, o.Position));
             if (closeNodes.Any())
             {
-                TaskManager.Enqueue(() => MoveToCloseNode(closeNodes.First(n => !IsBlacklisted(n.Position)), targetItem));
+                // If we're going to a destination which is not the closest node, move to the closest node first
+                // FIX: Prevents the bot from bonking it's head against invalid nodes
+                var closestNode = closeNodes.First(n => !IsBlacklisted(n.Position));
+                if (CurrentDestination != null)
+                {
+                    // Note: Weird C# behaviour? Even though we have a null check above, we still the compiler complains
+                    if (Vector3.Distance(closestNode.Position, CurrentDestination.Value) > 1.0f)
+                    {
+
+                        CurrentDestination = null;
+                        VNavmesh_IPCSubscriber.Path_Stop();
+                        GatherBuddy.Log.Warning($"Closest node is {closestNode.Position}, moving to it first");
+                    }
+                }
+
+                TaskManager.Enqueue(() => MoveToCloseNode(closestNode, targetItem));
                 return;
             }
 
@@ -460,9 +475,13 @@ namespace GatherBuddy.AutoGather
             }
 
             // FIX: Using Epsilon instead of == to avoid floating point errors
+            //GatherBuddy.Log.Verbose($"Selected node: {selectedNode} - {Player.Position} (Dist: {Vector3.Distance(selectedNode, Player.Position)})");
             if (Vector3.Distance(selectedNode, Player.Position) < 100)
             {
                 GatherBuddy.Log.Verbose($"Selected node is too close to player, checking if it should be skipped...");
+                //var allNodesString = string.Join(", ", allNodes.Select(n => n.Position.ToString()));
+                //GatherBuddy.Log.Verbose($"{selectedNode} in {allNodesString}?");
+
                 if (allNodes.Any(n => Vector3.Distance(n.Position, selectedNode) < 2.5))
                 {
                     GatherBuddy.Log.Verbose($"Node fails test, skipping...");
@@ -475,7 +494,7 @@ namespace GatherBuddy.AutoGather
                 }
             }
 
-            TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
+                TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
             return;
 
 
