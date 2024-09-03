@@ -16,6 +16,8 @@ namespace GatherBuddy.AutoGather
         {
             if (gatherable == null)
                 return false;
+            if (HiddenRevealed)
+                return false;
             if (Player.Level < Actions.Luck.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < Actions.Luck.GpCost)
@@ -227,7 +229,10 @@ namespace GatherBuddy.AutoGather
                         else if (ShouldUseTwelvesBounty(desiredItem as Gatherable))
                             EnqueueGatherAction(() => UseAction(Actions.TwelvesBounty));
                         else if (ShouldUseLuck(ids, desiredItem as Gatherable))
+                        {
+                            HiddenRevealed = true;
                             EnqueueGatherAction(() => UseAction(Actions.Luck));
+                        }
                         else if (ShouldUseKingII(desiredItem as Gatherable))
                             EnqueueGatherAction(() => UseAction(Actions.Yield2));
                         else if (ShouldUseKingI(desiredItem as Gatherable))

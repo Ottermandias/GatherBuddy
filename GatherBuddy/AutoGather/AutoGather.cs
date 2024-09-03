@@ -71,7 +71,6 @@ namespace GatherBuddy.AutoGather
 
                     TaskManager.Abort();
                     HasSeenFlag                         = false;
-                    HiddenRevealed                      = false;
                     _movementController.Enabled         = false;
                     _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
@@ -111,6 +110,9 @@ namespace GatherBuddy.AutoGather
 
         public void DoAutoGather()
         {
+            if (!IsGathering)
+                HiddenRevealed = false; //Reset the "Used Luck" flag event if auto-gather was disabled mid-gathering
+
             if (!Enabled)
             {
                 return;
@@ -150,7 +152,7 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Player is busy...";
                 return;
             }
-            
+
             UpdateItemsToGather();
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
