@@ -73,7 +73,7 @@ namespace GatherBuddy.CustomInfo
                 {
                     File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(MergeData(defaultDict1, existingDict1), Newtonsoft.Json.Formatting.Indented, settings));
                 }
-                else if (defaultObj is Dictionary<Vector3, Vector3> defaultDict2 && existingObj is Dictionary<Vector3, Vector3> existingDict2)
+                else if (defaultObj is List<OffsetPair> defaultDict2 && existingObj is List<OffsetPair> existingDict2)
                 {
                     File.WriteAllText(path, Newtonsoft.Json.JsonConvert.SerializeObject(MergeData(defaultDict2, existingDict2), Newtonsoft.Json.Formatting.Indented, settings));
                 }
@@ -108,17 +108,18 @@ namespace GatherBuddy.CustomInfo
             return existingData;
         }
 
-        private static Dictionary<Vector3,Vector3> MergeData(Dictionary<Vector3, Vector3> defaultData, Dictionary<Vector3, Vector3> existingData)
+        private static List<OffsetPair> MergeData(List<OffsetPair> defaultData, List<OffsetPair> existingData)
         {
-            foreach (var kvp in defaultData)
+            var mergedData = existingData.GroupBy(v => v.Original).ToDictionary(v => v.Key, v => v.First());
+            foreach (var item in defaultData)
             {
-                if (!existingData.ContainsKey(kvp.Key))
+                if (!mergedData.ContainsKey(item.Original))
                 {
-                    existingData[kvp.Key] = kvp.Value;
+                    mergedData[item.Original] = item;
                 }
             }
 
-            return existingData;
+            return mergedData.Values.ToList();
         }
 
         public static void AddOffset(Vector3 original, Vector3 offset)
