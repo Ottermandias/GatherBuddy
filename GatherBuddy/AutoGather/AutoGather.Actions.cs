@@ -20,7 +20,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (Player.Object.CurrentGp < Actions.Luck.GpCost)
                 return false;
-            if (!gatherable.GatheringData.IsHidden)
+            if (!gatherable.GatheringData.IsHidden && gatherable.ItemData.FilterGroup != 18 /*treasure maps*/)
                 return false;
 
             if (ids.Length > 0 && ids.Contains(gatherable.ItemId))
