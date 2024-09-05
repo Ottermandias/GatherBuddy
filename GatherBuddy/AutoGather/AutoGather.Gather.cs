@@ -95,7 +95,7 @@ namespace GatherBuddy.AutoGather
                 //Prioritize crystals with a lower amount in the inventory
                 .OrderBy(InventoryCount)
                 //Prioritize crystals in the gathering list
-                .OrderBy(item => ItemsToGather.Concat(TimedItemsToGather).Any(toGather => toGather.ItemId == item.ItemId) ? 0 : 1)
+                .OrderBy(item => ItemsToGather.Any(toGather => toGather.ItemId == item.ItemId) ? 0 : 1)
                 .ToArray();
 
             //Gather crystals when using The Giving Land
@@ -107,7 +107,7 @@ namespace GatherBuddy.AutoGather
 
             var shouldGather = aviable
                 //Item is in gathering list
-                .Where(item => ItemsToGather.Concat(TimedItemsToGather).Any(g => g.ItemId == item.ItemId))
+                .Where(item => ItemsToGather.Any(g => g.ItemId == item.ItemId))
                 //And we need more of it
                 .Where(item => InventoryCount(item) < QuantityTotal(item));
 

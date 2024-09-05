@@ -616,15 +616,7 @@ public partial class Interface
             }
         }
 
-        if (ImGui.CollapsingHeader("Timed Nodes To Gather"))
-        {
-            foreach (var item in GatherBuddy.AutoGather.TimedItemsToGather)
-            {
-                ImGui.Text(item.Name[GatherBuddy.Language]);
-            }
-        }
-
-        if (ImGui.CollapsingHeader("Static Nodes to Gather"))
+        if (ImGui.CollapsingHeader("Nodes to Gather"))
         {
             foreach (var item in GatherBuddy.AutoGather.ItemsToGather)
             {

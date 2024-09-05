@@ -142,16 +142,15 @@ namespace GatherBuddy.AutoGather
         public int    LastCollectability = 0;
         public int    LastIntegrity      = 0;
 
-        public List<IGatherable> TimedItemsToGather = new();
         public List<IGatherable> ItemsToGather      = new();
 
         public List<uint> TimedNodesGatheredThisTrip = new();
 
         public void UpdateItemsToGather()
         {
-            TimedItemsToGather.Clear();
             ItemsToGather.Clear();
-            List<IGatherable> activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems).ToList();
+            var activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems);
+            var RegularItemsToGather = new List<IGatherable>();
             foreach (var item in activeItems)
             {
                 if (InventoryCount(item) >= QuantityTotal(item) || IsTreasureMap(item) && InventoryCount(item) > 0)
@@ -165,14 +164,15 @@ namespace GatherBuddy.AutoGather
                     var location = GatherBuddy.UptimeManager.BestLocation(item);
                     if (location.Interval.InRange(GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog))
                      && !TimedNodesGatheredThisTrip.Contains(item.ItemId))
-                        TimedItemsToGather.Add(item);
+                        ItemsToGather.Add(item);
                 }
                 else
                 {
-                    ItemsToGather.Add(item);
+                    RegularItemsToGather.Add(item);
                 }
             }
-            //GatherBuddy.Log.Verbose($"Sorted {activeItems.Count} items into {TimedItemsToGather.Count} timed items and {ItemsToGather.Count} static items");
+            ItemsToGather.Sort((x, y) => GetNodeTypeAsPriority(x).CompareTo(GetNodeTypeAsPriority(y)));
+            ItemsToGather.AddRange(RegularItemsToGather);
         }
 
         private IEnumerable<IGatherable> OrderActiveItems(List<IGatherable> activeItems)

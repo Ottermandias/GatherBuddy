@@ -155,8 +155,7 @@ namespace GatherBuddy.AutoGather
             }
 
             if (!IsGathering) UpdateItemsToGather();
-            Gatherable? targetItem =
-                (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
+            Gatherable? targetItem = ItemsToGather.FirstOrDefault() as Gatherable;
 
             if (targetItem == null)
             {
@@ -189,7 +188,7 @@ namespace GatherBuddy.AutoGather
                 catch (NoGatherableItemsInNodeExceptions)
                 {
                     UpdateItemsToGather();
-                    bool abort = targetItem == (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault());
+                    bool abort = targetItem == ItemsToGather.FirstOrDefault();
 
                     //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
                     if (abort)
