@@ -19,6 +19,7 @@ using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Time;
 using OtterGui.Log;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace GatherBuddy.AutoGather
 {
@@ -155,7 +156,10 @@ namespace GatherBuddy.AutoGather
             List<IGatherable> activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems).ToList();
             foreach (var item in activeItems)
             {
-                if (InventoryCount(item) >= QuantityTotal(item))
+                if (InventoryCount(item) >= QuantityTotal(item) || IsTreasureMap(item) && InventoryCount(item) > 0)
+                    continue;
+
+                if (IsTreasureMap(item) && NextTresureMapAllowance >= GatherBuddy.Time.ServerTime.AddSeconds(-GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog).DateTime)
                     continue;
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
@@ -248,5 +252,24 @@ namespace GatherBuddy.AutoGather
 
             return 99;
         }
+        private static unsafe bool IsCrystal(IGatherable item)
+        {
+            return item.ItemData.FilterGroup == 11;
+        }
+
+        private static unsafe bool IsTreasureMap(IGatherable item)
+        {
+            return item.ItemData.FilterGroup == 18;
+        }
+        private static unsafe bool HasGivingLandBuff
+            => Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId == 1802) ?? false;
+
+        private static unsafe bool IsGivingLandOffCooldown 
+            => ActionManager.Instance()->IsActionOffCooldown(ActionType.Action, Actions.GivingLand.ActionID);
+
+        private const int GivingLandYeild = 30;
+
+        private static unsafe DateTime NextTresureMapAllowance
+            => FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->GetNextMapAllowanceDateTime();
     }
 }

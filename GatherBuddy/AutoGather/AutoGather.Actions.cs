@@ -6,13 +6,14 @@ using System;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons;
-using GatherBuddy.Interfaces;
+using OtterGui;
+using System.Collections.Generic;
 
 namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        public bool ShouldUseLuck(Span<uint> ids, Gatherable gatherable)
+        public bool ShouldUseLuck(Gatherable gatherable)
         {
             if (gatherable == null)
                 return false;
@@ -22,14 +23,8 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (Player.Object.CurrentGp < Actions.Luck.GpCost)
                 return false;
-            if (!gatherable.GatheringData.IsHidden && gatherable.ItemData.FilterGroup != 18 /*treasure maps*/)
+            if (!gatherable.GatheringData.IsHidden && !IsTreasureMap(gatherable))
                 return false;
-
-            if (ids.Length > 0 && ids.Contains(gatherable.ItemId))
-            {
-                return false;
-            }
-
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP)
                 return false;
             if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP)
@@ -111,24 +106,11 @@ namespace GatherBuddy.AutoGather
             return GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction;
         }
 
-        private static unsafe bool IsCrystal(Gatherable item)
-        {
-            return item.ItemData.FilterGroup == 11;
-        }
-
-        private unsafe Gatherable? GetAnyCrystalInNode(Span<uint> ids)
-        {
-            foreach (var id in ids)
-            {
-                if (GatherBuddy.GameData.Gatherables.TryGetValue(id, out var item) && IsCrystal(item) && InventoryCount(item) < 9999)
-                    return item;
-            }
-            return null;
-        }
-
-        private unsafe bool ShouldUseGivingLand(Gatherable item, Span<uint> ids)
+        private bool ShouldUseGivingLand(Gatherable item)
         {
             if (item == null)
+                return false;
+            if (!IsCrystal(item))
                 return false;
             if (!GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.UseAction)
                 return false;
@@ -139,19 +121,19 @@ namespace GatherBuddy.AutoGather
             if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MinimumGP
              || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MaximumGP)
                 return false;
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1802))
+            if (HasGivingLandBuff)
                 return false;
-            if (!ActionManager.Instance()->IsActionOffCooldown(ActionType.Action, Actions.GivingLand.ActionID))
+            if (!IsGivingLandOffCooldown)
                 return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.GivingLandConfig, item))
                 return false;
-            if (!IsCrystal(item) && !(item.NodeType == Enums.NodeType.Regular && GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && GetAnyCrystalInNode(ids) != null))
+            if (InventoryCount(item) > 9999 - GivingLandYeild)
                 return false;
 
             return true;
         }
 
-        private unsafe bool ShouldUseTwelvesBounty(Gatherable item)
+        private unsafe bool ShouldUseTwelvesBounty(Gatherable item, uint[] ids)
         {
             if (item == null)
                 return false;
@@ -169,6 +151,8 @@ namespace GatherBuddy.AutoGather
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 825))
                 return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig, item))
+                return false;
+            if (InventoryCount(item) > 9999 - 3 - (HasGivingLandBuff ? GivingLandYeild : GetCurrentYield(ids.IndexOf(item.ItemId))))
                 return false;
 
             return true;
@@ -198,7 +182,7 @@ namespace GatherBuddy.AutoGather
                 CurrentRotation = null;
         }
 
-        private unsafe void DoGatherWindowActions(IGatherable? desiredItem)
+        private unsafe void DoGatherWindowActions(Gatherable desiredItem)
         {
             if (GatheringAddon != null)
             {
@@ -210,37 +194,42 @@ namespace GatherBuddy.AutoGather
                     if (int.TryParse(node9->NodeText.ToString(),  out int currentIntegrity)
                      && int.TryParse(node12->NodeText.ToString(), out int maxIntegrity))
                     {
+                        var ids = GetGatherableIds();
 
-                        Span<uint> ids = GatheringAddon->ItemIds;
-
-                        if (desiredItem != null
-                         && !IsCrystal(desiredItem as Gatherable)
-                         && Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 1802))
+                        if (ids.Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault).Any(item => item != null && (item.GatheringData.IsHidden || IsTreasureMap(item))))
                         {
-                            desiredItem = GetAnyCrystalInNode(ids) ?? desiredItem;
+                            //Don't use Luck if hidden item is already revealed
+                            HiddenRevealed = true;
                         }
-
-                        if (ShouldUseWise(currentIntegrity, maxIntegrity))
-                            EnqueueGatherAction(() => UseAction(Actions.Wise));
-                        if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem as Gatherable))
-                            EnqueueGatherAction(() => UseAction(Actions.SolidAge));
-                        if (ShouldUseGivingLand(desiredItem as Gatherable, ids))
-                            EnqueueGatherAction(() => UseAction(Actions.GivingLand));
-                        else if (ShouldUseTwelvesBounty(desiredItem as Gatherable))
-                            EnqueueGatherAction(() => UseAction(Actions.TwelvesBounty));
-                        else if (ShouldUseLuck(ids, desiredItem as Gatherable))
+                        if (ShouldUseLuck(desiredItem))
                         {
                             HiddenRevealed = true;
                             EnqueueGatherAction(() => UseAction(Actions.Luck));
                         }
-                        else if (ShouldUseKingII(desiredItem as Gatherable))
-                            EnqueueGatherAction(() => UseAction(Actions.Yield2));
-                        else if (ShouldUseKingI(desiredItem as Gatherable))
-                            EnqueueGatherAction(() => UseAction(Actions.Yield1));
-                        else if (ShoulduseBYII(desiredItem as Gatherable))
-                            EnqueueGatherAction(() => UseAction(Actions.Bountiful));
+                        else if (MaybeGatherSometingElse(ref desiredItem, ids))
+                        {
+
+                            if (ShouldUseWise(currentIntegrity, maxIntegrity))
+                                EnqueueGatherAction(() => UseAction(Actions.Wise));
+                            if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem, ids))
+                                EnqueueGatherAction(() => UseAction(Actions.SolidAge));
+                            if (ShouldUseGivingLand(desiredItem))
+                                EnqueueGatherAction(() => UseAction(Actions.GivingLand));
+                            else if (ShouldUseTwelvesBounty(desiredItem, ids))
+                                EnqueueGatherAction(() => UseAction(Actions.TwelvesBounty));
+                            else if (ShouldUseKingII(desiredItem))
+                                EnqueueGatherAction(() => UseAction(Actions.Yield2));
+                            else if (ShouldUseKingI(desiredItem))
+                                EnqueueGatherAction(() => UseAction(Actions.Yield1));
+                            else if (ShoulduseBYII(desiredItem))
+                                EnqueueGatherAction(() => UseAction(Actions.Bountiful));
+                            else
+                                DoGatherWindowTasks(desiredItem);
+                        }
                         else
+                        {
                             DoGatherWindowTasks(desiredItem);
+                        }
                     }
                 }
             }
@@ -414,10 +403,9 @@ namespace GatherBuddy.AutoGather
         private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity)
             => ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig, integrity, maxIntegrity);
 
-        private bool ShouldUseSolidAgeGatherables(int integrity, int maxIntegrity, Gatherable gatherable)
+        private bool ShouldUseSolidAgeGatherables(int integrity, int maxIntegrity, Gatherable gatherable, uint[] ids)
         {
-            uint[] ids          = GetGatherableIds();
-            var    targetItemId = GetIndexOfItemToClick(ids, gatherable);
+            var targetItemId = GetIndexOfItemToClick(ids, gatherable);
 
             if (GetCurrentYield(targetItemId)
               < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
