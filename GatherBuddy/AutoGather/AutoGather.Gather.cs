@@ -147,10 +147,10 @@ namespace GatherBuddy.AutoGather
                 {
                     desiredItem = aviable.First(item => !IsTreasureMap(item));
                 }
-                //Last resort, gather anything. May overcap
+                //Abort if there are no items we can gather
                 else
                 {
-                    desiredItem = ids.Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault).Where(item => item != null).First()!;
+                    throw new NoGatherableItemsInNodeExceptions();
                 }
                 return false;
             }

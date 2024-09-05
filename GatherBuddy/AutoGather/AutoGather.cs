@@ -108,6 +108,7 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
+        private class NoGatherableItemsInNodeExceptions : Exception { }
         public void DoAutoGather()
         {
             if (!IsGathering)
@@ -153,7 +154,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            UpdateItemsToGather();
+            if (!IsGathering) UpdateItemsToGather();
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
 
@@ -181,7 +182,32 @@ namespace GatherBuddy.AutoGather
             {
                 AutoStatus = "Gathering...";
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                DoActionTasks(targetItem);
+                try
+                {
+                    DoActionTasks(targetItem);
+                }
+                catch (NoGatherableItemsInNodeExceptions)
+                {
+                    UpdateItemsToGather();
+                    bool abort = targetItem == (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault());
+
+                    //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
+                    if (abort)
+                    {
+                        Enabled = false;
+                        AutoStatus = "Couldn't gather any items from the last node, aborted";
+                    }
+                    unsafe
+                    {
+                        TaskManager.Enqueue(() => GatheringAddon->Close(true));
+                    }
+                    if (abort) { 
+                        TaskManager.Enqueue(() => !IsGathering);
+                        TaskManager.Enqueue(GoHome);
+                        if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
+                            _soundHelper.PlayHonkSound(3);
+                    }
+                }
                 return;
             }
 
