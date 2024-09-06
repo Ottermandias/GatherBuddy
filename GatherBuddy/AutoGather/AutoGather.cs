@@ -93,11 +93,6 @@ namespace GatherBuddy.AutoGather
 
             if (HousingManager.IsInHousing() || Lifestream_IPCSubscriber.IsBusy())
             {
-                if (SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
-                {
-                    DoMateriaExtraction();
-                    return;
-                }
                 return;
             }
 
