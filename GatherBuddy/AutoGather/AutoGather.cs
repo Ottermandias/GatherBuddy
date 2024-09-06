@@ -202,6 +202,9 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (IsGathering)
+                return;
+
             if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
