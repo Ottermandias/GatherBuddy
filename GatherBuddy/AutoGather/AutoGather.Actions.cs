@@ -133,7 +133,7 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private unsafe bool ShouldUseTwelvesBounty(Gatherable item, uint[] ids)
+        private unsafe bool ShouldUseTwelvesBounty(Gatherable? item, uint[] ids)
         {
             if (item == null)
                 return false;
@@ -196,15 +196,21 @@ namespace GatherBuddy.AutoGather
                     {
                         var ids = GetGatherableIds();
 
-                        if (ids.Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault).Any(item => item != null && (item.GatheringData.IsHidden || IsTreasureMap(item))))
+                        if (!HiddenRevealed && currentIntegrity == maxIntegrity 
+                            && ids.Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault).Any(item => item != null && (item.GatheringData.IsHidden || IsTreasureMap(item))))
                         {
                             //Don't use Luck if hidden item is already revealed
                             HiddenRevealed = true;
                         }
-                        if (ShouldUseLuck(desiredItem))
+
+                        if (!HasGivingLandBuff && ShouldUseLuck(desiredItem))
                         {
-                            HiddenRevealed = true;
-                            EnqueueGatherAction(() => UseAction(Actions.Luck));
+                            var anyCrystall = ids.Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault).Where(i => i != null && IsCrystal(i)).OrderBy(i => GetInventoryItemCount(i!.ItemId));
+                            if (!GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown || !ShouldUseTwelvesBounty(anyCrystall.FirstOrDefault(), ids))
+                            {
+                                HiddenRevealed = true;
+                                EnqueueGatherAction(() => UseAction(Actions.Luck));
+                            }
                         }
                         else if (MaybeGatherSometingElse(ref desiredItem, ids))
                         {
