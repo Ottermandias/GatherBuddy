@@ -19,6 +19,7 @@ using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using Lumina.Excel.GeneratedSheets;
 using HousingManager = GatherBuddy.SeFunctions.HousingManager;
+using ECommons.Throttlers;
 
 namespace GatherBuddy.AutoGather
 {
@@ -75,6 +76,10 @@ namespace GatherBuddy.AutoGather
                     _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
                     AutoStatus = "Idle...";
+                } 
+                else
+                {
+                    RefreshNextTresureMapAllowance();
                 }
 
                 _enabled = value;
@@ -174,6 +179,12 @@ namespace GatherBuddy.AutoGather
                 GoHome();
                 //GatherBuddy.Log.Warning("No items to gather");
                 AutoStatus = "No available items to gather";
+                return;
+            }
+
+            if (IsTreasureMap(targetItem) && NextTresureMapAllowance == DateTime.MinValue)
+            {
+                //Wait for timer refresh
                 return;
             }
 
@@ -310,6 +321,14 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(() => GatheringAddon->Close(true));
 
             TaskManager.Enqueue(() => !IsGathering);
+        }
+
+        private static unsafe void RefreshNextTresureMapAllowance()
+        {
+            if (EzThrottler.Throttle("RequestResetTimestamps", 1000))
+            {
+                FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->RequestResetTimestamps();
+            }
         }
 
         private void DoSafetyChecks()

@@ -58,6 +58,8 @@ namespace GatherBuddy.AutoGather
             //Communicator.Print("Queuing click.");
             EnqueueGatherAction(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
                 inputData.Data));
+            if (IsTreasureMap(item))
+                EnqueueGatherAction(RefreshNextTresureMapAllowance);
         }
 
         private unsafe uint[] GetGatherableIds()

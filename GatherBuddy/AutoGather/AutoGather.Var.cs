@@ -156,7 +156,7 @@ namespace GatherBuddy.AutoGather
                 if (InventoryCount(item) >= QuantityTotal(item) || IsTreasureMap(item) && InventoryCount(item) > 0)
                     continue;
 
-                if (IsTreasureMap(item) && NextTresureMapAllowance >= GatherBuddy.Time.ServerTime.AddSeconds(-GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog).DateTime)
+                if (IsTreasureMap(item) && NextTresureMapAllowance >= GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog).DateTime)
                     continue;
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
