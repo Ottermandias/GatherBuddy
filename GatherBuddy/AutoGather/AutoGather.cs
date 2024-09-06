@@ -154,6 +154,12 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (FreeInventorySlots == 0)
+            {
+                AbortAutoGather("Inventory is full");
+                return;
+            }
+
             if (!IsGathering) UpdateItemsToGather();
             Gatherable? targetItem = ItemsToGather.FirstOrDefault() as Gatherable;
 
@@ -161,13 +167,7 @@ namespace GatherBuddy.AutoGather
             {
                 if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i) && !(IsTreasureMap(i) && InventoryCount(i) != 0)))
                 {
-                    AutoStatus         = "No items to gather...";
-                    Enabled            = false;
-                    CurrentDestination = null;
-                    VNavmesh_IPCSubscriber.Path_Stop();
-                    if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
-                        _soundHelper.PlayHonkSound(3);
-                    GoHome();
+                    AbortAutoGather();
                     return;
                 }
 
@@ -188,23 +188,15 @@ namespace GatherBuddy.AutoGather
                 catch (NoGatherableItemsInNodeExceptions)
                 {
                     UpdateItemsToGather();
-                    bool abort = targetItem == ItemsToGather.FirstOrDefault();
 
                     //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
-                    if (abort)
+                    if (targetItem == ItemsToGather.FirstOrDefault())
                     {
-                        Enabled = false;
-                        AutoStatus = "Couldn't gather any items from the last node, aborted";
+                        AbortAutoGather("Couldn't gather any items from the last node, aborted");
                     }
-                    unsafe
+                    else
                     {
-                        TaskManager.Enqueue(() => GatheringAddon->Close(true));
-                    }
-                    if (abort) { 
-                        TaskManager.Enqueue(() => !IsGathering);
-                        TaskManager.Enqueue(GoHome);
-                        if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
-                            _soundHelper.PlayHonkSound(3);
+                        CloseGatheringAddons();
                     }
                 }
                 return;
@@ -292,6 +284,28 @@ namespace GatherBuddy.AutoGather
 
 
             AutoStatus = "Nothing to do...";
+        }
+
+        private void AbortAutoGather(string? status = null)
+        {
+            Enabled = false;
+            if (!string.IsNullOrEmpty(status))
+                AutoStatus = status;
+            if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
+                _soundHelper.PlayHonkSound(3);
+            CloseGatheringAddons();
+            TaskManager.Enqueue(GoHome);
+        }
+
+        private unsafe void CloseGatheringAddons()
+        {
+            if (MasterpieceAddon != null)
+                TaskManager.Enqueue(() => MasterpieceAddon->Close(true));
+
+            if (GatheringAddon != null)
+                TaskManager.Enqueue(() => GatheringAddon->Close(true));
+
+            TaskManager.Enqueue(() => !IsGathering);
         }
 
         private void DoSafetyChecks()

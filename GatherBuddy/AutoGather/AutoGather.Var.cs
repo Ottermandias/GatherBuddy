@@ -269,5 +269,8 @@ namespace GatherBuddy.AutoGather
 
         private static unsafe DateTime NextTresureMapAllowance
             => FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->GetNextMapAllowanceDateTime();
+
+        private static unsafe uint FreeInventorySlots
+            => InventoryManager.Instance()->GetEmptySlotsInBag();
     }
 }
