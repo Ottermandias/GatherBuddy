@@ -90,17 +90,6 @@ namespace GatherBuddy.AutoGather
             var distance = Vector3.Distance(Player.Position, gameObject.Position);
             if (distance < 3)
             {
-                if (!Dalamud.Conditions[ConditionFlag.Gathering]
-                 && (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable
-                     || !targetItem.ItemData.IsCollectable
-                     && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering))
-                {
-                    if (IsPathing || IsPathGenerating)
-                        VNavmesh_IPCSubscriber.Path_Stop();
-                    AutoStatus = "Waiting for GP to regenerate...";
-                    return;
-                }
-
                 if (Dalamud.Conditions[ConditionFlag.InFlight] && GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation)
                 {
                     Vector3 floorPoint;
@@ -126,6 +115,17 @@ namespace GatherBuddy.AutoGather
                     TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
                     TaskManager.Enqueue(Dismount);
                     TaskManager.DelayNext(1500);
+                    return;
+                }
+
+                if (!Dalamud.Conditions[ConditionFlag.Gathering]
+                 && (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable
+                     || !targetItem.ItemData.IsCollectable
+                     && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering))
+                {
+                    if (IsPathing || IsPathGenerating)
+                        VNavmesh_IPCSubscriber.Path_Stop();
+                    AutoStatus = "Waiting for GP to regenerate...";
                     return;
                 }
 
