@@ -241,6 +241,7 @@ namespace GatherBuddy.AutoGather
                 HasSeenFlag = false;
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(() => MoveToTerritory(location.Location));
+                AutoStatus = "Teleporting...";
                 return;
             }
 
