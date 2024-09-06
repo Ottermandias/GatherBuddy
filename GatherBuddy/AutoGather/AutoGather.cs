@@ -165,6 +165,12 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !IsPathing && !IsPathGenerating && !IsGathering && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
+            {
+                DoMateriaExtraction();
+                return;
+            }
+
             if (!IsGathering) UpdateItemsToGather();
             Gatherable? targetItem = ItemsToGather.FirstOrDefault() as Gatherable;
 
@@ -227,12 +233,6 @@ namespace GatherBuddy.AutoGather
             {
                 StuckCheck();
                 AdvancedUnstuckCheck();
-            }
-
-            if (!IsPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
-            {
-                DoMateriaExtraction();
-                return;
             }
 
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
