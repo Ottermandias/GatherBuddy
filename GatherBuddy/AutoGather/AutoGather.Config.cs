@@ -57,6 +57,7 @@ namespace GatherBuddy.AutoGather
         public bool UseExperimentalNavigation { get; set; } = false;
         public bool UseExperimentalUnstuck { get; set; } = false;
         public bool UseExperimentalKMeans { get; set; } = false;
+        public bool IgnoreCloseNodesOfOtherClusters { get; set; } = false;
         public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
         public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
         public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);

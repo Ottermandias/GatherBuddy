@@ -54,7 +54,10 @@ namespace GatherBuddy.AutoGather
                 // Advance the cluster gathering state
                 gatheringsInCluster++;
                 // If this is the 2nd node in a cluster, we need to advance
-                if (gatheringsInCluster >= 2)
+                if (
+                    (targetItem.NodeType == NodeType.Regular && gatheringsInCluster >= 2) ||
+                    (targetItem.NodeType == NodeType.Ephemeral && gatheringsInCluster >= 1)   
+                )
                 {
                     currentCluster = (currentCluster + 1) % kMeansClusterCount;
                     gatheringsInCluster = 0;

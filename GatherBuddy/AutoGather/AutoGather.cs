@@ -239,8 +239,30 @@ namespace GatherBuddy.AutoGather
         public bool ShouldKMeansCluster(Gatherable gatherable)
         {
             return GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans &&
-                gatherable.NodeType == NodeType.Regular &&
-                gatherable.Level >= 51;
+                (gatherable.NodeType == NodeType.Regular || gatherable.NodeType == NodeType.Ephemeral) &&
+                gatherable.Level >= 71;
+        }
+
+        public int GetClusterForNode(Vector3 position, Gatherable gatherable)
+        {
+            if (!kMeansClusters.ContainsKey(gatherable.ItemId))
+                return 0;
+
+            var clusters = kMeansClusters[gatherable.ItemId];
+            var minDistance = float.MaxValue;
+            var minCluster = 0;
+
+            for (var i = 0; i < kMeansClusterCount; i++)
+            {
+                var distance = Vector3.Distance(position, clusters[i]);
+                if (distance < minDistance)
+                {
+                    minDistance = distance;
+                    minCluster = i;
+                }
+            }
+
+            return minCluster;
         }
 
         // Save which cluster we are currently in
@@ -293,6 +315,21 @@ namespace GatherBuddy.AutoGather
             UpdateItemsToGather();
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
+
+            // Check if any if any of the TimedNodesToGather are of our current zone
+            // FIX: Prevents the bot from pathing to a timed node and then aborting, teleporting away to another node before returning to the same node.
+            if (TimedItemsToGather.Count > 0)
+            {
+                var timedNodesInZone = TimedItemsToGather.Where(i => GatherBuddy.UptimeManager.BestLocation(i).Location.Territory.Id == Svc.ClientState.TerritoryType).ToList();
+                if (timedNodesInZone.Count > 0)
+                {
+                    // Check if there is a flag up
+                    if (TimedNodePosition != null)
+                    {
+                        targetItem = timedNodesInZone.MinBy(GetNodeTypeAsPriority) as Gatherable;
+                    }
+                }
+            }
 
             if (targetItem == null)
             {
@@ -350,7 +387,7 @@ namespace GatherBuddy.AutoGather
 
 
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
-            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
+            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem) && !IsPathing)
             {
                 HasSeenFlag = false;
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
@@ -375,6 +412,10 @@ namespace GatherBuddy.AutoGather
 
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
             var closeNodes = allNodes.Where(o => o.IsTargetable)
+                // Check if the near nodes we see are of any interest to us 
+                .Where(o => !ShouldKMeansCluster(targetItem) ||                                     // If KMeans is disabled this will return true
+                            !GatherBuddy.Config.AutoGatherConfig.IgnoreCloseNodesOfOtherClusters || // If this option is disabled then all nodes are valid
+                            GetClusterForNode(o.Position, targetItem) == currentCluster)            // Otherwise , check if the node is in the same cluster
                 .OrderBy(o => Vector3.Distance(Player.Position, o.Position));
             if (closeNodes.Any())
             {

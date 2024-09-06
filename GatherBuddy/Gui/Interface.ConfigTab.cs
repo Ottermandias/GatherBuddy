@@ -84,6 +84,11 @@ public partial class Interface
             "Use KMeans clustering to try and find the best node to gather from in a cluster",
             GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans,
             b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans = b);
+        public static void DrawKMeansIgnoreCloseNodesOfOtherClustersBox()
+            => DrawCheckbox("Ignore close nodes of other clusters",
+            "When using KMeans clustering, ignore all close nodes which are not of the same cluster",
+            GatherBuddy.Config.AutoGatherConfig.IgnoreCloseNodesOfOtherClusters,
+            b => GatherBuddy.Config.AutoGatherConfig.IgnoreCloseNodesOfOtherClusters = b);
 
         public static void DrawHonkModeBox()
             => DrawCheckbox("Play a sound when done gathering", "Play a sound when auto-gathering shuts down because your list is complete",
@@ -1395,6 +1400,7 @@ public partial class Interface
                 ConfigFunctions.DrawAdvancedNavBox();
                 ConfigFunctions.DrawAdvancedUnstuckBox();
                 ConfigFunctions.DrawAdvancedKMeansBox();
+                ConfigFunctions.DrawKMeansIgnoreCloseNodesOfOtherClustersBox();
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
