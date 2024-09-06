@@ -218,6 +218,12 @@ namespace GatherBuddy.AutoGather
                 AdvancedUnstuckCheck();
             }
 
+            if (!IsPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
+            {
+                DoMateriaExtraction();
+                return;
+            }
+
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
             if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
             {
@@ -228,11 +234,6 @@ namespace GatherBuddy.AutoGather
             }
 
             DoUseConsumablesWithoutCastTime();
-            if (SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
-            {
-                DoMateriaExtraction();
-                return;
-            }
 
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
