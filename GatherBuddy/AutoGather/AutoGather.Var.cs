@@ -142,9 +142,9 @@ namespace GatherBuddy.AutoGather
         public int    LastCollectability = 0;
         public int    LastIntegrity      = 0;
 
-        public List<IGatherable> ItemsToGather      = new();
-
-        public List<uint> TimedNodesGatheredThisTrip = new();
+        public readonly List<IGatherable> ItemsToGather = [];
+        public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];
+        public (ILocation? Location, TimeInterval Time) targetLocation = (null, TimeInterval.Invalid);
 
         public void UpdateItemsToGather()
         {
@@ -156,14 +156,13 @@ namespace GatherBuddy.AutoGather
                 if (InventoryCount(item) >= QuantityTotal(item) || IsTreasureMap(item) && InventoryCount(item) > 0)
                     continue;
 
-                if (IsTreasureMap(item) && NextTresureMapAllowance >= GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog).DateTime)
+                if (IsTreasureMap(item) && NextTresureMapAllowance >= AdjuctedServerTime.DateTime)
                     continue;
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                 {
-                    var location = GatherBuddy.UptimeManager.BestLocation(item);
-                    if (location.Interval.InRange(GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog))
-                     && !TimedNodesGatheredThisTrip.Contains(item.ItemId))
+                    var (location, interval) = GatherBuddy.UptimeManager.NextUptime(item, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+                    if (interval.InRange(AdjuctedServerTime))
                         ItemsToGather.Add(item);
                 }
                 else
@@ -194,7 +193,7 @@ namespace GatherBuddy.AutoGather
 
         public unsafe AddonMaterializeDialog* MaterializeAddon
             => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize", 1);
-        
+
         public IEnumerable<IGatherable> ItemsToGatherInZone
             => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType)).Where(GatherableMatchesJob);
 
@@ -262,7 +261,7 @@ namespace GatherBuddy.AutoGather
         private static unsafe bool HasGivingLandBuff
             => Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId == 1802) ?? false;
 
-        private static unsafe bool IsGivingLandOffCooldown 
+        private static unsafe bool IsGivingLandOffCooldown
             => ActionManager.Instance()->IsActionOffCooldown(ActionType.Action, Actions.GivingLand.ActionID);
 
         private const int GivingLandYeild = 30;
@@ -272,5 +271,7 @@ namespace GatherBuddy.AutoGather
 
         private static unsafe uint FreeInventorySlots
             => InventoryManager.Instance()->GetEmptySlotsInBag();
+        private static TimeStamp AdjuctedServerTime
+            => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
     }
 }

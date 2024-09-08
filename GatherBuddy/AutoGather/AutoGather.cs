@@ -33,13 +33,6 @@ namespace GatherBuddy.AutoGather
             _plugin                                =  plugin;
             _movementController                    =  new OverrideMovement();
             _soundHelper                           =  new SoundHelper();
-            GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
-        }
-
-        private void UptimeChange(IGatherable obj)
-        {
-            GatherBuddy.Log.Verbose($"Timer for {obj.Name[GatherBuddy.Language]} has expired and the item has been removed from memory.");
-            TimedNodesGatheredThisTrip.Remove(obj.ItemId);
         }
 
         private readonly OverrideMovement _movementController;
@@ -72,6 +65,7 @@ namespace GatherBuddy.AutoGather
 
                     TaskManager.Abort();
                     HasSeenFlag                         = false;
+                    targetLocation                      = (null, Time.TimeInterval.Invalid);
                     _movementController.Enabled         = false;
                     _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
@@ -189,6 +183,9 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (IsGathering && targetLocation.Location != null && (targetItem.NodeType == NodeType.Unspoiled || targetItem.NodeType == NodeType.Legendary))
+                VisitedTimedLocations[targetLocation.Location] = targetLocation.Time;
+
             if (IsGathering && GatherBuddy.Config.AutoGatherConfig.DoGathering)
             {
                 AutoStatus = "Gathering...";
@@ -230,12 +227,27 @@ namespace GatherBuddy.AutoGather
                 AdvancedUnstuckCheck();
             }
 
-            var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
-            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
+            foreach (var (loc, time) in VisitedTimedLocations)
+                if (time.End < AdjuctedServerTime)
+                    VisitedTimedLocations.Remove(loc);
+
+            if (targetLocation.Location == null || targetLocation.Time.End < AdjuctedServerTime || VisitedTimedLocations.ContainsKey(targetLocation.Location) || !targetLocation.Location.Gatherables.Contains(targetItem))
+            {
+                //Find a new location only if the target item changes or the node expires to prevent switching to another node when a new one goes up
+                targetLocation = GatherBuddy.UptimeManager.NextUptime(targetItem, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+            }
+            if (targetLocation.Location == null)
+            {
+                //Should not happen because UpdateItemsToGather filters out all unaviable items
+                GatherBuddy.Log.Debug("Couldn't find any location for the target item");
+                return;
+            }
+
+            if (targetLocation.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
             {
                 HasSeenFlag = false;
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(() => MoveToTerritory(location.Location));
+                TaskManager.Enqueue(() => MoveToTerritory(targetLocation.Location));
                 AutoStatus = "Teleporting...";
                 return;
             }
@@ -243,7 +255,7 @@ namespace GatherBuddy.AutoGather
             DoUseConsumablesWithoutCastTime();
 
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
+            var matchingNodesInZone = targetLocation.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
                 .OrderBy(v => Vector3.Distance(Player.Position, v))
                 .ToList();

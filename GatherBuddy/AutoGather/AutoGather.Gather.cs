@@ -63,20 +63,8 @@ namespace GatherBuddy.AutoGather
         }
 
         private unsafe uint[] GetGatherableIds()
-        {
-            uint[] ids = GatheringAddon->ItemIds.ToArray();
-            foreach (var id in ids)
-            {
-                var gatherable = GatherBuddy.GameData.Gatherables.FirstOrDefault(it => it.Key == id).Value;
-                if (GatherBuddy.UptimeManager.TimedGatherables.Contains(gatherable) && gatherable.NodeType != NodeType.Ephemeral && !TimedNodesGatheredThisTrip.Contains(gatherable.ItemId))
-                {
-                    GatherBuddy.Log.Information($"Saw timed item {gatherable.Name[GatherBuddy.Language]} in node. We should remember that.");
-                    TimedNodesGatheredThisTrip.Add(gatherable.ItemId);
-                }
-            }
+            => GatheringAddon->ItemIds.ToArray();
 
-            return ids;
-        }
         private int GetIndexOfItemToClick(uint[] ids, IGatherable item)
             => ids.IndexOf(item.ItemId);
 
