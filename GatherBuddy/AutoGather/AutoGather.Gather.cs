@@ -152,7 +152,7 @@ namespace GatherBuddy.AutoGather
             if (IsTreasureMap(item) && InventoryCount(item) != 0)
                 return false;
             //If it's a crystal, we can't have more than 9999
-            if (IsCrystal(item) && InventoryCount(item) > 9999 - (HasGivingLandBuff ? GivingLandYeild : GetCurrentYield(index)))
+            if (IsCrystal(item) && InventoryCount(item) > 9999 - GetCurrentYield(index))
                 return false;
             return true;
         }

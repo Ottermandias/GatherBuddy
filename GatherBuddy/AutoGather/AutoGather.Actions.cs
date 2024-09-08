@@ -8,6 +8,7 @@ using Dalamud.Game.ClientState.Conditions;
 using ECommons;
 using OtterGui;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -152,7 +153,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig, item))
                 return false;
-            if (InventoryCount(item) > 9999 - 3 - (HasGivingLandBuff ? GivingLandYeild : GetCurrentYield(ids.IndexOf(item.ItemId))))
+            if (InventoryCount(item) > 9999 - 3 - GetCurrentYield(ids.IndexOf(item.ItemId)))
                 return false;
 
             return true;
@@ -243,20 +244,7 @@ namespace GatherBuddy.AutoGather
 
         private unsafe int GetCurrentYield(int itemPosition)
         {
-            var gatherWindow = GatheringAddon;
-
-            var itemCheckbox = itemPosition switch
-            {
-                0 => gatherWindow->GatheredItemComponentCheckBox1,
-                1 => gatherWindow->GatheredItemComponentCheckBox2,
-                2 => gatherWindow->GatheredItemComponentCheckBox3,
-                3 => gatherWindow->GatheredItemComponentCheckBox4,
-                4 => gatherWindow->GatheredItemComponentCheckBox5,
-                5 => gatherWindow->GatheredItemComponentCheckBox6,
-                6 => gatherWindow->GatheredItemComponentCheckBox7,
-                7 => gatherWindow->GatheredItemComponentCheckBox8,
-                _ => gatherWindow->GatheredItemComponentCheckBox1
-            };
+            var itemCheckbox = GatheringAddon->GatheredItemComponentCheckbox[itemPosition].Value;
 
             var icon      = itemCheckbox->UldManager.SearchNodeById(31)->GetAsAtkComponentNode();
             var itemYield = icon->Component->UldManager.SearchNodeById(7)->GetAsAtkTextNode();
@@ -264,7 +252,15 @@ namespace GatherBuddy.AutoGather
 
             var yield = itemYield->NodeText.ExtractText();
             if (!int.TryParse(yield, out int result))
+            {
                 result = 1;
+                if (HasGivingLandBuff)
+                {
+                    var match = Regex.Match(yield, @"^(\d)+\+\?$");
+                    if (match.Success)
+                        result = int.Parse(match.Groups[1].Value) + GivingLandYeild;
+                }
+            }
 
             if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s
                     => BountifulYieldStatuses
