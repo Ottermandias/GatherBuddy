@@ -71,10 +71,6 @@ namespace GatherBuddy.AutoGather
                     ResetNavigation();
                     AutoStatus = "Idle...";
                 } 
-                else
-                {
-                    RefreshNextTresureMapAllowance();
-                }
 
                 _enabled = value;
             }
@@ -180,6 +176,7 @@ namespace GatherBuddy.AutoGather
             if (IsTreasureMap(targetItem) && NextTresureMapAllowance == DateTime.MinValue)
             {
                 //Wait for timer refresh
+                RefreshNextTresureMapAllowance();
                 return;
             }
 
