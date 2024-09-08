@@ -70,7 +70,11 @@ namespace GatherBuddy.AutoGather
                     _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
                     AutoStatus = "Idle...";
-                } 
+                }
+                else
+                {
+                    RefreshNextTresureMapAllowance();
+                }
 
                 _enabled = value;
             }
