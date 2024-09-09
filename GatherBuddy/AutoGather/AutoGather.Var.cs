@@ -144,7 +144,9 @@ namespace GatherBuddy.AutoGather
 
         public readonly List<IGatherable> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];
-        public (ILocation? Location, TimeInterval Time) targetLocation = (null, TimeInterval.Invalid);
+        private readonly HashSet<Vector3> FarNodesSeenSoFar = [];
+        private readonly LinkedList<Vector3> VisitedNodes = [];
+        private (ILocation? Location, TimeInterval Time) targetLocation = (null, TimeInterval.Invalid);
 
         public void UpdateItemsToGather()
         {
@@ -272,6 +274,7 @@ namespace GatherBuddy.AutoGather
 
         private static unsafe uint FreeInventorySlots
             => InventoryManager.Instance()->GetEmptySlotsInBag();
+
         private static TimeStamp AdjuctedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
     }

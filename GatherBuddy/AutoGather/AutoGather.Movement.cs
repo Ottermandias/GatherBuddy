@@ -263,8 +263,6 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        public List<Vector3> FarNodesSeenSoFar = new();
-
         private void MoveToFarNode(Vector3 position)
         {
             var farNode = position;

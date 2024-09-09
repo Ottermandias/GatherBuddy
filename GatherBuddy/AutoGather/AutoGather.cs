@@ -20,6 +20,7 @@ using GatherBuddy.Interfaces;
 using Lumina.Excel.GeneratedSheets;
 using HousingManager = GatherBuddy.SeFunctions.HousingManager;
 using ECommons.Throttlers;
+using ObjectKind = Dalamud.Game.ClientState.Objects.Enums.ObjectKind;
 
 namespace GatherBuddy.AutoGather
 {
@@ -184,36 +185,51 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (IsGathering && targetLocation.Location != null && (targetItem.NodeType == NodeType.Unspoiled || targetItem.NodeType == NodeType.Legendary))
-                VisitedTimedLocations[targetLocation.Location] = targetLocation.Time;
-
-            if (IsGathering && GatherBuddy.Config.AutoGatherConfig.DoGathering)
+            if (IsGathering)
             {
-                AutoStatus = "Gathering...";
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                try
-                {
-                    DoActionTasks(targetItem);
-                }
-                catch (NoGatherableItemsInNodeExceptions)
-                {
-                    UpdateItemsToGather();
+                if (targetLocation.Location != null && targetItem.NodeType is NodeType.Unspoiled or NodeType.Legendary)
+                    VisitedTimedLocations[targetLocation.Location] = targetLocation.Time;
 
-                    //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
-                    if (targetItem == ItemsToGather.FirstOrDefault())
-                    {
-                        AbortAutoGather("Couldn't gather any items from the last node, aborted");
-                    }
-                    else
-                    {
-                        CloseGatheringAddons();
-                    }
+                var target = Svc.Targets.Target;
+                if (target != null 
+                    && target.ObjectKind is ObjectKind.GatheringPoint 
+                    && targetItem.NodeType is NodeType.Regular or NodeType.Ephemeral 
+                    && VisitedNodes.Last?.Value != target.Position
+                    && targetItem.ExpansionIdx > 0)
+                {
+                    FarNodesSeenSoFar.Clear();
+                    VisitedNodes.AddLast(target.Position);
+                    while (VisitedNodes.Count > (targetItem.NodeType == NodeType.Regular ? 4 : 2))
+                        VisitedNodes.RemoveFirst();
                 }
+
+                if (GatherBuddy.Config.AutoGatherConfig.DoGathering)
+                {
+                    AutoStatus = "Gathering...";
+                    TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
+                    try
+                    {
+                        DoActionTasks(targetItem);
+                    }
+                    catch (NoGatherableItemsInNodeExceptions)
+                    {
+                        UpdateItemsToGather();
+
+                        //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
+                        if (targetItem == ItemsToGather.FirstOrDefault())
+                        {
+                            AbortAutoGather("Couldn't gather any items from the last node, aborted");
+                        }
+                        else
+                        {
+                            CloseGatheringAddons();
+                        }
+                    }
+                    return;
+                }
+
                 return;
             }
-
-            if (IsGathering)
-                return;
 
             if (IsPathGenerating)
             {
@@ -236,6 +252,8 @@ namespace GatherBuddy.AutoGather
             {
                 //Find a new location only if the target item changes or the node expires to prevent switching to another node when a new one goes up
                 targetLocation = GatherBuddy.UptimeManager.NextUptime(targetItem, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+                FarNodesSeenSoFar.Clear();
+                VisitedNodes.Clear();
             }
             if (targetLocation.Location == null)
             {
@@ -269,7 +287,11 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
+            //Select the furtherest node from the last 4 visited ones (2 for ephemeral), ARR excluded.
+            var selectedNode = matchingNodesInZone
+                .OrderByDescending(n => VisitedNodes.Select(v => Vector3.Distance(n, v)).Sum())
+                .ThenBy(n => n.DistanceToPlayer())
+                .FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
             if (selectedNode == Vector3.Zero)
             {
                 FarNodesSeenSoFar.Clear();
