@@ -131,8 +131,8 @@ public partial class Interface
                 _weatherTable.SetDirty();
             if (ImGui.Button("Set Locations Dirty"))
                 GatherBuddy.UptimeManager.ResetLocations();
-        }
-    }
+                }
+            }
 
     private static unsafe void DrawDebugTime()
     {
@@ -613,6 +613,22 @@ public partial class Interface
             foreach (var (location, time) in GatherBuddy.AutoGather.VisitedTimedLocations)
             {
                 ImGui.Text($"{location.Id} {time.End}");
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Visited nodes"))
+        {
+            foreach (var pos in GatherBuddy.AutoGather.VisitedNodes)
+            {
+                ImGui.Text($"{pos}");
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Far Nodes Seen So Far"))
+        {
+            foreach (var pos in GatherBuddy.AutoGather.FarNodesSeenSoFar)
+            {
+                ImGui.Text($"{pos}");
             }
         }
 

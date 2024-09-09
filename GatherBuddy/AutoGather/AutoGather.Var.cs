@@ -144,8 +144,8 @@ namespace GatherBuddy.AutoGather
 
         public readonly List<IGatherable> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];
-        private readonly HashSet<Vector3> FarNodesSeenSoFar = [];
-        private readonly LinkedList<Vector3> VisitedNodes = [];
+        public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
+        public readonly LinkedList<Vector3> VisitedNodes = [];
         private (ILocation? Location, TimeInterval Time) targetLocation = (null, TimeInterval.Invalid);
 
         public void UpdateItemsToGather()
