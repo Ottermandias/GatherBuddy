@@ -37,6 +37,7 @@ public partial class AutoGather
     {
         if (MaterializeAddon == null)
         {
+            TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
             TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
             TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
             TaskManager.Enqueue(() => MaterializeAddon != null);

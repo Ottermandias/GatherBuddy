@@ -61,6 +61,7 @@ namespace GatherBuddy.AutoGather
 
                     if (IsPathing || IsPathGenerating)
                     {
+                        VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                         VNavmesh_IPCSubscriber.Path_Stop();
                     }
 
@@ -93,6 +94,7 @@ namespace GatherBuddy.AutoGather
 
             if (Lifestream_IPCSubscriber.IsEnabled)
             {
+                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(() => Lifestream_IPCSubscriber.ExecuteCommand("auto"));
                 TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
@@ -206,6 +208,7 @@ namespace GatherBuddy.AutoGather
                 if (GatherBuddy.Config.AutoGatherConfig.DoGathering)
                 {
                     AutoStatus = "Gathering...";
+                    TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
                     TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                     try
                     {
@@ -265,6 +268,7 @@ namespace GatherBuddy.AutoGather
             if (targetLocation.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
             {
                 HasSeenFlag = false;
+                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(() => MoveToTerritory(targetLocation.Location));
                 AutoStatus = "Teleporting...";
@@ -320,6 +324,7 @@ namespace GatherBuddy.AutoGather
                 FarNodesSeenSoFar.Add(selectedNode);
 
                 CurrentDestination = null;
+                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                 VNavmesh_IPCSubscriber.Path_Stop();
                 AutoStatus = "Looking for far away nodes...";
                 return;

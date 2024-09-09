@@ -42,6 +42,7 @@ namespace GatherBuddy.AutoGather
                 if (location == null)
                     return;
 
+                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                 VNavmesh_IPCSubscriber.Path_Stop();
                 TaskManager.Enqueue(() => _plugin.Executor.GatherItem(item));
             }
@@ -51,6 +52,7 @@ namespace GatherBuddy.AutoGather
         {
             if (EzThrottler.Throttle("MountUp", 10))
             {
+                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                 VNavmesh_IPCSubscriber.Path_Stop();
                 var am = ActionManager.Instance();
                 if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero)
@@ -112,6 +114,7 @@ namespace GatherBuddy.AutoGather
                 if (Dalamud.Conditions[ConditionFlag.Mounted])
                 {
                     AdvancedUnstuckCheck();
+                    TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Nav_PathfindCancelAll());
                     TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
                     TaskManager.Enqueue(Dismount);
                     TaskManager.DelayNext(1500);
@@ -124,7 +127,10 @@ namespace GatherBuddy.AutoGather
                      && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering))
                 {
                     if (IsPathing || IsPathGenerating)
+                    {
+                        VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                         VNavmesh_IPCSubscriber.Path_Stop();
+                    }
                     AutoStatus = "Waiting for GP to regenerate...";
                     return;
                 }
@@ -200,6 +206,7 @@ namespace GatherBuddy.AutoGather
             // For example, reinitiate navigation to the destination
             _lastNavigatedDestination = Vector3.Zero;
             CurrentDestination        = null;
+            VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
             VNavmesh_IPCSubscriber.Path_Stop();
         }
 
@@ -217,8 +224,9 @@ namespace GatherBuddy.AutoGather
         {
             if (EzThrottler.Throttle("Navigate", 10))
             {
-                if (CurrentDestination == null || IsPathing)
+                if (CurrentDestination == null || IsPathing || IsPathGenerating)
                     return;
+                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                 VNavmesh_IPCSubscriber.Path_Stop();
                 GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
                 _lastNavigatedDestination = CurrentDestination.Value;

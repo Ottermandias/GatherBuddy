@@ -136,6 +136,7 @@ namespace GatherBuddy.AutoGather
                             Communicator.PrintError("[GatherBuddyReborn] Auto-Gather is enabled! Unable to navigate.");
                             return;
                         }
+                        VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                         VNavmesh_IPCSubscriber.Path_Stop();
                         VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly);
                     }
@@ -156,6 +157,7 @@ namespace GatherBuddy.AutoGather
                                 Communicator.PrintError("[GatherBuddyReborn] Auto-Gather is enabled! Unable to navigate.");
                                 return;
                             }
+                            VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                             VNavmesh_IPCSubscriber.Path_Stop();
                             VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset.Offset, GatherBuddy.AutoGather.ShouldFly);
                         }
