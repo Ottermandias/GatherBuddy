@@ -211,9 +211,10 @@ namespace GatherBuddy.AutoGather
                             {
                                 HiddenRevealed = true;
                                 EnqueueGatherAction(() => UseAction(Actions.Luck));
+                                return;
                             }
                         }
-                        else if (MaybeGatherSometingElse(ref desiredItem, ids))
+                        if (MaybeGatherSometingElse(ref desiredItem, ids))
                         {
 
                             if (ShouldUseWise(currentIntegrity, maxIntegrity))
