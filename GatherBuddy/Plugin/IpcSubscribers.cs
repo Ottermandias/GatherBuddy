@@ -79,7 +79,7 @@ namespace GatherBuddy.Plugin
         internal static readonly Func<Vector3, float, float, Vector3> Query_Mesh_NearestPoint;
 
         [EzIPC("vnavmesh.Query.Mesh.PointOnFloor", applyPrefix: false)]
-        internal static readonly Func<Vector3, float, float, Vector3> Query_Mesh_PointOnFloor;
+        internal static readonly Func<Vector3, bool, float, Vector3> Query_Mesh_PointOnFloor;
 
         [EzIPC("vnavmesh.Path.MoveTo", applyPrefix: false)]
         internal static readonly Action<List<Vector3>, bool> Path_MoveTo;

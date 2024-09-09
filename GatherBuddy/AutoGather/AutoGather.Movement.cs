@@ -95,7 +95,7 @@ namespace GatherBuddy.AutoGather
                     Vector3 floorPoint;
                     try
                     {
-                        floorPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, 1f, 1f);
+                        floorPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 1f);
                         GatherBuddy.Log.Debug($"Got floor point {floorPoint} from vnavmesh while trying to land");
                     }
                     catch
