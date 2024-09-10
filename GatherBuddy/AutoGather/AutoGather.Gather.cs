@@ -22,7 +22,7 @@ namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        private unsafe void InteractWithNode(IGameObject gameObject, Gatherable targetItem)
+        private unsafe void EnqueueNodeInteraction(IGameObject gameObject, Gatherable targetItem)
         {
             if (!CanAct)
                 return;
@@ -35,7 +35,7 @@ namespace GatherBuddy.AutoGather
             {
                 targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
             });
-            TaskManager.DelayNext(1000);
+            TaskManager.DelayNext(500);
         }
 
         private unsafe void DoGatherWindowTasks(IGatherable item)

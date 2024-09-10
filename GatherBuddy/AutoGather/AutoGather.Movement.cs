@@ -7,75 +7,50 @@ using GatherBuddy.CustomInfo;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using Lumina.Excel.GeneratedSheets;
 
 namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        private unsafe void Dismount()
+        private unsafe void EnqueueDismount()
         {
-            if (!Dalamud.Conditions[ConditionFlag.Mounted])
-                return;
+            TaskManager.Enqueue(StopNavigation);
 
             var am = ActionManager.Instance();
-            am->UseAction(ActionType.Mount, 0);
+            TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) am->UseAction(ActionType.Mount, 0); }, "Dismount");
+
+            TaskManager.Enqueue(() => !Dalamud.Conditions[ConditionFlag.InFlight] && CanAct, 1000, "Wait for not in flight");
+            TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) am->UseAction(ActionType.Mount, 0); }, "Dismount 2");
+            TaskManager.Enqueue(() => !Dalamud.Conditions[ConditionFlag.Mounted] && CanAct, 1000, "Wait for dismount");
+            TaskManager.Enqueue(() => { if (!Dalamud.Conditions[ConditionFlag.Mounted]) TaskManager.DelayNextImmediate(350); } );//Prevent "Unable to execute command while jumping."
         }
 
-        private void MoveToClosestAetheryte()
+        private unsafe void EnqueueMountUp()
         {
-            if (EzThrottler.Throttle("Teleport", 10000))
+            var am = ActionManager.Instance();
+
+            var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
+            if (am->GetActionStatus(ActionType.Mount, mount) != 0)
+                return;
+
+            if (!IsMountUnlocked(mount))
             {
-                var item = ItemsToGather.FirstOrDefault();
-                if (item == null)
-                    return;
-
-                var location = _plugin.Executor.FindClosestLocation(item);
-                if (location == null)
-                    return;
-
-                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                VNavmesh_IPCSubscriber.Path_Stop();
-                TaskManager.Enqueue(() => _plugin.Executor.GatherItem(item));
-            }
-        }
-
-        private unsafe void MountUp()
-        {
-            if (EzThrottler.Throttle("MountUp", 10))
-            {
-                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                VNavmesh_IPCSubscriber.Path_Stop();
-                var am = ActionManager.Instance();
-                if (Vector3.Distance(Player.Object.Position, CurrentDestination ?? Vector3.Zero)
-                 <= GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
-                    return;
-
-                var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
-                if (am->GetActionStatus(ActionType.Mount, mount) != 0)
-                    return;
-
-                if (!IsMountUnlocked(mount))
+                if (am->GetActionStatus(ActionType.GeneralAction, 24) != 0)
                 {
-                    if (am->GetActionStatus(ActionType.GeneralAction, 24) != 0)
-                    {
-                        return;
-                    }
-
-                    am->UseAction(ActionType.GeneralAction, 24);
                     return;
                 }
 
-                am->UseAction(ActionType.Mount, mount);
+                mount = 24;
             }
+
+            TaskManager.Enqueue(StopNavigation);
+            TaskManager.Enqueue(() => am->UseAction(ActionType.Mount, mount));
+            TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted], 2000);
         }
 
         private unsafe bool IsMountUnlocked(uint mount)
@@ -89,81 +64,60 @@ namespace GatherBuddy.AutoGather
 
         private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem)
         {
-            var distance = Vector3.Distance(Player.Position, gameObject.Position);
+            var distance = gameObject.Position.DistanceToPlayer();
             if (distance < 3)
             {
-                if (Dalamud.Conditions[ConditionFlag.InFlight] && GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation)
-                {
-                    Vector3 floorPoint;
-                    try
-                    {
-                        floorPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 1f);
-                        GatherBuddy.Log.Debug($"Got floor point {floorPoint} from vnavmesh while trying to land");
-                    }
-                    catch
-                    {
-                        AutoStatus = "We're stuck in flight and navmesh can't see the floor!";
-                        return;
-                    }
-
-                    CurrentDestination = floorPoint;
-                    TaskManager.Enqueue(() => Navigate(ShouldFly));
-                    TaskManager.DelayNext(1000);
-                }
-
                 if (Dalamud.Conditions[ConditionFlag.Mounted])
                 {
+                    //Try to dismount early. It would help with nodes where it is not possible to dismount at vnavmesh's provided floor point
                     AdvancedUnstuckCheck();
-                    TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Nav_PathfindCancelAll());
-                    TaskManager.Enqueue(() => VNavmesh_IPCSubscriber.Path_Stop());
-                    TaskManager.Enqueue(Dismount);
-                    TaskManager.DelayNext(1500);
-                    return;
+                    EnqueueDismount();
+                    TaskManager.Enqueue(() => {
+                        //If early dismount failed, navigate to the node
+                        if (Dalamud.Conditions[ConditionFlag.Mounted])
+                        {
+                            Navigate(gameObject.Position, Dalamud.Conditions[ConditionFlag.InFlight]);
+                            TaskManager.EnqueueImmediate(() => !IsPathGenerating);
+                            TaskManager.EnqueueImmediate(() => !IsPathing, 1000);
+                        }
+                    });
                 }
-
-                if (!Dalamud.Conditions[ConditionFlag.Gathering]
-                 && (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable
-                     || !targetItem.ItemData.IsCollectable
-                     && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering))
+                else if (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable
+                     || !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
                 {
-                    if (IsPathing || IsPathGenerating)
-                    {
-                        VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                        VNavmesh_IPCSubscriber.Path_Stop();
-                    }
+                    StopNavigation();
                     AutoStatus = "Waiting for GP to regenerate...";
-                    return;
-                }
-
-                if (!Dalamud.Conditions[ConditionFlag.Mounted] && !Dalamud.Conditions[ConditionFlag.Jumping])
+                } 
+                else
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
-                    DoUseConsumablesWithCastTime();
-
-                    TaskManager.Enqueue(() => InteractWithNode(gameObject, targetItem));
-                    return;
+                    if (DoUseConsumablesWithCastTime())
+                    {
+                        StopNavigation();
+                    }
+                    else
+                    {
+                        //Enqueue navigation anyway, since the node may be behind a rock or a tree
+                        Navigate(gameObject.Position, false);
+                        EnqueueNodeInteraction(gameObject, targetItem);
+                    }
                 }
-
-                AutoStatus = "We fell out of a loop that it shouldn't be possible to fall out of. What did you do?!?!";
             }
-            else if (distance > 3 && distance < GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
+            else if (distance < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5))
             {
-                CurrentDestination = gameObject?.Position ?? null;
-                TaskManager.Enqueue(() => Navigate(false));
+                Navigate(gameObject.Position, false);
             }
             else
             {
-                CurrentDestination = gameObject?.Position ?? null;
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                 {
-                    TaskManager.Enqueue(MountUp);
-                    TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted]);
+                    EnqueueMountUp();
                 }
-
-                TaskManager.Enqueue(() => Navigate(ShouldFly));
+                else
+                {
+                    Navigate(gameObject.Position, ShouldFly(gameObject.Position));
+                }
             }
-
-            AutoStatus = "Moving to node...";
         }
 
         private Vector3? lastPosition = null;
@@ -173,6 +127,9 @@ namespace GatherBuddy.AutoGather
 
         private void StuckCheck()
         {
+            if (GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
+                return;
+            
             if (EzThrottler.Throttle("StuckCheck", 100))
             {
                 // Check if character is stuck
@@ -185,8 +142,7 @@ namespace GatherBuddy.AutoGather
                         if ((DateTime.Now - lastResetTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
                         {
                             GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
-                            ResetNavigation();
-                            lastResetTime = DateTime.Now;
+                            StopNavigation();
                             return;
                         }
                     }
@@ -200,74 +156,61 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private void ResetNavigation()
+        private void StopNavigation()
         {
             // Reset navigation logic here
             // For example, reinitiate navigation to the destination
-            _lastNavigatedDestination = Vector3.Zero;
-            CurrentDestination        = null;
+            CurrentDestination = default;
             VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
             VNavmesh_IPCSubscriber.Path_Stop();
+            lastResetTime = DateTime.Now;
         }
 
-        private bool IsCloseToDestination()
+        private void Navigate(Vector3 destination, bool shouldFly)
         {
-            if (CurrentDestination == null)
-                return false;
-
-            return Vector3.Distance(Player.Object.Position, CurrentDestination.Value) <= 3;
-        }
-
-        private Vector3 _lastNavigatedDestination = Vector3.Zero;
-
-        private void Navigate(bool shouldFly)
-        {
-            if (EzThrottler.Throttle("Navigate", 10))
+            if (CurrentDestination == destination)
+                return;
+            
+            StopNavigation();
+            CurrentDestination = destination;
+            GatherBuddy.Log.Debug($"Navigating to {CurrentDestination}");
+            var loop = 1;
+            Vector3 correctedDestination = GetCorrectedDestination(shouldFly);
+            while (Vector3.Distance(correctedDestination, CurrentDestination) > 15 && loop < 8)
             {
-                if (CurrentDestination == null || IsPathing || IsPathGenerating)
-                    return;
-                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                VNavmesh_IPCSubscriber.Path_Stop();
-                GatherBuddy.Log.Verbose($"Navigating to {CurrentDestination}");
-                _lastNavigatedDestination = CurrentDestination.Value;
-                var loop                 = 1;
-                Vector3 correctedDestination = GetCorrectedDestination(shouldFly);
-                while (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 15 && loop < 8)
-                {
-                    GatherBuddy.Log.Information("Distance last node and gatherpoint is too big : "
-                      + Vector3.Distance(correctedDestination, CurrentDestination.Value));
-                    correctedDestination = shouldFly ? CurrentDestination.Value.CorrectForMesh(loop * 0.5f) : CurrentDestination.Value;
-                    loop++;
-                }
-
-                if (Vector3.Distance(correctedDestination, CurrentDestination.Value) > 10)
-                {
-                    GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
-                    ResetNavigation();
-                    return;
-                }
-
-                if (!correctedDestination.SanityCheck())
-                {
-                    GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
-                    ResetNavigation();
-                    return;
-                }
-
-                LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+                GatherBuddy.Log.Information("Distance last node and gatherpoint is too big : "
+                    + Vector3.Distance(correctedDestination, CurrentDestination));
+                correctedDestination = shouldFly ? CurrentDestination.CorrectForMesh(loop * 0.5f) : CurrentDestination;
+                loop++;
             }
+
+            if (Vector3.Distance(correctedDestination, CurrentDestination) > 10)
+            {
+                GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
+                StopNavigation();
+                return;
+            }
+
+            if (!correctedDestination.SanityCheck())
+            {
+                GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
+                StopNavigation();
+                return;
+            }
+
+            LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
         }
 
         private Vector3 GetCorrectedDestination(bool shouldFly)
         {
-            var selectedOffset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == CurrentDestination.Value);
+            var selectedOffset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == CurrentDestination);
             if (selectedOffset != null)
             {
                 return selectedOffset.Offset;
             }
             else
             {
-                return shouldFly ? CurrentDestination.Value.CorrectForMesh(0.5f) : CurrentDestination.Value;
+                return shouldFly ? CurrentDestination.CorrectForMesh(0.5f) : CurrentDestination;
             }
         }
 
@@ -275,15 +218,14 @@ namespace GatherBuddy.AutoGather
         {
             var farNode = position;
 
-            AutoStatus         = "Moving to far node...";
-            CurrentDestination = farNode;
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
             {
-                TaskManager.Enqueue(MountUp);
-                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted]);
+                EnqueueMountUp();
             }
-
-            TaskManager.Enqueue(() => Navigate(ShouldFly));
+            else
+            {
+                Navigate(farNode, ShouldFly(farNode));
+            }
         }
 
         private void MoveToTerritory(ILocation location)
@@ -293,7 +235,7 @@ namespace GatherBuddy.AutoGather
             {
                 TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
                 TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.DelayNext(3000);
+                TaskManager.DelayNext(1500);
             }
         }
 
@@ -316,11 +258,13 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Log.Warning($"Character is stuck, using advanced unstuck methods");
                     if (!_movementController.Enabled)
                     {
-                        Vector3 newPosition = CurrentDestination ?? Player.Position + new Vector3(1, 1, 1);
+                        StopNavigation();
+                        var rng = new Random();
+                        var rnd = () => (rng.Next(2) == 0 ? -1 : 1) * rng.NextSingle();
+                        Vector3 newPosition = Player.Position + Vector3.Normalize(new Vector3(rnd(), rnd(), rnd())) * 3f;
                         _movementController.DesiredPosition = newPosition;
                         _movementController.Enabled         = true;
                         advancedMovementStart               = DateTime.Now;
-                        //VNavmesh_IPCSubscriber.Path_Stop();
                     }
                 }
             }

@@ -68,10 +68,6 @@ public partial class Interface
         public static void DrawGoHomeBox()
             => DrawCheckbox("Go home when idle", "Uses the '/li auto' command to take you home when done gathering or waiting for timed nodes",
                 GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
-        public static void DrawAdvancedNavBox()
-            => DrawCheckbox("Enable Experimental Navigation", "Use advanced navigation techniques to try and work around vnavmesh limitations",
-                GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation,
-                b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalNavigation = b);
 
         public static void DrawAdvancedUnstuckBox()
             => DrawCheckbox("Enable Experimental Unstuck Method",
@@ -1386,7 +1382,6 @@ public partial class Interface
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
-                ConfigFunctions.DrawAdvancedNavBox();
                 ConfigFunctions.DrawAdvancedUnstuckBox();
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAntiStuckCooldown();

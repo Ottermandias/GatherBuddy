@@ -45,8 +45,7 @@ namespace GatherBuddy.AutoGather
             => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
 
         public bool?    LastNavigationResult { get; set; } = null;
-        public Vector3? CurrentDestination   { get; set; } = null;
-        public bool     HasSeenFlag          { get; set; } = false;
+        public Vector3 CurrentDestination   { get; private set; } = default;
 
         public GatheringType JobAsGatheringType
         {
@@ -64,17 +63,7 @@ namespace GatherBuddy.AutoGather
         }
 
         public bool ShouldUseFlag
-        {
-            get
-            {
-                if (GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing)
-                    return false;
-                if (HasSeenFlag)
-                    return false;
-
-                return true;
-            }
-        }
+            => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing;
 
         public unsafe Vector3? MapFlagPosition
         {
@@ -100,18 +89,15 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        public bool ShouldFly
+        public bool ShouldFly(Vector3 destination)
         {
-            get
+            if (GatherBuddy.Config.AutoGatherConfig.ForceWalking || Dalamud.ClientState.LocalPlayer == null)
             {
-                if (GatherBuddy.Config.AutoGatherConfig.ForceWalking)
-                {
-                    return false;
-                }
-
-                return Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, CurrentDestination ?? Vector3.Zero)
-                 >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
+                return false;
             }
+
+            return Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, destination)
+                >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
         }
 
         public unsafe Vector2? TimedNodePosition
@@ -222,6 +208,7 @@ namespace GatherBuddy.AutoGather
                  || Dalamud.Conditions[ConditionFlag.LoggingOut]
                  || Dalamud.Conditions[ConditionFlag.Occupied]
                  || Dalamud.Conditions[ConditionFlag.Unconscious]
+                 || Dalamud.Conditions[ConditionFlag.Gathering42]
                  || Dalamud.ClientState.LocalPlayer.CurrentHp < 1)
                     return false;
 

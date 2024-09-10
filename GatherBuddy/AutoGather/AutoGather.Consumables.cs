@@ -225,7 +225,7 @@ namespace GatherBuddy.AutoGather
         }
 
         // Manuals have cast time and cannot be used while mounted
-        private void DoUseConsumablesWithCastTime()
+        private bool DoUseConsumablesWithCastTime()
         {
             if (GatherBuddy.Config.AutoGatherConfig.ManualConfig.UseConsumable
                 && GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId > 0
@@ -234,7 +234,7 @@ namespace GatherBuddy.AutoGather
                 )
             {
                 TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId));
-                return;
+                return true;
             }
 
             if (GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.UseConsumable
@@ -244,7 +244,7 @@ namespace GatherBuddy.AutoGather
                 )
             {
                 TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId));
-                return;
+                return true;
             }
 
             if (GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.UseConsumable
@@ -254,8 +254,9 @@ namespace GatherBuddy.AutoGather
                 )
             {
                 TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId));
-                return;
+                return true;
             }
+            return false;
         }
     }
 }

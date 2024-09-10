@@ -131,8 +131,8 @@ public partial class Interface
                 _weatherTable.SetDirty();
             if (ImGui.Button("Set Locations Dirty"))
                 GatherBuddy.UptimeManager.ResetLocations();
-                }
-            }
+        }
+    }
 
     private static unsafe void DrawDebugTime()
     {
@@ -587,7 +587,6 @@ public partial class Interface
         ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
         ImGui.Text($"Navigation: {GatherBuddy.AutoGather.LastNavigationResult}");
         ImGui.Text($"Current Destination: {GatherBuddy.AutoGather.CurrentDestination}");
-        ImGui.Text($"ShouldFly: {GatherBuddy.AutoGather.ShouldFly}");
         ImGui.Text($"IsGathering: {GatherBuddy.AutoGather.IsGathering}");
         ImGui.Text($"IsPathing: {GatherBuddy.AutoGather.IsPathing}");
         ImGui.Text($"IsPathGenerating: {GatherBuddy.AutoGather.IsPathGenerating}");
@@ -597,7 +596,6 @@ public partial class Interface
         ImGui.Text($"ItemsToGatherInZone: {GatherBuddy.AutoGather.ItemsToGatherInZone.Count()}");
         ImGui.Text($"ItemsToGather: {GatherBuddy.AutoGather.ItemsToGather.Count()}");
         ImGui.Text($"ShouldUseFlag: {GatherBuddy.AutoGather.ShouldUseFlag}");
-        ImGui.Text(($"HasSeenFlag: {GatherBuddy.AutoGather.HasSeenFlag}"));
         ImGui.Text($"LastIntegrity: {GatherBuddy.AutoGather.LastIntegrity}");
         ImGui.Text($"LastCollectScore: {GatherBuddy.AutoGather.LastCollectability}");
         ImGui.Text($"IsCordialOnCooldown: {GatherBuddy.AutoGather.IsCordialOnCooldown}");
