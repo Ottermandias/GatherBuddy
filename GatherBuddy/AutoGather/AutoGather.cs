@@ -183,7 +183,7 @@ namespace GatherBuddy.AutoGather
                     && target.ObjectKind is ObjectKind.GatheringPoint 
                     && targetItem.NodeType is NodeType.Regular or NodeType.Ephemeral 
                     && VisitedNodes.Last?.Value != target.Position
-                    && (targetItem.ExpansionIdx > 0 || targetLocation.Location?.Id >= 397))
+                    && targetLocation.Location?.Territory.Id >= 397)
                 {
                     FarNodesSeenSoFar.Clear();
                     VisitedNodes.AddLast(target.Position);
