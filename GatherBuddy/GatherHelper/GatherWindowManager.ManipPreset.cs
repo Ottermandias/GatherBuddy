@@ -107,6 +107,8 @@ public partial class GatherWindowManager
             quantity = 1;
         if (quantity > 9999)
             quantity = 9999;
+        if (GatherBuddy.GameData.Gatherables[itemId].ItemData.FilterGroup == 18)
+            quantity = 1;
         
         preset.Quantities[itemId] = quantity;
         Save();
