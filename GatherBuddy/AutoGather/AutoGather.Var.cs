@@ -63,7 +63,7 @@ namespace GatherBuddy.AutoGather
         }
 
         public bool ShouldUseFlag
-            => GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing;
+            => !GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing;
 
         public unsafe Vector3? MapFlagPosition
         {
