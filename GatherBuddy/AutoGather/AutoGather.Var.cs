@@ -207,9 +207,11 @@ namespace GatherBuddy.AutoGather
                  || Dalamud.Conditions[ConditionFlag.Jumping61]
                  || Dalamud.Conditions[ConditionFlag.LoggingOut]
                  || Dalamud.Conditions[ConditionFlag.Occupied]
+                 || Dalamud.Conditions[ConditionFlag.Occupied39]
                  || Dalamud.Conditions[ConditionFlag.Unconscious]
                  || Dalamud.Conditions[ConditionFlag.Gathering42]
-                 || Dalamud.ClientState.LocalPlayer.CurrentHp < 1)
+                 || Dalamud.ClientState.LocalPlayer.CurrentHp < 1
+                 || Player.IsAnimationLocked)
                     return false;
 
                 return true;
