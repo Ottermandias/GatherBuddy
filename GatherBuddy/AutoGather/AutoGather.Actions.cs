@@ -243,7 +243,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private unsafe int GetCurrentYield(int itemPosition)
+        private unsafe int GetCurrentYield(int itemPosition, bool accountForGivingLand = true)
         {
             var itemCheckbox = GatheringAddon->GatheredItemComponentCheckbox[itemPosition].Value;
 
@@ -259,11 +259,11 @@ namespace GatherBuddy.AutoGather
                 {
                     var match = Regex.Match(yield, @"^(\d)+\+\?$");
                     if (match.Success)
-                        result = int.Parse(match.Groups[1].Value) + GivingLandYeild;
+                        result = int.Parse(match.Groups[1].Value) + (accountForGivingLand ? GivingLandYeild : 0);
                 }
             }
 
-            if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s
+            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s
                     => BountifulYieldStatuses
                         .Contains(s.StatusId))) // Has BYII. This is a quality check as Solid will take priority over BYII anyway.
                 result -= 3;                    //I consider the maximum proc, I don't know if we have a way to make a better check.

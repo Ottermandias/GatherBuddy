@@ -78,7 +78,7 @@ namespace GatherBuddy.AutoGather
                 .Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault)
                 .Where((item, index) => item != null && CheckItemOvercap(item, index))
                 .Select(item => item!)
-                .ToArray();
+                .ToList();
 
             var crystals = aviable
                 .Where(IsCrystal)
@@ -86,7 +86,7 @@ namespace GatherBuddy.AutoGather
                 .OrderBy(InventoryCount)
                 //Prioritize crystals in the gathering list
                 .OrderBy(item => ItemsToGather.Any(toGather => toGather.ItemId == item.ItemId) ? 0 : 1)
-                .ToArray();
+                .ToList();
 
             //Gather crystals when using The Giving Land
             if (crystals.Any() && (HasGivingLandBuff || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && ShouldUseGivingLand(crystals.First())))
@@ -152,7 +152,7 @@ namespace GatherBuddy.AutoGather
             if (IsTreasureMap(item) && InventoryCount(item) != 0)
                 return false;
             //If it's a crystal, we can't have more than 9999
-            if (IsCrystal(item) && InventoryCount(item) > 9999 - GetCurrentYield(index))
+            if (IsCrystal(item) && InventoryCount(item) > 9999 - GetCurrentYield(index, false))
                 return false;
             return true;
         }
