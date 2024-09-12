@@ -33,23 +33,25 @@ namespace GatherBuddy.AutoGather
         private unsafe void EnqueueMountUp()
         {
             var am = ActionManager.Instance();
-
             var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
-            if (am->GetActionStatus(ActionType.Mount, mount) != 0)
-                return;
+            Func<bool?> doMount;
 
-            if (!IsMountUnlocked(mount))
+            if (IsMountUnlocked(mount) && am->GetActionStatus(ActionType.Mount, mount) != 0)
+            {
+                doMount = () => am->UseAction(ActionType.Mount, mount);
+            }
+            else
             {
                 if (am->GetActionStatus(ActionType.GeneralAction, 24) != 0)
                 {
                     return;
                 }
 
-                mount = 24;
+                doMount = () => am->UseAction(ActionType.GeneralAction, 24);
             }
 
             TaskManager.Enqueue(StopNavigation);
-            TaskManager.Enqueue(() => am->UseAction(ActionType.Mount, mount));
+            TaskManager.Enqueue(doMount);
             TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted], 2000);
         }
 
