@@ -36,7 +36,7 @@ namespace GatherBuddy.AutoGather
             var mount = GatherBuddy.Config.AutoGatherConfig.AutoGatherMountId;
             Action doMount;
 
-            if (IsMountUnlocked(mount) && am->GetActionStatus(ActionType.Mount, mount) != 0)
+            if (IsMountUnlocked(mount) && am->GetActionStatus(ActionType.Mount, mount) == 0)
             {
                 doMount = () => am->UseAction(ActionType.Mount, mount);
             }
