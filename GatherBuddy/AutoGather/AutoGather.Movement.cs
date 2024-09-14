@@ -170,7 +170,7 @@ namespace GatherBuddy.AutoGather
 
         private void Navigate(Vector3 destination, bool shouldFly)
         {
-            if (CurrentDestination == destination)
+            if (CurrentDestination == destination && (IsPathing || IsPathGenerating))
                 return;
             
             StopNavigation();
