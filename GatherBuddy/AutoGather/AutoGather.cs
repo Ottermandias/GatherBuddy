@@ -254,7 +254,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (targetLocation.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
+            if (targetLocation.Location.Territory.Id != Svc.ClientState.TerritoryType || !LocationMatchesJob(targetLocation.Location))
             {
                 StopNavigation();
                 MoveToTerritory(targetLocation.Location);

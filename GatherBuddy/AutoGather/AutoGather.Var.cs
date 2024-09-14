@@ -183,14 +183,10 @@ namespace GatherBuddy.AutoGather
             => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize", 1);
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
-            => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType)).Where(GatherableMatchesJob);
+            => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType)).Where(i => i.Locations.Any(LocationMatchesJob));
 
-        private bool GatherableMatchesJob(IGatherable arg)
-        {
-            var gatherable = arg as Gatherable;
-            return gatherable != null
-             && (gatherable.GatheringType.ToGroup() == JobAsGatheringType || gatherable.GatheringType.ToGroup() == GatheringType.Multiple);
-        }
+        private bool LocationMatchesJob(ILocation loc)
+            => loc.GatheringType.ToGroup() == JobAsGatheringType;
 
         public bool CanAct
         {
