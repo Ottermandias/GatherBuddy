@@ -14,6 +14,8 @@ using GatherBuddy.Enums;
 using HousingManager = GatherBuddy.SeFunctions.HousingManager;
 using ECommons.Throttlers;
 using ObjectKind = Dalamud.Game.ClientState.Objects.Enums.ObjectKind;
+using GatherBuddy.Interfaces;
+using GatherBuddy.Time;
 
 namespace GatherBuddy.AutoGather
 {
@@ -149,8 +151,8 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (!IsGathering) UpdateItemsToGather();
-            Gatherable? targetItem = ItemsToGather.FirstOrDefault() as Gatherable;
+            if (!IsGathering || !ItemsToGather.Any()) UpdateItemsToGather();
+            var targetItem = ItemsToGather.FirstOrDefault() as Gatherable;
 
             if (targetItem == null)
             {
@@ -243,7 +245,7 @@ namespace GatherBuddy.AutoGather
                 || !targetLocation.Location.Gatherables.Contains(targetItem))
             {
                 //Find a new location only if the target item changes or the node expires to prevent switching to another node when a new one goes up
-                targetLocation = GatherBuddy.UptimeManager.NextUptime(targetItem, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+                targetLocation = GetBestLocation(targetItem);
                 FarNodesSeenSoFar.Clear();
                 VisitedNodes.Clear();
             }
@@ -352,6 +354,28 @@ namespace GatherBuddy.AutoGather
             }
              
             MoveToFarNode(selectedFarNode);
+        }
+
+        private (ILocation?, TimeInterval) GetBestLocation(Gatherable targetItem)
+        {
+            (ILocation? Location, TimeInterval) res = default;
+            //First priority: selected preferred location.
+            var node = _plugin.GatherWindowManager.GetPreferredLocation(targetItem);
+            if (node != null && !VisitedTimedLocations.ContainsKey(node))
+            {
+                res = (node, node.Times.NextUptime(AdjuctedServerTime));
+            }
+            //Second priority: location for preferred job.
+            else if (GatherBuddy.Config.PreferredGatheringType is GatheringType.Miner or GatheringType.Botanist)
+            {
+                res = GatherBuddy.UptimeManager.NextUptime(targetItem, GatherBuddy.Config.PreferredGatheringType, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+            }
+            //Otherwise: location for any job.
+            if (res.Location == null)
+            {
+                res = GatherBuddy.UptimeManager.NextUptime(targetItem, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+            }
+            return res;
         }
 
         private void AbortAutoGather(string? status = null)

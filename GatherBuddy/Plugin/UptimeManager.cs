@@ -245,6 +245,8 @@ public class UptimeManager : IDisposable
     public (ILocation? Location, TimeInterval interval) NextUptime(Gatherable item, GatheringType type, TimeStamp now,
         IReadOnlyList<ILocation>? excludes = null)
     {
+        if (item.InternalLocationId == 0)
+            return (item.Locations.FirstOrDefault(), TimeInterval.Always);
         if (item.InternalLocationId < 0)
             return (FindClosestAetheryte(item, type), TimeInterval.Always);
 

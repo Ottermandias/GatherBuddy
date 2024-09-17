@@ -216,7 +216,7 @@ public partial class Interface
 
         var tt = $"{string.Join("\n", loc.Gatherables.Select(g => g.Name[GatherBuddy.Language]))}";
         if (loc is GatheringNode g)
-            tt = $"{g.Times.PrintHours()}\n{tt}";
+            tt = $"{loc.Territory.Name}\n{loc.GatheringType}\n{g.Times.PrintHours()}\n{tt}";
         ImGui.SetTooltip(tt);
     }
 
