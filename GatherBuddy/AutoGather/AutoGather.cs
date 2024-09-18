@@ -39,6 +39,7 @@ namespace GatherBuddy.AutoGather
         public           TaskManager TaskManager { get; }
 
         private bool _enabled { get; set; } = false;
+        internal readonly GatheringTracker NodeTarcker = new();
 
         public unsafe bool Enabled
         {
@@ -404,6 +405,7 @@ namespace GatherBuddy.AutoGather
         public void Dispose()
         {
             _movementController.Dispose();
+            NodeTarcker.Dispose();
         }
     }
 }
