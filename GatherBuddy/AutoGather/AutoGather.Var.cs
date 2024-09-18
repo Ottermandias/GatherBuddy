@@ -127,6 +127,7 @@ namespace GatherBuddy.AutoGather
         public string AutoStatus { get; set; } = "Idle";
         public int    LastCollectability = 0;
         public int    LastIntegrity      = 0;
+        public bool   HiddenRevealed     = false;
 
         public readonly List<GatherInfo> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];

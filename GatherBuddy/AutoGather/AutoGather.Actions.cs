@@ -14,7 +14,7 @@ namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        public bool ShouldUseLuck(Gatherable gatherable)
+        public bool ShouldUseLuck(Gatherable? gatherable)
         {
             if (gatherable == null)
                 return false;
@@ -107,7 +107,7 @@ namespace GatherBuddy.AutoGather
             return GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction;
         }
 
-        private bool ShouldUseGivingLand(Gatherable item)
+        private bool ShouldUseGivingLand(Gatherable? item, uint[] ids)
         {
             if (item == null)
                 return false;
@@ -128,7 +128,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.GivingLandConfig, item))
                 return false;
-            if (InventoryCount(item) > 9999 - GivingLandYeild)
+            if (InventoryCount(item) > 9999 - GivingLandYeild - GetCurrentYield(ids.IndexOf(item.ItemId)))
                 return false;
 
             return true;
@@ -197,6 +197,11 @@ namespace GatherBuddy.AutoGather
                     {
                         var ids = GetGatherableIds();
 
+                        if (LastIntegrity <= 1 && currentIntegrity == maxIntegrity)
+                            HiddenRevealed = false; //Revisit. Doesn't work with quick gathering
+                        
+                        LastIntegrity = currentIntegrity;
+
                         if (!HiddenRevealed && currentIntegrity == maxIntegrity 
                             && ids.Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault).Any(item => item != null && (item.GatheringData.IsHidden || IsTreasureMap(item))))
                         {
@@ -207,7 +212,7 @@ namespace GatherBuddy.AutoGather
                         if (!HasGivingLandBuff && ShouldUseLuck(desiredItem))
                         {
                             var anyCrystall = ids.Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault).Where(i => i != null && IsCrystal(i)).OrderBy(i => GetInventoryItemCount(i!.ItemId));
-                            if (!GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown || !ShouldUseTwelvesBounty(anyCrystall.FirstOrDefault(), ids))
+                            if (!GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown || !ShouldUseGivingLand(anyCrystall.FirstOrDefault(), ids))
                             {
                                 HiddenRevealed = true;
                                 EnqueueGatherAction(() => UseAction(Actions.Luck));
@@ -221,7 +226,7 @@ namespace GatherBuddy.AutoGather
                                 EnqueueGatherAction(() => UseAction(Actions.Wise));
                             if (ShouldUseSolidAgeGatherables(currentIntegrity, maxIntegrity, desiredItem, ids))
                                 EnqueueGatherAction(() => UseAction(Actions.SolidAge));
-                            if (ShouldUseGivingLand(desiredItem))
+                            if (ShouldUseGivingLand(desiredItem, ids))
                                 EnqueueGatherAction(() => UseAction(Actions.GivingLand));
                             else if (ShouldUseTwelvesBounty(desiredItem, ids))
                                 EnqueueGatherAction(() => UseAction(Actions.TwelvesBounty));
@@ -474,8 +479,6 @@ namespace GatherBuddy.AutoGather
 
         private static bool IsGpMax
             => Dalamud.ClientState.LocalPlayer?.CurrentGp == Dalamud.ClientState.LocalPlayer?.MaxGp;
-
-        public bool HiddenRevealed = false;
 
         private const int ActionCooldown = 2000;
     }

@@ -89,7 +89,7 @@ namespace GatherBuddy.AutoGather
                 .ToList();
 
             //Gather crystals when using The Giving Land
-            if (crystals.Any() && (HasGivingLandBuff || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && ShouldUseGivingLand(crystals.First())))
+            if (crystals.Any() && (HasGivingLandBuff || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && ShouldUseGivingLand(crystals.First(), ids)))
             {
                 desiredItem = crystals.First();
                 return true;
