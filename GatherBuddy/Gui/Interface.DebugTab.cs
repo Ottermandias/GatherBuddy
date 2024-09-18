@@ -634,7 +634,7 @@ public partial class Interface
         {
             foreach (var item in GatherBuddy.AutoGather.ItemsToGather)
             {
-                ImGui.Text(item.Name[GatherBuddy.Language]);
+                ImGui.Text(item.Item.Name[GatherBuddy.Language]);
             }
         }
 

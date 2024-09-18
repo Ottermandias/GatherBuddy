@@ -128,18 +128,18 @@ namespace GatherBuddy.AutoGather
         public int    LastCollectability = 0;
         public int    LastIntegrity      = 0;
 
-        public readonly List<IGatherable> ItemsToGather = [];
+        public readonly List<GatherInfo> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];
         public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
         public readonly LinkedList<Vector3> VisitedNodes = [];
-        private (ILocation? Location, TimeInterval Time) targetLocation = (null, TimeInterval.Invalid);
+        private GatherInfo? targetInfo = null;
 
         public void UpdateItemsToGather()
         {
             ItemsToGather.Clear();
-            var activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems);
-            var RegularItemsToGather = new List<IGatherable>();
-            foreach (var item in activeItems)
+            var activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems.OfType<Gatherable>().Select(GetBestLocation));
+            var RegularItemsToGather = new List<GatherInfo>();
+            foreach (var (item, location, time) in activeItems)
             {
                 if (InventoryCount(item) >= QuantityTotal(item) || IsTreasureMap(item) && InventoryCount(item) > 0)
                     continue;
@@ -149,24 +149,45 @@ namespace GatherBuddy.AutoGather
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                 {
-                    var (location, interval) = GatherBuddy.UptimeManager.NextUptime(item, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
-                    if (interval.InRange(AdjuctedServerTime))
-                        ItemsToGather.Add(item);
+                    if (time.InRange(AdjuctedServerTime))
+                        ItemsToGather.Add((item, location, time));
                 }
                 else
                 {
-                    RegularItemsToGather.Add(item);
+                    RegularItemsToGather.Add((item, location, time));
                 }
             }
-            ItemsToGather.Sort((x, y) => GetNodeTypeAsPriority(x).CompareTo(GetNodeTypeAsPriority(y)));
+            ItemsToGather.Sort((x, y) => GetNodeTypeAsPriority(x.Item).CompareTo(GetNodeTypeAsPriority(y.Item)));
             ItemsToGather.AddRange(RegularItemsToGather);
         }
 
-        private IEnumerable<IGatherable> OrderActiveItems(List<IGatherable> activeItems)
+        private GatherInfo GetBestLocation(Gatherable item)
+        {
+            (ILocation? Location, TimeInterval Time) res = default;
+            //First priority: selected preferred location.
+            var node = _plugin.GatherWindowManager.GetPreferredLocation(item);
+            if (node != null && !VisitedTimedLocations.ContainsKey(node))
+            {
+                res = (node, node.Times.NextUptime(AdjuctedServerTime));
+            }
+            //Second priority: location for preferred job.
+            else if (GatherBuddy.Config.PreferredGatheringType is GatheringType.Miner or GatheringType.Botanist)
+            {
+                res = GatherBuddy.UptimeManager.NextUptime(item, GatherBuddy.Config.PreferredGatheringType, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+            }
+            //Otherwise: location for any job.
+            if (res.Location == null)
+            {
+                res = GatherBuddy.UptimeManager.NextUptime(item, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+            }
+            return (item, res.Location, res.Time);
+        }
+
+        private IEnumerable<GatherInfo> OrderActiveItems(IEnumerable<GatherInfo> activeItems)
         {
             switch (GatherBuddy.Config.AutoGatherConfig.SortingMethod)
             {
-                case AutoGatherConfig.SortingType.Location: return activeItems.OrderBy(i => i.Locations.First().Id);
+                case AutoGatherConfig.SortingType.Location: return activeItems.OrderBy(i => i.Location?.Territory.Id);
                 case AutoGatherConfig.SortingType.None:
                 default:
                     return activeItems;
@@ -183,7 +204,7 @@ namespace GatherBuddy.AutoGather
             => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize", 1);
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
-            => ItemsToGather.Where(i => i.Locations.Any(l => l.Territory.Id == Dalamud.ClientState.TerritoryType)).Where(i => i.Locations.Any(LocationMatchesJob));
+            => ItemsToGather.Where(i => i.Location?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
 
         private bool LocationMatchesJob(ILocation loc)
             => loc.GatheringType.ToGroup() == JobAsGatheringType;
@@ -220,11 +241,11 @@ namespace GatherBuddy.AutoGather
         private uint QuantityTotal(IGatherable gatherable)
             => _plugin.GatherWindowManager.GetTotalQuantitiesForItem(gatherable);
 
-        private int GetNodeTypeAsPriority(IGatherable item)
+        private int GetNodeTypeAsPriority(Gatherable item)
         {
             if (GatherBuddy.Config.AutoGatherConfig.SortingMethod == AutoGatherConfig.SortingType.None)
                 return 0;
-            Gatherable gatherable = item as Gatherable;
+            Gatherable gatherable = item;
             switch (gatherable?.NodeType)
             {
                 case NodeType.Legendary: return 0;
@@ -262,5 +283,18 @@ namespace GatherBuddy.AutoGather
 
         private static TimeStamp AdjuctedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
+    }
+
+    public record class GatherInfo(Gatherable Item, ILocation? Location, TimeInterval Time)
+    {
+        public static implicit operator (Gatherable Item, ILocation? Location, TimeInterval Time)(GatherInfo value)
+        {
+            return (value.Item, value.Location, value.Time);
+        }
+
+        public static implicit operator GatherInfo((Gatherable Item, ILocation? Location, TimeInterval Time) value)
+        {
+            return new GatherInfo(value.Item, value.Location, value.Time);
+        }
     }
 }

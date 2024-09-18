@@ -55,7 +55,7 @@ namespace GatherBuddy.AutoGather
                     }
 
                     TaskManager.Abort();
-                    targetLocation                      = (null, Time.TimeInterval.Invalid);
+                    targetInfo                          = null;
                     _movementController.Enabled         = false;
                     _movementController.DesiredPosition = Vector3.Zero;
                     StopNavigation();
@@ -145,52 +145,25 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !IsPathing && !IsPathGenerating && !IsGathering && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
-            {
-                DoMateriaExtraction();
-                return;
-            }
-
-            if (!IsGathering || !ItemsToGather.Any()) UpdateItemsToGather();
-            var targetItem = ItemsToGather.FirstOrDefault() as Gatherable;
-
-            if (targetItem == null)
-            {
-                if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i) && !(IsTreasureMap(i) && InventoryCount(i) != 0)))
-                {
-                    AbortAutoGather();
-                    return;
-                }
-
-                GoHome();
-                //GatherBuddy.Log.Warning("No items to gather");
-                AutoStatus = "No available items to gather";
-                return;
-            }
-
-            if (IsTreasureMap(targetItem) && NextTresureMapAllowance == DateTime.MinValue)
-            {
-                //Wait for timer refresh
-                RefreshNextTresureMapAllowance();
-                return;
-            }
-
             if (IsGathering)
             {
-                if (targetLocation.Location != null && targetItem.NodeType is NodeType.Unspoiled or NodeType.Legendary)
-                    VisitedTimedLocations[targetLocation.Location] = targetLocation.Time;
-
-                var target = Svc.Targets.Target;
-                if (target != null 
-                    && target.ObjectKind is ObjectKind.GatheringPoint 
-                    && targetItem.NodeType is NodeType.Regular or NodeType.Ephemeral 
-                    && VisitedNodes.Last?.Value != target.Position
-                    && targetLocation.Location?.Territory.Id >= 397)
+                if (targetInfo != null)
                 {
-                    FarNodesSeenSoFar.Clear();
-                    VisitedNodes.AddLast(target.Position);
-                    while (VisitedNodes.Count > (targetItem.NodeType == NodeType.Regular ? 4 : 2))
-                        VisitedNodes.RemoveFirst();
+                    if (targetInfo.Location != null && targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary)
+                        VisitedTimedLocations[targetInfo.Location] = targetInfo.Time;
+
+                    var target = Svc.Targets.Target;
+                    if (target != null
+                        && target.ObjectKind is ObjectKind.GatheringPoint
+                        && targetInfo.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
+                        && VisitedNodes.Last?.Value != target.Position
+                        && targetInfo.Location?.Territory.Id >= 397)
+                    {
+                        FarNodesSeenSoFar.Clear();
+                        VisitedNodes.AddLast(target.Position);
+                        while (VisitedNodes.Count > (targetInfo.Item.NodeType == NodeType.Regular ? 4 : 2))
+                            VisitedNodes.RemoveFirst();
+                    }
                 }
 
                 if (GatherBuddy.Config.AutoGatherConfig.DoGathering)
@@ -199,14 +172,14 @@ namespace GatherBuddy.AutoGather
                     StopNavigation();
                     try
                     {
-                        DoActionTasks(targetItem);
+                        DoActionTasks(targetInfo?.Item);
                     }
                     catch (NoGatherableItemsInNodeExceptions)
                     {
                         UpdateItemsToGather();
 
                         //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
-                        if (targetItem == ItemsToGather.FirstOrDefault())
+                        if (ItemsToGather.Count > 0 && targetInfo?.Item == ItemsToGather[0].Item)
                         {
                             AbortAutoGather("Couldn't gather any items from the last node, aborted");
                         }
@@ -235,38 +208,71 @@ namespace GatherBuddy.AutoGather
                 AdvancedUnstuckCheck();
             }
 
-            foreach (var (loc, time) in VisitedTimedLocations)
-                if (time.End < AdjuctedServerTime)
-                    VisitedTimedLocations.Remove(loc);
-
-            if (targetLocation.Location == null 
-                || targetLocation.Time.End < AdjuctedServerTime 
-                || VisitedTimedLocations.ContainsKey(targetLocation.Location) 
-                || !targetLocation.Location.Gatherables.Contains(targetItem))
+            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !IsPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
             {
-                //Find a new location only if the target item changes or the node expires to prevent switching to another node when a new one goes up
-                targetLocation = GetBestLocation(targetItem);
-                FarNodesSeenSoFar.Clear();
-                VisitedNodes.Clear();
+                DoMateriaExtraction();
+                return;
             }
-            if (targetLocation.Location == null)
+
+            {//Block to limit the scope of the variable "next"
+                UpdateItemsToGather();
+                var next = ItemsToGather.FirstOrDefault();
+
+                if (next == null)
+                {
+                    if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i) && !(IsTreasureMap(i) && InventoryCount(i) != 0)))
+                    {
+                        AbortAutoGather();
+                        return;
+                    }
+
+                    GoHome();
+                    AutoStatus = "No available items to gather";
+                    return;
+                }
+
+                foreach (var (loc, time) in VisitedTimedLocations)
+                    if (time.End < AdjuctedServerTime)
+                        VisitedTimedLocations.Remove(loc);
+
+                if (targetInfo == null
+                    || targetInfo.Location == null
+                    || targetInfo.Time.End < AdjuctedServerTime
+                    || targetInfo.Item != next.Item
+                    || VisitedTimedLocations.ContainsKey(targetInfo.Location))
+                {
+                    //Find a new location only if the target item changes or the node expires to prevent switching to another node when a new one goes up
+                    targetInfo = next;
+                    FarNodesSeenSoFar.Clear();
+                    VisitedNodes.Clear();
+                }
+            }
+
+            if (targetInfo.Location == null)
             {
                 //Should not happen because UpdateItemsToGather filters out all unaviable items
                 GatherBuddy.Log.Debug("Couldn't find any location for the target item");
                 return;
             }
 
-            if (targetLocation.Location.Territory.Id != Svc.ClientState.TerritoryType || !LocationMatchesJob(targetLocation.Location))
+            if (IsTreasureMap(targetInfo.Item) && NextTresureMapAllowance == DateTime.MinValue)
+            {
+                //Wait for timer refresh
+                RefreshNextTresureMapAllowance();
+                return;
+            }
+
+            if (targetInfo.Location.Territory.Id != Svc.ClientState.TerritoryType || !LocationMatchesJob(targetInfo.Location))
             {
                 StopNavigation();
-                MoveToTerritory(targetLocation.Location);
+                MoveToTerritory(targetInfo.Location);
                 AutoStatus = "Teleporting...";
                 return;
             }
 
             DoUseConsumablesWithoutCastTime();
 
-            var allPositions = targetLocation.Location.WorldPositions
+            var allPositions = targetInfo.Location.WorldPositions
                 .SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
                 .ToHashSet();
@@ -282,7 +288,7 @@ namespace GatherBuddy.AutoGather
             if (closestTargetableNode != null)
             {
                 AutoStatus = "Moving to node...";
-                MoveToCloseNode(closestTargetableNode, targetItem);
+                MoveToCloseNode(closestTargetableNode, targetInfo.Item);
                 return;
             }
 
@@ -321,7 +327,7 @@ namespace GatherBuddy.AutoGather
             Vector3 selectedFarNode;
 
             // only Legendary and Unspoiled show marker
-            if (ShouldUseFlag && targetItem.NodeType is NodeType.Legendary or NodeType.Unspoiled)
+            if (ShouldUseFlag && targetInfo.Item.NodeType is NodeType.Legendary or NodeType.Unspoiled)
             {
                 var pos = TimedNodePosition;
                 // marker not yet loaded on game
@@ -354,28 +360,6 @@ namespace GatherBuddy.AutoGather
             }
              
             MoveToFarNode(selectedFarNode);
-        }
-
-        private (ILocation?, TimeInterval) GetBestLocation(Gatherable targetItem)
-        {
-            (ILocation? Location, TimeInterval) res = default;
-            //First priority: selected preferred location.
-            var node = _plugin.GatherWindowManager.GetPreferredLocation(targetItem);
-            if (node != null && !VisitedTimedLocations.ContainsKey(node))
-            {
-                res = (node, node.Times.NextUptime(AdjuctedServerTime));
-            }
-            //Second priority: location for preferred job.
-            else if (GatherBuddy.Config.PreferredGatheringType is GatheringType.Miner or GatheringType.Botanist)
-            {
-                res = GatherBuddy.UptimeManager.NextUptime(targetItem, GatherBuddy.Config.PreferredGatheringType, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
-            }
-            //Otherwise: location for any job.
-            if (res.Location == null)
-            {
-                res = GatherBuddy.UptimeManager.NextUptime(targetItem, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
-            }
-            return res;
         }
 
         private void AbortAutoGather(string? status = null)

@@ -72,7 +72,7 @@ namespace GatherBuddy.AutoGather
         /// Checks if desired item could or should be gathered and may change it to something more suitable
         /// </summary>
         /// <returns>True if the selected item is in the gathering list; false if we gather some unneeded junk</returns>
-        private bool MaybeGatherSometingElse(ref Gatherable desiredItem, uint[] ids)
+        private bool MaybeGatherSometingElse(ref Gatherable? desiredItem, uint[] ids)
         {
             var aviable = ids
                 .Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault)
@@ -85,7 +85,7 @@ namespace GatherBuddy.AutoGather
                 //Prioritize crystals with a lower amount in the inventory
                 .OrderBy(InventoryCount)
                 //Prioritize crystals in the gathering list
-                .OrderBy(item => ItemsToGather.Any(toGather => toGather.ItemId == item.ItemId) ? 0 : 1)
+                .OrderBy(item => ItemsToGather.Any(toGather => toGather.Item == item) ? 0 : 1)
                 .ToList();
 
             //Gather crystals when using The Giving Land
@@ -97,13 +97,13 @@ namespace GatherBuddy.AutoGather
 
             var shouldGather = aviable
                 //Item is in gathering list
-                .Where(item => ItemsToGather.Any(g => g.ItemId == item.ItemId))
+                .Where(item => ItemsToGather.Any(g => g.Item == item))
                 //And we need more of it
                 .Where(item => InventoryCount(item) < QuantityTotal(item));
 
             var originalItem = desiredItem;
 
-            if (aviable.Any(item => item.ItemId == originalItem.ItemId))
+            if (originalItem != null && aviable.Any(item => item == originalItem))
             {
                 if (InventoryCount(originalItem) < QuantityTotal(originalItem))
                 {

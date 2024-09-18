@@ -160,7 +160,7 @@ namespace GatherBuddy.AutoGather
         }
 
 
-        private unsafe void DoActionTasks(Gatherable desiredItem)
+        private unsafe void DoActionTasks(Gatherable? desiredItem)
         {
             if (GatheringAddon == null && MasterpieceAddon == null
              || Svc.Condition[ConditionFlag.Gathering42])
@@ -183,7 +183,7 @@ namespace GatherBuddy.AutoGather
                 CurrentRotation = null;
         }
 
-        private unsafe void DoGatherWindowActions(Gatherable desiredItem)
+        private unsafe void DoGatherWindowActions(Gatherable? desiredItem)
         {
             if (GatheringAddon != null)
             {
@@ -214,7 +214,7 @@ namespace GatherBuddy.AutoGather
                                 return;
                             }
                         }
-                        if (MaybeGatherSometingElse(ref desiredItem, ids))
+                        if (MaybeGatherSometingElse(ref desiredItem!, ids))
                         {
 
                             if (ShouldUseWise(currentIntegrity, maxIntegrity))
