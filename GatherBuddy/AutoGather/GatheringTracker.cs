@@ -15,16 +15,16 @@ using System.Linq;
 
 namespace GatherBuddy.AutoGather
 {
-    internal sealed class GatheringTracker : IDisposable, IReadOnlyList<ItemSlot>
+    public sealed class GatheringTracker : IDisposable, IReadOnlyList<ItemSlot>
     {
-        public bool Ready { get; private set; }
+        public bool Ready { get => _ready; private set { _ready = value; } }
         public GatheringType NodeType { get; private set; }
         public bool Revisit { get; private set; }
         public bool QuckGatheringAllowed { get; private set; }
         public bool QuckGatheringChecked { get; private set; }
         public bool QuckGatheringInProcess { get; private set; }
-        public uint Integrity { get; private set; }
-        public uint MaxIntegrity { get; private set; }
+        public int Integrity { get; private set; }
+        public int MaxIntegrity { get; private set; }
         public bool Touched { get; private set; }
         public bool HiddenRevealed { get; private set; }
         public int Count => 8;
@@ -36,15 +36,18 @@ namespace GatherBuddy.AutoGather
         private BitVector32 Enabled;
         private BitVector32 Bonus;
         private BitVector32 RandomYield;
+        private BitVector32 Collectable;
         private BitVector32 Flags;
         private readonly uint[] ItemsIds = new uint[8];
         private readonly sbyte[] ItemsYields = new sbyte[8];
-        private readonly sbyte[] BoonChances = new sbyte[8];
+        private readonly sbyte[] BoonChances = new sbyte[8];        
         private readonly ItemSlot[] Items = new ItemSlot[8];
-        public readonly struct ItemSlot
+        private volatile bool _ready;
+        public sealed class ItemSlot
         {
             private readonly GatheringTracker node;
             private readonly int index;
+            private Gatherable? cachedItem;
 
             internal ItemSlot(GatheringTracker node, int index)
             {
@@ -52,9 +55,10 @@ namespace GatherBuddy.AutoGather
                 this.index = index;
             }
 
+            public int Index => index;
             public GatheringTracker Node => node;
             public uint Id => node.ItemsIds[index];
-            public Gatherable Item => GatherBuddy.GameData.Gatherables[Id];
+            public Gatherable Item => cachedItem != null && cachedItem.ItemId == Id ? cachedItem : (cachedItem = GatherBuddy.GameData.Gatherables[Id]);
             public int GatherChance => unchecked((sbyte)(node.GatherChances >> (index * 8)));
             public int Level => unchecked((sbyte)(node.ItemsLevels >> (index * 8)));
             public bool Enabled => node.Enabled[1 << index];
@@ -66,6 +70,7 @@ namespace GatherBuddy.AutoGather
             public int BoonChance => node.BoonChances[index];
             public bool Hidden => node.Flags[1 << index];
             public bool Rare => node.Flags[1 << index << 16];
+            public bool Collectable => node.Collectable[1 << index];
         }
         public GatheringTracker() 
         {
@@ -171,7 +176,11 @@ namespace GatherBuddy.AutoGather
                     RandomYield[1 << i] = values[n].Bool;
                 else
                     LogUnexpectedValue(values, n);
-                //n = 6 + i * 11 + 10;//2=collectable
+                n = 6 + i * 11 + 10;//2=collectable
+                if (values[n].Type == ValueType.UInt || !(values[n].UInt is 0 or 2))
+                    Collectable[1 << i] = values[n].UInt == 2;
+                else
+                    LogUnexpectedValue(values, n);
             }
             //n = 94; //Unknown (Undefined)
             //n = 95; //text "-"
@@ -210,13 +219,13 @@ namespace GatherBuddy.AutoGather
             //n = 109; //last selected slot
             n = 110; //integrity
             if (values[n].Type == ValueType.UInt)
-                Integrity = values[n].UInt;
+                Integrity = unchecked((int)values[n].UInt);
             else
                 LogUnexpectedValue(values, n);
 
             n = 111; //max integrity
             if (values[n].Type == ValueType.UInt)
-                MaxIntegrity = values[n].UInt;
+                MaxIntegrity = unchecked((int)values[n].UInt);
             else
                 LogUnexpectedValue(values, n);
 
@@ -234,10 +243,11 @@ namespace GatherBuddy.AutoGather
 
         private void ResetArgs()
         {
-            Ready = Revisit = Touched = HiddenRevealed = false;
-            NodeType = GatheringType.Unknown;
+            Ready = false;
+            Revisit = Touched = HiddenRevealed = false;
+            //Not resetting NodeType, keeping value for revisit
             GatherChances = ItemsLevels = 0xffffffffffffffff;
-            Enabled = Bonus = Flags = RandomYield = new(0);
+            Enabled = Bonus = Flags = RandomYield = Collectable = new(0);
             for (var i = 0; i < 8; i++)
             {
                 ItemsIds[i] = 0;

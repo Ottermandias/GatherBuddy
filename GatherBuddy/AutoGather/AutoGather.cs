@@ -98,7 +98,7 @@ namespace GatherBuddy.AutoGather
         public void DoAutoGather()
         {
             if (!IsGathering)
-                HiddenRevealed = false; //Reset the "Used Luck" flag event if auto-gather was disabled mid-gathering
+                LuckUsed = new(0); //Reset the flag even if auto-gather was disabled mid-gathering
 
             if (!Enabled)
             {
@@ -221,7 +221,7 @@ namespace GatherBuddy.AutoGather
 
                 if (next == null)
                 {
-                    if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i) && !(IsTreasureMap(i) && InventoryCount(i) != 0)))
+                    if (!_plugin.GatherWindowManager.ActiveItems.OfType<Gatherable>().Any(i => InventoryCount(i) < QuantityTotal(i) && !(i.IsTreasureMap && InventoryCount(i) != 0)))
                     {
                         AbortAutoGather();
                         return;
@@ -256,7 +256,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (IsTreasureMap(targetInfo.Item) && NextTresureMapAllowance == DateTime.MinValue)
+            if (targetInfo.Item.IsTreasureMap && NextTresureMapAllowance == DateTime.MinValue)
             {
                 //Wait for timer refresh
                 RefreshNextTresureMapAllowance();

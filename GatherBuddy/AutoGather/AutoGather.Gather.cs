@@ -1,22 +1,11 @@
 ﻿using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
-using GatherBuddy.Interfaces;
-using Lumina.Excel.GeneratedSheets;
-using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.InteropServices;
-using System.Text;
-using System.Threading.Tasks;
-using Dalamud.Game;
-using ECommons;
 using ECommons.Automation.UIInput;
-using GatherBuddy.Plugin;
-using OtterGui;
-using NodeType = GatherBuddy.Enums.NodeType;
+using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 
 namespace GatherBuddy.AutoGather
 {
@@ -38,16 +27,12 @@ namespace GatherBuddy.AutoGather
             TaskManager.DelayNext(500);
         }
 
-        private unsafe void DoGatherWindowTasks(IGatherable item)
+        private unsafe void EnqueueGatherItem(ItemSlot slot)
         {
             if (GatheringAddon == null)
                 return;
 
-            uint[] ids = GetGatherableIds();
-            var    itemIndex = GetIndexOfItemToClick(ids, item);
-            if (itemIndex < 0)
-                itemIndex = GatherBuddy.GameData.Gatherables.Where(item => ids.Contains(item.Key)).Select(item => ids.IndexOf(item.Key))
-                    .FirstOrDefault();
+            var itemIndex           = slot.Index;
             var receiveEventAddress = new nint(GatheringAddon->AtkUnitBase.AtkEventListener.VirtualTable->ReceiveEvent);
             var eventDelegate       = Marshal.GetDelegateForFunctionPointer<ClickHelper.ReceiveEventDelegate>(receiveEventAddress);
 
@@ -58,101 +43,86 @@ namespace GatherBuddy.AutoGather
             //Communicator.Print("Queuing click.");
             EnqueueGatherAction(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
                 inputData.Data));
-            if (IsTreasureMap(item))
+            if (slot.Item.IsTreasureMap)
                 EnqueueGatherAction(RefreshNextTresureMapAllowance);
         }
-
-        private unsafe uint[] GetGatherableIds()
-            => GatheringAddon->ItemIds.ToArray();
-
-        private int GetIndexOfItemToClick(uint[] ids, IGatherable item)
-            => ids.IndexOf(item.ItemId);
 
         /// <summary>
         /// Checks if desired item could or should be gathered and may change it to something more suitable
         /// </summary>
-        /// <returns>True if the selected item is in the gathering list; false if we gather some unneeded junk</returns>
-        private bool MaybeGatherSometingElse(ref Gatherable? desiredItem, uint[] ids)
+        /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather some unneeded junk
+        /// Slot: ItemSlot of item to gather</returns>
+        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? desiredItem)
         {
-            var aviable = ids
-                .Select(GatherBuddy.GameData.Gatherables.GetValueOrDefault)
-                .Where((item, index) => item != null && CheckItemOvercap(item, index))
-                .Select(item => item!)
+            var aviable = NodeTarcker.Aviable
+                .Where(CheckItemOvercap)
                 .ToList();
 
             var crystals = aviable
-                .Where(IsCrystal)
-                //Prioritize crystals with a lower amount in the inventory
-                .OrderBy(InventoryCount)
+                .Where(s => s.Item.IsCrystal)
                 //Prioritize crystals in the gathering list
-                .OrderBy(item => ItemsToGather.Any(toGather => toGather.Item == item) ? 0 : 1)
+                .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
+                //Prioritize crystals with a lower amount in the inventory
+                .ThenBy(s => InventoryCount(s.Item))
                 .ToList();
 
             //Gather crystals when using The Giving Land
-            if (crystals.Any() && (HasGivingLandBuff || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && ShouldUseGivingLand(crystals.First(), ids)))
+            if (crystals.Count != 0 && (HasGivingLandBuff || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && ShouldUseGivingLand(crystals[0])))
             {
-                desiredItem = crystals.First();
-                return true;
+                return (true, crystals[0]);
             }
 
             var shouldGather = aviable
                 //Item is in gathering list
-                .Where(item => ItemsToGather.Any(g => g.Item == item))
+                .Where(s => ItemsToGather.Any(g => g.Item == s.Item))
                 //And we need more of it
-                .Where(item => InventoryCount(item) < QuantityTotal(item));
+                .Where(s => InventoryCount(s.Item) < QuantityTotal(s.Item));
 
-            var originalItem = desiredItem;
-
-            if (originalItem != null && aviable.Any(item => item == originalItem))
+            if (desiredItem != null)
             {
-                if (InventoryCount(originalItem) < QuantityTotal(originalItem))
+                var orig = aviable.Where(s => s.Item == desiredItem).FirstOrDefault();
+                if (orig != null)
                 {
-                    //The desired item is found in the node, would not overcap and we need to gather more of it
-                    return true;
+                    if (InventoryCount(desiredItem) < QuantityTotal(desiredItem))
+                    {
+                        //The desired item is found in the node, would not overcap and we need to gather more of it
+                        return (true, orig);
+                    }
+                    else
+                    {
+                        //If we have gathered enough of the current item and there is another item in the node that we want, gather it instead
+                        return (true, shouldGather.FirstOrDefault(orig));
+                    }
                 }
-                else
-                {
-                    //If we have gathered enough of the current item and there is another item in the node that we want, gather it instead
-                    desiredItem = shouldGather.FirstOrDefault(originalItem);
-                    return true;
-                }
-
             }
-            else
+            //If there is any other item that we want in the node, gather it
+            var slot = shouldGather.FirstOrDefault();
+            if (slot != null)
             {
-                //If there is any other item that we want in the node, gather it
-                var otherItem = shouldGather.FirstOrDefault();
-                if (otherItem != null)
-                {
-                    desiredItem = otherItem;
-                    return true;
-                }
-                //Otherwise gather any crystals
-                else if (crystals.Any())
-                {
-                    desiredItem = crystals.First();
-                }
-                //If there are no crystals, gather anything which is not treasure map
-                else if (aviable.Any(item => !IsTreasureMap(item)))
-                {
-                    desiredItem = aviable.First(item => !IsTreasureMap(item));
-                }
-                //Abort if there are no items we can gather
-                else
-                {
-                    throw new NoGatherableItemsInNodeExceptions();
-                }
-                return false;
+                return (true, slot);
             }
+            //Otherwise gather any crystals
+            if (crystals.Count != 0)
+            {
+                return (false, crystals[0]);
+            }
+            //If there are no crystals, gather anything which is not treasure map nor collectable
+            slot = aviable.Where(s => !s.Item.IsTreasureMap && !s.Collectable).FirstOrDefault();
+            if (slot != null)
+            {
+                return (false, slot);
+            }
+            //Abort if there are no items we can gather
+            throw new NoGatherableItemsInNodeExceptions();
         }
 
-        private bool CheckItemOvercap(Gatherable item, int index)
+        private bool CheckItemOvercap(ItemSlot s)
         {
             //If it's a treasure map, we can have only one in the inventory
-            if (IsTreasureMap(item) && InventoryCount(item) != 0)
+            if (s.Item.IsTreasureMap && InventoryCount(s.Item) != 0)
                 return false;
             //If it's a crystal, we can't have more than 9999
-            if (IsCrystal(item) && InventoryCount(item) > 9999 - GetCurrentYield(index, false))
+            if (s.Item.IsCrystal && InventoryCount(s.Item) > 9999 - s.Yield)
                 return false;
             return true;
         }

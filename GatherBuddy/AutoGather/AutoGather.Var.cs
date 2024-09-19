@@ -1,16 +1,10 @@
 ﻿using Dalamud.Game.ClientState.Conditions;
-using Dalamud.Game.ClientState.Objects.Enums;
-using Dalamud.Game.ClientState.Objects.Types;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using ECommons;
-using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -18,8 +12,8 @@ using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Time;
-using OtterGui.Log;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using System.Collections.Specialized;
 
 namespace GatherBuddy.AutoGather
 {
@@ -125,9 +119,9 @@ namespace GatherBuddy.AutoGather
         }
 
         public string AutoStatus { get; set; } = "Idle";
-        public int    LastCollectability = 0;
-        public int    LastIntegrity      = 0;
-        public bool   HiddenRevealed     = false;
+        public int LastCollectability = 0;
+        public int LastIntegrity = 0;
+        public BitVector32 LuckUsed;
 
         public readonly List<GatherInfo> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];
@@ -142,10 +136,10 @@ namespace GatherBuddy.AutoGather
             var RegularItemsToGather = new List<GatherInfo>();
             foreach (var (item, location, time) in activeItems)
             {
-                if (InventoryCount(item) >= QuantityTotal(item) || IsTreasureMap(item) && InventoryCount(item) > 0)
+                if (InventoryCount(item) >= QuantityTotal(item) || item.IsTreasureMap && InventoryCount(item) > 0)
                     continue;
 
-                if (IsTreasureMap(item) && NextTresureMapAllowance >= AdjuctedServerTime.DateTime)
+                if (item.IsTreasureMap && NextTresureMapAllowance >= AdjuctedServerTime.DateTime)
                     continue;
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
@@ -258,15 +252,7 @@ namespace GatherBuddy.AutoGather
 
             return 99;
         }
-        private static unsafe bool IsCrystal(IGatherable item)
-        {
-            return item.ItemData.FilterGroup == 11;
-        }
 
-        private static unsafe bool IsTreasureMap(IGatherable item)
-        {
-            return item.ItemData.FilterGroup == 18;
-        }
         private static unsafe bool HasGivingLandBuff
             => Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId == 1802) ?? false;
 

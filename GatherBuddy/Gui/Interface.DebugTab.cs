@@ -668,6 +668,7 @@ public partial class Interface
                     if (n.Hidden) text.Append(" hidden;");
                     if (n.Rare) text.Append(" rare;");
                     if (n.Bonus) text.Append(" bonus;");
+                    if (n.Collectable) text.Append($" collectable;");
                     text.AppendLine();
                 }
             }   
