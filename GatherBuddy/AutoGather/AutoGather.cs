@@ -76,9 +76,6 @@ namespace GatherBuddy.AutoGather
                     _movementController.DesiredPosition = Vector3.Zero;
                     ResetNavigation();
                     AutoStatus = "Idle...";
-
-                    currentCluster = 0;
-                    gatheringsInCluster = 0;
                 }
 
                 _enabled = value;
@@ -111,164 +108,6 @@ namespace GatherBuddy.AutoGather
             else 
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
-
-        // Cache k-means clustering for the current Gatherables
-        private Dictionary<uint, List<Vector3>> kMeansClusters = new(); // Dictionary of itemId and their k-means cluster centers\
-        private readonly int kMeansClusterCount = 3; // Number of clusters
-        private readonly uint clusteringMaxIterations = 100; // Maximum number of iterations for k-means
-
-        private void PrecalculateKMeans(Gatherable gatherable)
-        {
-            // Check if we already have the k-means for this gatherable
-            if (kMeansClusters.ContainsKey(gatherable.ItemId))
-                return;
-
-            // Get the location of this gatherable
-            var location = GatherBuddy.UptimeManager.BestLocation(gatherable);
-
-            // If we're currently not in the same territory as the gatherable, we can't calculate the k-means
-            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType)
-                return;
-
-            // Get the nodes for this gatherable
-            var validNodesForItem = gatherable.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
-                .Where(v => !IsBlacklisted(v))
-                .ToList();
-
-            // Debug print all nodes
-            GatherBuddy.Log.Verbose($"All nodes for {gatherable.Name[GatherBuddy.Language]}:");
-            foreach (var node in matchingNodesInZone)
-                GatherBuddy.Log.Verbose(node.ToString());
-
-            // Select k random nodes as the initial cluster centers
-            var clusterCenters = new List<Vector3>();
-            for (var i = 0; i < kMeansClusterCount; i++)
-            {
-                // Don't actually randomly initialize them as if any two nodes are the same, the k-means will fail
-                // We will use farthest point sampling instead
-                if (i == 0)
-                {
-                    // Select the first node as the first cluster center, since there are no other nodes to compare to
-                    clusterCenters.Add(matchingNodesInZone[0]);
-                    continue;
-                }
-
-                // Otherwise find the node that is the farthest from all other cluster centers
-                var node = matchingNodesInZone
-                    .OrderBy(n => clusterCenters.Min(center => Vector3.Distance(n, center)))
-                    .Last();
-                clusterCenters.Add(node);
-            }
-            // Debug
-            GatherBuddy.Log.Verbose($"Initial cluster centers for {gatherable.Name[GatherBuddy.Language]}:");
-            for (var i = 0; i < kMeansClusterCount; i++)
-                GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
-
-            // Run k-means clustering
-            for (var iteration = 0; iteration < clusteringMaxIterations; iteration++)
-            {
-                // Calculate which cluster each node belongs to
-                // List of clusters, each cluster is a list of node indices
-                var clusters = new List<List<int>>();
-                for (var i = 0; i < kMeansClusterCount; i++)
-                    clusters.Add(new List<int>());
-
-                for (var i = 0; i < matchingNodesInZone.Count; i++)
-                {
-                    // For each node...
-                    var node = matchingNodesInZone[i];
-                    var minDistance = float.MaxValue;
-                    var minCluster = 0;
-
-                    // ... find the closest cluster center
-                    for (var j = 0; j < kMeansClusterCount; j++)
-                    {
-                        var distance = Vector3.Distance(node, clusterCenters[j]);
-                        if (distance < minDistance)
-                        {
-                            minDistance = distance;
-                            minCluster = j;
-                        }
-                    }
-
-                    clusters[minCluster].Add(i);
-                }
-
-                // Calculate new cluster centers
-                var newClusterCenters = clusters.Select(
-                    cluster => cluster.Aggregate(Vector3.Zero, (acc, index) => acc + matchingNodesInZone[index]) / cluster.Count
-                ).ToList();
-
-                // Check for early stopping
-                const float epsilon = 0.01f; // Stop if the cluster centers don't change by more than epsilon, in total.
-
-                var totalChange = newClusterCenters.Zip(clusterCenters, (a, b) => Vector3.Distance(a, b)).Sum();
-                if (totalChange < epsilon)
-                {
-                    GatherBuddy.Log.Verbose($"Early stopping at iteration {iteration} for {gatherable.Name[GatherBuddy.Language]}");
-                    break;
-                }
-
-                // Update the cluster centers
-                clusterCenters = newClusterCenters;
-
-            }
-            // Do a debug print
-            GatherBuddy.Log.Verbose($"K-means for {gatherable.Name[GatherBuddy.Language]}:");
-            for (var i = 0; i < kMeansClusterCount; i++)
-                GatherBuddy.Log.Verbose($"Cluster {i}: {clusterCenters[i]}");
-
-            // Count how many nodes are in each cluster
-            for (var c = 0; c < kMeansClusterCount; c++)
-            {
-                var count = 0;
-                foreach (var node in matchingNodesInZone)
-                {
-                    if (Vector3.Distance(node, clusterCenters[c]) <= clusterCenters.Min(center => Vector3.Distance(node, center)))
-                        count++;
-                }
-
-                GatherBuddy.Log.Verbose($"Cluster {c} has {count} nodes");
-            }
-
-            // Save the cluster centers
-            kMeansClusters[gatherable.ItemId] = clusterCenters;
-        }
-
-        public bool ShouldKMeansCluster(Gatherable gatherable)
-        {
-            return GatherBuddy.Config.AutoGatherConfig.UseExperimentalKMeans &&
-                (gatherable.NodeType == NodeType.Regular || gatherable.NodeType == NodeType.Ephemeral) &&
-                gatherable.Level >= 71;
-        }
-
-        public int GetClusterForNode(Vector3 position, Gatherable gatherable)
-        {
-            if (!kMeansClusters.ContainsKey(gatherable.ItemId))
-                return 0;
-
-            var clusters = kMeansClusters[gatherable.ItemId];
-            var minDistance = float.MaxValue;
-            var minCluster = 0;
-
-            for (var i = 0; i < kMeansClusterCount; i++)
-            {
-                var distance = Vector3.Distance(position, clusters[i]);
-                if (distance < minDistance)
-                {
-                    minDistance = distance;
-                    minCluster = i;
-                }
-            }
-
-            return minCluster;
-        }
-
-        // Save which cluster we are currently in
-        private int currentCluster = 0;
-        private uint lastGatheredItemId = 0;
-        private int gatheringsInCluster = 0;
 
         public void DoAutoGather()
         {
@@ -316,24 +155,9 @@ namespace GatherBuddy.AutoGather
             Gatherable? targetItem =
                 (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
 
-            // Check if any if any of the TimedNodesToGather are of our current zone
-            // FIX: Prevents the bot from pathing to a timed node and then aborting, teleporting away to another node before returning to the same node.
-            if (TimedItemsToGather.Count > 0)
-            {
-                var timedNodesInZone = TimedItemsToGather.Where(i => GatherBuddy.UptimeManager.BestLocation(i).Location.Territory.Id == Svc.ClientState.TerritoryType).ToList();
-                if (timedNodesInZone.Count > 0)
-                {
-                    // Check if there is a flag up
-                    if (TimedNodePosition != null)
-                    {
-                        targetItem = timedNodesInZone.MinBy(GetNodeTypeAsPriority) as Gatherable;
-                    }
-                }
-            }
-
             if (targetItem == null)
             {
-                if (_plugin.GatherWindowManager.ActiveItems.All(i => InventoryCount(i) >= QuantityTotal(i)))
+                if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i)))
                 {
                     AutoStatus         = "No items to gather...";
                     Enabled            = false;
@@ -372,22 +196,8 @@ namespace GatherBuddy.AutoGather
                 AdvancedUnstuckCheck();
             }
 
-            // Generate the kmeans clusters
-            if (ShouldKMeansCluster(targetItem))
-            {
-                PrecalculateKMeans(targetItem);
-
-                // Check if we need to update the cluster
-                if (lastGatheredItemId != targetItem.ItemId)
-                {
-                    lastGatheredItemId = targetItem.ItemId;
-                    currentCluster = 0;
-                }
-            }
-
-
             var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
-            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem) && !IsPathing)
+            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
             {
                 HasSeenFlag = false;
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
@@ -402,95 +212,20 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-
             var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
             var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
-                //.OrderBy(v => Vector3.Distance(Player.Position, v))
                 .OrderBy(v => Vector3.Distance(Player.Position, v))
                 .ToList();
-
             var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
             var closeNodes = allNodes.Where(o => o.IsTargetable)
-                // Check if the near nodes we see are of any interest to us 
-                .Where(o => !ShouldKMeansCluster(targetItem) ||                                     // If KMeans is disabled this will return true
-                            !GatherBuddy.Config.AutoGatherConfig.IgnoreCloseNodesOfOtherClusters || // If this option is disabled then all nodes are valid
-                            GetClusterForNode(o.Position, targetItem) == currentCluster)            // Otherwise , check if the node is in the same cluster
                 .OrderBy(o => Vector3.Distance(Player.Position, o.Position));
             if (closeNodes.Any())
             {
-                // If we're going to a destination which is not the closest node, move to the closest node first
-                // FIX: Prevents the bot from bonking it's head against invalid nodes
-                var closestNode = closeNodes.First(n => !IsBlacklisted(n.Position));
-                if (CurrentDestination != null)
-                {
-                    // Note: Weird C# behaviour? Even though we have a null check above, we still the compiler complains
-                    if (Vector3.Distance(closestNode.Position, CurrentDestination.Value) > 1.0f)
-                    {
-
-                        CurrentDestination = null;
-                        VNavmesh_IPCSubscriber.Path_Stop();
-                        GatherBuddy.Log.Warning($"Closest node is {closestNode.Position}, moving to it first");
-                    }
-                }
-
-                TaskManager.Enqueue(() => MoveToCloseNode(closestNode, targetItem));
+                TaskManager.Enqueue(() => MoveToCloseNode(closeNodes.First(n => !IsBlacklisted(n.Position)), targetItem));
                 return;
             }
 
-            if (ShouldKMeansCluster(targetItem))
-            {
-                // If we're doing KMeans clustering, check if we're going clockwise or counter clockwise. 
-
-                // Get the center of all clusters
-                var clustersCenter = kMeansClusters[targetItem.ItemId].Aggregate(Vector3.Zero, (acc, cluster) => acc + cluster) / kMeansClusterCount;
-                
-                // Using the line from the player to the center of the clusters, calculate if we're going to the left or right of it.
-                // Left = clockwise, Right = counter clockwise
-                var playerToCenter = Vector2.Normalize(new Vector2(clustersCenter.X - Player.Position.X, clustersCenter.Z - Player.Position.Z));
-
-                // Get position of the current cluster we're going to
-                var currentClusterPosition = new Vector2(
-                    kMeansClusters[targetItem.ItemId][currentCluster].X,
-                    kMeansClusters[targetItem.ItemId][currentCluster].Z
-                );
-
-                // currentClusterPosition = Player.Position + t1 * playerToCenter + t2 * perpendicular
-                // t2 is how far left/right we are from the line
-
-                var b = currentClusterPosition - new Vector2(Player.Position.X, Player.Position.Z);
-
-                var sign = Math.Sign((-playerToCenter.Y * b.X + playerToCenter.X * b.Y) / (playerToCenter.X * playerToCenter.X + playerToCenter.Y * playerToCenter.Y));
-
-                // Now, for the current cluster, we want to find the node that is the most clockwise or counter clockwise
-                matchingNodesInZone = matchingNodesInZone
-                .Where(n => {
-                    // Our node is closest to our cluster center
-                    // Get all distances
-                    var distances = kMeansClusters[targetItem.ItemId]
-                        .Select(c => Vector3.DistanceSquared(n, c))
-                        .ToList();
-
-                    var minCluster = distances.IndexOf(distances.Min());
-                    return minCluster == currentCluster;
-
-                })
-                .OrderBy(n => {
-                    // Using the line from the player to the center of the current cluster
-                    var nodePosition = new Vector2(n.X, n.Z);
-                    var targetDirection = nodePosition - new Vector2(Player.Position.X, Player.Position.Z);
-
-                    var playerToClusterCenter = Vector2.Normalize(currentClusterPosition - new Vector2(Player.Position.X, Player.Position.Z));
-
-                    // Calculate for the new node
-                    var perpendicularUnitsNode = (-playerToClusterCenter.Y * targetDirection.X + playerToClusterCenter.X * targetDirection.Y) / 
-                                                 (playerToClusterCenter.X * playerToClusterCenter.X + playerToClusterCenter.Y * playerToClusterCenter.Y);
-
-                    return -sign * perpendicularUnitsNode;
-                }).ToList();
-            }
-
-            // Find the first node that is not in the blacklist and not yet in the far node list
             var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
             if (selectedNode == Vector3.Zero)
             {
@@ -515,27 +250,17 @@ namespace GatherBuddy.AutoGather
                         => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault();
             }
 
-            // FIX: Using Epsilon instead of == to avoid floating point errors
-            //GatherBuddy.Log.Verbose($"Selected node: {selectedNode} - {Player.Position} (Dist: {Vector3.Distance(selectedNode, Player.Position)})");
-            if (Vector3.Distance(selectedNode, Player.Position) < 100)
+            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 100))
             {
-                GatherBuddy.Log.Verbose($"Selected node is too close to player, checking if it should be skipped...");
-                //var allNodesString = string.Join(", ", allNodes.Select(n => n.Position.ToString()));
-                //GatherBuddy.Log.Verbose($"{selectedNode} in {allNodesString}?");
+                FarNodesSeenSoFar.Add(selectedNode);
 
-                if (allNodes.Any(n => Vector3.Distance(n.Position, selectedNode) < 2.5))
-                {
-                    GatherBuddy.Log.Verbose($"Node fails test, skipping...");
-                    FarNodesSeenSoFar.Add(selectedNode);
-
-                    CurrentDestination = null;
-                    VNavmesh_IPCSubscriber.Path_Stop();
-                    AutoStatus = "Looking for far away nodes...";
-                    return;
-                }
+                CurrentDestination = null;
+                VNavmesh_IPCSubscriber.Path_Stop();
+                AutoStatus = "Looking for far away nodes...";
+                return;
             }
 
-                TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
+            TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
             return;
 
 
