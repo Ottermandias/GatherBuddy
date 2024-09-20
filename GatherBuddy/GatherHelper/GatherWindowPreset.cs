@@ -45,7 +45,7 @@ public class GatherWindowPreset
 
     public struct Config
     {
-        public const byte CurrentVersion = 2;
+        public const byte CurrentVersion = 3;
 
         public uint[]        ItemIds;
         public ObjectType[]  ItemTypes;
@@ -116,7 +116,7 @@ public class GatherWindowPreset
                 _                     => null,
             };
             ret.Quantities = cfg.Quantities;
-            ret.PreferredLocations = cfg.PrefferedLocations;
+            ret.PreferredLocations = cfg.PrefferedLocations ?? new Dictionary<uint, uint>();
             if (gatherable == null)
                 changes = true;
             else if (!ret.Add(gatherable))

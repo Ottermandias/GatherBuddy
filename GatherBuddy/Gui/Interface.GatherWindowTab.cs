@@ -239,7 +239,7 @@ public partial class Interface
             ImGui.SameLine(0f, ImGui.CalcTextSize($"0000 / ").X - ImGui.CalcTextSize($"{invTotal} / ").X);
             ImGui.Text($"{invTotal} / ");
             ImGui.SameLine(0, 3f);
-            int quantity = (int)preset.Quantities[item.ItemId];
+            int quantity = preset.Quantities.TryGetValue(item.ItemId, out var q) ? (int)q : 1;
             ImGui.SetNextItemWidth(100f);
             if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
                 _plugin.GatherWindowManager.ChangeQuantity(preset, (uint)quantity, item.ItemId);
