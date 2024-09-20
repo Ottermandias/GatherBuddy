@@ -58,7 +58,23 @@ namespace GatherBuddy.AutoGather
             public int Index => index;
             public GatheringTracker Node => node;
             public uint Id => node.ItemsIds[index];
-            public Gatherable Item => cachedItem != null && cachedItem.ItemId == Id ? cachedItem : (cachedItem = GatherBuddy.GameData.Gatherables[Id]);
+
+            public Gatherable Item
+            {
+                get
+                {
+                    if (cachedItem != null && cachedItem.ItemId == Id)
+                        return cachedItem;
+
+                    if (GatherBuddy.GameData.Gatherables.TryGetValue(Id, out var gatherable))
+                    {
+                        cachedItem = gatherable;
+                        return cachedItem;
+                    }
+
+                    return GatherBuddy.GameData.Gatherables.Values.First();
+                }
+            }
             public int GatherChance => unchecked((sbyte)(node.GatherChances >> (index * 8)));
             public int Level => unchecked((sbyte)(node.ItemsLevels >> (index * 8)));
             public bool Enabled => node.Enabled[1 << index];
