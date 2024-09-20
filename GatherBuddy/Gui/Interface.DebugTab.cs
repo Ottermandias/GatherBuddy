@@ -580,14 +580,13 @@ public partial class Interface
         if (ImGui.Button("Clear Timed Node Memory"))
         {
             GatherBuddy.Log.Information("Timed node memory cleared manually!");
-            GatherBuddy.AutoGather.TimedNodesGatheredThisTrip.Clear();
+            GatherBuddy.AutoGather.VisitedTimedLocations.Clear();
         }
 
         ImGui.Text($"Enabled: {GatherBuddy.AutoGather.Enabled}");
         ImGui.Text($"Status: {GatherBuddy.AutoGather.AutoStatus}");
         ImGui.Text($"Navigation: {GatherBuddy.AutoGather.LastNavigationResult}");
         ImGui.Text($"Current Destination: {GatherBuddy.AutoGather.CurrentDestination}");
-        ImGui.Text($"ShouldFly: {GatherBuddy.AutoGather.ShouldFly}");
         ImGui.Text($"IsGathering: {GatherBuddy.AutoGather.IsGathering}");
         ImGui.Text($"IsPathing: {GatherBuddy.AutoGather.IsPathing}");
         ImGui.Text($"IsPathGenerating: {GatherBuddy.AutoGather.IsPathGenerating}");
@@ -597,7 +596,6 @@ public partial class Interface
         ImGui.Text($"ItemsToGatherInZone: {GatherBuddy.AutoGather.ItemsToGatherInZone.Count()}");
         ImGui.Text($"ItemsToGather: {GatherBuddy.AutoGather.ItemsToGather.Count()}");
         ImGui.Text($"ShouldUseFlag: {GatherBuddy.AutoGather.ShouldUseFlag}");
-        ImGui.Text(($"HasSeenFlag: {GatherBuddy.AutoGather.HasSeenFlag}"));
         ImGui.Text($"LastIntegrity: {GatherBuddy.AutoGather.LastIntegrity}");
         ImGui.Text($"LastCollectScore: {GatherBuddy.AutoGather.LastCollectability}");
         ImGui.Text($"IsCordialOnCooldown: {GatherBuddy.AutoGather.IsCordialOnCooldown}");
@@ -610,25 +608,33 @@ public partial class Interface
 
         if (ImGui.CollapsingHeader("Timed Node Memory"))
         {
-            foreach (var itemId in GatherBuddy.AutoGather.TimedNodesGatheredThisTrip)
+            foreach (var (location, time) in GatherBuddy.AutoGather.VisitedTimedLocations)
             {
-                ImGui.Text(itemId.ToString());
+                ImGui.Text($"{location.Id} {time.End}");
             }
         }
 
-        if (ImGui.CollapsingHeader("Timed Nodes To Gather"))
+        if (ImGui.CollapsingHeader("Visited nodes"))
         {
-            foreach (var item in GatherBuddy.AutoGather.TimedItemsToGather)
+            foreach (var pos in GatherBuddy.AutoGather.VisitedNodes)
             {
-                ImGui.Text(item.Name[GatherBuddy.Language]);
+                ImGui.Text($"{pos}");
             }
         }
 
-        if (ImGui.CollapsingHeader("Static Nodes to Gather"))
+        if (ImGui.CollapsingHeader("Far Nodes Seen So Far"))
+        {
+            foreach (var pos in GatherBuddy.AutoGather.FarNodesSeenSoFar)
+            {
+                ImGui.Text($"{pos}");
+            }
+        }
+
+        if (ImGui.CollapsingHeader("Nodes to Gather"))
         {
             foreach (var item in GatherBuddy.AutoGather.ItemsToGather)
             {
-                ImGui.Text(item.Name[GatherBuddy.Language]);
+                ImGui.Text(item.Item.Name[GatherBuddy.Language]);
             }
         }
 

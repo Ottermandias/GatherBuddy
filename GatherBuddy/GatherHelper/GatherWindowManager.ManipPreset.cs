@@ -1,4 +1,5 @@
-﻿using System;
+﻿using System.Collections.Generic;
+using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 
@@ -107,6 +108,8 @@ public partial class GatherWindowManager
             quantity = 1;
         if (quantity > 9999)
             quantity = 9999;
+        if (GatherBuddy.GameData.Gatherables[itemId].ItemData.FilterGroup == 18)
+            quantity = 1;
         
         preset.Quantities[itemId] = quantity;
         Save();
@@ -122,5 +125,32 @@ public partial class GatherWindowManager
         Save();
         if (preset.Enabled)
             SetActiveItems();
+    }
+
+    public void ChangePreferredLocation(GatherWindowPreset preset, IGatherable item, ILocation? location)
+    {
+        if (item is not Gatherable) return;
+
+        if (location is not GatheringNode)
+            preset.PreferredLocations.Remove(item.ItemId);
+        else
+            preset.PreferredLocations[item.ItemId] = location.Id;
+        
+        Save();
+    }
+
+    public GatheringNode? GetPreferredLocation(Gatherable item)
+    {
+        foreach (var preset in Presets)
+        {
+            if (preset.Enabled)
+            {
+                if (preset.PreferredLocations.TryGetValue(item.ItemId, out var locId))
+                {
+                    return GatherBuddy.GameData.GatheringNodes.GetValueOrDefault(locId);
+                }
+            }
+        }
+        return null;
     }
 }

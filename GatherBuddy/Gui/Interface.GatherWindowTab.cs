@@ -235,15 +235,17 @@ public partial class Interface
                 _plugin.GatherWindowManager.ChangeItem(preset, GatherGroupCache.AllGatherables[newIdx], i);
             ImGui.SameLine();
             ImGui.Text("Inventory: ");
-            ImGui.SameLine();
             var invTotal = _plugin.GatherWindowManager.GetInventoryCountForItem(item);
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SameLine(0f, ImGui.CalcTextSize($"0000 / ").X - ImGui.CalcTextSize($"{invTotal} / ").X);
             ImGui.Text($"{invTotal} / ");
-            ImGui.SameLine();
+            ImGui.SameLine(0, 3f);
             int quantity = (int)preset.Quantities[item.ItemId];
             ImGui.SetNextItemWidth(100f);
             if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
                 _plugin.GatherWindowManager.ChangeQuantity(preset, (uint)quantity, item.ItemId);
+            ImGui.SameLine();
+            if (DrawLocationInput(item, preset.PreferredLocations.TryGetValue(item.ItemId, out var locId) ? GatherBuddy.GameData.GatheringNodes.GetValueOrDefault(locId) : null, out var newLoc))
+                _plugin.GatherWindowManager.ChangePreferredLocation(preset, item, newLoc);
             group.Dispose();
 
             _gatherWindowCache.Selector.CreateDropSource(new GatherWindowDragDropData(preset, item, i), item.Name[GatherBuddy.Language]);

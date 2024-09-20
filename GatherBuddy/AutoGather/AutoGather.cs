@@ -1,14 +1,9 @@
 ﻿using ECommons.Automation.LegacyTaskManager;
 using GatherBuddy.Plugin;
 using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
-using ECommons;
-using ECommons.Automation;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
@@ -16,9 +11,11 @@ using GatherBuddy.AutoGather.Movement;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
-using GatherBuddy.Interfaces;
-using Lumina.Excel.GeneratedSheets;
 using HousingManager = GatherBuddy.SeFunctions.HousingManager;
+using ECommons.Throttlers;
+using ObjectKind = Dalamud.Game.ClientState.Objects.Enums.ObjectKind;
+using GatherBuddy.Interfaces;
+using GatherBuddy.Time;
 
 namespace GatherBuddy.AutoGather
 {
@@ -32,13 +29,6 @@ namespace GatherBuddy.AutoGather
             _plugin                                =  plugin;
             _movementController                    =  new OverrideMovement();
             _soundHelper                           =  new SoundHelper();
-            GatherBuddy.UptimeManager.UptimeChange += UptimeChange;
-        }
-
-        private void UptimeChange(IGatherable obj)
-        {
-            GatherBuddy.Log.Verbose($"Timer for {obj.Name[GatherBuddy.Language]} has expired and the item has been removed from memory.");
-            TimedNodesGatheredThisTrip.Remove(obj.ItemId);
         }
 
         private readonly OverrideMovement _movementController;
@@ -64,18 +54,16 @@ namespace GatherBuddy.AutoGather
                         gatheringMasterpiece->AtkUnitBase.IsVisible = true;
                     }
 
-                    if (IsPathing || IsPathGenerating)
-                    {
-                        VNavmesh_IPCSubscriber.Path_Stop();
-                    }
-
                     TaskManager.Abort();
-                    HasSeenFlag                         = false;
-                    HiddenRevealed                      = false;
+                    targetInfo                          = null;
                     _movementController.Enabled         = false;
                     _movementController.DesiredPosition = Vector3.Zero;
-                    ResetNavigation();
+                    StopNavigation();
                     AutoStatus = "Idle...";
+                }
+                else
+                {
+                    RefreshNextTresureMapAllowance();
                 }
 
                 _enabled = value;
@@ -89,16 +77,12 @@ namespace GatherBuddy.AutoGather
 
             if (HousingManager.IsInHousing() || Lifestream_IPCSubscriber.IsBusy())
             {
-                if (SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
-                {
-                    DoMateriaExtraction();
-                    return;
-                }
                 return;
             }
 
             if (Lifestream_IPCSubscriber.IsEnabled)
             {
+                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
                 TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
                 TaskManager.Enqueue(() => Lifestream_IPCSubscriber.ExecuteCommand("auto"));
                 TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
@@ -109,8 +93,12 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
+        private class NoGatherableItemsInNodeExceptions : Exception { }
         public void DoAutoGather()
         {
+            if (!IsGathering)
+                HiddenRevealed = false; //Reset the "Used Luck" flag event if auto-gather was disabled mid-gathering
+
             if (!Enabled)
             {
                 return;
@@ -150,43 +138,67 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Player is busy...";
                 return;
             }
-            
-            UpdateItemsToGather();
-            Gatherable? targetItem =
-                (TimedItemsToGather.Count > 0 ? TimedItemsToGather.MinBy(GetNodeTypeAsPriority) : ItemsToGather.FirstOrDefault()) as Gatherable;
 
-            if (targetItem == null)
+            if (FreeInventorySlots == 0)
             {
-                if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i)))
-                {
-                    AutoStatus         = "No items to gather...";
-                    Enabled            = false;
-                    CurrentDestination = null;
-                    VNavmesh_IPCSubscriber.Path_Stop();
-                    if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
-                        _soundHelper.PlayHonkSound(3);
-                    GoHome();
-                    return;
-                }
-
-                GoHome();
-                //GatherBuddy.Log.Warning("No items to gather");
-                AutoStatus = "No available items to gather";
+                AbortAutoGather("Inventory is full");
                 return;
             }
 
-            if (IsGathering && GatherBuddy.Config.AutoGatherConfig.DoGathering)
+            if (IsGathering)
             {
-                AutoStatus = "Gathering...";
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                DoActionTasks(targetItem);
+                if (targetInfo != null)
+                {
+                    if (targetInfo.Location != null && targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary)
+                        VisitedTimedLocations[targetInfo.Location] = targetInfo.Time;
+
+                    var target = Svc.Targets.Target;
+                    if (target != null
+                        && target.ObjectKind is ObjectKind.GatheringPoint
+                        && targetInfo.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
+                        && VisitedNodes.Last?.Value != target.Position
+                        && targetInfo.Location?.Territory.Id >= 397)
+                    {
+                        FarNodesSeenSoFar.Clear();
+                        VisitedNodes.AddLast(target.Position);
+                        while (VisitedNodes.Count > (targetInfo.Item.NodeType == NodeType.Regular ? 4 : 2))
+                            VisitedNodes.RemoveFirst();
+                    }
+                }
+
+                if (GatherBuddy.Config.AutoGatherConfig.DoGathering)
+                {
+                    AutoStatus = "Gathering...";
+                    StopNavigation();
+                    try
+                    {
+                        DoActionTasks(targetInfo?.Item);
+                    }
+                    catch (NoGatherableItemsInNodeExceptions)
+                    {
+                        UpdateItemsToGather();
+
+                        //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
+                        if (ItemsToGather.Count > 0 && targetInfo?.Item == ItemsToGather[0].Item)
+                        {
+                            AbortAutoGather("Couldn't gather any items from the last node, aborted");
+                        }
+                        else
+                        {
+                            CloseGatheringAddons();
+                        }
+                    }
+                    return;
+                }
+
                 return;
             }
 
             if (IsPathGenerating)
             {
                 AutoStatus = "Generating path...";
-                AdvancedUnstuckCheck();
+                advancedLastMovementTime = DateTime.Now;
+                lastMovementTime = DateTime.Now;
                 return;
             }
 
@@ -196,75 +208,188 @@ namespace GatherBuddy.AutoGather
                 AdvancedUnstuckCheck();
             }
 
-            var location = GatherBuddy.UptimeManager.BestLocation(targetItem);
-            if (location.Location.Territory.Id != Svc.ClientState.TerritoryType || !GatherableMatchesJob(targetItem))
-            {
-                HasSeenFlag = false;
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(() => MoveToTerritory(location.Location));
-                return;
-            }
-
-            DoUseConsumablesWithoutCastTime();
-            if (SpiritBondMax > 0 && GatherBuddy.Config.AutoGatherConfig.DoMaterialize)
+            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !IsPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
             {
                 DoMateriaExtraction();
                 return;
             }
 
-            var validNodesForItem = targetItem.NodeList.SelectMany(n => n.WorldPositions).ToDictionary(kvp => kvp.Key, kvp => kvp.Value);
-            var matchingNodesInZone = location.Location.WorldPositions.Where(w => validNodesForItem.ContainsKey(w.Key)).SelectMany(w => w.Value)
-                .Where(v => !IsBlacklisted(v))
-                .OrderBy(v => Vector3.Distance(Player.Position, v))
-                .ToList();
-            var allNodes = Svc.Objects.Where(o => matchingNodesInZone.Contains(o.Position)).ToList();
-            var closeNodes = allNodes.Where(o => o.IsTargetable)
-                .OrderBy(o => Vector3.Distance(Player.Position, o.Position));
-            if (closeNodes.Any())
+            {//Block to limit the scope of the variable "next"
+                UpdateItemsToGather();
+                var next = ItemsToGather.FirstOrDefault();
+
+                if (next == null)
+                {
+                    if (!_plugin.GatherWindowManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i) && !(IsTreasureMap(i) && InventoryCount(i) != 0)))
+                    {
+                        AbortAutoGather();
+                        return;
+                    }
+
+                    GoHome();
+                    AutoStatus = "No available items to gather";
+                    return;
+                }
+
+                foreach (var (loc, time) in VisitedTimedLocations)
+                    if (time.End < AdjuctedServerTime)
+                        VisitedTimedLocations.Remove(loc);
+
+                if (targetInfo == null
+                    || targetInfo.Location == null
+                    || targetInfo.Time.End < AdjuctedServerTime
+                    || targetInfo.Item != next.Item
+                    || VisitedTimedLocations.ContainsKey(targetInfo.Location))
+                {
+                    //Find a new location only if the target item changes or the node expires to prevent switching to another node when a new one goes up
+                    targetInfo = next;
+                    FarNodesSeenSoFar.Clear();
+                    VisitedNodes.Clear();
+                }
+            }
+
+            if (targetInfo.Location == null)
             {
-                TaskManager.Enqueue(() => MoveToCloseNode(closeNodes.First(n => !IsBlacklisted(n.Position)), targetItem));
+                //Should not happen because UpdateItemsToGather filters out all unaviable items
+                GatherBuddy.Log.Debug("Couldn't find any location for the target item");
                 return;
             }
 
-            var selectedNode = matchingNodesInZone.FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
-            if (selectedNode == Vector3.Zero)
+            if (IsTreasureMap(targetInfo.Item) && NextTresureMapAllowance == DateTime.MinValue)
             {
-                FarNodesSeenSoFar.Clear();
-                GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
+                //Wait for timer refresh
+                RefreshNextTresureMapAllowance();
                 return;
             }
+
+            if (targetInfo.Location.Territory.Id != Svc.ClientState.TerritoryType || !LocationMatchesJob(targetInfo.Location))
+            {
+                StopNavigation();
+                MoveToTerritory(targetInfo.Location);
+                AutoStatus = "Teleporting...";
+                return;
+            }
+
+            DoUseConsumablesWithoutCastTime();
+
+            var allPositions = targetInfo.Location.WorldPositions
+                .SelectMany(w => w.Value)
+                .Where(v => !IsBlacklisted(v))
+                .ToHashSet();
+
+            var visibleNodes = Svc.Objects
+                .Where(o => allPositions.Contains(o.Position))
+                .ToList();
+
+            var closestTargetableNode = visibleNodes
+                .Where(o => o.IsTargetable)
+                .MinBy(o => Vector3.Distance(Player.Position, o.Position));
+
+            if (closestTargetableNode != null)
+            {
+                AutoStatus = "Moving to node...";
+                MoveToCloseNode(closestTargetableNode, targetInfo.Item);
+                return;
+            }
+
+            AutoStatus = "Moving to far node...";
+
+            if (CurrentDestination != default && !allPositions.Contains(CurrentDestination))
+            {
+                GatherBuddy.Log.Debug("Current destination doesn't match the target item, resetting navigation");
+                StopNavigation();
+                FarNodesSeenSoFar.Clear();
+                VisitedNodes.Clear();
+            }
+
+            if (CurrentDestination != default)
+            {
+                var currentNode = visibleNodes.FirstOrDefault(o => o.Position == CurrentDestination);
+                if (currentNode != null && !currentNode.IsTargetable)
+                    GatherBuddy.Log.Verbose($"Far node is not targetable, distance {currentNode.Position.DistanceToPlayer()}.");
+
+                //It takes some time (roundtrip to the server) before a node becomes targetable after it becomes visible,
+                //so we need to delay excluding it. But instead of measuring time, we use distance, since character is traveling at a constant speed.
+                //Value 80 was determined empirically.
+                foreach (var node in visibleNodes.Where(o => o.Position.DistanceToPlayer() < 80))
+                    FarNodesSeenSoFar.Add(node.Position);
+
+                if (FarNodesSeenSoFar.Contains(CurrentDestination))
+                {
+                    GatherBuddy.Log.Verbose("Far node is not targetable, choosing another");
+                }
+                else
+                {
+                    return;
+                }
+            }
+
+            Vector3 selectedFarNode;
 
             // only Legendary and Unspoiled show marker
-            if (ShouldUseFlag && targetItem.NodeType is NodeType.Legendary or NodeType.Unspoiled)
+            if (ShouldUseFlag && targetInfo.Item.NodeType is NodeType.Legendary or NodeType.Unspoiled)
             {
+                var pos = TimedNodePosition;
                 // marker not yet loaded on game
-                if (TimedNodePosition == null)
+                if (pos == null)
                 {
                     AutoStatus = "Waiting on flag show up";
                     return;
                 }
 
-                //AutoStatus = "Moving to farming area...";
-                selectedNode = matchingNodesInZone
-                    .Where(o => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z)) < 10).OrderBy(o
-                        => Vector2.Distance(TimedNodePosition.Value, new Vector2(o.X, o.Z))).FirstOrDefault();
+                selectedFarNode = allPositions
+                    .Where(o => Vector2.Distance(pos.Value, new Vector2(o.X, o.Z)) < 10)
+                    .OrderBy(o => Vector2.Distance(pos.Value, new Vector2(o.X, o.Z)))
+                    .FirstOrDefault();
             }
-
-            if (allNodes.Any(n => n.Position == selectedNode && Vector3.Distance(n.Position, Player.Position) < 100))
+            else
             {
-                FarNodesSeenSoFar.Add(selectedNode);
+                //Select the furthermost node from the last 4 visited ones (2 for ephemeral), ARR excluded.
+                selectedFarNode = allPositions
+                    .OrderByDescending(n => VisitedNodes.Select(v => Vector3.Distance(n, v)).Sum())
+                    .ThenBy(v => Vector3.Distance(Player.Position, v))
+                    .FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
 
-                CurrentDestination = null;
-                VNavmesh_IPCSubscriber.Path_Stop();
-                AutoStatus = "Looking for far away nodes...";
-                return;
+                if (selectedFarNode == default)
+                {
+                    FarNodesSeenSoFar.Clear();
+                    GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
+                    return;
+                }
+
             }
+             
+            MoveToFarNode(selectedFarNode);
+        }
 
-            TaskManager.Enqueue(() => MoveToFarNode(selectedNode));
-            return;
+        private void AbortAutoGather(string? status = null)
+        {
+            Enabled = false;
+            if (!string.IsNullOrEmpty(status))
+                AutoStatus = status;
+            if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
+                _soundHelper.PlayHonkSound(3);
+            CloseGatheringAddons();
+            TaskManager.Enqueue(GoHome);
+        }
 
+        private unsafe void CloseGatheringAddons()
+        {
+            if (MasterpieceAddon != null)
+                TaskManager.Enqueue(() => MasterpieceAddon->Close(true));
 
-            AutoStatus = "Nothing to do...";
+            if (GatheringAddon != null)
+                TaskManager.Enqueue(() => GatheringAddon->Close(true));
+
+            TaskManager.Enqueue(() => !IsGathering);
+        }
+
+        private static unsafe void RefreshNextTresureMapAllowance()
+        {
+            if (EzThrottler.Throttle("RequestResetTimestamps", 1000))
+            {
+                FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->RequestResetTimestamps();
+            }
         }
 
         private void DoSafetyChecks()

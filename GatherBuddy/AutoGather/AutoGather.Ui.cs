@@ -136,8 +136,9 @@ namespace GatherBuddy.AutoGather
                             Communicator.PrintError("[GatherBuddyReborn] Auto-Gather is enabled! Unable to navigate.");
                             return;
                         }
+                        VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                         VNavmesh_IPCSubscriber.Path_Stop();
-                        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly);
+                        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly(node.Position));
                     }
 
                     var offset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == node.Position);
@@ -156,8 +157,9 @@ namespace GatherBuddy.AutoGather
                                 Communicator.PrintError("[GatherBuddyReborn] Auto-Gather is enabled! Unable to navigate.");
                                 return;
                             }
+                            VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                             VNavmesh_IPCSubscriber.Path_Stop();
-                            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset.Offset, GatherBuddy.AutoGather.ShouldFly);
+                            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset.Offset, GatherBuddy.AutoGather.ShouldFly(offset.Offset));
                         }
                     }
                     else
@@ -235,20 +237,17 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Config.Save();
                 }
 
-                foreach (var item in AutoGather.PossibleCordials.OrderBy(item => item.Name.ToString()))
+                var items = PrepareConsumablesList(AutoGather.PossibleCordials);
+                bool? separatorState = null;
+
+                foreach (var (name, rowid, count) in items)
                 {
-                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId == item.RowId))
+                    DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                    if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId == rowid))
                     {
-                        GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId = rowid;
                         GatherBuddy.Config.Save();
-                    }
-                    if (item.CanBeHq)
-                    {
-                        if (ImGui.Selectable($" {item.Name} ({AutoGather.GetInventoryItemCount(item.RowId + 100000)})", GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId == item.RowId + 100000))
-                        {
-                            GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId = item.RowId + 100000;
-                            GatherBuddy.Config.Save();
-                        }
                     }
                 }
 
@@ -271,20 +270,17 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Config.Save();
                 }
 
-                foreach (var item in AutoGather.PossibleFoods.OrderBy(item => item.Name.ToString()))
+                var items = PrepareConsumablesList(AutoGather.PossibleFoods);
+                bool? separatorState = null;
+
+                foreach (var (name, rowid, count) in items)
                 {
-                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId == item.RowId))
+                    DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                    if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId == rowid))
                     {
-                        GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId = rowid;
                         GatherBuddy.Config.Save();
-                    }
-                    if (item.CanBeHq)
-                    {
-                        if (ImGui.Selectable($" {item.Name} ({AutoGather.GetInventoryItemCount(item.RowId + 100000)})", GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId == item.RowId + 100000))
-                        {
-                            GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId = item.RowId + 100000;
-                            GatherBuddy.Config.Save();
-                        }
                     }
                 }
 
@@ -307,20 +303,17 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Config.Save();
                 }
 
-                foreach (var item in AutoGather.PossiblePotions.OrderBy(item => item.Name.ToString()))
+                var items = PrepareConsumablesList(AutoGather.PossiblePotions);
+                bool? separatorState = null;
+
+                foreach (var (name, rowid, count) in items)
                 {
-                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId == item.RowId))
+                    DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                    if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId == rowid))
                     {
-                        GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId = rowid;
                         GatherBuddy.Config.Save();
-                    }
-                    if (item.CanBeHq)
-                    {
-                        if (ImGui.Selectable($" {item.Name} ({AutoGather.GetInventoryItemCount(item.RowId + 100000)})", GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId == item.RowId + 100000))
-                        {
-                            GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId = item.RowId + 100000;
-                            GatherBuddy.Config.Save();
-                        }
                     }
                 }
 
@@ -341,11 +334,16 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Config.Save();
                 }
 
-                foreach (var item in AutoGather.PossibleManuals.OrderBy(item => item.Name.ToString()))
+                var items = PrepareConsumablesList(AutoGather.PossibleManuals);
+                bool? separatorState = null;
+
+                foreach (var (name, rowid, count) in items)
                 {
-                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == item.RowId))
+                    DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                    if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == rowid))
                     {
-                        GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = rowid;
                         GatherBuddy.Config.Save();
                     }
                 }
@@ -367,11 +365,16 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Config.Save();
                 }
 
-                foreach (var item in AutoGather.PossibleSquadronManuals.OrderBy(item => item.Name.ToString()))
+                var items = PrepareConsumablesList(AutoGather.PossibleSquadronManuals);
+                bool? separatorState = null;
+
+                foreach (var (name, rowid, count) in items)
                 {
-                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == item.RowId))
+                    DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                    if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == rowid))
                     {
-                        GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = rowid;
                         GatherBuddy.Config.Save();
                     }
                 }
@@ -393,11 +396,16 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Config.Save();
                 }
 
-                foreach (var item in AutoGather.PossibleSquadronPasses.OrderBy(item => item.Name.ToString()))
+                var items = PrepareConsumablesList(AutoGather.PossibleSquadronPasses);
+                bool? separatorState = null;
+
+                foreach (var (name, rowid, count) in items)
                 {
-                    if (ImGui.Selectable($"{item.Name} ({AutoGather.GetInventoryItemCount(item.RowId)})", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == item.RowId))
+                    DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                    if (ImGui.Selectable($"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == rowid))
                     {
-                        GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = item.RowId;
+                        GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = rowid;
                         GatherBuddy.Config.Save();
                     }
                 }
@@ -405,5 +413,25 @@ namespace GatherBuddy.AutoGather
                 ImGui.EndCombo();
             }
         }
+        private static unsafe IOrderedEnumerable<(string name, uint rowid, int count)> PrepareConsumablesList(IEnumerable<Item> items)
+        {
+            return items.SelectMany(item => new[] { (item, rowid: item.RowId), (item, rowid: item.RowId + 100000) })
+                        .Where(t => t.item.CanBeHq || t.rowid < 100000)
+                        .Select(t => (name: t.item.Name.ToString(), t.rowid, count: AutoGather.GetInventoryItemCount(t.rowid)))
+                        .OrderBy(t => t.count == 0)
+                        .ThenBy(t => t.name);
+        }
+
+        private static void DrawConsumablesSeparator(ref bool? canDraw, bool drawNow)
+        {
+            if (!drawNow)
+                canDraw = true;
+            else if (canDraw.GetValueOrDefault())
+            {
+                ImGui.Separator();
+                canDraw = false;
+            }
+        }
+
     }
 }

@@ -29,7 +29,7 @@ namespace GatherBuddy.CustomInfo
             {
                 try
                 {
-                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(vector, distance, distance);
+                    var nearestPoint = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(vector, false, distance);
                     if (!nearestPoint.SanityCheck())
                         return vector;
 

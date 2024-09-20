@@ -35,25 +35,22 @@ public partial class AutoGather
 
     unsafe void DoMateriaExtraction()
     {
-        if (Svc.Condition[ConditionFlag.Mounted])
-        {
-            TaskManager.Enqueue(Dismount);
-            TaskManager.DelayNext(1500);
-        }
         if (MaterializeAddon == null)
         {
+            TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
             TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
             TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
             TaskManager.Enqueue(() => MaterializeAddon != null);
             return;
         }
 
-        for (var i = SpiritBondMax; i > 0; i--)
+        TaskManager.Enqueue(() => Callback.Fire(&MaterializeAddon->AtkUnitBase, true, 2, 0));
+        TaskManager.DelayNext(1000);
+        TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39]);
+
+        if (SpiritBondMax == 1) 
         {
-            TaskManager.Enqueue(() => Callback.Fire(&MaterializeAddon->AtkUnitBase, true, 2, 0));
-            TaskManager.DelayNext(1000);
-            TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39]);
+            TaskManager.Enqueue(() => MaterializeAddon == null || MaterializeAddon->Close(true));
         }
-        //TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
     }
 }
