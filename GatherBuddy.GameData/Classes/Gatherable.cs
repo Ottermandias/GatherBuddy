@@ -67,6 +67,10 @@ public class Gatherable : IComparable<Gatherable>, IGatherable
     public int CompareTo(Gatherable? rhs)
         => ItemId.CompareTo(rhs?.ItemId ?? 0);
 
+    public bool IsCrystal => ItemData.FilterGroup == 11;
+
+    public bool IsTreasureMap => ItemData.FilterGroup == 18;
+
     private readonly int _levelStars;
 
     private static readonly string[] StarsArray =

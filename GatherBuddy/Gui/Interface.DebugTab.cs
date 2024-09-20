@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using Dalamud;
 using Dalamud.Game.ClientState.Objects.Enums;
 using GatherBuddy.AutoGather;
 using Dalamud.Game;
@@ -18,6 +17,7 @@ using ImGuiNET;
 using OtterGui;
 using static GatherBuddy.FishTimer.FishRecord;
 using ImRaii = OtterGui.Raii.ImRaii;
+using System.Text;
 
 namespace GatherBuddy.Gui;
 
@@ -638,6 +638,47 @@ public partial class Interface
             }
         }
 
+        var tr = GatherBuddy.AutoGather.NodeTarcker;
+        if (ImGui.CollapsingHeader("GatheringTracker"))
+        {
+            var text = new StringBuilder();
+            if (tr.Ready)
+            {
+                text.AppendLine($"Type: {tr.NodeType}");
+                text.AppendLine($"Revisit: {tr.Revisit}");
+                text.AppendLine($"Touched: {tr.Touched}");
+                text.AppendLine($"HiddenRevealed: {tr.HiddenRevealed}");
+                text.AppendLine($"Integrty: {tr.Integrity}/{tr.MaxIntegrity}");
+                text.Append($"Quick gathering: {(!tr.QuckGatheringAllowed ? "not" : "")} allowed");
+                if (tr.QuckGatheringAllowed) text.Append($", {(!tr.QuckGatheringChecked ? "not" : "")} checked");
+                if (tr.QuckGatheringInProcess) text.Append($", in process");
+                text.AppendLine();
+                for (var i = 0; i < 8; i++)
+                {
+                    var n = tr[i];
+                    text.Append($"Slot {i}:");
+                    if (n.Empty)
+                    {
+                        text.AppendLine(" empty;");
+                        continue;
+                    }
+                    text.Append($" {n.Item.Name};");
+                    if (!n.Enabled) text.Append(" disabled;");
+                    text.Append($" level: {n.Level}; yield: {n.Yield}{(n.RandomYield?"+?":"")}; chance: {n.GatherChance}; boon: {n.BoonChance};");
+                    if (n.Hidden) text.Append(" hidden;");
+                    if (n.Rare) text.Append(" rare;");
+                    if (n.Bonus) text.Append(" bonus;");
+                    if (n.Collectable) text.Append($" collectable;");
+                    text.AppendLine();
+                }
+            }   
+            else
+            {
+                text.AppendLine("Not ready");
+            }
+
+            ImGui.TextWrapped(text.ToString());
+        }
 
         AutoGatherUI.DrawDebugTables();
     }
