@@ -17,7 +17,6 @@ using ECommons.Automation.UIInput;
 using GatherBuddy.Plugin;
 using OtterGui;
 using NodeType = GatherBuddy.Enums.NodeType;
-using System.Numerics;
 
 namespace GatherBuddy.AutoGather
 {
@@ -31,39 +30,6 @@ namespace GatherBuddy.AutoGather
             var targetSystem = TargetSystem.Instance();
             if (targetSystem == null)
                 return;
-
-            // Check if the target item needs clustering
-            // Only supports regular nodes for now
-            if (ShouldKMeansCluster(targetItem))
-            {
-                // Check if we're gathering from a different cluster than the current expected one
-                // Calculate distances of the node and all clusters
-                var distances = kMeansClusters[targetItem.ItemId].Select(c => Vector3.DistanceSquared(gameObject.Position, c));
-                var minCluster = distances.IndexOf(distances.Min());
-                if (minCluster != currentCluster)
-                {
-                    GatherBuddy.Log.Verbose($"Node {targetItem.Name[GatherBuddy.Language]} is in cluster {minCluster}, expected {currentCluster}.");
-                    currentCluster = minCluster;
-                    gatheringsInCluster = 0;
-
-                    FarNodesSeenSoFar.Clear();
-                }
-
-
-                GatherBuddy.Log.Verbose($"Attempting to gather from node {targetItem.Name[GatherBuddy.Language]}, incrementing gathering tally.");
-                // Advance the cluster gathering state
-                gatheringsInCluster++;
-                // If this is the 2nd node in a cluster, we need to advance
-                if (
-                    (targetItem.NodeType == NodeType.Regular && gatheringsInCluster >= 2) ||
-                    (targetItem.NodeType == NodeType.Ephemeral && gatheringsInCluster >= 1)   
-                )
-                {
-                    currentCluster = (currentCluster + 1) % kMeansClusterCount;
-                    gatheringsInCluster = 0;
-                    FarNodesSeenSoFar.Clear();
-                }
-            }
 
             TaskManager.Enqueue(() =>
             {
