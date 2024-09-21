@@ -220,8 +220,8 @@ namespace GatherBuddy.AutoGather
         {
             if (GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown)
             {
-                var anyCrystall = GetAnyCrystalInNode();
-                if (anyCrystall != null && ShouldUseGivingLand(anyCrystall))
+                var anyCrystal = GetAnyCrystalInNode();
+                if (anyCrystal != null && ShouldUseGivingLand(anyCrystal))
                     return true;
             }
 
