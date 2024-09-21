@@ -54,23 +54,17 @@ namespace GatherBuddy.AutoGather
         /// Slot: ItemSlot of item to gather</returns>
         private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? desiredItem)
         {
+            //Gather crystals when using The Giving Land
+            if (HasGivingLandBuff)
+            {
+                var crystal = GetAnyCrystalInNode();
+                if (crystal != null)
+                    return (true, crystal);
+            }
+
             var aviable = NodeTarcker.Aviable
                 .Where(CheckItemOvercap)
                 .ToList();
-
-            var crystals = aviable
-                .Where(s => s.Item.IsCrystal)
-                //Prioritize crystals in the gathering list
-                .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
-                //Prioritize crystals with a lower amount in the inventory
-                .ThenBy(s => InventoryCount(s.Item))
-                .ToList();
-
-            //Gather crystals when using The Giving Land
-            if (crystals.Count != 0 && (HasGivingLandBuff || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && ShouldUseGivingLand(crystals[0])))
-            {
-                return (true, crystals[0]);
-            }
 
             var shouldGather = aviable
                 //Item is in gathering list
@@ -102,10 +96,12 @@ namespace GatherBuddy.AutoGather
             {
                 return (!slot.Collectable, slot);
             }
+
             //Otherwise gather any crystals
-            if (crystals.Count != 0)
+            slot = GetAnyCrystalInNode();
+            if (slot != null)
             {
-                return (false, crystals[0]);
+                return (false, slot);
             }
             //If there are no crystals, gather anything which is not treasure map nor collectable
             slot = aviable.Where(s => !s.Item.IsTreasureMap && !s.Collectable).FirstOrDefault();
@@ -126,6 +122,18 @@ namespace GatherBuddy.AutoGather
             if (s.Item.IsCrystal && InventoryCount(s.Item) > 9999 - s.Yield)
                 return false;
             return true;
+        }
+        
+        private ItemSlot? GetAnyCrystalInNode()
+        {
+            return NodeTarcker.Aviable
+                .Where(s => s.Item.IsCrystal)
+                .Where(CheckItemOvercap)
+                //Prioritize crystals in the gathering list
+                .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
+                //Prioritize crystals with a lower amount in the inventory
+                .ThenBy(s => InventoryCount(s.Item))
+                .FirstOrDefault();
         }
     }
 }
