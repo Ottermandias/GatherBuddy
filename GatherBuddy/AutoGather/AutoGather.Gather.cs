@@ -50,7 +50,7 @@ namespace GatherBuddy.AutoGather
         /// <summary>
         /// Checks if desired item could or should be gathered and may change it to something more suitable
         /// </summary>
-        /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather some unneeded junk
+        /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather collectable or some unneeded junk
         /// Slot: ItemSlot of item to gather</returns>
         private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? desiredItem)
         {
@@ -86,12 +86,13 @@ namespace GatherBuddy.AutoGather
                     if (InventoryCount(desiredItem) < QuantityTotal(desiredItem))
                     {
                         //The desired item is found in the node, would not overcap and we need to gather more of it
-                        return (true, orig);
+                        return (!orig.Collectable, orig);
                     }
                     else
                     {
                         //If we have gathered enough of the current item and there is another item in the node that we want, gather it instead
-                        return (true, shouldGather.FirstOrDefault(orig));
+                        var other = shouldGather.FirstOrDefault(orig);
+                        return (!other.Collectable, other);
                     }
                 }
             }
@@ -99,7 +100,7 @@ namespace GatherBuddy.AutoGather
             var slot = shouldGather.FirstOrDefault();
             if (slot != null)
             {
-                return (true, slot);
+                return (!slot.Collectable, slot);
             }
             //Otherwise gather any crystals
             if (crystals.Count != 0)

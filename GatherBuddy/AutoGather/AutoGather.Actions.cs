@@ -165,10 +165,7 @@ namespace GatherBuddy.AutoGather
             }
             else if (GatheringAddon != null && NodeTarcker.Ready)
             {
-                if (desiredItem?.ItemData.IsCollectable == true)
-                    EnqueueGatherItem(GetItemSlotToGather(desiredItem).Slot);
-                else
-                    DoGatherWindowActions(desiredItem);
+                DoGatherWindowActions(desiredItem);
             }
             if (MasterpieceAddon == null)
                 CurrentRotation = null;
