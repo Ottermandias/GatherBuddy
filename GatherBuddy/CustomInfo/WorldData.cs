@@ -18,11 +18,13 @@ namespace GatherBuddy.CustomInfo
         private static string NodeOffsetsPath = Path.Combine(Dalamud.PluginInterface.ConfigDirectory.FullName, "node_offsets.json");
         public static Dictionary<uint, List<Vector3>> WorldLocationsByNodeId { get; set; } = new();
         public static List<OffsetPair>    NodeOffsets            { get; set; } = new();
+        public static Dictionary<uint, uint> BaseGathering { get; set; } = new();
 
         static WorldData()
         {
             LoadLocationsFromFile();
             LoadOffsetsFromFile();
+            LoadBaseGatheringFromFile();
         }
 
         private static void LoadOffsetsFromFile()
@@ -163,6 +165,15 @@ namespace GatherBuddy.CustomInfo
             var locJson = Newtonsoft.Json.JsonConvert.SerializeObject(WorldLocationsByNodeId, Newtonsoft.Json.Formatting.Indented);
 
             File.WriteAllText(WorldLocationsPath, locJson);
+        }
+        private static unsafe void LoadBaseGatheringFromFile()
+        {
+            var settings = new JsonSerializerSettings();
+            var resourceName = "GatherBuddy.CustomInfo.base_gathering.json";
+            var assembly = typeof(GatherBuddy).Assembly;
+            var stream = assembly.GetManifestResourceStream(resourceName) ?? throw new FileNotFoundException("Embedded resource not found.", resourceName);
+            var fileContent = new StreamReader(stream).ReadToEnd();
+            BaseGathering = JsonConvert.DeserializeObject<Dictionary<uint, uint>>(fileContent, settings) ?? throw new Exception("Couldn't parse base_gathering.json");
         }
     }
 

@@ -14,6 +14,7 @@ using GatherBuddy.Enums;
 using GatherBuddy.Time;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using System.Collections.Specialized;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace GatherBuddy.AutoGather
 {
@@ -270,6 +271,9 @@ namespace GatherBuddy.AutoGather
 
         private static TimeStamp AdjuctedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
+
+        private static unsafe int CharacterGatheringStat
+            => PlayerState.Instance()->Attributes[72];
     }
 
     public record class GatherInfo(Gatherable Item, ILocation? Location, TimeInterval Time)

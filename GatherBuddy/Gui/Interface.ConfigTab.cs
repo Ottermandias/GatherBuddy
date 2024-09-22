@@ -198,6 +198,15 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        public static void DrawBYIIMinimumIncrease()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<int>("MinimumIncrease");
+            if (ImGui.DragInt("Minimum yield increase", ref tmp, 0.1f, 1, 3))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BYIIConfig.SetOptionalProperty("MinimumIncrease", tmp);
+                GatherBuddy.Config.Save();
+            }
+        }
         public static void DrawBYIIUseWithCrystals()
             => DrawCheckbox("Use when gathering crystals", "", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<bool>("UseWithCystals"),
                 b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.SetOptionalProperty("UseWithCystals", b));
@@ -514,7 +523,7 @@ public partial class Interface
         public static void DrawSolidAgeGatherablesMinYield()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield");
-            if (ImGui.DragInt("Minimum yield", ref tmp, 1, 1, 20))
+            if (ImGui.DragInt("Minimum yield", ref tmp, 0.1f, 1, 20))
             {
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.SetOptionalProperty("MinimumYield", tmp);
                 GatherBuddy.Config.Save();
@@ -1215,6 +1224,7 @@ public partial class Interface
                     ConfigFunctions.DrawBYIIBox();
                     ConfigFunctions.DrawBYIIMinGP();
                     ConfigFunctions.DrawBYIIMaxGP();
+                    ConfigFunctions.DrawBYIIMinimumIncrease();
                     ConfigFunctions.DrawBYIIUseWithCrystals();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BYIIConfig);
                     ImGui.TreePop();
@@ -1245,8 +1255,8 @@ public partial class Interface
                     ConfigFunctions.DrawSolidAgeGatherablesCheckbox();
                     ConfigFunctions.DrawSolidAgeGatherablesMinGp();
                     ConfigFunctions.DrawSolidAgeGatherablesMaxGp();
-                    ConfigFunctions.DrawSolidAgeGatherablesUseWithCrystals();
                     ConfigFunctions.DrawSolidAgeGatherablesMinYield();
+                    ConfigFunctions.DrawSolidAgeGatherablesUseWithCrystals();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig);
                     ImGui.TreePop();
                 }

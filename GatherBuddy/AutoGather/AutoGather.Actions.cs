@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
+using GatherBuddy.CustomInfo;
+using System.Collections.Generic;
 
 namespace GatherBuddy.AutoGather
 {
@@ -46,6 +48,8 @@ namespace GatherBuddy.AutoGather
             if (Dalamud.ClientState.LocalPlayer!.CurrentGp > GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP)
                 return false;
             if (slot.Item.IsCrystal && !GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<bool>("UseWithCystals"))
+                return false;
+            if (CalculateBYIIBonus(slot.Item) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<int>("MinimumIncrease"))
                 return false;
             if (slot.Rare)
                 return false;
@@ -358,13 +362,17 @@ namespace GatherBuddy.AutoGather
 
         private bool ShouldUseSolidAgeGatherables(ItemSlot slot)
         {
-            if (slot.Yield < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
-                return false;
             if (slot.Item.IsCrystal && !GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<bool>("UseWithCystals"))
+                return false;
+            var yield = slot.Yield;
+            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == BountifulYieldStatuses[0]))
+                yield -= 1;
+            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == BountifulYieldStatuses[1]))
+                yield -= CalculateBYIIBonus(slot.Item);
+            if (yield < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
                 return false;
             if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, slot.Item))
                 return false;
-
             if (!ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, NodeTarcker.Integrity, NodeTarcker.MaxIntegrity))
                 return false;
 
@@ -406,6 +414,27 @@ namespace GatherBuddy.AutoGather
             }
 
             return true;
+        }
+
+        private static int CalculateBYIIBonus(Gatherable item)
+        {
+            try
+            {
+                var glvl = item.GatheringData.GatheringItemLevel.Row;
+                var baseValue = WorldData.BaseGathering[glvl];
+                var stat = CharacterGatheringStat;
+
+                if (stat >= (int)(baseValue * 1.1))
+                    return 3;
+                if (stat >= (int)(baseValue * 0.9))
+                    return 2;
+
+                return 1;
+            }
+            catch (KeyNotFoundException)
+            {
+                return 1;
+            }
         }
 
         private static bool IsGpMax
