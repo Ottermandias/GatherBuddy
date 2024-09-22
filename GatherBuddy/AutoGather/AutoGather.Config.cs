@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -103,11 +104,21 @@ namespace GatherBuddy.AutoGather
                 }
             }
 
+            public bool TryGetOptionalProperty<T>(string key, [MaybeNullWhen(false)] out T value)
+            {
+                if (OptionalProperties.TryGetValue(key, out var _value))
+                {
+                    value = (T)Convert.ChangeType(_value, typeof(T));
+                    return true;
+                }
+                value = default;
+                return false;
+            }
             public T GetOptionalProperty<T>(string key)
             {
-                if (OptionalProperties.TryGetValue(key, out var value))
+                if (TryGetOptionalProperty<T>(key, out var value))
                 {
-                    return (T)Convert.ChangeType(value, typeof(T));
+                    return value;
                 }
 
                 throw new KeyNotFoundException($"Optional property with key '{key}' not found.");

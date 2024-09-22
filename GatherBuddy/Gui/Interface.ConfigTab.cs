@@ -176,13 +176,13 @@ public partial class Interface
         }
 
         public static void DrawBYIIBox()
-            => DrawCheckbox("Use Bountiful Yield/Harvest II", "Toggle whether to use Bountiful Yield/Harvest II for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
+            => DrawCheckbox("Use Bountiful Yield/Harvest", "Toggle whether to use Bountiful Yield/Harvest for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
 
         public static void DrawBYIIMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP;
-            if (ImGui.DragInt("Bountiful Yield/Harvest II Min GP", ref tmp, 1, 100, 30000))
+            if (ImGui.DragInt("Bountiful Yield/Harvest Min GP", ref tmp, 1, 100, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
@@ -192,7 +192,7 @@ public partial class Interface
         public static void DrawBYIIMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP;
-            if (ImGui.DragInt("Bountiful Yield/Harvest II Max GP", ref tmp, 1, 100, 30000))
+            if (ImGui.DragInt("Bountiful Yield/Harvest Max GP", ref tmp, 1, 100, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
@@ -1219,7 +1219,7 @@ public partial class Interface
 
             if (ImGui.TreeNodeEx("Gathering Actions"))
             {
-                if (ImGui.TreeNodeEx("Bountiful Yield/Harvest II"))
+                if (ImGui.TreeNodeEx("Bountiful Yield/Harvest"))
                 {
                     ConfigFunctions.DrawBYIIBox();
                     ConfigFunctions.DrawBYIIMinGP();
