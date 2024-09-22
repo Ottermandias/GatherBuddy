@@ -285,7 +285,7 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
-                EnqueueGatherAction(() => { UseAction(collectibleAction); }, 250);
+                EnqueueGatherAction(() => { UseAction(collectibleAction.Value); }, 250);
             }
         }
 
