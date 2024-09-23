@@ -98,6 +98,7 @@ namespace GatherBuddy.AutoGather
         }
 
         private class NoGatherableItemsInNodeExceptions : Exception { }
+        private class NoColectableActionsExceptions : Exception { }
         public void DoAutoGather()
         {
             if (!IsGathering)
@@ -190,6 +191,11 @@ namespace GatherBuddy.AutoGather
                         {
                             CloseGatheringAddons();
                         }
+                    }
+                    catch (NoColectableActionsExceptions)
+                    {
+                        Communicator.PrintError("Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
+                        AbortAutoGather();
                     }
                     return;
                 }

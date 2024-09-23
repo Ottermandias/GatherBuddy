@@ -195,21 +195,16 @@ namespace GatherBuddy.AutoGather
                 LastIntegrity      = integrity;
 
                 var collectibleAction = CurrentRotation.GetNextAction(MasterpieceAddon);
-                if (collectibleAction == null)
-                {
-                    GatherBuddy.Log.Debug("Collectible action was null, all actions are disabled by user");
-                    return;
-                }
 
-                EnqueueGatherAction(() => { UseAction(collectibleAction.Value); }, 250);
+                EnqueueGatherAction(() => { UseAction(collectibleAction); });
             }
         }
 
         private static bool ShouldUseWise(int integrity, int maxIntegrity)
         {
-            if (Player.Level < Actions.Wise.MinLevel)
-                return false;
             if (integrity == maxIntegrity)
+                return false;
+            if (Player.Level < Actions.Wise.MinLevel)
                 return false;
             if (!Player.Status.Any(s => s.StatusId == Actions.SolidAge.EffectId))
                 return false;

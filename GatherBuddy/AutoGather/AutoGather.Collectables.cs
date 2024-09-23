@@ -18,7 +18,7 @@ namespace GatherBuddy.AutoGather
 
             private bool shouldUseFullRotation = false;
 
-            public Actions.BaseAction? GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
+            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
             {
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
@@ -27,17 +27,16 @@ namespace GatherBuddy.AutoGather
                 int meticulousColl   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString().Substring(2));
                 int brazenColl       = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString().Substring(2));
 
-                if (currentIntegrity < maxIntegrity 
-                 && ShouldUseWise(currentIntegrity, maxIntegrity))
+                if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
 
                 if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore)
                 {
-                    if (currentIntegrity <= maxIntegrity && (shouldUseFullRotation || GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables)
+                    if ((shouldUseFullRotation || GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables)
                      && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity))
                         return Actions.SolidAge;
-
-                    return Actions.Collect;
+                    else
+                        return Actions.Collect;
                 }
 
                 if (currentIntegrity == 1
@@ -52,7 +51,7 @@ namespace GatherBuddy.AutoGather
                  && ShouldUseMeticulous())
                     return Actions.Meticulous;
 
-                if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 3911) && ShouldUseBrazen())
+                if (Player.Status.Any(s => s.StatusId == 3911 /*Collector's High Standard*/) && ShouldUseBrazen())
                     return Actions.Brazen;
 
                 if (scourColl + collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore
@@ -62,18 +61,25 @@ namespace GatherBuddy.AutoGather
                 if (ShouldUseMeticulous())
                     return Actions.Meticulous;
 
-                return null;
+                //Fallback path if some actions are disabled.
+                if (Player.Status.Any(s => s.StatusId == 2418 /*Collector's Standard*/) && ShouldUseBrazen())
+                    return Actions.Brazen;
+                if (ShouldUseScour())
+                    return Actions.Scour;
+                if (ShouldUseBrazen())
+                    return Actions.Brazen;
+
+                throw new NoColectableActionsExceptions();
             }
 
             private bool NeedScrutiny(int collectability, int scourColl, int meticulousColl, int brazenColl)
             {
                 uint collAim = GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore;
-                if (scourColl + collectability >= collAim)
+                if (scourColl + collectability >= collAim && ShouldUseScour())
                     return false;
-                if (meticulousColl + collectability >= collAim)
+                if (meticulousColl + collectability >= collAim && ShouldUseMeticulous())
                     return false;
-                if (Dalamud.ClientState.LocalPlayer.StatusList.Any(s => s.StatusId == 3911)
-                 && brazenColl + collectability >= collAim)
+                if (brazenColl + collectability >= collAim && ShouldUseBrazen())
                     return false;
 
                 return true;
@@ -126,7 +132,7 @@ namespace GatherBuddy.AutoGather
                 if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP
                  || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP)
                     return false;
-                if (!Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == 757))
+                if (!Player.Status.Any(s => s.StatusId == Actions.Scrutiny.EffectId))
                     return GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction;
 
                 return false;
@@ -134,6 +140,8 @@ namespace GatherBuddy.AutoGather
 
             private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity)
             {
+                if (integrity == maxIntegrity)
+                    return false;
                 if (Player.Level < Actions.SolidAge.MinLevel)
                     return false;
                 if (Player.Object.CurrentGp < Actions.SolidAge.GpCost)
@@ -142,8 +150,6 @@ namespace GatherBuddy.AutoGather
                  || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.MaximumGP)
                     return false;
                 if (Player.Status.Any(s => s.StatusId == Actions.SolidAge.EffectId))
-                    return false;
-                if (integrity == maxIntegrity)
                     return false;
 
                 return GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig.UseAction;
