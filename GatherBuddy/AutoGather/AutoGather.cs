@@ -14,8 +14,11 @@ using GatherBuddy.Enums;
 using HousingManager = GatherBuddy.SeFunctions.HousingManager;
 using ECommons.Throttlers;
 using ObjectKind = Dalamud.Game.ClientState.Objects.Enums.ObjectKind;
-using GatherBuddy.Interfaces;
-using GatherBuddy.Time;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Game.Text;
+using Dalamud.Utility;
 
 namespace GatherBuddy.AutoGather
 {
@@ -270,6 +273,13 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            //This check must be done after changing jobs. TODO: check before teleporting
+            if (targetInfo.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked())
+            {
+                AbortAutoGather();
+                return;
+            }
+
             DoUseConsumablesWithoutCastTime();
 
             var allPositions = targetInfo.Location.WorldPositions
@@ -390,6 +400,56 @@ namespace GatherBuddy.AutoGather
             {
                 FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->RequestResetTimestamps();
             }
+        }
+
+        private bool CheckCollectablesUnlocked()
+        {
+            if (Player.Level < Actions.Collect.MinLevel)
+            {
+                Communicator.PrintError("You've put a collectable on the gathering list, but your level is not high enough to gather it.");
+                return false;
+            }
+            if (Actions.Collect.QuestID != 0 && !QuestManager.IsQuestComplete(Actions.Collect.QuestID))
+            {
+                Communicator.PrintError("You've put a collectable on the gathering list, but you haven't unlocked the collectables.");
+                var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Quest>()!;
+                var row = sheet.GetRow(Actions.Collect.QuestID)!;
+                var loc = row.IssuerLocation.Value!;
+                var map = loc.Map.Value!;
+                var pos = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
+                var mapPayload = new MapLinkPayload(loc.Territory.Row, loc.Map.Row, pos.X, pos.Y);
+                var text = new SeStringBuilder();
+                text.AddText("Collectables are unlocked by ")
+                    .AddUiForeground(0x0225)
+                    .AddUiGlow(0x0226)
+                    .AddQuestLink(Actions.Collect.QuestID)
+                    .AddUiForeground(500)
+                    .AddUiGlow(501)
+                    .AddText($"{(char)SeIconChar.LinkMarker}")
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText(row.Name)
+                    .Add(RawPayload.LinkTerminator)
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText(" quest, which can be started in ")
+                    .AddUiForeground(0x0225)
+                    .AddUiGlow(0x0226)
+                    .Add(mapPayload)
+                    .AddUiForeground(500)
+                    .AddUiGlow(501)
+                    .AddText($"{(char)SeIconChar.LinkMarker}")
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText($"{mapPayload.PlaceName} {mapPayload.CoordinateString}")
+                    .Add(RawPayload.LinkTerminator)
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText(".");
+                Communicator.Print(text.BuiltString);
+                return false;
+            }
+            return true;
         }
 
         public void Dispose()
