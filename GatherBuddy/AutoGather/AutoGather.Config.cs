@@ -38,9 +38,6 @@ namespace GatherBuddy.AutoGather
         public ActionConfig SolidAgeGatherablesConfig { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue,
             new ActionConditions(), new Dictionary<string, object> { { "MinimumYield", (uint)1 }, { "UseWithCystals", false } });
 
-        public ActionConfig CollectConfig { get; set; } =
-            new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue, new ActionConditions());
-
         public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
         public int TimedNodePrecog { get; set; } = 20;
         public bool DoGathering { get; set; } = true;

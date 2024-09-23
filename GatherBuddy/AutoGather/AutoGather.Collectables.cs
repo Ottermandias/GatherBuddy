@@ -37,14 +37,12 @@ namespace GatherBuddy.AutoGather
                      && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity))
                         return Actions.SolidAge;
 
-                    if (ShouldCollect())
-                        return Actions.Collect;
+                    return Actions.Collect;
                 }
 
                 if (currentIntegrity == 1
                  && GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrity
-                 && collectability >= GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrityMinimumCollectibility
-                 && ShouldCollect())
+                 && collectability >= GatherBuddy.Config.AutoGatherConfig.GatherIfLastIntegrityMinimumCollectibility)
                     return Actions.Collect;
 
                 if (shouldUseFullRotation && NeedScrutiny(collectability, scourColl, meticulousColl, brazenColl) && ShouldUseScrutiny())
@@ -79,11 +77,6 @@ namespace GatherBuddy.AutoGather
                     return false;
 
                 return true;
-            }
-
-            private bool ShouldCollect()
-            {
-                return GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction;
             }
         }
     }

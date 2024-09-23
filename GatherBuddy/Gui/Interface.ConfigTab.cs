@@ -440,11 +440,6 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction = b);
 
-        public static void DrawCollectCheckbox()
-            => DrawCheckbox("Use Collect (Collectibles)", "Use Collect to gather collectibles",
-                GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction,
-                b => GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction = b);
-
         public static void DrawMountUpDistance()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
@@ -530,16 +525,6 @@ public partial class Interface
             }
         }
 
-        public static void DrawCollectMaxGp()
-        {
-            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP;
-            if (ImGui.DragInt("Luck Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Collect.GpCost, 30000))
-            {
-                GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP = (uint)tmp;
-                GatherBuddy.Config.Save();
-            }
-        }
-
         public static void DrawScrutinyMinGp()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP;
@@ -596,16 +581,6 @@ public partial class Interface
             if (ImGui.DragInt("Solid Reason/Ageless Words Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.SolidAge.GpCost, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.MinimumGP = (uint)tmp;
-                GatherBuddy.Config.Save();
-            }
-        }
-
-        public static void DrawCollectMinGp()
-        {
-            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP;
-            if (ImGui.DragInt("Collect Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Collect.GpCost, 30000))
-            {
-                GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -1328,14 +1303,6 @@ public partial class Interface
                     ConfigFunctions.DrawSolidAgeCollectablesCheckbox();
                     ConfigFunctions.DrawSolidAgeCollectablesMinGp();
                     ConfigFunctions.DrawSolidAgeCollectablesMaxGp();
-                    ImGui.TreePop();
-                }
-
-                if (ImGui.TreeNodeEx("Collect"))
-                {
-                    ConfigFunctions.DrawCollectCheckbox();
-                    ConfigFunctions.DrawCollectMinGp();
-                    ConfigFunctions.DrawCollectMaxGp();
                     ImGui.TreePop();
                 }
 
