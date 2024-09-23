@@ -165,7 +165,7 @@ namespace GatherBuddy.AutoGather
                     {
                         FarNodesSeenSoFar.Clear();
                         VisitedNodes.AddLast(target.Position);
-                        while (VisitedNodes.Count > (targetInfo.Item.NodeType == NodeType.Regular ? 4 : 2))
+                        while (VisitedNodes.Count > (targetInfo.Location.WorldPositions.Count == 3 ? 2 : 4))
                             VisitedNodes.RemoveFirst();
                     }
                 }
