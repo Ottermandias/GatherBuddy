@@ -127,7 +127,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            DoSafetyChecks();
             if (TaskManager.IsBusy)
             {
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
@@ -391,15 +390,6 @@ namespace GatherBuddy.AutoGather
             {
                 FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->RequestResetTimestamps();
             }
-        }
-
-        private void DoSafetyChecks()
-        {
-            // if (VNavmesh_IPCSubscriber.Path_GetAlignCamera())
-            // {
-            //     GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
-            //     VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
-            // }
         }
 
         public void Dispose()
