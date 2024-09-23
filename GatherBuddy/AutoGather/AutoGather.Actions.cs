@@ -308,7 +308,7 @@ namespace GatherBuddy.AutoGather
                 UseAction(Actions.Sneak);
                 return false;
             }
-            if (activateTruth && !Player.Status.Any(s => s.StatusId == Actions.Truth.EffectId) && Actions.Truth.QuestID != 0 && QuestManager.IsQuestComplete(Actions.Truth.QuestID))
+            if (activateTruth && !Player.Status.Any(s => s.StatusId == Actions.Truth.EffectId))
             {
                 UseAction(Actions.Truth);
                 return false;
