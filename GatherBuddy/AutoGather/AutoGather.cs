@@ -286,10 +286,11 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (!ActivateGatheringBuffs(targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
+            if (ActivateGatheringBuffs(targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
                 return;
 
-            DoUseConsumablesWithoutCastTime();
+            if (DoUseConsumablesWithoutCastTime())
+                return;
 
             var allPositions = targetInfo.Location.WorldPositions
                 .SelectMany(w => w.Value)

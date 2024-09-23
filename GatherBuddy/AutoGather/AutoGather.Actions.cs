@@ -301,19 +301,19 @@ namespace GatherBuddy.AutoGather
             if (!Player.Status.Any(s => s.StatusId == Actions.Prospect.EffectId) && Player.Level >= Actions.Prospect.MinLevel)
             {
                 UseAction(Actions.Prospect);
-                return false;
+                return true;
             }
             if (!Player.Status.Any(s => s.StatusId == Actions.Sneak.EffectId) && Player.Level >= Actions.Sneak.MinLevel)
             {
                 UseAction(Actions.Sneak);
-                return false;
+                return true;
             }
             if (activateTruth && !Player.Status.Any(s => s.StatusId == Actions.Truth.EffectId))
             {
                 UseAction(Actions.Truth);
-                return false;
+                return true;
             }
-            return true;
+            return false;
         }
     }
 }
