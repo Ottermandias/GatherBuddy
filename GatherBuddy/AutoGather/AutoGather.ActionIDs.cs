@@ -58,13 +58,14 @@ public partial class AutoGather
             }
         }
 
-        public static readonly BaseAction Prospect      = new(  210,   227,   217,   225);
+        public static readonly BaseAction Prospect      = new(  210,   227,   217, 225);
         public static readonly BaseAction Sneak         = new(  304,   303,    47);
         public static readonly BaseAction TwelvesBounty = new(  282,   280,   825, type: EffectType.CrystalsYield);
         public static readonly BaseAction Bountiful     = new( 4087,  4073,   756, type: EffectType.Yield);
         public static readonly BaseAction SolidAge      = new(  215,   232,  2765, type: EffectType.Integrity);
         public static readonly BaseAction Yield1        = new(  222,   239,   219, type: EffectType.Yield);
         public static readonly BaseAction Yield2        = new(  224,   241,   219, type: EffectType.Yield);
+        public static readonly BaseAction Truth         = new(  221,   238,   221, 222);
         public static readonly BaseAction Collect       = new(  815,   240);
         public static readonly BaseAction Scour         = new(22186, 22182);
         public static readonly BaseAction Brazen        = new(22187, 22183);

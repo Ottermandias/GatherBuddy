@@ -295,5 +295,25 @@ namespace GatherBuddy.AutoGather
                 return 1;
             }
         }
+
+        private bool ActivateGatheringBuffs(bool activateTruth)
+        {
+            if (!Player.Status.Any(s => s.StatusId == Actions.Prospect.EffectId) && Player.Level >= Actions.Prospect.MinLevel)
+            {
+                UseAction(Actions.Prospect);
+                return false;
+            }
+            if (!Player.Status.Any(s => s.StatusId == Actions.Sneak.EffectId) && Player.Level >= Actions.Sneak.MinLevel)
+            {
+                UseAction(Actions.Sneak);
+                return false;
+            }
+            if (activateTruth && !Player.Status.Any(s => s.StatusId == Actions.Truth.EffectId) && Actions.Truth.QuestID != 0 && QuestManager.IsQuestComplete(Actions.Truth.QuestID))
+            {
+                UseAction(Actions.Truth);
+                return false;
+            }
+            return true;
+        }
     }
 }
