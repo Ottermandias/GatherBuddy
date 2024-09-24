@@ -111,7 +111,7 @@ namespace GatherBuddy.AutoGather
 
             try
             {
-                if (!NavReady && Enabled)
+                if (!NavReady)
                 {
                     AutoStatus = "Waiting for Navmesh...";
                     return;
@@ -121,13 +121,6 @@ namespace GatherBuddy.AutoGather
             {
                 //GatherBuddy.Log.Error(e.Message);
                 AutoStatus = "vnavmesh communication failed. Do you have it installed??";
-                return;
-            }
-
-            if (_movementController.Enabled)
-            {
-                AutoStatus = $"Advanced unstuck in progress!";
-                AdvancedUnstuckCheck();
                 return;
             }
 
@@ -203,21 +196,30 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (IsPathGenerating)
+            //Cache IPC call results
+            var isPathGenerating = IsPathGenerating;
+            var isPathing = IsPathing;
+
+            if (AdvancedUnstuckCheck(isPathGenerating, isPathing))
+            {
+                AutoStatus = $"Advanced unstuck in progress!";
+                return;
+            }
+
+            if (isPathGenerating)
             {
                 AutoStatus = "Generating path...";
-                advancedLastMovementTime = DateTime.Now;
+                advandedLastPosition = null;
                 lastMovementTime = DateTime.Now;
                 return;
             }
 
-            if (IsPathing)
+            if (isPathing)
             {
                 StuckCheck();
-                AdvancedUnstuckCheck();
             }
 
-            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !IsPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
+            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !isPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
             {
                 DoMateriaExtraction();
                 return;
