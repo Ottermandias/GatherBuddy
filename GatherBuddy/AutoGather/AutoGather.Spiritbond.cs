@@ -2,8 +2,7 @@ using Dalamud.Game.ClientState.Conditions;
 using ECommons.Automation;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using FFXIVClientStructs.FFXIV.Client.UI;
-using GatherBuddy.Plugin;
+using static ECommons.UIHelpers.AddonMasterImplementations.AddonMaster;
 
 namespace GatherBuddy.AutoGather;
 
@@ -37,20 +36,20 @@ public partial class AutoGather
     {
         if (MaterializeAddon == null)
         {
-            TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
-            TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
+            TaskManager.Enqueue(StopNavigation);
             TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
             TaskManager.Enqueue(() => MaterializeAddon != null);
             return;
         }
 
-        TaskManager.Enqueue(() => Callback.Fire(&MaterializeAddon->AtkUnitBase, true, 2, 0));
-        TaskManager.DelayNext(1000);
+        TaskManager.Enqueue(() => { if (MaterializeAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, 2, 0); });
+        TaskManager.Enqueue(() => MaterializeDialogAddon != null, 1000);
+        TaskManager.Enqueue(() => { if (MaterializeDialogAddon is var addon and not null) new MaterializeDialog(addon).Materialize(); });
         TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39]);
 
         if (SpiritBondMax == 1) 
         {
-            TaskManager.Enqueue(() => MaterializeAddon == null || MaterializeAddon->Close(true));
+            TaskManager.Enqueue(() => { if (MaterializeAddon is var addon and not null) addon->Close(true); });
         }
     }
 }

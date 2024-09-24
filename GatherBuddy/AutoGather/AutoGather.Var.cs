@@ -191,13 +191,16 @@ namespace GatherBuddy.AutoGather
         }
 
         public unsafe AddonGathering* GatheringAddon
-            => (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering", 1);
+            => (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering");
 
         public unsafe AddonGatheringMasterpiece* MasterpieceAddon
-            => (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
+            => (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece");
 
         public unsafe AddonMaterializeDialog* MaterializeAddon
-            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize", 1);
+            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize");
+
+        public unsafe AddonMaterializeDialog* MaterializeDialogAddon
+            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("MaterializeDialog");
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
             => ItemsToGather.Where(i => i.Location?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);

@@ -80,8 +80,8 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
 
         public static void DrawMaterialExtraction()
-            => DrawCheckbox("Enable materia Extraction",
-                "You need YesAlready installed with : Bothers -> MaterializeDialog",
+            => DrawCheckbox("Enable materia extraction",
+                "Automatically extract materia from items with a complete spiritbond",
                 GatherBuddy.Config.AutoGatherConfig.DoMaterialize,
                 b => GatherBuddy.Config.AutoGatherConfig.DoMaterialize = b);
 
