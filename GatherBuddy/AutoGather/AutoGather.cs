@@ -11,7 +11,6 @@ using GatherBuddy.AutoGather.Movement;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
-using HousingManager = GatherBuddy.SeFunctions.HousingManager;
 using ECommons.Throttlers;
 using ObjectKind = Dalamud.Game.ClientState.Objects.Enums.ObjectKind;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -19,6 +18,7 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Game.Text;
 using Dalamud.Utility;
+using ECommons.ExcelServices;
 
 namespace GatherBuddy.AutoGather
 {
@@ -213,7 +213,11 @@ namespace GatherBuddy.AutoGather
                 StuckCheck();
             }
 
-            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !isPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
+            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize 
+                && Player.Job is Job.BTN or Job.MIN
+                && !isPathing 
+                && !Svc.Condition[ConditionFlag.Mounted] 
+                && SpiritBondMax > 0)
             {
                 DoMateriaExtraction();
                 return;
