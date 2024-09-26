@@ -122,7 +122,8 @@ namespace GatherBuddy.AutoGather
         public string AutoStatus { get; set; } = "Idle";
         public int LastCollectability = 0;
         public int LastIntegrity = 0;
-        public BitVector32 LuckUsed;
+        private BitVector32 LuckUsed;
+        private bool WentHome;
 
         public readonly List<GatherInfo> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];

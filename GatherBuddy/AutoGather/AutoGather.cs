@@ -67,7 +67,8 @@ namespace GatherBuddy.AutoGather
                 }
                 else
                 {
-                    RefreshNextTresureMapAllowance();
+                    RefreshNextTresureMapAllowance();                    
+                    WentHome = true; //Prevents going home right after enabling auto-gather
                 }
 
                 _enabled = value;
@@ -76,23 +77,16 @@ namespace GatherBuddy.AutoGather
 
         public void GoHome()
         {
-            if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle || !CanAct)
+            StopNavigation();
+
+            if (WentHome) return;
+            WentHome = true;
+
+            if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
                 return;
 
-            if (HousingManager.IsInHousing() || Lifestream_IPCSubscriber.IsBusy())
-            {
-                return;
-            }
-
-            if (Lifestream_IPCSubscriber.IsEnabled)
-            {
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(() => Lifestream_IPCSubscriber.ExecuteCommand("auto"));
-                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.DelayNext(1000);
-            }
+            if (Lifestream_IPCSubscriber.IsEnabled && !Lifestream_IPCSubscriber.IsBusy())
+                Lifestream_IPCSubscriber.ExecuteCommand("auto");
             else 
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
@@ -272,6 +266,10 @@ namespace GatherBuddy.AutoGather
                 RefreshNextTresureMapAllowance();
                 return;
             }
+
+            //At this point, we are definitely going to gather something, so we may go home after that.
+            if (Lifestream_IPCSubscriber.IsEnabled) Lifestream_IPCSubscriber.Abort();
+            WentHome = false;
 
             if (targetInfo.Location.Territory.Id != Svc.ClientState.TerritoryType || !LocationMatchesJob(targetInfo.Location))
             {
