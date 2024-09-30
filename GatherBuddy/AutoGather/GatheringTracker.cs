@@ -193,7 +193,7 @@ namespace GatherBuddy.AutoGather
                 else
                     LogUnexpectedValue(values, n);
                 n = 6 + i * 11 + 10;//2=collectable
-                if (values[n].Type == ValueType.UInt || !(values[n].UInt is 0 or 2))
+                if (values[n].Type == ValueType.UInt && values[n].UInt is 0 or 2)
                     Collectable[1 << i] = values[n].UInt == 2;
                 else
                     LogUnexpectedValue(values, n);
