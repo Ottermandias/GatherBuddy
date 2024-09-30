@@ -50,27 +50,21 @@ namespace GatherBuddy.AutoGather
         /// <summary>
         /// Checks if desired item could or should be gathered and may change it to something more suitable
         /// </summary>
-        /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather some unneeded junk
+        /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather collectable or some unneeded junk
         /// Slot: ItemSlot of item to gather</returns>
         private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? desiredItem)
         {
+            //Gather crystals when using The Giving Land
+            if (HasGivingLandBuff)
+            {
+                var crystal = GetAnyCrystalInNode();
+                if (crystal != null)
+                    return (true, crystal);
+            }
+
             var aviable = NodeTarcker.Aviable
                 .Where(CheckItemOvercap)
                 .ToList();
-
-            var crystals = aviable
-                .Where(s => s.Item.IsCrystal)
-                //Prioritize crystals in the gathering list
-                .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
-                //Prioritize crystals with a lower amount in the inventory
-                .ThenBy(s => InventoryCount(s.Item))
-                .ToList();
-
-            //Gather crystals when using The Giving Land
-            if (crystals.Count != 0 && (HasGivingLandBuff || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && ShouldUseGivingLand(crystals[0])))
-            {
-                return (true, crystals[0]);
-            }
 
             var shouldGather = aviable
                 //Item is in gathering list
@@ -86,12 +80,13 @@ namespace GatherBuddy.AutoGather
                     if (InventoryCount(desiredItem) < QuantityTotal(desiredItem))
                     {
                         //The desired item is found in the node, would not overcap and we need to gather more of it
-                        return (true, orig);
+                        return (!orig.Collectable, orig);
                     }
                     else
                     {
                         //If we have gathered enough of the current item and there is another item in the node that we want, gather it instead
-                        return (true, shouldGather.FirstOrDefault(orig));
+                        var other = shouldGather.FirstOrDefault(orig);
+                        return (!other.Collectable, other);
                     }
                 }
             }
@@ -99,12 +94,14 @@ namespace GatherBuddy.AutoGather
             var slot = shouldGather.FirstOrDefault();
             if (slot != null)
             {
-                return (true, slot);
+                return (!slot.Collectable, slot);
             }
+
             //Otherwise gather any crystals
-            if (crystals.Count != 0)
+            slot = GetAnyCrystalInNode();
+            if (slot != null)
             {
-                return (false, crystals[0]);
+                return (false, slot);
             }
             //If there are no crystals, gather anything which is not treasure map nor collectable
             slot = aviable.Where(s => !s.Item.IsTreasureMap && !s.Collectable).FirstOrDefault();
@@ -125,6 +122,18 @@ namespace GatherBuddy.AutoGather
             if (s.Item.IsCrystal && InventoryCount(s.Item) > 9999 - s.Yield)
                 return false;
             return true;
+        }
+        
+        private ItemSlot? GetAnyCrystalInNode()
+        {
+            return NodeTarcker.Aviable
+                .Where(s => s.Item.IsCrystal)
+                .Where(CheckItemOvercap)
+                //Prioritize crystals in the gathering list
+                .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
+                //Prioritize crystals with a lower amount in the inventory
+                .ThenBy(s => InventoryCount(s.Item))
+                .FirstOrDefault();
         }
     }
 }

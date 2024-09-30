@@ -165,10 +165,7 @@ namespace GatherBuddy.AutoGather
             }
             else if (GatheringAddon != null && NodeTarcker.Ready)
             {
-                if (desiredItem?.ItemData.IsCollectable == true)
-                    EnqueueGatherItem(GetItemSlotToGather(desiredItem).Slot);
-                else
-                    DoGatherWindowActions(desiredItem);
+                DoGatherWindowActions(desiredItem);
             }
             if (MasterpieceAddon == null)
                 CurrentRotation = null;
@@ -178,22 +175,19 @@ namespace GatherBuddy.AutoGather
         {
             if (LuckUsed[1] && !LuckUsed[2] && NodeTarcker.Revisit) LuckUsed = new(0);
 
+            //Use The Giving Land out of order to gather random crystals.
+            if (ShouldUseGivingLandOutOfOrder())
+            {
+                EnqueueGatherAction(() => UseAction(Actions.GivingLand));
+                return;
+            }
+
             if (!HasGivingLandBuff && ShouldUseLuck(desiredItem))
             {
-                var wouldUseGivingLand = GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown;
-                if (wouldUseGivingLand)
-                {
-                    var anyCrystall = NodeTarcker.Aviable.Where(s => s.Item.IsCrystal).OrderBy(s => InventoryCount(s.Item)).FirstOrDefault();
-                    if (anyCrystall == null || !ShouldUseGivingLand(anyCrystall))
-                        wouldUseGivingLand = false;
-                }
-                if (!wouldUseGivingLand)
-                {
-                    LuckUsed[1] = true;
-                    LuckUsed[2] = NodeTarcker.Revisit;
-                    EnqueueGatherAction(() => UseAction(Actions.Luck));
-                    return;
-                }
+                LuckUsed[1] = true;
+                LuckUsed[2] = NodeTarcker.Revisit;
+                EnqueueGatherAction(() => UseAction(Actions.Luck));
+                return;
             }
 
             var (useSkills, slot) = GetItemSlotToGather(desiredItem);
@@ -220,6 +214,18 @@ namespace GatherBuddy.AutoGather
             {
                 EnqueueGatherItem(slot);
             }
+        }
+
+        private bool ShouldUseGivingLandOutOfOrder()
+        {
+            if (GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown)
+            {
+                var anyCrystal = GetAnyCrystalInNode();
+                if (anyCrystal != null && ShouldUseGivingLand(anyCrystal))
+                    return true;
+            }
+
+            return false;
         }
 
         private unsafe void UseAction(Actions.BaseAction act)
