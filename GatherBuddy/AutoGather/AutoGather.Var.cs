@@ -14,6 +14,7 @@ using GatherBuddy.Enums;
 using GatherBuddy.Time;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using System.Collections.Specialized;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 
 namespace GatherBuddy.AutoGather
 {
@@ -121,7 +122,8 @@ namespace GatherBuddy.AutoGather
         public string AutoStatus { get; set; } = "Idle";
         public int LastCollectability = 0;
         public int LastIntegrity = 0;
-        public BitVector32 LuckUsed;
+        private BitVector32 LuckUsed;
+        private bool WentHome;
 
         public readonly List<GatherInfo> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];
@@ -190,13 +192,16 @@ namespace GatherBuddy.AutoGather
         }
 
         public unsafe AddonGathering* GatheringAddon
-            => (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering", 1);
+            => (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering");
 
         public unsafe AddonGatheringMasterpiece* MasterpieceAddon
-            => (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
+            => (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece");
 
         public unsafe AddonMaterializeDialog* MaterializeAddon
-            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize", 1);
+            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize");
+
+        public unsafe AddonMaterializeDialog* MaterializeDialogAddon
+            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("MaterializeDialog");
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
             => ItemsToGather.Where(i => i.Location?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
@@ -222,6 +227,8 @@ namespace GatherBuddy.AutoGather
                  || Dalamud.Conditions[ConditionFlag.Occupied39]
                  || Dalamud.Conditions[ConditionFlag.Unconscious]
                  || Dalamud.Conditions[ConditionFlag.Gathering42]
+                 //Node is open? Fades off shortly after closing the node, can't use items (but can mount) while it's set
+                 || Dalamud.Conditions[85] && !Dalamud.Conditions[ConditionFlag.Gathering]
                  || Dalamud.ClientState.LocalPlayer.CurrentHp < 1
                  || Player.IsAnimationLocked)
                     return false;
@@ -270,6 +277,9 @@ namespace GatherBuddy.AutoGather
 
         private static TimeStamp AdjuctedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
+
+        private static unsafe int CharacterGatheringStat
+            => PlayerState.Instance()->Attributes[72];
     }
 
     public record class GatherInfo(Gatherable Item, ILocation? Location, TimeInterval Time)

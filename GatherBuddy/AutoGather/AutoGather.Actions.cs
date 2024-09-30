@@ -6,6 +6,8 @@ using System;
 using System.Linq;
 using Dalamud.Game.ClientState.Conditions;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
+using GatherBuddy.CustomInfo;
+using System.Collections.Generic;
 
 namespace GatherBuddy.AutoGather
 {
@@ -17,115 +19,46 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (LuckUsed[1] || NodeTarcker.HiddenRevealed)
                 return false;
-            if (Player.Level < Actions.Luck.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.Luck.GpCost)
+            if (!CheckConditions(Actions.Luck, GatherBuddy.Config.AutoGatherConfig.LuckConfig, gatherable, false /*not used*/))
                 return false;
             if (!gatherable.GatheringData.IsHidden && !gatherable.IsTreasureMap)
                 return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.LuckConfig.MinimumGP)
-                return false;
-            if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.LuckConfig.MaximumGP)
-                return false;
-            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.LuckConfig, gatherable))
-                return false;
 
-            return GatherBuddy.Config.AutoGatherConfig.LuckConfig.UseAction;
+            return true;
         }
 
-        public bool ShoulduseBYII(ItemSlot slot)
+        public bool ShouldUseBountiful(ItemSlot slot)
         {
-            if (Player.Level < Actions.Bountiful.MinLevel)
+            if (!CheckConditions(Actions.Bountiful, GatherBuddy.Config.AutoGatherConfig.BYIIConfig, slot.Item, slot.Rare))
                 return false;
-            if (Player.Object.CurrentGp < Actions.Bountiful.GpCost)
+            if (Player.Status.Any(s => s.StatusId == Actions.BountifulII.EffectId))
                 return false;
-            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => BountifulYieldStatuses.Contains(s.StatusId)))
-                return false;
-            if (Dalamud.ClientState.LocalPlayer!.CurrentGp < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP)
-                return false;
-            if (Dalamud.ClientState.LocalPlayer!.CurrentGp > GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP)
-                return false;
-            if (slot.Item.IsCrystal && !GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<bool>("UseWithCystals"))
-                return false;
-            if (slot.Rare)
-                return false;
-            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.BYIIConfig, slot.Item))
+            if (CalculateBountifulBonus(slot.Item) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<int>("MinimumIncrease"))
                 return false;
 
-            return GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction;
+            return true;
         }
-
-        public uint[] KingsYieldStatuses =
-        [
-            219, //KYI and KYII
-        ];
-
-        public uint[] BountifulYieldStatuses =
-        [
-            756,  //BYI?
-            1286, //BYII
-        ];
-
         public bool ShouldUseKingII(ItemSlot slot)
         {
-            if (Player.Level < Actions.Yield2.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.Yield2.GpCost)
-                return false;
-            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
-                return false;
-            if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MaximumGP
-             || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.MinimumGP)
-                return false;
-            if (slot.Item.IsCrystal && !GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.GetOptionalProperty<bool>("UseWithCystals"))
-                return false;
-            if (slot.Rare)
-                return false;
-            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.YieldIIConfig, slot.Item))
+            if (!CheckConditions(Actions.Yield2, GatherBuddy.Config.AutoGatherConfig.YieldIIConfig, slot.Item, slot.Rare))
                 return false;
 
-            return GatherBuddy.Config.AutoGatherConfig.YieldIIConfig.UseAction;
+            return true;
         }
 
         public bool ShouldUseKingI(ItemSlot slot)
         {
-            if (Player.Level < Actions.Yield1.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.Yield1.GpCost)
-                return false;
-            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => KingsYieldStatuses.Contains(s.StatusId)))
-                return false;
-            if (Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MaximumGP
-             || Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.YieldIConfig.MinimumGP)
-                return false;
-            if (slot.Item.IsCrystal && !GatherBuddy.Config.AutoGatherConfig.YieldIConfig.GetOptionalProperty<bool>("UseWithCystals"))
-                return false;
-            if (slot.Rare)
-                return false;
-            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.YieldIConfig, slot.Item))
+            if (!CheckConditions(Actions.Yield1, GatherBuddy.Config.AutoGatherConfig.YieldIConfig, slot.Item, slot.Rare))
                 return false;
 
-            return GatherBuddy.Config.AutoGatherConfig.YieldIConfig.UseAction;
+            return true;
         }
 
         private bool ShouldUseGivingLand(ItemSlot slot)
         {
-            if (!slot.Item.IsCrystal)
-                return false;
-            if (!GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.UseAction)
-                return false;
-            if (Player.Level < Actions.GivingLand.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.GivingLand.GpCost)
-                return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.GivingLandConfig.MaximumGP)
-                return false;
-            if (HasGivingLandBuff)
+            if (!CheckConditions(Actions.GivingLand, GatherBuddy.Config.AutoGatherConfig.GivingLandConfig, slot.Item, slot.Rare))
                 return false;
             if (!IsGivingLandOffCooldown)
-                return false;
-            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.GivingLandConfig, slot.Item))
                 return false;
             if (InventoryCount(slot.Item) > 9999 - GivingLandYeild - slot.Yield)
                 return false;
@@ -135,20 +68,7 @@ namespace GatherBuddy.AutoGather
 
         private unsafe bool ShouldUseTwelvesBounty(ItemSlot slot)
         {
-            if (!slot.Item.IsCrystal)
-                return false;
-            if (!GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.UseAction)
-                return false;
-            if (Player.Level < Actions.TwelvesBounty.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.TwelvesBounty.GpCost)
-                return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig.MaximumGP)
-                return false;
-            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == 825))
-                return false;
-            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig, slot.Item))
+            if (!CheckConditions(Actions.TwelvesBounty, GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig, slot.Item, slot.Rare))
                 return false;
             if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYeild : 0))
                 return false;
@@ -205,7 +125,7 @@ namespace GatherBuddy.AutoGather
                     EnqueueGatherAction(() => UseAction(Actions.Yield2));
                 else if (ShouldUseKingI(slot))
                     EnqueueGatherAction(() => UseAction(Actions.Yield1));
-                else if (ShoulduseBYII(slot))
+                else if (ShouldUseBountiful(slot))
                     EnqueueGatherAction(() => UseAction(Actions.Bountiful));
                 else
                     EnqueueGatherItem(slot);
@@ -281,142 +201,125 @@ namespace GatherBuddy.AutoGather
                 LastIntegrity      = integrity;
 
                 var collectibleAction = CurrentRotation.GetNextAction(MasterpieceAddon);
-                if (collectibleAction == null)
-                {
-                    GatherBuddy.Log.Debug("Collectible action was null, all actions are disabled by user");
-                    return;
-                }
 
-                EnqueueGatherAction(() => { UseAction(collectibleAction); }, 250);
+                EnqueueGatherAction(() => { UseAction(collectibleAction); });
             }
         }
 
         private static bool ShouldUseWise(int integrity, int maxIntegrity)
         {
+            if (integrity == maxIntegrity)
+                return false;
             if (Player.Level < Actions.Wise.MinLevel)
                 return false;
-            if (Player.Object.CurrentGp < Actions.Wise.GpCost)
-                return false;
-
-            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == 2765) && integrity < maxIntegrity)
-                return true;
-
-            return false;
-        }
-
-
-        private static bool ShouldUseMeticulous()
-        {
-            if (Player.Level < Actions.Meticulous.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.Meticulous.GpCost)
-                return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.MaximumGP)
-                return false;
-
-            return GatherBuddy.Config.AutoGatherConfig.MeticulousConfig.UseAction;
-        }
-
-        private static bool ShouldUseScour()
-        {
-            if (Player.Level < Actions.Brazen.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.Brazen.GpCost)
-                return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.ScourConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScourConfig.MaximumGP)
-                return false;
-
-            return GatherBuddy.Config.AutoGatherConfig.ScourConfig.UseAction;
-        }
-
-        private static bool ShouldUseBrazen()
-        {
-            if (Player.Level < Actions.Meticulous.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.Meticulous.GpCost)
-                return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.BrazenConfig.MaximumGP)
-                return false;
-
-            return GatherBuddy.Config.AutoGatherConfig.BrazenConfig.UseAction;
-        }
-
-        private static bool ShouldUseScrutiny()
-        {
-            if (Player.Level < Actions.Scrutiny.MinLevel)
-                return false;
-            if (Player.Object.CurrentGp < Actions.Scrutiny.GpCost)
-                return false;
-            if (Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MinimumGP
-             || Player.Object.CurrentGp > GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.MaximumGP)
-                return false;
-            if (!Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == 757))
-                return GatherBuddy.Config.AutoGatherConfig.ScrutinyConfig.UseAction;
-
-            return false;
-        }
-
-        private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity)
-            => ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeCollectablesConfig, integrity, maxIntegrity);
-
-        private bool ShouldUseSolidAgeGatherables(ItemSlot slot)
-        {
-            if (slot.Yield < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
-                return false;
-            if (slot.Item.IsCrystal && !GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<bool>("UseWithCystals"))
-                return false;
-            if (!CheckConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, slot.Item))
-                return false;
-
-            if (!ShouldUseSolidAge(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, NodeTarcker.Integrity, NodeTarcker.MaxIntegrity))
+            if (!Player.Status.Any(s => s.StatusId == Actions.SolidAge.EffectId))
                 return false;
 
             return true;
         }
 
-        private static bool ShouldUseSolidAge(AutoGatherConfig.ActionConfig SolidAgeConfig, int integrity, int maxIntegrity)
+        private bool ShouldUseSolidAgeGatherables(ItemSlot slot)
         {
-            if (Player.Level < Actions.SolidAge.MinLevel)
+            if (!CheckConditions(Actions.SolidAge, GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, slot.Item, slot.Rare))
                 return false;
-            if (Player.Object.CurrentGp < Actions.SolidAge.GpCost)
+            var yield = slot.Yield;
+            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == Actions.Bountiful.EffectId))
+                yield -= 1;
+            if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == Actions.BountifulII.EffectId))
+                yield -= CalculateBountifulBonus(slot.Item);
+            if (yield < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
                 return false;
-            if (Player.Object.CurrentGp < SolidAgeConfig.MinimumGP
-             || Player.Object.CurrentGp > SolidAgeConfig.MaximumGP)
-                return false;
-            if (!Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == 2765) && integrity < maxIntegrity)
-                return SolidAgeConfig.UseAction;
 
-            return false;
+            return true;
         }
 
-        private unsafe bool CheckConditions(AutoGatherConfig.ActionConfig config, Gatherable item)
+        private bool CheckConditions(Actions.BaseAction action, AutoGatherConfig.ActionConfig config, Gatherable item, bool rare)
         {
-            if (!config.Conditions.UseConditions)
-                return true;
-
-            if (config.Conditions.RequiredIntegrity > NodeTarcker.MaxIntegrity)
+            if (config.UseAction == false)
+                return false;
+            if (Player.Level < action.MinLevel)
+                return false;
+            if (Player.Object.CurrentGp < action.GpCost)
+                return false;
+            if (Player.Object.CurrentGp < config.MinimumGP)
+                return false;
+            if (Player.Object.CurrentGp > config.MaximumGP)
+                return false;
+            if (action.EffectId != 0 && Player.Status.Any(s => s.StatusId == action.EffectId))
+                return false;
+            if (action.QuestID != 0 && !QuestManager.IsQuestComplete(action.QuestID))
+                return false; 
+            if (item.IsCrystal && config.TryGetOptionalProperty<bool>("UseWithCystals", out var useWithCystals) && !useWithCystals)
+                return false;
+            if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
+                return false;
+            if (action.EffectType is Actions.EffectType.Integrity && NodeTarcker.Integrity == NodeTarcker.MaxIntegrity)
+                return false;
+            if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && rare)
                 return false;
 
-            if (config.Conditions.UseOnlyOnFirstStep && NodeTarcker.Touched)
-                return false;
-
-            if (config.Conditions.FilterNodeTypes)
+            if (config.Conditions.UseConditions)
             {
-                var node = config.Conditions.NodeFilter.GetNodeConfig(item.NodeType);
 
-                if (!node.Use || item.Level < node.NodeLevel && !(node.AvoidCap && IsGpMax))
+                if (config.Conditions.RequiredIntegrity > NodeTarcker.MaxIntegrity)
                     return false;
+                if (config.Conditions.UseOnlyOnFirstStep && NodeTarcker.Touched)
+                    return false;
+
+                if (config.Conditions.FilterNodeTypes)
+                {
+                    var node = config.Conditions.NodeFilter.GetNodeConfig(item.NodeType);
+
+                    if (!node.Use || item.Level < node.NodeLevel && !(node.AvoidCap && Player.Object.CurrentGp == Player.Object.MaxGp))
+                        return false;
+                }
             }
 
             return true;
         }
 
-        private static bool IsGpMax
-            => Dalamud.ClientState.LocalPlayer?.CurrentGp == Dalamud.ClientState.LocalPlayer?.MaxGp;
+        private static int CalculateBountifulBonus(Gatherable item)
+        {
+            if (!QuestManager.IsQuestComplete(Actions.BountifulII.QuestID))
+                return 1;
+            
+            try
+            {
+                var glvl = item.GatheringData.GatheringItemLevel.Row;
+                var baseValue = WorldData.BaseGathering[glvl];
+                var stat = CharacterGatheringStat;
 
-        private const int ActionCooldown = 2000;
+                if (stat >= (int)(baseValue * 1.1))
+                    return 3;
+                if (stat >= (int)(baseValue * 0.9))
+                    return 2;
+
+                return 1;
+            }
+            catch (KeyNotFoundException)
+            {
+                return 1;
+            }
+        }
+
+        private bool ActivateGatheringBuffs(bool activateTruth)
+        {
+            if (!Player.Status.Any(s => s.StatusId == Actions.Prospect.EffectId) && Player.Level >= Actions.Prospect.MinLevel)
+            {
+                UseAction(Actions.Prospect);
+                return true;
+            }
+            if (!Player.Status.Any(s => s.StatusId == Actions.Sneak.EffectId) && Player.Level >= Actions.Sneak.MinLevel)
+            {
+                UseAction(Actions.Sneak);
+                return true;
+            }
+            if (activateTruth && !Player.Status.Any(s => s.StatusId == Actions.Truth.EffectId))
+            {
+                UseAction(Actions.Truth);
+                return true;
+            }
+            return false;
+        }
     }
 }

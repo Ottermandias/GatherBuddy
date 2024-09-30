@@ -11,11 +11,14 @@ using GatherBuddy.AutoGather.Movement;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
-using HousingManager = GatherBuddy.SeFunctions.HousingManager;
 using ECommons.Throttlers;
 using ObjectKind = Dalamud.Game.ClientState.Objects.Enums.ObjectKind;
-using GatherBuddy.Interfaces;
-using GatherBuddy.Time;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Game.Text.SeStringHandling.Payloads;
+using Dalamud.Game.Text;
+using Dalamud.Utility;
+using ECommons.ExcelServices;
 
 namespace GatherBuddy.AutoGather
 {
@@ -64,7 +67,8 @@ namespace GatherBuddy.AutoGather
                 }
                 else
                 {
-                    RefreshNextTresureMapAllowance();
+                    RefreshNextTresureMapAllowance();                    
+                    WentHome = true; //Prevents going home right after enabling auto-gather
                 }
 
                 _enabled = value;
@@ -73,28 +77,22 @@ namespace GatherBuddy.AutoGather
 
         public void GoHome()
         {
-            if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle || !CanAct)
+            StopNavigation();
+
+            if (WentHome) return;
+            WentHome = true;
+
+            if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
                 return;
 
-            if (HousingManager.IsInHousing() || Lifestream_IPCSubscriber.IsBusy())
-            {
-                return;
-            }
-
-            if (Lifestream_IPCSubscriber.IsEnabled)
-            {
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Nav_PathfindCancelAll);
-                TaskManager.Enqueue(VNavmesh_IPCSubscriber.Path_Stop);
-                TaskManager.Enqueue(() => Lifestream_IPCSubscriber.ExecuteCommand("auto"));
-                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.DelayNext(1000);
-            }
+            if (Lifestream_IPCSubscriber.IsEnabled && !Lifestream_IPCSubscriber.IsBusy())
+                Lifestream_IPCSubscriber.ExecuteCommand("auto");
             else 
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
         private class NoGatherableItemsInNodeExceptions : Exception { }
+        private class NoColectableActionsExceptions : Exception { }
         public void DoAutoGather()
         {
             if (!IsGathering)
@@ -107,7 +105,7 @@ namespace GatherBuddy.AutoGather
 
             try
             {
-                if (!NavReady && Enabled)
+                if (!NavReady)
                 {
                     AutoStatus = "Waiting for Navmesh...";
                     return;
@@ -120,14 +118,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (_movementController.Enabled)
-            {
-                AutoStatus = $"Advanced unstuck in progress!";
-                AdvancedUnstuckCheck();
-                return;
-            }
-
-            DoSafetyChecks();
             if (TaskManager.IsBusy)
             {
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
@@ -162,7 +152,7 @@ namespace GatherBuddy.AutoGather
                     {
                         FarNodesSeenSoFar.Clear();
                         VisitedNodes.AddLast(target.Position);
-                        while (VisitedNodes.Count > (targetInfo.Item.NodeType == NodeType.Regular ? 4 : 2))
+                        while (VisitedNodes.Count > (targetInfo.Location.WorldPositions.Count == 3 ? 2 : 4))
                             VisitedNodes.RemoveFirst();
                     }
                 }
@@ -189,27 +179,45 @@ namespace GatherBuddy.AutoGather
                             CloseGatheringAddons();
                         }
                     }
+                    catch (NoColectableActionsExceptions)
+                    {
+                        Communicator.PrintError("Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
+                        AbortAutoGather();
+                    }
                     return;
                 }
 
                 return;
             }
 
-            if (IsPathGenerating)
+            //Cache IPC call results
+            var isPathGenerating = IsPathGenerating;
+            var isPathing = IsPathing;
+
+            if (AdvancedUnstuckCheck(isPathGenerating, isPathing))
+            {
+                AutoStatus = $"Advanced unstuck in progress!";
+                return;
+            }
+
+            if (isPathGenerating)
             {
                 AutoStatus = "Generating path...";
-                advancedLastMovementTime = DateTime.Now;
+                advandedLastPosition = null;
                 lastMovementTime = DateTime.Now;
                 return;
             }
 
-            if (IsPathing)
+            if (isPathing)
             {
                 StuckCheck();
-                AdvancedUnstuckCheck();
             }
 
-            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize && !IsPathing && !Svc.Condition[ConditionFlag.Mounted] && SpiritBondMax > 0)
+            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize 
+                && Player.Job is Job.BTN or Job.MIN
+                && !isPathing 
+                && !Svc.Condition[ConditionFlag.Mounted] 
+                && SpiritBondMax > 0)
             {
                 DoMateriaExtraction();
                 return;
@@ -263,6 +271,10 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            //At this point, we are definitely going to gather something, so we may go home after that.
+            if (Lifestream_IPCSubscriber.IsEnabled) Lifestream_IPCSubscriber.Abort();
+            WentHome = false;
+
             if (targetInfo.Location.Territory.Id != Svc.ClientState.TerritoryType || !LocationMatchesJob(targetInfo.Location))
             {
                 StopNavigation();
@@ -271,7 +283,18 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            DoUseConsumablesWithoutCastTime();
+            //This check must be done after changing jobs. TODO: check before teleporting
+            if (targetInfo.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked())
+            {
+                AbortAutoGather();
+                return;
+            }
+
+            if (ActivateGatheringBuffs(targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
+                return;
+
+            if (DoUseConsumablesWithoutCastTime())
+                return;
 
             var allPositions = targetInfo.Location.WorldPositions
                 .SelectMany(w => w.Value)
@@ -393,13 +416,54 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private void DoSafetyChecks()
+        private bool CheckCollectablesUnlocked()
         {
-            // if (VNavmesh_IPCSubscriber.Path_GetAlignCamera())
-            // {
-            //     GatherBuddy.Log.Warning("VNavMesh Align Camera Option turned on! Forcing it off for GBR operation.");
-            //     VNavmesh_IPCSubscriber.Path_SetAlignCamera(false);
-            // }
+            if (Player.Level < Actions.Collect.MinLevel)
+            {
+                Communicator.PrintError("You've put a collectable on the gathering list, but your level is not high enough to gather it.");
+                return false;
+            }
+            if (Actions.Collect.QuestID != 0 && !QuestManager.IsQuestComplete(Actions.Collect.QuestID))
+            {
+                Communicator.PrintError("You've put a collectable on the gathering list, but you haven't unlocked the collectables.");
+                var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Quest>()!;
+                var row = sheet.GetRow(Actions.Collect.QuestID)!;
+                var loc = row.IssuerLocation.Value!;
+                var map = loc.Map.Value!;
+                var pos = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
+                var mapPayload = new MapLinkPayload(loc.Territory.Row, loc.Map.Row, pos.X, pos.Y);
+                var text = new SeStringBuilder();
+                text.AddText("Collectables are unlocked by ")
+                    .AddUiForeground(0x0225)
+                    .AddUiGlow(0x0226)
+                    .AddQuestLink(Actions.Collect.QuestID)
+                    .AddUiForeground(500)
+                    .AddUiGlow(501)
+                    .AddText($"{(char)SeIconChar.LinkMarker}")
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText(row.Name)
+                    .Add(RawPayload.LinkTerminator)
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText(" quest, which can be started in ")
+                    .AddUiForeground(0x0225)
+                    .AddUiGlow(0x0226)
+                    .Add(mapPayload)
+                    .AddUiForeground(500)
+                    .AddUiGlow(501)
+                    .AddText($"{(char)SeIconChar.LinkMarker}")
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText($"{mapPayload.PlaceName} {mapPayload.CoordinateString}")
+                    .Add(RawPayload.LinkTerminator)
+                    .AddUiGlowOff()
+                    .AddUiForegroundOff()
+                    .AddText(".");
+                Communicator.Print(text.BuiltString);
+                return false;
+            }
+            return true;
         }
 
         public void Dispose()

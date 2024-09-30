@@ -1,6 +1,6 @@
-using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using Pair = (uint Botanist, uint Miner);
 
 namespace GatherBuddy.AutoGather;
 
@@ -8,43 +8,73 @@ public partial class AutoGather
 {
     public static class Actions
     {
-        public class BaseAction(uint btnId, uint minId, string name, int minLevel, int gpCost)
+        public enum EffectType
         {
-            private uint MinerID  { get; } = minId;
-            private uint BotanyID { get; } = btnId;
-
-            public uint ActionID
+            Other,
+            Yield,
+            BoonYield,
+            CrystalsYield,
+            GatherChance,
+            BoonChance,
+            Integrity
+        }
+        public readonly struct BaseAction
+        {
+            public BaseAction(uint btnActionId, uint minActionId, uint btnEffectId = 0, uint minEffectId = 0, EffectType type = EffectType.Other)
             {
-                get
-                {
-                    switch (Player.Job)
-                    {
-                        case Job.BTN: return BotanyID;
-                        case Job.MIN: return MinerID;
-                    }
+                action = (btnActionId, minActionId);
+                effect = (btnEffectId, minEffectId == 0 ? btnEffectId : minEffectId);
+                EffectType = type;
 
-                    return 0;
-                }
+                var actionsSheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>()!;
+                var botanistRow = actionsSheet.GetRow(action.Botanist)!;
+                var minerRow = actionsSheet.GetRow(action.Miner)!;
+
+                quest.Botanist = botanistRow.UnlockLink;
+                quest.Miner = minerRow.UnlockLink;
+                MinLevel = botanistRow.ClassJobLevel;
+                GpCost = botanistRow.PrimaryCostValue;
             }
+            private readonly Pair action;
+            private readonly Pair quest;
+            private readonly Pair effect;
 
-            public string Name     { get; } = name;
-            public int    MinLevel { get; } = minLevel;
-            public int    GpCost   { get; } = gpCost;
+
+            public uint ActionID => GetJobValue(action);
+            public uint QuestID  => GetJobValue(quest);
+            public uint EffectId => GetJobValue(effect);
+            public int MinLevel { get; }
+            public int GpCost { get; }
+            public EffectType EffectType { get; }
+
+            private static uint GetJobValue(Pair pair)
+            {
+                return Player.Job switch
+                {
+                    Job.BTN => pair.Botanist,
+                    Job.MIN => pair.Miner,
+                    _ => 0
+                };
+            }
         }
 
-        public static BaseAction Sneak         = new BaseAction(304,   303,   "Sneak",          8,  0);
-        public static BaseAction TwelvesBounty = new BaseAction(282,   280,   "Twelves Bounty", 20, 150);
-        public static BaseAction Bountiful     = new BaseAction(273,   4073,  "Bountiful",      24, 100);
-        public static BaseAction SolidAge      = new BaseAction(215,   232,   "SolidAge",       25, 300);
-        public static BaseAction Yield1        = new BaseAction(222,   239,   "Yield 1",        30, 400);
-        public static BaseAction Yield2        = new BaseAction(224,   241,   "Yield 2",        40, 500);
-        public static BaseAction Collect       = new BaseAction(815,   240,   "Collect",        50, 0);
-        public static BaseAction Scour         = new BaseAction(22186, 22182, "Scour",          50, 0);
-        public static BaseAction Brazen        = new BaseAction(22187, 22183, "Brazen",         50, 0);
-        public static BaseAction Meticulous    = new BaseAction(22188, 22184, "Meticulous",     50, 0);
-        public static BaseAction Scrutiny      = new BaseAction(22189, 22185, "Scrutiny",       50, 200);
-        public static BaseAction Luck          = new BaseAction(4095,  4081,  "Luck",           55, 200);
-        public static BaseAction Wise          = new BaseAction(26522, 26521, "Wise",           90, 0);
-        public static BaseAction GivingLand    = new BaseAction(4590,  4589,  "GivingLand",     74, 200);
+        public static readonly BaseAction Prospect      = new(  210,   227,   217, 225);
+        public static readonly BaseAction Sneak         = new(  304,   303,    47);
+        public static readonly BaseAction TwelvesBounty = new(  282,   280,   825, type: EffectType.CrystalsYield);
+        public static readonly BaseAction Bountiful     = new( 4087,  4073,   756, type: EffectType.Yield);
+        public static readonly BaseAction SolidAge      = new(  215,   232,  2765, type: EffectType.Integrity);
+        public static readonly BaseAction Yield1        = new(  222,   239,   219, type: EffectType.Yield);
+        public static readonly BaseAction Yield2        = new(  224,   241,   219, type: EffectType.Yield);
+        public static readonly BaseAction Truth         = new(  221,   238,   221, 222);
+        public static readonly BaseAction Collect       = new(  815,   240);
+        public static readonly BaseAction Scour         = new(22186, 22182);
+        public static readonly BaseAction Brazen        = new(22187, 22183);
+        public static readonly BaseAction Meticulous    = new(22188, 22184);
+        public static readonly BaseAction Scrutiny      = new(22189, 22185,    757);
+        public static readonly BaseAction Luck          = new( 4095,  4081);
+        public static readonly BaseAction BountifulII   = new(  273,   272,   1286, type: EffectType.Yield);
+        public static readonly BaseAction GivingLand    = new( 4590,  4589,   1802, type: EffectType.CrystalsYield);
+        public static readonly BaseAction Wise          = new(26522, 26521,         type: EffectType.Integrity);
+
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -14,7 +15,7 @@ namespace GatherBuddy.AutoGather
         public uint                            AutoGatherMountId             { get; set; } = 1;
         public Dictionary<uint, List<Vector3>> BlacklistedNodesByTerritoryId { get; set; } = new();
 
-        public ActionConfig BYIIConfig    { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false } });
+        public ActionConfig BYIIConfig    { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false }, { "MinimumIncrease", 1 } });
         public ActionConfig LuckConfig    { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
         public ActionConfig YieldIIConfig { get; set; } = new(true, 500, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false } });
         public ActionConfig YieldIConfig  { get; set; } = new(true, 400, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false } });
@@ -37,9 +38,6 @@ namespace GatherBuddy.AutoGather
         public ActionConfig SolidAgeGatherablesConfig { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue,
             new ActionConditions(), new Dictionary<string, object> { { "MinimumYield", (uint)1 }, { "UseWithCystals", false } });
 
-        public ActionConfig CollectConfig { get; set; } =
-            new(true, (uint)AutoGather.Actions.Collect.GpCost, uint.MaxValue, new ActionConditions());
-
         public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
         public int TimedNodePrecog { get; set; } = 20;
         public bool DoGathering { get; set; } = true;
@@ -55,7 +53,7 @@ namespace GatherBuddy.AutoGather
         public uint MinimumCollectibilityScore { get; set; } = 1000;
         public bool GatherIfLastIntegrity { get; set; } = false;
         public uint GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
-        public bool UseExperimentalUnstuck { get; set; } = false;
+        public bool UseExperimentalUnstuck { get; set; } = true;
         public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
         public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
         public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);
@@ -103,11 +101,21 @@ namespace GatherBuddy.AutoGather
                 }
             }
 
+            public bool TryGetOptionalProperty<T>(string key, [MaybeNullWhen(false)] out T value)
+            {
+                if (OptionalProperties.TryGetValue(key, out var _value))
+                {
+                    value = (T)Convert.ChangeType(_value, typeof(T));
+                    return true;
+                }
+                value = default;
+                return false;
+            }
             public T GetOptionalProperty<T>(string key)
             {
-                if (OptionalProperties.TryGetValue(key, out var value))
+                if (TryGetOptionalProperty<T>(key, out var value))
                 {
-                    return (T)Convert.ChangeType(value, typeof(T));
+                    return value;
                 }
 
                 throw new KeyNotFoundException($"Optional property with key '{key}' not found.");

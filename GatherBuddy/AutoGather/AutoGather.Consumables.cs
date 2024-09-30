@@ -184,7 +184,7 @@ namespace GatherBuddy.AutoGather
         }
 
         // Cordial, food and potion have no cast time and can be used while mounted
-        private void DoUseConsumablesWithoutCastTime()
+        private bool DoUseConsumablesWithoutCastTime()
         {
             // Check if consumables need to be refreshed every 5 seconds
             // Give sufficient time for buffs to activate otherwise items could be used multiple times and wasted
@@ -199,7 +199,7 @@ namespace GatherBuddy.AutoGather
                 )
                 {
                     TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
-                    return;
+                    return true;
                 }
 
                 if (GatherBuddy.Config.AutoGatherConfig.FoodConfig.UseConsumable
@@ -209,7 +209,7 @@ namespace GatherBuddy.AutoGather
                     )
                 {
                     TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
-                    return;
+                    return true;
                 }
 
                 if (GatherBuddy.Config.AutoGatherConfig.PotionConfig.UseConsumable
@@ -219,9 +219,10 @@ namespace GatherBuddy.AutoGather
                     )
                 {
                     TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
-                    return;
+                    return true;
                 }
             }
+            return false;
         }
 
         // Manuals have cast time and cannot be used while mounted

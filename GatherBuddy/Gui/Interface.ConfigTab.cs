@@ -80,8 +80,8 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
 
         public static void DrawMaterialExtraction()
-            => DrawCheckbox("Enable materia Extraction",
-                "You need YesAlready installed with : Bothers -> MaterializeDialog",
+            => DrawCheckbox("Enable materia extraction",
+                "Automatically extract materia from items with a complete spiritbond",
                 GatherBuddy.Config.AutoGatherConfig.DoMaterialize,
                 b => GatherBuddy.Config.AutoGatherConfig.DoMaterialize = b);
 
@@ -176,13 +176,13 @@ public partial class Interface
         }
 
         public static void DrawBYIIBox()
-            => DrawCheckbox("Use Bountiful Yield/Harvest II", "Toggle whether to use Bountiful Yield/Harvest II for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
+            => DrawCheckbox("Use Bountiful Yield/Harvest", "Toggle whether to use Bountiful Yield/Harvest for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
 
         public static void DrawBYIIMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP;
-            if (ImGui.DragInt("Bountiful Yield/Harvest II Min GP", ref tmp, 1, 100, 30000))
+            if (ImGui.DragInt("Bountiful Yield/Harvest Min GP", ref tmp, 1, 100, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
@@ -192,9 +192,18 @@ public partial class Interface
         public static void DrawBYIIMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP;
-            if (ImGui.DragInt("Bountiful Yield/Harvest II Max GP", ref tmp, 1, 100, 30000))
+            if (ImGui.DragInt("Bountiful Yield/Harvest Max GP", ref tmp, 1, 100, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.BYIIConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+        public static void DrawBYIIMinimumIncrease()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<int>("MinimumIncrease");
+            if (ImGui.DragInt("Minimum yield increase", ref tmp, 0.1f, 1, 3))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BYIIConfig.SetOptionalProperty("MinimumIncrease", tmp);
                 GatherBuddy.Config.Save();
             }
         }
@@ -431,11 +440,6 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.UseAction = b);
 
-        public static void DrawCollectCheckbox()
-            => DrawCheckbox("Use Collect (Collectibles)", "Use Collect to gather collectibles",
-                GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction,
-                b => GatherBuddy.Config.AutoGatherConfig.CollectConfig.UseAction = b);
-
         public static void DrawMountUpDistance()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
@@ -514,19 +518,9 @@ public partial class Interface
         public static void DrawSolidAgeGatherablesMinYield()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield");
-            if (ImGui.DragInt("Minimum yield", ref tmp, 1, 1, 20))
+            if (ImGui.DragInt("Minimum yield", ref tmp, 0.1f, 1, 20))
             {
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.SetOptionalProperty("MinimumYield", tmp);
-                GatherBuddy.Config.Save();
-            }
-        }
-
-        public static void DrawCollectMaxGp()
-        {
-            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP;
-            if (ImGui.DragInt("Luck Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Collect.GpCost, 30000))
-            {
-                GatherBuddy.Config.AutoGatherConfig.CollectConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -587,16 +581,6 @@ public partial class Interface
             if (ImGui.DragInt("Solid Reason/Ageless Words Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.SolidAge.GpCost, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.MinimumGP = (uint)tmp;
-                GatherBuddy.Config.Save();
-            }
-        }
-
-        public static void DrawCollectMinGp()
-        {
-            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP;
-            if (ImGui.DragInt("Collect Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Collect.GpCost, 30000))
-            {
-                GatherBuddy.Config.AutoGatherConfig.CollectConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
             }
         }
@@ -1210,11 +1194,12 @@ public partial class Interface
 
             if (ImGui.TreeNodeEx("Gathering Actions"))
             {
-                if (ImGui.TreeNodeEx("Bountiful Yield/Harvest II"))
+                if (ImGui.TreeNodeEx("Bountiful Yield/Harvest"))
                 {
                     ConfigFunctions.DrawBYIIBox();
                     ConfigFunctions.DrawBYIIMinGP();
                     ConfigFunctions.DrawBYIIMaxGP();
+                    ConfigFunctions.DrawBYIIMinimumIncrease();
                     ConfigFunctions.DrawBYIIUseWithCrystals();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BYIIConfig);
                     ImGui.TreePop();
@@ -1245,8 +1230,8 @@ public partial class Interface
                     ConfigFunctions.DrawSolidAgeGatherablesCheckbox();
                     ConfigFunctions.DrawSolidAgeGatherablesMinGp();
                     ConfigFunctions.DrawSolidAgeGatherablesMaxGp();
-                    ConfigFunctions.DrawSolidAgeGatherablesUseWithCrystals();
                     ConfigFunctions.DrawSolidAgeGatherablesMinYield();
+                    ConfigFunctions.DrawSolidAgeGatherablesUseWithCrystals();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig);
                     ImGui.TreePop();
                 }
@@ -1318,14 +1303,6 @@ public partial class Interface
                     ConfigFunctions.DrawSolidAgeCollectablesCheckbox();
                     ConfigFunctions.DrawSolidAgeCollectablesMinGp();
                     ConfigFunctions.DrawSolidAgeCollectablesMaxGp();
-                    ImGui.TreePop();
-                }
-
-                if (ImGui.TreeNodeEx("Collect"))
-                {
-                    ConfigFunctions.DrawCollectCheckbox();
-                    ConfigFunctions.DrawCollectMinGp();
-                    ConfigFunctions.DrawCollectMaxGp();
                     ImGui.TreePop();
                 }
 
