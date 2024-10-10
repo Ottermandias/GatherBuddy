@@ -74,8 +74,7 @@ public partial class GatherWindowManager
         if (idx < 0 || idx >= preset.Items.Count)
             return;
         
-        if (preset.Quantities.ContainsKey(preset.Items[idx].ItemId))
-            preset.Quantities.Remove(preset.Items[idx].ItemId);
+        preset.Quantities.Remove(preset.Items[idx].ItemId);
 
         preset.Items.RemoveAt(idx);
         Save();
@@ -88,10 +87,14 @@ public partial class GatherWindowManager
         if (idx < 0 || idx >= preset.Items.Count)
             return;
 
-        if (ReferenceEquals(preset.Items[idx], item))
+        if (preset.Items.Contains(item))
             return;
 
+        preset.Quantities.Remove(preset.Items[idx].ItemId, out var q);
         preset.Items[idx] = item;
+        preset.Quantities[item.ItemId] = 1;
+        ChangeQuantity(preset, q, item.ItemId); //Apply quantity restrictions
+
         Save();
         if (preset.Enabled)
             SetActiveItems();

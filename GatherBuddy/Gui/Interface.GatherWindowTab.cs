@@ -241,7 +241,7 @@ public partial class Interface
         _gatherWindowCache.SetExcludedGatherbales(preset.Items.OfType<Gatherable>());
         var gatherables = _gatherWindowCache.FilteredGatherables;
         var selector = _gatherWindowCache.GatherableSelector;
-        var deleteIndex = -1;
+        int changeIndex = -1, changeItemIndex = -1, deleteIndex = -1;
 
         for (var i = 0; i < preset.Items.Count; ++i)
         {
@@ -253,7 +253,10 @@ public partial class Interface
 
             ImGui.SameLine();
             if (selector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
-                _plugin.GatherWindowManager.ChangeItem(preset, gatherables[newIdx], i);            
+            {
+                changeIndex = i;
+                changeItemIndex = newIdx;
+            }
             ImGui.SameLine();
             ImGui.Text("Inventory: ");
             var invTotal = _plugin.GatherWindowManager.GetInventoryCountForItem(item);
@@ -278,6 +281,9 @@ public partial class Interface
 
         if (deleteIndex >= 0)
             _plugin.GatherWindowManager.RemoveItem(preset, deleteIndex);
+
+        if (changeIndex >= 0)
+            _plugin.GatherWindowManager.ChangeItem(preset, gatherables[changeItemIndex], changeIndex);
 
         if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize, "Add this item at the end of the preset", false, true))
             _plugin.GatherWindowManager.AddItem(preset, gatherables[_gatherWindowCache.NewGatherableIdx]);
