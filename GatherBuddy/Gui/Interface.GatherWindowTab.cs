@@ -120,8 +120,21 @@ public partial class Interface
             var excludeSet = exclude.ToHashSet();
             if (!ExcludedGatherables.SetEquals(excludeSet))
             {
-                ExcludedGatherables = excludeSet;
-                Gatherables = AllGatherables.Except(excludeSet).ToList();
+                ExcludedGatherables = excludeSet;                
+                var newGatherables = AllGatherables.Except(excludeSet).ToList();
+                while (NewGatherableIdx > 0)
+                {
+                    var item = Gatherables[NewGatherableIdx];
+                    var idx = newGatherables.IndexOf(item);
+                    if (idx < 0)
+                        NewGatherableIdx--;
+                    else
+                    {
+                        NewGatherableIdx = idx;
+                        break;
+                    }
+                }
+                Gatherables = newGatherables;
                 GatherableSelector = new("GatherablesSelector", string.Empty, 250, Gatherables, g => g.Name[GatherBuddy.Language]);
             }
         }
