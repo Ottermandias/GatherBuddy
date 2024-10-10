@@ -221,14 +221,14 @@ public partial class Interface
         if (!box)
             return;
 
+        var deleteIndex = -1;
         for (var i = 0; i < preset.Items.Count; ++i)
         {
             using var id    = ImRaii.PushId(i);
             using var group = ImRaii.Group();
             var       item  = preset.Items[i];
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset...", false,
-                    true))
-                _plugin.GatherWindowManager.RemoveItem(preset, i--);
+            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset...", false, true))
+                deleteIndex = i;
 
             ImGui.SameLine();
             if (_gatherGroupCache.GatherableSelector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
@@ -254,6 +254,9 @@ public partial class Interface
             _gatherWindowCache.Selector.CreateDropTarget<GatherWindowDragDropData>(d
                 => _plugin.GatherWindowManager.MoveItem(d.Preset, d.ItemIdx, localIdx));
         }
+
+        if (deleteIndex >= 0)
+            _plugin.GatherWindowManager.RemoveItem(preset, deleteIndex);
 
         if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize,
                 "Add this item at the end of the preset, if it is not already included...",
