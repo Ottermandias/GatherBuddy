@@ -111,7 +111,7 @@ public partial class Interface
 
         public readonly GatherWindowSelector Selector = new();
 
-        public static readonly Gatherable[] AllGatherables = [.. GatherBuddy.GameData.Gatherables.Values.Where(g => g.Locations.Any()).OrderBy(g => g.Name[GatherBuddy.Language])];
+        public static readonly Gatherable[] AllGatherables = [.. GatherBuddy.GameData.Gatherables.Values.Where(g => g.Locations.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any()).OrderBy(g => g.Name[GatherBuddy.Language])];
         public IReadOnlyList<Gatherable> FilteredGatherables => Gatherables.AsReadOnly();
         public ClippedSelectableCombo<Gatherable> GatherableSelector { get; private set; }
             = new("GatherablesSelector", string.Empty, 250, AllGatherables, g => g.Name[GatherBuddy.Language]);
