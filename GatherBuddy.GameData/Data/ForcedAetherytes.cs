@@ -52,8 +52,8 @@ public static class ForcedAetherytes
         (834, 172), // Rime Dolomite -> Camp Broken Glass
         (771, 106), // Rarefied Shiitake Mushroom -> Onokoro
         (682, 148), // Purpure -> Macarenses Angle
-        (310, 104), // Rarefied Raw Triphane -> Rhalgr's Reach
-        (312, 111), // Rarefied Raw Star Spinel -> Kugane
+        //(310, 104), // Rarefied Raw Triphane -> Rhalgr's Reach
+        //(312, 111), // Rarefied Raw Star Spinel -> Kugane
     };
 
     public static void Apply(GameData data)
