@@ -303,7 +303,10 @@ public partial class Interface
 
         ImGui.SameLine();
         if (selector.Draw(_gatherWindowCache.NewGatherableIdx, out var idx))
+        {
             _gatherWindowCache.NewGatherableIdx = idx;
+            _plugin.GatherWindowManager.AddItem(preset, gatherables[_gatherWindowCache.NewGatherableIdx]);
+        }
     }
 
     private void DrawGatherWindowTab()
