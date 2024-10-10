@@ -5,15 +5,15 @@ using System.Numerics;
 using System.Text.RegularExpressions;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
-using ECommons;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Alarms;
+using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using ImGuiNET;
 using OtterGui;
+using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -110,6 +110,23 @@ public partial class Interface
         }
 
         public readonly GatherWindowSelector Selector = new();
+
+        public static readonly Gatherable[] AllGatherables = [.. GatherBuddy.GameData.Gatherables.Values.Where(g => g.Locations.Any()).OrderBy(g => g.Name[GatherBuddy.Language])];
+        public IReadOnlyList<Gatherable> FilteredGatherables => Gatherables.AsReadOnly();
+        public ClippedSelectableCombo<Gatherable> GatherableSelector { get; private set; }
+            = new("GatherablesSelector", string.Empty, 250, AllGatherables, g => g.Name[GatherBuddy.Language]);
+        public void SetExcludedGatherbales(IEnumerable<Gatherable> exclude)
+        {
+            var excludeSet = exclude.ToHashSet();
+            if (!ExcludedGatherables.SetEquals(excludeSet))
+            {
+                ExcludedGatherables = excludeSet;
+                Gatherables = AllGatherables.Except(excludeSet).ToList();
+                GatherableSelector = new("GatherablesSelector", string.Empty, 250, Gatherables, g => g.Name[GatherBuddy.Language]);
+            }
+        }
+        private List<Gatherable> Gatherables = [.. AllGatherables];
+        private HashSet<Gatherable> ExcludedGatherables = [];
 
         public int  NewGatherableIdx;
         public bool EditName;
@@ -221,18 +238,22 @@ public partial class Interface
         if (!box)
             return;
 
+        _gatherWindowCache.SetExcludedGatherbales(preset.Items.OfType<Gatherable>());
+        var gatherables = _gatherWindowCache.FilteredGatherables;
+        var selector = _gatherWindowCache.GatherableSelector;
         var deleteIndex = -1;
+
         for (var i = 0; i < preset.Items.Count; ++i)
         {
             using var id    = ImRaii.PushId(i);
             using var group = ImRaii.Group();
             var       item  = preset.Items[i];
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset...", false, true))
+            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset", false, true))
                 deleteIndex = i;
 
             ImGui.SameLine();
-            if (_gatherGroupCache.GatherableSelector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
-                _plugin.GatherWindowManager.ChangeItem(preset, GatherGroupCache.AllGatherables[newIdx], i);
+            if (selector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
+                _plugin.GatherWindowManager.ChangeItem(preset, gatherables[newIdx], i);            
             ImGui.SameLine();
             ImGui.Text("Inventory: ");
             var invTotal = _plugin.GatherWindowManager.GetInventoryCountForItem(item);
@@ -258,13 +279,11 @@ public partial class Interface
         if (deleteIndex >= 0)
             _plugin.GatherWindowManager.RemoveItem(preset, deleteIndex);
 
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize,
-                "Add this item at the end of the preset, if it is not already included...",
-                preset.Items.Contains(GatherGroupCache.AllGatherables[_gatherWindowCache.NewGatherableIdx]), true))
-            _plugin.GatherWindowManager.AddItem(preset, GatherGroupCache.AllGatherables[_gatherWindowCache.NewGatherableIdx]);
+        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize, "Add this item at the end of the preset", false, true))
+            _plugin.GatherWindowManager.AddItem(preset, gatherables[_gatherWindowCache.NewGatherableIdx]);
 
         ImGui.SameLine();
-        if (_gatherGroupCache.GatherableSelector.Draw(_gatherWindowCache.NewGatherableIdx, out var idx))
+        if (selector.Draw(_gatherWindowCache.NewGatherableIdx, out var idx))
             _gatherWindowCache.NewGatherableIdx = idx;
     }
 
