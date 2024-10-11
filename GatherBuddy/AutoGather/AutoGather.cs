@@ -19,6 +19,7 @@ using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Game.Text;
 using Dalamud.Utility;
 using ECommons.ExcelServices;
+using ECommons.Automation;
 
 namespace GatherBuddy.AutoGather
 {
@@ -271,22 +272,34 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (!LocationMatchesJob(targetInfo.Location))
+            {
+                if (!ChangeGearSet(targetInfo.Location.GatheringType.ToGroup()))
+                    AbortAutoGather();
+
+                return;
+            }
+
+            //This check must be done after changing jobs.
+            if (targetInfo.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked())
+            {
+                AbortAutoGather();
+                return;
+            }
+
             //At this point, we are definitely going to gather something, so we may go home after that.
             if (Lifestream_IPCSubscriber.IsEnabled) Lifestream_IPCSubscriber.Abort();
             WentHome = false;
 
-            if (targetInfo.Location.Territory.Id != Svc.ClientState.TerritoryType || !LocationMatchesJob(targetInfo.Location))
-            {
-                StopNavigation();
-                MoveToTerritory(targetInfo.Location);
-                AutoStatus = "Teleporting...";
-                return;
-            }
 
-            //This check must be done after changing jobs. TODO: check before teleporting
-            if (targetInfo.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked())
+            if (targetInfo.Location.Territory.Id != Svc.ClientState.TerritoryType)
             {
-                AbortAutoGather();
+                AutoStatus = "Teleporting...";
+                StopNavigation();
+
+                if (!MoveToTerritory(targetInfo.Location))
+                    AbortAutoGather();
+
                 return;
             }
 
@@ -463,6 +476,25 @@ namespace GatherBuddy.AutoGather
                 Communicator.Print(text.BuiltString);
                 return false;
             }
+            return true;
+        }
+
+        private bool ChangeGearSet(GatheringType job)
+        {
+            var set = job switch
+            {
+                GatheringType.Miner => GatherBuddy.Config.MinerSetName,
+                GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
+                _ => null,
+            };
+            if (set == null || set.Length == 0)
+            {
+                Communicator.PrintError($"No gear set for {job} configured.");
+                return false;
+            }
+
+            Chat.Instance.ExecuteCommand($"/gearset change \"{set}\"");
+            TaskManager.DelayNext(Random.Shared.Next(500, 1500));  //Add a random delay to be less suspicious 
             return true;
         }
 

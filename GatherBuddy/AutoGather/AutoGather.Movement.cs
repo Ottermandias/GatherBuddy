@@ -12,6 +12,7 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using GatherBuddy.SeFunctions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -233,15 +234,25 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private void MoveToTerritory(ILocation location)
+        private bool MoveToTerritory(ILocation location)
         {
-            TaskManager.EnqueueImmediate(() => _plugin.Executor.GatherLocation(location));
-            if (location.Territory.Id != Svc.ClientState.TerritoryType)
+            var aetheryte = location.ClosestAetheryte;
+            if (aetheryte == null || !Teleporter.IsAttuned(aetheryte.Id))
             {
-                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
+                aetheryte = location.Territory.Aetherytes.Where(a => Teleporter.IsAttuned(a.Id)).FirstOrDefault();
             }
+            if (aetheryte == null)
+            {
+                Communicator.PrintError("Couldn't find an attuned aetheryte to teleport to.");
+                return false;
+            }
+
+            Teleporter.Teleport(aetheryte.Id);
+            TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
+            TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
             TaskManager.DelayNext(1500);
+
+            return true;
         }
 
         private Vector3? advandedLastPosition = null;
