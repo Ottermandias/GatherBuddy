@@ -20,6 +20,7 @@ using Dalamud.Game.Text;
 using Dalamud.Utility;
 using ECommons.ExcelServices;
 using ECommons.Automation;
+using GatherBuddy.Data;
 
 namespace GatherBuddy.AutoGather
 {
@@ -84,6 +85,9 @@ namespace GatherBuddy.AutoGather
             WentHome = true;
 
             if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
+                return;
+
+            if (Dalamud.Conditions[ConditionFlag.BoundByDuty])
                 return;
 
             if (Lifestream_IPCSubscriber.IsEnabled && !Lifestream_IPCSubscriber.IsBusy())
@@ -287,13 +291,27 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            var territoryId = Svc.ClientState.TerritoryType;
+            var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes.Where(z => z.ZoneId == targetInfo.Location.Territory.Id).FirstOrDefault();
+            if (forcedAetheryte.ZoneId != 0 
+                && (GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId
+                    || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
+                {
+                AutoStatus = "Manual teleporting required";
+                return;
+            }
+
             //At this point, we are definitely going to gather something, so we may go home after that.
             if (Lifestream_IPCSubscriber.IsEnabled) Lifestream_IPCSubscriber.Abort();
             WentHome = false;
 
-
-            if (targetInfo.Location.Territory.Id != Svc.ClientState.TerritoryType)
+            if (targetInfo.Location.Territory.Id != territoryId)
             {
+                if (Dalamud.Conditions[ConditionFlag.BoundByDuty])
+                {
+                    AutoStatus = "Can not teleport when bound by duty";
+                    return;
+                }
                 AutoStatus = "Teleporting...";
                 StopNavigation();
 
