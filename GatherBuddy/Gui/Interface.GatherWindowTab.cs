@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
@@ -8,6 +10,7 @@ using Dalamud.Interface.Components;
 using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
+using GatherBuddy.CustomInfo;
 using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -34,7 +37,7 @@ public partial class Interface
         }
     }
 
-    private class GatherWindowCache
+    private class GatherWindowCache : IDisposable
     {
         public class GatherWindowSelector : ItemSelector<GatherWindowPreset>
         {
@@ -109,37 +112,63 @@ public partial class Interface
             }
         }
 
+        public GatherWindowCache()
+        {
+            UpdateGatherables();
+            WorldData.WorldLocationsChanged += UpdateGatherables;
+        }
+
         public readonly GatherWindowSelector Selector = new();
 
-        public static readonly Gatherable[] AllGatherables = [.. GatherBuddy.GameData.Gatherables.Values.Where(g => g.Locations.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any()).OrderBy(g => g.Name[GatherBuddy.Language])];
-        public IReadOnlyList<Gatherable> FilteredGatherables => Gatherables.AsReadOnly();
+        public ReadOnlyCollection<Gatherable> AllGatherables { get; private set; }
+        public ReadOnlyCollection<Gatherable> FilteredGatherables { get; private set; }
         public ClippedSelectableCombo<Gatherable> GatherableSelector { get; private set; }
-            = new("GatherablesSelector", string.Empty, 250, AllGatherables, g => g.Name[GatherBuddy.Language]);
+        private HashSet<Gatherable> ExcludedGatherables = [];
+
         public void SetExcludedGatherbales(IEnumerable<Gatherable> exclude)
         {
             var excludeSet = exclude.ToHashSet();
             if (!ExcludedGatherables.SetEquals(excludeSet))
             {
-                ExcludedGatherables = excludeSet;                
-                var newGatherables = AllGatherables.Except(excludeSet).ToList();
-                while (NewGatherableIdx > 0)
-                {
-                    var item = Gatherables[NewGatherableIdx];
-                    var idx = newGatherables.IndexOf(item);
-                    if (idx < 0)
-                        NewGatherableIdx--;
-                    else
-                    {
-                        NewGatherableIdx = idx;
-                        break;
-                    }
-                }
-                Gatherables = newGatherables;
-                GatherableSelector = new("GatherablesSelector", string.Empty, 250, Gatherables, g => g.Name[GatherBuddy.Language]);
+                var newGatherables = AllGatherables.Except(excludeSet).ToList().AsReadOnly();
+                UpdateGatherables(newGatherables, excludeSet);
             }
         }
-        private List<Gatherable> Gatherables = [.. AllGatherables];
-        private HashSet<Gatherable> ExcludedGatherables = [];
+
+        private static ReadOnlyCollection<Gatherable> GenAllGatherables()
+            => GatherBuddy.GameData.Gatherables.Values
+            .Where(g => g.Locations.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any())
+            .OrderBy(g => g.Name[GatherBuddy.Language])
+            .ToArray()
+            .AsReadOnly();
+
+        [MemberNotNull(nameof(FilteredGatherables)), MemberNotNull(nameof(GatherableSelector)), MemberNotNull(nameof(AllGatherables))]
+        private void UpdateGatherables() => UpdateGatherables(AllGatherables = GenAllGatherables(), []);
+
+        [MemberNotNull(nameof(FilteredGatherables)), MemberNotNull(nameof(GatherableSelector))]
+        private void UpdateGatherables(ReadOnlyCollection<Gatherable> newGatherables, HashSet<Gatherable> newExcluded)
+        {
+            while (NewGatherableIdx > 0)
+            {
+                var item = FilteredGatherables![NewGatherableIdx];
+                var idx = newGatherables.IndexOf(item);
+                if (idx < 0)
+                    NewGatherableIdx--;
+                else
+                {
+                    NewGatherableIdx = idx;
+                    break;
+                }
+            }
+            FilteredGatherables = newGatherables;
+            ExcludedGatherables = newExcluded;
+            GatherableSelector = new("GatherablesSelector", string.Empty, 250, FilteredGatherables, g => g.Name[GatherBuddy.Language]);
+        }
+
+        public void Dispose()
+        {
+            WorldData.WorldLocationsChanged -= UpdateGatherables;
+        }
 
         public int  NewGatherableIdx;
         public bool EditName;

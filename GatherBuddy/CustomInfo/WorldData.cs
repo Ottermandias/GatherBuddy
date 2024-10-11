@@ -1,12 +1,8 @@
-﻿using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -151,6 +147,8 @@ namespace GatherBuddy.CustomInfo
             {
                 lock (WorldLocationsByNodeId)
                     WorldLocationsByNodeId[nodeId] = list = [];
+                foreach (var node in GatherBuddy.GameData.GatheringNodes.Values.Where(v => v.WorldPositions.ContainsKey(nodeId)))
+                    node.WorldPositions[nodeId] = list;
             }
                 
             if (!list.Contains(location))
@@ -160,8 +158,11 @@ namespace GatherBuddy.CustomInfo
 
                 Task.Run(() => { lock (WorldLocationsByNodeId) SaveLocationsToFile(); });
                 GatherBuddy.Log.Debug($"Added location {location} to node {nodeId}");
+                WorldLocationsChanged?.Invoke();
             }
         }
+
+        public static event Action? WorldLocationsChanged;
 
         public static void SaveLocationsToFile()
         {
