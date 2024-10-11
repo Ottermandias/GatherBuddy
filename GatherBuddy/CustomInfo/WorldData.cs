@@ -147,16 +147,20 @@ namespace GatherBuddy.CustomInfo
 
         public static void AddLocation(uint nodeId, Vector3 location)
         {
-            if (!WorldLocationsByNodeId.ContainsKey(nodeId))
+            lock (WorldLocationsByNodeId)
             {
-                WorldLocationsByNodeId[nodeId] = new List<Vector3>();
-            }
+                if (!WorldLocationsByNodeId.TryGetValue(nodeId, out var list))
+                {
+                    WorldLocationsByNodeId[nodeId] = list = [];
+                }
+                
+                if (!list.Contains(location))
+                {
+                    list.Add(location);
 
-            if (!WorldLocationsByNodeId[nodeId].Contains(location))
-            {
-                WorldLocationsByNodeId[nodeId].Add(location);
-                Task.Run(SaveLocationsToFile);
-                GatherBuddy.Log.Debug($"Added location {location} to node {nodeId}");
+                    Task.Run(() => { lock (WorldLocationsByNodeId) SaveLocationsToFile(); });
+                    GatherBuddy.Log.Debug($"Added location {location} to node {nodeId}");
+                }
             }
         }
 
