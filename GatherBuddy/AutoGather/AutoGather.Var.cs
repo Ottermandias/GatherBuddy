@@ -41,6 +41,7 @@ namespace GatherBuddy.AutoGather
 
         public bool?    LastNavigationResult { get; set; } = null;
         public Vector3 CurrentDestination   { get; private set; } = default;
+        private ILocation? CurrentFarNodeLocation;
 
         public GatheringType JobAsGatheringType
         {

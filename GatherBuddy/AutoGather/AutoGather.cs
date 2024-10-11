@@ -349,13 +349,15 @@ namespace GatherBuddy.AutoGather
 
             AutoStatus = "Moving to far node...";
 
-            if (CurrentDestination != default && !allPositions.Contains(CurrentDestination))
+            if (CurrentDestination != default && CurrentFarNodeLocation != targetInfo.Location)
             {
-                GatherBuddy.Log.Debug("Current destination doesn't match the target item, resetting navigation");
+                GatherBuddy.Log.Debug("Current destination doesn't match the target location, resetting navigation");
                 StopNavigation();
                 FarNodesSeenSoFar.Clear();
                 VisitedNodes.Clear();
             }
+
+            CurrentFarNodeLocation = targetInfo.Location;
 
             if (CurrentDestination != default)
             {
@@ -380,7 +382,7 @@ namespace GatherBuddy.AutoGather
             }
 
             Vector3 selectedFarNode;
-
+            
             // only Legendary and Unspoiled show marker
             if (ShouldUseFlag && targetInfo.Item.NodeType is NodeType.Legendary or NodeType.Unspoiled)
             {
@@ -396,6 +398,8 @@ namespace GatherBuddy.AutoGather
                     .Where(o => Vector2.Distance(pos.Value, new Vector2(o.X, o.Z)) < 10)
                     .OrderBy(o => Vector2.Distance(pos.Value, new Vector2(o.X, o.Z)))
                     .FirstOrDefault();
+                if (selectedFarNode == default)
+                    selectedFarNode = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(new Vector3(pos.Value.X, 0, pos.Value.Y), 50, 10000);
             }
             else
             {
