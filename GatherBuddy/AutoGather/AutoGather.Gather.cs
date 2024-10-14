@@ -66,11 +66,21 @@ namespace GatherBuddy.AutoGather
                 .Where(CheckItemOvercap)
                 .ToList();
 
-            var shouldGather = aviable
-                //Item is in gathering list
-                .Where(s => ItemsToGather.Any(g => g.Item == s.Item))
-                //And we need more of it
+                //Items in a gathering list
+            var shouldGather = ItemsToGather
+                //Join node slots, retaing list order
+                .Join(aviable, i => i.Item, s => s.Item, (i, s) => s)
+                //And we need more of them
                 .Where(s => InventoryCount(s.Item) < QuantityTotal(s.Item));
+
+                //Items in a fallback list
+            var fallback = _plugin.GatherWindowManager.FallbackItems
+                //Join node slots, retaing list order
+                .Join(aviable, i => i, s => s.Item, (i, s) => s)
+                //And we need more of them
+                .Where(s => InventoryCount(s.Item) < QuantityTotal(s.Item));
+
+            var fallbackSkills = GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems;
 
             if (desiredItem != null)
             {
@@ -85,8 +95,19 @@ namespace GatherBuddy.AutoGather
                     else
                     {
                         //If we have gathered enough of the current item and there is another item in the node that we want, gather it instead
-                        var other = shouldGather.FirstOrDefault(orig);
-                        return (!other.Collectable, other);
+                        var other = shouldGather.FirstOrDefault();
+                        if (other != null)
+                        {
+                            return (!other.Collectable, other);
+                        }
+
+                        other = fallback.FirstOrDefault();
+                        if (other != null)
+                        {
+                            return (fallbackSkills && !other.Collectable, other);
+                        }
+
+                        return (!orig.Collectable, orig);
                     }
                 }
             }
@@ -95,6 +116,13 @@ namespace GatherBuddy.AutoGather
             if (slot != null)
             {
                 return (!slot.Collectable, slot);
+            }
+
+            //If there is any fallback item, gather it
+            slot = fallback.FirstOrDefault();
+            if (slot != null)
+            {
+                return (fallbackSkills && !slot.Collectable, slot);
             }
 
             //Otherwise gather any crystals

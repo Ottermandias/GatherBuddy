@@ -58,6 +58,13 @@ public partial class GatherWindowManager
         if (preset.Items.Count > 0)
             SetActiveItems();
     }
+    public void SetFallback(GatherWindowPreset preset, bool value)
+    {
+        preset.Fallback = value;
+        Save();
+        if (preset.Items.Count > 0)
+            SetActiveItems();
+    }
 
     public void AddItem(GatherWindowPreset preset, IGatherable item)
     {

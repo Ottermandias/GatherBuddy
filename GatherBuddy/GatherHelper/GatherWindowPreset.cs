@@ -20,6 +20,7 @@ public class GatherWindowPreset
     public string                 Name               { get; set; }  = string.Empty;
     public string                 Description        { get; set; }  = string.Empty;
     public bool                   Enabled            { get; set; }  = false;
+    public bool                   Fallback           { get; set; }  = false;
 
     public GatherWindowPreset Clone()
         => new()
@@ -54,6 +55,7 @@ public class GatherWindowPreset
         public string        Name;
         public string        Description;
         public bool          Enabled;
+        public bool          Fallback;
 
         public Config(GatherWindowPreset preset)
         {
@@ -64,6 +66,7 @@ public class GatherWindowPreset
             Name               = preset.Name;
             Description        = preset.Description;
             Enabled            = preset.Enabled;
+            Fallback           = preset.Fallback;
         }
 
         internal string ToBase64()
@@ -104,6 +107,7 @@ public class GatherWindowPreset
             Name        = cfg.Name,
             Description = cfg.Description,
             Enabled     = cfg.Enabled,
+            Fallback    = cfg.Fallback,
         };
         var maxLength = Math.Min(cfg.ItemIds.Length, cfg.ItemTypes.Length);
         var changes   = cfg.ItemIds.Length != cfg.ItemTypes.Length;
@@ -116,7 +120,7 @@ public class GatherWindowPreset
                 _                     => null,
             };
             ret.Quantities = cfg.Quantities;
-            ret.PreferredLocations = cfg.PrefferedLocations ?? new Dictionary<uint, uint>();
+            ret.PreferredLocations = cfg.PrefferedLocations ?? [];
             if (gatherable == null)
                 changes = true;
             else if (!ret.Add(gatherable))

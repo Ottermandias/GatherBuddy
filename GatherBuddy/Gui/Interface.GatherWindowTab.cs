@@ -274,6 +274,13 @@ public partial class Interface
         if (ImGui.Checkbox("Enabled##preset", ref tmp) && tmp != preset.Enabled)
             _plugin.GatherWindowManager.TogglePreset(preset);
 
+        ImGui.SameLine();
+        ImGuiUtil.Checkbox("Fallback##preset",
+            "Items from fallback presets won't be auto-gathered.\n"
+          + "But if a node doesn't contain any items from regular presets,\n"
+          + "items from fallback presets would be gathered instead if they could be found in that node.", 
+            preset.Fallback, (v) => _plugin.GatherWindowManager.SetFallback(preset, v));
+
         ImGui.NewLine();
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() - ImGui.GetStyle().ItemInnerSpacing.X);
         using var box = ImRaii.ListBox("##gatherWindowList", new Vector2(-1.5f * ImGui.GetStyle().ItemSpacing.X, -1));

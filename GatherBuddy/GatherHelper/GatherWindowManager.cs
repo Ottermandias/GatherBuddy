@@ -20,6 +20,7 @@ public partial class GatherWindowManager : IDisposable
 
     public List<IGatherable> ActiveItems = new();
     public List<IGatherable> SortedItems = new();
+    public List<IGatherable> FallbackItems = new();
 
     private readonly AlarmManager _alarms;
     private          bool         _sortDirty = true;
@@ -52,7 +53,7 @@ public partial class GatherWindowManager : IDisposable
     public void SetActiveItems()
     {
         ActiveItems.Clear();
-        foreach (var item in Presets.Where(p => p.Enabled)
+        foreach (var item in Presets.Where(p => p.Enabled && !p.Fallback)
                      .SelectMany(p => p.Items)
                      .Where(i => !ActiveItems.Contains(i)))
             ActiveItems.Add(item);
@@ -63,6 +64,9 @@ public partial class GatherWindowManager : IDisposable
         SortedItems.Clear();
         SortedItems.InsertRange(0, ActiveItems);
         _sortDirty = true;
+
+        FallbackItems.Clear();
+        FallbackItems.AddRange(Presets.Where(p => p.Enabled && p.Fallback).SelectMany(p => p.Items).Distinct());
     }
 
     public IList<IGatherable> GetList()

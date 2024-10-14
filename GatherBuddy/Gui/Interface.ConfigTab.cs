@@ -69,6 +69,10 @@ public partial class Interface
             => DrawCheckbox("Go home when idle", "Uses the '/li auto' command to take you home when done gathering or waiting for timed nodes",
                 GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
 
+        public static void DrawUseSkillsForFallabckBox()
+            => DrawCheckbox("Use skills for fallback items", "Use skills when gathering items from fallback presets",
+                GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems, b => GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems = b);
+
         public static void DrawAdvancedUnstuckBox()
             => DrawCheckbox("Enable Experimental Unstuck Method",
                 "Use super special movement techniques to manually move your character without navmesh when stuck",
@@ -1175,6 +1179,7 @@ public partial class Interface
                 ConfigFunctions.DrawSortingMethodCombo();
                 ConfigFunctions.DrawUseGivingLandOnCooldown();
                 ConfigFunctions.DrawGoHomeBox();
+                ConfigFunctions.DrawUseSkillsForFallabckBox();
                 ImGui.TreePop();
             }
 
