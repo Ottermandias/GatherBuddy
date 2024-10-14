@@ -434,12 +434,8 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void CloseGatheringAddons()
         {
-            if (MasterpieceAddon != null)
-                TaskManager.Enqueue(() => MasterpieceAddon->Close(true));
-
-            if (GatheringAddon != null)
-                TaskManager.Enqueue(() => GatheringAddon->Close(true));
-
+            TaskManager.Enqueue(() => { if (MasterpieceAddon is var addon and not null) addon->Close(true); });
+            TaskManager.Enqueue(() => { if (GatheringAddon is var addon and not null) addon->Close(true); });
             TaskManager.Enqueue(() => !IsGathering);
         }
 
