@@ -164,19 +164,20 @@ namespace GatherBuddy.AutoGather
             (ILocation? Location, TimeInterval Time) res = default;
             //First priority: selected preferred location.
             var node = _plugin.GatherWindowManager.GetPreferredLocation(item);
+            var time = AdjuctedServerTime;
             if (node != null && !VisitedTimedLocations.ContainsKey(node))
             {
-                res = (node, node.Times.NextUptime(AdjuctedServerTime));
+                res = (node, node.Times.NextUptime(time));
             }
             //Second priority: location for preferred job.
-            else if (GatherBuddy.Config.PreferredGatheringType is GatheringType.Miner or GatheringType.Botanist)
+            if ((res.Location == null || !res.Time.InRange(time)) && GatherBuddy.Config.PreferredGatheringType is GatheringType.Miner or GatheringType.Botanist)
             {
-                res = GatherBuddy.UptimeManager.NextUptime(item, GatherBuddy.Config.PreferredGatheringType, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+                res = GatherBuddy.UptimeManager.NextUptime(item, GatherBuddy.Config.PreferredGatheringType, time, [.. VisitedTimedLocations.Keys]);
             }
             //Otherwise: location for any job.
-            if (res.Location == null)
+            if (res.Location == null || !res.Time.InRange(time))
             {
-                res = GatherBuddy.UptimeManager.NextUptime(item, AdjuctedServerTime, [.. VisitedTimedLocations.Keys]);
+                res = GatherBuddy.UptimeManager.NextUptime(item, time, [.. VisitedTimedLocations.Keys]);
             }
             return (item, res.Location, res.Time);
         }
