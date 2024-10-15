@@ -277,7 +277,7 @@ public partial class Interface
         ImGui.SameLine();
         ImGuiUtil.Checkbox("Fallback##preset",
             "Items from fallback presets won't be auto-gathered.\n"
-          + "But if a node doesn't contain any items from regular presets,\n"
+          + "But if a node doesn't contain any items from regular presets or if you gathered enough of them,\n"
           + "items from fallback presets would be gathered instead if they could be found in that node.", 
             preset.Fallback, (v) => _plugin.GatherWindowManager.SetFallback(preset, v));
 
