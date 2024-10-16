@@ -73,6 +73,14 @@ public partial class Interface
             => DrawCheckbox("Use skills for fallback items", "Use skills when gathering items from fallback presets",
                 GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems, b => GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems = b);
 
+        public static void DrawAbandonNodesBox()
+            => DrawCheckbox("Abandon nodes without needed items", 
+                "Stop gathering and abandon the node when you have gathered enough items,\n" +
+                "or if the node didn't have any needed items on the first place.\n\n" +
+                "This won't work when gathering hidden items from regular nodes,\n" +
+                "because the node needs to disappear for navigation to function properly.",
+                GatherBuddy.Config.AutoGatherConfig.AbandonNodes, b => GatherBuddy.Config.AutoGatherConfig.AbandonNodes = b);
+
         public static void DrawAdvancedUnstuckBox()
             => DrawCheckbox("Enable Experimental Unstuck Method",
                 "Use super special movement techniques to manually move your character without navmesh when stuck",
@@ -1180,6 +1188,7 @@ public partial class Interface
                 ConfigFunctions.DrawUseGivingLandOnCooldown();
                 ConfigFunctions.DrawGoHomeBox();
                 ConfigFunctions.DrawUseSkillsForFallabckBox();
+                ConfigFunctions.DrawAbandonNodesBox();
                 ImGui.TreePop();
             }
 

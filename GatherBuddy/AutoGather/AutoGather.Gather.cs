@@ -6,6 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using ECommons.Automation.UIInput;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
+using NodeType = GatherBuddy.Enums.NodeType;
 
 namespace GatherBuddy.AutoGather
 {
@@ -52,7 +53,7 @@ namespace GatherBuddy.AutoGather
         /// </summary>
         /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather collectable or some unneeded junk
         /// Slot: ItemSlot of item to gather</returns>
-        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? desiredItem)
+        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? targetItem)
         {
             //Gather crystals when using The Giving Land
             if (HasGivingLandBuff)
@@ -66,15 +67,24 @@ namespace GatherBuddy.AutoGather
                 .Where(CheckItemOvercap)
                 .ToList();
 
-                //Items in a gathering list
-            var shouldGather = ItemsToGather
+            var target = targetItem != null ? aviable.Where(s => s.Item == targetItem).FirstOrDefault() : null;
+            var needMore = targetItem != null && InventoryCount(targetItem) < QuantityTotal(targetItem);
+
+            if (target != null && needMore)
+            {
+                //The target item is found in the node, would not overcap and we need to gather more of it
+                return (!target.Collectable, target);
+            }
+
+            //Items in the gathering list
+            var gatherList = ItemsToGather
                 //Join node slots, retaing list order
                 .Join(aviable, i => i.Item, s => s.Item, (i, s) => s)
                 //And we need more of them
                 .Where(s => InventoryCount(s.Item) < QuantityTotal(s.Item));
 
-                //Items in a fallback list
-            var fallback = _plugin.GatherWindowManager.FallbackItems
+            //Items in the fallback list
+            var fallbackList = _plugin.GatherWindowManager.FallbackItems
                 //Join node slots, retaing list order
                 .Join(aviable, i => i, s => s.Item, (i, s) => s)
                 //And we need more of them
@@ -82,50 +92,37 @@ namespace GatherBuddy.AutoGather
 
             var fallbackSkills = GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems;
 
-            if (desiredItem != null)
-            {
-                var orig = aviable.Where(s => s.Item == desiredItem).FirstOrDefault();
-                if (orig != null)
-                {
-                    if (InventoryCount(desiredItem) < QuantityTotal(desiredItem))
-                    {
-                        //The desired item is found in the node, would not overcap and we need to gather more of it
-                        return (!orig.Collectable, orig);
-                    }
-                    else
-                    {
-                        //If we have gathered enough of the current item and there is another item in the node that we want, gather it instead
-                        var other = shouldGather.FirstOrDefault();
-                        if (other != null)
-                        {
-                            return (!other.Collectable, other);
-                        }
-
-                        other = fallback.FirstOrDefault();
-                        if (other != null)
-                        {
-                            return (fallbackSkills && !other.Collectable, other);
-                        }
-
-                        return (!orig.Collectable, orig);
-                    }
-                }
-            }
             //If there is any other item that we want in the node, gather it
-            var slot = shouldGather.FirstOrDefault();
+            var slot = gatherList.FirstOrDefault();
             if (slot != null)
             {
                 return (!slot.Collectable, slot);
             }
 
             //If there is any fallback item, gather it
-            slot = fallback.FirstOrDefault();
+            slot = fallbackList.FirstOrDefault();
             if (slot != null)
             {
                 return (fallbackSkills && !slot.Collectable, slot);
             }
 
-            //Otherwise gather any crystals
+            //Check if we should and can abandon the node
+            if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes &&
+                (  targetItem == null 
+                || !needMore
+                || !targetItem.GatheringData.IsHidden
+                || targetItem.NodeType is not NodeType.Regular and not NodeType.Ephemeral))
+            {
+                throw new NoGatherableItemsInNodeExceptions();
+            }
+
+            if (target != null)
+            {
+                //Gather unneeded target item as a fallback
+                return (false, target);
+            }
+
+            //Gather any crystals
             slot = GetAnyCrystalInNode();
             if (slot != null)
             {

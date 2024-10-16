@@ -65,6 +65,7 @@ namespace GatherBuddy.AutoGather
         public SortingType SortingMethod { get; set; } = SortingType.Location;
         public bool GoHomeWhenIdle { get; set; } = true;
         public bool UseSkillsForFallbackItems { get; set; } = false;
+        public bool AbandonNodes { get; set; } = false;
 
         public enum SortingType
         {
