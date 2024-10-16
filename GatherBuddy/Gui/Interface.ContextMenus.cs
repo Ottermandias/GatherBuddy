@@ -74,7 +74,7 @@ public partial class Interface
     {
         var current = _gatherWindowCache.Selector.EnsureCurrent();
 
-        if (ImGui.Selectable("Add to Gather Window Preset"))
+        if (ImGui.Selectable("Add to Current Auto-Gather Preset"))
         {
             if (current == null)
                 _plugin.GatherWindowManager.AddPreset(new GatherWindowPreset
@@ -203,18 +203,18 @@ public partial class Interface
         DrawAddAlarm(item);
         DrawAddToGatherGroup(item);
         DrawAddGatherWindow(item);
+        DrawAddToAutoGather(item);
         if (ImGui.Selectable("Create Link"))
             Communicator.Print(SeString.CreateItemLink(item.ItemId));
         DrawOpenInGarlandTools(item.ItemId);
         DrawOpenInTeamCraft(item.ItemId);
-        DrawAddToAutoGather(item);
     }
 
     private const string PresetName = "From Gatherables List";
 
     private static void DrawAddToAutoGather(IGatherable item)
     {
-        if (ImGui.Selectable($"Add to Auto-Gather List"))
+        if (ImGui.Selectable($"Add to Separate Auto-Gather Preset"))
         {
             // Fetch preset if exists.
             var preset = _plugin.GatherWindowManager.Presets.FirstOrDefault(p => p.Name == PresetName);
@@ -225,6 +225,10 @@ public partial class Interface
             // Add item to existing preset.
             _plugin.GatherWindowManager.AddItem(preset, item);
         }
+
+        if (ImGui.IsItemHovered())
+            ImGui.SetTooltip(
+                $"Add {item.Name[GatherBuddy.Language]} to {PresetName}");
     }
 
     private static GatherWindowPreset CreateAndAddPreset(IGatherable item)
