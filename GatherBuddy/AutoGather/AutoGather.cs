@@ -152,12 +152,12 @@ namespace GatherBuddy.AutoGather
                     if (target != null
                         && target.ObjectKind is ObjectKind.GatheringPoint
                         && targetInfo.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
-                        && VisitedNodes.Last?.Value != target.Position
-                        && targetInfo.Location?.Territory.Id >= 397)
+                        && VisitedNodes.Last?.Value != target.DataId
+                        && targetInfo.Location?.WorldPositions.ContainsKey(target.DataId) == true)
                     {
                         FarNodesSeenSoFar.Clear();
-                        VisitedNodes.AddLast(target.Position);
-                        while (VisitedNodes.Count > (targetInfo.Location.WorldPositions.Count == 3 ? 2 : 4))
+                        VisitedNodes.AddLast(target.DataId);
+                        while (VisitedNodes.Count > (targetInfo.Location.WorldPositions.Count <= 4 ? 2 : 4))
                             VisitedNodes.RemoveFirst();
                     }
                 }
@@ -172,17 +172,7 @@ namespace GatherBuddy.AutoGather
                     }
                     catch (NoGatherableItemsInNodeExceptions)
                     {
-                        UpdateItemsToGather();
-
-                        //We may stuck in infinite loop attempt to gather the same item, therefore disable auto-gather
-                        if (ItemsToGather.Count > 0 && targetInfo?.Item == ItemsToGather[0].Item)
-                        {
-                            AbortAutoGather("Couldn't gather any items from the last node, aborted");
-                        }
-                        else
-                        {
-                            CloseGatheringAddons();
-                        }
+                        CloseGatheringAddons();
                     }
                     catch (NoColectableActionsExceptions)
                     {
@@ -328,6 +318,7 @@ namespace GatherBuddy.AutoGather
                 return;
 
             var allPositions = targetInfo.Location.WorldPositions
+                .ExceptBy(VisitedNodes, n => n.Key)
                 .SelectMany(w => w.Value)
                 .Where(v => !IsBlacklisted(v))
                 .ToHashSet();
@@ -403,10 +394,9 @@ namespace GatherBuddy.AutoGather
             }
             else
             {
-                //Select the furthermost node from the last 4 visited ones (2 for ephemeral), ARR excluded.
+                //Select the closest node
                 selectedFarNode = allPositions
-                    .OrderByDescending(n => VisitedNodes.Select(v => Vector3.Distance(n, v)).Sum())
-                    .ThenBy(v => Vector3.Distance(Player.Position, v))
+                    .OrderBy(v => Vector3.Distance(Player.Position, v))
                     .FirstOrDefault(n => !FarNodesSeenSoFar.Contains(n));
 
                 if (selectedFarNode == default)

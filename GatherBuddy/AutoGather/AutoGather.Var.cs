@@ -129,7 +129,7 @@ namespace GatherBuddy.AutoGather
         public readonly List<GatherInfo> ItemsToGather = [];
         public readonly Dictionary<ILocation, TimeInterval> VisitedTimedLocations = [];
         public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
-        public readonly LinkedList<Vector3> VisitedNodes = [];
+        public readonly LinkedList<uint> VisitedNodes = [];
         private GatherInfo? targetInfo = null;
 
         public void UpdateItemsToGather()
