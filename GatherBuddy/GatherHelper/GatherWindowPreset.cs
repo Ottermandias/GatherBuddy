@@ -62,8 +62,7 @@ public class GatherWindowPreset
             return false;
 
         var old = items[index];
-        var quantity = quantities[old];
-        quantities.Remove(old);
+        quantities.Remove(old, out var quantity);
         preferredLocations.Remove(old);
         items[index] = item;
         quantities[item] = NormalizeQuantity(item, quantity);
@@ -97,7 +96,7 @@ public class GatherWindowPreset
             quantity = 1;
         if (quantity > 9999)
             quantity = 9999;
-        if (quantity > 1 && item.ItemData.FilterGroup == 18)
+        if (quantity > 1 && item.IsTreasureMap)
             quantity = 1;
         return quantity;
     }
@@ -170,10 +169,13 @@ public class GatherWindowPreset
     {
         preset = new GatherWindowPreset()
         {
-            Name        = cfg.Name,
-            Description = cfg.Description,
-            Enabled     = cfg.Enabled,
-            Fallback    = cfg.Fallback,
+            Name               = cfg.Name,
+            Description        = cfg.Description,
+            Enabled            = cfg.Enabled,
+            Fallback           = cfg.Fallback,
+            items              = new(cfg.ItemIds.Length),
+            quantities         = new(cfg.ItemIds.Length),
+            preferredLocations = new(cfg.PrefferedLocations.Count)
         };
         var changes = false;
         foreach (var itemId in cfg.ItemIds)
