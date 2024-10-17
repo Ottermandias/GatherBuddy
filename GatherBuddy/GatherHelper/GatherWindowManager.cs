@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Alarms;
+using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
@@ -81,14 +82,15 @@ public partial class GatherWindowManager : IDisposable
         return SortedItems;
     }
 
-    public uint GetTotalQuantitiesForItem(IGatherable gatherable)
+    public uint GetTotalQuantitiesForItem(IGatherable item)
     {
+        if (item is not Gatherable gatherable)
+            return 0;
+
         uint total = 0;
         foreach (var preset in Presets)
         {
-            if (!preset.Enabled)
-                continue;
-            if (preset.Quantities.TryGetValue(gatherable.ItemId, out var quantity))
+            if (preset.Enabled && !preset.Fallback && preset.Quantities.TryGetValue(gatherable, out var quantity))
             {
                 total += quantity;
             }

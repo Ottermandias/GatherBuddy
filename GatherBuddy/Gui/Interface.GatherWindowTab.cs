@@ -12,7 +12,6 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.GatherHelper;
-using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using ImGuiNET;
 using OtterGui;
@@ -26,10 +25,10 @@ public partial class Interface
     private class GatherWindowDragDropData
     {
         public GatherWindowPreset Preset;
-        public IGatherable        Item;
+        public Gatherable         Item;
         public int                ItemIdx;
 
-        public GatherWindowDragDropData(GatherWindowPreset preset, IGatherable item, int idx)
+        public GatherWindowDragDropData(GatherWindowPreset preset, Gatherable item, int idx)
         {
             Preset  = preset;
             Item    = item;
@@ -223,24 +222,16 @@ public partial class Interface
                         items[itemName] = quantity;
                     }
                     
-                    var preset = _gatherWindowCache.Selector.Current;
+                    var preset = _gatherWindowCache.Selector.Current!;
 
-                    foreach (var item in items)
+                    foreach (var (itemName, quantity) in items)
                     {
                         var gatherable =
-                            GatherBuddy.GameData.Gatherables.Values.FirstOrDefault(g => g.Name[Dalamud.ClientState.ClientLanguage] == item.Key);
+                            GatherBuddy.GameData.Gatherables.Values.FirstOrDefault(g => g.Name[Dalamud.ClientState.ClientLanguage] == itemName);
                         if (gatherable == null || gatherable.NodeList.Count == 0)
                             continue;
 
-                        if (preset.Quantities.TryGetValue(gatherable.ItemId, out var quantity))
-                        {
-                            preset.Quantities[gatherable.ItemId] += (uint)item.Value;
-                        }
-                        else
-                        {
-                            preset.Quantities.Add(gatherable.ItemId, (uint)item.Value);
-                        }
-                        preset.Add(gatherable);
+                        preset.Add(gatherable, (uint)quantity);
                     }
                     
                     if (preset.Enabled)
@@ -312,13 +303,13 @@ public partial class Interface
             ImGui.SameLine(0f, ImGui.CalcTextSize($"0000 / ").X - ImGui.CalcTextSize($"{invTotal} / ").X);
             ImGui.Text($"{invTotal} / ");
             ImGui.SameLine(0, 3f);
-            int quantity = preset.Quantities.TryGetValue(item.ItemId, out var q) ? (int)q : 1;
+            var quantity = preset.Quantities.TryGetValue(item, out var q) ? (int)q : 1;
             ImGui.SetNextItemWidth(100f);
             if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
-                _plugin.GatherWindowManager.ChangeQuantity(preset, (uint)quantity, item.ItemId);
+                _plugin.GatherWindowManager.ChangeQuantity(preset, item, (uint)quantity);
             ImGui.SameLine();
-            if (DrawLocationInput(item, preset.PreferredLocations.TryGetValue(item.ItemId, out var locId) ? GatherBuddy.GameData.GatheringNodes.GetValueOrDefault(locId) : null, out var newLoc))
-                _plugin.GatherWindowManager.ChangePreferredLocation(preset, item, newLoc);
+            if (DrawLocationInput(item, preset.PreferredLocations.GetValueOrDefault(item), out var newLoc))
+                _plugin.GatherWindowManager.ChangePreferredLocation(preset, item, newLoc as GatheringNode);
             group.Dispose();
 
             _gatherWindowCache.Selector.CreateDropSource(new GatherWindowDragDropData(preset, item, i), item.Name[GatherBuddy.Language]);
