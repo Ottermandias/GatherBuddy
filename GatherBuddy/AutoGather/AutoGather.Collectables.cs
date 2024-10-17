@@ -18,7 +18,7 @@ namespace GatherBuddy.AutoGather
 
             private bool shouldUseFullRotation = false;
 
-            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
+            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon, int itemsLeft)
             {
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
@@ -33,7 +33,7 @@ namespace GatherBuddy.AutoGather
                 if (collectability >= GatherBuddy.Config.AutoGatherConfig.MinimumCollectibilityScore)
                 {
                     if ((shouldUseFullRotation || GatherBuddy.Config.AutoGatherConfig.AlwaysUseSolidAgeCollectables)
-                     && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity))
+                     && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity, itemsLeft))
                         return Actions.SolidAge;
                     else
                         return Actions.Collect;
@@ -138,9 +138,11 @@ namespace GatherBuddy.AutoGather
                 return false;
             }
 
-            private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity)
+            private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity, int itemsLeft)
             {
                 if (integrity == maxIntegrity)
+                    return false;
+                if (itemsLeft <= integrity)
                     return false;
                 if (Player.Level < Actions.SolidAge.MinLevel)
                     return false;

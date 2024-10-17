@@ -81,7 +81,15 @@ namespace GatherBuddy.AutoGather
         {
             if (MasterpieceAddon != null)
             {
-                DoCollectibles();
+                var left = int.MaxValue;
+                if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
+                { 
+                    if (desiredItem == null) throw new NoGatherableItemsInNodeExceptions();
+                    left = (int)QuantityTotal(desiredItem) - InventoryCount(desiredItem);
+                    if (left < 1) throw new NoGatherableItemsInNodeExceptions();
+                }
+
+                DoCollectibles(left);
             }
             else if (GatheringAddon != null && NodeTarcker.Ready)
             {
@@ -167,7 +175,7 @@ namespace GatherBuddy.AutoGather
             //Communicator.Print("Ready for next action.");
         }
 
-        private unsafe void DoCollectibles()
+        private unsafe void DoCollectibles(int itemsLeft)
         {
             if (MasterpieceAddon == null)
                 return;
@@ -200,7 +208,7 @@ namespace GatherBuddy.AutoGather
                 LastCollectability = collectibility;
                 LastIntegrity      = integrity;
 
-                var collectibleAction = CurrentRotation.GetNextAction(MasterpieceAddon);
+                var collectibleAction = CurrentRotation.GetNextAction(MasterpieceAddon, itemsLeft);
 
                 EnqueueGatherAction(() => { UseAction(collectibleAction); });
             }
