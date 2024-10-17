@@ -73,7 +73,6 @@ public partial class Interface
     private void DrawAddGatherWindow(Gatherable item)
     {
         var current = _gatherWindowCache.Selector.EnsureCurrent();
-        current = null;
 
         if (ImGui.Selectable("Add to Current Auto-Gather Preset"))
         {
