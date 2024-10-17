@@ -76,9 +76,7 @@ public partial class Interface
         public static void DrawAbandonNodesBox()
             => DrawCheckbox("Abandon nodes without needed items", 
                 "Stop gathering and abandon the node when you have gathered enough items,\n" +
-                "or if the node didn't have any needed items on the first place.\n\n" +
-                "This won't work when gathering hidden items from regular nodes,\n" +
-                "because the node needs to disappear for navigation to function properly.",
+                "or if the node didn't have any needed items on the first place.",
                 GatherBuddy.Config.AutoGatherConfig.AbandonNodes, b => GatherBuddy.Config.AutoGatherConfig.AbandonNodes = b);
 
         public static void DrawAdvancedUnstuckBox()

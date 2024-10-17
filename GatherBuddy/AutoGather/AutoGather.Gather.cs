@@ -68,9 +68,8 @@ namespace GatherBuddy.AutoGather
                 .ToList();
 
             var target = targetItem != null ? aviable.Where(s => s.Item == targetItem).FirstOrDefault() : null;
-            var needMore = targetItem != null && InventoryCount(targetItem) < QuantityTotal(targetItem);
 
-            if (target != null && needMore)
+            if (target != null && InventoryCount(targetItem!) < QuantityTotal(targetItem!))
             {
                 //The target item is found in the node, would not overcap and we need to gather more of it
                 return (!target.Collectable, target);
@@ -107,14 +106,8 @@ namespace GatherBuddy.AutoGather
             }
 
             //Check if we should and can abandon the node
-            if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes &&
-                (  targetItem == null 
-                || !needMore
-                || !targetItem.GatheringData.IsHidden
-                || targetItem.NodeType is not NodeType.Regular and not NodeType.Ephemeral))
-            {
+            if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
                 throw new NoGatherableItemsInNodeExceptions();
-            }
 
             if (target != null)
             {
