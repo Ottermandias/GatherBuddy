@@ -186,7 +186,7 @@ public class GatherWindowPreset
                 changes |= preset.quantities[item] != quantity;
                 if (cfg.PrefferedLocations.TryGetValue(itemId, out var locId))
                 {
-                    if (GatherBuddy.GameData.GatheringNodes.TryGetValue(locId, out var loc))
+                    if (item.NodeList.Where(n => n.Id == locId).FirstOrDefault() is var loc and not null)
                         preset.SetPrefferedLocation(item, loc);
                     else
                         changes = true;
