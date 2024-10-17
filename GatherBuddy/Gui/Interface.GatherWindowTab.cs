@@ -175,6 +175,7 @@ public partial class Interface
     }
 
     private readonly GatherWindowCache _gatherWindowCache;
+    public GatherWindowPreset? CurrentGatherWindowPreset => _gatherWindowCache.Selector.EnsureCurrent();
 
     private void DrawGatherWindowPresetHeaderLine()
     {
