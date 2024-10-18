@@ -297,7 +297,8 @@ namespace GatherBuddy.AutoGather
                     {
                         AutoStatus = "Teleporting...";
                         StopNavigation();
-                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()!.GetRow(91)!.AethernetName.Value!.Name;
+                        var exit = targetInfo.Location.DefaultXCoord < 2000 ? 91u : 92u;
+                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()!.GetRow(exit)!.AethernetName.Value!.Name;
                         Lifestream_IPCSubscriber.AethernetTeleport(name);
                     }
                     return;
