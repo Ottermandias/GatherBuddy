@@ -282,12 +282,37 @@ namespace GatherBuddy.AutoGather
             }
 
             var territoryId = Svc.ClientState.TerritoryType;
+            //Idyllshire to The Dravanian Hinterlands
+            if (territoryId == 478 && targetInfo.Location.Territory.Id == 399 && Lifestream_IPCSubscriber.IsEnabled)
+            {
+                var aetheryte = Svc.Objects.Where(x => x.ObjectKind == ObjectKind.Aetheryte && x.IsTargetable).OrderBy(x => x.Position.DistanceToPlayer()).FirstOrDefault();
+                if (aetheryte != null)
+                {
+                    if (aetheryte.Position.DistanceToPlayer() > 10)
+                    {
+                        AutoStatus = "Moving to aetheryte...";
+                        if (!isPathing && !isPathGenerating) Navigate(aetheryte.Position, false);
+                    }
+                    else if (!Lifestream_IPCSubscriber.IsBusy())
+                    {
+                        AutoStatus = "Teleporting...";
+                        StopNavigation();
+                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()!.GetRow(91)!.AethernetName.Value!.Name;
+                        Lifestream_IPCSubscriber.AethernetTeleport(name);
+                    }
+                    return;
+                }
+            }
+
             var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes.Where(z => z.ZoneId == targetInfo.Location.Territory.Id).FirstOrDefault();
             if (forcedAetheryte.ZoneId != 0 
                 && (GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId
                     || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
                 {
-                AutoStatus = "Manual teleporting required";
+                if (territoryId == 478 && !Lifestream_IPCSubscriber.IsEnabled)
+                    AutoStatus = $"Install Lifestraem or teleport to {targetInfo.Location.Territory.Name} manually";
+                else
+                    AutoStatus = "Manual teleporting required";
                 return;
             }
 
