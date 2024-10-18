@@ -286,9 +286,9 @@ public partial class Interface
 
         for (var i = 0; i < preset.Items.Count; ++i)
         {
-            using var id    = ImRaii.PushId(i);
-            using var group = ImRaii.Group();
             var       item  = preset.Items[i];
+            using var id    = ImRaii.PushId((int)item.ItemId);
+            using var group = ImRaii.Group();
             if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset", false, true))
                 deleteIndex = i;
 
