@@ -30,7 +30,7 @@ public class ContextMenu : IDisposable
             IsEnabled   = true,
             IsReturn    = false,
             PrefixChar  = 'G',
-            Name        = "Gather",
+            Name        = "Gather Manually",
             OnClicked   = OnClick,
             IsSubmenu   = false,
             PrefixColor = 42,
