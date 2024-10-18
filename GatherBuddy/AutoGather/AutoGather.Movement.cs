@@ -13,6 +13,7 @@ using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
+using GatherBuddy.Data;
 
 namespace GatherBuddy.AutoGather
 {
@@ -237,9 +238,17 @@ namespace GatherBuddy.AutoGather
         private bool MoveToTerritory(ILocation location)
         {
             var aetheryte = location.ClosestAetheryte;
-            if (aetheryte == null || !Teleporter.IsAttuned(aetheryte.Id))
+
+            var territory = location.Territory;
+            if (ForcedAetherytes.ZonesWithoutAetherytes.FirstOrDefault(x => x.ZoneId == territory.Id).AetheryteId is var alt && alt > 0)
+                territory = GatherBuddy.GameData.Aetherytes[alt].Territory;
+
+            if (aetheryte == null || !Teleporter.IsAttuned(aetheryte.Id) || aetheryte.Territory != territory)
             {
-                aetheryte = location.Territory.Aetherytes.Where(a => Teleporter.IsAttuned(a.Id)).FirstOrDefault();
+                aetheryte = territory.Aetherytes
+                    .Where(a => Teleporter.IsAttuned(a.Id))
+                    .OrderBy(a => a.WorldDistance(territory.Id, location.IntegralXCoord, location.IntegralYCoord))
+                    .FirstOrDefault();
             }
             if (aetheryte == null)
             {
