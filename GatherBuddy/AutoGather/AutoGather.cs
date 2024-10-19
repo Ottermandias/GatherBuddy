@@ -84,9 +84,6 @@ namespace GatherBuddy.AutoGather
             if (WentHome) return;
             WentHome = true;
 
-            if (!GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
-                return;
-
             if (Dalamud.Conditions[ConditionFlag.BoundByDuty])
                 return;
 
@@ -230,7 +227,9 @@ namespace GatherBuddy.AutoGather
                         return;
                     }
 
-                    GoHome();
+                    if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
+                        GoHome();
+
                     AutoStatus = "No available items to gather";
                     return;
                 }
@@ -445,7 +444,8 @@ namespace GatherBuddy.AutoGather
             if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
                 _soundHelper.PlayHonkSound(3);
             CloseGatheringAddons();
-            TaskManager.Enqueue(GoHome);
+            if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone)
+                TaskManager.Enqueue(GoHome);
         }
 
         private unsafe void CloseGatheringAddons()
