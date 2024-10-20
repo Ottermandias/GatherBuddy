@@ -84,7 +84,7 @@ namespace GatherBuddy.AutoGather
                             TaskManager.Enqueue(() => !IsPathing, 1000);
                             EnqueueDismount();
                             //If even that fails, do advanced unstuck
-                            TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) AdvancedUnstuckCheck(false, false, true); });
+                            TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) _advancedUnstuck.Force(); });
                         }
                     });
                 }
@@ -170,7 +170,6 @@ namespace GatherBuddy.AutoGather
             VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
             VNavmesh_IPCSubscriber.Path_Stop();
             lastResetTime = DateTime.Now;
-            advandedLastPosition = null;
         }
 
         private void Navigate(Vector3 destination, bool shouldFly)
@@ -262,47 +261,6 @@ namespace GatherBuddy.AutoGather
             TaskManager.DelayNext(1500);
 
             return true;
-        }
-
-        private Vector3? advandedLastPosition = null;
-        private DateTime advancedLastMovementTime;
-        private DateTime advancedMovementStart = DateTime.MinValue;
-
-        private bool AdvancedUnstuckCheck(bool isPathGenerating, bool isPathing, bool force = false)
-        {
-            if (!GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
-                return false;
-
-            if (!_movementController.Enabled &&
-                (  force
-                || advandedLastPosition.HasValue && advandedLastPosition.Value.DistanceToPlayer() < 2.0f && isPathing
-                || !isPathGenerating && !isPathing && CurrentDestination != default && CurrentDestination.DistanceToPlayer() > 3))
-            {
-                // If the character hasn't moved much
-                if ((DateTime.Now - advancedLastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
-                {
-                    GatherBuddy.Log.Warning($"Character is stuck, using advanced unstuck methods");
-                    StopNavigation();
-                    var rng = new Random();
-                    var rnd = () => (rng.Next(2) == 0 ? -1 : 1) * rng.NextSingle();
-                    Vector3 newPosition = Player.Position + Vector3.Normalize(new Vector3(rnd(), rnd(), rnd())) * 10f;
-                    _movementController.DesiredPosition = newPosition;
-                    _movementController.Enabled         = true;
-                    advancedMovementStart               = DateTime.Now;
-                }
-            }
-            else if (_movementController.Enabled && (DateTime.Now - advancedMovementStart).TotalSeconds > 1.5)
-            {
-                _movementController.Enabled         = false;
-                _movementController.DesiredPosition = Vector3.Zero;
-            }
-            else
-            {
-                // Character has moved, update last known position and time
-                advandedLastPosition     = Player.Object.Position;
-                advancedLastMovementTime = DateTime.Now;
-            }
-            return _movementController.Enabled;
         }
     }
 }

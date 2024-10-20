@@ -32,14 +32,13 @@ namespace GatherBuddy.AutoGather
             TaskManager                            =  new();
             TaskManager.ShowDebug                  =  false;
             _plugin                                =  plugin;
-            _movementController                    =  new OverrideMovement();
             _soundHelper                           =  new SoundHelper();
+            _advancedUnstuck                       =  new();
         }
-
-        private readonly OverrideMovement _movementController;
 
         private readonly GatherBuddy _plugin;
         private readonly SoundHelper _soundHelper;
+        private readonly AdvancedUnstuck _advancedUnstuck;
         
         public           TaskManager TaskManager { get; }
 
@@ -62,8 +61,6 @@ namespace GatherBuddy.AutoGather
 
                     TaskManager.Abort();
                     targetInfo                          = null;
-                    _movementController.Enabled         = false;
-                    _movementController.DesiredPosition = Vector3.Zero;
                     StopNavigation();
                     AutoStatus = "Idle...";
                 }
@@ -186,8 +183,9 @@ namespace GatherBuddy.AutoGather
             var isPathGenerating = IsPathGenerating;
             var isPathing = IsPathing;
 
-            if (AdvancedUnstuckCheck(isPathGenerating, isPathing))
+            if (_advancedUnstuck.IsRunning || CurrentDestination != default && CurrentDestination.DistanceToPlayer() > 3 && _advancedUnstuck.Check(isPathGenerating, isPathing))
             {
+                StopNavigation();
                 AutoStatus = $"Advanced unstuck in progress!";
                 return;
             }
@@ -195,7 +193,6 @@ namespace GatherBuddy.AutoGather
             if (isPathGenerating)
             {
                 AutoStatus = "Generating path...";
-                advandedLastPosition = null;
                 lastMovementTime = DateTime.Now;
                 return;
             }
@@ -534,7 +531,7 @@ namespace GatherBuddy.AutoGather
 
         public void Dispose()
         {
-            _movementController.Dispose();
+            _advancedUnstuck.Dispose();
             NodeTarcker.Dispose();
         }
     }
