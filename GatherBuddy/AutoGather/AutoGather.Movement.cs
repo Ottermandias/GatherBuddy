@@ -69,9 +69,13 @@ namespace GatherBuddy.AutoGather
         private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem)
         {
             var distance = gameObject.Position.DistanceToPlayer();
+            
             if (distance < 3)
             {
-                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable;
+                waitGP |= !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
+
+                if (Dalamud.Conditions[ConditionFlag.Mounted] && (waitGP || Dalamud.Conditions[ConditionFlag.InFlight] || GetConsumablesWithCastTime() > 0))
                 {
                     //Try to dismount early. It would help with nodes where it is not possible to dismount at vnavmesh's provided floor point
                     EnqueueDismount();
@@ -88,8 +92,7 @@ namespace GatherBuddy.AutoGather
                         }
                     });
                 }
-                else if (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable
-                     || !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
+                else if (waitGP)
                 {
                     StopNavigation();
                     AutoStatus = "Waiting for GP to regenerate...";
@@ -97,9 +100,12 @@ namespace GatherBuddy.AutoGather
                 else
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
-                    if (DoUseConsumablesWithCastTime())
+                    if (GetConsumablesWithCastTime() is var consumable and > 0)
                     {
-                        StopNavigation();
+                        if (IsPathing)
+                            StopNavigation();
+                        else
+                            UseItem(consumable);
                     }
                     else
                     {
