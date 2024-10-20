@@ -103,13 +103,17 @@ namespace GatherBuddy.AutoGather
                     }
                     else
                     {
-                        //Enqueue navigation anyway, since the node may be behind a rock or a tree
-                        Navigate(gameObject.Position, false);
                         EnqueueNodeInteraction(gameObject, targetItem);
+                        //The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
+                        //Enqueue navigation anyway, just in case.
+                        if (!Dalamud.Conditions[ConditionFlag.Diving])
+                        {
+                            TaskManager.Enqueue(() => { if (!Dalamud.Conditions[ConditionFlag.Gathering]) Navigate(gameObject.Position, false); });
+                        }
                     }
                 }
             }
-            else if (distance < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5))
+            else if (distance < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5) && !Dalamud.Conditions[ConditionFlag.Diving])
             {
                 Navigate(gameObject.Position, false);
             }
@@ -176,7 +180,18 @@ namespace GatherBuddy.AutoGather
         {
             if (CurrentDestination == destination && (IsPathing || IsPathGenerating))
                 return;
-            
+
+            //vnavmesh can't find a path on mesh underwater (because the character is basically flying), nor can it fly without a mount.
+            //Ensure that you are always mounted when underwater.
+            if (Dalamud.Conditions[ConditionFlag.Diving] && !Dalamud.Conditions[ConditionFlag.Mounted])
+            {
+                GatherBuddy.Log.Error("BUG: Navigate() called underwater without mounting up first");
+                Enabled = false;
+                return;
+            }
+
+            shouldFly |= Dalamud.Conditions[ConditionFlag.Diving];
+
             StopNavigation();
             CurrentDestination = destination;
             GatherBuddy.Log.Debug($"Navigating to {CurrentDestination}");
