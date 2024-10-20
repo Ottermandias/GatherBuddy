@@ -184,7 +184,7 @@ public partial class Interface
         public static void DrawExecutionDelay()
         {
             var tmp = (int)GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
-            if (ImGui.DragInt("Execution delay (Microseconds)", ref tmp, 1, 0, 1500))
+            if (ImGui.DragInt("Execution delay (Milliseconds)", ref tmp, 1, 0, 1500))
             {
                 GatherBuddy.Config.AutoGatherConfig.ExecutionDelay = (uint)Math.Min(Math.Max(0, tmp), 10000);
                 GatherBuddy.Config.Save();
