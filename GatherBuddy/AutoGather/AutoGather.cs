@@ -21,6 +21,8 @@ using Dalamud.Utility;
 using ECommons.ExcelServices;
 using ECommons.Automation;
 using GatherBuddy.Data;
+using NodeType = GatherBuddy.Enums.NodeType;
+using ECommons.UIHelpers.AddonMasterImplementations;
 
 namespace GatherBuddy.AutoGather
 {
@@ -447,11 +449,37 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void CloseGatheringAddons()
         {
-            if (MasterpieceAddon != null)
-                EnqueueActionWithDelay(() => { if (MasterpieceAddon is var addon and not null) addon->Close(true); });
-            if (GatheringAddon != null)
-                EnqueueActionWithDelay(() => { if (GatheringAddon is var addon and not null) addon->Close(true); });
-            TaskManager.Enqueue(() => !IsGathering);
+            var masterpieceOpen = MasterpieceAddon != null;
+            var gatheringOpen = GatheringAddon != null;
+            if (masterpieceOpen)
+            {
+                EnqueueActionWithDelay(() => { if (MasterpieceAddon is var addon and not null) { Callback.Fire(&addon->AtkUnitBase, true, -1); } });
+                TaskManager.Enqueue(() => MasterpieceAddon == null);
+                TaskManager.Enqueue(() => GatheringAddon != null);
+            }
+            if (gatheringOpen || masterpieceOpen)
+            {
+                EnqueueActionWithDelay(() => { if (GatheringAddon is var addon and not null) { Callback.Fire(&addon->AtkUnitBase, true, -1); } });
+                TaskManager.Enqueue(() => {
+                    var addon = (AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno");
+                    if (addon != null)
+                    {
+                        EnqueueActionWithDelay(() =>
+                        {
+                            if ((AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno") is var addon and not null)
+                            {
+                                var master = new AddonMaster.SelectYesno(addon);
+                                master.Yes();
+                            }
+                        });
+                        return true;
+                    }
+                    else
+                    {
+                        return IsGathering;
+                    }    
+                });
+            }
         }
 
         private static unsafe void RefreshNextTresureMapAllowance()
