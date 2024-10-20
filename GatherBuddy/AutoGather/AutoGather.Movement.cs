@@ -53,7 +53,7 @@ namespace GatherBuddy.AutoGather
             }
 
             TaskManager.Enqueue(StopNavigation);
-            TaskManager.Enqueue(doMount);
+            EnqueueActionWithDelay(doMount);
             TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted], 2000);
         }
 
@@ -105,7 +105,7 @@ namespace GatherBuddy.AutoGather
                         if (IsPathing)
                             StopNavigation();
                         else
-                            UseItem(consumable);
+                            EnqueueActionWithDelay(() => UseItem(consumable));
                     }
                     else
                     {
@@ -276,7 +276,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             }
 
-            Teleporter.Teleport(aetheryte.Id);
+            EnqueueActionWithDelay(() => Teleporter.Teleport(aetheryte.Id));
             TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
             TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
             TaskManager.DelayNext(1500);

@@ -37,19 +37,19 @@ public partial class AutoGather
         if (MaterializeAddon == null)
         {
             TaskManager.Enqueue(StopNavigation);
-            TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
+            EnqueueActionWithDelay(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 14));
             TaskManager.Enqueue(() => MaterializeAddon != null);
             return;
         }
 
-        TaskManager.Enqueue(() => { if (MaterializeAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, 2, 0); });
+        EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, 2, 0); });
         TaskManager.Enqueue(() => MaterializeDialogAddon != null, 1000);
-        TaskManager.Enqueue(() => { if (MaterializeDialogAddon is var addon and not null) new MaterializeDialog(addon).Materialize(); });
+        EnqueueActionWithDelay(() => { if (MaterializeDialogAddon is var addon and not null) new MaterializeDialog(addon).Materialize(); });
         TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39]);
 
         if (SpiritBondMax == 1) 
         {
-            TaskManager.Enqueue(() => { if (MaterializeAddon is var addon and not null) addon->Close(true); });
+            EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) addon->Close(true); });
         }
     }
 }

@@ -6,7 +6,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using ECommons.Automation.UIInput;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
-using NodeType = GatherBuddy.Enums.NodeType;
+using Dalamud.Game.ClientState.Conditions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -14,18 +14,12 @@ namespace GatherBuddy.AutoGather
     {
         private unsafe void EnqueueNodeInteraction(IGameObject gameObject, Gatherable targetItem)
         {
-            if (!CanAct)
-                return;
-
             var targetSystem = TargetSystem.Instance();
             if (targetSystem == null)
                 return;
 
-            TaskManager.Enqueue(() =>
-            {
-                targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
-            });
-            TaskManager.DelayNext(500);
+            TaskManager.Enqueue(() => targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address));
+            TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.Gathering], 500);
         }
 
         private unsafe void EnqueueGatherItem(ItemSlot slot)
@@ -41,11 +35,14 @@ namespace GatherBuddy.AutoGather
             var eventData = EventData.ForNormalTarget(target, &GatheringAddon->AtkUnitBase);
             var inputData = InputData.Empty();
 
-            //Communicator.Print("Queuing click.");
-            EnqueueGatherAction(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data,
-                inputData.Data));
+            EnqueueActionWithDelay(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data));
+
             if (slot.Item.IsTreasureMap)
-                EnqueueGatherAction(RefreshNextTresureMapAllowance);
+            {
+                TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.Gathering42], 1000);
+                TaskManager.Enqueue(() => !Dalamud.Conditions[ConditionFlag.Gathering42]);
+                TaskManager.Enqueue(RefreshNextTresureMapAllowance);
+            }
         }
 
         /// <summary>

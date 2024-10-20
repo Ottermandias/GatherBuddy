@@ -198,7 +198,7 @@ namespace GatherBuddy.AutoGather
                 && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId) > 0
                 )
                 {
-                    TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
+                    EnqueueActionWithDelay(() => UseItem(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
                     return true;
                 }
 
@@ -208,7 +208,7 @@ namespace GatherBuddy.AutoGather
                     && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId) > 0
                     )
                 {
-                    TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
+                    EnqueueActionWithDelay(() => UseItem(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
                     return true;
                 }
 
@@ -218,7 +218,7 @@ namespace GatherBuddy.AutoGather
                     && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId) > 0
                     )
                 {
-                    TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
+                    EnqueueActionWithDelay(() => UseItem(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
                     return true;
                 }
             }

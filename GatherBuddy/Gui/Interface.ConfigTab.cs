@@ -181,6 +181,18 @@ public partial class Interface
             ImGuiUtil.HoverTooltip("How far in advance of the node actually being up GBR should consider the node to be up");
         }
 
+        public static void DrawExecutionDelay()
+        {
+            var tmp = (int)GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
+            if (ImGui.DragInt("Execution delay (Microseconds)", ref tmp, 1, 0, 1500))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ExecutionDelay = (uint)Math.Min(Math.Max(0, tmp), 10000);
+                GatherBuddy.Config.Save();
+            }
+
+            ImGuiUtil.HoverTooltip("Delay executing each action by the specified amount.");
+        }
+
         public static void DrawBYIIBox()
             => DrawCheckbox("Use Bountiful Yield/Harvest", "Toggle whether to use Bountiful Yield/Harvest for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction = b);
@@ -1376,6 +1388,7 @@ public partial class Interface
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();
+                ConfigFunctions.DrawExecutionDelay();
                 ImGui.TreePop();
             }
         }

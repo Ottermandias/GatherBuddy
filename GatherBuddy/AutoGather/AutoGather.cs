@@ -125,7 +125,7 @@ namespace GatherBuddy.AutoGather
 
             if (!CanAct)
             {
-                AutoStatus = "Player is busy...";
+                AutoStatus = Dalamud.Conditions[ConditionFlag.Gathering] ? AutoStatus = "Gathering..." : "Player is busy...";
                 return;
             }
 
@@ -442,13 +442,15 @@ namespace GatherBuddy.AutoGather
                 _soundHelper.PlayHonkSound(3);
             CloseGatheringAddons();
             if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone)
-                TaskManager.Enqueue(GoHome);
+                EnqueueActionWithDelay(GoHome);
         }
 
         private unsafe void CloseGatheringAddons()
         {
-            TaskManager.Enqueue(() => { if (MasterpieceAddon is var addon and not null) addon->Close(true); });
-            TaskManager.Enqueue(() => { if (GatheringAddon is var addon and not null) addon->Close(true); });
+            if (MasterpieceAddon != null)
+                EnqueueActionWithDelay(() => { if (MasterpieceAddon is var addon and not null) addon->Close(true); });
+            if (GatheringAddon != null)
+                EnqueueActionWithDelay(() => { if (GatheringAddon is var addon and not null) addon->Close(true); });
             TaskManager.Enqueue(() => !IsGathering);
         }
 
