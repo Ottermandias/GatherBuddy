@@ -472,6 +472,7 @@ namespace GatherBuddy.AutoGather
                                 master.Yes();
                             }
                         });
+                        TaskManager.Enqueue(() => !IsGathering);
                         return true;
                     }
                     else
