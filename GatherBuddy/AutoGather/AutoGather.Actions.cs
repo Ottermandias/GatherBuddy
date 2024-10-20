@@ -175,7 +175,6 @@ namespace GatherBuddy.AutoGather
             }
 
             TaskManager.Enqueue(action);
-            TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Gathering42]);
         }
 
         private unsafe void DoCollectibles(int itemsLeft)
