@@ -1,12 +1,8 @@
-﻿using FFXIVClientStructs.FFXIV.Client.UI.Agent;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Reflection;
-using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 
@@ -147,18 +143,26 @@ namespace GatherBuddy.CustomInfo
 
         public static void AddLocation(uint nodeId, Vector3 location)
         {
-            if (!WorldLocationsByNodeId.ContainsKey(nodeId))
+            if (!WorldLocationsByNodeId.TryGetValue(nodeId, out var list))
             {
-                WorldLocationsByNodeId[nodeId] = new List<Vector3>();
+                lock (WorldLocationsByNodeId)
+                    WorldLocationsByNodeId[nodeId] = list = [];
+                foreach (var node in GatherBuddy.GameData.GatheringNodes.Values.Where(v => v.WorldPositions.ContainsKey(nodeId)))
+                    node.WorldPositions[nodeId] = list;
             }
-
-            if (!WorldLocationsByNodeId[nodeId].Contains(location))
+                
+            if (!list.Contains(location))
             {
-                WorldLocationsByNodeId[nodeId].Add(location);
-                Task.Run(SaveLocationsToFile);
+                lock (WorldLocationsByNodeId)
+                    list.Add(location);
+
+                Task.Run(() => { lock (WorldLocationsByNodeId) SaveLocationsToFile(); });
                 GatherBuddy.Log.Debug($"Added location {location} to node {nodeId}");
+                WorldLocationsChanged?.Invoke();
             }
         }
+
+        public static event Action? WorldLocationsChanged;
 
         public static void SaveLocationsToFile()
         {

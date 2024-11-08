@@ -4,6 +4,7 @@ using Dalamud.Game.Gui.ContextMenu;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 
 namespace GatherBuddy.Plugin;
@@ -13,11 +14,14 @@ public class ContextMenu : IDisposable
     private readonly IContextMenu _contextMenu;
     private readonly Executor     _executor;
     private          IGatherable? _lastGatherable;
+    private          GatherBuddy  _plugin;
 
     private readonly MenuItem _menuItem;
+    private readonly MenuItem _menuItemAuto;
 
-    public ContextMenu(IContextMenu menu, Executor executor)
+    public ContextMenu(GatherBuddy plugin, IContextMenu menu, Executor executor)
     {
+        _plugin = plugin;
         _contextMenu = menu;
         _executor    = executor;
 
@@ -26,9 +30,20 @@ public class ContextMenu : IDisposable
             IsEnabled   = true,
             IsReturn    = false,
             PrefixChar  = 'G',
-            Name        = "Gather",
+            Name        = "Gather Manually",
             OnClicked   = OnClick,
             IsSubmenu   = false,
+            PrefixColor = 42,
+        };
+
+        _menuItemAuto = new MenuItem
+        {
+            IsEnabled = true,
+            IsReturn = false,
+            PrefixChar = 'G',
+            Name = "Add to Auto-Gather List",
+            OnClicked = OnClickAuto,
+            IsSubmenu = false,
             PrefixColor = 42,
         };
 
@@ -40,6 +55,22 @@ public class ContextMenu : IDisposable
     {
         if (_lastGatherable != null)
             _executor.GatherItem(_lastGatherable);
+    }
+
+    private void OnClickAuto(IMenuItemClickedArgs args)
+    {
+        if (_lastGatherable is Gatherable gatherable)
+        {
+            var preset = _plugin.Interface.CurrentGatherWindowPreset;
+
+            if (preset == null)
+            {
+                preset = new();
+                _plugin.GatherWindowManager.AddPreset(preset);
+            }
+
+            _plugin.GatherWindowManager.AddItem(preset, gatherable);
+        }            
     }
 
     public void Enable()
@@ -76,6 +107,8 @@ public class ContextMenu : IDisposable
 
         if (_lastGatherable != null)
             args.AddMenuItem(_menuItem);
+        if (_lastGatherable is Gatherable)
+            args.AddMenuItem(_menuItemAuto);
     }
 
     private static unsafe IGatherable? CheckGatheringNote(IMenuOpenedArgs args)

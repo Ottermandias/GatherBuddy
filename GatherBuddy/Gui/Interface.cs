@@ -95,5 +95,6 @@ public partial class Interface : Window, IDisposable
         _headerCache.Dispose();
         _weatherTable.Dispose();
         _itemTable.Dispose();
+        _gatherWindowCache.Dispose();
     }
 }

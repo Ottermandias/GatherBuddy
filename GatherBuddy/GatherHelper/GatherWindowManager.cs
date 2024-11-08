@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Alarms;
+using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
@@ -20,6 +21,7 @@ public partial class GatherWindowManager : IDisposable
 
     public List<IGatherable> ActiveItems = new();
     public List<IGatherable> SortedItems = new();
+    public List<IGatherable> FallbackItems = new();
 
     private readonly AlarmManager _alarms;
     private          bool         _sortDirty = true;
@@ -52,7 +54,7 @@ public partial class GatherWindowManager : IDisposable
     public void SetActiveItems()
     {
         ActiveItems.Clear();
-        foreach (var item in Presets.Where(p => p.Enabled)
+        foreach (var item in Presets.Where(p => p.Enabled && !p.Fallback)
                      .SelectMany(p => p.Items)
                      .Where(i => !ActiveItems.Contains(i)))
             ActiveItems.Add(item);
@@ -63,6 +65,9 @@ public partial class GatherWindowManager : IDisposable
         SortedItems.Clear();
         SortedItems.InsertRange(0, ActiveItems);
         _sortDirty = true;
+
+        FallbackItems.Clear();
+        FallbackItems.AddRange(Presets.Where(p => p.Enabled && p.Fallback).SelectMany(p => p.Items).Distinct());
     }
 
     public IList<IGatherable> GetList()
@@ -77,14 +82,15 @@ public partial class GatherWindowManager : IDisposable
         return SortedItems;
     }
 
-    public uint GetTotalQuantitiesForItem(IGatherable gatherable)
+    public uint GetTotalQuantitiesForItem(IGatherable item)
     {
+        if (item is not Gatherable gatherable)
+            return 0;
+
         uint total = 0;
         foreach (var preset in Presets)
         {
-            if (!preset.Enabled)
-                continue;
-            if (preset.Quantities.TryGetValue(gatherable.ItemId, out var quantity))
+            if (preset.Enabled && !preset.Fallback && preset.Quantities.TryGetValue(gatherable, out var quantity))
             {
                 total += quantity;
             }

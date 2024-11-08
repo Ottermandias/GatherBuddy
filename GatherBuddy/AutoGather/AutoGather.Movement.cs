@@ -12,6 +12,8 @@ using System.Numerics;
 using Dalamud.Game.ClientState.Objects.Types;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using GatherBuddy.SeFunctions;
+using GatherBuddy.Data;
 
 namespace GatherBuddy.AutoGather
 {
@@ -51,7 +53,7 @@ namespace GatherBuddy.AutoGather
             }
 
             TaskManager.Enqueue(StopNavigation);
-            TaskManager.Enqueue(doMount);
+            EnqueueActionWithDelay(doMount);
             TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted], 2000);
         }
 
@@ -67,9 +69,13 @@ namespace GatherBuddy.AutoGather
         private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem)
         {
             var distance = gameObject.Position.DistanceToPlayer();
+            
             if (distance < 3)
             {
-                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable;
+                waitGP |= !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
+
+                if (Dalamud.Conditions[ConditionFlag.Mounted] && (waitGP || Dalamud.Conditions[ConditionFlag.InFlight] || GetConsumablesWithCastTime() > 0))
                 {
                     //Try to dismount early. It would help with nodes where it is not possible to dismount at vnavmesh's provided floor point
                     EnqueueDismount();
@@ -82,12 +88,11 @@ namespace GatherBuddy.AutoGather
                             TaskManager.Enqueue(() => !IsPathing, 1000);
                             EnqueueDismount();
                             //If even that fails, do advanced unstuck
-                            TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) AdvancedUnstuckCheck(false, false, true); });
+                            TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) _advancedUnstuck.Force(); });
                         }
                     });
                 }
-                else if (targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable
-                     || !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering)
+                else if (waitGP)
                 {
                     StopNavigation();
                     AutoStatus = "Waiting for GP to regenerate...";
@@ -95,19 +100,26 @@ namespace GatherBuddy.AutoGather
                 else
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
-                    if (DoUseConsumablesWithCastTime())
+                    if (GetConsumablesWithCastTime() is var consumable and > 0)
                     {
-                        StopNavigation();
+                        if (IsPathing)
+                            StopNavigation();
+                        else
+                            EnqueueActionWithDelay(() => UseItem(consumable));
                     }
                     else
                     {
-                        //Enqueue navigation anyway, since the node may be behind a rock or a tree
-                        Navigate(gameObject.Position, false);
                         EnqueueNodeInteraction(gameObject, targetItem);
+                        //The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
+                        //Enqueue navigation anyway, just in case.
+                        if (!Dalamud.Conditions[ConditionFlag.Diving])
+                        {
+                            TaskManager.Enqueue(() => { if (!Dalamud.Conditions[ConditionFlag.Gathering]) Navigate(gameObject.Position, false); });
+                        }
                     }
                 }
             }
-            else if (distance < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5))
+            else if (distance < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5) && !Dalamud.Conditions[ConditionFlag.Diving])
             {
                 Navigate(gameObject.Position, false);
             }
@@ -168,14 +180,24 @@ namespace GatherBuddy.AutoGather
             VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
             VNavmesh_IPCSubscriber.Path_Stop();
             lastResetTime = DateTime.Now;
-            advandedLastPosition = null;
         }
 
         private void Navigate(Vector3 destination, bool shouldFly)
         {
             if (CurrentDestination == destination && (IsPathing || IsPathGenerating))
                 return;
-            
+
+            //vnavmesh can't find a path on mesh underwater (because the character is basically flying), nor can it fly without a mount.
+            //Ensure that you are always mounted when underwater.
+            if (Dalamud.Conditions[ConditionFlag.Diving] && !Dalamud.Conditions[ConditionFlag.Mounted])
+            {
+                GatherBuddy.Log.Error("BUG: Navigate() called underwater without mounting up first");
+                Enabled = false;
+                return;
+            }
+
+            shouldFly |= Dalamud.Conditions[ConditionFlag.Diving];
+
             StopNavigation();
             CurrentDestination = destination;
             GatherBuddy.Log.Debug($"Navigating to {CurrentDestination}");
@@ -233,56 +255,33 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private void MoveToTerritory(ILocation location)
+        private bool MoveToTerritory(ILocation location)
         {
-            TaskManager.EnqueueImmediate(() => _plugin.Executor.GatherLocation(location));
-            if (location.Territory.Id != Svc.ClientState.TerritoryType)
+            var aetheryte = location.ClosestAetheryte;
+
+            var territory = location.Territory;
+            if (ForcedAetherytes.ZonesWithoutAetherytes.FirstOrDefault(x => x.ZoneId == territory.Id).AetheryteId is var alt && alt > 0)
+                territory = GatherBuddy.GameData.Aetherytes[alt].Territory;
+
+            if (aetheryte == null || !Teleporter.IsAttuned(aetheryte.Id) || aetheryte.Territory != territory)
             {
-                TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
-                TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
+                aetheryte = territory.Aetherytes
+                    .Where(a => Teleporter.IsAttuned(a.Id))
+                    .OrderBy(a => a.WorldDistance(territory.Id, location.IntegralXCoord, location.IntegralYCoord))
+                    .FirstOrDefault();
             }
-            TaskManager.DelayNext(1500);
-        }
-
-        private Vector3? advandedLastPosition = null;
-        private DateTime advancedLastMovementTime;
-        private DateTime advancedMovementStart = DateTime.MinValue;
-
-        private bool AdvancedUnstuckCheck(bool isPathGenerating, bool isPathing, bool force = false)
-        {
-            if (!GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
+            if (aetheryte == null)
+            {
+                Communicator.PrintError("Couldn't find an attuned aetheryte to teleport to.");
                 return false;
+            }
 
-            if (!_movementController.Enabled &&
-                (  force
-                || advandedLastPosition.HasValue && advandedLastPosition.Value.DistanceToPlayer() < 2.0f && isPathing
-                || !isPathGenerating && !isPathing && CurrentDestination != default && CurrentDestination.DistanceToPlayer() > 3))
-            {
-                // If the character hasn't moved much
-                if ((DateTime.Now - advancedLastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
-                {
-                    GatherBuddy.Log.Warning($"Character is stuck, using advanced unstuck methods");
-                    StopNavigation();
-                    var rng = new Random();
-                    var rnd = () => (rng.Next(2) == 0 ? -1 : 1) * rng.NextSingle();
-                    Vector3 newPosition = Player.Position + Vector3.Normalize(new Vector3(rnd(), rnd(), rnd())) * 10f;
-                    _movementController.DesiredPosition = newPosition;
-                    _movementController.Enabled         = true;
-                    advancedMovementStart               = DateTime.Now;
-                }
-            }
-            else if (_movementController.Enabled && (DateTime.Now - advancedMovementStart).TotalSeconds > 1.5)
-            {
-                _movementController.Enabled         = false;
-                _movementController.DesiredPosition = Vector3.Zero;
-            }
-            else
-            {
-                // Character has moved, update last known position and time
-                advandedLastPosition     = Player.Object.Position;
-                advancedLastMovementTime = DateTime.Now;
-            }
-            return _movementController.Enabled;
+            EnqueueActionWithDelay(() => Teleporter.Teleport(aetheryte.Id));
+            TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.BetweenAreas]);
+            TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.BetweenAreas]);
+            TaskManager.DelayNext(1500);
+
+            return true;
         }
     }
 }

@@ -58,15 +58,22 @@ public partial class GatherWindowManager
         if (preset.Items.Count > 0)
             SetActiveItems();
     }
-
-    public void AddItem(GatherWindowPreset preset, IGatherable item)
+    public void SetFallback(GatherWindowPreset preset, bool value)
     {
-        if (!preset.Add(item))
-            return;
-
+        preset.Fallback = value;
         Save();
-        if (preset.Enabled)
+        if (preset.Items.Count > 0)
             SetActiveItems();
+    }
+
+    public void AddItem(GatherWindowPreset preset, Gatherable item)
+    {
+        if (preset.Add(item))
+        {
+            Save();
+            if (preset.Enabled)
+                SetActiveItems();
+        }
     }
 
     public void RemoveItem(GatherWindowPreset preset, int idx)
@@ -74,81 +81,60 @@ public partial class GatherWindowManager
         if (idx < 0 || idx >= preset.Items.Count)
             return;
         
-        if (preset.Quantities.ContainsKey(preset.Items[idx].ItemId))
-            preset.Quantities.Remove(preset.Items[idx].ItemId);
-
-        preset.Items.RemoveAt(idx);
+        preset.RemoveAt(idx);
         Save();
         if (preset.Enabled)
             SetActiveItems();
     }
 
-    public void ChangeItem(GatherWindowPreset preset, IGatherable item, int idx)
+    public void ChangeItem(GatherWindowPreset preset, Gatherable item, int idx)
     {
         if (idx < 0 || idx >= preset.Items.Count)
             return;
 
-        if (ReferenceEquals(preset.Items[idx], item))
-            return;
-
-        preset.Items[idx] = item;
-        Save();
-        if (preset.Enabled)
-            SetActiveItems();
+        if (preset.Replace(idx, item))
+        {
+            Save();
+            if (preset.Enabled)
+                SetActiveItems();
+        }
     }
 
-    public void ChangeQuantity(GatherWindowPreset preset, uint quantity, uint itemId)
+    public void ChangeQuantity(GatherWindowPreset preset, Gatherable item, uint quantity)
     {
-        if (!preset.Quantities.TryGetValue(itemId, out var presetQuantity))
-            return;
-        if (presetQuantity == quantity)
-            return;
-        
-        if (quantity < 1)
-            quantity = 1;
-        if (quantity > 9999)
-            quantity = 9999;
-        if (GatherBuddy.GameData.Gatherables[itemId].ItemData.FilterGroup == 18)
-            quantity = 1;
-        
-        preset.Quantities[itemId] = quantity;
-        Save();
-        if (preset.Enabled)
-            SetActiveItems();
+        if (preset.SetQuantity(item, quantity))
+        {
+            Save();
+            if (preset.Enabled)
+                SetActiveItems();
+        }
     }
 
     public void MoveItem(GatherWindowPreset preset, int idx1, int idx2)
     {
-        if (!Functions.Move(preset.Items, idx1, idx2))
-            return;
-
-        Save();
-        if (preset.Enabled)
-            SetActiveItems();
+        if (preset.Move(idx1, idx2))
+        {
+            Save();
+            if (preset.Enabled)
+                SetActiveItems();
+        }
     }
 
-    public void ChangePreferredLocation(GatherWindowPreset preset, IGatherable item, ILocation? location)
+    public void ChangePreferredLocation(GatherWindowPreset preset, Gatherable item, GatheringNode? location)
     {
-        if (item is not Gatherable) return;
-
-        if (location is not GatheringNode)
-            preset.PreferredLocations.Remove(item.ItemId);
-        else
-            preset.PreferredLocations[item.ItemId] = location.Id;
-        
-        Save();
+        if (preset.SetPrefferedLocation(item, location))
+        {
+            Save();
+        }
     }
 
     public GatheringNode? GetPreferredLocation(Gatherable item)
     {
         foreach (var preset in Presets)
         {
-            if (preset.Enabled)
+            if (preset.Enabled && !preset.Fallback && preset.PreferredLocations.TryGetValue(item, out var loc))
             {
-                if (preset.PreferredLocations.TryGetValue(item.ItemId, out var locId))
-                {
-                    return GatherBuddy.GameData.GatheringNodes.GetValueOrDefault(locId);
-                }
+                return loc;
             }
         }
         return null;

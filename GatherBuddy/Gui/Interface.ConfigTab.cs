@@ -1,26 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.NetworkInformation;
 using System.Numerics;
-using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game.Text;
-using Dalamud.Interface;
 using Dalamud.Interface.Utility;
-using ECommons.GameHelpers;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using ECommons.ImGuiMethods;
 using GatherBuddy.Alarms;
 using GatherBuddy.AutoGather;
 using GatherBuddy.Config;
-using GatherBuddy.Enums;
-using GatherBuddy.FishTimer;
-using GatherBuddy.Plugin;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets2;
 using OtterGui;
-using OtterGui.Table;
 using OtterGui.Widgets;
-using Action = System.Action;
 using FishRecord = GatherBuddy.FishTimer.FishRecord;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -66,8 +54,26 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.DoGathering, b => GatherBuddy.Config.AutoGatherConfig.DoGathering = b);
 
         public static void DrawGoHomeBox()
-            => DrawCheckbox("Go home when idle", "Uses the '/li auto' command to take you home when done gathering or waiting for timed nodes",
-                GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
+        {
+            DrawCheckbox("Go home when done", "Uses the '/li auto' command to take you home when done gathering",
+                        GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone = b);
+            ImGui.SameLine();
+            ImGuiEx.PluginAvailabilityIndicator([new("Lifestream")]);
+            DrawCheckbox("Go home when idle", "Uses the '/li auto' command to take you home when waiting for timed nodes",
+                        GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
+            ImGui.SameLine();
+            ImGuiEx.PluginAvailabilityIndicator([new("Lifestream")]);
+        }
+
+        public static void DrawUseSkillsForFallabckBox()
+            => DrawCheckbox("Use skills for fallback items", "Use skills when gathering items from fallback presets",
+                GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems, b => GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems = b);
+
+        public static void DrawAbandonNodesBox()
+            => DrawCheckbox("Abandon nodes without needed items", 
+                "Stop gathering and abandon the node when you have gathered enough items,\n" +
+                "or if the node didn't have any needed items on the first place.",
+                GatherBuddy.Config.AutoGatherConfig.AbandonNodes, b => GatherBuddy.Config.AutoGatherConfig.AbandonNodes = b);
 
         public static void DrawAdvancedUnstuckBox()
             => DrawCheckbox("Enable Experimental Unstuck Method",
@@ -173,6 +179,18 @@ public partial class Interface
             }
 
             ImGuiUtil.HoverTooltip("How far in advance of the node actually being up GBR should consider the node to be up");
+        }
+
+        public static void DrawExecutionDelay()
+        {
+            var tmp = (int)GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
+            if (ImGui.DragInt("Execution delay (Milliseconds)", ref tmp, 1, 0, 1500))
+            {
+                GatherBuddy.Config.AutoGatherConfig.ExecutionDelay = (uint)Math.Min(Math.Max(0, tmp), 10000);
+                GatherBuddy.Config.Save();
+            }
+
+            ImGuiUtil.HoverTooltip("Delay executing each action by the specified amount.");
         }
 
         public static void DrawBYIIBox()
@@ -1175,6 +1193,8 @@ public partial class Interface
                 ConfigFunctions.DrawSortingMethodCombo();
                 ConfigFunctions.DrawUseGivingLandOnCooldown();
                 ConfigFunctions.DrawGoHomeBox();
+                ConfigFunctions.DrawUseSkillsForFallabckBox();
+                ConfigFunctions.DrawAbandonNodesBox();
                 ImGui.TreePop();
             }
 
@@ -1368,6 +1388,7 @@ public partial class Interface
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();
+                ConfigFunctions.DrawExecutionDelay();
                 ImGui.TreePop();
             }
         }

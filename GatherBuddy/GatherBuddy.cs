@@ -106,7 +106,7 @@ public partial class GatherBuddy : IDalamudPlugin
             CurrentWeather      = new CurrentWeather(Dalamud.SigScanner);
             TugType             = new SeTugType(Dalamud.SigScanner);
             Executor            = new Executor(this);
-            ContextMenu         = new ContextMenu(Dalamud.ContextMenu, Executor);
+            ContextMenu         = new ContextMenu(this, Dalamud.ContextMenu, Executor);
             GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
             LocationManager     = LocationManager.Load();
             AlarmManager        = AlarmManager.Load();
@@ -155,16 +155,26 @@ public partial class GatherBuddy : IDalamudPlugin
         }
     }
 
+    private int LastObjectsLength;
+    private DateTime LastObjectsScan = DateTime.Now;
     private void Update(IFramework framework)
     {
-        var objs = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
-        foreach (var obj in objs)
-            WorldData.AddLocation(obj.DataId, obj.Position);
+        var prev = LastObjectsLength;
+        LastObjectsLength = Svc.Objects.Length;
+        //Scan objects every 5 secons or when the number of objects change
+        if (prev != LastObjectsLength || (DateTime.Now - LastObjectsScan).TotalSeconds >= 5) 
+        {
+            LastObjectsScan = DateTime.Now;
+            var objs = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
+            foreach (var obj in objs)
+                WorldData.AddLocation(obj.DataId, obj.Position);
+        }
         AutoGather.DoAutoGather();
     }
 
     void IDisposable.Dispose()
     {
+        Dalamud.Framework.Update -= Update;
         FishRecorder?.Dispose();
         ContextMenu?.Dispose();
         UptimeManager?.Dispose();

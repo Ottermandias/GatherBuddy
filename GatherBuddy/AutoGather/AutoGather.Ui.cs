@@ -72,7 +72,7 @@ namespace GatherBuddy.AutoGather
             {
                 ImGui.TableSetupColumn("Name");
                 ImGui.TableSetupColumn("Targetable");
-                ImGui.TableSetupColumn("Desirable");
+                ImGui.TableSetupColumn("NodeId");
                 ImGui.TableSetupColumn("Position");
                 ImGui.TableSetupColumn("Distance");
                 ImGui.TableSetupColumn("Action");
@@ -89,7 +89,7 @@ namespace GatherBuddy.AutoGather
                     ImGui.TableSetColumnIndex(1);
                     ImGui.Text(node.IsTargetable ? "Y" : "N");
                     ImGui.TableSetColumnIndex(2);
-                    ImGui.Text("Honk (Deprecated)");
+                    ImGui.Text(node.DataId.ToString());
                     ImGui.TableSetColumnIndex(3);
                     ImGui.Text(node.Position.ToString());
                     ImGui.TableSetColumnIndex(4);

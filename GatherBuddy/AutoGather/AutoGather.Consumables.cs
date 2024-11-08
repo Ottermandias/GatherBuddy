@@ -198,7 +198,7 @@ namespace GatherBuddy.AutoGather
                 && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId) > 0
                 )
                 {
-                    TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
+                    EnqueueActionWithDelay(() => UseItem(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
                     return true;
                 }
 
@@ -208,7 +208,7 @@ namespace GatherBuddy.AutoGather
                     && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId) > 0
                     )
                 {
-                    TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
+                    EnqueueActionWithDelay(() => UseItem(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
                     return true;
                 }
 
@@ -218,7 +218,7 @@ namespace GatherBuddy.AutoGather
                     && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId) > 0
                     )
                 {
-                    TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
+                    EnqueueActionWithDelay(() => UseItem(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
                     return true;
                 }
             }
@@ -226,7 +226,7 @@ namespace GatherBuddy.AutoGather
         }
 
         // Manuals have cast time and cannot be used while mounted
-        private bool DoUseConsumablesWithCastTime()
+        private uint GetConsumablesWithCastTime()
         {
             if (GatherBuddy.Config.AutoGatherConfig.ManualConfig.UseConsumable
                 && GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId > 0
@@ -234,8 +234,7 @@ namespace GatherBuddy.AutoGather
                 && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId) > 0
                 )
             {
-                TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId));
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId;
             }
 
             if (GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.UseConsumable
@@ -244,8 +243,7 @@ namespace GatherBuddy.AutoGather
                 && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId) > 0
                 )
             {
-                TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId));
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId;
             }
 
             if (GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.UseConsumable
@@ -254,10 +252,9 @@ namespace GatherBuddy.AutoGather
                 && GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId) > 0
                 )
             {
-                TaskManager.Enqueue(() => UseItem(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId));
-                return true;
+                return GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId;
             }
-            return false;
+            return 0;
         }
     }
 }
