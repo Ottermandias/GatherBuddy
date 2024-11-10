@@ -17,44 +17,42 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (LuckUsed[1] || NodeTracker.HiddenRevealed)
                 return false;
-            if (!CheckConditions(Actions.Luck, GatherBuddy.Config.AutoGatherConfig.LuckConfig, gatherable, false /*not used*/))
-                return false;
             if (!gatherable.GatheringData.IsHidden && !gatherable.IsTreasureMap)
                 return false;
 
             return true;
         }
 
-        public bool ShouldUseBountiful(ItemSlot slot)
+        public bool ShouldUseBountiful(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.Bountiful, GatherBuddy.Config.AutoGatherConfig.BYIIConfig, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.Bountiful, config.Bountiful, slot.Item, slot.Rare))
                 return false;
             if (Player.Status.Any(s => s.StatusId == Actions.BountifulII.EffectId))
                 return false;
-            if (CalculateBountifulBonus(slot.Item) < GatherBuddy.Config.AutoGatherConfig.BYIIConfig.GetOptionalProperty<int>("MinimumIncrease"))
+            if (CalculateBountifulBonus(slot.Item) < config.Bountiful.MinYieldBonus)
                 return false;
 
             return true;
         }
-        public bool ShouldUseKingII(ItemSlot slot)
+        public bool ShouldUseKingII(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.Yield2, GatherBuddy.Config.AutoGatherConfig.YieldIIConfig, slot.Item, slot.Rare))
-                return false;
-
-            return true;
-        }
-
-        public bool ShouldUseKingI(ItemSlot slot)
-        {
-            if (!CheckConditions(Actions.Yield1, GatherBuddy.Config.AutoGatherConfig.YieldIConfig, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.Yield2, config.Yield2, slot.Item, slot.Rare))
                 return false;
 
             return true;
         }
 
-        private bool ShouldUseGivingLand(ItemSlot slot)
+        public bool ShouldUseKingI(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.GivingLand, GatherBuddy.Config.AutoGatherConfig.GivingLandConfig, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.Yield1, config.Yield1, slot.Item, slot.Rare))
+                return false;
+
+            return true;
+        }
+
+        private bool ShouldUseGivingLand(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
+        {
+            if (!CheckConditions(Actions.GivingLand, config.GivingLand, slot.Item, slot.Rare))
                 return false;
             if (!IsGivingLandOffCooldown)
                 return false;
@@ -64,9 +62,9 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private unsafe bool ShouldUseTwelvesBounty(ItemSlot slot)
+        private unsafe bool ShouldUseTwelvesBounty(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.TwelvesBounty, GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot.Rare))
                 return false;
             if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYeild : 0))
                 return false;
@@ -87,7 +85,7 @@ namespace GatherBuddy.AutoGather
                     if (left < 1) throw new NoGatherableItemsInNodeExceptions();
                 }
 
-                DoCollectibles(left);
+                DoCollectibles(MatchConfigPreset(desiredItem), left);
             }
             else if (GatheringAddon != null && NodeTracker.Ready)
             {
@@ -119,19 +117,20 @@ namespace GatherBuddy.AutoGather
             var (useSkills, slot) = GetItemSlotToGather(desiredItem);
             if (useSkills)
             {
+                var config = MatchConfigPreset(slot.Item).GatherableActions;
                 if (ShouldUseWise(NodeTracker.Integrity, NodeTracker.MaxIntegrity))
                     EnqueueActionWithDelay(() => UseAction(Actions.Wise));
-                else if (ShouldUseSolidAgeGatherables(slot))
+                else if (ShouldUseSolidAgeGatherables(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.SolidAge));
-                else if (ShouldUseGivingLand(slot))
+                else if (ShouldUseGivingLand(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.GivingLand));
-                else if (ShouldUseTwelvesBounty(slot))
+                else if (ShouldUseTwelvesBounty(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.TwelvesBounty));
-                else if (ShouldUseKingII(slot))
+                else if (ShouldUseKingII(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.Yield2));
-                else if (ShouldUseKingI(slot))
+                else if (ShouldUseKingI(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.Yield1));
-                else if (ShouldUseBountiful(slot))
+                else if (ShouldUseBountiful(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.Bountiful));
                 else
                     EnqueueGatherItem(slot);
@@ -147,8 +146,7 @@ namespace GatherBuddy.AutoGather
             if (GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && desiredItem != null && desiredItem.NodeType == Enums.NodeType.Regular)
             {
                 var anyCrystal = GetAnyCrystalInNode();
-                if (anyCrystal != null && ShouldUseGivingLand(anyCrystal))
-                    return true;
+                return anyCrystal != null && ShouldUseGivingLand(anyCrystal, MatchConfigPreset(anyCrystal.Item).GatherableActions);
             }
 
             return false;
@@ -187,12 +185,12 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private unsafe void DoCollectibles(int itemsLeft)
+        private unsafe void DoCollectibles(ConfigPreset config, int itemsLeft)
         {
             if (MasterpieceAddon == null)
                 return;
 
-            CurrentRotation ??= new CollectableRotation(GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectableRotation);
+            CurrentRotation ??= new CollectableRotation(config);
 
             var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
             if (textNode == null)
@@ -238,62 +236,45 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private bool ShouldUseSolidAgeGatherables(ItemSlot slot)
+        private bool ShouldUseSolidAgeGatherables(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.SolidAge, GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.SolidAge, config.SolidAge, slot.Item, slot.Rare))
                 return false;
             var yield = slot.Yield;
             if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == Actions.Bountiful.EffectId))
                 yield -= 1;
             if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == Actions.BountifulII.EffectId))
                 yield -= CalculateBountifulBonus(slot.Item);
-            if (yield < GatherBuddy.Config.AutoGatherConfig.SolidAgeGatherablesConfig.GetOptionalProperty<int>("MinimumYield"))
+            if (yield < config.SolidAge.MinYieldTotal)
                 return false;
 
             return true;
         }
 
-        private bool CheckConditions(Actions.BaseAction action, AutoGatherConfig.ActionConfig config, Gatherable item, bool rare)
+        private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, bool rare)
         {
-            if (config.UseAction == false)
+            if (config.Enabled == false)
                 return false;
             if (Player.Level < action.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < action.GpCost)
                 return false;
-            if (Player.Object.CurrentGp < config.MinimumGP)
+            if (Player.Object.CurrentGp < config.MinGP)
                 return false;
-            if (Player.Object.CurrentGp > config.MaximumGP)
+            if (Player.Object.CurrentGp > config.MaxGP)
                 return false;
             if (action.EffectId != 0 && Player.Status.Any(s => s.StatusId == action.EffectId))
                 return false;
             if (action.QuestID != 0 && !QuestManager.IsQuestComplete(action.QuestID))
                 return false; 
-            if (item.IsCrystal && config.TryGetOptionalProperty<bool>("UseWithCystals", out var useWithCystals) && !useWithCystals)
-                return false;
             if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
                 return false;
             if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity > Math.Min(2, NodeTracker.MaxIntegrity - 1))
                 return false;
             if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && rare)
                 return false;
-
-            if (config.Conditions.UseConditions)
-            {
-
-                if (config.Conditions.RequiredIntegrity > NodeTracker.MaxIntegrity)
-                    return false;
-                if (config.Conditions.UseOnlyOnFirstStep && NodeTracker.Touched)
-                    return false;
-
-                if (config.Conditions.FilterNodeTypes)
-                {
-                    var node = config.Conditions.NodeFilter.GetNodeConfig(item.NodeType);
-
-                    if (!node.Use || item.Level < node.NodeLevel && !(node.AvoidCap && Player.Object.CurrentGp == Player.Object.MaxGp))
-                        return false;
-                }
-            }
+            if (config is ConfigPreset.ActionConfigIntegrity config2 && (config2.MinIntegrity > NodeTracker.MaxIntegrity || config2.FirstStepOnly && NodeTracker.Touched))
+                return false;
 
             return true;
         }

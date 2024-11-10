@@ -346,7 +346,9 @@ namespace GatherBuddy.AutoGather
             if (ActivateGatheringBuffs(targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
                 return;
 
-            if (DoUseConsumablesWithoutCastTime())
+            var config = MatchConfigPreset(targetInfo.Item);
+
+            if (DoUseConsumablesWithoutCastTime(config))
                 return;
 
             var allPositions = targetInfo.Location.WorldPositions
@@ -366,7 +368,7 @@ namespace GatherBuddy.AutoGather
             if (closestTargetableNode != null)
             {
                 AutoStatus = "Moving to node...";
-                MoveToCloseNode(closestTargetableNode, targetInfo.Item);
+                MoveToCloseNode(closestTargetableNode, targetInfo.Item, config);
                 return;
             }
 
