@@ -11,17 +11,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using static FFXIVClientStructs.FFXIV.Client.Game.Character.VfxContainer;
-using static FFXIVClientStructs.FFXIV.Client.UI.RaptureAtkHistory.Delegates;
-using static FFXIVClientStructs.STD.Helper.IStaticMemorySpace;
-using System.Text.RegularExpressions;
 using GatherBuddy.Classes;
 
 namespace GatherBuddy.Gui
 {
     public partial class Interface
     {
-        private ConfigPresetsSelector _configPresetsSelector = new();
+        private static readonly (string name, uint id)[] CrystalTypes = [("Elemental Shards", 2), ("Elemental Crystals", 8), ("Elemental Clusters", 14)];
+        private readonly ConfigPresetsSelector _configPresetsSelector = new();
         private (bool EditingName, bool ChangingMin) _configPresetsUIState;
         public IReadOnlyCollection<ConfigPreset> GatherActionsPresets => _configPresetsSelector.Presets;
 
@@ -159,16 +156,61 @@ namespace GatherBuddy.Gui
             var selector = _configPresetsSelector;
             selector.Draw(SelectorWidth);
             ImGui.SameLine();
-            ItemDetailsWindow.Draw("Preset Details", () => {
-                ImGui.Text("");
-                ImGuiComponents.HelpMarker(
-                    "Presets are checked against the current target item in order from top to bottom.\n" +
-                    "Only the first matched preset is used, the rest are ignored.\n" +
-                    "The Default preset is always last and is used if no other preset matches the item.");
-            }, () =>
+            ItemDetailsWindow.Draw("Preset Details", DrawConfigPresetHeader, () =>
             {
                 DrawConfigPreset(selector.EnsureCurrent()!, selector.CurrentIdx == selector.Presets.Count - 1);
             });
+        }
+        
+        private void DrawConfigPresetHeader()
+        {
+            if (ImGui.Button("Check"))
+            {
+                ImGui.OpenPopup("Config Presets Checker");
+            }
+            ImGuiUtil.HoverTooltip("Check what presets are used for items from the auto-gather list");
+
+            var open = true;
+            using (var popup = ImRaii.PopupModal("Config Presets Checker", ref open, ImGuiWindowFlags.AlwaysAutoResize | ImGuiWindowFlags.NoSavedSettings | ImGuiWindowFlags.NoTitleBar))
+            {
+                if (popup)
+                {
+                    using (var table = ImRaii.Table("Items", 3, ImGuiTableFlags.Borders | ImGuiTableFlags.RowBg))
+                    {
+                        ImGui.TableSetupColumn("Gather List");
+                        ImGui.TableSetupColumn("Item");
+                        ImGui.TableSetupColumn("Config Preset");
+                        ImGui.TableHeadersRow();
+
+                        var crystals = CrystalTypes
+                            .Select(x => ("", x.name, GatherBuddy.GameData.Gatherables[x.id]));
+                        var items = _plugin.GatherWindowManager.Presets
+                            .Where(x => x.Enabled && !x.Fallback)
+                            .SelectMany(x => x.Items.Select(i => (x.Name, i.Name.ToString(), i)));
+
+                        foreach (var (list, name, item) in crystals.Concat(items))
+                        {
+                            ImGui.TableNextRow();
+                            ImGui.TableNextColumn();
+                            ImGui.Text(list);
+                            ImGui.TableNextColumn();
+                            ImGui.Text(name);
+                            ImGui.TableNextColumn();
+                            ImGui.Text(MatchConfigPreset(item).Name);
+                        }
+                    }
+
+                    var size = ImGui.CalcTextSize("Close").X + ImGui.GetStyle().FramePadding.X * 2.0f;
+                    var offset = (ImGui.GetContentRegionAvail().X - size) * 0.5f;
+                    if (offset > 0.0f) ImGui.SetCursorPosX(ImGui.GetCursorPosX() + offset);
+                    if (ImGui.Button("Close")) ImGui.CloseCurrentPopup();
+                }
+            }
+
+            ImGuiComponents.HelpMarker(
+                "Presets are checked against the current target item in order from top to bottom.\n" +
+                "Only the first matched preset is used, the rest are ignored.\n" +
+                "The Default preset is always last and is used if no other preset matches the item.");
         }
 
         private void DrawConfigPreset(ConfigPreset preset, bool isDefault)
