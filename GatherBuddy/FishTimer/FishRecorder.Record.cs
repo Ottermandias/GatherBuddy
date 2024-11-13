@@ -9,7 +9,7 @@ using GatherBuddy.FishTimer.Parser;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.FishTimer;
@@ -105,13 +105,13 @@ public partial class FishRecorder
     }
 
     private static readonly uint GatheringIdx =
-        Dalamud.GameData.GetExcelSheet<BaseParam>(ClientLanguage.English)?
-            .FirstOrDefault(r => r.Name == "Gathering")?.RowId
+        Dalamud.GameData.GetExcelSheet<BaseParam>(ClientLanguage.English).Cast<BaseParam?>()
+            .FirstOrDefault(r => r!.Value.Name == "Gathering")?.RowId
      ?? 72;
 
     private static readonly uint PerceptionIdx =
-        Dalamud.GameData.GetExcelSheet<BaseParam>(ClientLanguage.English)?
-            .FirstOrDefault(r => r.Name == "Perception")?.RowId
+        Dalamud.GameData.GetExcelSheet<BaseParam>(ClientLanguage.English).Cast<BaseParam?>()
+            .FirstOrDefault(r => r!.Value.Name == "Perception")?.RowId
      ?? 73;
 
     private static int GetContentHash(ulong id)

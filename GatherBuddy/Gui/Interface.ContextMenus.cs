@@ -106,7 +106,7 @@ public partial class Interface
 
     private static string TeamCraftAddressEnd(FishingSpot s)
         => s.Spearfishing
-            ? TeamCraftAddressEnd("spearfishing-spot", s.SpearfishingSpotData!.GatheringPointBase.Row)
+            ? TeamCraftAddressEnd("spearfishing-spot", s.SpearfishingSpotData!.Value.GatheringPointBase.RowId)
             : TeamCraftAddressEnd("fishing-spot",      s.Id);
 
     private static string GarlandToolsItemAddress(uint itemId)

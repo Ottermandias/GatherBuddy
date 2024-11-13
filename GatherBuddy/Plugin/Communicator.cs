@@ -26,7 +26,7 @@ internal static class SeStringBuilderExtension
     public static SeStringBuilder AddFullMapLink(this SeStringBuilder builder, string name, Territory territory, float xCoord, float yCoord,
         bool openMapLink = false, bool withCoordinates = true, float fudgeFactor = 0.05f)
     {
-        var mapPayload = new MapLinkPayload(territory.Id, territory.Data.Map.Row, xCoord, yCoord, fudgeFactor);
+        var mapPayload = new MapLinkPayload(territory.Id, territory.Data.Map.RowId, xCoord, yCoord, fudgeFactor);
         if (openMapLink)
             Dalamud.GameGui.OpenMapWithMapLink(mapPayload);
         if (withCoordinates)

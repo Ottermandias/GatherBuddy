@@ -2,7 +2,7 @@
 using System.Linq;
 using Dalamud.Game;
 using Dalamud.Game.Text.SeStringHandling;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.FishTimer.Parser;
@@ -24,11 +24,11 @@ public partial class FishingParser
     private static Dictionary<string, FishingSpot> SetupFishingSpotNamesGerman()
     {
         var ret            = new Dictionary<string, FishingSpot>();
-        var placeNameSheet = Dalamud.GameData.GetExcelSheet<PlaceName>(ClientLanguage.German)!;
+        var placeNameSheet = Dalamud.GameData.GetExcelSheet<PlaceName>(ClientLanguage.German);
 
         foreach (var fs in GatherBuddy.GameData.FishingSpots.Values.Where(fs => !fs.Spearfishing))
         {
-            var seBytes = placeNameSheet.GetRow(fs.FishingSpotData!.PlaceName.Row)!.Unknown8.RawData;
+            var seBytes = placeNameSheet.GetRow(fs.FishingSpotData!.Value.PlaceName.RowId).Unknown0.Data.Span;
             if (seBytes.Length <= 0)
                 continue;
 

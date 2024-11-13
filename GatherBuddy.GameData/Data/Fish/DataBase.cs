@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using GatherBuddy.Enums;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
@@ -342,14 +343,16 @@ public static partial class Fish
         data.ApplyTheDarkThrone();
         data.ApplyGrowingLight();
         data.ApplyDawntrail();
+        data.ApplyCrossroads();
         data.ApplyMooches();
+        //DumpUnknown(Patch.Crossroads, data.Fishes.Values);
     }
 
-    public static void DumpUnknown(Patch patch, IEnumerable<Classes.Fish> fish, string directory)
+    public static void DumpUnknown(Patch patch, IEnumerable<Classes.Fish> fish, [CallerFilePath] string? directory = null)
     {
         try
         {
-            var       path   = Path.Combine(directory, $"Data{patch.ToMajor()}.{patch.ToMinor()}.cs");
+            var       path   = Path.Combine(Path.GetDirectoryName(directory) ?? string.Empty, $"Data{patch.ToMajor()}.{patch.ToMinor()}.cs");
             using var stream = File.Open(path, FileMode.Create);
             using var w      = new StreamWriter(stream);
             w.WriteLine("using GatherBuddy.Enums;");

@@ -1,7 +1,5 @@
-using System;
 using System.Linq;
-using Dalamud.Logging;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace GatherBuddy.Structs;
 
@@ -11,12 +9,12 @@ public readonly struct CumulativeWeatherRates
 
     public readonly (Weather Weather, byte CumulativeRate)[] Rates;
 
-    public CumulativeWeatherRates(GameData data, WeatherRate rate)
+    public CumulativeWeatherRates(GameData data, in WeatherRate rate)
     {
-        Rates = rate.UnkData0.Where(w => w.Rate > 0)
-            .Select(w => data.Weathers.TryGetValue((uint)w.Weather, out var weather)
-                ? (weather, w.Rate)
-                : (Weather.Invalid, w.Rate))
+        Rates = rate.Rate.Zip(rate.Weather).Where(w => w.First > 0)
+            .Select(w => data.Weathers.TryGetValue(w.Second.RowId, out var weather)
+                ? (weather, w.First)
+                : (Weather.Invalid, w.First))
             .ToArray();
         byte lastRate = 0;
         for (var i = 0; i < Rates.Length; ++i)
@@ -29,7 +27,7 @@ public readonly struct CumulativeWeatherRates
     }
 
     private CumulativeWeatherRates(bool _)
-        => Rates = Array.Empty<(Weather, byte)>();
+        => Rates = [];
 
     public byte ChanceForWeather(params Weather[] weathers)
     {

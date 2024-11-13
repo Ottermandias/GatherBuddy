@@ -1,5 +1,4 @@
-using Dalamud.Logging;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace GatherBuddy.Data;
 
@@ -23,9 +22,6 @@ public static class ForcedAetherytes
     public static void ApplyMissingAetherytes(GameData data)
     {
         var sheet = data.DataManager.GetExcelSheet<TerritoryType>();
-        if (sheet == null)
-            return;
-
         foreach (var (zoneId, aetheryteId) in ZonesWithoutAetherytes)
         {
             var territoryType = sheet.GetRow(zoneId);

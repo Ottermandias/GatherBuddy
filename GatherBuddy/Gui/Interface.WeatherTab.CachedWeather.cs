@@ -28,7 +28,7 @@ public partial class Interface
             for (var i = 0; i < NumWeathers; ++i)
             {
                 var weather = _timeline.List[i].Weather;
-                Weathers[i] = (weather, Icons.DefaultStorage.TextureProvider.GetFromGameIcon(weather.Data.Icon));
+                Weathers[i] = (weather, Icons.DefaultStorage.TextureProvider.GetFromGameIcon(weather.Icon));
             }
         }
 
