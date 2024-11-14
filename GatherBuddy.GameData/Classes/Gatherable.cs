@@ -1,11 +1,9 @@
 using System;
 using System.Collections.Generic;
-using Dalamud.Logging;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy.Classes;
@@ -17,7 +15,7 @@ public class Gatherable : IComparable<Gatherable>, IGatherable
     public MultiString          Name          { get; }
     public IList<GatheringNode> NodeList      { get; } = new List<GatheringNode>();
 
-    public int InternalLocationId { get; internal set; } = 0;
+    public int InternalLocationId { get; internal set; }
 
     public IEnumerable<ILocation> Locations
         => NodeList;
@@ -40,13 +38,13 @@ public class Gatherable : IComparable<Gatherable>, IGatherable
     {
         GatheringData = gatheringData;
         var itemSheet = gameData.DataManager.GetExcelSheet<Item>();
-        ItemData = itemSheet?.GetRow((uint)gatheringData.Item) ?? new Item();
+        ItemData = itemSheet.GetRowOrDefault(gatheringData.Item.RowId) ?? new Item();
         if (ItemData.RowId == 0)
             gameData.Log.Error("Invalid item.");
 
-        var levelData = gatheringData.GatheringItemLevel?.Value;
-        _levelStars = levelData == null ? 0 : (levelData.GatheringItemLevel << 3) + levelData.Stars;
-        Name        = MultiString.FromItem(gameData.DataManager, (uint)gatheringData.Item);
+        var levelData = gatheringData.GatheringItemLevel.ValueNullable;
+        _levelStars = levelData == null ? 0 : (levelData.Value.GatheringItemLevel << 3) + levelData.Value.Stars;
+        Name        = MultiString.FromItem(gameData.DataManager, gatheringData.Item.RowId);
     }
 
     public int Level

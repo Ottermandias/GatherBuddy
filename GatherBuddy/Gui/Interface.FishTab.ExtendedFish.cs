@@ -103,7 +103,7 @@ public partial class Interface
                 return [];
 
             return fish.CurrentWeather.Select(w
-                => Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup((uint)w.Data.Icon))).ToArray();
+                => Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup((uint)w.Icon))).ToArray();
         }
 
         private static ISharedImmediateTexture[] SetTransition(Fish fish)
@@ -112,7 +112,7 @@ public partial class Interface
                 return [];
 
             return fish.PreviousWeather.Select(w
-                => Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup((uint)w.Data.Icon))).ToArray();
+                => Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup((uint)w.Icon))).ToArray();
         }
 
         private static Predator[] SetPredators(Fish fish)
@@ -148,7 +148,7 @@ public partial class Interface
             var bait = fish.InitialBait;
             ret[0] = new BaitOrder()
             {
-                Icon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(bait.Data.Icon)),
+                Icon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(bait.Icon)),
                 Name = bait.Name,
                 Fish = bait,
             };

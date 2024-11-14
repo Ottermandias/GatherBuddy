@@ -1,28 +1,34 @@
 using System;
 using GatherBuddy.Utility;
-using LuminaWeather = Lumina.Excel.GeneratedSheets.Weather;
+using LuminaWeather = Lumina.Excel.Sheets.Weather;
 
 namespace GatherBuddy.Structs;
 
 public readonly struct Weather : IComparable<Weather>
 {
-    public readonly LuminaWeather Data;
-    public readonly string        Name;
+    public readonly string Name;
+    public readonly uint   Id;
+    public readonly int    Icon;
 
-    public uint Id
-        => Data.RowId;
-
-    public static readonly Weather Invalid = new(new LuminaWeather());
-
-    public Weather(LuminaWeather data)
-    {
-        Data = data;
-        Name = MultiString.ParseSeStringLumina(data.Name);
-    }
+    public static readonly Weather Invalid = new(0, "Invalid");
 
     public override string ToString()
         => Name;
 
     public int CompareTo(Weather other)
         => Id.CompareTo(other.Id);
+
+    public Weather(in LuminaWeather weather)
+    {
+        Id   = weather.RowId;
+        Icon = weather.Icon;
+        Name = MultiString.ParseSeStringLumina(weather.Name);
+    }
+
+    private Weather(uint id, string name)
+    {
+        Id   = id;
+        Icon = 0;
+        Name = name;
+    }
 }

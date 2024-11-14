@@ -26,19 +26,22 @@ public partial class WeatherManager
         return (byte)ret;
     }
 
-    private static Structs.Weather GetWeather(byte target, CumulativeWeatherRates rates)
+    private static Structs.Weather GetWeather(byte target, Territory territory)
     {
         Debug.Assert(target < 100, "Call error, target weather rate above 100.");
-        foreach (var (w, r) in rates.Rates)
+        foreach (var (w, r) in territory.WeatherRates.Rates)
         {
             if (r > target)
                 return w;
         }
 
 #if DEBUG
-        GatherBuddy.Log.Warning($"Should never be reached, weather rates not adding up to 100. {rates.Rates.Last().CumulativeRate}");
+        // Empyreum 979 is known to have weather rates adding up to 90,
+        // ignore this and notify for other zones only.
+        if (territory.Id is not 979)
+            GatherBuddy.Log.Warning($"Should never be reached, weather rates for {territory.Name} ({territory.Id}) not adding up to 100. {territory.WeatherRates.Rates.Last().CumulativeRate}");
 #endif
-        return rates.Rates[^1].Weather;
+        return territory.WeatherRates.Rates[^1].Weather;
     }
 
     public static WeatherListing[] GetForecast(Territory territory, uint amount, TimeStamp timestamp)
@@ -57,7 +60,7 @@ public partial class WeatherManager
         for (var i = 0; i < amount; ++i)
         {
             var target  = CalculateTarget(root);
-            var weather = GetWeather(target, territory.WeatherRates);
+            var weather = GetWeather(target, territory);
             ret[i] =  new WeatherListing(weather, root);
             root   += EorzeaTimeStampExtensions.MillisecondsPerEorzeaWeather;
         }

@@ -48,9 +48,9 @@ public partial class Interface
                 (LastWeather, CurrentWeather, NextWeather) = GatherBuddy.WeatherManager.FindLastCurrentNextWeather(_currentTerritory);
                 if (LastWeather.Id != 0)
                 {
-                    LastWeatherIcon    = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(LastWeather.Data.Icon);
-                    CurrentWeatherIcon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(CurrentWeather.Data.Icon);
-                    NextWeatherIcon    = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(NextWeather.Data.Icon);
+                    LastWeatherIcon    = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(LastWeather.Icon);
+                    CurrentWeatherIcon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(CurrentWeather.Icon);
+                    NextWeatherIcon    = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(NextWeather.Icon);
                 }
                 else
                 {

@@ -135,6 +135,7 @@ public partial class Configuration : IPluginConfiguration
         {
             config.AddColors();
             config.Migrate4To5();
+            config.Migrate5To6();
             return config;
         }
 
@@ -150,6 +151,16 @@ public partial class Configuration : IPluginConfiguration
 
         ShowFish |= FishFilter.Collectible | FishFilter.NotCollectible;
         Version  =  5;
+        Save();
+    }
+
+    public void Migrate5To6()
+    {
+        if (Version >= 6)
+            return;
+
+        ShowItems |= ItemFilter.Dawntrail;
+        Version   =  6;
         Save();
     }
 }

@@ -26,7 +26,7 @@ public partial class GatheringNode
         else if (item.NodeType != NodeType.Regular && NodeType == NodeType.Regular)
             item.NodeType = NodeType.Regular;
         item.GatheringType = item.GatheringType.Add(GatheringType);
-        item.ExpansionIdx  = Math.Min(item.ExpansionIdx, Territory.Data.ExVersion.Row);
+        item.ExpansionIdx  = Math.Min(item.ExpansionIdx, Territory.Data.ExVersion.RowId);
     }
 
     public bool AddItem(Gatherable item)

@@ -1,9 +1,8 @@
 using System;
 using System.Linq;
-using Dalamud.Logging;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
-using AetheryteRow = Lumina.Excel.GeneratedSheets.Aetheryte;
+using Lumina.Excel.Sheets;
+using AetheryteRow = Lumina.Excel.Sheets.Aetheryte;
 
 namespace GatherBuddy.Classes;
 
@@ -30,17 +29,17 @@ public class Aetheryte : IComparable<Aetheryte>
     public Aetheryte(GameData gameData, AetheryteRow data)
     {
         Data      = data;
-        Name      = MultiString.ParseSeStringLumina(data.PlaceName.Value?.Name);
-        Territory = gameData.FindOrAddTerritory(data.Territory.Value) ?? Territory.Invalid;
-        var mapMarker = gameData.DataManager.GetExcelSheet<MapMarker>()?.FirstOrDefault(m => m.DataType == 3 && m.DataKey == data.RowId);
+        Name      = MultiString.ParseSeStringLumina(data.PlaceName.ValueNullable?.Name);
+        Territory = gameData.FindOrAddTerritory(data.Territory.ValueNullable) ?? Territory.Invalid;
+        var mapMarker = gameData.DataManager.GetSubrowExcelSheet<MapMarker>().SelectMany(m => m).Cast<MapMarker?>().FirstOrDefault(m => m!.Value.DataType == 3 && m.Value.DataKey.RowId == data.RowId);
         if (mapMarker == null)
         {
             gameData.Log.Error($"No Map Marker for Aetheryte {Name} [{data.RowId}].");
         }
         else
         {
-            XCoord = Maps.MarkerToMap(mapMarker.X, Territory.SizeFactor);
-            YCoord = Maps.MarkerToMap(mapMarker.Y, Territory.SizeFactor);
+            XCoord = Maps.MarkerToMap(mapMarker.Value.X, Territory.SizeFactor);
+            YCoord = Maps.MarkerToMap(mapMarker.Value.Y, Territory.SizeFactor);
         }
 
         Territory.Aetherytes.Add(this);
@@ -64,5 +63,5 @@ public class Aetheryte : IComparable<Aetheryte>
         => AetherDistance(rhs.XStream, rhs.YStream, rhs.Plane);
 
     public override string ToString()
-        => $"{Name} - {Territory!.Name}-{XCoord / 100.0:F2}:{YCoord / 100.0:F2}";
+        => $"{Name} - {Territory.Name}-{XCoord / 100.0:F2}:{YCoord / 100.0:F2}";
 }

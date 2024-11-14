@@ -2,7 +2,7 @@
 using System.Linq;
 using Dalamud.Game.ClientState.Keys;
 using OtterGui;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace GatherBuddy.Config;
 

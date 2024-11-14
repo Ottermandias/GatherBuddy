@@ -5,7 +5,7 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Keys;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using OtterGui.Classes;
 
 namespace GatherBuddy.Plugin;
@@ -119,8 +119,8 @@ public static class Functions
          || Dalamud.Conditions[ConditionFlag.BetweenAreas51];
 
     public static bool InIslandSanctuary()
-        => Dalamud.GameData.GetExcelSheet<TerritoryType>()?
-            .GetRow(Dalamud.ClientState.TerritoryType)?.TerritoryIntendedUse == 49;
+        => Dalamud.GameData.GetExcelSheet<TerritoryType>()
+            .GetRowOrDefault(Dalamud.ClientState.TerritoryType)?.TerritoryIntendedUse.RowId == 49;
 
     public static bool Move<T>(IList<T> list, int idx1, int idx2)
     {
