@@ -16,7 +16,6 @@ using GatherBuddy.Time;
 using GatherBuddy.Utility;
 using CommandManager = GatherBuddy.SeFunctions.CommandManager;
 using GatheringType = GatherBuddy.Enums.GatheringType;
-using Lumina.Excel.GeneratedSheets2;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
 using MapType = FFXIVClientStructs.FFXIV.Client.UI.Agent.MapType;
 using Dalamud.Game.ClientState.Objects.Types;

@@ -177,8 +177,11 @@ namespace GatherBuddy.AutoGather
             // Reset navigation logic here
             // For example, reinitiate navigation to the destination
             CurrentDestination = default;
-            VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-            VNavmesh_IPCSubscriber.Path_Stop();
+            if (VNavmesh_IPCSubscriber.IsEnabled)
+            {
+                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
+                VNavmesh_IPCSubscriber.Path_Stop();
+            }
             lastResetTime = DateTime.Now;
         }
 
