@@ -21,7 +21,7 @@ public partial class GatherWindowManager : IDisposable
 
     public List<IGatherable> ActiveItems = new();
     public List<IGatherable> SortedItems = new();
-    public List<IGatherable> FallbackItems = new();
+    public List<(Gatherable Item, uint Quantity)> FallbackItems = new();
 
     private readonly AlarmManager _alarms;
     private          bool         _sortDirty = true;
@@ -66,8 +66,13 @@ public partial class GatherWindowManager : IDisposable
         SortedItems.InsertRange(0, ActiveItems);
         _sortDirty = true;
 
+        var fallback = Presets
+            .Where(p => p.Enabled && p.Fallback)
+            .SelectMany(p => p.Items.Select(i => (Item: i, Quantity: p.Quantities[i])))
+            .GroupBy(i => i.Item)
+            .Select(x => (x.Key, (uint)Math.Min(x.Sum(g => g.Quantity), uint.MaxValue)));
         FallbackItems.Clear();
-        FallbackItems.AddRange(Presets.Where(p => p.Enabled && p.Fallback).SelectMany(p => p.Items).Distinct());
+        FallbackItems.AddRange(fallback);
     }
 
     public IList<IGatherable> GetList()
