@@ -3,7 +3,7 @@ using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Plugin;
 using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -227,7 +227,7 @@ namespace GatherBuddy.AutoGather
             // HQ items have IDs 100000 more than their NQ counterparts
             var previewItem = AutoGather.PossibleCordials.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId));
             // PluginLog.Information(JsonConvert.SerializeObject(previewItem.ItemAction));
-            if (ImGui.BeginCombo("Select Cordial", previewItem is null
+            if (ImGui.BeginCombo("Select Cordial", previewItem.RowId is 0
                 ? ""
                 : $"{(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId > 100000 ? " " : "")}{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.CordialConfig.ItemId)})"))
             {
@@ -260,7 +260,7 @@ namespace GatherBuddy.AutoGather
             // HQ items have IDs 100000 more than their NQ counterparts
             var previewItem = AutoGather.PossibleFoods.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
             // PluginLog.Information(JsonConvert.SerializeObject(previewItem.ItemAction));
-            if (ImGui.BeginCombo("Select Food", previewItem is null
+            if (ImGui.BeginCombo("Select Food", previewItem.RowId is 0
                 ? ""
                 : $"{(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId > 100000 ? " " : "")}{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId)})"))
             {
@@ -293,7 +293,7 @@ namespace GatherBuddy.AutoGather
             // HQ items have IDs 100000 more than their NQ counterparts
             var previewItem = AutoGather.PossiblePotions.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
             // PluginLog.Information(JsonConvert.SerializeObject(previewItem.ItemAction));
-            if (ImGui.BeginCombo("Select Potion", previewItem is null
+            if (ImGui.BeginCombo("Select Potion", previewItem.RowId is 0
                 ? ""
                 : $"{(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId > 100000 ? " " : "")}{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId)})"))
             {
@@ -324,7 +324,7 @@ namespace GatherBuddy.AutoGather
         public static unsafe void DrawManualSelector()
         {
             var previewItem = AutoGather.PossibleManuals.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId);
-            if (ImGui.BeginCombo("Select Manual", previewItem is null
+            if (ImGui.BeginCombo("Select Manual", previewItem.RowId is 0
                 ? ""
                 : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId)})"))
             {
@@ -355,7 +355,7 @@ namespace GatherBuddy.AutoGather
         public static unsafe void DrawSquadronManualSelector()
         {
             var previewItem = AutoGather.PossibleSquadronManuals.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId);
-            if (ImGui.BeginCombo("Select Squadron Manual", previewItem is null
+            if (ImGui.BeginCombo("Select Squadron Manual", previewItem.RowId is 0
                 ? ""
                 : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId)})"))
             {
@@ -386,7 +386,7 @@ namespace GatherBuddy.AutoGather
         public static unsafe void DrawSquadronPassSelector()
         {
             var previewItem = AutoGather.PossibleSquadronPasses.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId);
-            if (ImGui.BeginCombo("Select Squadron Pass", previewItem is null
+            if (ImGui.BeginCombo("Select Squadron Pass", previewItem.RowId is 0
                 ? ""
                 : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId)})"))
             {

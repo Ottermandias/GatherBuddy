@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using GatherBuddy.Classes;
 using GatherBuddy.Time;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace GatherBuddy.Weather;
 
@@ -44,7 +44,7 @@ public partial class WeatherManager
             return (timeline.LastWeather.Weather, timeline.CurrentWeather.Weather, timeline.List[2].Weather);
         }
 
-        var territory = GatherBuddy.GameData.FindOrAddTerritory(Dalamud.GameData.GetExcelSheet<TerritoryType>()?.GetRow(territoryId));
+        var territory = GatherBuddy.GameData.FindOrAddTerritory(Dalamud.GameData.GetExcelSheet<TerritoryType>().GetRowOrDefault(territoryId));
         if (territory == null || territory.WeatherRates.Rates.Length != 1 || territory.WeatherRates.Rates[0].CumulativeRate != 100)
             return (Structs.Weather.Invalid, Structs.Weather.Invalid, Structs.Weather.Invalid);
 

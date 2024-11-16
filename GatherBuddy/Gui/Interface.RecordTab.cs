@@ -448,17 +448,17 @@ public partial class Interface
             {
                 _effects =
                 [
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(16023), (FishRecord.Effects)_values[0]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11106), (FishRecord.Effects)_values[2]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11101), (FishRecord.Effects)_values[4]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11102), (FishRecord.Effects)_values[6]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11103), (FishRecord.Effects)_values[8]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11104), (FishRecord.Effects)_values[10]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11119), (FishRecord.Effects)_values[12]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11116), (FishRecord.Effects)_values[14]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11115), (FishRecord.Effects)_values[16]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11008), (FishRecord.Effects)_values[18]),
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(11122), (FishRecord.Effects)_values[20]),
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(216023), (FishRecord.Effects)_values[00]), // Patience
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211106), (FishRecord.Effects)_values[02]), // Patience II
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211101), (FishRecord.Effects)_values[04]), // Intuition
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211102), (FishRecord.Effects)_values[06]), // Snagging
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211103), (FishRecord.Effects)_values[08]), // Fish Eyes
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211104), (FishRecord.Effects)_values[10]), // Chum
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211119), (FishRecord.Effects)_values[12]), // Prize Catch
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211116), (FishRecord.Effects)_values[14]), // Identical Cast
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211115), (FishRecord.Effects)_values[16]), // Surface Slap
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211008), (FishRecord.Effects)_values[18]), // Collector's Glove
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211122), (FishRecord.Effects)_values[20]), // Big Game Fishing
                 ];
                 AllFlags = Mask;
                 _filter  = AllFlags;
@@ -530,38 +530,38 @@ public partial class Interface
                 switch (item.Flags.AmbitiousLure())
                 {
                     case 0:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18905), false, "Ambitious Lure");
+                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218905), false, "Ambitious Lure");
                         ImGui.SameLine();
                         switch (item.Flags.ModestLure())
                         {
                             case 0:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18909), false, "Modest Lure");
+                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), false, "Modest Lure");
                                 break;
                             case 1:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18909), true, "Modest Lure");
+                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), true, "Modest Lure");
                                 break;
                             case 2:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18910), true, "Modest Lure");
+                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218910), true, "Modest Lure");
                                 break;
                             case 3:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18911), true, "Modest Lure");
+                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218911), true, "Modest Lure");
                                 break;
                         }
 
                         return;
                     case 1:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18905), true, "Ambitious Lure");
+                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218905), true, "Ambitious Lure");
                         break;
                     case 2:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18906), true, "Ambitious Lure");
+                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218906), true, "Ambitious Lure");
                         break;
                     case 3:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18907), true, "Ambitious Lure");
+                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218907), true, "Ambitious Lure");
                         break;
                 }
 
                 ImGui.SameLine();
-                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(18909), false, "Modest Lure");
+                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), false, "Modest Lure");
             }
         }
 

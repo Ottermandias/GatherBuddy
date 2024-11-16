@@ -4,8 +4,9 @@ using System.Linq;
 using System.Numerics;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using GatheringType = GatherBuddy.Enums.GatheringType;
+using FishingSpotRow = Lumina.Excel.Sheets.FishingSpot;
 
 namespace GatherBuddy.Classes;
 
@@ -16,10 +17,10 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     private readonly object _data;
 
     public SpearfishingNotebook? SpearfishingSpotData
-        => _data as SpearfishingNotebook;
+        => _data is SpearfishingNotebook n ? n : null;
 
-    public Lumina.Excel.GeneratedSheets.FishingSpot? FishingSpotData
-        => _data as Lumina.Excel.GeneratedSheets.FishingSpot;
+    public FishingSpotRow? FishingSpotData
+        => _data is FishingSpotRow f ? f : null;
 
     public Territory Territory { get; init; }
     public string    Name      { get; init; }
@@ -34,12 +35,12 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     public uint SheetId
         => _data is SpearfishingNotebook sf
             ? sf.RowId
-            : ((Lumina.Excel.GeneratedSheets.FishingSpot)_data).RowId;
+            : ((FishingSpotRow)_data).RowId;
 
     public uint Id
         => _data is SpearfishingNotebook sf
             ? sf.RowId | SpearfishingIdOffset
-            : ((Lumina.Excel.GeneratedSheets.FishingSpot)_data).RowId;
+            : ((FishingSpotRow)_data).RowId;
 
     public ObjectType Type
         => ObjectType.Fish;
@@ -66,11 +67,11 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     public int CompareTo(FishingSpot? obj)
         => SheetId.CompareTo(obj?.SheetId ?? 0);
 
-    public FishingSpot(GameData data, Lumina.Excel.GeneratedSheets.FishingSpot spot)
+    public FishingSpot(GameData data, FishingSpotRow spot)
     {
         _data     = spot;
         Territory = data.FindOrAddTerritory(FishingSpotTerritoryHacks(data, spot)) ?? Territory.Invalid;
-        Name      = MultiString.ParseSeStringLumina(spot.PlaceName.Value?.Name);
+        Name      = MultiString.ParseSeStringLumina(spot.PlaceName.ValueNullable?.Name);
 
         IntegralXCoord = Maps.MarkerToMap(spot.X, Territory.SizeFactor);
         IntegralYCoord = Maps.MarkerToMap(spot.Z, Territory.SizeFactor);
@@ -84,8 +85,8 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         DefaultAetheryte = ClosestAetheryte;
         DefaultRadius    = Radius;
 
-        Items = spot.Item.Where(i => i.Row > 0)
-            .Select(i => data.Fishes.TryGetValue(i.Row, out var fish) ? fish : null)
+        Items = spot.Item.Where(i => i.RowId > 0)
+            .Select(i => data.Fishes.GetValueOrDefault(i.RowId))
             .Where(f => f != null).Cast<Fish>()
             .ToArray();
         foreach (var item in Items)
@@ -96,7 +97,7 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     {
         _data     = spot;
         Territory = data.FindOrAddTerritory(spot.TerritoryType.Value) ?? Territory.Invalid;
-        Name      = MultiString.ParseSeStringLumina(spot.PlaceName.Value?.Name);
+        Name      = MultiString.ParseSeStringLumina(spot.PlaceName.ValueNullable?.Name);
 
         IntegralXCoord = Maps.MarkerToMap(spot.X, Territory.SizeFactor);
         IntegralYCoord = Maps.MarkerToMap(spot.Y, Territory.SizeFactor);
@@ -110,28 +111,28 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         DefaultAetheryte = ClosestAetheryte;
         DefaultRadius    = Radius;
 
-        Items = spot.GatheringPointBase.Value?.Item.Where(i => i > 0)
-                .Select(i => data.Fishes.Values.FirstOrDefault(f => f.IsSpearFish && f.FishId == i))
+        Items = spot.GatheringPointBase.ValueNullable?.Item.Where(i => i.RowId > 0)
+                .Select(i => data.Fishes.Values.FirstOrDefault(f => f.IsSpearFish && f.FishId == i.RowId))
                 .Where(f => f != null).Cast<Fish>()
                 .ToArray()
-         ?? Array.Empty<Fish>();
+         ?? [];
         foreach (var item in Items)
             item.FishingSpots.Add(this);
     }
 
-    private TerritoryType? FishingSpotTerritoryHacks(GameData data, Lumina.Excel.GeneratedSheets.FishingSpot spot)
+    private static TerritoryType? FishingSpotTerritoryHacks(GameData data, FishingSpotRow spot)
         => spot.RowId switch
         {
-            10_000 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(759), // the rows in between are no longer used diadem objects
-            10_017 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_018 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_019 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_020 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_021 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_022 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_023 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_024 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
-            10_025 => data.DataManager.GetExcelSheet<TerritoryType>()!.GetRow(939),
+            10_000 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(759), // the rows in between are no longer used diadem objects
+            10_017 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_018 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_019 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_020 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_021 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_022 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_023 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_024 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            10_025 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
             _      => spot.TerritoryType.Value,
         };
 }

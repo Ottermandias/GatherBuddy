@@ -19,6 +19,6 @@ public static class Maps
         instance->IsFlagMarkerSet = 0;
         var x = IntegerToInternal(location.IntegralXCoord, location.Territory.SizeFactor);
         var y = IntegerToInternal(location.IntegralYCoord, location.Territory.SizeFactor);
-        instance->SetFlagMapMarker(location.Territory.Id, location.Territory.Data.Map.Row, x, y, iconId);
+        instance->SetFlagMapMarker(location.Territory.Id, location.Territory.Data.Map.RowId, x, y, iconId);
     }
 }

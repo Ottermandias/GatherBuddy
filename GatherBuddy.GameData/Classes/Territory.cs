@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using GatherBuddy.Structs;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
-using TerritoryType = Lumina.Excel.GeneratedSheets.TerritoryType;
+using Lumina.Excel.Sheets;
+using TerritoryType = Lumina.Excel.Sheets.TerritoryType;
 
 namespace GatherBuddy.Classes;
 
@@ -11,9 +11,9 @@ public class Territory : IComparable<Territory>, IEquatable<Territory>
 {
     public static readonly Territory Invalid = new();
 
-    public TerritoryType          Data         { get; }       = new();
+    public TerritoryType          Data         { get; }
     public string                 Name         { get; }       = string.Empty;
-    public HashSet<Aetheryte>     Aetherytes   { get; }       = new();
+    public HashSet<Aetheryte>     Aetherytes   { get; }       = [];
     public CumulativeWeatherRates WeatherRates { get; init; } = CumulativeWeatherRates.InvalidWeather;
     public float                  SizeFactor   { get; init; }
     public ushort                 XStream      { get; init; }
@@ -27,11 +27,11 @@ public class Territory : IComparable<Territory>, IEquatable<Territory>
     public Territory(GameData gameData, TerritoryType data, TerritoryTypeTelepo? aether)
     {
         Data       = data;
-        Name       = MultiString.ParseSeStringLumina(data.PlaceName.Value?.Name);
-        SizeFactor = (data.Map.Value?.SizeFactor ?? 100f) / 100f;
+        Name       = MultiString.ParseSeStringLumina(data.PlaceName.ValueNullable?.Name);
+        SizeFactor = (data.Map.ValueNullable?.SizeFactor ?? 100f) / 100f;
         XStream    = aether?.X ?? 0;
         YStream    = aether?.Y ?? 0;
-        Plane      = (ushort) (aether?.TelepoRelay.Row ?? 0);
+        Plane      = (ushort) (aether?.Relay.RowId ?? 0);
 
         WeatherRates = gameData.CumulativeWeatherRates.TryGetValue(data.WeatherRate, out var wr)
             ? wr

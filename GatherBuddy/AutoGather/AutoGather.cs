@@ -296,7 +296,7 @@ namespace GatherBuddy.AutoGather
                         AutoStatus = "Teleporting...";
                         StopNavigation();
                         var exit = targetInfo.Location.DefaultXCoord < 2000 ? 91u : 92u;
-                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()!.GetRow(exit)!.AethernetName.Value!.Name;
+                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Aetheryte>().GetRow(exit).AethernetName.Value.Name.ToString();
                         Lifestream_IPCSubscriber.AethernetTeleport(name);
                     }
                     return;
@@ -501,12 +501,12 @@ namespace GatherBuddy.AutoGather
             if (Actions.Collect.QuestID != 0 && !QuestManager.IsQuestComplete(Actions.Collect.QuestID))
             {
                 Communicator.PrintError("You've put a collectable on the gathering list, but you haven't unlocked the collectables.");
-                var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Quest>()!;
+                var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Quest>()!;
                 var row = sheet.GetRow(Actions.Collect.QuestID)!;
                 var loc = row.IssuerLocation.Value!;
                 var map = loc.Map.Value!;
                 var pos = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
-                var mapPayload = new MapLinkPayload(loc.Territory.Row, loc.Map.Row, pos.X, pos.Y);
+                var mapPayload = new MapLinkPayload(loc.Territory.RowId, loc.Map.RowId, pos.X, pos.Y);
                 var text = new SeStringBuilder();
                 text.AddText("Collectables are unlocked by ")
                     .AddUiForeground(0x0225)
@@ -517,7 +517,7 @@ namespace GatherBuddy.AutoGather
                     .AddText($"{(char)SeIconChar.LinkMarker}")
                     .AddUiGlowOff()
                     .AddUiForegroundOff()
-                    .AddText(row.Name)
+                    .AddText(row.Name.ToString())
                     .Add(RawPayload.LinkTerminator)
                     .AddUiGlowOff()
                     .AddUiForegroundOff()

@@ -9,7 +9,7 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Time;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 
@@ -70,7 +70,7 @@ public class UptimeManager : IDisposable
             return loc;
 
         var closest = item.Locations.FirstOrDefault(l =>
-                l is FishingSpot f && (!f.Spearfishing || !f.SpearfishingSpotData!.IsShadowNode)
+                l is FishingSpot f && (!f.Spearfishing || !f.SpearfishingSpotData!.Value.IsShadowNode)
              || l is GatheringNode n && n.Times.AlwaysUp())
          ?? FindClosestAetheryte(item) ?? item.Locations.FirstOrDefault();
         Debug.Assert(closest != null);
@@ -297,9 +297,9 @@ public class UptimeManager : IDisposable
             return;
 
         _currentTerritory = territory;
-        var rawT = Dalamud.GameData.GetExcelSheet<TerritoryTypeTelepo>()!.GetRow(territory);
+        var rawT = Dalamud.GameData.GetExcelSheet<TerritoryTypeTelepo>().GetRowOrDefault(territory);
         (_aetherStreamX, _aetherStreamY, _aetherPlane) =
-            rawT == null ? ((ushort)0, (ushort)0, (ushort)0) : (rawT.X, rawT.Y, (ushort) rawT.TelepoRelay.Row);
+            rawT == null ? ((ushort)0, (ushort)0, (ushort)0) : (rawT.Value.X, rawT.Value.Y, (ushort) rawT.Value.Relay.RowId);
 
         if (GatherBuddy.Config.AetherytePreference == AetherytePreference.Cost)
             ResetLocations();

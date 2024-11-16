@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using GatherBuddy.Classes;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace GatherBuddy.Interfaces;
 

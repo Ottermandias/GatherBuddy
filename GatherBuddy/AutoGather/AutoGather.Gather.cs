@@ -82,9 +82,10 @@ namespace GatherBuddy.AutoGather
             //Items in the fallback list
             var fallbackList = _plugin.GatherWindowManager.FallbackItems
                 //Join node slots, retaing list order
-                .Join(aviable, i => i, s => s.Item, (i, s) => s)
+                .Join(aviable, i => i.Item, s => s.Item, (i, s) => (Slot: s, i.Quantity))
                 //And we need more of them
-                .Where(s => InventoryCount(s.Item) < QuantityTotal(s.Item));
+                .Where(x => x.Quantity < QuantityTotal(x.Slot.Item))
+                .Select(x => x.Slot);
 
             var fallbackSkills = GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems;
 

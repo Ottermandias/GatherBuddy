@@ -83,40 +83,40 @@ public static partial class Fish
             .Predators(data, 90, (36412, 3))
             .Transition(data, 1)
             .Weather(data, 2)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41408, Patch.GrowingLight) // Gharlichthys
             .Bait(data, 36593)
             .Time(840, 960)
             .Predators(data, 300, (36454, 12))
             .Transition(data, 8)
             .Weather(data, 2)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41409, Patch.GrowingLight) // Snowy Parexus
             .Bait(data, 36591)
             .Time(960, 1440)
             .Predators(data, 35, (36458, 3))
             .Transition(data, 2)
             .Weather(data, 15)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41410, Patch.GrowingLight) // Furcacauda
             .Bait(data, 36590)
             .Time(930, 990)
             .Transition(data, 2)
             .Weather(data, 49)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Precise, BiteType.Legendary);
         data.Apply(41411, Patch.GrowingLight) // Lopoceras Elegans
             .Bait(data, 36595)
             .Time(480, 600)
             .Transition(data, 148)
             .Weather(data, 2)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41412, Patch.GrowingLight) // Sidereal Whale
             .Bait(data, 36518)
             .Time(0, 480)
             .Predators(data, 600, (36521, 1), (36520, 2), (36519, 3))
             .Transition(data, 49)
             .Weather(data, 149)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
     }
     // @formatter:on
 }

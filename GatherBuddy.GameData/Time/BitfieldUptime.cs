@@ -1,7 +1,7 @@
 using System;
 using System.Linq;
 using GatherBuddy.Utility;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace GatherBuddy.Time;
 
@@ -66,7 +66,7 @@ public readonly struct BitfieldUptime : IEquatable<BitfieldUptime>
         if (hours == 0)
             return BadHour;
 
-        var rotatedHours = currentHour == 0 ? hours : (hours >> (int)currentHour) | ((hours << (32 - (int)currentHour)) >> 8);
+        var rotatedHours = currentHour == 0 ? hours : (hours >> currentHour) | ((hours << (32 - currentHour)) >> 8);
         return Bits.TrailingZeroCount(rotatedHours);
     }
 
@@ -209,14 +209,14 @@ public readonly struct BitfieldUptime : IEquatable<BitfieldUptime>
         _hours = 0;
 
         // Convert the time slots to ephemeral format to reuse that function.
-        foreach (var time in table.UnkData0)
+        foreach (var (durationBase, startTime) in table.Duration.Zip(table.StartTime))
         {
-            if (time.Durationm == 0)
+            if (durationBase == 0)
                 continue;
 
-            var duration = time.Durationm == 160 ? (ushort)200 : time.Durationm;
-            var end      = (ushort)((time.StartTime + duration) % 2400);
-            _hours |= ConvertFromEphemeralTime(time.StartTime, end);
+            var duration = durationBase == 160 ? (ushort)200 : durationBase;
+            var end      = (ushort)((startTime + duration) % 2400);
+            _hours |= ConvertFromEphemeralTime(startTime, end);
         }
     }
 }

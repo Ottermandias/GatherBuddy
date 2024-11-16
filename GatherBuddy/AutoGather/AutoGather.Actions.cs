@@ -295,7 +295,7 @@ namespace GatherBuddy.AutoGather
             
             try
             {
-                var glvl = item.GatheringData.GatheringItemLevel.Row;
+                var glvl = item.GatheringData.GatheringItemLevel.RowId;
                 var baseValue = WorldData.BaseGathering[glvl];
                 var stat = CharacterGatheringStat;
 

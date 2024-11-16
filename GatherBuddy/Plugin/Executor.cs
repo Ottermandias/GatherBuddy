@@ -16,7 +16,6 @@ using GatherBuddy.Time;
 using GatherBuddy.Utility;
 using CommandManager = GatherBuddy.SeFunctions.CommandManager;
 using GatheringType = GatherBuddy.Enums.GatheringType;
-using Lumina.Excel.GeneratedSheets2;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
 using MapType = FFXIVClientStructs.FFXIV.Client.UI.Agent.MapType;
 using Dalamud.Game.ClientState.Objects.Types;
@@ -283,7 +282,7 @@ public class Executor
                 instance->TempMapMarkerCount = 0;
                 instance->AddGatheringTempMarker(Maps.IntegerToInternal(_location.IntegralXCoord, _location.Territory.SizeFactor),
                     Maps.IntegerToInternal(_location.IntegralYCoord, _location.Territory.SizeFactor), _location.Radius, icon.Item1, 4u, _item?.Name[GatherBuddy.Language] ?? _location.Name);
-                instance->OpenMap(_location.Territory.Data.Map.Row, _location.Territory.Id, _item?.Name[GatherBuddy.Language] ?? _location.Name,
+                instance->OpenMap(_location.Territory.Data.Map.RowId, _location.Territory.Id, _item?.Name[GatherBuddy.Language] ?? _location.Name,
                     MapType.GatheringLog);
             }
         }

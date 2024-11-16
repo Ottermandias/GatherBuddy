@@ -1,10 +1,10 @@
-﻿using System.Collections.Generic;
+﻿using System.Collections.Frozen;
+using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects.Enums;
 using GatherBuddy.Enums;
 using GatherBuddy.SeFunctions;
-using ImGuiNET;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.Spearfishing;
@@ -19,18 +19,18 @@ public partial class SpearfishingHelper
     public SpearfishingHelper(GameData gameData)
         : base("SpearfishingHelper", WindowFlags, true)
     {
-        var points = Dalamud.GameData.GetExcelSheet<GatheringPoint>()!;
+        var points = Dalamud.GameData.GetExcelSheet<GatheringPoint>();
 
         // We go through all fishing spots and correspond them to their gathering point base.
         var baseNodes = gameData.FishingSpots.Values
             .Where(fs => fs.Spearfishing)
-            .ToDictionary(fs => fs.SpearfishingSpotData!.GatheringPointBase.Row, fs => fs);
+            .ToFrozenDictionary(fs => fs.SpearfishingSpotData!.Value.GatheringPointBase.RowId, fs => fs);
 
         // Now we correspond all gathering nodes to their associated fishing spot.
         SpearfishingSpots = new Dictionary<uint, FishingSpot>(baseNodes.Count);
         foreach (var point in points)
         {
-            if (!baseNodes.TryGetValue(point.GatheringPointBase.Row, out var node))
+            if (!baseNodes.TryGetValue(point.GatheringPointBase.RowId, out var node))
                 continue;
 
             SpearfishingSpots.Add(point.RowId, node);

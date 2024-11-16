@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -13,80 +14,56 @@ using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Structs;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 using OtterGui.Log;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
+using AetheryteRow = Lumina.Excel.Sheets.Aetheryte;
 using Fish = GatherBuddy.Classes.Fish;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using Weather = GatherBuddy.Structs.Weather;
+using WeatherRow = Lumina.Excel.Sheets.Weather;
+using FishingSpotRow = Lumina.Excel.Sheets.FishingSpot;
 
 namespace GatherBuddy;
 
-public class OceanTimeline
-{
-    public int Count
-        => Aldenard.Count;
-
-    public IReadOnlyList<OceanRoute> Aldenard;
-    public IReadOnlyList<OceanRoute> Othard;
-
-    public IReadOnlyList<OceanRoute> this[OceanArea area]
-        => area switch
-        {
-            OceanArea.Aldenard => Aldenard,
-            OceanArea.Othard   => Othard,
-            _                  => Array.Empty<OceanRoute>(),
-        };
-
-    public OceanRoute this[OceanArea area, int idx]
-        => this[area][idx];
-
-    public OceanTimeline(IDataManager gameData, IReadOnlyList<OceanRoute> routes)
-    {
-        var timelineSheet = gameData.GetExcelSheet<IKDRouteTable>()!;
-        Aldenard = timelineSheet.Select(r => routes[(int)r.Route.Row - 1]).ToArray();
-        Othard   = timelineSheet.Skip(120).Concat(timelineSheet.Take(120)).Select(r => routes[(int)r.Unknown1 - 1]).ToArray();
-    }
-}
-
 public class GameData
 {
-    internal IDataManager                             DataManager { get; init; }
-    internal Dictionary<byte, CumulativeWeatherRates> CumulativeWeatherRates = new();
+    internal IDataManager                                   DataManager { get; }
+    internal FrozenDictionary<byte, CumulativeWeatherRates> CumulativeWeatherRates = FrozenDictionary<byte, CumulativeWeatherRates>.Empty;
 
     public readonly Logger Log;
 
-    public Dictionary<uint, Weather> Weathers           { get; init; } = new();
-    public Territory[]               WeatherTerritories { get; init; } = Array.Empty<Territory>();
+    public FrozenDictionary<uint, Weather> Weathers           { get; } = FrozenDictionary<uint, Weather>.Empty;
+    public Territory[]                     WeatherTerritories { get; } = [];
 
-    public Dictionary<uint, Territory>     Territories           { get; init; } = new();
-    public Dictionary<uint, Aetheryte>     Aetherytes            { get; init; } = new();
-    public Dictionary<uint, Gatherable>    Gatherables           { get; init; } = new();
-    public Dictionary<uint, Gatherable>    GatherablesByGatherId { get; init; } = new();
-    public Dictionary<uint, GatheringNode> GatheringNodes        { get; init; } = new();
-    public Dictionary<uint, Bait>          Bait                  { get; init; } = new();
-    public Dictionary<uint, Fish>          Fishes                { get; init; } = new();
-    public Dictionary<uint, FishingSpot>   FishingSpots          { get; init; } = new();
+    public Dictionary<uint, Territory>           Territories           { get; } = [];
+    public FrozenDictionary<uint, Aetheryte>     Aetherytes            { get; } = FrozenDictionary<uint, Aetheryte>.Empty;
+    public FrozenDictionary<uint, Gatherable>    Gatherables           { get; } = FrozenDictionary<uint, Gatherable>.Empty;
+    public FrozenDictionary<uint, Gatherable>    GatherablesByGatherId { get; } = FrozenDictionary<uint, Gatherable>.Empty;
+    public FrozenDictionary<uint, GatheringNode> GatheringNodes        { get; } = FrozenDictionary<uint, GatheringNode>.Empty;
+    public FrozenDictionary<uint, Bait>          Bait                  { get; } = FrozenDictionary<uint, Bait>.Empty;
+    public FrozenDictionary<uint, Fish>          Fishes                { get; } = FrozenDictionary<uint, Fish>.Empty;
+    public FrozenDictionary<uint, FishingSpot>   FishingSpots          { get; } = FrozenDictionary<uint, FishingSpot>.Empty;
     public Dictionary<uint, List<Vector3>> WorldCoords           { get; init; } = new();
 
-    public IReadOnlyList<OceanRoute> OceanRoutes   { get; init; } = Array.Empty<OceanRoute>();
-    public OceanTimeline             OceanTimeline { get; init; } = null!;
+    public IReadOnlyList<OceanRoute> OceanRoutes   { get; } = Array.Empty<OceanRoute>();
+    public OceanTimeline             OceanTimeline { get; } = null!;
 
-    public PatriciaTrie<Gatherable> GatherablesTrie { get; init; } = new();
-    public PatriciaTrie<Fish>       FishTrie        { get; init; } = new();
+    public PatriciaTrie<Gatherable> GatherablesTrie { get; } = new();
+    public PatriciaTrie<Fish>       FishTrie        { get; } = new();
 
-    public GatheringIcons GatheringIcons { get; init; } = null!;
+    public GatheringIcons GatheringIcons { get; } = null!;
 
-    public int TimedGatherables     { get; init; }
-    public int MultiNodeGatherables { get; init; }
+    public int TimedGatherables     { get; }
+    public int MultiNodeGatherables { get; }
 
     public (IGatherable? Item, ILocation? Location) GetConfig(ObjectType type, uint itemId, uint locationId)
         => type switch
         {
             ObjectType.Gatherable => (itemId == 0 ? null : Gatherables.GetValueOrDefault(itemId),
-                locationId == 0                   ? null : GatheringNodes.GetValueOrDefault(locationId)),
+                locationId == 0 ? null : GatheringNodes.GetValueOrDefault(locationId)),
             ObjectType.Fish => (itemId == 0 ? null : Fishes.GetValueOrDefault(itemId),
-                locationId == 0             ? null : FishingSpots.GetValueOrDefault(locationId)),
+                locationId == 0 ? null : FishingSpots.GetValueOrDefault(locationId)),
             _ => (null, null),
         };
 
@@ -99,91 +76,82 @@ public class GameData
         {
             GatheringIcons = new GatheringIcons(gameData);
 
-            Weathers = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Weather>()!
-                .ToDictionary(w => w.RowId, w => new Weather(w));
+            Weathers = DataManager.GetExcelSheet<WeatherRow>()
+                .ToFrozenDictionary(w => w.RowId, w => new Weather(w));
             Log.Verbose("Collected {NumWeathers} different Weathers.", Weathers.Count);
 
-            CumulativeWeatherRates = DataManager.GetExcelSheet<WeatherRate>()!
-                .ToDictionary(w => (byte)w.RowId, w => new CumulativeWeatherRates(this, w));
+            CumulativeWeatherRates = DataManager.GetExcelSheet<WeatherRate>()
+                .ToFrozenDictionary(w => (byte)w.RowId, w => new CumulativeWeatherRates(this, w));
 
-            WeatherTerritories = DataManager.GetExcelSheet<TerritoryType>()?
-                    .Where(t => t.PCSearch && t.WeatherRate != 0)
-                    .Select(FindOrAddTerritory)
-                    .Where(t => t != null && t.WeatherRates.Rates.Length > 1)
-                    .Cast<Territory>()
-                    .GroupBy(t => t.Name)
-                    .Select(group => group.First())
-                    .OrderBy(t => t.Name)
-                    .ToArray()
-             ?? [];
+            WeatherTerritories = DataManager.GetExcelSheet<TerritoryType>()
+                .Where(t => t.PCSearch && t.WeatherRate != 0)
+                .Select(t => FindOrAddTerritory(t))
+                .Where(t => t is { WeatherRates.Rates.Length: > 1 })
+                .OfType<Territory>()
+                .GroupBy(t => t.Name)
+                .Select(group => group.First())
+                .OrderBy(t => t.Name)
+                .ToArray();
             Log.Verbose("Collected {NumWeatherTerritories} different territories with dynamic weather.", WeatherTerritories.Length);
 
-            Aetherytes = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.Aetheryte>()?
-                    .Where(a => a.IsAetheryte && a.RowId > 1 && a.PlaceName.Row != 0)
-                    .ToDictionary(a => a.RowId, a => new Aetheryte(this, a))
-             ?? new Dictionary<uint, Aetheryte>();
+            Aetherytes = DataManager.GetExcelSheet<AetheryteRow>()
+                .Where(a => a is { IsAetheryte: true, RowId: > 1 } && a.PlaceName.RowId != 0)
+                .ToFrozenDictionary(a => a.RowId, a => new Aetheryte(this, a));
             Log.Verbose("Collected {NumAetherytes} different aetherytes.", Aetherytes.Count);
             ForcedAetherytes.ApplyMissingAetherytes(this);
 
-            Gatherables = DataManager.GetExcelSheet<GatheringItem>()?
-                    .Where(g => g.Item != 0 && g.Item < 1000000)
-                    .GroupBy(g => g.Item)
-                    .Select(group => group.First())
-                    .ToDictionary(g => (uint)g.Item, g => new Gatherable(this, g))
-             ?? new Dictionary<uint, Gatherable>();
-            GatherablesByGatherId = Gatherables.Values.ToDictionary(g => g.GatheringId, g => g);
+            Gatherables = DataManager.GetExcelSheet<GatheringItem>()
+                .Where(g => g.Item.RowId != 0 && g.Item.RowId < 1000000)
+                .GroupBy(g => g.Item)
+                .Select(group => group.First())
+                .ToFrozenDictionary(g => g.Item.RowId, g => new Gatherable(this, g));
+            GatherablesByGatherId = Gatherables.Values.ToFrozenDictionary(g => g.GatheringId, g => g);
             Log.Verbose("Collected {NumGatherables} different gatherable items.", Gatherables.Count);
 
             // Create GatheringItemPoint dictionary.
-            var tmpGatheringItemPoint = DataManager.GetExcelSheet<GatheringItemPoint>()!
-                .GroupBy(row => row.GatheringPoint.Row)
-                .ToDictionary(group => group.Key, group => group.Select(g => g.RowId).Distinct().ToList());
+            var tmpGatheringItemPoint = DataManager.GetSubrowExcelSheet<GatheringItemPoint>().SelectMany(g => g)
+                .GroupBy(row => row.GatheringPoint.RowId)
+                .ToFrozenDictionary(group => group.Key, group => group.Select(g => g.RowId).Distinct().ToList());
 
-            var tmpGatheringPoints = DataManager.GetExcelSheet<GatheringPoint>()!
-                .Where(row => row.PlaceName.Row > 0)
-                .GroupBy(row => row.GatheringPointBase.Row)
-                .ToDictionary(group => group.Key, group => group.Select(g => g.RowId).Distinct().ToList());
+            var tmpGatheringPoints = DataManager.GetExcelSheet<GatheringPoint>()
+                .Where(row => row.PlaceName.RowId > 0)
+                .GroupBy(row => row.GatheringPointBase.RowId)
+                .ToFrozenDictionary(group => group.Key, group => group.Select(g => g.RowId).Distinct().ToList());
 
-            GatheringNodes = DataManager.GetExcelSheet<GatheringPointBase>()?
-                    .Where(b => b.GatheringType.Row < (int)Enums.GatheringType.Spearfishing)
-                    .Select(b => new GatheringNode(this, tmpGatheringPoints, tmpGatheringItemPoint, b))
-                    .Where(n => n.Territory.Id > 1 && n.Items.Count > 0)
-                    .ToDictionary(n => n.Id, n => n)
-             ?? new Dictionary<uint, GatheringNode>();
+            GatheringNodes = DataManager.GetExcelSheet<GatheringPointBase>()
+                .Where(b => b.GatheringType.RowId < (int)Enums.GatheringType.Spearfishing)
+                .Select(b => new GatheringNode(this, tmpGatheringPoints, tmpGatheringItemPoint, b))
+                .Where(n => n.Territory.Id > 1 && n.Items.Count > 0)
+                .ToFrozenDictionary(n => n.Id, n => n);
             Log.Verbose("Collected {NumGatheringNodes} different gathering nodes", GatheringNodes.Count);
 
-            Bait = DataManager.GetExcelSheet<Item>()?
-                    .Where(i => i.ItemSearchCategory.Row == Structs.Bait.FishingTackleRow)
-                    .ToDictionary(b => b.RowId, b => new Bait(b))
-             ?? new Dictionary<uint, Bait>();
+            Bait = DataManager.GetExcelSheet<Item>()
+                .Where(i => i.ItemSearchCategory.RowId == Structs.Bait.FishingTackleRow)
+                .ToFrozenDictionary(b => b.RowId, b => new Bait(b));
             Log.Verbose("Collected {NumBaits} different types of bait.", Bait.Count);
 
-            var catchData = DataManager.GetExcelSheet<FishingNoteInfo>()!;
-            Fishes = DataManager.GetExcelSheet<FishParameter>()?
-                    .Where(f => f.Item != 0 && f.Item < 1000000)
-                    .Select(f => new Fish(DataManager, f, catchData))
-                    .Concat(DataManager.GetExcelSheet<SpearfishingItem>()?
-                            .Where(sf => sf.Item.Row != 0 && sf.Item.Row < 1000000)
-                            .Select(sf => new Fish(DataManager, sf, catchData))
-                     ?? Array.Empty<Fish>())
-                    .GroupBy(f => f.ItemId)
-                    .Select(group => group.First())
-                    .ToDictionary(f => f.ItemId, f => f)
-             ?? new Dictionary<uint, Fish>();
+            var catchData = DataManager.GetExcelSheet<FishingNoteInfo>();
+            Fishes = DataManager.GetExcelSheet<FishParameter>()
+                .Where(f => f.Item.RowId != 0 && f.Item.RowId < 1000000)
+                .Select(f => new Fish(DataManager, f, catchData))
+                .Concat(DataManager.GetExcelSheet<SpearfishingItem>()
+                    .Where(sf => sf.Item.RowId != 0 && sf.Item.RowId < 1000000)
+                    .Select(sf => new Fish(DataManager, sf, catchData)))
+                .GroupBy(f => f.ItemId)
+                .Select(group => group.First())
+                .ToFrozenDictionary(f => f.ItemId, f => f);
             Log.Verbose("Collected {NumFishes} different types of fish.", Fishes.Count);
             Data.Fish.Apply(this);
 
-            FishingSpots = DataManager.GetExcelSheet<Lumina.Excel.GeneratedSheets.FishingSpot>()?
-                    .Where(f => f.PlaceName.Row != 0 && (f.TerritoryType.Row > 0 || f.RowId == 10000 || f.RowId >= 10017))
-                    .Select(f => new FishingSpot(this, f))
-                    .Concat(
-                        DataManager.GetExcelSheet<SpearfishingNotebook>()?
-                            .Where(sf => sf.PlaceName.Row != 0 && sf.TerritoryType.Row > 0)
-                            .Select(sf => new FishingSpot(this, sf))
-                     ?? Array.Empty<FishingSpot>())
-                    .Where(f => f.Territory.Id != 0)
-                    .ToDictionary(f => f.Id, f => f)
-             ?? new Dictionary<uint, FishingSpot>();
+            FishingSpots = DataManager.GetExcelSheet<FishingSpotRow>()
+                .Where(f => f.PlaceName.RowId != 0 && (f.TerritoryType.RowId > 0 || f.RowId == 10000 || f.RowId >= 10017))
+                .Select(f => new FishingSpot(this, f))
+                .Concat(
+                    DataManager.GetExcelSheet<SpearfishingNotebook>()
+                        .Where(sf => sf.PlaceName.RowId != 0 && sf.TerritoryType.RowId > 0)
+                        .Select(sf => new FishingSpot(this, sf)))
+                .Where(f => f.Territory.Id != 0)
+                .ToFrozenDictionary(f => f.Id, f => f);
             Log.Verbose("Collected {NumFishingSpots} different fishing spots.", FishingSpots.Count);
 
             HiddenMaps.Apply(this);
@@ -205,7 +173,7 @@ public class GameData
             foreach (var fish in Fishes.Values)
             {
                 if (fish.FishingSpots.Count > 0 && !fish.OceanFish && fish.FishRestrictions != FishRestrictions.None
-                 || fish.OceanFish && fish.FishRestrictions == FishRestrictions.Time)
+                 || fish is { OceanFish: true, FishRestrictions: FishRestrictions.Time })
                     fish.InternalLocationId = ++TimedGatherables;
                 else if (fish.FishingSpots.Count > 0)
                     fish.InternalLocationId = -++MultiNodeGatherables;
@@ -220,16 +188,16 @@ public class GameData
 
     public Territory? FindOrAddTerritory(TerritoryType? t)
     {
-        if (t == null || t.RowId < 2)
+        if (t == null || t.Value.RowId < 2)
             return null;
 
-        if (Territories.TryGetValue(t.RowId, out var territory))
+        if (Territories.TryGetValue(t.Value.RowId, out var territory))
             return territory;
 
         // Create territory if it does not exist.
-        var aether = DataManager.GetExcelSheet<TerritoryTypeTelepo>()?.GetRow(t.RowId);
-        territory = new Territory(this, t, aether);
-        Territories.Add(t.RowId, territory);
+        var aether = DataManager.GetExcelSheet<TerritoryTypeTelepo>().GetRowOrDefault(t.Value.RowId);
+        territory = new Territory(this, t.Value, aether);
+        Territories.Add(t.Value.RowId, territory);
         return territory;
     }
 
@@ -248,37 +216,37 @@ public class GameData
 
         foreach (var fish in fishes)
         {
-            var spot = fish.FishData?.FishingSpot.Row ?? 0u;
+            var spot = fish.FishData?.FishingSpot.RowId ?? 0u;
             if (set.TryGetValue(spot, out var area))
                 fish.OceanArea = fish.OceanArea == OceanArea.None || fish.OceanArea == area ? area : OceanArea.Unknown;
         }
     }
 
-    private static OceanRoute[] SetupOceanRoutes(IDataManager manager, Dictionary<uint, FishingSpot> fishingSpots)
+    private static OceanRoute[] SetupOceanRoutes(IDataManager manager, IReadOnlyDictionary<uint, FishingSpot> fishingSpots)
     {
-        var routeSheet = manager.GetExcelSheet<IKDRoute>(ClientLanguage.English)!;
-        var spotSheet  = manager.GetExcelSheet<IKDSpot>()!;
-        var ret        = new OceanRoute[routeSheet.RowCount - 1];
+        var routeSheet = manager.GetExcelSheet<IKDRoute>(ClientLanguage.English);
+        var spotSheet  = manager.GetExcelSheet<IKDSpot>();
+        var ret        = new OceanRoute[routeSheet.Count - 1];
 
         var spots = spotSheet.Skip(1).Select(r
-                => fishingSpots.TryGetValue(r.SpotMain.Row, out var Main) && fishingSpots.TryGetValue(r.SpotSub.Row, out var Sub)
-                    ? (Main, Sub)
+                => fishingSpots.TryGetValue(r.SpotMain.RowId, out var main) && fishingSpots.TryGetValue(r.SpotSub.RowId, out var sub)
+                    ? (main, Sub: sub)
                     : throw new Exception("Invalid fishing spot!"))
             .ToArray();
 
-        for (var i = 1u; i < routeSheet.RowCount; ++i)
+        for (var i = 1u; i < routeSheet.Count; ++i)
         {
-            var row = routeSheet.GetRow(i)!;
-            var (start, day, sunset, night) = row.UnkData0[0].Time switch
+            var row = routeSheet.GetRow(i);
+            var (start, day, sunset, night) = row.Time[0].RowId switch
             {
-                1 => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1],
-                    spots[(int)row.UnkData0[0].Spot - 1]),
-                2 => (OceanTime.Night, spots[(int)row.UnkData0[0].Spot - 1], spots[(int)row.UnkData0[1].Spot - 1],
-                    spots[(int)row.UnkData0[2].Spot - 1]),
-                3 => (OceanTime.Day, spots[(int)row.UnkData0[2].Spot - 1], spots[(int)row.UnkData0[0].Spot - 1],
-                    spots[(int)row.UnkData0[1].Spot - 1]),
-                _ => (OceanTime.Sunset, spots[(int)row.UnkData0[1].Spot - 1], spots[(int)row.UnkData0[2].Spot - 1],
-                    spots[(int)row.UnkData0[0].Spot - 1]),
+                1 => (OceanTime.Sunset, spots[(int)row.Spot[1].RowId - 1], spots[(int)row.Spot[2].RowId - 1],
+                    spots[(int)row.Spot[0].RowId - 1]),
+                2 => (OceanTime.Night, spots[(int)row.Spot[0].RowId - 1], spots[(int)row.Spot[1].RowId - 1],
+                    spots[(int)row.Spot[2].RowId - 1]),
+                3 => (OceanTime.Day, spots[(int)row.Spot[2].RowId - 1], spots[(int)row.Spot[0].RowId - 1],
+                    spots[(int)row.Spot[1].RowId - 1]),
+                _ => (OceanTime.Sunset, spots[(int)row.Spot[1].RowId - 1], spots[(int)row.Spot[2].RowId - 1],
+                    spots[(int)row.Spot[0].RowId - 1]),
             };
             ret[i - 1] = new OceanRoute
             {

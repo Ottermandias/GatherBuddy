@@ -26,12 +26,12 @@ public partial class AutoGather
                 effect = (btnEffectId, minEffectId == 0 ? btnEffectId : minEffectId);
                 EffectType = type;
 
-                var actionsSheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.GeneratedSheets.Action>()!;
+                var actionsSheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Action>();
                 var botanistRow = actionsSheet.GetRow(action.Botanist)!;
                 var minerRow = actionsSheet.GetRow(action.Miner)!;
 
-                quest.Botanist = botanistRow.UnlockLink;
-                quest.Miner = minerRow.UnlockLink;
+                quest.Botanist = botanistRow.UnlockLink.RowId;
+                quest.Miner = minerRow.UnlockLink.RowId;
                 MinLevel = botanistRow.ClassJobLevel;
                 GpCost = botanistRow.PrimaryCostValue;
             }

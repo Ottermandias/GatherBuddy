@@ -3,7 +3,7 @@ using System.Linq;
 using ECommons.GameHelpers;
 using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using Lumina.Excel.GeneratedSheets;
+using Lumina.Excel.Sheets;
 
 namespace GatherBuddy.AutoGather
 {
@@ -39,25 +39,25 @@ namespace GatherBuddy.AutoGather
             return InventoryManager.Instance()->GetInventoryItemCount(itemRowId < 100000 ? itemRowId : itemRowId - 100000, itemRowId >= 100000);
         }
 
-        private static byte[] GetItemFoodProps(Item item)
+        private static uint[] GetItemFoodProps(Item item)
         {
             // Item UI category: 44 medicine, 46 meal
-            if (item.ItemUICategory.Row is not 44 and not 46
-                || item.ItemAction.Value == null
+            if (item.ItemUICategory.RowId is not 44 and not 46
+                || !item.ItemAction.IsValid
                 // Buff: 48 well fed, 49 medicated
                 || item.ItemAction.Value.Data[0] is not 48 and not 49)
                 return [];
-            return Dalamud.GameData.GetExcelSheet<ItemFood>()?.GetRow(item.ItemAction.Value.Data[1])?.UnkData1.Select(v => v.BaseParam).ToArray() ?? [];
+            return Dalamud.GameData.GetExcelSheet<ItemFood>().GetRow(item.ItemAction.Value.Data[1]).Params.Where(v => v.BaseParam.IsValid).Select(v => v.BaseParam.RowId).ToArray() ?? [];
         }
 
         private static bool IsItemCordial(Item item)
         {
-            return item.ItemAction?.Value?.Type == 1055;
+            return item.ItemAction.Value.Type == 1055;
         }
 
         private static bool IsItemDoLFood(Item item)
         {
-            if (item.ItemUICategory.Row != 46)
+            if (item.ItemUICategory.RowId != 46)
                 return false;
             // 10 GP, 71 gathering, 73 perception
             return GetItemFoodProps(item).Any(p => p is 10 or 72 or 73);
@@ -65,7 +65,7 @@ namespace GatherBuddy.AutoGather
 
         private static bool IsItemDoLPotion(Item item)
         {
-            if (item.ItemUICategory.Row != 44)
+            if (item.ItemUICategory.RowId != 44)
                 return false;
             // 10 GP, 68 spiritbond, 69 durability, 72 gathering, 73 perception
             return GetItemFoodProps(item).Any(p => p is 10 or 68 or 69 or 72 or 73);
@@ -73,9 +73,9 @@ namespace GatherBuddy.AutoGather
 
         private static bool IsItemDoLManual(Item item)
         {
-            if (item.ItemUICategory.Row != 63)
+            if (item.ItemUICategory.RowId != 63)
                 return false;
-            return item.ItemAction?.Value?.Type == 816 && item.ItemAction?.Value?.Data[0] is 302 or 303 or 1752 or 5330;
+            return item.ItemAction.Value.Type == 816 && item.ItemAction.Value.Data[0] is 302 or 303 or 1752 or 5330;
         }
 
         private static bool IsItemDoLSquadronManual(Item item)
@@ -111,11 +111,11 @@ namespace GatherBuddy.AutoGather
                     var configuredItem = PossibleFoods.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId));
                     if (GatherBuddy.Config.AutoGatherConfig.FoodConfig.ItemId > 100000)
                     {
-                        return buff.Param == configuredItem?.ItemAction.Value?.DataHQ[1] + 10000;
+                        return buff.Param == configuredItem.ItemAction.Value.DataHQ[1] + 10000;
                     }
                     else
                     {
-                        return buff.Param == configuredItem?.ItemAction.Value?.Data[1];
+                        return buff.Param == configuredItem.ItemAction.Value.Data[1];
                     }
                 }
             }
@@ -135,11 +135,11 @@ namespace GatherBuddy.AutoGather
                     var configuredItem = PossiblePotions.FirstOrDefault(item => new[] { item.RowId, item.RowId + 100000 }.Contains(GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId));
                     if (GatherBuddy.Config.AutoGatherConfig.PotionConfig.ItemId > 100000)
                     {
-                        return buff.Param == configuredItem?.ItemAction.Value?.DataHQ[1] + 10000;
+                        return buff.Param == configuredItem.ItemAction.Value.DataHQ[1] + 10000;
                     }
                     else
                     {
-                        return buff.Param == configuredItem?.ItemAction.Value?.Data[1];
+                        return buff.Param == configuredItem.ItemAction.Value.Data[1];
                     }
                 }
             }
