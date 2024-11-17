@@ -2,9 +2,6 @@
 	path = OtterGui
 	url = https://github.com/Ottermandias/OtterGui.git
 	branch = main
-[submodule "ClickLib"]
-	path = ClickLib
-	url = https://github.com/Taurenkey/ClickLib.git
 [submodule "ECommons"]
 	path = ECommons
 	url = https://github.com/NightmareXIV/ECommons

@@ -81,7 +81,6 @@
   </ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\ClickLib\ClickLib\ClickLib.csproj" />
 	  <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
 	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
 	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
