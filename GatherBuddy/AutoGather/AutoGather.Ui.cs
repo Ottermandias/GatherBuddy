@@ -324,94 +324,94 @@ namespace GatherBuddy.AutoGather
         public static unsafe void DrawManualSelector()
         {
             var previewItem = AutoGather.PossibleManuals.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId);
-            if (ImGui.BeginCombo("Select Manual", previewItem.RowId is 0
-                ? ""
-                : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId)})"))
+            if (!ImGui.BeginCombo("Select Manual", previewItem.RowId is 0
+                    ? ""
+                    : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId)})"))
+                return;
+
+            if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == 0))
             {
-                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == 0))
+                GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = 0;
+                GatherBuddy.Config.Save();
+            }
+
+            var   items          = PrepareConsumablesList(AutoGather.PossibleManuals);
+            bool? separatorState = null;
+
+            foreach (var (name, rowid, count) in items)
+            {
+                DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == rowid))
                 {
-                    GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = 0;
+                    GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = rowid;
                     GatherBuddy.Config.Save();
                 }
-
-                var items = PrepareConsumablesList(AutoGather.PossibleManuals);
-                bool? separatorState = null;
-
-                foreach (var (name, rowid, count) in items)
-                {
-                    DrawConsumablesSeparator(ref separatorState, count == 0);
-
-                    if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId == rowid))
-                    {
-                        GatherBuddy.Config.AutoGatherConfig.ManualConfig.ItemId = rowid;
-                        GatherBuddy.Config.Save();
-                    }
-                }
-
-                ImGui.EndCombo();
             }
+
+            ImGui.EndCombo();
         }
 
         public static unsafe void DrawSquadronManualSelector()
         {
             var previewItem = AutoGather.PossibleSquadronManuals.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId);
-            if (ImGui.BeginCombo("Select Squadron Manual", previewItem.RowId is 0
-                ? ""
-                : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId)})"))
+            if (!ImGui.BeginCombo("Select Squadron Manual", previewItem.RowId is 0
+                    ? ""
+                    : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId)})"))
+                return;
+
+            if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == 0))
             {
-                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == 0))
+                GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = 0;
+                GatherBuddy.Config.Save();
+            }
+
+            var   items          = PrepareConsumablesList(AutoGather.PossibleSquadronManuals);
+            bool? separatorState = null;
+
+            foreach (var (name, rowid, count) in items)
+            {
+                DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == rowid))
                 {
-                    GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = 0;
+                    GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = rowid;
                     GatherBuddy.Config.Save();
                 }
-
-                var items = PrepareConsumablesList(AutoGather.PossibleSquadronManuals);
-                bool? separatorState = null;
-
-                foreach (var (name, rowid, count) in items)
-                {
-                    DrawConsumablesSeparator(ref separatorState, count == 0);
-
-                    if (ImGui.Selectable((rowid > 100000 ? " " : "") + $"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId == rowid))
-                    {
-                        GatherBuddy.Config.AutoGatherConfig.SquadronManualConfig.ItemId = rowid;
-                        GatherBuddy.Config.Save();
-                    }
-                }
-
-                ImGui.EndCombo();
             }
+
+            ImGui.EndCombo();
         }
 
         public static unsafe void DrawSquadronPassSelector()
         {
             var previewItem = AutoGather.PossibleSquadronPasses.FirstOrDefault(item => item.RowId == GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId);
-            if (ImGui.BeginCombo("Select Squadron Pass", previewItem.RowId is 0
-                ? ""
-                : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId)})"))
+            if (!ImGui.BeginCombo("Select Squadron Pass", previewItem.RowId is 0
+                    ? ""
+                    : $"{previewItem.Name} ({AutoGather.GetInventoryItemCount(GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId)})"))
+                return;
+
+            if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == 0))
             {
-                if (ImGui.Selectable("", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == 0))
+                GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = 0;
+                GatherBuddy.Config.Save();
+            }
+
+            var   items          = PrepareConsumablesList(AutoGather.PossibleSquadronPasses);
+            bool? separatorState = null;
+
+            foreach (var (name, rowid, count) in items)
+            {
+                DrawConsumablesSeparator(ref separatorState, count == 0);
+
+                if (ImGui.Selectable($"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == rowid))
                 {
-                    GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = 0;
+                    GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = rowid;
                     GatherBuddy.Config.Save();
                 }
-
-                var items = PrepareConsumablesList(AutoGather.PossibleSquadronPasses);
-                bool? separatorState = null;
-
-                foreach (var (name, rowid, count) in items)
-                {
-                    DrawConsumablesSeparator(ref separatorState, count == 0);
-
-                    if (ImGui.Selectable($"{name} ({count})", GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId == rowid))
-                    {
-                        GatherBuddy.Config.AutoGatherConfig.SquadronPassConfig.ItemId = rowid;
-                        GatherBuddy.Config.Save();
-                    }
-                }
-
-                ImGui.EndCombo();
             }
+
+            ImGui.EndCombo();
         }
         private static unsafe IOrderedEnumerable<(string name, uint rowid, int count)> PrepareConsumablesList(IEnumerable<Item> items)
         {

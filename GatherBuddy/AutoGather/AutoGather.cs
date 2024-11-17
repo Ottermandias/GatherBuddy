@@ -45,7 +45,7 @@ namespace GatherBuddy.AutoGather
         public           TaskManager TaskManager { get; }
 
         private bool _enabled { get; set; } = false;
-        internal readonly GatheringTracker NodeTarcker = new();
+        internal readonly GatheringTracker NodeTracker = new();
 
         public unsafe bool Enabled
         {
@@ -158,26 +158,24 @@ namespace GatherBuddy.AutoGather
                     }
                 }
 
-                if (GatherBuddy.Config.AutoGatherConfig.DoGathering)
-                {
-                    AutoStatus = "Gathering...";
-                    StopNavigation();
-                    try
-                    {
-                        DoActionTasks(targetInfo?.Item);
-                    }
-                    catch (NoGatherableItemsInNodeExceptions)
-                    {
-                        CloseGatheringAddons();
-                    }
-                    catch (NoColectableActionsExceptions)
-                    {
-                        Communicator.PrintError("Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
-                        AbortAutoGather();
-                    }
+                if (!GatherBuddy.Config.AutoGatherConfig.DoGathering)
                     return;
-                }
 
+                AutoStatus = "Gathering...";
+                StopNavigation();
+                try
+                {
+                    DoActionTasks(targetInfo?.Item);
+                }
+                catch (NoGatherableItemsInNodeExceptions)
+                {
+                    CloseGatheringAddons();
+                }
+                catch (NoColectableActionsExceptions)
+                {
+                    Communicator.PrintError("Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
+                    AbortAutoGather();
+                }
                 return;
             }
 
@@ -252,7 +250,7 @@ namespace GatherBuddy.AutoGather
 
             if (targetInfo.Location == null)
             {
-                //Should not happen because UpdateItemsToGather filters out all unaviable items
+                //Should not happen because UpdateItemsToGather filters out all unavailable items
                 GatherBuddy.Log.Debug("Couldn't find any location for the target item");
                 return;
             }
@@ -306,8 +304,8 @@ namespace GatherBuddy.AutoGather
             var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes.Where(z => z.ZoneId == targetInfo.Location.Territory.Id).FirstOrDefault();
             if (forcedAetheryte.ZoneId != 0 
                 && (GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId
-                    || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
-                {
+                || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
+            {
                 if (territoryId == 478 && !Lifestream_IPCSubscriber.IsEnabled)
                     AutoStatus = $"Install Lifestraem or teleport to {targetInfo.Location.Territory.Name} manually";
                 else
@@ -475,10 +473,8 @@ namespace GatherBuddy.AutoGather
                         TaskManager.Enqueue(() => !IsGathering);
                         return true;
                     }
-                    else
-                    {
-                        return IsGathering;
-                    }    
+
+                    return IsGathering;       
                 });
             }
         }
@@ -549,7 +545,7 @@ namespace GatherBuddy.AutoGather
                 GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
                 _ => null,
             };
-            if (set == null || set.Length == 0)
+            if (string.IsNullOrEmpty(set))
             {
                 Communicator.PrintError($"No gear set for {job} configured.");
                 return false;
@@ -563,7 +559,7 @@ namespace GatherBuddy.AutoGather
         public void Dispose()
         {
             _advancedUnstuck.Dispose();
-            NodeTarcker.Dispose();
+            NodeTracker.Dispose();
         }
     }
 }

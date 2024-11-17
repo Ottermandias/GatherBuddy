@@ -17,7 +17,7 @@ namespace GatherBuddy.AutoGather
         {
             if (gatherable == null)
                 return false;
-            if (LuckUsed[1] || NodeTarcker.HiddenRevealed)
+            if (LuckUsed[1] || NodeTracker.HiddenRevealed)
                 return false;
             if (!CheckConditions(Actions.Luck, GatherBuddy.Config.AutoGatherConfig.LuckConfig, gatherable, false /*not used*/))
                 return false;
@@ -91,7 +91,7 @@ namespace GatherBuddy.AutoGather
 
                 DoCollectibles(left);
             }
-            else if (GatheringAddon != null && NodeTarcker.Ready)
+            else if (GatheringAddon != null && NodeTracker.Ready)
             {
                 DoGatherWindowActions(desiredItem);
             }
@@ -101,7 +101,7 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoGatherWindowActions(Gatherable? desiredItem)
         {
-            if (LuckUsed[1] && !LuckUsed[2] && NodeTarcker.Revisit) LuckUsed = new(0);
+            if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit) LuckUsed = new(0);
 
             //Use The Giving Land out of order to gather random crystals.
             if (ShouldUseGivingLandOutOfOrder(desiredItem))
@@ -113,7 +113,7 @@ namespace GatherBuddy.AutoGather
             if (!HasGivingLandBuff && ShouldUseLuck(desiredItem))
             {
                 LuckUsed[1] = true;
-                LuckUsed[2] = NodeTarcker.Revisit;
+                LuckUsed[2] = NodeTracker.Revisit;
                 EnqueueActionWithDelay(() => UseAction(Actions.Luck));
                 return;
             }
@@ -121,7 +121,7 @@ namespace GatherBuddy.AutoGather
             var (useSkills, slot) = GetItemSlotToGather(desiredItem);
             if (useSkills)
             {
-                if (ShouldUseWise(NodeTarcker.Integrity, NodeTarcker.MaxIntegrity))
+                if (ShouldUseWise(NodeTracker.Integrity, NodeTracker.MaxIntegrity))
                     EnqueueActionWithDelay(() => UseAction(Actions.Wise));
                 else if (ShouldUseSolidAgeGatherables(slot))
                     EnqueueActionWithDelay(() => UseAction(Actions.SolidAge));
@@ -263,7 +263,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
                 return false;
-            if (action.EffectType is Actions.EffectType.Integrity && NodeTarcker.Integrity == NodeTarcker.MaxIntegrity)
+            if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity == NodeTracker.MaxIntegrity)
                 return false;
             if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && rare)
                 return false;
@@ -271,9 +271,9 @@ namespace GatherBuddy.AutoGather
             if (config.Conditions.UseConditions)
             {
 
-                if (config.Conditions.RequiredIntegrity > NodeTarcker.MaxIntegrity)
+                if (config.Conditions.RequiredIntegrity > NodeTracker.MaxIntegrity)
                     return false;
-                if (config.Conditions.UseOnlyOnFirstStep && NodeTarcker.Touched)
+                if (config.Conditions.UseOnlyOnFirstStep && NodeTracker.Touched)
                     return false;
 
                 if (config.Conditions.FilterNodeTypes)
