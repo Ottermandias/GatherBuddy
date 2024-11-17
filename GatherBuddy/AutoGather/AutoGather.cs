@@ -63,9 +63,9 @@ namespace GatherBuddy.AutoGather
 
                     TaskManager.Abort();
                     targetInfo                          = null;
-                    StopNavigation();
                     if (VNavmesh_IPCSubscriber.IsEnabled && IsPathGenerating) 
                         VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
+                    StopNavigation();
                     AutoStatus = "Idle...";
                 }
                 else
