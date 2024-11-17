@@ -84,7 +84,7 @@ namespace GatherBuddy.AutoGather
                 //Join node slots, retaing list order
                 .Join(aviable, i => i.Item, s => s.Item, (i, s) => (Slot: s, i.Quantity))
                 //And we need more of them
-                .Where(x => x.Quantity < QuantityTotal(x.Slot.Item))
+                .Where(x => InventoryCount(x.Slot.Item) < x.Quantity)
                 .Select(x => x.Slot);
 
             var fallbackSkills = GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems;
