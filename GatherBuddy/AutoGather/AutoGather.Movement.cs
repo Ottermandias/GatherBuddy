@@ -179,7 +179,7 @@ namespace GatherBuddy.AutoGather
             CurrentDestination = default;
             if (VNavmesh_IPCSubscriber.IsEnabled)
             {
-                VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
+                //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                 VNavmesh_IPCSubscriber.Path_Stop();
             }
             lastResetTime = DateTime.Now;
