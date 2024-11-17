@@ -29,13 +29,13 @@ public struct SpearfishWindow
         public SpearfishSpeed Speed;
     }
 
-    [FieldOffset(0x294)]
+    [FieldOffset(0x29C)]
     public Info Fish1;
 
-    [FieldOffset(0x2B0)]
+    [FieldOffset(0x2B8)]
     public Info Fish2;
 
-    [FieldOffset(0x2CC)]
+    [FieldOffset(0x2D4)]
     public Info Fish3;
 
 
