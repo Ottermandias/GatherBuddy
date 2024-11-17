@@ -133,11 +133,11 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            //if (FreeInventorySlots == 0)
-            //{
-            //    AbortAutoGather("Inventory is full");
-            //    return;
-            //}
+            if (FreeInventorySlots == 0)
+            {
+                AbortAutoGather("Inventory is full");
+                return;
+            }
 
             if (IsGathering)
             {
