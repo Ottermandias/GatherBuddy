@@ -1,7 +1,7 @@
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using System.Linq;
-using GatherBuddy.Plugin;
+using System.Text.RegularExpressions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -9,7 +9,7 @@ namespace GatherBuddy.AutoGather
     {
         private static CollectableRotation? CurrentRotation;
 
-        private unsafe class CollectableRotation
+        private unsafe partial class CollectableRotation
         {
             public CollectableRotation(uint GPToStart)
             {
@@ -18,14 +18,18 @@ namespace GatherBuddy.AutoGather
 
             private bool shouldUseFullRotation = false;
 
+            [GeneratedRegex(@"\d+")]
+            private static partial Regex NumberRegex();
+
             public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon, int itemsLeft)
             {
+                var regex = NumberRegex();
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
                 int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
-                int scourColl        = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString().Substring(2));
-                int meticulousColl   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString().Substring(2));
-                int brazenColl       = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString().Substring(2));
+                int scourColl        = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString()).Value);
+                int meticulousColl   = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString()).Value);
+                int brazenColl       = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString()).Value);
 
                 if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
