@@ -216,6 +216,10 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            foreach (var (loc, time) in VisitedTimedLocations)
+                if (time.End < AdjuctedServerTime)
+                    VisitedTimedLocations.Remove(loc);
+
             {//Block to limit the scope of the variable "next"
                 UpdateItemsToGather();
                 var next = ItemsToGather.FirstOrDefault();
@@ -234,10 +238,6 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "No available items to gather";
                     return;
                 }
-
-                foreach (var (loc, time) in VisitedTimedLocations)
-                    if (time.End < AdjuctedServerTime)
-                        VisitedTimedLocations.Remove(loc);
 
                 if (targetInfo == null
                     || targetInfo.Location == null
