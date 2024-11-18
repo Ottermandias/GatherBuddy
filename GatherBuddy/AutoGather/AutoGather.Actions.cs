@@ -169,12 +169,14 @@ namespace GatherBuddy.AutoGather
         private void EnqueueActionWithDelay(Action action)
         {
             var delay = GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
-            if (delay > 0)
-            {
-                TaskManager.DelayNext((int)delay);
-            }
 
             TaskManager.Enqueue(action);
+
+            if (delay > 0)
+            {
+                TaskManager.Enqueue(() => CanAct);
+                TaskManager.DelayNext((int)delay);
+            }
         }
 
         private unsafe void DoCollectibles(int itemsLeft)
