@@ -388,7 +388,7 @@ namespace GatherBuddy.AutoGather
                 foreach (var node in visibleNodes.Where(o => o.Position.DistanceToPlayer() < 80))
                     FarNodesSeenSoFar.Add(node.Position);
 
-                if (FarNodesSeenSoFar.Contains(CurrentDestination))
+                if (CurrentDestination.DistanceToPlayer() < 80)
                 {
                     GatherBuddy.Log.Verbose("Far node is not targetable, choosing another");
                 }
@@ -405,7 +405,7 @@ namespace GatherBuddy.AutoGather
             {
                 var pos = TimedNodePosition;
                 // marker not yet loaded on game
-                if (pos == null)
+                if (pos == null || targetInfo.Time.Start > GatherBuddy.Time.ServerTime.AddSeconds(5))
                 {
                     AutoStatus = "Waiting on flag show up";
                     return;
