@@ -61,30 +61,6 @@ namespace GatherBuddy.AutoGather
         public bool ShouldUseFlag
             => !GatherBuddy.Config.AutoGatherConfig.DisableFlagPathing;
 
-        public unsafe Vector3? MapFlagPosition
-        {
-            get
-            {
-                var map = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
-                if (map == null || map->IsFlagMarkerSet == 0)
-                    return null;
-                if (map->CurrentTerritoryId != Dalamud.ClientState.TerritoryType)
-                    return null;
-
-                var marker             = map->FlagMapMarker;
-                var mapPosition        = new Vector2(marker.XFloat, marker.YFloat);
-                var uncorrectedVector3 = new Vector3(mapPosition.X, 1024, mapPosition.Y);
-                var correctedVector3   = uncorrectedVector3.CorrectForMesh(0.5f);
-                if (uncorrectedVector3 == correctedVector3)
-                    return null;
-
-                if (!correctedVector3.SanityCheck())
-                    return null;
-
-                return correctedVector3;
-            }
-        }
-
         public bool ShouldFly(Vector3 destination)
         {
             if (GatherBuddy.Config.AutoGatherConfig.ForceWalking || Dalamud.ClientState.LocalPlayer == null)
