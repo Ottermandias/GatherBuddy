@@ -29,7 +29,7 @@ namespace GatherBuddy.AutoGather
         public bool HiddenRevealed { get; private set; }
         public int Count => 8;
         public ItemSlot this[int key] => Items[key];
-        public IEnumerable<ItemSlot> Aviable => Items.Where(i => i.Aviable);
+        public IEnumerable<ItemSlot> Available => Items.Where(i => i.Available);
 
         private ulong GatherChances;
         private ulong ItemsLevels;
@@ -79,7 +79,7 @@ namespace GatherBuddy.AutoGather
             public int Level => unchecked((sbyte)(node.ItemsLevels >> (index * 8)));
             public bool Enabled => node.Enabled[1 << index];
             public bool Empty => Id == 0;
-            public bool Aviable => !Empty && Enabled;
+            public bool Available => !Empty && Enabled;
             public bool Bonus => node.Bonus[1 << index];
             public int Yield => node.ItemsYields[index];
             public bool RandomYield => node.RandomYield[1 << index];

@@ -638,7 +638,7 @@ public partial class Interface
             }
         }
 
-        var tr = GatherBuddy.AutoGather.NodeTarcker;
+        var tr = GatherBuddy.AutoGather.NodeTracker;
         if (ImGui.CollapsingHeader("GatheringTracker"))
         {
             var text = new StringBuilder();

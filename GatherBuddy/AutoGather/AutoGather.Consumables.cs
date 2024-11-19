@@ -11,11 +11,11 @@ namespace GatherBuddy.AutoGather
     {
         public static readonly Item[] PossibleCordials = Dalamud.GameData.GetExcelSheet<Item>()?.Where(IsItemCordial).ToArray() ?? [];
 
-        public static readonly Item[] PossibleFoods = Dalamud.GameData.GetExcelSheet<Item>()?.Where(item => IsItemDoLFood(item)).ToArray() ?? [];
+        public static readonly Item[] PossibleFoods = Dalamud.GameData.GetExcelSheet<Item>()?.Where(IsItemDoLFood).ToArray() ?? [];
 
-        public static readonly Item[] PossiblePotions = Dalamud.GameData.GetExcelSheet<Item>()?.Where(item => IsItemDoLPotion(item)).ToArray() ?? [];
+        public static readonly Item[] PossiblePotions = Dalamud.GameData.GetExcelSheet<Item>()?.Where(IsItemDoLPotion).ToArray() ?? [];
 
-        public static readonly Item[] PossibleManuals = Dalamud.GameData.GetExcelSheet<Item>()?.Where(item => IsItemDoLManual(item)).ToArray() ?? [];
+        public static readonly Item[] PossibleManuals = Dalamud.GameData.GetExcelSheet<Item>()?.Where(IsItemDoLManual).ToArray() ?? [];
 
         private static readonly Dictionary<uint, uint> SquadronManualItemIdBuffId = new ()
         {
@@ -25,13 +25,13 @@ namespace GatherBuddy.AutoGather
             { 14953u, 1085u },
             { 41707u, 1084u }
         };
-        public static readonly Item[] PossibleSquadronManuals = Dalamud.GameData.GetExcelSheet<Item>()?.Where(item => IsItemDoLSquadronManual(item)).ToArray() ?? [];
+        public static readonly Item[] PossibleSquadronManuals = Dalamud.GameData.GetExcelSheet<Item>()?.Where(IsItemDoLSquadronManual).ToArray() ?? [];
 
         private static readonly Dictionary<uint, uint> SquadronPassItemIdBuffId = new ()
         {
             { 14954u, 1061u }
         };
-        public static readonly Item[] PossibleSquadronPasses = Dalamud.GameData.GetExcelSheet<Item>()?.Where(item => IsItemDoLSquadronPass(item)).ToArray() ?? [];
+        public static readonly Item[] PossibleSquadronPasses = Dalamud.GameData.GetExcelSheet<Item>()?.Where(IsItemDoLSquadronPass).ToArray() ?? [];
 
 
         public static unsafe int GetInventoryItemCount(uint itemRowId)
