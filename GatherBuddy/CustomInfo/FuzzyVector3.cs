@@ -55,11 +55,7 @@ namespace GatherBuddy.CustomInfo
 
         public static bool SanityCheck(this Vector3 vector)
         {
-            if (vector.X == 0)
-                return false;
-            if (vector.Y == 0)
-                return false;
-            if (vector.Z == 0)
+            if (vector == default)
                 return false;
 
             return true;
