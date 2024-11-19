@@ -214,6 +214,10 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            foreach (var (loc, time) in VisitedTimedLocations)
+                if (time.End < AdjuctedServerTime)
+                    VisitedTimedLocations.Remove(loc);
+
             {//Block to limit the scope of the variable "next"
                 UpdateItemsToGather();
                 var next = ItemsToGather.FirstOrDefault();
@@ -232,10 +236,6 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "No available items to gather";
                     return;
                 }
-
-                foreach (var (loc, time) in VisitedTimedLocations)
-                    if (time.End < AdjuctedServerTime)
-                        VisitedTimedLocations.Remove(loc);
 
                 if (targetInfo == null
                     || targetInfo.Location == null
@@ -386,7 +386,7 @@ namespace GatherBuddy.AutoGather
                 foreach (var node in visibleNodes.Where(o => o.Position.DistanceToPlayer() < 80))
                     FarNodesSeenSoFar.Add(node.Position);
 
-                if (FarNodesSeenSoFar.Contains(CurrentDestination))
+                if (CurrentDestination.DistanceToPlayer() < 80)
                 {
                     GatherBuddy.Log.Verbose("Far node is not targetable, choosing another");
                 }
@@ -403,7 +403,7 @@ namespace GatherBuddy.AutoGather
             {
                 var pos = TimedNodePosition;
                 // marker not yet loaded on game
-                if (pos == null)
+                if (pos == null || targetInfo.Time.Start > GatherBuddy.Time.ServerTime.AddSeconds(5))
                 {
                     AutoStatus = "Waiting on flag show up";
                     return;
