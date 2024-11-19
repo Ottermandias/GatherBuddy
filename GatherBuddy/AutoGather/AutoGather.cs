@@ -63,9 +63,9 @@ namespace GatherBuddy.AutoGather
 
                     TaskManager.Abort();
                     targetInfo                          = null;
-                    StopNavigation();
                     if (VNavmesh_IPCSubscriber.IsEnabled && IsPathGenerating) 
                         VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
+                    StopNavigation();
                     AutoStatus = "Idle...";
                 }
                 else
@@ -133,11 +133,11 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            //if (FreeInventorySlots == 0)
-            //{
-            //    AbortAutoGather("Inventory is full");
-            //    return;
-            //}
+            if (FreeInventorySlots == 0)
+            {
+                AbortAutoGather("Inventory is full");
+                return;
+            }
 
             if (IsGathering)
             {
@@ -185,17 +185,17 @@ namespace GatherBuddy.AutoGather
             var isPathGenerating = IsPathGenerating;
             var isPathing = IsPathing;
 
-            if (isPathGenerating)
-            {
-                AutoStatus = "Generating path...";
-                lastMovementTime = DateTime.Now;
-                return;
-            }
-
             if (_advancedUnstuck.IsRunning || CurrentDestination != default && CurrentDestination.DistanceToPlayer() > 3 && _advancedUnstuck.Check(isPathGenerating, isPathing))
             {
                 StopNavigation();
                 AutoStatus = $"Advanced unstuck in progress!";
+                return;
+            }
+
+            if (isPathGenerating)
+            {
+                AutoStatus = "Generating path...";
+                lastMovementTime = DateTime.Now;
                 return;
             }
 
