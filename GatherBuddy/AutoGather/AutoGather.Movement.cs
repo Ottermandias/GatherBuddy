@@ -80,10 +80,11 @@ namespace GatherBuddy.AutoGather
                     //Try to dismount early. It would help with nodes where it is not possible to dismount at vnavmesh's provided floor point
                     EnqueueDismount();
                     TaskManager.Enqueue(() => {
-                        //If early dismount failed, navigate to the node
-                        if (Dalamud.Conditions[ConditionFlag.Mounted])
+                        //If early dismount failed, navigate to the nearest floor point
+                        if (Dalamud.Conditions[ConditionFlag.Mounted] && Dalamud.Conditions[ConditionFlag.InFlight] && !Dalamud.Conditions[ConditionFlag.Diving])
                         {
-                            Navigate(gameObject.Position, Dalamud.Conditions[ConditionFlag.InFlight]);
+                            var floor = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 3);
+                            Navigate(floor, true);
                             TaskManager.Enqueue(() => !IsPathGenerating);
                             TaskManager.Enqueue(() => !IsPathing, 1000);
                             EnqueueDismount();
