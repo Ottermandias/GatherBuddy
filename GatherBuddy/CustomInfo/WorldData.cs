@@ -13,7 +13,7 @@ namespace GatherBuddy.CustomInfo
         private static string WorldLocationsPath = Path.Combine(Dalamud.PluginInterface.ConfigDirectory.FullName, "world_locations.json");
         private static string NodeOffsetsPath = Path.Combine(Dalamud.PluginInterface.ConfigDirectory.FullName, "node_offsets.json");
         public static Dictionary<uint, List<Vector3>> WorldLocationsByNodeId { get; set; } = new();
-        public static List<OffsetPair>    NodeOffsets            { get; set; } = new();
+        public static Dictionary<Vector3, Vector3>    NodeOffsets            { get; set; } = new();
         public static Dictionary<uint, uint> BaseGathering { get; set; } = new();
 
         static WorldData()
@@ -27,7 +27,7 @@ namespace GatherBuddy.CustomInfo
         {
             var settings = new JsonSerializerSettings();
             var resourceName = "GatherBuddy.CustomInfo.node_offsets.json";
-            NodeOffsets = LoadFromFile<List<OffsetPair>>(NodeOffsetsPath, resourceName, settings);
+            NodeOffsets = LoadFromFile<List<OffsetPair>>(NodeOffsetsPath, resourceName, settings).GroupBy(x => x.Original).ToDictionary(x => x.Key, x => x.First().Offset);
         }
 
         private static void LoadLocationsFromFile()
@@ -108,35 +108,25 @@ namespace GatherBuddy.CustomInfo
 
         private static List<OffsetPair> MergeData(List<OffsetPair> defaultData, List<OffsetPair> existingData)
         {
-            var mergedData = existingData.GroupBy(v => v.Original).ToDictionary(v => v.Key, v => v.First());
-            foreach (var item in defaultData)
-            {
-                if (!mergedData.ContainsKey(item.Original))
-                {
-                    mergedData[item.Original] = item;
-                }
-            }
-
-            return mergedData.Values.ToList();
+            return existingData.Concat(defaultData).GroupBy(v => v.Original).Select(v => v.First()).ToList();
         }
 
         public static void AddOffset(Vector3 original, Vector3 offset)
         {
-            if (NodeOffsets.Any(o => o.Original == original))
+            if (NodeOffsets.ContainsKey(original))
             {
-                var nodeOffset = NodeOffsets.First(o => o.Original == original).Offset;
-                GatherBuddy.Log.Error($"{original} already has an offset of {nodeOffset}. Unable to add new offset.");
+                GatherBuddy.Log.Error($"{original} already has an offset of {NodeOffsets[original]}. Unable to add new offset.");
                 return;
             }
             
-            NodeOffsets.Add(new OffsetPair(original, offset));
+            NodeOffsets[original] = offset;
             Task.Run(SaveOffsetsToFile);
         }
 
         public static void SaveOffsetsToFile()
         {
             var settings = new JsonSerializerSettings();
-            var offsetJson = Newtonsoft.Json.JsonConvert.SerializeObject(NodeOffsets, Formatting.Indented, settings);
+            var offsetJson = Newtonsoft.Json.JsonConvert.SerializeObject(NodeOffsets.Select(x => new OffsetPair(x.Key, x.Value)).ToList(), Formatting.Indented, settings);
             
             File.WriteAllText(NodeOffsetsPath, offsetJson);
         }
@@ -181,9 +171,7 @@ namespace GatherBuddy.CustomInfo
         }
     }
 
-    public class OffsetPair(Vector3 original, Vector3 offset)
+    public record struct OffsetPair(Vector3 Original, Vector3 Offset)
     {
-        public Vector3 Original { get; set; } = original;
-        public Vector3 Offset   { get; set; } = offset;
     }
 }

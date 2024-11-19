@@ -212,7 +212,9 @@ namespace GatherBuddy.AutoGather
 
         private static Vector3 GetCorrectedDestination(Vector3 destination)
         {
-            var correctedDestination = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == destination)?.Offset ?? destination;
+            var correctedDestination = destination;
+            if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
+                correctedDestination = offset;
 
             try
             {

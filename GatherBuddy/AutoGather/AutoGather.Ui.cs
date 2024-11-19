@@ -50,10 +50,10 @@ namespace GatherBuddy.AutoGather
             {
                 var settings = new JsonSerializerSettings();
                 var                          text    = ImGuiUtil.GetClipboardText();
-                List<OffsetPair> vectors = JsonConvert.DeserializeObject<List<OffsetPair>>(text, settings) ?? new System.Collections.Generic.List<OffsetPair>();
+                var vectors = JsonConvert.DeserializeObject<List<OffsetPair>>(text, settings) ?? [];
                 foreach (var offset in vectors)
                 {
-                    WorldData.NodeOffsets.Add(offset);
+                    WorldData.NodeOffsets[offset.Original] = offset.Offset;
                     GatherBuddy.Log.Information($"Added offset {offset} to dictionary");
                 }
                 WorldData.SaveOffsetsToFile();
@@ -63,7 +63,7 @@ namespace GatherBuddy.AutoGather
             if (ImGui.Button("Export Node Offsets to Clipboard"))
             {
                 var settings = new JsonSerializerSettings();
-                var offsetString = JsonConvert.SerializeObject(WorldData.NodeOffsets, Formatting.Indented, settings);
+                var offsetString = JsonConvert.SerializeObject(WorldData.NodeOffsets.Select(x => new OffsetPair(x.Key, x.Value)).ToList(), Formatting.Indented, settings);
                 ImGui.SetClipboardText(offsetString);
                 GatherBuddy.Log.Information("Node offsets exported to clipboard");
             }
@@ -141,15 +141,14 @@ namespace GatherBuddy.AutoGather
                         VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly(node.Position));
                     }
 
-                    var offset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == node.Position);
-                    if (offset != null)
+                    if (WorldData.NodeOffsets.TryGetValue(node.Position, out var offset))
                     {
                         if (ImGui.Button($"Remove Offset##{node.Position}"))
                         {
-                            WorldData.NodeOffsets.Remove(offset);
+                            WorldData.NodeOffsets.Remove(node.Position);
                             WorldData.SaveOffsetsToFile();
                         }
-                        ImGui.Text(offset.Offset.ToString());
+                        ImGui.Text(offset.ToString());
                         if (ImGui.Button($"Navigate to Offset##{node.Position}"))
                         {
                             if (GatherBuddy.AutoGather.Enabled)
@@ -159,7 +158,7 @@ namespace GatherBuddy.AutoGather
                             }
                             //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                             VNavmesh_IPCSubscriber.Path_Stop();
-                            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset.Offset, GatherBuddy.AutoGather.ShouldFly(offset.Offset));
+                            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset, GatherBuddy.AutoGather.ShouldFly(offset));
                         }
                     }
                     else
