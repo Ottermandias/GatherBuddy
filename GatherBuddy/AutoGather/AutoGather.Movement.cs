@@ -205,7 +205,6 @@ namespace GatherBuddy.AutoGather
             StopNavigation();
             CurrentDestination = destination;
             var correctedDestination = GetCorrectedDestination(CurrentDestination);
-            correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(correctedDestination, 3, 3);
             GatherBuddy.Log.Debug($"Navigating to {destination} (corrected to {correctedDestination})");
 
             LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
@@ -213,20 +212,20 @@ namespace GatherBuddy.AutoGather
 
         private static Vector3 GetCorrectedDestination(Vector3 destination)
         {
+            var correctedDestination = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == destination)?.Offset ?? destination;
+
             try
             {
-                var selectedOffset = WorldData.NodeOffsets.First(o => o.Original == destination).Offset;
-                if (Vector3.Distance(selectedOffset, destination) is var distance and > 3)
+                correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(correctedDestination, 3, 3);
+                if (Vector3.Distance(correctedDestination, destination) is var distance and > 3)
                 {
-                    GatherBuddy.Log.Warning($"Offset is ignored, because distance {distance} is too large.");
-                    return destination;
+                    GatherBuddy.Log.Warning($"Offset is ignored, because distance {distance} is too large after correcting for mesh.");
+                    correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
                 }
-                return selectedOffset;
-            } 
-            catch (InvalidOperationException)
-            {
-                return destination;
             }
+            catch (Exception) { }
+
+            return correctedDestination;
         }
 
         private void MoveToFarNode(Vector3 position)
