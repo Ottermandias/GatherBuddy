@@ -136,7 +136,7 @@ public partial class Interface
 
         private static ReadOnlyCollection<Gatherable> GenAllGatherables()
             => GatherBuddy.GameData.Gatherables.Values
-            .Where(g => g.Locations.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any())
+            .Where(g => g.NodeList.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any())
             .OrderBy(g => g.Name[GatherBuddy.Language])
             .ToArray()
             .AsReadOnly();
