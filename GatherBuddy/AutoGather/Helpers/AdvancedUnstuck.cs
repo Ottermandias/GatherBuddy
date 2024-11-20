@@ -8,9 +8,15 @@ using System.Numerics;
 
 namespace GatherBuddy.AutoGather.Movement
 {
+    public enum AdvancedUnstuckCheckResult
+    {
+        Pass,
+        Wait,
+        Fail
+    }
     public sealed class AdvancedUnstuck : IDisposable
     {
-        private const double UnstuckDuration = 1.5;
+        private const double UnstuckDuration = 1.0;
         private const double CheckExpiration = 1.0;
         private const float MinMovementDistance = 2.0f;
 
@@ -19,78 +25,93 @@ namespace GatherBuddy.AutoGather.Movement
         private DateTime _unstuckStart;
         private DateTime _lastCheck;
         private Vector3 _lastPosition;
+        private bool _lastWasFailure;
 
         public bool IsRunning => _movementController.Enabled;
 
-        public bool Check(bool isPathGenerating, bool isPathing)
+        public AdvancedUnstuckCheckResult Check(Vector3 destination, bool isPathGenerating, bool isPathing)
         {
+            if (IsRunning)
+                return AdvancedUnstuckCheckResult.Fail;
+
             if (!GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
-            {
-                return false;
-            }
+                return AdvancedUnstuckCheckResult.Pass;
 
             var now = DateTime.Now;
-            if (!IsRunning)
+
+            //On cooldown, not navigating or near the destination: disable tracking and reset
+            if (now.Subtract(_unstuckStart).TotalSeconds < GatherBuddy.Config.AutoGatherConfig.NavResetCooldown
+                || destination == default
+                || destination.DistanceToPlayer() < 3)
             {
-                var lastCheck = _lastCheck;
-                _lastCheck = now;
-                if (now.Subtract(lastCheck).TotalSeconds > CheckExpiration)
+                _lastCheck = DateTime.MinValue;
+                return AdvancedUnstuckCheckResult.Pass;
+            }
+
+            var lastCheck = _lastCheck;
+            _lastCheck = now;
+
+            //Tracking wasn't active for 1 second or was reset: restart tracking from the current position
+            if (now.Subtract(lastCheck).TotalSeconds > CheckExpiration)
+            {
+                _lastPosition = Player.Position;
+                _lastMovement = now;
+                _lastWasFailure = false;
+                return AdvancedUnstuckCheckResult.Pass;
+            }
+
+            //vnavmesh is generating path: update current position
+            if (isPathGenerating)
+            {
+                _lastPosition = Player.Position;
+                _lastMovement = now;
+            }
+            //vnavmesh is moving...
+            else if (isPathing)
+            {
+                //...and quite fast: update current position
+                if (_lastPosition.DistanceToPlayer() >= MinMovementDistance)
                 {
-                    _lastPosition = Player.Position;
+                    _lastPosition = Player.Object.Position;
                     _lastMovement = now;
                 }
-                else
+                //...but now fast enough: unstuck
+                else if (now.Subtract(_lastMovement).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
                 {
-                    if (isPathGenerating)
-                    {
-                        _lastPosition = Player.Position;
-                        _lastMovement = now;
-                    } 
-                    else if (isPathing)
-                    {
-                        if (_lastPosition.DistanceToPlayer() >= MinMovementDistance)
-                        {
-                            // Character has moved, update last known position and time
-                            _lastPosition = Player.Object.Position;
-                            _lastMovement = now;
-                        }
-                        else if (now.Subtract(_lastMovement).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
-                        {
-                            // If the character hasn't moved much
-                            GatherBuddy.Log.Debug($"Advanced Unstuck: stuck detected. Moved {_lastPosition.DistanceToPlayer()} yalms in {now.Subtract(_lastMovement).TotalSeconds} seconds.");
-                            Start(false);
-                        }                        
-                    }
-                    else
-                    {
-                        //vnavmesh failed to find a path
-                        GatherBuddy.Log.Debug($"Advanced Unstuck: vnavmesh failure detected.");
-                        Start(false);
-                    }
+                    GatherBuddy.Log.Warning($"Advanced Unstuck: the character is stuck. Moved {_lastPosition.DistanceToPlayer()} yalms in {now.Subtract(_lastMovement).TotalSeconds} seconds.");
+                    Start();
                 }
             }
-            return IsRunning;
+            //Not generating path and not moving 2 framework updates in a sequence: unstuck
+            else if (_lastWasFailure)
+            {
+                GatherBuddy.Log.Warning($"Advanced Unstuck: vnavmesh failure detected.");
+                Start();
+            }
+
+            //Not generating path and not moving: remember that fact and exit main loop
+            _lastWasFailure = !isPathGenerating && !isPathing;
+            return IsRunning ? AdvancedUnstuckCheckResult.Fail : _lastWasFailure ? AdvancedUnstuckCheckResult.Wait : AdvancedUnstuckCheckResult.Pass;
         }
 
         public void Force()
         {
-            GatherBuddy.Log.Debug("Advanced Unstuck: force start.");
-            if (!IsRunning) Start(true);
+            if (!IsRunning)
+            {
+                GatherBuddy.Log.Warning("Advanced Unstuck: force start.");
+                Start();
+            }
         }
 
-        private void Start(bool force)
+        private void Start()
         {
-            if (force || DateTime.Now.Subtract(_unstuckStart).TotalSeconds >= GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
-            {
-                GatherBuddy.Log.Warning("Advanced Unstuck: the character is stuck; attempting to move and resetting navigation.");
-                var rng = new Random();
-                float rnd() => (rng.Next(2) == 0 ? -1 : 1) * rng.NextSingle();
-                var newPosition = Player.Position + Vector3.Normalize(new Vector3(rnd(), rnd(), rnd())) * 25f;
-                _movementController.DesiredPosition = newPosition;
-                _movementController.Enabled = true;
-                _unstuckStart = DateTime.Now;
-                Dalamud.Framework.Update += RunningUpdate;
-            }
+            var rng = new Random();
+            float rnd() => (rng.Next(2) == 0 ? -1 : 1) * rng.NextSingle();
+            var newPosition = Player.Position + Vector3.Normalize(new Vector3(rnd(), rnd(), rnd())) * 25f;
+            _movementController.DesiredPosition = newPosition;
+            _movementController.Enabled = true;
+            _unstuckStart = DateTime.Now;
+            Dalamud.Framework.Update += RunningUpdate;
         }
 
         private void RunningUpdate(IFramework framework)

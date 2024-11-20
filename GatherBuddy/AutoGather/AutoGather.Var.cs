@@ -63,6 +63,9 @@ namespace GatherBuddy.AutoGather
 
         public bool ShouldFly(Vector3 destination)
         {
+            if (Dalamud.Conditions[ConditionFlag.InFlight] || Dalamud.Conditions[ConditionFlag.Diving])
+                return true;
+
             if (GatherBuddy.Config.AutoGatherConfig.ForceWalking || Dalamud.ClientState.LocalPlayer == null)
             {
                 return false;
