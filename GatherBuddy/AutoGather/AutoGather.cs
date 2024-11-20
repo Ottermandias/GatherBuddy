@@ -403,7 +403,7 @@ namespace GatherBuddy.AutoGather
             {
                 var pos = TimedNodePosition;
                 // marker not yet loaded on game
-                if (pos == null || targetInfo.Time.Start > GatherBuddy.Time.ServerTime.AddSeconds(5))
+                if (pos == null || targetInfo.Time.Start > GatherBuddy.Time.ServerTime.AddSeconds(-8))
                 {
                     AutoStatus = "Waiting on flag show up";
                     return;

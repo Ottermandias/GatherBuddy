@@ -69,7 +69,7 @@ namespace GatherBuddy.AutoGather
         private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem)
         {
             var distance = gameObject.Position.DistanceToPlayer();
-            
+
             if (distance < 3)
             {
                 var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable;
@@ -80,10 +80,11 @@ namespace GatherBuddy.AutoGather
                     //Try to dismount early. It would help with nodes where it is not possible to dismount at vnavmesh's provided floor point
                     EnqueueDismount();
                     TaskManager.Enqueue(() => {
-                        //If early dismount failed, navigate to the node
-                        if (Dalamud.Conditions[ConditionFlag.Mounted])
+                        //If early dismount failed, navigate to the nearest floor point
+                        if (Dalamud.Conditions[ConditionFlag.Mounted] && Dalamud.Conditions[ConditionFlag.InFlight] && !Dalamud.Conditions[ConditionFlag.Diving])
                         {
-                            Navigate(gameObject.Position, Dalamud.Conditions[ConditionFlag.InFlight]);
+                            var floor = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 3);
+                            Navigate(floor, true);
                             TaskManager.Enqueue(() => !IsPathGenerating);
                             TaskManager.Enqueue(() => !IsPathing, 1000);
                             EnqueueDismount();
@@ -203,45 +204,30 @@ namespace GatherBuddy.AutoGather
 
             StopNavigation();
             CurrentDestination = destination;
-            GatherBuddy.Log.Debug($"Navigating to {CurrentDestination}");
-            var loop = 1;
-            Vector3 correctedDestination = GetCorrectedDestination(shouldFly);
-            while (Vector3.Distance(correctedDestination, CurrentDestination) > 15 && loop < 8)
-            {
-                GatherBuddy.Log.Information("Distance last node and gatherpoint is too big : "
-                    + Vector3.Distance(correctedDestination, CurrentDestination));
-                correctedDestination = shouldFly ? CurrentDestination.CorrectForMesh(loop * 0.5f) : CurrentDestination;
-                loop++;
-            }
-
-            if (Vector3.Distance(correctedDestination, CurrentDestination) > 10)
-            {
-                GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
-                StopNavigation();
-                return;
-            }
-
-            if (!correctedDestination.SanityCheck())
-            {
-                GatherBuddy.Log.Warning($"Invalid destination: {correctedDestination}");
-                StopNavigation();
-                return;
-            }
+            var correctedDestination = GetCorrectedDestination(CurrentDestination);
+            GatherBuddy.Log.Debug($"Navigating to {destination} (corrected to {correctedDestination})");
 
             LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
         }
 
-        private Vector3 GetCorrectedDestination(bool shouldFly)
+        private static Vector3 GetCorrectedDestination(Vector3 destination)
         {
-            var selectedOffset = WorldData.NodeOffsets.FirstOrDefault(o => o.Original == CurrentDestination);
-            if (selectedOffset != null)
+            var correctedDestination = destination;
+            if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
+                correctedDestination = offset;
+
+            try
             {
-                return selectedOffset.Offset;
+                correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(correctedDestination, 3, 3);
+                if (Vector3.Distance(correctedDestination, destination) is var distance and > 3)
+                {
+                    GatherBuddy.Log.Warning($"Offset is ignored, because distance {distance} is too large after correcting for mesh.");
+                    correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
+                }
             }
-            else
-            {
-                return shouldFly ? CurrentDestination.CorrectForMesh(0.5f) : CurrentDestination;
-            }
+            catch (Exception) { }
+
+            return correctedDestination;
         }
 
         private void MoveToFarNode(Vector3 position)

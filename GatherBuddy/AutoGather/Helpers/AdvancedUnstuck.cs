@@ -57,12 +57,14 @@ namespace GatherBuddy.AutoGather.Movement
                         else if (now.Subtract(_lastMovement).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
                         {
                             // If the character hasn't moved much
+                            GatherBuddy.Log.Debug($"Advanced Unstuck: stuck detected. Moved {_lastPosition.DistanceToPlayer()} yalms in {now.Subtract(_lastMovement).TotalSeconds} seconds.");
                             Start(false);
                         }                        
                     }
                     else
                     {
                         //vnavmesh failed to find a path
+                        GatherBuddy.Log.Debug($"Advanced Unstuck: vnavmesh failure detected.");
                         Start(false);
                     }
                 }
@@ -72,6 +74,7 @@ namespace GatherBuddy.AutoGather.Movement
 
         public void Force()
         {
+            GatherBuddy.Log.Debug("Advanced Unstuck: force start.");
             if (!IsRunning) Start(true);
         }
 
@@ -79,7 +82,7 @@ namespace GatherBuddy.AutoGather.Movement
         {
             if (force || DateTime.Now.Subtract(_unstuckStart).TotalSeconds >= GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
             {
-                GatherBuddy.Log.Warning($"Character is stuck, using advanced unstuck methods");
+                GatherBuddy.Log.Warning("Advanced Unstuck: the character is stuck; attempting to move and resetting navigation.");
                 var rng = new Random();
                 float rnd() => (rng.Next(2) == 0 ? -1 : 1) * rng.NextSingle();
                 var newPosition = Player.Position + Vector3.Normalize(new Vector3(rnd(), rnd(), rnd())) * 25f;
