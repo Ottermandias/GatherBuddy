@@ -10,5 +10,5 @@ public static class Offsets
     public const int AgentItemContextItemId            = 0x28;
     public const int GatheringNoteContextItemId        = 0xA0;
     public const int GatheringNoteContextDiscriminator = 0x38;
-    public const int ChatLogContextItemId              = 0x950;
+    public const int ChatLogContextItemId              = 0x958;
 }

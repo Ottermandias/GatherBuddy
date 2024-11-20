@@ -1,32 +1,21 @@
-﻿using System.Numerics;
-using GatherBuddy.Interfaces;
+﻿using GatherBuddy.Interfaces;
+using GatherBuddy.Structs;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 
 namespace GatherBuddy.CustomInfo;
 
-public struct LocationData
+public struct LocationData(ILocation loc)
 {
-    public uint Id;
+    public uint Id = loc.Id;
 
     [JsonConverter(typeof(StringEnumConverter))]
-    public ObjectType Type;
+    public ObjectType Type = loc.Type;
 
-    public int    AetheryteId;
-    public int    XCoord;
-    public int    YCoord;
-    public ushort Radius;
+    public int    AetheryteId = loc.ClosestAetheryte == null ? -1 : (int)loc.ClosestAetheryte.Id;
+    public int    XCoord      = loc.IntegralXCoord;
+    public int    YCoord      = loc.IntegralYCoord;
+    public ushort Radius      = loc.Radius;
 
-    public Vector3[] Markers;
-
-    public LocationData(ILocation loc)
-    {
-        Id          = loc.Id;
-        Type        = loc.Type;
-        AetheryteId = loc.ClosestAetheryte == null ? -1 : (int)loc.ClosestAetheryte.Id;
-        XCoord      = loc.IntegralXCoord;
-        YCoord      = loc.IntegralYCoord;
-        Markers     = loc.Markers;
-        Radius      = loc.Radius;
-    }
+    public WaymarkSet Markers = loc.Markers;
 }

@@ -1,8 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
+﻿using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using GatherBuddy.Structs;
 
 namespace GatherBuddy.SeFunctions;
 
@@ -26,17 +23,17 @@ public unsafe class WaymarkManager
             ? default
             : _markingController->FieldMarkers[idx];
 
-    public IList<Vector3> GetWaymarks()
+    public WaymarkSet GetWaymarks()
     {
+        var list = new WaymarkSet();
         if (_markingController == null)
-            return Array.Empty<Vector3>();
+            return list;
 
-        var list = new List<Vector3>(8);
-        for (var i = 0; i < 8; ++i)
+        for (var i = 0; i < WaymarkSet.Count; ++i)
         {
             var w = this[i];
             if (w.Active)
-                list.Add(w.Position);
+                list[i] = w.Position;
         }
 
         return list;
@@ -44,7 +41,7 @@ public unsafe class WaymarkManager
 
     public void ClearWaymark(int idx)
     {
-        if (idx is < 0 || idx > Count || _markingController == null)
+        if (idx is < 0 || idx > WaymarkSet.Count || _markingController == null)
             return;
 
         _markingController->FieldMarkers[idx] = default;
@@ -52,7 +49,7 @@ public unsafe class WaymarkManager
 
     public void SetWaymark(int idx)
     {
-        if (idx is < 0 || idx > Count || _markingController == null || Dalamud.ClientState.LocalPlayer == null)
+        if (idx is < 0 || idx > WaymarkSet.Count || _markingController == null || Dalamud.ClientState.LocalPlayer == null)
             return;
 
         ref var marker = ref _markingController->FieldMarkers[idx];
@@ -64,23 +61,28 @@ public unsafe class WaymarkManager
         marker.Active   = true;
     }
 
-    public void SetWaymarks(IEnumerable<Vector3> waymarks)
+    public void SetWaymarks(in WaymarkSet waymarks)
     {
         if (_markingController == null)
             return;
 
         var idx = 0;
-        foreach (var waymark in waymarks.Take(Count))
+        for (var i = 0; i < WaymarkSet.Count; ++i)
         {
-            ref var marker = ref _markingController->FieldMarkers[idx++];
-            marker.Position = waymark;
-            marker.X        = (int)(waymark.X * 1000 + 0.9f);
-            marker.Y        = (int)(waymark.Y * 1000 + 0.9f);
-            marker.Z        = (int)(waymark.Z * 1000 + 0.9f);
-            marker.Active   = true;
+            ref var          marker  = ref _markingController->FieldMarkers[idx++];
+            ref readonly var waymark = ref waymarks[i];
+            if (float.IsNaN(waymark.X))
+            {
+                marker = default;
+            }
+            else
+            {
+                marker.Position = waymark;
+                marker.X        = (int)(waymark.X * 1000 + 0.9f);
+                marker.Y        = (int)(waymark.Y * 1000 + 0.9f);
+                marker.Z        = (int)(waymark.Z * 1000 + 0.9f);
+                marker.Active   = true;
+            }
         }
-
-        for (; idx < Count; ++idx)
-            _markingController->FieldMarkers[idx] = default;
     }
 }

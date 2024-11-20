@@ -1,7 +1,5 @@
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 using GatherBuddy.Classes;
+using GatherBuddy.Structs;
 
 namespace GatherBuddy.Interfaces;
 
@@ -9,7 +7,6 @@ public interface IMarkable
 {
     public const int    CoordMin   = 100;
     public const int    CoordMax   = 4200;
-    public const int    MarkersMax = 8;
     public const ushort RadiusMax  = 400;
 
     public string    Name           { get; }
@@ -23,15 +20,14 @@ public interface IMarkable
     public ushort Radius        { get; set; }
     public ushort DefaultRadius { get; }
 
-    public Vector3[] Markers { get; set; }
+    public WaymarkSet Markers { get; set; }
 
-    public bool SetMarkers(IEnumerable<Vector3> markers)
+    public bool SetMarkers(WaymarkSet markers)
     {
-        var tmpMarkers = markers.Take(MarkersMax).ToArray();
-        if (Markers.SequenceEqual(tmpMarkers))
+        if (Markers.Equals(markers))
             return false;
 
-        Markers = tmpMarkers;
+        Markers = markers;
         return true;
     }
 
