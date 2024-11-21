@@ -481,7 +481,7 @@ namespace GatherBuddy.AutoGather
                         return true;
                     }
 
-                    return IsGathering;       
+                    return !IsGathering;       
                 });
             }
         }
