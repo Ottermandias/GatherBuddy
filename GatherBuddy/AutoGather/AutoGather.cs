@@ -185,11 +185,16 @@ namespace GatherBuddy.AutoGather
             var isPathGenerating = IsPathGenerating;
             var isPathing = IsPathing;
 
-            if (_advancedUnstuck.IsRunning || CurrentDestination != default && CurrentDestination.DistanceToPlayer() > 3 && _advancedUnstuck.Check(isPathGenerating, isPathing))
+            switch (_advancedUnstuck.Check(CurrentDestination, isPathGenerating, isPathing))
             {
-                StopNavigation();
-                AutoStatus = $"Advanced unstuck in progress!";
-                return;
+                case AdvancedUnstuckCheckResult.Pass:
+                    break;
+                case AdvancedUnstuckCheckResult.Wait:
+                    return;
+                case AdvancedUnstuckCheckResult.Fail:
+                    StopNavigation();
+                    AutoStatus = $"Advanced unstuck in progress!";
+                    return;
             }
 
             if (isPathGenerating)
