@@ -36,7 +36,7 @@ public static partial class Fish
             .Weather(data, 7, 8);
         data.Apply(37849, Patch.BuriedMemory) // Sovereign Shadow
             .Bait(data, 36591)
-            .Bite(data, HookSet.Precise, BiteType.Legendary)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary)
             .Time(120, 480)
             .Transition(data, 3, 4)
             .Weather(data, 15);
@@ -51,7 +51,7 @@ public static partial class Fish
            .Weather(data, 149);
         data.Apply(37852, Patch.BuriedMemory) // Argonauta argo
            .Bait(data, 36597)
-           .Bite(data, HookSet.Precise, BiteType.Legendary)
+           .Bite(data, HookSet.Powerful, BiteType.Legendary)
            .Time(120, 240)
            .Weather(data, 49);
         data.Apply(37853, Patch.BuriedMemory) // Planetes

@@ -2,10 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Numerics;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
+using GatherBuddy.Structs;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.CustomInfo;
@@ -23,7 +23,7 @@ public class LocationManager
         => !ReferenceEquals(loc.ClosestAetheryte, loc.DefaultAetheryte)
          || loc.IntegralXCoord != loc.DefaultXCoord
          || loc.IntegralYCoord != loc.DefaultYCoord
-         || loc.Markers.Length > 0
+         || loc.Markers.AnySet
          || loc.Radius != loc.DefaultRadius;
 
     public IEnumerable<LocationData> CustomLocations
@@ -32,7 +32,7 @@ public class LocationManager
     private string CustomLocationData()
         => JsonConvert.SerializeObject(CustomLocations);
 
-    public void SetMarkers(ILocation loc, IEnumerable<Vector3> markers)
+    public void SetMarkers(ILocation loc, in WaymarkSet markers)
     {
         if (loc.SetMarkers(markers))
             Save();

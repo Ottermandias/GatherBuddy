@@ -154,7 +154,7 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(40549, Patch.TheDarkThrone) // Spectral Wrasse
             .Bait(data, 29714)
-            .Bite(data, HookSet.Precise, BiteType.Legendary)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary)
             .Weather(data, 2, 3, 4, 7, 8);
         data.Apply(40550, Patch.TheDarkThrone) // Mizuhiki
             .Bait(data, 29714)
@@ -335,7 +335,7 @@ public static partial class Fish
             .Ocean(OceanTime.Sunset);
         data.Apply(40600, Patch.TheDarkThrone) // Jewel of Plum Spring
             .Bait(data, 12704)
-            .Bite(data, HookSet.Precise, BiteType.Legendary)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 15, (40595, 2), (40591, 1))
             .Ocean(OceanTime.Day);
     }

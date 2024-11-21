@@ -155,7 +155,7 @@ namespace GatherBuddy.AutoGather
             {
                 res = GatherBuddy.UptimeManager.NextUptime(item, time, [.. VisitedTimedLocations.Keys]);
             }
-            return (item, res.Location, res.Time);
+            return (item, (GatheringNode?)res.Location, res.Time);
         }
 
         private IEnumerable<GatherInfo> OrderActiveItems(IEnumerable<GatherInfo> activeItems)
@@ -260,14 +260,14 @@ namespace GatherBuddy.AutoGather
             => PlayerState.Instance()->Attributes[72];
     }
 
-    public record class GatherInfo(Gatherable Item, ILocation? Location, TimeInterval Time)
+    public record class GatherInfo(Gatherable Item, GatheringNode? Location, TimeInterval Time)
     {
-        public static implicit operator (Gatherable Item, ILocation? Location, TimeInterval Time)(GatherInfo value)
+        public static implicit operator (Gatherable Item, GatheringNode? Location, TimeInterval Time)(GatherInfo value)
         {
             return (value.Item, value.Location, value.Time);
         }
 
-        public static implicit operator GatherInfo((Gatherable Item, ILocation? Location, TimeInterval Time) value)
+        public static implicit operator GatherInfo((Gatherable Item, GatheringNode? Location, TimeInterval Time) value)
         {
             return new GatherInfo(value.Item, value.Location, value.Time);
         }

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Interfaces;
+using GatherBuddy.Structs;
 using GatherBuddy.Utility;
 using Lumina.Excel.Sheets;
 using GatheringType = GatherBuddy.Enums.GatheringType;
@@ -57,7 +58,7 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
     public ushort DefaultRadius { get; internal set; }
 
 
-    public Vector3[] Markers { get; set; } = Array.Empty<Vector3>();
+    public WaymarkSet Markers { get; set; } = WaymarkSet.None;
 
     public bool Spearfishing
         => _data is SpearfishingNotebook;

@@ -9,6 +9,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
+using GatherBuddy.Structs;
 using ImGuiNET;
 using OtterGui;
 using OtterGui.Table;
@@ -279,8 +280,8 @@ public partial class Interface
         {
             public override int Compare(ILocation lhs, ILocation rhs)
             {
-                if (lhs.Markers.Length != rhs.Markers.Length)
-                    return lhs.Markers.Length - rhs.Markers.Length;
+                if (lhs.Markers.CountSet != rhs.Markers.CountSet)
+                    return lhs.Markers.CountSet - rhs.Markers.CountSet;
 
                 var diff = lhs.Territory.Id.CompareTo(rhs.Territory.Id);
                 if (diff != 0)
@@ -316,35 +317,37 @@ public partial class Interface
 
 
             public override bool FilterFunc(ILocation item)
-                => FilterValue.HasFlag(item.Markers.Length == 0 ? MarkerFlags.None : MarkerFlags.Any);
+                => FilterValue.HasFlag(item.Markers.CountSet == 0 ? MarkerFlags.None : MarkerFlags.Any);
 
             public override float Width
                 => ImGui.GetFrameHeight() * 2 + ImGui.GetStyle().ItemSpacing.X + Table.ArrowWidth;
 
             public override void DrawColumn(ILocation location, int id)
             {
-                using var _ = ImRaii.PushId(id);
-                var markers = GatherBuddy.WaymarkManager.GetWaymarks();
-                var invalid = Dalamud.ClientState.TerritoryType != location.Territory.Id;
-                var tt = invalid ? "Not in the correct zone for this location." :
-                    markers.Count == 0 ? "No markers set that could be stored for this location." :
-                                         $"Store the currently placed markers for this location:\n\n{string.Join("\n", markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
+                using var _             = ImRaii.PushId(id);
+                var       markers       = GatherBuddy.WaymarkManager.GetWaymarks();
+                var       markerCount   = markers.CountSet;
+                var       locationCount = location.Markers.CountSet;
+                var       invalid       = Dalamud.ClientState.TerritoryType != location.Territory.Id;
+                var tt = invalid     ? "Not in the correct zone for this location." :
+                    markerCount == 0 ? "No markers set that could be stored for this location." :
+                                       $"Store the currently placed markers for this location:\n\n{string.Join("\n", markers.Select(m => float.IsNaN(m.X) ? " - " : $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
 
-                if (location.Markers.Length > 0)
+                if (locationCount > 0)
                     tt +=
-                        $"\n\nMarkers stored for this location:\n\n{string.Join("\n", location.Markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
+                        $"\n\nMarkers stored for this location:\n\n{string.Join("\n", location.Markers.Select(m => float.IsNaN(m.X) ? " - " : $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
 
                 if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Map.ToIconString(), new Vector2(ImGui.GetFrameHeight()), tt,
-                        markers.Count == 0 || invalid, true))
+                        markerCount == 0 || invalid, true))
                     _plugin.LocationManager.SetMarkers(location, markers);
 
                 ImGui.SameLine();
-                tt = location.Markers.Length == 0
+                tt = locationCount == 0
                     ? "No markers stored for this location."
-                    : $"Remove the stored markers for this location:\n\n{string.Join("\n", location.Markers.Select(m => $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
+                    : $"Remove the stored markers for this location:\n\n{string.Join("\n", location.Markers.Select(m => float.IsNaN(m.X) ? " - " : $"{m.X:F2} - {m.Y:F2} - {m.Z:F2}"))}";
                 if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), new Vector2(ImGui.GetFrameHeight()), tt,
-                        location.Markers.Length == 0, true))
-                    _plugin.LocationManager.SetMarkers(location, Array.Empty<Vector3>());
+                        locationCount == 0, true))
+                    _plugin.LocationManager.SetMarkers(location, WaymarkSet.None);
             }
         }
 

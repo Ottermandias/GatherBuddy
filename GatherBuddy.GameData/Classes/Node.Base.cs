@@ -4,6 +4,7 @@ using System.Linq;
 using System.Numerics;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
+using GatherBuddy.Structs;
 using GatherBuddy.Time;
 using GatherBuddy.Utility;
 using Lumina.Excel.Sheets;
@@ -16,7 +17,7 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
     public NodeType           NodeType     { get; init; }
     public GatheringPointBase BaseNodeData { get; init; }
     public string             Name         { get; init; }
-    public Vector3[]          Markers      { get; set; } = Array.Empty<Vector3>();
+    public WaymarkSet         Markers      { get; set; } = WaymarkSet.None;
     public BitfieldUptime     Times        { get; init; }
 
     public uint Id

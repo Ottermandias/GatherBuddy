@@ -160,7 +160,7 @@ public static partial class Fish
             .Predators (data, 60, (29727, 1));
         data.Apply     (29746, Patch.EchoesOfAFallenStar) // Sabaton
             .Bait      (data, 29715)
-            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Predators (data, 60, (29731, 2));
         data.Apply     (29747, Patch.EchoesOfAFallenStar) // Shooting Star
             .Bait      (data, 29714)
