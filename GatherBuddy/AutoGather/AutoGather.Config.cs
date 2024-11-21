@@ -39,6 +39,10 @@ namespace GatherBuddy.AutoGather
             new ActionConditions(), new Dictionary<string, object> { { "MinimumYield", (uint)1 }, { "UseWithCystals", false } });
 
         public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig BoonIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonI.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig BoonIIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonII.GpCost, uint.MaxValue, new ActionConditions());
+        public ActionConfig TidingsConfig { get; set; } = new(true, (uint)AutoGather.Actions.Tidings.GpCost, uint.MaxValue, new ActionConditions());
+
         public int TimedNodePrecog { get; set; } = 20;
         public bool DoGathering { get; set; } = true;
         public uint MinimumGPForGathering { get; set; } = 0;

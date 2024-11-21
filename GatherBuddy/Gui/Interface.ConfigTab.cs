@@ -603,6 +603,78 @@ public partial class Interface
             }
         }
 
+        public static void DrawBoonIBox() => 
+            DrawCheckbox("Use Mountaineer's/Pioneer's Gift I", "Toggle whether to use Mountaineer's/Pioneer's Gift I for gathering.", GatherBuddy.Config.AutoGatherConfig.BoonIConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.BoonIConfig.UseAction = b);
+
+        public static void DrawBoonIMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BoonIConfig.MinimumGP;
+            if (ImGui.DragInt("Mountaineer's/Pioneer's Gift I Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.BoonI.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BoonIConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawBoonIMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BoonIConfig.MaximumGP;
+            if (ImGui.DragInt("Mountaineer's/Pioneer's Gift I Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.BoonI.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BoonIConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawBoonIIBox() =>
+            DrawCheckbox("Use Mountaineer's/Pioneer's Gift II", "Toggle whether to use Mountaineer's/Pioneer's Gift II for gathering.", GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.UseAction = b);
+
+        public static void DrawBoonIIMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.MinimumGP;
+            if (ImGui.DragInt("Mountaineer's/Pioneer's Gift II Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.BoonII.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawBoonIIMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.MaximumGP;
+            if (ImGui.DragInt("Mountaineer's/Pioneer's Gift II Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.BoonII.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawTidingBox() =>
+            DrawCheckbox("Use Mountaineer's/Pioneer's Tiding", "Toggle whether to use Mountaineer's/Pioneer's Tiding for gathering.", GatherBuddy.Config.AutoGatherConfig.TidingsConfig.UseAction,
+                b => GatherBuddy.Config.AutoGatherConfig.TidingsConfig.UseAction = b);
+
+        public static void DrawTidingMinGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MinimumGP;
+            if (ImGui.DragInt("Mountaineer's/Pioneer's Tiding Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Tidings.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MinimumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawTidingMaxGP()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MaximumGP;
+            if (ImGui.DragInt("Mountaineer's/Pioneer's Tiding Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Tidings.GpCost, 30000))
+            {
+                GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
         public static void DrawCordialCheckbox()
             => DrawCheckbox(
                 "Use Cordial",
@@ -1280,7 +1352,30 @@ public partial class Interface
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.TwelvesBountyConfig);
                     ImGui.TreePop();
                 }
-
+                if (ImGui.TreeNodeEx("Mountaineer's/Pioneer's Gift I"))
+                {
+                    ConfigFunctions.DrawBoonIBox();
+                    ConfigFunctions.DrawBoonIMinGP();
+                    ConfigFunctions.DrawBoonIMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BoonIConfig);
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Mountaineer's/Pioneer's Gift II"))
+                {
+                    ConfigFunctions.DrawBoonIIBox();
+                    ConfigFunctions.DrawBoonIIMinGP();
+                    ConfigFunctions.DrawBoonIIMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BoonIIConfig);
+                    ImGui.TreePop();
+                }
+                if (ImGui.TreeNodeEx("Nald'thal's/Nophica Tidings"))
+                {
+                    ConfigFunctions.DrawTidingBox();
+                    ConfigFunctions.DrawTidingMinGP();
+                    ConfigFunctions.DrawTidingMaxGP();
+                    ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.TidingsConfig);
+                    ImGui.TreePop();
+                }
                 ImGui.TreePop();
             }
 
