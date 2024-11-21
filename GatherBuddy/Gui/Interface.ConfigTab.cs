@@ -276,6 +276,7 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+
         public static void DrawUseGivingLandOnCooldown()
             => DrawCheckbox("Gather any crystals when The Giving Land is off cooldown", "Gather random crystals on any regular node when The Giving Land is avaiable regardles of current target item.", GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown,
                 b => GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown = b);

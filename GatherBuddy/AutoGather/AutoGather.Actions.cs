@@ -76,6 +76,45 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
+        private unsafe bool ShouldUseBoonI(ItemSlot slot)
+        {
+            if (!CheckConditions(Actions.BoonI, GatherBuddy.Config.AutoGatherConfig.BoonIConfig, slot.Item, slot.Rare))
+                return false;
+            if (Player.Status.Any(s => s.StatusId == Actions.BoonI.EffectId))
+            {
+                Svc.Log.Debug("Player already have Boon I Status effect, Skipping");
+                return false;
+            }
+
+            return true;
+        }
+
+        private unsafe bool ShouldUseBoonII(ItemSlot slot)
+        {
+            if (!CheckConditions(Actions.BoonII, GatherBuddy.Config.AutoGatherConfig.BoonIIConfig, slot.Item, slot.Rare))
+                return false;
+            if (Player.Status.Any(s => s.StatusId == Actions.BoonII.EffectId))
+            {
+                Svc.Log.Debug("Player already have Boon II Status effect, Skipping");
+                return false;
+            }
+
+            return true;
+        }
+
+        private unsafe bool ShouldUseTiding(ItemSlot slot)
+        {
+            if (!CheckConditions(Actions.Tidings, GatherBuddy.Config.AutoGatherConfig.TidingsConfig, slot.Item, slot.Rare))
+                return false;
+            if (Player.Status.Any(s => s.StatusId == Actions.Tidings.EffectId))
+            {
+                Svc.Log.Debug("Player already have Tidings Status effect, Skipping");
+                return false;
+            }
+
+            return true;
+        }
+
 
         private unsafe void DoActionTasks(Gatherable? desiredItem)
         {
@@ -123,6 +162,12 @@ namespace GatherBuddy.AutoGather
             {
                 if (ShouldUseWise(NodeTracker.Integrity, NodeTracker.MaxIntegrity))
                     EnqueueActionWithDelay(() => UseAction(Actions.Wise));
+                else if(ShouldUseBoonI(slot))
+                    EnqueueActionWithDelay(() => UseAction(Actions.BoonI));
+                else if (ShouldUseBoonII(slot))
+                    EnqueueActionWithDelay(() => UseAction(Actions.BoonII));
+                else if (ShouldUseTiding(slot))
+                    EnqueueActionWithDelay(() => UseAction(Actions.Tidings));
                 else if (ShouldUseSolidAgeGatherables(slot))
                     EnqueueActionWithDelay(() => UseAction(Actions.SolidAge));
                 else if (ShouldUseGivingLand(slot))
