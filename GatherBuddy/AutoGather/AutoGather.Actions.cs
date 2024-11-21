@@ -80,11 +80,6 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.BoonI, GatherBuddy.Config.AutoGatherConfig.BoonIConfig, slot.Item, slot.Rare))
                 return false;
-            if (Player.Status.Any(s => s.StatusId == Actions.BoonI.EffectId))
-            {
-                Svc.Log.Debug("Player already have Boon I Status effect, Skipping");
-                return false;
-            }
 
             return true;
         }
@@ -93,11 +88,6 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.BoonII, GatherBuddy.Config.AutoGatherConfig.BoonIIConfig, slot.Item, slot.Rare))
                 return false;
-            if (Player.Status.Any(s => s.StatusId == Actions.BoonII.EffectId))
-            {
-                Svc.Log.Debug("Player already have Boon II Status effect, Skipping");
-                return false;
-            }
 
             return true;
         }
@@ -106,11 +96,6 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.Tidings, GatherBuddy.Config.AutoGatherConfig.TidingsConfig, slot.Item, slot.Rare))
                 return false;
-            if (Player.Status.Any(s => s.StatusId == Actions.Tidings.EffectId))
-            {
-                Svc.Log.Debug("Player already have Tidings Status effect, Skipping");
-                return false;
-            }
 
             return true;
         }
