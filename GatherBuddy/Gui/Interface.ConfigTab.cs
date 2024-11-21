@@ -653,13 +653,13 @@ public partial class Interface
         }
 
         public static void DrawTidingBox() =>
-            DrawCheckbox("Use Mountaineer's/Pioneer's Tiding", "Toggle whether to use Mountaineer's/Pioneer's Tiding for gathering.", GatherBuddy.Config.AutoGatherConfig.TidingsConfig.UseAction,
+            DrawCheckbox("Use Nald'thal's/Nophica Tiding", "Toggle whether to use Nald'thal's/Nophica Tiding for gathering.", GatherBuddy.Config.AutoGatherConfig.TidingsConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.TidingsConfig.UseAction = b);
 
         public static void DrawTidingMinGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MinimumGP;
-            if (ImGui.DragInt("Mountaineer's/Pioneer's Tiding Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Tidings.GpCost, 30000))
+            if (ImGui.DragInt("Nald'thal's/Nophica Tiding Min GP", ref tmp, 1, AutoGather.AutoGather.Actions.Tidings.GpCost, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MinimumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
@@ -669,7 +669,7 @@ public partial class Interface
         public static void DrawTidingMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MaximumGP;
-            if (ImGui.DragInt("Mountaineer's/Pioneer's Tiding Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Tidings.GpCost, 30000))
+            if (ImGui.DragInt("Nald'thal's/Nophica Tiding Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Tidings.GpCost, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MaximumGP = (uint)tmp;
                 GatherBuddy.Config.Save();
