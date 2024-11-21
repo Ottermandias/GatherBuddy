@@ -192,6 +192,12 @@ public partial class Interface
 
             ImGuiUtil.HoverTooltip("Delay executing each action by the specified amount.");
         }
+        public static void DrawForceCloseLingeringMasterpieceAddon()
+            => DrawCheckbox(
+                "Force close lingering GatheringMasterpiece addon (DANGEROUS, MAY CRASH THE GAME)",
+                "Attempt to forcefully close the GatheringMasterpiece addon if it is left lingering in the game memory after the end of the gathering session due to a bug",
+                GatherBuddy.Config.AutoGatherConfig.ForceCloseLingeringMasterpieceAddon,
+                b => GatherBuddy.Config.AutoGatherConfig.ForceCloseLingeringMasterpieceAddon = b);
 
         public static void DrawBYIIBox()
             => DrawCheckbox("Use Bountiful Yield/Harvest", "Toggle whether to use Bountiful Yield/Harvest for gathering.", GatherBuddy.Config.AutoGatherConfig.BYIIConfig.UseAction,
@@ -1385,6 +1391,7 @@ public partial class Interface
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawAdvancedUnstuckBox();
                 ConfigFunctions.DrawMaterialExtraction();
+                ConfigFunctions.DrawForceCloseLingeringMasterpieceAddon();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();
