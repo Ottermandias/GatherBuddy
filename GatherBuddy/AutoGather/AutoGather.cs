@@ -459,13 +459,19 @@ namespace GatherBuddy.AutoGather
             if (masterpieceOpen)
             {
                 EnqueueActionWithDelay(() => { if (MasterpieceAddon is var addon and not null) { Callback.Fire(&addon->AtkUnitBase, true, -1); } });
-                TaskManager.Enqueue(() => MasterpieceAddon == null);
-                TaskManager.Enqueue(() => GatheringAddon != null);
+                TaskManager.Enqueue(() => MasterpieceAddon == null, "Wait until GatheringMasterpiece addon is closed");
+                TaskManager.Enqueue(() => GatheringAddon is var addon and not null, "Wait until Gathering addon pops up");
+                TaskManager.DelayNext(300);//There is some delay after the moment the addon pops up (and is ready) before the callback can be used to close it. We wait some time and retry the callback.
             }
             if (gatheringOpen || masterpieceOpen)
             {
-                EnqueueActionWithDelay(() => { if (GatheringAddon is var addon and not null) { Callback.Fire(&addon->AtkUnitBase, true, -1); } });
                 TaskManager.Enqueue(() => {
+                    if (GatheringAddon is var gathering and not null && gathering->IsReady)
+                    {
+                        Callback.Fire(&gathering->AtkUnitBase, true, -1);
+                        TaskManager.DelayNextImmediate(100);
+                        return false;
+                    }
                     var addon = (AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno");
                     if (addon != null)
                     {
@@ -476,13 +482,13 @@ namespace GatherBuddy.AutoGather
                                 var master = new AddonMaster.SelectYesno(addon);
                                 master.Yes();
                             }
-                        });
-                        TaskManager.Enqueue(() => !IsGathering);
+                        }, true);
+                        TaskManager.EnqueueImmediate(() => !IsGathering, "Wait until Gathering addon is closed");
                         return true;
                     }
 
                     return !IsGathering;       
-                });
+                }, "Wait until Gathering addon is closed or SelectYesno addon pops up");
             }
         }
 

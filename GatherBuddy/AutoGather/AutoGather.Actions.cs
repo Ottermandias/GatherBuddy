@@ -166,16 +166,26 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private void EnqueueActionWithDelay(Action action)
+        private void EnqueueActionWithDelay(Action action, bool immediate = false)
         {
             var delay = GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
-
-            TaskManager.Enqueue(action);
+            if (immediate)
+                TaskManager.EnqueueImmediate(action);
+            else
+                TaskManager.Enqueue(action);
 
             if (delay > 0)
             {
-                TaskManager.Enqueue(() => CanAct);
-                TaskManager.DelayNext((int)delay);
+                if (immediate)
+                {
+                    TaskManager.EnqueueImmediate(() => CanAct);
+                    TaskManager.DelayNextImmediate((int)delay);
+                }
+                else
+                {
+                    TaskManager.Enqueue(() => CanAct);
+                    TaskManager.DelayNext((int)delay);
+                }
             }
         }
 
