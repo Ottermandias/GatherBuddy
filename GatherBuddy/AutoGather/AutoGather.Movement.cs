@@ -83,11 +83,15 @@ namespace GatherBuddy.AutoGather
                         //If early dismount failed, navigate to the nearest floor point
                         if (Dalamud.Conditions[ConditionFlag.Mounted] && Dalamud.Conditions[ConditionFlag.InFlight] && !Dalamud.Conditions[ConditionFlag.Diving])
                         {
-                            var floor = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 3);
-                            Navigate(floor, true);
-                            TaskManager.Enqueue(() => !IsPathGenerating);
-                            TaskManager.Enqueue(() => !IsPathing, 1000);
-                            EnqueueDismount();
+                            try
+                            {
+                                var floor = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 3);
+                                Navigate(floor, true);
+                                TaskManager.Enqueue(() => !IsPathGenerating);
+                                TaskManager.Enqueue(() => !IsPathing, 1000);
+                                EnqueueDismount();
+                            }
+                            catch { }
                             //If even that fails, do advanced unstuck
                             TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) _advancedUnstuck.Force(); });
                         }
