@@ -80,6 +80,8 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.BoonI, GatherBuddy.Config.AutoGatherConfig.BoonIConfig, slot.Item, slot.Rare))
                 return false;
+            if (slot.BoonChance < GatherBuddy.Config.AutoGatherConfig.BoonIConfig.GetOptionalProperty<int>("MinBoonChance"))
+                return false;
 
             return true;
         }
@@ -87,6 +89,8 @@ namespace GatherBuddy.AutoGather
         private unsafe bool ShouldUseBoonII(ItemSlot slot)
         {
             if (!CheckConditions(Actions.BoonII, GatherBuddy.Config.AutoGatherConfig.BoonIIConfig, slot.Item, slot.Rare))
+                return false;
+            if (slot.BoonChance < GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.GetOptionalProperty<int>("MinBoonChance"))
                 return false;
 
             return true;
@@ -96,7 +100,9 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.Tidings, GatherBuddy.Config.AutoGatherConfig.TidingsConfig, slot.Item, slot.Rare))
                 return false;
-
+            if (slot.BoonChance < GatherBuddy.Config.AutoGatherConfig.TidingsConfig.GetOptionalProperty<int>("MinBoonChance"))
+                return false;
+            
             return true;
         }
 

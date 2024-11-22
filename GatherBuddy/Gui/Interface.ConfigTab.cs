@@ -3,6 +3,7 @@ using System.Numerics;
 using Dalamud.Game.Text;
 using Dalamud.Interface.Utility;
 using ECommons.ImGuiMethods;
+using FFXIVClientStructs.STD;
 using GatherBuddy.Alarms;
 using GatherBuddy.AutoGather;
 using GatherBuddy.Config;
@@ -627,6 +628,15 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
+        public static void DrawBoonIMinBoonChance()
+        {
+            int tmp = (int) GatherBuddy.Config.AutoGatherConfig.BoonIConfig.GetOptionalProperty<int>("MinBoonChance");
+            if (ImGui.DragInt("Minimum Boon Chance to use Mountaineer's/Pioneer's Gift I", ref tmp, 1, 0, 100))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BoonIConfig.SetOptionalProperty("MinBoonChance", (uint) tmp);
+                GatherBuddy.Config.Save();
+            }
+        }
 
         public static void DrawBoonIIBox() =>
             DrawCheckbox("Use Mountaineer's/Pioneer's Gift II", "Toggle whether to use Mountaineer's/Pioneer's Gift II for gathering.", GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.UseAction,
@@ -652,6 +662,16 @@ public partial class Interface
             }
         }
 
+        public static void DrawBoonIIMinBoonChance()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.GetOptionalProperty<int>("MinBoonChance");
+            if (ImGui.DragInt("Minimum Boon Chance to use Mountaineer's/Pioneer's Gift II", ref tmp, 1, 0, 100))
+            {
+                GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.SetOptionalProperty("MinBoonChance", (uint)tmp);
+                GatherBuddy.Config.Save();
+            }
+        }
+
         public static void DrawTidingBox() =>
             DrawCheckbox("Use Nald'thal's/Nophica Tiding", "Toggle whether to use Nald'thal's/Nophica Tiding for gathering.", GatherBuddy.Config.AutoGatherConfig.TidingsConfig.UseAction,
                 b => GatherBuddy.Config.AutoGatherConfig.TidingsConfig.UseAction = b);
@@ -665,13 +685,22 @@ public partial class Interface
                 GatherBuddy.Config.Save();
             }
         }
-
         public static void DrawTidingMaxGP()
         {
             int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MaximumGP;
             if (ImGui.DragInt("Nald'thal's/Nophica Tiding Max GP", ref tmp, 1, AutoGather.AutoGather.Actions.Tidings.GpCost, 30000))
             {
                 GatherBuddy.Config.AutoGatherConfig.TidingsConfig.MaximumGP = (uint)tmp;
+                GatherBuddy.Config.Save();
+            }
+        }
+
+        public static void DrawTidingMinBoonChance()
+        {
+            int tmp = (int)GatherBuddy.Config.AutoGatherConfig.TidingsConfig.GetOptionalProperty<int>("MinBoonChance");
+            if (ImGui.DragInt("Minimum Boon Chance to use Nald'thal's/Nophica Tiding", ref tmp, 1, 0, 100))
+            {
+                GatherBuddy.Config.AutoGatherConfig.TidingsConfig.SetOptionalProperty("MinBoonChance", (uint)tmp);
                 GatherBuddy.Config.Save();
             }
         }
@@ -1358,6 +1387,7 @@ public partial class Interface
                     ConfigFunctions.DrawBoonIBox();
                     ConfigFunctions.DrawBoonIMinGP();
                     ConfigFunctions.DrawBoonIMaxGP();
+                    ConfigFunctions.DrawBoonIMinBoonChance();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BoonIConfig);
                     ImGui.TreePop();
                 }
@@ -1366,6 +1396,7 @@ public partial class Interface
                     ConfigFunctions.DrawBoonIIBox();
                     ConfigFunctions.DrawBoonIIMinGP();
                     ConfigFunctions.DrawBoonIIMaxGP();
+                    ConfigFunctions.DrawBoonIIMinBoonChance();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.BoonIIConfig);
                     ImGui.TreePop();
                 }
@@ -1374,6 +1405,7 @@ public partial class Interface
                     ConfigFunctions.DrawTidingBox();
                     ConfigFunctions.DrawTidingMinGP();
                     ConfigFunctions.DrawTidingMaxGP();
+                    ConfigFunctions.DrawTidingMinBoonChance();
                     ConfigFunctions.DrawConditions(GatherBuddy.Config.AutoGatherConfig.TidingsConfig);
                     ImGui.TreePop();
                 }
