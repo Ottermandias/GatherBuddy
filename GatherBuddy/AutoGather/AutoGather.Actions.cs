@@ -265,7 +265,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
                 return false;
-            if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity == NodeTracker.MaxIntegrity)
+            if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity > Math.Min(2, NodeTracker.MaxIntegrity - 1))
                 return false;
             if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && rare)
                 return false;
