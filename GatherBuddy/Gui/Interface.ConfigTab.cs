@@ -75,12 +75,6 @@ public partial class Interface
                 "or if the node didn't have any needed items on the first place.",
                 GatherBuddy.Config.AutoGatherConfig.AbandonNodes, b => GatherBuddy.Config.AutoGatherConfig.AbandonNodes = b);
 
-        public static void DrawAdvancedUnstuckBox()
-            => DrawCheckbox("Enable Experimental Unstuck Method",
-                "Use super special movement techniques to manually move your character without navmesh when stuck",
-                GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck,
-                b => GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck = b);
-
         public static void DrawHonkModeBox()
             => DrawCheckbox("Play a sound when done gathering", "Play a sound when auto-gathering shuts down because your list is complete",
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
@@ -1389,7 +1383,6 @@ public partial class Interface
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
-                ConfigFunctions.DrawAdvancedUnstuckBox();
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawForceCloseLingeringMasterpieceAddon();
                 ConfigFunctions.DrawAntiStuckCooldown();

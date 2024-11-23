@@ -34,9 +34,6 @@ namespace GatherBuddy.AutoGather.Movement
             if (IsRunning)
                 return AdvancedUnstuckCheckResult.Fail;
 
-            if (!GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
-                return AdvancedUnstuckCheckResult.Pass;
-
             var now = DateTime.Now;
 
             //On cooldown, not navigating or near the destination: disable tracking and reset

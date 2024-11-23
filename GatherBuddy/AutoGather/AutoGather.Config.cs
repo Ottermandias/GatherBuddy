@@ -53,7 +53,6 @@ namespace GatherBuddy.AutoGather
         public uint MinimumCollectibilityScore { get; set; } = 1000;
         public bool GatherIfLastIntegrity { get; set; } = false;
         public uint GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
-        public bool UseExperimentalUnstuck { get; set; } = true;
         public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
         public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
         public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);
