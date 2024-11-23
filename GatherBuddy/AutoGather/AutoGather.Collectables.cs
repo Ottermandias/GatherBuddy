@@ -1,5 +1,6 @@
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 
@@ -144,7 +145,7 @@ namespace GatherBuddy.AutoGather
 
             private static bool ShouldSolidAgeCollectables(int integrity, int maxIntegrity, int itemsLeft)
             {
-                if (integrity == maxIntegrity)
+                if (integrity > Math.Min(2, maxIntegrity - 1))
                     return false;
                 if (itemsLeft <= integrity)
                     return false;
