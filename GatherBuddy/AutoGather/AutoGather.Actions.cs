@@ -1,10 +1,8 @@
-﻿using ECommons.DalamudServices;
-using ECommons.GameHelpers;
+﻿using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
 using System;
 using System.Linq;
-using Dalamud.Game.ClientState.Conditions;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
