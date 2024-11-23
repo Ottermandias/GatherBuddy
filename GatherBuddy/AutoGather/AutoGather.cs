@@ -133,6 +133,9 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (CheckForLingeringMasterpieceAddon())
+                return;
+
             if (FreeInventorySlots == 0)
             {
                 AbortAutoGather("Inventory is full");
@@ -459,13 +462,19 @@ namespace GatherBuddy.AutoGather
             if (masterpieceOpen)
             {
                 EnqueueActionWithDelay(() => { if (MasterpieceAddon is var addon and not null) { Callback.Fire(&addon->AtkUnitBase, true, -1); } });
-                TaskManager.Enqueue(() => MasterpieceAddon == null);
-                TaskManager.Enqueue(() => GatheringAddon != null);
+                TaskManager.Enqueue(() => MasterpieceAddon == null, "Wait until GatheringMasterpiece addon is closed");
+                TaskManager.Enqueue(() => GatheringAddon is var addon and not null, "Wait until Gathering addon pops up");
+                TaskManager.DelayNext(300);//There is some delay after the moment the addon pops up (and is ready) before the callback can be used to close it. We wait some time and retry the callback.
             }
             if (gatheringOpen || masterpieceOpen)
             {
-                EnqueueActionWithDelay(() => { if (GatheringAddon is var addon and not null) { Callback.Fire(&addon->AtkUnitBase, true, -1); } });
                 TaskManager.Enqueue(() => {
+                    if (GatheringAddon is var gathering and not null && gathering->IsReady)
+                    {
+                        Callback.Fire(&gathering->AtkUnitBase, true, -1);
+                        TaskManager.DelayNextImmediate(100);
+                        return false;
+                    }
                     var addon = (AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno");
                     if (addon != null)
                     {
@@ -476,13 +485,13 @@ namespace GatherBuddy.AutoGather
                                 var master = new AddonMaster.SelectYesno(addon);
                                 master.Yes();
                             }
-                        });
-                        TaskManager.Enqueue(() => !IsGathering);
+                        }, true);
+                        TaskManager.EnqueueImmediate(() => !IsGathering, "Wait until Gathering addon is closed");
                         return true;
                     }
 
-                    return IsGathering;       
-                });
+                    return !IsGathering;       
+                }, "Wait until Gathering addon is closed or SelectYesno addon pops up");
             }
         }
 
@@ -561,6 +570,53 @@ namespace GatherBuddy.AutoGather
             Chat.Instance.ExecuteCommand($"/gearset change \"{set}\"");
             TaskManager.DelayNext(Random.Shared.Next(500, 1500));  //Add a random delay to be less suspicious 
             return true;
+        }
+
+        private bool CheckForLingeringMasterpieceAddon()
+        {
+            if (IsMasterpieceOK())
+                return false;
+
+            GatherBuddy.Log.Warning("Lingering GatheringMasterpiece addon may have been detected, rechecking in one second.");
+
+            //Check again in a second to reduce the probability of false positives due to lags or race conditions.
+            TaskManager.DelayNext(1000);
+            TaskManager.Enqueue(() =>
+            {
+                if (IsMasterpieceOK())
+                    return;
+
+                GatherBuddy.Log.Error("Lingering GatheringMasterpiece addon detected.");
+                Communicator.PrintError("Your game client is in an erroneous state: the GatheringMasterpiece addon (collectable window) is left lingering in the memory " +
+                    "after the end of the gathering session. This may be due to a bug in some plugin, Dalamud, or the game itself. Gathering a collectable will crash your game. " +
+                    "You may need to restart it.");
+                if (GatherBuddy.Config.AutoGatherConfig.ForceCloseLingeringMasterpieceAddon)
+                {
+                    Communicator.PrintError("Attempting to force close GatheringMasterpiece addon.");
+                    GatherBuddy.Log.Warning("Attempting to force close GatheringMasterpiece addon.");
+                    unsafe { MasterpieceAddon->Close(true); }
+                    TaskManager.DelayNext(1000);//It persists for a few framework updates, so we wait.
+                }
+                else
+                {
+                    Communicator.PrintError("Alternatively, you can try enabling the \"Force close lingering GatheringMasterpiece addon\" option under Auto-Gather > Advanced.");
+                    Enabled = false;
+                    AutoStatus = "Error";
+                }
+            });
+            return true;
+
+            unsafe bool IsMasterpieceOK()
+            {
+                if (MasterpieceAddon == null)
+                    return true;
+
+                var gathering = GatheringAddon;
+                if (IsGathering && (gathering == null || !gathering->IsVisible))
+                    return true;
+
+                return false;
+            }
         }
 
         public void Dispose()

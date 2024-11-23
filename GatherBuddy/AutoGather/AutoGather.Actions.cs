@@ -1,10 +1,8 @@
-﻿using ECommons.DalamudServices;
-using ECommons.GameHelpers;
+﻿using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
 using System;
 using System.Linq;
-using Dalamud.Game.ClientState.Conditions;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
@@ -202,16 +200,26 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private void EnqueueActionWithDelay(Action action)
+        private void EnqueueActionWithDelay(Action action, bool immediate = false)
         {
             var delay = GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
-
-            TaskManager.Enqueue(action);
+            if (immediate)
+                TaskManager.EnqueueImmediate(action);
+            else
+                TaskManager.Enqueue(action);
 
             if (delay > 0)
             {
-                TaskManager.Enqueue(() => CanAct);
-                TaskManager.DelayNext((int)delay);
+                if (immediate)
+                {
+                    TaskManager.EnqueueImmediate(() => CanAct);
+                    TaskManager.DelayNextImmediate((int)delay);
+                }
+                else
+                {
+                    TaskManager.Enqueue(() => CanAct);
+                    TaskManager.DelayNext((int)delay);
+                }
             }
         }
 
@@ -301,7 +309,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
                 return false;
-            if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity == NodeTracker.MaxIntegrity)
+            if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity > Math.Min(2, NodeTracker.MaxIntegrity - 1))
                 return false;
             if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && rare)
                 return false;
