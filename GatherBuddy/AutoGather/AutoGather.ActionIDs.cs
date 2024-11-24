@@ -76,5 +76,8 @@ public partial class AutoGather
         public static readonly BaseAction GivingLand    = new( 4590,  4589,   1802, type: EffectType.CrystalsYield);
         public static readonly BaseAction Wise          = new(26522, 26521,         type: EffectType.Integrity);
 
+        public static readonly BaseAction BoonI         = new(21178, 21177, 2666, type: EffectType.BoonChance);
+        public static readonly BaseAction BoonII        = new(25590, 25589, 759 , type: EffectType.BoonChance);
+        public static readonly BaseAction Tidings       = new(21204, 21203, 2667, type: EffectType.BoonYield);
     }
 }
