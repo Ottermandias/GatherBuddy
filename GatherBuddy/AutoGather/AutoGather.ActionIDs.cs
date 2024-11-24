@@ -1,6 +1,7 @@
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
-using Pair = (uint Botanist, uint Miner);
+using System;
+using Action = Lumina.Excel.Sheets.Action;
 
 namespace GatherBuddy.AutoGather;
 
@@ -18,42 +19,53 @@ public partial class AutoGather
             BoonChance,
             Integrity
         }
+        public record struct Pair<T>(T Botanist, T Miner)
+        {
+            public static implicit operator Pair<T>((T Botanist, T Miner) value) => new(value.Botanist, value.Miner);
+        }
+
         public readonly struct BaseAction
         {
             public BaseAction(uint btnActionId, uint minActionId, uint btnEffectId = 0, uint minEffectId = 0, EffectType type = EffectType.Other)
             {
-                action = (btnActionId, minActionId);
-                effect = (btnEffectId, minEffectId == 0 ? btnEffectId : minEffectId);
+                var actionsSheet = Dalamud.GameData.GetExcelSheet<Action>();
+                var botanistRow = actionsSheet.GetRow(btnActionId);
+                var minerRow = actionsSheet.GetRow(minActionId);
+                actions = (botanistRow, minerRow);
+                effects = (btnEffectId, minEffectId == 0 ? btnEffectId : minEffectId);
                 EffectType = type;
+                names = (firstToUpper(botanistRow.Name.ExtractText()), firstToUpper(minerRow.Name.ExtractText()));
 
-                var actionsSheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Action>();
-                var botanistRow = actionsSheet.GetRow(action.Botanist)!;
-                var minerRow = actionsSheet.GetRow(action.Miner)!;
-
-                quest.Botanist = botanistRow.UnlockLink.RowId;
-                quest.Miner = minerRow.UnlockLink.RowId;
-                MinLevel = botanistRow.ClassJobLevel;
-                GpCost = botanistRow.PrimaryCostValue;
+                static string firstToUpper(string str)
+                {
+                    ReadOnlySpan<char> first = [char.ToUpper(str[0])];
+                    if (first[0] != str[0])
+                    {
+                        str = string.Concat(first, str.AsSpan(1));
+                    }
+                    return str;
+                }
             }
-            private readonly Pair action;
-            private readonly Pair quest;
-            private readonly Pair effect;
+            private readonly Pair<Action> actions;
+            private readonly Pair<uint> effects;
+            private readonly Pair<string> names;
 
-
-            public uint ActionID => GetJobValue(action);
-            public uint QuestID  => GetJobValue(quest);
-            public uint EffectId => GetJobValue(effect);
-            public int MinLevel { get; }
-            public int GpCost { get; }
+            public Pair<Action> Actions => actions;
+            public Pair<string> Names => names;
+            public uint ActionId => GetJobValue(actions).RowId;
+            public uint QuestId  => GetJobValue(actions).UnlockLink.RowId;
+            public uint EffectId => GetJobValue(effects);
+            public int MinLevel => actions.Botanist.ClassJobLevel;
+            public int GpCost => actions.Botanist.PrimaryCostValue;
             public EffectType EffectType { get; }
 
-            private static uint GetJobValue(Pair pair)
+            private static T GetJobValue<T>(Pair<T> pair)
             {
                 return Player.Job switch
                 {
                     Job.BTN => pair.Botanist,
                     Job.MIN => pair.Miner,
-                    _ => 0
+                    _ => throw new InvalidOperationException("Invalid job selected"),
                 };
             }
         }

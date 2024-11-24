@@ -512,11 +512,11 @@ namespace GatherBuddy.AutoGather
                 Communicator.PrintError("You've put a collectable on the gathering list, but your level is not high enough to gather it.");
                 return false;
             }
-            if (Actions.Collect.QuestID != 0 && !QuestManager.IsQuestComplete(Actions.Collect.QuestID))
+            if (Actions.Collect.QuestId != 0 && !QuestManager.IsQuestComplete(Actions.Collect.QuestId))
             {
                 Communicator.PrintError("You've put a collectable on the gathering list, but you haven't unlocked the collectables.");
                 var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Quest>()!;
-                var row = sheet.GetRow(Actions.Collect.QuestID)!;
+                var row = sheet.GetRow(Actions.Collect.QuestId)!;
                 var loc = row.IssuerLocation.Value!;
                 var map = loc.Map.Value!;
                 var pos = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
@@ -525,7 +525,7 @@ namespace GatherBuddy.AutoGather
                 text.AddText("Collectables are unlocked by ")
                     .AddUiForeground(0x0225)
                     .AddUiGlow(0x0226)
-                    .AddQuestLink(Actions.Collect.QuestID)
+                    .AddQuestLink(Actions.Collect.QuestId)
                     .AddUiForeground(500)
                     .AddUiGlow(501)
                     .AddText($"{(char)SeIconChar.LinkMarker}")

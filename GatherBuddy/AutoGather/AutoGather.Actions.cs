@@ -155,10 +155,10 @@ namespace GatherBuddy.AutoGather
         private unsafe void UseAction(Actions.BaseAction act)
         {
             var amInstance = ActionManager.Instance();
-            if (amInstance->GetActionStatus(ActionType.Action, act.ActionID) == 0)
+            if (amInstance->GetActionStatus(ActionType.Action, act.ActionId) == 0)
             {
                 //Communicator.Print("Action used: " + act.Name);
-                amInstance->UseAction(ActionType.Action, act.ActionID);
+                amInstance->UseAction(ActionType.Action, act.ActionId);
             }
         }
 
@@ -265,7 +265,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (action.EffectId != 0 && Player.Status.Any(s => s.StatusId == action.EffectId))
                 return false;
-            if (action.QuestID != 0 && !QuestManager.IsQuestComplete(action.QuestID))
+            if (action.QuestId != 0 && !QuestManager.IsQuestComplete(action.QuestId))
                 return false; 
             if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
                 return false;
@@ -281,7 +281,7 @@ namespace GatherBuddy.AutoGather
 
         private static int CalculateBountifulBonus(Gatherable item)
         {
-            if (!QuestManager.IsQuestComplete(Actions.BountifulII.QuestID))
+            if (!QuestManager.IsQuestComplete(Actions.BountifulII.QuestId))
                 return 1;
             
             try

@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Classes;
+using static GatherBuddy.AutoGather.AutoGather;
 
 namespace GatherBuddy.Gui
 {
@@ -186,7 +187,7 @@ namespace GatherBuddy.Gui
                             .Select(x => ("", x.name, GatherBuddy.GameData.Gatherables[x.id]));
                         var items = _plugin.GatherWindowManager.Presets
                             .Where(x => x.Enabled && !x.Fallback)
-                            .SelectMany(x => x.Items.Select(i => (x.Name, i.Name.ToString(), i)));
+                            .SelectMany(x => x.Items.Select(i => (x.Name, i.Name[GatherBuddy.Language], i)));
 
                         foreach (var (list, name, item) in crystals.Concat(items))
                         {
@@ -308,8 +309,8 @@ namespace GatherBuddy.Gui
                             selector.Save();
 
                         ImGui.SameLine();
-                        if (ImGuiUtil.Checkbox("Always use Solid Reason / Ageless Words",
-                            "Use Solid Reason / Ageless Words regardless of starting GP if target collectability score is reached",
+                        if (ImGuiUtil.Checkbox($"Always use {ConcatNames(Actions.SolidAge)}",
+                            $"Use {ConcatNames(Actions.SolidAge)} regardless of starting GP if target collectability score is reached",
                             preset.CollectableAlwaysUseSolidAge,
                             x => preset.CollectableAlwaysUseSolidAge = x))
                             selector.Save();
@@ -335,14 +336,14 @@ namespace GatherBuddy.Gui
                 using var node = ImRaii.TreeNode("Gathering Actions", ImGuiTreeNodeFlags.Framed);
                 if (node)
                 {
-                    DrawActionConfig("Bountiful Yield/Harvest", preset.GatherableActions.Bountiful, selector.Save);
-                    DrawActionConfig("Kings Yield/Blessed Harvest I", preset.GatherableActions.Yield1, selector.Save);
-                    DrawActionConfig("Kings Yield/Blessed Harvest II", preset.GatherableActions.Yield2, selector.Save);
-                    DrawActionConfig("Solid Reason/Ageless Words", preset.GatherableActions.SolidAge, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.Bountiful), preset.GatherableActions.Bountiful, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.Yield1), preset.GatherableActions.Yield1, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.Yield2), preset.GatherableActions.Yield2, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.SolidAge), preset.GatherableActions.SolidAge, selector.Save);
                     if (preset.ItemType.Crystals)
                     {
-                        DrawActionConfig("The Twelve's Bounty", preset.GatherableActions.TwelvesBounty, selector.Save);
-                        DrawActionConfig("The Giving Land", preset.GatherableActions.GivingLand, selector.Save);
+                        DrawActionConfig(Actions.TwelvesBounty.Names.Botanist, preset.GatherableActions.TwelvesBounty, selector.Save);
+                        DrawActionConfig(Actions.GivingLand.Names.Botanist, preset.GatherableActions.GivingLand, selector.Save);
                     }
                 }
             }
@@ -351,25 +352,27 @@ namespace GatherBuddy.Gui
                 using var node = ImRaii.TreeNode("Collectable Actions", ImGuiTreeNodeFlags.Framed);
                 if (node)
                 {
-                    DrawActionConfig("Scour", preset.CollectableActions.Scour, selector.Save);
-                    DrawActionConfig("Brazen Prospector", preset.CollectableActions.Brazen, selector.Save);
-                    DrawActionConfig("Meticulous Prospector", preset.CollectableActions.Meticulous, selector.Save);
-                    DrawActionConfig("Scrutiny", preset.CollectableActions.Scrutiny, selector.Save);
-                    DrawActionConfig("Solid Reason/Ageless Words", preset.CollectableActions.SolidAge, selector.Save);
+                    DrawActionConfig(Actions.Scour.Names.Botanist, preset.CollectableActions.Scour, selector.Save);
+                    DrawActionConfig(Actions.Brazen.Names.Botanist, preset.CollectableActions.Brazen, selector.Save);
+                    DrawActionConfig(Actions.Meticulous.Names.Botanist, preset.CollectableActions.Meticulous, selector.Save);
+                    DrawActionConfig(Actions.Scrutiny.Names.Botanist, preset.CollectableActions.Scrutiny, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.SolidAge), preset.CollectableActions.SolidAge, selector.Save);
                 }
             }
             {
                 using var node = ImRaii.TreeNode("Consumables", ImGuiTreeNodeFlags.Framed);
                 if (node)
                 {
-                    DrawActionConfig("Cordial", preset.Consumables.Cordial, selector.Save, AutoGather.AutoGather.PossibleCordials);
-                    DrawActionConfig("Food", preset.Consumables.Food, selector.Save, AutoGather.AutoGather.PossibleFoods);
-                    DrawActionConfig("Potion", preset.Consumables.Potion, selector.Save, AutoGather.AutoGather.PossiblePotions);
-                    DrawActionConfig("Manual", preset.Consumables.Manual, selector.Save, AutoGather.AutoGather.PossibleManuals);
-                    DrawActionConfig("Squadron Manual", preset.Consumables.SquadronManual, selector.Save, AutoGather.AutoGather.PossibleSquadronManuals);
-                    DrawActionConfig("Squadron Pass", preset.Consumables.SquadronPass, selector.Save, AutoGather.AutoGather.PossibleSquadronPasses);
+                    DrawActionConfig("Cordial", preset.Consumables.Cordial, selector.Save, PossibleCordials);
+                    DrawActionConfig("Food", preset.Consumables.Food, selector.Save, PossibleFoods);
+                    DrawActionConfig("Potion", preset.Consumables.Potion, selector.Save, PossiblePotions);
+                    DrawActionConfig("Manual", preset.Consumables.Manual, selector.Save, PossibleManuals);
+                    DrawActionConfig("Squadron Manual", preset.Consumables.SquadronManual, selector.Save, PossibleSquadronManuals);
+                    DrawActionConfig("Squadron Pass", preset.Consumables.SquadronPass, selector.Save, PossibleSquadronPasses);
                 }
             }
+
+            static string ConcatNames(Actions.BaseAction action) => $"{action.Actions.Miner.Name} / {action.Actions.Botanist.Name}";
         }
 
         private void DrawActionConfig(string name, ConfigPreset.ActionConfig action, System.Action save, IEnumerable<Item>? items = null)
@@ -437,7 +440,7 @@ namespace GatherBuddy.Gui
                 var list = items
                     .SelectMany(item => new[] { (item, rowid: item.RowId), (item, rowid: item.RowId + 100000) })
                     .Where(x => x.item.CanBeHq || x.rowid < 100000)
-                    .Select(x => (name: x.item.Name.ToString(), x.rowid, count: AutoGather.AutoGather.GetInventoryItemCount(x.rowid)))
+                    .Select(x => (name: x.item.Name.ExtractText(), x.rowid, count: GetInventoryItemCount(x.rowid)))
                     .OrderBy(x => x.count == 0)
                     .ThenBy(x => x.name)
                     .Select(x => x with { name = $"{(x.rowid > 100000 ? " " : "")}{x.name} ({x.count})" } )
