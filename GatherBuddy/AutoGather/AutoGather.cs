@@ -207,11 +207,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (isPathing)
-            {
-                StuckCheck();
-            }
-
             if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize 
                 && Player.Job is Job.BTN or Job.MIN
                 && !isPathing 
