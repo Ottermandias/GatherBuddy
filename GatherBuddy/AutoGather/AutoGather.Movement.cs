@@ -145,38 +145,6 @@ namespace GatherBuddy.AutoGather
         private DateTime lastMovementTime;
         private DateTime lastResetTime;
 
-
-        private void StuckCheck()
-        {
-            if (GatherBuddy.Config.AutoGatherConfig.UseExperimentalUnstuck)
-                return;
-            
-            if (EzThrottler.Throttle("StuckCheck", 100))
-            {
-                // Check if character is stuck
-                if (lastPosition.HasValue && Vector3.Distance(Player.Object.Position, lastPosition.Value) < 2.0f)
-                {
-                    // If the character hasn't moved much
-                    if ((DateTime.Now - lastMovementTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
-                    {
-                        // Check if enough time has passed since the last reset
-                        if ((DateTime.Now - lastResetTime).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetCooldown)
-                        {
-                            GatherBuddy.Log.Warning("Character is stuck, resetting navigation...");
-                            StopNavigation();
-                            return;
-                        }
-                    }
-                }
-                else
-                {
-                    // Character has moved, update last known position and time
-                    lastPosition     = Player.Object.Position;
-                    lastMovementTime = DateTime.Now;
-                }
-            }
-        }
-
         private void StopNavigation()
         {
             // Reset navigation logic here

@@ -39,6 +39,10 @@ namespace GatherBuddy.AutoGather
         [Obsolete] public ActionConfig SolidAgeGatherablesConfig { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue,
             new ActionConditions(), new Dictionary<string, object> { { "MinimumYield", (uint)1 }, { "UseWithCystals", false } });
 
+        public ActionConfig BoonIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonI.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        public ActionConfig BoonIIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonII.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        public ActionConfig TidingsConfig { get; set; } = new(true, (uint)AutoGather.Actions.Tidings.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+
         [Obsolete] public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
         public int TimedNodePrecog { get; set; } = 20;
         public bool DoGathering { get; set; } = true;
@@ -54,7 +58,6 @@ namespace GatherBuddy.AutoGather
         [Obsolete] public uint MinimumCollectibilityScore { get; set; } = 1000;
         [Obsolete] public bool GatherIfLastIntegrity { get; set; } = false;
         [Obsolete] public uint GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
-        public bool UseExperimentalUnstuck { get; set; } = true;
         [Obsolete] public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
         [Obsolete] public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
         [Obsolete] public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);
