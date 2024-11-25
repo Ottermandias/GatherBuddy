@@ -1,12 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using GatherBuddy.Classes;
-using GatherBuddy.Enums;
 
 namespace GatherBuddy.AutoGather
 {
@@ -39,9 +34,9 @@ namespace GatherBuddy.AutoGather
         [Obsolete] public ActionConfig SolidAgeGatherablesConfig { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue,
             new ActionConditions(), new Dictionary<string, object> { { "MinimumYield", (uint)1 }, { "UseWithCystals", false } });
 
-        public ActionConfig BoonIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonI.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
-        public ActionConfig BoonIIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonII.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
-        public ActionConfig TidingsConfig { get; set; } = new(true, (uint)AutoGather.Actions.Tidings.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        [Obsolete] public ActionConfig BoonIConfig { get; set; } = new(true, (uint)AutoGather.Actions.Gift1.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        [Obsolete] public ActionConfig BoonIIConfig { get; set; } = new(true, (uint)AutoGather.Actions.Gift2.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        [Obsolete] public ActionConfig TidingsConfig { get; set; } = new(true, (uint)AutoGather.Actions.Tidings.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
 
         [Obsolete] public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
         public int TimedNodePrecog { get; set; } = 20;
@@ -250,6 +245,49 @@ namespace GatherBuddy.AutoGather
                         MaxGP = (int)SolidAgeGatherablesConfig.MaximumGP,
                         MinYieldTotal = (int)SolidAgeGatherablesConfig.GetOptionalProperty<uint>("MinimumYield")
                     },
+                    TwelvesBounty = new()
+                    {
+                        Enabled = TwelvesBountyConfig.UseAction,
+                        MinGP = (int)TwelvesBountyConfig.MinimumGP,
+                        MaxGP = (int)TwelvesBountyConfig.MaximumGP,
+                        FirstStepOnly = TwelvesBountyConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)TwelvesBountyConfig.Conditions.RequiredIntegrity
+                    },
+                    GivingLand = new()
+                    {
+                        Enabled = GivingLandConfig.UseAction,
+                        MinGP = (int)GivingLandConfig.MinimumGP,
+                        MaxGP = (int)GivingLandConfig.MaximumGP,
+                        FirstStepOnly = GivingLandConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)GivingLandConfig.Conditions.RequiredIntegrity
+                    },
+                    Gift1 = new()
+                    {
+                        Enabled = BoonIConfig.UseAction,
+                        MinGP = (int)BoonIConfig.MinimumGP,
+                        MaxGP = (int)BoonIConfig.MaximumGP,
+                        FirstStepOnly = BoonIConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)BoonIConfig.Conditions.RequiredIntegrity,
+                        MinBoonChance = BoonIConfig.GetOptionalProperty<int>("MinBoonChance")
+                    },
+                    Gift2 = new()
+                    {
+                        Enabled = BoonIIConfig.UseAction,
+                        MinGP = (int)BoonIIConfig.MinimumGP,
+                        MaxGP = (int)BoonIIConfig.MaximumGP,
+                        FirstStepOnly = BoonIIConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)BoonIIConfig.Conditions.RequiredIntegrity,
+                        MinBoonChance = BoonIIConfig.GetOptionalProperty<int>("MinBoonChance")
+                    },
+                    Tidings = new()
+                    {
+                        Enabled = TidingsConfig.UseAction,
+                        MinGP = (int)TidingsConfig.MinimumGP,
+                        MaxGP = (int)TidingsConfig.MaximumGP,
+                        FirstStepOnly = TidingsConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)TidingsConfig.Conditions.RequiredIntegrity,
+                        MinBoonChance = TidingsConfig.GetOptionalProperty<int>("MinBoonChance")
+                    }
                 },
                 CollectableActions = new()
                 {

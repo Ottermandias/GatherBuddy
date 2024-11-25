@@ -25,7 +25,7 @@ namespace GatherBuddy.AutoGather
 
         public bool ShouldUseBountiful(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.Bountiful, config.Bountiful, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.Bountiful, config.Bountiful, slot.Item, slot))
                 return false;
             if (Player.Status.Any(s => s.StatusId == Actions.BountifulII.EffectId))
                 return false;
@@ -36,7 +36,7 @@ namespace GatherBuddy.AutoGather
         }
         public bool ShouldUseKingII(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.Yield2, config.Yield2, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.Yield2, config.Yield2, slot.Item, slot))
                 return false;
 
             return true;
@@ -44,7 +44,7 @@ namespace GatherBuddy.AutoGather
 
         public bool ShouldUseKingI(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.Yield1, config.Yield1, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.Yield1, config.Yield1, slot.Item, slot))
                 return false;
 
             return true;
@@ -52,7 +52,7 @@ namespace GatherBuddy.AutoGather
 
         private bool ShouldUseGivingLand(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.GivingLand, config.GivingLand, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.GivingLand, config.GivingLand, slot.Item, slot))
                 return false;
             if (!IsGivingLandOffCooldown)
                 return false;
@@ -64,7 +64,7 @@ namespace GatherBuddy.AutoGather
 
         private unsafe bool ShouldUseTwelvesBounty(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot))
                 return false;
             if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYeild : 0))
                 return false;
@@ -72,31 +72,25 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private unsafe bool ShouldUseBoonI(ItemSlot slot)
+        private unsafe bool ShouldUseGift1(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.BoonI, GatherBuddy.Config.AutoGatherConfig.BoonIConfig, slot.Item, slot.Rare))
-                return false;
-            if (slot.BoonChance < GatherBuddy.Config.AutoGatherConfig.BoonIConfig.GetOptionalProperty<int>("MinBoonChance"))
+            if (!CheckConditions(Actions.Gift1, config.Gift1, slot.Item, slot))
                 return false;
 
             return true;
         }
 
-        private unsafe bool ShouldUseBoonII(ItemSlot slot)
+        private unsafe bool ShouldUseGift2(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.BoonII, GatherBuddy.Config.AutoGatherConfig.BoonIIConfig, slot.Item, slot.Rare))
-                return false;
-            if (slot.BoonChance < GatherBuddy.Config.AutoGatherConfig.BoonIIConfig.GetOptionalProperty<int>("MinBoonChance"))
+            if (!CheckConditions(Actions.Gift2, config.Gift2, slot.Item, slot))
                 return false;
 
             return true;
         }
 
-        private unsafe bool ShouldUseTiding(ItemSlot slot)
+        private unsafe bool ShouldUseTiding(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.Tidings, GatherBuddy.Config.AutoGatherConfig.TidingsConfig, slot.Item, slot.Rare))
-                return false;
-            if (slot.BoonChance < GatherBuddy.Config.AutoGatherConfig.TidingsConfig.GetOptionalProperty<int>("MinBoonChance"))
+            if (!CheckConditions(Actions.Tidings, config.Tidings, slot.Item, slot))
                 return false;
             
             return true;
@@ -150,11 +144,11 @@ namespace GatherBuddy.AutoGather
                 var config = MatchConfigPreset(slot.Item).GatherableActions;
                 if (ShouldUseWise(NodeTracker.Integrity, NodeTracker.MaxIntegrity))
                     EnqueueActionWithDelay(() => UseAction(Actions.Wise));
-                else if(ShouldUseBoonI(slot))
-                    EnqueueActionWithDelay(() => UseAction(Actions.BoonI));
-                else if (ShouldUseBoonII(slot))
-                    EnqueueActionWithDelay(() => UseAction(Actions.BoonII));
-                else if (ShouldUseTiding(slot))
+                else if (ShouldUseGift2(slot, config))
+                    EnqueueActionWithDelay(() => UseAction(Actions.Gift2));
+                else if (ShouldUseGift1(slot, config))
+                    EnqueueActionWithDelay(() => UseAction(Actions.Gift1));
+                else if (ShouldUseTiding(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.Tidings));
                 else if (ShouldUseSolidAgeGatherables(slot, config))
                     EnqueueActionWithDelay(() => UseAction(Actions.SolidAge));
@@ -274,7 +268,7 @@ namespace GatherBuddy.AutoGather
 
         private bool ShouldUseSolidAgeGatherables(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
-            if (!CheckConditions(Actions.SolidAge, config.SolidAge, slot.Item, slot.Rare))
+            if (!CheckConditions(Actions.SolidAge, config.SolidAge, slot.Item, slot))
                 return false;
             var yield = slot.Yield;
             if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == Actions.Bountiful.EffectId))
@@ -287,7 +281,7 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, bool rare)
+        private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, ItemSlot slot)
         {
             if (config.Enabled == false)
                 return false;
@@ -307,9 +301,13 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity > Math.Min(2, NodeTracker.MaxIntegrity - 1))
                 return false;
-            if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && rare)
+            if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.Rare)
                 return false;
             if (config is ConfigPreset.ActionConfigIntegrity config2 && (config2.MinIntegrity > NodeTracker.MaxIntegrity || config2.FirstStepOnly && NodeTracker.Touched))
+                return false;
+            if (config is ConfigPreset.ActionConfigBoon config3 && (slot.BoonChance == 0xff || slot.BoonChance < config3.MinBoonChance || slot.BoonChance > config3.MaxBoonChance))
+                return false;
+            if (action.EffectType is Actions.EffectType.BoonChance && slot.BoonChance == 100)
                 return false;
 
             return true;

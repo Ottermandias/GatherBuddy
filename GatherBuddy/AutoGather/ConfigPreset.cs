@@ -61,6 +61,14 @@ namespace GatherBuddy.AutoGather
             public bool FirstStepOnly { get; set; } = true;
             public int MinIntegrity { get => minIntegrity; set => minIntegrity = Math.Max(1, Math.Min(MaxIntegrity, value)); }
         }
+        public record class ActionConfigBoon : ActionConfigIntegrity
+        {
+            private int minBoonChance = 0;
+            private int maxBoonChance = 100;
+
+            public int MinBoonChance { get => minBoonChance; set => minBoonChance = Math.Max(0, Math.Min(100, value)); }
+            public int MaxBoonChance { get => maxBoonChance; set => maxBoonChance = Math.Max(0, Math.Min(100, value)); }
+        }
         public record class ActionCofigConsumable : ActionConfig
         {
             public uint ItemId { get; set; } = 0;
@@ -94,6 +102,9 @@ namespace GatherBuddy.AutoGather
             public ActionConfigYieldTotal SolidAge { get; init; } = new() { MinGP = AutoGather.Actions.SolidAge.GpCost};
             public ActionConfigIntegrity TwelvesBounty { get; init; } = new() { MinGP = AutoGather.Actions.TwelvesBounty.GpCost };
             public ActionConfigIntegrity GivingLand { get; init; } = new() { MinGP = AutoGather.Actions.GivingLand.GpCost};
+            public ActionConfigBoon Gift1 { get; init; } = new() { MinGP = AutoGather.Actions.Gift1.GpCost, Enabled = false, MaxBoonChance = 90 };
+            public ActionConfigBoon Gift2 { get; init; } = new() { MinGP = AutoGather.Actions.Gift2.GpCost, Enabled = false, MaxBoonChance = 70 };
+            public ActionConfigBoon Tidings { get; init; } = new() { MinGP = AutoGather.Actions.Tidings.GpCost, Enabled = false, MinBoonChance = 70 };
             public GatheringActionsRec(GatheringActionsRec original)
             {
                 Bountiful = original.Bountiful with { };
@@ -102,6 +113,9 @@ namespace GatherBuddy.AutoGather
                 SolidAge = original.SolidAge with { };
                 TwelvesBounty = original.TwelvesBounty with { };
                 GivingLand = original.GivingLand with { };
+                Gift1 = original.Gift1 with { };
+                Gift2 = original.Gift2 with { };
+                Tidings = original.Tidings with { };
             }
         };
         public record class CollectableActionsRec

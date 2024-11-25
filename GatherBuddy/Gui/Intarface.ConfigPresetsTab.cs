@@ -340,6 +340,9 @@ namespace GatherBuddy.Gui
                     DrawActionConfig(ConcatNames(Actions.Yield1), preset.GatherableActions.Yield1, selector.Save);
                     DrawActionConfig(ConcatNames(Actions.Yield2), preset.GatherableActions.Yield2, selector.Save);
                     DrawActionConfig(ConcatNames(Actions.SolidAge), preset.GatherableActions.SolidAge, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.Gift1), preset.GatherableActions.Gift1, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.Gift2), preset.GatherableActions.Gift2, selector.Save);
+                    DrawActionConfig(ConcatNames(Actions.Tidings), preset.GatherableActions.Tidings, selector.Save);
                     if (preset.ItemType.Crystals)
                     {
                         DrawActionConfig(Actions.TwelvesBounty.Names.Botanist, preset.GatherableActions.TwelvesBounty, selector.Save);
@@ -409,33 +412,55 @@ namespace GatherBuddy.Gui
                 save();
             }
 
-            if (action is ConfigPreset.ActionConfigIntegrity action3)
+            if (action is ConfigPreset.ActionConfigBoon action3)
             {
-                var tmp = action3.MinIntegrity;
+                Span<int> chance = [action3.MinBoonChance, action3.MaxBoonChance];
+                if (ImGui.DragInt2("Minimum and maximum boon chance", ref chance[0], 0.2f, 0, 100))
+                {
+                    state.ChangingMin = action3.MinBoonChance != gp[0];
+                    action3.MinBoonChance = chance[0];
+                    action3.MaxBoonChance = chance[1];
+                }
+                if (ImGui.IsItemDeactivatedAfterEdit())
+                {
+                    if (action3.MinBoonChance > action3.MaxBoonChance)
+                    {
+                        if (state.ChangingMin)
+                            action3.MaxBoonChance = action3.MinBoonChance;
+                        else
+                            action3.MinBoonChance = action3.MaxBoonChance;
+                    }
+                    save();
+                }
+            }
+
+            if (action is ConfigPreset.ActionConfigIntegrity action4)
+            {
+                var tmp = action4.MinIntegrity;
                 if (ImGui.DragInt("Total node integrity required", ref tmp, 0.1f, 1, ConfigPreset.MaxIntegrity))
-                    action3.MinIntegrity = tmp;
+                    action4.MinIntegrity = tmp;
                 if (ImGui.IsItemDeactivatedAfterEdit())
                     save();
             }
-            if (action is ConfigPreset.ActionConfigYieldBonus action4)
+            if (action is ConfigPreset.ActionConfigYieldBonus action5)
             {
-                var tmp = action4.MinYieldBonus;
+                var tmp = action5.MinYieldBonus;
                 if (ImGui.DragInt("Minimum yield bonus", ref tmp, 0.1f, 1, 3))
-                    action4.MinYieldBonus = tmp;
+                    action5.MinYieldBonus = tmp;
                 if (ImGui.IsItemDeactivatedAfterEdit())
                     save();
             }
 
-            if (action is ConfigPreset.ActionConfigYieldTotal action5)
+            if (action is ConfigPreset.ActionConfigYieldTotal action6)
             {
-                var tmp = action5.MinYieldTotal;
+                var tmp = action6.MinYieldTotal;
                 if (ImGui.DragInt("Minimum total yield", ref tmp, 0.1f, 1, 30))
-                    action5.MinYieldTotal = tmp;
+                    action6.MinYieldTotal = tmp;
                 if (ImGui.IsItemDeactivatedAfterEdit())
                     save();
             }
 
-            if (action is ConfigPreset.ActionCofigConsumable action6 && items != null)
+            if (action is ConfigPreset.ActionCofigConsumable action7 && items != null)
             {
                 var list = items
                     .SelectMany(item => new[] { (item, rowid: item.RowId), (item, rowid: item.RowId + 100000) })
@@ -446,13 +471,13 @@ namespace GatherBuddy.Gui
                     .Select(x => x with { name = $"{(x.rowid > 100000 ? " " : "")}{x.name} ({x.count})" } )
                     .ToList();
 
-                var selected = (action6.ItemId > 0 ? list.FirstOrDefault(x => x.rowid == action6.ItemId).name : null) ?? string.Empty;
+                var selected = (action7.ItemId > 0 ? list.FirstOrDefault(x => x.rowid == action7.ItemId).name : null) ?? string.Empty;
                 using var combo = ImRaii.Combo($"Select {name.ToLower()}", selected);
                 if (combo)
                 {
-                    if (ImGui.Selectable(string.Empty, action6.ItemId <= 0))
+                    if (ImGui.Selectable(string.Empty, action7.ItemId <= 0))
                     {
-                        action6.ItemId = 0;
+                        action7.ItemId = 0;
                         save();
                     }
 
@@ -466,9 +491,9 @@ namespace GatherBuddy.Gui
                             separatorState = false;
                         }
 
-                        if (ImGui.Selectable(itemname, action6.ItemId == rowid))
+                        if (ImGui.Selectable(itemname, action7.ItemId == rowid))
                         {
-                            action6.ItemId = rowid;
+                            action7.ItemId = rowid;
                             save();
                         }
                     }
