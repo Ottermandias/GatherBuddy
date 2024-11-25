@@ -414,7 +414,7 @@ namespace GatherBuddy.Gui
                 }
             }
 
-            static string ConcatNames(Actions.BaseAction action) => $"{action.Actions.Miner.Name} / {action.Actions.Botanist.Name}";
+            static string ConcatNames(Actions.BaseAction action) => $"{action.Names.Miner} / {action.Names.Botanist}";
         }
 
         private void DrawActionConfig(string name, ConfigPreset.ActionConfig action, System.Action save, IEnumerable<Item>? items = null)
