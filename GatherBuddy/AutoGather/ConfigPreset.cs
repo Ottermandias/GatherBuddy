@@ -8,6 +8,7 @@ namespace GatherBuddy.AutoGather
         public const int MaxCollectability = 1000;
         public const int MaxIntegrity = 10;
         public const int MaxLevel = 100;
+        public const int MaxGvl = 1000;
         public const int MaxGP = 2000;
 
         private int gatherableMinGP = 0;
@@ -78,8 +79,9 @@ namespace GatherBuddy.AutoGather
             private int min = 1;
             private int max = MaxLevel;
 
-            public int Min { get => min; set => min = Math.Max(1, Math.Min(MaxLevel, value)); }
-            public int Max { get => max; set => max = Math.Max(1, Math.Min(MaxLevel, value)); }
+            public int Min { get => min; set => min = Math.Max(1, Math.Min(UseGlv ? MaxGvl : MaxLevel, value)); }
+            public int Max { get => max; set => max = Math.Max(1, Math.Min(UseGlv ? MaxGvl : MaxLevel, value)); }
+            public bool UseGlv { get; set; }
         }
         public record class ItemTypeRec
         {
@@ -188,20 +190,22 @@ namespace GatherBuddy.AutoGather
             };
         }
 
-        public bool Match(Gatherable item) => 
-                   item.Level >= ItemLevel.Min
-                && item.Level <= ItemLevel.Max
-                && item.NodeType switch
-                {
-                    Enums.NodeType.Regular => NodeType.Regular,
-                    Enums.NodeType.Unspoiled => NodeType.Unspoiled,
-                    Enums.NodeType.Legendary => NodeType.Legendary,
-                    Enums.NodeType.Ephemeral => NodeType.Ephemeral,
-                    _ => false
-                }
+        public bool Match(Gatherable item) =>
+            (
+                !ItemLevel.UseGlv && item.Level >= ItemLevel.Min && item.Level <= ItemLevel.Max
+              || ItemLevel.UseGlv && item.GatheringData.GatheringItemLevel.RowId >= ItemLevel.Min && item.GatheringData.GatheringItemLevel.RowId <= ItemLevel.Max
+            )
+            && item.NodeType switch
+            {
+                Enums.NodeType.Regular => NodeType.Regular,
+                Enums.NodeType.Unspoiled => NodeType.Unspoiled,
+                Enums.NodeType.Legendary => NodeType.Legendary,
+                Enums.NodeType.Ephemeral => NodeType.Ephemeral,
+                _ => false
+            }
                 && (   item.IsCrystal && ItemType.Crystals
-                    || item.ItemData.IsCollectable && ItemType.Collectables
-                    || !item.IsCrystal && !item.ItemData.IsCollectable && ItemType.Other);
+                || item.ItemData.IsCollectable && ItemType.Collectables
+                || !item.IsCrystal && !item.ItemData.IsCollectable && ItemType.Other);
     }
 
 }

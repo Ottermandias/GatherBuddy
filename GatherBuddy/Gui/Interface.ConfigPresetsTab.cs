@@ -237,10 +237,11 @@ namespace GatherBuddy.Gui
                 ImGui.Separator();
                 ImGui.Spacing();
 
+                var useGlv = preset.ItemLevel.UseGlv;
                 using var box = ImRaii.ListBox("##ConfigPresetListbox", new Vector2(-1.5f * ImGui.GetStyle().ItemSpacing.X, ImGui.GetFrameHeightWithSpacing() * 3 + ItemSpacing.Y));
                 Span<int> ilvl = [preset.ItemLevel.Min, preset.ItemLevel.Max];
                 ImGui.SetNextItemWidth(SetInputWidth);
-                if (ImGui.DragInt2("Minimum and maximum item level", ref ilvl[0], 0.2f, 1, ConfigPreset.MaxLevel))
+                if (ImGui.DragInt2("Minimum and maximum item", ref ilvl[0], 0.2f, 1,  useGlv ? ConfigPreset.MaxGvl : ConfigPreset.MaxLevel))
                 {
                     state.ChangingMin = preset.ItemLevel.Min != ilvl[0];
                     preset.ItemLevel.Min = ilvl[0];
@@ -255,6 +256,44 @@ namespace GatherBuddy.Gui
                         else
                             preset.ItemLevel.Min = preset.ItemLevel.Max;
                     }
+                    selector.Save();
+                }
+                ImGui.SameLine();
+                if (ImGui.RadioButton("level", !useGlv)) useGlv = false;
+                ImGui.SameLine();
+                if (ImGui.RadioButton("glv", useGlv)) useGlv = true;
+                if (useGlv != preset.ItemLevel.UseGlv)
+                {
+                    int min, max;
+                    if (useGlv)
+                    {
+                        min = GatherBuddy.GameData.Gatherables.Values
+                            .Where(i => i.Level >= preset.ItemLevel.Min)
+                            .Select(i => (int)i.GatheringData.GatheringItemLevel.RowId)
+                            .DefaultIfEmpty(ConfigPreset.MaxGvl)
+                            .Min();
+                        max = GatherBuddy.GameData.Gatherables.Values
+                            .Where(i => i.Level <= preset.ItemLevel.Max)
+                            .Select(i => (int)i.GatheringData.GatheringItemLevel.RowId)
+                            .DefaultIfEmpty(1)
+                            .Max();
+                    }
+                    else
+                    {
+                        min = GatherBuddy.GameData.Gatherables.Values
+                            .Where(i => i.GatheringData.GatheringItemLevel.RowId >= preset.ItemLevel.Min)
+                            .Select(i => i.Level)
+                            .DefaultIfEmpty(ConfigPreset.MaxLevel)
+                            .Min();
+                        max = GatherBuddy.GameData.Gatherables.Values
+                            .Where(i => i.GatheringData.GatheringItemLevel.RowId <= preset.ItemLevel.Max)
+                            .Select(i => i.Level)
+                            .DefaultIfEmpty(1)
+                            .Max();
+                    }
+                    preset.ItemLevel.UseGlv = useGlv;
+                    preset.ItemLevel.Min = min;
+                    preset.ItemLevel.Max = max;
                     selector.Save();
                 }
 
