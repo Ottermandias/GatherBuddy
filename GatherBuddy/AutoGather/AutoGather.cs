@@ -470,12 +470,12 @@ namespace GatherBuddy.AutoGather
                         TaskManager.DelayNextImmediate(100);
                         return false;
                     }
-                    var addon = (AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno");
+                    var addon = SelectYesnoAddon;
                     if (addon != null)
                     {
                         EnqueueActionWithDelay(() =>
                         {
-                            if ((AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno") is var addon and not null)
+                            if (SelectYesnoAddon is var addon and not null)
                             {
                                 var master = new AddonMaster.SelectYesno(addon);
                                 master.Yes();
