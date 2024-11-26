@@ -54,15 +54,8 @@ namespace GatherBuddy.AutoGather
             {
                 if (!value)
                 {
-                    //Do Reset Tasks
-                    var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
-                    if (gatheringMasterpiece != null && !gatheringMasterpiece->AtkUnitBase.IsVisible)
-                    {
-                        gatheringMasterpiece->AtkUnitBase.IsVisible = true;
-                    }
-
                     TaskManager.Abort();
-                    targetInfo                          = null;
+                    targetInfo = null;
                     if (VNavmesh_IPCSubscriber.IsEnabled && IsPathGenerating) 
                         VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                     StopNavigation();
