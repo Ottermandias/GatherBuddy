@@ -245,7 +245,7 @@ namespace GatherBuddy.AutoGather
             => Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId == 1802) ?? false;
 
         private static unsafe bool IsGivingLandOffCooldown
-            => ActionManager.Instance()->IsActionOffCooldown(ActionType.Action, Actions.GivingLand.ActionID);
+            => ActionManager.Instance()->IsActionOffCooldown(ActionType.Action, Actions.GivingLand.ActionId);
 
         //Should be near the upper bound to reduce the probability of overcapping.
         private const int GivingLandYeild = 30;
@@ -261,7 +261,9 @@ namespace GatherBuddy.AutoGather
 
         private static unsafe int CharacterGatheringStat
             => PlayerState.Instance()->Attributes[72];
-    }
+
+        private ConfigPreset MatchConfigPreset(Gatherable? item) => _plugin.Interface.MatchConfigPreset(item);
+}
 
     public record class GatherInfo(Gatherable Item, GatheringNode? Location, TimeInterval Time)
     {

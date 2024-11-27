@@ -62,6 +62,7 @@ public partial class Interface : Window, IDisposable
         DrawGatherGroupTab();
         DrawGatherWindowTab();
         DrawConfigTab();
+        DrawConfigPresetsTab();
         DrawLocationsTab();
         DrawRecordTab();
         DrawDebugTab();

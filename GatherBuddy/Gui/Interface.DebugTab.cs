@@ -599,11 +599,11 @@ public partial class Interface
         ImGui.Text($"LastIntegrity: {GatherBuddy.AutoGather.LastIntegrity}");
         ImGui.Text($"LastCollectScore: {GatherBuddy.AutoGather.LastCollectability}");
         ImGui.Text($"IsCordialOnCooldown: {GatherBuddy.AutoGather.IsCordialOnCooldown}");
-        ImGui.Text($"IsFoodBuffUp: {GatherBuddy.AutoGather.IsFoodBuffUp}");
-        ImGui.Text($"IsPotionBuffUp: {GatherBuddy.AutoGather.IsPotionBuffUp}");
+        //ImGui.Text($"IsFoodBuffUp: {GatherBuddy.AutoGather.GetIsFoodBuffUp()}");
+        //ImGui.Text($"IsPotionBuffUp: {GatherBuddy.AutoGather.GetIsPotionBuffUp()}");
         ImGui.Text($"IsManualBuffUp: {GatherBuddy.AutoGather.IsManualBuffUp}");
-        ImGui.Text($"IsSquadronManualBuffUp: {GatherBuddy.AutoGather.IsSquadronManualBuffUp}");
-        ImGui.Text($"IsSquadronPassBuffUp: {GatherBuddy.AutoGather.IsSquadronPassBuffUp}");
+        //ImGui.Text($"IsSquadronManualBuffUp: {GatherBuddy.AutoGather.GetIsSquadronManualBuffUp()}");
+        //ImGui.Text($"IsSquadronPassBuffUp: {GatherBuddy.AutoGather.GetIsSquadronPassBuffUp()}");
         ImGui.Text($"SortingMethodType: {GatherBuddy.Config.AutoGatherConfig.SortingMethod.ToString()}");
 
         if (ImGui.CollapsingHeader("Timed Node Memory"))

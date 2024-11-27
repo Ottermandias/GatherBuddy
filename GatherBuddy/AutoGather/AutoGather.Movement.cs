@@ -66,16 +66,16 @@ namespace GatherBuddy.AutoGather
             return instance->IsMountUnlocked(mount);
         }
 
-        private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem)
+        private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem, ConfigPreset config)
         {
             var distance = gameObject.Position.DistanceToPlayer();
 
             if (distance < 3)
             {
-                var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForCollectable;
-                waitGP |= !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < GatherBuddy.Config.AutoGatherConfig.MinimumGPForGathering;
+                var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.CollectableMinGP;
+                waitGP |= !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.GatherableMinGP;
 
-                if (Dalamud.Conditions[ConditionFlag.Mounted] && (waitGP || Dalamud.Conditions[ConditionFlag.InFlight] || GetConsumablesWithCastTime() > 0))
+                if (Dalamud.Conditions[ConditionFlag.Mounted] && (waitGP || Dalamud.Conditions[ConditionFlag.InFlight] || GetConsumablesWithCastTime(config) > 0))
                 {
                     //Try to dismount early. It would help with nodes where it is not possible to dismount at vnavmesh's provided floor point
                     EnqueueDismount();
@@ -105,7 +105,7 @@ namespace GatherBuddy.AutoGather
                 else
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
-                    if (GetConsumablesWithCastTime() is var consumable and > 0)
+                    if (GetConsumablesWithCastTime(config) is var consumable and > 0)
                     {
                         if (IsPathing)
                             StopNavigation();

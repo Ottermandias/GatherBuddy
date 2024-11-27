@@ -1,11 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using GatherBuddy.Enums;
 
 namespace GatherBuddy.AutoGather
 {
@@ -15,54 +11,54 @@ namespace GatherBuddy.AutoGather
         public uint                            AutoGatherMountId             { get; set; } = 1;
         public Dictionary<uint, List<Vector3>> BlacklistedNodesByTerritoryId { get; set; } = new();
 
-        public ActionConfig BYIIConfig    { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false }, { "MinimumIncrease", 1 } });
-        public ActionConfig LuckConfig    { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
-        public ActionConfig YieldIIConfig { get; set; } = new(true, 500, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false } });
-        public ActionConfig YieldIConfig  { get; set; } = new(true, 400, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false } });
-        public ActionConfig GivingLandConfig { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
-        public ActionConfig TwelvesBountyConfig { get; set; } = new(true, 150, uint.MaxValue, new ActionConditions());
+        [Obsolete] public ActionConfig BYIIConfig    { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false }, { "MinimumIncrease", 1 } });
+        [Obsolete] public ActionConfig LuckConfig    { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
+        [Obsolete] public ActionConfig YieldIIConfig { get; set; } = new(true, 500, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false } });
+        [Obsolete] public ActionConfig YieldIConfig  { get; set; } = new(true, 400, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false } });
+        [Obsolete] public ActionConfig GivingLandConfig { get; set; } = new(true, 200, uint.MaxValue, new ActionConditions());
+        [Obsolete] public ActionConfig TwelvesBountyConfig { get; set; } = new(true, 150, uint.MaxValue, new ActionConditions());
         public bool UseGivingLandOnCooldown { get; set; } = false;
 
-        public ActionConfig ScrutinyConfig { get; set; } =
+        [Obsolete] public ActionConfig ScrutinyConfig { get; set; } =
             new(true, (uint)AutoGather.Actions.Scrutiny.GpCost, uint.MaxValue, new ActionConditions());
 
-        public ActionConfig MeticulousConfig { get; set; } =
+        [Obsolete] public ActionConfig MeticulousConfig { get; set; } =
             new(true, (uint)AutoGather.Actions.Meticulous.GpCost, uint.MaxValue, new ActionConditions());
 
-        public ActionConfig BrazenConfig { get; set; } =
+        [Obsolete] public ActionConfig BrazenConfig { get; set; } =
             new(true, (uint)AutoGather.Actions.Brazen.GpCost, uint.MaxValue, new ActionConditions());
 
-        public ActionConfig SolidAgeCollectablesConfig { get; set; } =
+        [Obsolete] public ActionConfig SolidAgeCollectablesConfig { get; set; } =
             new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue, new ActionConditions());
 
-        public ActionConfig SolidAgeGatherablesConfig { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue,
+        [Obsolete] public ActionConfig SolidAgeGatherablesConfig { get; set; } = new(true, (uint)AutoGather.Actions.SolidAge.GpCost, uint.MaxValue,
             new ActionConditions(), new Dictionary<string, object> { { "MinimumYield", (uint)1 }, { "UseWithCystals", false } });
 
-        public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
-        public ActionConfig BoonIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonI.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
-        public ActionConfig BoonIIConfig { get; set; } = new(true, (uint)AutoGather.Actions.BoonII.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
-        public ActionConfig TidingsConfig { get; set; } = new(true, (uint)AutoGather.Actions.Tidings.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        [Obsolete] public ActionConfig BoonIConfig { get; set; } = new(true, (uint)AutoGather.Actions.Gift1.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        [Obsolete] public ActionConfig BoonIIConfig { get; set; } = new(true, (uint)AutoGather.Actions.Gift2.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
+        [Obsolete] public ActionConfig TidingsConfig { get; set; } = new(true, (uint)AutoGather.Actions.Tidings.GpCost, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "MinBoonChance", 0 } });
 
+        [Obsolete] public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
         public int TimedNodePrecog { get; set; } = 20;
         public bool DoGathering { get; set; } = true;
-        public uint MinimumGPForGathering { get; set; } = 0;
-        public uint MinimumGPForCollectableRotation { get; set; } = 700;
-        public bool AlwaysUseSolidAgeCollectables { get; set; } = false;
-        public uint MinimumGPForCollectable { get; set; } = 0;
+        [Obsolete] public uint MinimumGPForGathering { get; set; } = 0;
+        [Obsolete] public uint MinimumGPForCollectableRotation { get; set; } = 700;
+        [Obsolete] public bool AlwaysUseSolidAgeCollectables { get; set; } = false;
+        [Obsolete] public uint MinimumGPForCollectable { get; set; } = 0;
         public float NavResetCooldown { get; set; } = 3.0f;
         public float NavResetThreshold { get; set; } = 2.0f;
         public bool ForceWalking { get; set; } = false;
         public float FarNodeFilterDistance { get; set; } = 50.0f;
         public bool DisableFlagPathing { get; set; } = false;
-        public uint MinimumCollectibilityScore { get; set; } = 1000;
-        public bool GatherIfLastIntegrity { get; set; } = false;
-        public uint GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
-        public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
-        public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig ManualConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig SquadronManualConfig { get; set; } = new(false, 0, 0, 0);
-        public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
+        [Obsolete] public uint MinimumCollectibilityScore { get; set; } = 1000;
+        [Obsolete] public bool GatherIfLastIntegrity { get; set; } = false;
+        [Obsolete] public uint GatherIfLastIntegrityMinimumCollectibility { get; set; } = 600;
+        [Obsolete] public ConsumableConfig CordialConfig { get; set; } = new(false, 0, 700, 0);
+        [Obsolete] public ConsumableConfig FoodConfig { get; set; } = new(false, 0, 0, 0);
+        [Obsolete] public ConsumableConfig PotionConfig { get; set; } = new(false, 0, 0, 0);
+        [Obsolete] public ConsumableConfig ManualConfig { get; set; } = new(false, 0, 0, 0);
+        [Obsolete] public ConsumableConfig SquadronManualConfig { get; set; } = new(false, 0, 0, 0);
+        [Obsolete] public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
         public bool DoMaterialize { get; set; } = false;
         public bool HonkMode { get; set; } = true;
         public SortingType SortingMethod { get; set; } = SortingType.Location;
@@ -78,6 +74,7 @@ namespace GatherBuddy.AutoGather
             None = 0,
             Location = 1,
         }
+        [Obsolete]
         public class ActionConfig
         {
             public ActionConfig(bool useAction, uint minGP, uint maximumGP, ActionConditions conditions,
@@ -130,6 +127,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
+        [Obsolete]
         public class ActionConditions
         {
             public ActionConditions(bool useCondition, bool onlyFirstStep, bool filterNodeTypes, uint requiredIntegrity)
@@ -164,14 +162,14 @@ namespace GatherBuddy.AutoGather
                 public NodeConfig EphemeralNode { get; set; } = new();
                 public NodeConfig LegendaryNode { get; set; } = new();
 
-                public NodeConfig GetNodeConfig(NodeType nodeType)
+                public NodeConfig GetNodeConfig(Enums.NodeType nodeType)
                 {
                     return nodeType switch
                     {
-                        NodeType.Regular   => RegularNode,
-                        NodeType.Unspoiled => UnspoiledNode,
-                        NodeType.Ephemeral => EphemeralNode,
-                        NodeType.Legendary => LegendaryNode,
+                        Enums.NodeType.Regular   => RegularNode,
+                        Enums.NodeType.Unspoiled => UnspoiledNode,
+                        Enums.NodeType.Ephemeral => EphemeralNode,
+                        Enums.NodeType.Legendary => LegendaryNode,
                         _                  => RegularNode
                     };
                 }
@@ -184,6 +182,7 @@ namespace GatherBuddy.AutoGather
             public uint        RequiredIntegrity  { get; set; }
         }
 
+        [Obsolete]
         public class ConsumableConfig
         {
             public ConsumableConfig(bool useConsumable, uint minGP, uint maximumGP, uint itemId)
@@ -199,5 +198,177 @@ namespace GatherBuddy.AutoGather
             public uint MaximumGP     { get; set; }
             public uint ItemId        { get; set; }
         }
+#pragma warning disable CS0612
+        public ConfigPreset ConvertToPreset()
+        {
+            return new()
+            {
+                Enabled = true,
+                Name = "Default",
+                GatherableMinGP = (int)MinimumGPForGathering,
+                UseGivingLandOnCooldown = UseGivingLandOnCooldown,
+                CollectableMinGP = (int)MinimumGPForCollectable,
+                CollectableActionsMinGP = (int)MinimumGPForCollectableRotation,
+                CollectableTagetScore = (int)MinimumCollectibilityScore,
+                CollectableMinScore = (int)(GatherIfLastIntegrity ? GatherIfLastIntegrityMinimumCollectibility : 1000),
+                CollectableAlwaysUseSolidAge = AlwaysUseSolidAgeCollectables,
+
+                GatherableActions = new()
+                {
+                    Bountiful = new()
+                    {
+                        Enabled = BYIIConfig.UseAction,
+                        MinGP = (int)BYIIConfig.MinimumGP,
+                        MaxGP = (int)BYIIConfig.MaximumGP,
+                        MinYieldBonus = BYIIConfig.GetOptionalProperty<int>("MinimumIncrease")
+                    },
+                    Yield1 = new()
+                    {
+                        Enabled = YieldIConfig.UseAction,
+                        MinGP = (int)YieldIConfig.MinimumGP,
+                        MaxGP = (int)YieldIConfig.MaximumGP,
+                        FirstStepOnly = YieldIConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)YieldIConfig.Conditions.RequiredIntegrity
+                    },
+                    Yield2 = new()
+                    {
+                        Enabled = YieldIIConfig.UseAction,
+                        MinGP = (int)YieldIIConfig.MinimumGP,
+                        MaxGP = (int)YieldIIConfig.MaximumGP,
+                        FirstStepOnly = YieldIIConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)YieldIIConfig.Conditions.RequiredIntegrity
+                    },
+                    SolidAge = new()
+                    {
+                        Enabled = SolidAgeGatherablesConfig.UseAction,
+                        MinGP = (int)SolidAgeGatherablesConfig.MinimumGP,
+                        MaxGP = (int)SolidAgeGatherablesConfig.MaximumGP,
+                        MinYieldTotal = (int)SolidAgeGatherablesConfig.GetOptionalProperty<uint>("MinimumYield")
+                    },
+                    TwelvesBounty = new()
+                    {
+                        Enabled = TwelvesBountyConfig.UseAction,
+                        MinGP = (int)TwelvesBountyConfig.MinimumGP,
+                        MaxGP = (int)TwelvesBountyConfig.MaximumGP,
+                        FirstStepOnly = TwelvesBountyConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)TwelvesBountyConfig.Conditions.RequiredIntegrity
+                    },
+                    GivingLand = new()
+                    {
+                        Enabled = GivingLandConfig.UseAction,
+                        MinGP = (int)GivingLandConfig.MinimumGP,
+                        MaxGP = (int)GivingLandConfig.MaximumGP,
+                        FirstStepOnly = GivingLandConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)GivingLandConfig.Conditions.RequiredIntegrity
+                    },
+                    Gift1 = new()
+                    {
+                        Enabled = BoonIConfig.UseAction,
+                        MinGP = (int)BoonIConfig.MinimumGP,
+                        MaxGP = (int)BoonIConfig.MaximumGP,
+                        FirstStepOnly = BoonIConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)BoonIConfig.Conditions.RequiredIntegrity,
+                        MinBoonChance = BoonIConfig.GetOptionalProperty<int>("MinBoonChance")
+                    },
+                    Gift2 = new()
+                    {
+                        Enabled = BoonIIConfig.UseAction,
+                        MinGP = (int)BoonIIConfig.MinimumGP,
+                        MaxGP = (int)BoonIIConfig.MaximumGP,
+                        FirstStepOnly = BoonIIConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)BoonIIConfig.Conditions.RequiredIntegrity,
+                        MinBoonChance = BoonIIConfig.GetOptionalProperty<int>("MinBoonChance")
+                    },
+                    Tidings = new()
+                    {
+                        Enabled = TidingsConfig.UseAction,
+                        MinGP = (int)TidingsConfig.MinimumGP,
+                        MaxGP = (int)TidingsConfig.MaximumGP,
+                        FirstStepOnly = TidingsConfig.Conditions.UseOnlyOnFirstStep,
+                        MinIntegrity = (int)TidingsConfig.Conditions.RequiredIntegrity,
+                        MinBoonChance = TidingsConfig.GetOptionalProperty<int>("MinBoonChance")
+                    }
+                },
+                CollectableActions = new()
+                {
+                    Scour = new()
+                    {
+                        Enabled = ScourConfig.UseAction,
+                        MinGP = (int)ScourConfig.MinimumGP,
+                        MaxGP = (int)ScourConfig.MaximumGP
+                    },
+                    Brazen = new()
+                    {
+                        Enabled = BrazenConfig.UseAction,
+                        MinGP = (int)BrazenConfig.MinimumGP,
+                        MaxGP = (int)BrazenConfig.MaximumGP
+                    },
+                    Meticulous = new()
+                    {
+                        Enabled = MeticulousConfig.UseAction,
+                        MinGP = (int)MeticulousConfig.MinimumGP,
+                        MaxGP = (int)MeticulousConfig.MaximumGP
+                    },
+                    Scrutiny = new()
+                    {
+                        Enabled = ScrutinyConfig.UseAction,
+                        MinGP = (int)ScrutinyConfig.MinimumGP,
+                        MaxGP = (int)ScrutinyConfig.MaximumGP
+                    },
+                    SolidAge = new()
+                    {
+                        Enabled = SolidAgeCollectablesConfig.UseAction,
+                        MinGP = (int)SolidAgeCollectablesConfig.MinimumGP,
+                        MaxGP = (int)SolidAgeCollectablesConfig.MaximumGP
+                    }
+                },
+                Consumables = new()
+                {
+                    Cordial = new()
+                    {
+                        Enabled = CordialConfig.UseConsumable,
+                        MinGP = (int)CordialConfig.MinimumGP,
+                        MaxGP = (int)CordialConfig.MaximumGP,
+                        ItemId = CordialConfig.ItemId,
+                    },
+                    Food = new()
+                    {
+                        Enabled = FoodConfig.UseConsumable,
+                        MinGP = (int)FoodConfig.MinimumGP,
+                        MaxGP = (int)FoodConfig.MaximumGP,
+                        ItemId = FoodConfig.ItemId,
+                    },
+                    Potion = new()
+                    {
+                        Enabled = PotionConfig.UseConsumable,
+                        MinGP = (int)PotionConfig.MinimumGP,
+                        MaxGP = (int)PotionConfig.MaximumGP,
+                        ItemId = PotionConfig.ItemId,
+                    },
+                    Manual = new()
+                    {
+                        Enabled = ManualConfig.UseConsumable,
+                        MinGP = (int)ManualConfig.MinimumGP,
+                        MaxGP = (int)ManualConfig.MaximumGP,
+                        ItemId = ManualConfig.ItemId,
+                    },
+                    SquadronManual = new()
+                    {
+                        Enabled = SquadronManualConfig.UseConsumable,
+                        MinGP = (int)SquadronManualConfig.MinimumGP,
+                        MaxGP = (int)SquadronManualConfig.MaximumGP,
+                        ItemId = SquadronManualConfig.ItemId,
+                    },
+                    SquadronPass = new()
+                    {
+                        Enabled = SquadronPassConfig.UseConsumable,
+                        MinGP = (int)SquadronPassConfig.MinimumGP,
+                        MaxGP = (int)SquadronPassConfig.MaximumGP,
+                        ItemId = SquadronPassConfig.ItemId,
+                    },
+                }
+            };
+        }
+#pragma warning restore CS0612
     }
 }
