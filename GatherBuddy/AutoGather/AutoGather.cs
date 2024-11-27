@@ -54,15 +54,8 @@ namespace GatherBuddy.AutoGather
             {
                 if (!value)
                 {
-                    //Do Reset Tasks
-                    var gatheringMasterpiece = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece", 1);
-                    if (gatheringMasterpiece != null && !gatheringMasterpiece->AtkUnitBase.IsVisible)
-                    {
-                        gatheringMasterpiece->AtkUnitBase.IsVisible = true;
-                    }
-
                     TaskManager.Abort();
-                    targetInfo                          = null;
+                    targetInfo = null;
                     if (VNavmesh_IPCSubscriber.IsEnabled && IsPathGenerating) 
                         VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                     StopNavigation();
@@ -472,12 +465,12 @@ namespace GatherBuddy.AutoGather
                         TaskManager.DelayNextImmediate(100);
                         return false;
                     }
-                    var addon = (AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno");
+                    var addon = SelectYesnoAddon;
                     if (addon != null)
                     {
                         EnqueueActionWithDelay(() =>
                         {
-                            if ((AddonSelectYesno*)Dalamud.GameGui.GetAddonByName("SelectYesno") is var addon and not null)
+                            if (SelectYesnoAddon is var addon and not null)
                             {
                                 var master = new AddonMaster.SelectYesno(addon);
                                 master.Yes();

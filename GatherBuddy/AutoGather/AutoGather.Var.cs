@@ -9,12 +9,13 @@ using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Classes;
-using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using GatherBuddy.Time;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using System.Collections.Specialized;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using NodeType = GatherBuddy.Enums.NodeType;
 
 namespace GatherBuddy.AutoGather
 {
@@ -172,17 +173,29 @@ namespace GatherBuddy.AutoGather
             }
         }
 
+
+        private unsafe T* GetAddon<T>(string name)
+        {
+            var addon = (AtkUnitBase*)Dalamud.GameGui.GetAddonByName(name);
+            if (addon != null && addon->IsFullyLoaded() && addon->IsReady)
+                return (T*)addon;
+            else
+                return null;
+        }
         public unsafe AddonGathering* GatheringAddon
-            => (AddonGathering*)Dalamud.GameGui.GetAddonByName("Gathering");
+            => GetAddon<AddonGathering>("Gathering");
 
         public unsafe AddonGatheringMasterpiece* MasterpieceAddon
-            => (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece");
+            => GetAddon<AddonGatheringMasterpiece>("GatheringMasterpiece");
 
         public unsafe AddonMaterializeDialog* MaterializeAddon
-            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("Materialize");
+            => GetAddon<AddonMaterializeDialog>("Materialize");
 
         public unsafe AddonMaterializeDialog* MaterializeDialogAddon
-            => (AddonMaterializeDialog*)Dalamud.GameGui.GetAddonByName("MaterializeDialog");
+            => GetAddon<AddonMaterializeDialog>("MaterializeDialog");
+
+        public unsafe AddonSelectYesno* SelectYesnoAddon
+            => GetAddon<AddonSelectYesno>("SelectYesno");
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
             => ItemsToGather.Where(i => i.Location?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
