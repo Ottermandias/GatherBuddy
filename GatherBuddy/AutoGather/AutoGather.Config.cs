@@ -68,6 +68,7 @@ namespace GatherBuddy.AutoGather
         public bool AbandonNodes { get; set; } = false;
         public uint ExecutionDelay { get; set; } = 0;
         public bool ForceCloseLingeringMasterpieceAddon { get; set; } = false;
+        public bool ConfigConversionFixed { get; set; } = false;
 
         public enum SortingType
         {

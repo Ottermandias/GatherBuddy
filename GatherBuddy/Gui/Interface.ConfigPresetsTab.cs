@@ -133,8 +133,38 @@ namespace GatherBuddy.Gui
                     //Convert old settings to the new Default preset
                     Items.Add(GatherBuddy.Config.AutoGatherConfig.ConvertToPreset());
                     Save();
+                    GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed = true;
+                    GatherBuddy.Config.Save();
                 }
                 Items[Items.Count - 1] = Items[Items.Count - 1].MakeDefault();
+
+                if (!GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed)
+                {
+                    var def = Items[Items.Count - 1];
+                    fixAction(def.GatherableActions.Bountiful);
+                    fixAction(def.GatherableActions.Yield1);
+                    fixAction(def.GatherableActions.Yield2);
+                    fixAction(def.GatherableActions.SolidAge);
+                    fixAction(def.GatherableActions.TwelvesBounty);
+                    fixAction(def.GatherableActions.GivingLand);
+                    fixAction(def.GatherableActions.Gift1);
+                    fixAction(def.GatherableActions.Gift2);
+                    fixAction(def.GatherableActions.Tidings);
+                    fixAction(def.GatherableActions.Bountiful);
+                    fixAction(def.CollectableActions.Scrutiny);
+                    fixAction(def.CollectableActions.Scour);
+                    fixAction(def.CollectableActions.Brazen);
+                    fixAction(def.CollectableActions.Meticulous);
+                    fixAction(def.CollectableActions.SolidAge);
+                    fixAction(def.Consumables.Cordial);
+                    Save();
+                    GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed = true;
+                    GatherBuddy.Config.Save();
+                }
+                void fixAction(ConfigPreset.ActionConfig action)
+                {
+                    if (action.MaxGP == 0) action.MaxGP = ConfigPreset.MaxGP;
+                }
             }
 
             public ConfigPreset Match(Gatherable? item)
