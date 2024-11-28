@@ -219,14 +219,14 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = BYIIConfig.UseAction,
                         MinGP = (int)BYIIConfig.MinimumGP,
-                        MaxGP = (int)BYIIConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(BYIIConfig.MaximumGP, ConfigPreset.MaxGP),
                         MinYieldBonus = BYIIConfig.GetOptionalProperty<int>("MinimumIncrease")
                     },
                     Yield1 = new()
                     {
                         Enabled = YieldIConfig.UseAction,
                         MinGP = (int)YieldIConfig.MinimumGP,
-                        MaxGP = (int)YieldIConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(YieldIConfig.MaximumGP, ConfigPreset.MaxGP),
                         FirstStepOnly = YieldIConfig.Conditions.UseOnlyOnFirstStep,
                         MinIntegrity = (int)YieldIConfig.Conditions.RequiredIntegrity
                     },
@@ -234,7 +234,7 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = YieldIIConfig.UseAction,
                         MinGP = (int)YieldIIConfig.MinimumGP,
-                        MaxGP = (int)YieldIIConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(YieldIIConfig.MaximumGP, ConfigPreset.MaxGP),
                         FirstStepOnly = YieldIIConfig.Conditions.UseOnlyOnFirstStep,
                         MinIntegrity = (int)YieldIIConfig.Conditions.RequiredIntegrity
                     },
@@ -242,14 +242,14 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = SolidAgeGatherablesConfig.UseAction,
                         MinGP = (int)SolidAgeGatherablesConfig.MinimumGP,
-                        MaxGP = (int)SolidAgeGatherablesConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(SolidAgeGatherablesConfig.MaximumGP, ConfigPreset.MaxGP),
                         MinYieldTotal = (int)SolidAgeGatherablesConfig.GetOptionalProperty<uint>("MinimumYield")
                     },
                     TwelvesBounty = new()
                     {
                         Enabled = TwelvesBountyConfig.UseAction,
                         MinGP = (int)TwelvesBountyConfig.MinimumGP,
-                        MaxGP = (int)TwelvesBountyConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(TwelvesBountyConfig.MaximumGP, ConfigPreset.MaxGP),
                         FirstStepOnly = TwelvesBountyConfig.Conditions.UseOnlyOnFirstStep,
                         MinIntegrity = (int)TwelvesBountyConfig.Conditions.RequiredIntegrity
                     },
@@ -257,7 +257,7 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = GivingLandConfig.UseAction,
                         MinGP = (int)GivingLandConfig.MinimumGP,
-                        MaxGP = (int)GivingLandConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(GivingLandConfig.MaximumGP, ConfigPreset.MaxGP),
                         FirstStepOnly = GivingLandConfig.Conditions.UseOnlyOnFirstStep,
                         MinIntegrity = (int)GivingLandConfig.Conditions.RequiredIntegrity
                     },
@@ -265,7 +265,7 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = BoonIConfig.UseAction,
                         MinGP = (int)BoonIConfig.MinimumGP,
-                        MaxGP = (int)BoonIConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(BoonIConfig.MaximumGP, ConfigPreset.MaxGP),
                         FirstStepOnly = BoonIConfig.Conditions.UseOnlyOnFirstStep,
                         MinIntegrity = (int)BoonIConfig.Conditions.RequiredIntegrity,
                         MinBoonChance = BoonIConfig.GetOptionalProperty<int>("MinBoonChance")
@@ -274,7 +274,7 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = BoonIIConfig.UseAction,
                         MinGP = (int)BoonIIConfig.MinimumGP,
-                        MaxGP = (int)BoonIIConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(BoonIIConfig.MaximumGP, ConfigPreset.MaxGP),
                         FirstStepOnly = BoonIIConfig.Conditions.UseOnlyOnFirstStep,
                         MinIntegrity = (int)BoonIIConfig.Conditions.RequiredIntegrity,
                         MinBoonChance = BoonIIConfig.GetOptionalProperty<int>("MinBoonChance")
@@ -283,7 +283,7 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = TidingsConfig.UseAction,
                         MinGP = (int)TidingsConfig.MinimumGP,
-                        MaxGP = (int)TidingsConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(TidingsConfig.MaximumGP, ConfigPreset.MaxGP),
                         FirstStepOnly = TidingsConfig.Conditions.UseOnlyOnFirstStep,
                         MinIntegrity = (int)TidingsConfig.Conditions.RequiredIntegrity,
                         MinBoonChance = TidingsConfig.GetOptionalProperty<int>("MinBoonChance")
@@ -295,31 +295,31 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = ScourConfig.UseAction,
                         MinGP = (int)ScourConfig.MinimumGP,
-                        MaxGP = (int)ScourConfig.MaximumGP
+                        MaxGP = (int)Math.Min(ScourConfig.MaximumGP, ConfigPreset.MaxGP)
                     },
                     Brazen = new()
                     {
                         Enabled = BrazenConfig.UseAction,
                         MinGP = (int)BrazenConfig.MinimumGP,
-                        MaxGP = (int)BrazenConfig.MaximumGP
+                        MaxGP = (int)Math.Min(BrazenConfig.MaximumGP, ConfigPreset.MaxGP)
                     },
                     Meticulous = new()
                     {
                         Enabled = MeticulousConfig.UseAction,
                         MinGP = (int)MeticulousConfig.MinimumGP,
-                        MaxGP = (int)MeticulousConfig.MaximumGP
+                        MaxGP = (int)Math.Min(MeticulousConfig.MaximumGP, ConfigPreset.MaxGP)
                     },
                     Scrutiny = new()
                     {
                         Enabled = ScrutinyConfig.UseAction,
                         MinGP = (int)ScrutinyConfig.MinimumGP,
-                        MaxGP = (int)ScrutinyConfig.MaximumGP
+                        MaxGP = (int)Math.Min(ScrutinyConfig.MaximumGP, ConfigPreset.MaxGP)
                     },
                     SolidAge = new()
                     {
                         Enabled = SolidAgeCollectablesConfig.UseAction,
                         MinGP = (int)SolidAgeCollectablesConfig.MinimumGP,
-                        MaxGP = (int)SolidAgeCollectablesConfig.MaximumGP
+                        MaxGP = (int)Math.Min(SolidAgeCollectablesConfig.MaximumGP, ConfigPreset.MaxGP)
                     }
                 },
                 Consumables = new()
@@ -328,42 +328,32 @@ namespace GatherBuddy.AutoGather
                     {
                         Enabled = CordialConfig.UseConsumable,
                         MinGP = (int)CordialConfig.MinimumGP,
-                        MaxGP = (int)CordialConfig.MaximumGP,
+                        MaxGP = (int)Math.Min(CordialConfig.MaximumGP, ConfigPreset.MaxGP),
                         ItemId = CordialConfig.ItemId,
                     },
                     Food = new()
                     {
                         Enabled = FoodConfig.UseConsumable,
-                        MinGP = (int)FoodConfig.MinimumGP,
-                        MaxGP = (int)FoodConfig.MaximumGP,
                         ItemId = FoodConfig.ItemId,
                     },
                     Potion = new()
                     {
                         Enabled = PotionConfig.UseConsumable,
-                        MinGP = (int)PotionConfig.MinimumGP,
-                        MaxGP = (int)PotionConfig.MaximumGP,
                         ItemId = PotionConfig.ItemId,
                     },
                     Manual = new()
                     {
                         Enabled = ManualConfig.UseConsumable,
-                        MinGP = (int)ManualConfig.MinimumGP,
-                        MaxGP = (int)ManualConfig.MaximumGP,
                         ItemId = ManualConfig.ItemId,
                     },
                     SquadronManual = new()
                     {
                         Enabled = SquadronManualConfig.UseConsumable,
-                        MinGP = (int)SquadronManualConfig.MinimumGP,
-                        MaxGP = (int)SquadronManualConfig.MaximumGP,
                         ItemId = SquadronManualConfig.ItemId,
                     },
                     SquadronPass = new()
                     {
                         Enabled = SquadronPassConfig.UseConsumable,
-                        MinGP = (int)SquadronPassConfig.MinimumGP,
-                        MaxGP = (int)SquadronPassConfig.MaximumGP,
                         ItemId = SquadronPassConfig.ItemId,
                     },
                 }
