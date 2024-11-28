@@ -406,18 +406,18 @@ namespace GatherBuddy.Gui
                 if (node)
                 {
                     DrawActionConfig("Cordial", preset.Consumables.Cordial, selector.Save, PossibleCordials);
-                    DrawActionConfig("Food", preset.Consumables.Food, selector.Save, PossibleFoods);
-                    DrawActionConfig("Potion", preset.Consumables.Potion, selector.Save, PossiblePotions);
-                    DrawActionConfig("Manual", preset.Consumables.Manual, selector.Save, PossibleManuals);
-                    DrawActionConfig("Squadron Manual", preset.Consumables.SquadronManual, selector.Save, PossibleSquadronManuals);
-                    DrawActionConfig("Squadron Pass", preset.Consumables.SquadronPass, selector.Save, PossibleSquadronPasses);
+                    DrawActionConfig("Food", preset.Consumables.Food, selector.Save, PossibleFoods, true);
+                    DrawActionConfig("Potion", preset.Consumables.Potion, selector.Save, PossiblePotions, true);
+                    DrawActionConfig("Manual", preset.Consumables.Manual, selector.Save, PossibleManuals, true);
+                    DrawActionConfig("Squadron Manual", preset.Consumables.SquadronManual, selector.Save, PossibleSquadronManuals, true);
+                    DrawActionConfig("Squadron Pass", preset.Consumables.SquadronPass, selector.Save, PossibleSquadronPasses, true);
                 }
             }
 
             static string ConcatNames(Actions.BaseAction action) => $"{action.Names.Miner} / {action.Names.Botanist}";
         }
 
-        private void DrawActionConfig(string name, ConfigPreset.ActionConfig action, System.Action save, IEnumerable<Item>? items = null)
+        private void DrawActionConfig(string name, ConfigPreset.ActionConfig action, System.Action save, IEnumerable<Item>? items = null, bool hideGP = false)
         {
             using var node = ImRaii.TreeNode(name);
             if (!node) return;
@@ -432,23 +432,26 @@ namespace GatherBuddy.Gui
                 if (ImGuiUtil.Checkbox("Use only on first step", "Use only if no items have been gathered from the node yet", action2.FirstStepOnly, x => action2.FirstStepOnly = x)) save();
             }
 
-            Span<int> gp = [action.MinGP, action.MaxGP];
-            if (ImGui.DragInt2("Minimum and maximum GP", ref gp[0], 1, 0, ConfigPreset.MaxGP))
+            if (!hideGP)
             {
-                state.ChangingMin = action.MinGP != gp[0];
-                action.MinGP = gp[0];
-                action.MaxGP = gp[1];
-            }
-            if (ImGui.IsItemDeactivatedAfterEdit())
-            {
-                if (action.MinGP > action.MaxGP)
+                Span<int> gp = [action.MinGP, action.MaxGP];
+                if (ImGui.DragInt2("Minimum and maximum GP", ref gp[0], 1, 0, ConfigPreset.MaxGP))
                 {
-                    if (state.ChangingMin)
-                        action.MaxGP = action.MinGP;
-                    else
-                        action.MinGP = action.MaxGP;
+                    state.ChangingMin = action.MinGP != gp[0];
+                    action.MinGP = gp[0];
+                    action.MaxGP = gp[1];
                 }
-                save();
+                if (ImGui.IsItemDeactivatedAfterEdit())
+                {
+                    if (action.MinGP > action.MaxGP)
+                    {
+                        if (state.ChangingMin)
+                            action.MaxGP = action.MinGP;
+                        else
+                            action.MinGP = action.MaxGP;
+                    }
+                    save();
+                }
             }
 
             if (action is ConfigPreset.ActionConfigBoon action3)
