@@ -456,7 +456,7 @@ namespace GatherBuddy.Gui
                 Span<int> chance = [action3.MinBoonChance, action3.MaxBoonChance];
                 if (ImGui.DragInt2("Minimum and maximum boon chance", ref chance[0], 0.2f, 0, 100))
                 {
-                    state.ChangingMin = action3.MinBoonChance != gp[0];
+                    state.ChangingMin = action3.MinBoonChance != chance[0];
                     action3.MinBoonChance = chance[0];
                     action3.MaxBoonChance = chance[1];
                 }
