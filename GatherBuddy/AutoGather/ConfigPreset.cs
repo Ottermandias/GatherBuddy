@@ -191,7 +191,8 @@ namespace GatherBuddy.AutoGather
         }
 
         public bool Match(Gatherable item) =>
-            (
+            Enabled
+            && (
                 !ItemLevel.UseGlv && item.Level >= ItemLevel.Min && item.Level <= ItemLevel.Max
               || ItemLevel.UseGlv && item.GatheringData.GatheringItemLevel.RowId >= ItemLevel.Min && item.GatheringData.GatheringItemLevel.RowId <= ItemLevel.Max
             )

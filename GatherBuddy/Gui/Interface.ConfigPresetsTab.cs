@@ -290,8 +290,10 @@ namespace GatherBuddy.Gui
                 }
                 ImGui.SameLine();
                 if (ImGui.RadioButton("level", !useGlv)) useGlv = false;
+                ImGuiUtil.HoverTooltip("Level as shown in the gathering log and the gathering window.");
                 ImGui.SameLine();
                 if (ImGui.RadioButton("glv", useGlv)) useGlv = true;
+                ImGuiUtil.HoverTooltip("Gathering level (hidden stat). Use it to distinguish between different tiers of legendary nodes.");
                 if (useGlv != preset.ItemLevel.UseGlv)
                 {
                     int min, max;
@@ -509,7 +511,7 @@ namespace GatherBuddy.Gui
             if (action is ConfigPreset.ActionConfigIntegrity action4)
             {
                 var tmp = action4.MinIntegrity;
-                if (ImGui.DragInt("Total node integrity required", ref tmp, 0.1f, 1, ConfigPreset.MaxIntegrity))
+                if (ImGui.DragInt("Minumum initial node integrity", ref tmp, 0.1f, 1, ConfigPreset.MaxIntegrity))
                     action4.MinIntegrity = tmp;
                 if (ImGui.IsItemDeactivatedAfterEdit())
                     save();
