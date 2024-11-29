@@ -290,8 +290,10 @@ namespace GatherBuddy.Gui
                 }
                 ImGui.SameLine();
                 if (ImGui.RadioButton("level", !useGlv)) useGlv = false;
+                ImGuiUtil.HoverTooltip("Level as shown in the gathering log and the gathering window.");
                 ImGui.SameLine();
                 if (ImGui.RadioButton("glv", useGlv)) useGlv = true;
+                ImGuiUtil.HoverTooltip("Gathering level (hidden stat). Use it to distinguish between different tiers of legendary nodes.");
                 if (useGlv != preset.ItemLevel.UseGlv)
                 {
                     int min, max;
