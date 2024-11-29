@@ -509,7 +509,7 @@ namespace GatherBuddy.Gui
             if (action is ConfigPreset.ActionConfigIntegrity action4)
             {
                 var tmp = action4.MinIntegrity;
-                if (ImGui.DragInt("Total node integrity required", ref tmp, 0.1f, 1, ConfigPreset.MaxIntegrity))
+                if (ImGui.DragInt("Minumum initial node integrity", ref tmp, 0.1f, 1, ConfigPreset.MaxIntegrity))
                     action4.MinIntegrity = tmp;
                 if (ImGui.IsItemDeactivatedAfterEdit())
                     save();
