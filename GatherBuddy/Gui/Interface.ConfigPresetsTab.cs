@@ -357,7 +357,7 @@ namespace GatherBuddy.Gui
                     if (preset.ItemType.Crystals || preset.ItemType.Other)
                     {
                         var tmp = preset.GatherableMinGP;
-                        if (ImGui.DragInt("Minimum GP for gathering regilar items or crystals", ref tmp, 1f, 0, ConfigPreset.MaxGP))
+                        if (ImGui.DragInt("Minimum GP for gathering regular items or crystals", ref tmp, 1f, 0, ConfigPreset.MaxGP))
                             preset.GatherableMinGP = tmp;
                         if (ImGui.IsItemDeactivatedAfterEdit())
                             selector.Save();
