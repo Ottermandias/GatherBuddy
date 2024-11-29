@@ -200,18 +200,19 @@ namespace GatherBuddy.AutoGather
             else
                 TaskManager.Enqueue(action);
 
-            if (delay > 0)
+            //Always delay the next action by at least 1 tick (2 or 3 in fact in the current implementation).
+            //There is a possibility that client state update is happening the same tick when CanAct becomes true, and GBR won't see it if executed before it is done.
+            //Since GBR Update() may be called in the same tick after TaskManager gets CanAct == true (depending on call order in the Update event),
+            //we must always add a delay, which adds 2 extra ticks.
+            if (immediate)
             {
-                if (immediate)
-                {
-                    TaskManager.EnqueueImmediate(() => CanAct);
-                    TaskManager.DelayNextImmediate((int)delay);
-                }
-                else
-                {
-                    TaskManager.Enqueue(() => CanAct);
-                    TaskManager.DelayNext((int)delay);
-                }
+                TaskManager.EnqueueImmediate(() => CanAct);
+                TaskManager.DelayNextImmediate((int)delay);
+            }
+            else
+            {
+                TaskManager.Enqueue(() => CanAct);
+                TaskManager.DelayNext((int)delay);
             }
         }
 
