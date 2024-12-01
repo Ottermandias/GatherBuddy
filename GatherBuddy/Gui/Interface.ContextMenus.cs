@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Game.Text.SeStringHandling;
 using GatherBuddy.Alarms;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
-using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
@@ -72,14 +72,14 @@ public partial class Interface
 
     private void DrawAddGatherWindow(Gatherable item)
     {
-        var current = _gatherWindowCache.Selector.EnsureCurrent();
+        var current = _autoGatherListsCache.Selector.EnsureCurrent();
 
         if (ImGui.Selectable("Add to Current Auto-Gather Preset"))
         {
             if (current == null)
                 CreateAndAddPreset(item);
             else
-                _plugin.GatherWindowManager.AddItem(current, item);
+                _plugin.AutoGatherListsManager.AddItem(current, item);
         }
 
         if (ImGui.IsItemHovered())
@@ -215,14 +215,14 @@ public partial class Interface
         if (ImGui.Selectable($"Add to Separate Auto-Gather Preset"))
         {
             // Fetch preset if exists.
-            var preset = _plugin.GatherWindowManager.Presets.FirstOrDefault(p => p.Name == PresetName);
+            var preset = _plugin.AutoGatherListsManager.Lists.FirstOrDefault(p => p.Name == PresetName);
 
             if (preset == null)
                 // Create and add preset if it doesn't exist.
                 CreateAndAddPreset(item);
             else
                 // Add item to existing preset.
-                _plugin.GatherWindowManager.AddItem(preset, item);
+                _plugin.AutoGatherListsManager.AddItem(preset, item);
         }
 
         if (ImGui.IsItemHovered())
@@ -230,16 +230,16 @@ public partial class Interface
                 $"Add {item.Name[GatherBuddy.Language]} to {PresetName}");
     }
 
-    private static GatherWindowPreset CreateAndAddPreset(Gatherable item)
+    private static AutoGatherList CreateAndAddPreset(Gatherable item)
     {
-        var preset = new GatherWindowPreset
+        var preset = new AutoGatherList
         {
             Enabled     = true,
             Description = AutomaticallyGenerated,
             Name        = PresetName
         };
         preset.Add(item);
-        _plugin.GatherWindowManager.AddPreset(preset);
+        _plugin.AutoGatherListsManager.AddList(preset);
 
         return preset;
     }

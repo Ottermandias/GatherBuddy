@@ -115,7 +115,7 @@ namespace GatherBuddy.AutoGather
         public void UpdateItemsToGather()
         {
             ItemsToGather.Clear();
-            var activeItems = OrderActiveItems(_plugin.GatherWindowManager.ActiveItems.OfType<Gatherable>().Select(GetBestLocation));
+            var activeItems = OrderActiveItems(_plugin.AutoGatherListsManager.ActiveItems.OfType<Gatherable>().Select(GetBestLocation));
             var RegularItemsToGather = new List<GatherInfo>();
             foreach (var (item, location, time) in activeItems)
             {
@@ -143,7 +143,7 @@ namespace GatherBuddy.AutoGather
         {
             (ILocation? Location, TimeInterval Time) res = default;
             //First priority: selected preferred location.
-            var node = _plugin.GatherWindowManager.GetPreferredLocation(item);
+            var node = _plugin.AutoGatherListsManager.GetPreferredLocation(item);
             var time = AdjuctedServerTime;
             if (node != null && !VisitedTimedLocations.ContainsKey(node))
             {
@@ -232,10 +232,10 @@ namespace GatherBuddy.AutoGather
         }
 
         private int InventoryCount(IGatherable gatherable)
-            => _plugin.GatherWindowManager.GetInventoryCountForItem(gatherable);
+            => _plugin.AutoGatherListsManager.GetInventoryCountForItem(gatherable);
 
         private uint QuantityTotal(IGatherable gatherable)
-            => _plugin.GatherWindowManager.GetTotalQuantitiesForItem(gatherable);
+            => _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(gatherable);
 
         private int GetNodeTypeAsPriority(Gatherable item)
         {

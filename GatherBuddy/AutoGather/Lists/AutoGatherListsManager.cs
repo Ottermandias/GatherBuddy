@@ -11,13 +11,13 @@ using Newtonsoft.Json;
 using OtterGui;
 using Functions = GatherBuddy.Plugin.Functions;
 
-namespace GatherBuddy.GatherHelper;
+namespace GatherBuddy.AutoGather.Lists;
 
-public partial class GatherWindowManager : IDisposable
+public partial class AutoGatherListsManager : IDisposable
 {
     public const string FileName = "gather_window.json";
 
-    public List<GatherWindowPreset> Presets = new();
+    public List<AutoGatherList> Lists = new();
 
     public List<IGatherable> ActiveItems = new();
     public List<IGatherable> SortedItems = new();
@@ -26,7 +26,7 @@ public partial class GatherWindowManager : IDisposable
     private readonly AlarmManager _alarms;
     private          bool         _sortDirty = true;
 
-    public GatherWindowManager(AlarmManager alarms)
+    public AutoGatherListsManager(AlarmManager alarms)
     {
         _alarms                                =  alarms;
         GatherBuddy.UptimeManager.UptimeChange += OnUptimeChange;
@@ -54,7 +54,7 @@ public partial class GatherWindowManager : IDisposable
     public void SetActiveItems()
     {
         ActiveItems.Clear();
-        foreach (var item in Presets.Where(p => p.Enabled && !p.Fallback)
+        foreach (var item in Lists.Where(p => p.Enabled && !p.Fallback)
                      .SelectMany(p => p.Items)
                      .Where(i => !ActiveItems.Contains(i)))
             ActiveItems.Add(item);
@@ -66,7 +66,7 @@ public partial class GatherWindowManager : IDisposable
         SortedItems.InsertRange(0, ActiveItems);
         _sortDirty = true;
 
-        var fallback = Presets
+        var fallback = Lists
             .Where(p => p.Enabled && p.Fallback)
             .SelectMany(p => p.Items.Select(i => (Item: i, Quantity: p.Quantities[i])))
             .GroupBy(i => i.Item)
@@ -93,9 +93,9 @@ public partial class GatherWindowManager : IDisposable
             return 0;
 
         uint total = 0;
-        foreach (var preset in Presets)
+        foreach (var list in Lists)
         {
-            if (preset.Enabled && !preset.Fallback && preset.Quantities.TryGetValue(gatherable, out var quantity))
+            if (list.Enabled && !list.Fallback && list.Quantities.TryGetValue(gatherable, out var quantity))
             {
                 total += quantity;
             }
@@ -158,7 +158,7 @@ public partial class GatherWindowManager : IDisposable
 
         try
         {
-            var text = JsonConvert.SerializeObject(Presets.Select(p => new GatherWindowPreset.Config(p)), Formatting.Indented);
+            var text = JsonConvert.SerializeObject(Lists.Select(p => new AutoGatherList.Config(p)), Formatting.Indented);
             File.WriteAllText(file.FullName, text);
         }
         catch (Exception e)
@@ -167,9 +167,9 @@ public partial class GatherWindowManager : IDisposable
         }
     }
 
-    public static GatherWindowManager Load(AlarmManager alarms)
+    public static AutoGatherListsManager Load(AlarmManager alarms)
     {
-        var ret  = new GatherWindowManager(alarms);
+        var ret  = new AutoGatherListsManager(alarms);
         var file = Functions.ObtainSaveFile(FileName);
         if (file is not { Exists: true })
         {
@@ -180,13 +180,13 @@ public partial class GatherWindowManager : IDisposable
         try
         {
             var text = File.ReadAllText(file.FullName);
-            var data = JsonConvert.DeserializeObject<GatherWindowPreset.Config[]>(text)!;
-            ret.Presets.Capacity = data.Length;
+            var data = JsonConvert.DeserializeObject<AutoGatherList.Config[]>(text)!;
+            ret.Lists.Capacity = data.Length;
             var change = false;
             foreach (var cfg in data)
             {
-                change |= GatherWindowPreset.FromConfig(cfg, out var preset);
-                ret.Presets.Add(preset);
+                change |= AutoGatherList.FromConfig(cfg, out var list);
+                ret.Lists.Add(list);
             }
 
             if (change)
@@ -194,8 +194,8 @@ public partial class GatherWindowManager : IDisposable
         }
         catch (Exception e)
         {
-            GatherBuddy.Log.Error($"Error deserializing gather window data:\n{e}");
-            Communicator.PrintError($"[GatherBuddy Reborn] Gather Window Presets failed to load. Gathering Lists have been reset.");
+            GatherBuddy.Log.Error($"Error deserializing auto gather lists:\n{e}");
+            Communicator.PrintError($"[GatherBuddy Reborn] Auto gather lists failed to load and have been reset.");
             ret.Save();
         }
 

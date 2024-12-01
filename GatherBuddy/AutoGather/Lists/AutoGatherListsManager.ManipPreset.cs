@@ -1,128 +1,129 @@
 ﻿using System.Collections.Generic;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 
-namespace GatherBuddy.GatherHelper;
+namespace GatherBuddy.AutoGather.Lists;
 
-public partial class GatherWindowManager
+public partial class AutoGatherListsManager
 {
-    public void AddPreset(GatherWindowPreset preset)
+    public void AddList(AutoGatherList list)
     {
-        Presets.Add(preset);
+        Lists.Add(list);
         Save();
-        if (preset.HasItems())
+        if (list.HasItems())
             SetActiveItems();
     }
 
-    public void DeletePreset(int idx)
+    public void DeleteList(int idx)
     {
-        if (idx < 0 || idx >= Presets.Count)
+        if (idx < 0 || idx >= Lists.Count)
             return;
 
-        var enabled = Presets[idx].HasItems();
-        Presets.RemoveAt(idx);
+        var enabled = Lists[idx].HasItems();
+        Lists.RemoveAt(idx);
         Save();
         if (enabled)
             SetActiveItems();
     }
 
-    public void MovePreset(int idx1, int idx2)
+    public void MoveList(int idx1, int idx2)
     {
-        if (Functions.Move(Presets, idx1, idx2))
+        if (Functions.Move(Lists, idx1, idx2))
             Save();
     }
 
-    public void ChangeName(GatherWindowPreset preset, string newName)
+    public void ChangeName(AutoGatherList list, string newName)
     {
-        if (newName == preset.Name)
+        if (newName == list.Name)
             return;
 
-        preset.Name = newName;
+        list.Name = newName;
         Save();
     }
 
-    public void ChangeDescription(GatherWindowPreset preset, string newDescription)
+    public void ChangeDescription(AutoGatherList list, string newDescription)
     {
-        if (newDescription == preset.Description)
+        if (newDescription == list.Description)
             return;
 
-        preset.Description = newDescription;
+        list.Description = newDescription;
         Save();
     }
 
-    public void TogglePreset(GatherWindowPreset preset)
+    public void ToggleList(AutoGatherList list)
     {
-        preset.Enabled = !preset.Enabled;
+        list.Enabled = !list.Enabled;
         Save();
-        if (preset.Items.Count > 0)
+        if (list.Items.Count > 0)
             SetActiveItems();
     }
-    public void SetFallback(GatherWindowPreset preset, bool value)
+    public void SetFallback(AutoGatherList list, bool value)
     {
-        preset.Fallback = value;
+        list.Fallback = value;
         Save();
-        if (preset.Items.Count > 0)
+        if (list.Items.Count > 0)
             SetActiveItems();
     }
 
-    public void AddItem(GatherWindowPreset preset, Gatherable item)
+    public void AddItem(AutoGatherList list, Gatherable item)
     {
-        if (preset.Add(item))
+        if (list.Add(item))
         {
             Save();
-            if (preset.Enabled)
+            if (list.Enabled)
                 SetActiveItems();
         }
     }
 
-    public void RemoveItem(GatherWindowPreset preset, int idx)
+    public void RemoveItem(AutoGatherList list, int idx)
     {
-        if (idx < 0 || idx >= preset.Items.Count)
+        if (idx < 0 || idx >= list.Items.Count)
             return;
         
-        preset.RemoveAt(idx);
+        list.RemoveAt(idx);
         Save();
-        if (preset.Enabled)
+        if (list.Enabled)
             SetActiveItems();
     }
 
-    public void ChangeItem(GatherWindowPreset preset, Gatherable item, int idx)
+    public void ChangeItem(AutoGatherList list, Gatherable item, int idx)
     {
-        if (idx < 0 || idx >= preset.Items.Count)
+        if (idx < 0 || idx >= list.Items.Count)
             return;
 
-        if (preset.Replace(idx, item))
+        if (list.Replace(idx, item))
         {
             Save();
-            if (preset.Enabled)
+            if (list.Enabled)
                 SetActiveItems();
         }
     }
 
-    public void ChangeQuantity(GatherWindowPreset preset, Gatherable item, uint quantity)
+    public void ChangeQuantity(AutoGatherList list, Gatherable item, uint quantity)
     {
-        if (preset.SetQuantity(item, quantity))
+        if (list.SetQuantity(item, quantity))
         {
             Save();
-            if (preset.Enabled)
+            if (list.Enabled)
                 SetActiveItems();
         }
     }
 
-    public void MoveItem(GatherWindowPreset preset, int idx1, int idx2)
+    public void MoveItem(AutoGatherList list, int idx1, int idx2)
     {
-        if (preset.Move(idx1, idx2))
+        if (list.Move(idx1, idx2))
         {
             Save();
-            if (preset.Enabled)
+            if (list.Enabled)
                 SetActiveItems();
         }
     }
 
-    public void ChangePreferredLocation(GatherWindowPreset preset, Gatherable item, GatheringNode? location)
+    public void ChangePreferredLocation(AutoGatherList list, Gatherable item, GatheringNode? location)
     {
-        if (preset.SetPrefferedLocation(item, location))
+        if (list.SetPrefferedLocation(item, location))
         {
             Save();
         }
@@ -130,9 +131,9 @@ public partial class GatherWindowManager
 
     public GatheringNode? GetPreferredLocation(Gatherable item)
     {
-        foreach (var preset in Presets)
+        foreach (var list in Lists)
         {
-            if (preset.Enabled && !preset.Fallback && preset.PreferredLocations.TryGetValue(item, out var loc))
+            if (list.Enabled && !list.Fallback && list.PreferredLocations.TryGetValue(item, out var loc))
             {
                 return loc;
             }

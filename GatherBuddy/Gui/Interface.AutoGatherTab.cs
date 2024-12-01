@@ -8,10 +8,10 @@ using System.Text.RegularExpressions;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using GatherBuddy.Alarms;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.CustomInfo;
-using GatherBuddy.GatherHelper;
 using GatherBuddy.Plugin;
 using ImGuiNET;
 using OtterGui;
@@ -22,26 +22,26 @@ namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
-    private class GatherWindowDragDropData
+    private class AutoGatherListsDragDropData
     {
-        public GatherWindowPreset Preset;
+        public AutoGatherList     list;
         public Gatherable         Item;
         public int                ItemIdx;
 
-        public GatherWindowDragDropData(GatherWindowPreset preset, Gatherable item, int idx)
+        public AutoGatherListsDragDropData(AutoGatherList list, Gatherable item, int idx)
         {
-            Preset  = preset;
+            this.list  = list;
             Item    = item;
             ItemIdx = idx;
         }
     }
 
-    private class GatherWindowCache : IDisposable
+    private class AutoGatherListsCache : IDisposable
     {
-        public class GatherWindowSelector : ItemSelector<GatherWindowPreset>
+        public class AutoGatherListSelector : ItemSelector<AutoGatherList>
         {
-            public GatherWindowSelector()
-                : base(_plugin.GatherWindowManager.Presets, Flags.All)
+            public AutoGatherListSelector()
+                : base(_plugin.AutoGatherListsManager.Lists, Flags.All)
             { }
 
             protected override bool Filtered(int idx)
@@ -56,13 +56,13 @@ public partial class Interface
 
             protected override bool OnDelete(int idx)
             {
-                _plugin.GatherWindowManager.DeletePreset(idx);
+                _plugin.AutoGatherListsManager.DeleteList(idx);
                 return true;
             }
 
             protected override bool OnAdd(string name)
             {
-                _plugin.GatherWindowManager.AddPreset(new GatherWindowPreset()
+                _plugin.AutoGatherListsManager.AddList(new AutoGatherList()
                 {
                     Name = name,
                 });
@@ -71,12 +71,12 @@ public partial class Interface
 
             protected override bool OnClipboardImport(string name, string data)
             {
-                if (!GatherWindowPreset.Config.FromBase64(data, out var cfg))
+                if (!AutoGatherList.Config.FromBase64(data, out var cfg))
                     return false;
 
-                GatherWindowPreset.FromConfig(cfg, out var preset);
-                preset.Name = name;
-                _plugin.GatherWindowManager.AddPreset(preset);
+                AutoGatherList.FromConfig(cfg, out var list);
+                list.Name = name;
+                _plugin.AutoGatherListsManager.AddList(list);
                 return true;
             }
 
@@ -85,9 +85,9 @@ public partial class Interface
                 if (Items.Count <= idx || idx < 0)
                     return false;
 
-                var preset = _plugin.GatherWindowManager.Presets[idx].Clone();
-                preset.Name = name;
-                _plugin.GatherWindowManager.AddPreset(preset);
+                var list = _plugin.AutoGatherListsManager.Lists[idx].Clone();
+                list.Name = name;
+                _plugin.AutoGatherListsManager.AddList(list);
                 return true;
             }
 
@@ -95,29 +95,29 @@ public partial class Interface
             {
                 if (Items.Count <= idx || idx < 0)
                     return;
-                if (data is not GatherWindowDragDropData obj)
+                if (data is not AutoGatherListsDragDropData obj)
                     return;
 
-                var preset = _plugin.GatherWindowManager.Presets[idx];
-                _plugin.GatherWindowManager.RemoveItem(obj.Preset, obj.ItemIdx);
-                _plugin.GatherWindowManager.AddItem(preset, obj.Item);
+                var list = _plugin.AutoGatherListsManager.Lists[idx];
+                _plugin.AutoGatherListsManager.RemoveItem(obj.list, obj.ItemIdx);
+                _plugin.AutoGatherListsManager.AddItem(list, obj.Item);
             }
 
 
             protected override bool OnMove(int idx1, int idx2)
             {
-                _plugin.GatherWindowManager.MovePreset(idx1, idx2);
+                _plugin.AutoGatherListsManager.MoveList(idx1, idx2);
                 return true;
             }
         }
 
-        public GatherWindowCache()
+        public AutoGatherListsCache()
         {
             UpdateGatherables();
             WorldData.WorldLocationsChanged += UpdateGatherables;
         }
 
-        public readonly GatherWindowSelector Selector = new();
+        public readonly AutoGatherListSelector Selector = new();
 
         public ReadOnlyCollection<Gatherable> AllGatherables { get; private set; }
         public ReadOnlyCollection<Gatherable> FilteredGatherables { get; private set; }
@@ -174,35 +174,35 @@ public partial class Interface
         public bool EditDesc;
     }
 
-    private readonly GatherWindowCache _gatherWindowCache;
-    public GatherWindowPreset? CurrentGatherWindowPreset => _gatherWindowCache.Selector.EnsureCurrent();
+    private readonly AutoGatherListsCache _autoGatherListsCache;
+    public AutoGatherList? CurrentAutoGatherList => _autoGatherListsCache.Selector.EnsureCurrent();
 
-    private void DrawGatherWindowPresetHeaderLine()
+    private void DrawAutoGatherListsLine()
     {
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), IconButtonSize, "Copy current gather window preset to clipboard.",
-                _gatherWindowCache.Selector.Current == null, true))
+        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), IconButtonSize, "Copy current auto-gather list to clipboard.",
+                _autoGatherListsCache.Selector.Current == null, true))
         {
-            var preset = _gatherWindowCache.Selector.Current!;
+            var list = _autoGatherListsCache.Selector.Current!;
             try
             {
-                var s = new GatherWindowPreset.Config(preset).ToBase64();
+                var s = new AutoGatherList.Config(list).ToBase64();
                 ImGui.SetClipboardText(s);
-                Communicator.PrintClipboardMessage("Gather window preset ", preset.Name);
+                Communicator.PrintClipboardMessage("Auto-gather list ", list.Name);
             }
             catch (Exception e)
             {
-                Communicator.PrintClipboardMessage("Gather window preset ", preset.Name, e);
+                Communicator.PrintClipboardMessage("Auto-gather list ", list.Name, e);
             }
         }
 
-        if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this gather window preset.", _gatherWindowCache.Selector.Current == null))
+        if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this auto-gather list.", _autoGatherListsCache.Selector.Current == null))
         {
-            var preset = new AlarmGroup(_gatherWindowCache.Selector.Current!);
-            _plugin.AlarmManager.AddGroup(preset);
+            var list = new AlarmGroup(_autoGatherListsCache.Selector.Current!);
+            _plugin.AlarmManager.AddGroup(list);
         }
 
         if (ImGuiUtil.DrawDisabledButton("Import from TeamCraft", Vector2.Zero, "Populate list from clipboard contents (TeamCraft format)",
-                _gatherWindowCache.Selector.Current == null))
+                _autoGatherListsCache.Selector.Current == null))
         {
             var clipboardText = ImGuiUtil.GetClipboardText();
             if (!string.IsNullOrEmpty(clipboardText))
@@ -223,7 +223,7 @@ public partial class Interface
                         items[itemName] = quantity;
                     }
                     
-                    var preset = _gatherWindowCache.Selector.Current!;
+                    var list = _autoGatherListsCache.Selector.Current!;
 
                     foreach (var (itemName, quantity) in items)
                     {
@@ -232,46 +232,46 @@ public partial class Interface
                         if (gatherable == null || gatherable.NodeList.Count == 0)
                             continue;
 
-                        preset.Add(gatherable, (uint)quantity);
+                        list.Add(gatherable, (uint)quantity);
                     }
                     
-                    if (preset.Enabled)
-                        _plugin.GatherWindowManager.SetActiveItems();
+                    if (list.Enabled)
+                        _plugin.AutoGatherListsManager.SetActiveItems();
                 }
                 catch (Exception e)
                 {
-                    Communicator.PrintClipboardMessage("Error importing gather window preset", e.ToString());
+                    Communicator.PrintClipboardMessage("Error importing auto-gather list", e.ToString());
                 }
             }
         }
 
         ImGuiComponents.HelpMarker(
-            "If the config option to sort by location is not selected, items are gathered in order of enabled preset, then order of item in preset.\n"
-          + "You can drag and draw presets in the list to move them.\n"
-          + "You can drag and draw items in a specific preset to move them.\n"
-          + "You can drag and draw an item onto a different preset from the selector to add it to that preset and remove it from the current.\n"
-          + "In the Gather Window, you can hold Control and Right-Click an item to delete it from the preset it comes from.");
+            "If the config option to sort by location is not selected, items are gathered in order of enabled list, then order of item in list.\n"
+          + "You can drag and draw lists to move them.\n"
+          + "You can drag and draw items in a specific list to move them.\n"
+          + "You can drag and draw an item onto a different list from the selector to add it to that list and remove it from the current.");
+          //+ "In the Gather Window, you can hold Control and Right-Click an item to delete it from the preset it comes from.");
     }
 
-    private void DrawGatherWindowPreset(GatherWindowPreset preset)
+    private void DrawAutoGatherList(AutoGatherList list)
     {
-        if (ImGuiUtil.DrawEditButtonText(0, _gatherWindowCache.EditName ? preset.Name : CheckUnnamed(preset.Name), out var newName,
-                ref _gatherWindowCache.EditName, IconButtonSize, SetInputWidth, 64))
-            _plugin.GatherWindowManager.ChangeName(preset, newName);
-        if (ImGuiUtil.DrawEditButtonText(1, _gatherWindowCache.EditDesc ? preset.Description : CheckUndescribed(preset.Description),
-                out var newDesc, ref _gatherWindowCache.EditDesc, IconButtonSize, 2 * SetInputWidth, 128))
-            _plugin.GatherWindowManager.ChangeDescription(preset, newDesc);
+        if (ImGuiUtil.DrawEditButtonText(0, _autoGatherListsCache.EditName ? list.Name : CheckUnnamed(list.Name), out var newName,
+                ref _autoGatherListsCache.EditName, IconButtonSize, SetInputWidth, 64))
+            _plugin.AutoGatherListsManager.ChangeName(list, newName);
+        if (ImGuiUtil.DrawEditButtonText(1, _autoGatherListsCache.EditDesc ? list.Description : CheckUndescribed(list.Description),
+                out var newDesc, ref _autoGatherListsCache.EditDesc, IconButtonSize, 2 * SetInputWidth, 128))
+            _plugin.AutoGatherListsManager.ChangeDescription(list, newDesc);
 
-        var tmp = preset.Enabled;
-        if (ImGui.Checkbox("Enabled##preset", ref tmp) && tmp != preset.Enabled)
-            _plugin.GatherWindowManager.TogglePreset(preset);
+        var tmp = list.Enabled;
+        if (ImGui.Checkbox("Enabled##list", ref tmp) && tmp != list.Enabled)
+            _plugin.AutoGatherListsManager.ToggleList(list);
 
         ImGui.SameLine();
-        ImGuiUtil.Checkbox("Fallback##preset",
-            "Items from fallback presets won't be auto-gathered.\n"
-          + "But if a node doesn't contain any items from regular presets or if you gathered enough of them,\n"
-          + "items from fallback presets would be gathered instead if they could be found in that node.", 
-            preset.Fallback, (v) => _plugin.GatherWindowManager.SetFallback(preset, v));
+        ImGuiUtil.Checkbox("Fallback##list",
+            "Items from fallback lists won't be auto-gathered.\n"
+          + "But if a node doesn't contain any items from regular lists or if you gathered enough of them,\n"
+          + "items from fallback lists would be gathered instead if they could be found in that node.", 
+            list.Fallback, (v) => _plugin.AutoGatherListsManager.SetFallback(list, v));
 
         ImGui.NewLine();
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() - ImGui.GetStyle().ItemInnerSpacing.X);
@@ -279,17 +279,17 @@ public partial class Interface
         if (!box)
             return;
 
-        _gatherWindowCache.SetExcludedGatherbales(preset.Items.OfType<Gatherable>());
-        var gatherables = _gatherWindowCache.FilteredGatherables;
-        var selector = _gatherWindowCache.GatherableSelector;
+        _autoGatherListsCache.SetExcludedGatherbales(list.Items.OfType<Gatherable>());
+        var gatherables = _autoGatherListsCache.FilteredGatherables;
+        var selector = _autoGatherListsCache.GatherableSelector;
         int changeIndex = -1, changeItemIndex = -1, deleteIndex = -1;
 
-        for (var i = 0; i < preset.Items.Count; ++i)
+        for (var i = 0; i < list.Items.Count; ++i)
         {
-            var       item  = preset.Items[i];
+            var       item  = list.Items[i];
             using var id    = ImRaii.PushId((int)item.ItemId);
             using var group = ImRaii.Group();
-            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the preset", false, true))
+            if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the list", false, true))
                 deleteIndex = i;
 
             ImGui.SameLine();
@@ -300,46 +300,46 @@ public partial class Interface
             }
             ImGui.SameLine();
             ImGui.Text("Inventory: ");
-            var invTotal = _plugin.GatherWindowManager.GetInventoryCountForItem(item);
+            var invTotal = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
             ImGui.SameLine(0f, ImGui.CalcTextSize($"0000 / ").X - ImGui.CalcTextSize($"{invTotal} / ").X);
             ImGui.Text($"{invTotal} / ");
             ImGui.SameLine(0, 3f);
-            var quantity = preset.Quantities.TryGetValue(item, out var q) ? (int)q : 1;
+            var quantity = list.Quantities.TryGetValue(item, out var q) ? (int)q : 1;
             ImGui.SetNextItemWidth(100f);
             if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
-                _plugin.GatherWindowManager.ChangeQuantity(preset, item, (uint)quantity);
+                _plugin.AutoGatherListsManager.ChangeQuantity(list, item, (uint)quantity);
             ImGui.SameLine();
-            if (DrawLocationInput(item, preset.PreferredLocations.GetValueOrDefault(item), out var newLoc))
-                _plugin.GatherWindowManager.ChangePreferredLocation(preset, item, newLoc as GatheringNode);
+            if (DrawLocationInput(item, list.PreferredLocations.GetValueOrDefault(item), out var newLoc))
+                _plugin.AutoGatherListsManager.ChangePreferredLocation(list, item, newLoc as GatheringNode);
             group.Dispose();
 
-            _gatherWindowCache.Selector.CreateDropSource(new GatherWindowDragDropData(preset, item, i), item.Name[GatherBuddy.Language]);
+            _autoGatherListsCache.Selector.CreateDropSource(new AutoGatherListsDragDropData(list, item, i), item.Name[GatherBuddy.Language]);
 
             var localIdx = i;
-            _gatherWindowCache.Selector.CreateDropTarget<GatherWindowDragDropData>(d
-                => _plugin.GatherWindowManager.MoveItem(d.Preset, d.ItemIdx, localIdx));
+            _autoGatherListsCache.Selector.CreateDropTarget<AutoGatherListsDragDropData>(d
+                => _plugin.AutoGatherListsManager.MoveItem(d.list, d.ItemIdx, localIdx));
         }
 
         if (deleteIndex >= 0)
-            _plugin.GatherWindowManager.RemoveItem(preset, deleteIndex);
+            _plugin.AutoGatherListsManager.RemoveItem(list, deleteIndex);
 
         if (changeIndex >= 0)
-            _plugin.GatherWindowManager.ChangeItem(preset, gatherables[changeItemIndex], changeIndex);
+            _plugin.AutoGatherListsManager.ChangeItem(list, gatherables[changeItemIndex], changeIndex);
 
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize, "Add this item at the end of the preset", false, true))
-            _plugin.GatherWindowManager.AddItem(preset, gatherables[_gatherWindowCache.NewGatherableIdx]);
+        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize, "Add this item at the end of the list", false, true))
+            _plugin.AutoGatherListsManager.AddItem(list, gatherables[_autoGatherListsCache.NewGatherableIdx]);
 
         ImGui.SameLine();
-        if (selector.Draw(_gatherWindowCache.NewGatherableIdx, out var idx))
+        if (selector.Draw(_autoGatherListsCache.NewGatherableIdx, out var idx))
         {
-            _gatherWindowCache.NewGatherableIdx = idx;
-            _plugin.GatherWindowManager.AddItem(preset, gatherables[_gatherWindowCache.NewGatherableIdx]);
+            _autoGatherListsCache.NewGatherableIdx = idx;
+            _plugin.AutoGatherListsManager.AddItem(list, gatherables[_autoGatherListsCache.NewGatherableIdx]);
         }
     }
 
-    private void DrawGatherWindowTab()
+    private void DrawAutoGatherTab()
     {
-        using var id  = ImRaii.PushId("GatherWindow");
+        using var id  = ImRaii.PushId("AutoGatherLists");
         using var tab = ImRaii.TabItem("Auto-Gather");
 
         ImGuiUtil.HoverTooltip(
@@ -350,13 +350,13 @@ public partial class Interface
 
         AutoGather.AutoGatherUI.DrawAutoGatherStatus();
 
-        _gatherWindowCache.Selector.Draw(SelectorWidth);
+        _autoGatherListsCache.Selector.Draw(SelectorWidth);
         ImGui.SameLine();
 
-        ItemDetailsWindow.Draw("Preset Details", DrawGatherWindowPresetHeaderLine, () =>
+        ItemDetailsWindow.Draw("List Details", DrawAutoGatherListsLine, () =>
         {
-            if (_gatherWindowCache.Selector.Current != null)
-                DrawGatherWindowPreset(_gatherWindowCache.Selector.Current);
+            if (_autoGatherListsCache.Selector.Current != null)
+                DrawAutoGatherList(_autoGatherListsCache.Selector.Current);
         });
     }
 }

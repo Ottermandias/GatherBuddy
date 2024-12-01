@@ -551,7 +551,7 @@ public partial class Interface
                 GatherBuddy.Config.ShowGatherWindowAlarms, b =>
                 {
                     GatherBuddy.Config.ShowGatherWindowAlarms = b;
-                    _plugin.GatherWindowManager.SetShowGatherWindowAlarms(b);
+                    _plugin.AutoGatherListsManager.SetShowGatherWindowAlarms(b);
                 });
 
         public static void DrawSortGatherWindowBox()

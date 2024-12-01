@@ -18,6 +18,7 @@ using GatherBuddy.Data;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
 using GatherBuddy.GatherHelper;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Gui;
 using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
@@ -72,7 +73,7 @@ public partial class GatherBuddy : IDalamudPlugin
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
     internal readonly LocationManager                LocationManager;
     internal readonly AlarmManager                   AlarmManager;
-    internal readonly GatherWindowManager            GatherWindowManager;
+    internal readonly AutoGatherListsManager         AutoGatherListsManager;
     internal readonly WindowSystem                   WindowSystem;
     internal readonly Interface                      Interface;
     internal readonly Executor                       Executor;
@@ -110,7 +111,7 @@ public partial class GatherBuddy : IDalamudPlugin
             GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
             LocationManager     = LocationManager.Load();
             AlarmManager        = AlarmManager.Load();
-            GatherWindowManager = GatherWindowManager.Load(AlarmManager);
+            AutoGatherListsManager = AutoGatherListsManager.Load(AlarmManager);
             AutoGather = new AutoGather.AutoGather(this);
             AlarmManager.ForceEnable();
 

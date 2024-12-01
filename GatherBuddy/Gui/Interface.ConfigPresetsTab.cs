@@ -215,7 +215,7 @@ namespace GatherBuddy.Gui
 
                         var crystals = CrystalTypes
                             .Select(x => ("", x.name, GatherBuddy.GameData.Gatherables[x.id]));
-                        var items = _plugin.GatherWindowManager.Presets
+                        var items = _plugin.AutoGatherListsManager.Lists
                             .Where(x => x.Enabled && !x.Fallback)
                             .SelectMany(x => x.Items.Select(i => (x.Name, i.Name[GatherBuddy.Language], i)));
 

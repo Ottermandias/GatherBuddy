@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.GatherGroup;
-using GatherBuddy.GatherHelper;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
 
@@ -51,7 +51,7 @@ public class AlarmGroup
         }
     }
 
-    public AlarmGroup(GatherWindowPreset preset)
+    public AlarmGroup(AutoGatherList preset)
     {
         Name        = preset.Name;
         Description = preset.Description;

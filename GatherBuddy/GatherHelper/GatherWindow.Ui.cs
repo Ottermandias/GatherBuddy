@@ -126,8 +126,8 @@ public class GatherWindow : Window
             var colorId = time == TimeInterval.Always    ? ColorId.GatherWindowText :
                 time.Start > GatherBuddy.Time.ServerTime ? ColorId.GatherWindowUpcoming : ColorId.GatherWindowAvailable;
 
-            var inventoryCount                      = _plugin.GatherWindowManager.GetInventoryCountForItem(item);
-            var quantity                            = _plugin.GatherWindowManager.GetTotalQuantitiesForItem(item);
+            var inventoryCount                      = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
+            var quantity                            = _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(item);
             if (inventoryCount >= quantity)
                 colorId = ColorId.DisabledText;
             using var color                         = ImRaii.PushColor(ImGuiCol.Text, colorId.Value());
@@ -146,9 +146,9 @@ public class GatherWindow : Window
             CreateTooltip(item, loc, time);
 
             if (clicked && Functions.CheckModifier(GatherBuddy.Config.GatherWindowDeleteModifier, false))
-                for (var i = 0; i < _plugin.GatherWindowManager.Presets.Count; ++i)
+                for (var i = 0; i < _plugin.AutoGatherListsManager.Lists.Count; ++i)
                 {
-                    var preset = _plugin.GatherWindowManager.Presets[i];
+                    var preset = _plugin.AutoGatherListsManager.Lists[i];
                     if (!preset.Enabled)
                         continue;
 
@@ -172,8 +172,8 @@ public class GatherWindow : Window
         if (_deleteSet < 0 || _deleteItemIdx < 0)
             return;
 
-        var preset = _plugin.GatherWindowManager.Presets[_deleteSet];
-        _plugin.GatherWindowManager.RemoveItem(preset, _deleteItemIdx);
+        var preset = _plugin.AutoGatherListsManager.Lists[_deleteSet];
+        _plugin.AutoGatherListsManager.RemoveItem(preset, _deleteItemIdx);
         _deleteSet     = -1;
         _deleteItemIdx = -1;
     }
@@ -202,10 +202,10 @@ public class GatherWindow : Window
     private bool CheckAvailable()
     {
         _data.Clear();
-        if (_plugin.GatherWindowManager.ActiveItems.Count == 0)
+        if (_plugin.AutoGatherListsManager.ActiveItems.Count == 0)
             return true;
 
-        _data.AddRange(_plugin.GatherWindowManager.GetList().Select(i =>
+        _data.AddRange(_plugin.AutoGatherListsManager.GetList().Select(i =>
         {
             var (loc, time) = GatherBuddy.UptimeManager.BestLocation(i);
             return (i, loc, time);
