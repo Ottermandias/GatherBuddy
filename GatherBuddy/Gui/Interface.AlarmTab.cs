@@ -6,7 +6,7 @@ using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
-using GatherBuddy.AutoGather.Lists;
+using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
@@ -338,8 +338,8 @@ public partial class Interface
         if (ImGuiUtil.DrawDisabledButton("Create Preset", Vector2.Zero, "Create a new Gather Window Preset from this alarm group.",
                 _alarmCache.Selector.Current == null))
         {
-            var preset = new AutoGatherList(_alarmCache.Selector.Current!);
-            _plugin.AutoGatherListsManager.AddList(preset);
+            var preset = new GatherWindowPreset(_alarmCache.Selector.Current!);
+            _plugin.GatherWindowManager.AddPreset(preset);
         }
 
         ImGui.SameLine();

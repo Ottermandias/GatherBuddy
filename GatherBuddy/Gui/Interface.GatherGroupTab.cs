@@ -13,6 +13,7 @@ using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.GatherGroup;
+using GatherBuddy.GatherHelper;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Plugin;
 using OtterGui.Widgets;
@@ -392,11 +393,18 @@ public partial class Interface
             }
         }
 
-        if (ImGuiUtil.DrawDisabledButton("Create Window Preset", Vector2.Zero, "Create a new Gather Window Preset from this gather group.",
+        if (ImGuiUtil.DrawDisabledButton("Create Auto-Gather List", Vector2.Zero, "Create a new Auto-Gather List from this gather group.",
                 _gatherGroupCache.Selector.Current == null))
         {
             var preset = new AutoGatherList(_gatherGroupCache.Selector.Current!);
             _plugin.AutoGatherListsManager.AddList(preset);
+        }
+
+        if (ImGuiUtil.DrawDisabledButton("Create Window Preset", Vector2.Zero, "Create a new Gather Window Preset from this gather group.",
+                _gatherGroupCache.Selector.Current == null))
+        {
+            var preset = new GatherWindowPreset(_gatherGroupCache.Selector.Current!);
+            _plugin.GatherWindowManager.AddPreset(preset);
         }
 
         if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this gather group.",

@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
@@ -23,12 +24,13 @@ public class GatherWindow : Window
 
     private int       _deleteSet              = -1;
     private int       _deleteItemIdx          = -1;
+    private bool      _deleteAutoGather;
     private TimeStamp _earliestKeyboardToggle = TimeStamp.Epoch;
     private Vector2   _lastSize               = Vector2.Zero;
     private Vector2   _newPosition            = Vector2.Zero;
 
     public GatherWindow(GatherBuddy plugin)
-        : base("##GatherHelper",
+        : base("##GatherHelperReborn",
             ImGuiWindowFlags.AlwaysAutoResize
           | ImGuiWindowFlags.NoTitleBar
           | ImGuiWindowFlags.NoFocusOnAppearing
@@ -38,7 +40,7 @@ public class GatherWindow : Window
         _plugin            = plugin;
         IsOpen             = GatherBuddy.Config.ShowGatherWindow;
         RespectCloseHotkey = false;
-        Namespace          = "GatherHelper";
+        Namespace          = "GatherHelperReborn";
         SizeConstraints = new WindowSizeConstraints
         {
             MinimumSize = Vector2.Zero,
@@ -128,10 +130,11 @@ public class GatherWindow : Window
 
             var inventoryCount                      = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
             var quantity                            = _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(item);
-            if (inventoryCount >= quantity)
+            if (quantity > 0 && inventoryCount >= quantity)
                 colorId = ColorId.DisabledText;
             using var color                         = ImRaii.PushColor(ImGuiCol.Text, colorId.Value());
-            if (ImGui.Selectable($"{item.Name[GatherBuddy.Language]} ({inventoryCount}/{quantity})", false))
+            var quantityText = quantity > 0 ? $" ({inventoryCount}/{quantity})" : "";
+            if (ImGui.Selectable($"{item.Name[GatherBuddy.Language]}{quantityText}", false))
             {
                 if (_plugin.Executor.LastItem != item)
                     _plugin.Executor.GatherItem(item);
@@ -146,20 +149,38 @@ public class GatherWindow : Window
             CreateTooltip(item, loc, time);
 
             if (clicked && Functions.CheckModifier(GatherBuddy.Config.GatherWindowDeleteModifier, false))
-                for (var i = 0; i < _plugin.AutoGatherListsManager.Lists.Count; ++i)
-                {
-                    var preset = _plugin.AutoGatherListsManager.Lists[i];
-                    if (!preset.Enabled)
-                        continue;
+                if (quantity > 0)
+                    for (var i = 0; i < _plugin.AutoGatherListsManager.Lists.Count; ++i)
+                    {
+                        var list = _plugin.AutoGatherListsManager.Lists[i];
+                        if (!list.Enabled)
+                            continue;
 
-                    var idx = preset.Items.IndexOf(item);
-                    if (idx < 0)
-                        continue;
+                        var idx = list.Items.IndexOf(item);
+                        if (idx < 0)
+                            continue;
 
-                    _deleteSet     = i;
-                    _deleteItemIdx = idx;
-                    break;
-                }
+                        _deleteSet = i;
+                        _deleteItemIdx = idx;
+                        _deleteAutoGather = true;
+                        break;
+                    }
+                else
+                    for (var i = 0; i < _plugin.GatherWindowManager.Presets.Count; ++i)
+                    {
+                        var preset = _plugin.GatherWindowManager.Presets[i];
+                        if (!preset.Enabled)
+                            continue;
+
+                        var idx = preset.Items.IndexOf(item);
+                        if (idx < 0)
+                            continue;
+
+                        _deleteSet = i;
+                        _deleteItemIdx = idx;
+                        _deleteAutoGather = false;
+                        break;
+                    }
             else
                 Interface.CreateGatherWindowContextMenu(item, clicked);
         }
@@ -172,8 +193,16 @@ public class GatherWindow : Window
         if (_deleteSet < 0 || _deleteItemIdx < 0)
             return;
 
-        var preset = _plugin.AutoGatherListsManager.Lists[_deleteSet];
-        _plugin.AutoGatherListsManager.RemoveItem(preset, _deleteItemIdx);
+        if (_deleteAutoGather)
+        {
+            var list = _plugin.AutoGatherListsManager.Lists[_deleteSet];
+            _plugin.AutoGatherListsManager.RemoveItem(list, _deleteItemIdx);
+        }
+        else
+        {
+            var preset = _plugin.GatherWindowManager.Presets[_deleteSet];
+            _plugin.GatherWindowManager.RemoveItem(preset, _deleteItemIdx);
+        }
         _deleteSet     = -1;
         _deleteItemIdx = -1;
     }
@@ -202,15 +231,19 @@ public class GatherWindow : Window
     private bool CheckAvailable()
     {
         _data.Clear();
-        if (_plugin.AutoGatherListsManager.ActiveItems.Count == 0)
-            return true;
 
-        _data.AddRange(_plugin.AutoGatherListsManager.GetList().Select(i =>
+        var list = _plugin.AutoGatherListsManager.GetList().Concat(_plugin.GatherWindowManager.GetList()).Distinct();
+
+        _data.AddRange(list.Select(i =>
         {
             var (loc, time) = GatherBuddy.UptimeManager.BestLocation(i);
             return (i, loc, time);
         }));
-        return GatherBuddy.Config.ShowGatherWindowOnlyAvailable && _data.All(f => f.Uptime.Start > GatherBuddy.Time.ServerTime);
+
+        if (GatherBuddy.Config.SortGatherWindowByUptime)
+            _data.StableSort((lhs, rhs) => lhs.Uptime.Compare(rhs.Uptime));
+
+        return _data.Count == 0 || GatherBuddy.Config.ShowGatherWindowOnlyAvailable && _data.All(f => f.Uptime.Start > GatherBuddy.Time.ServerTime);
     }
 
     public override void PreOpenCheck()

@@ -32,6 +32,7 @@ public partial class Interface : Window, IDisposable
         _plugin            = plugin;
         _gatherGroupCache  = new GatherGroupCache(_plugin.GatherGroupManager);
         _autoGatherListsCache = new AutoGatherListsCache();
+        _gatherWindowCache = new GatherWindowCache();
         _locationTable     = new LocationTable();
         _alarmCache        = new AlarmCache(_plugin.AlarmManager);
         _recordTable       = new RecordTable();
@@ -60,6 +61,7 @@ public partial class Interface : Window, IDisposable
         DrawWeatherTab();
         DrawAlarmTab();
         DrawGatherGroupTab();
+        DrawGatherWindowTab();
         DrawAutoGatherTab();
         DrawConfigTab();
         DrawConfigPresetsTab();

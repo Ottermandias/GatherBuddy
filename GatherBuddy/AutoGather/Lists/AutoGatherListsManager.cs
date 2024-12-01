@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -15,31 +16,23 @@ namespace GatherBuddy.AutoGather.Lists;
 
 public partial class AutoGatherListsManager : IDisposable
 {
-    public const string FileName = "gather_window.json";
+    private const string FileName = "auto_gather_lists.json";
+    private const string FileNameFallback = "gather_window.json";
 
-    public List<AutoGatherList> Lists = new();
+    private readonly List<AutoGatherList> _lists = [];
+    private readonly List<Gatherable> _activeItems = [];
+    private readonly List<Gatherable> _sortedItems = [];
+    private readonly List<(Gatherable Item, uint Quantity)> _fallbackItems = [];
 
-    public List<IGatherable> ActiveItems = new();
-    public List<IGatherable> SortedItems = new();
-    public List<(Gatherable Item, uint Quantity)> FallbackItems = new();
+    public ReadOnlyCollection<AutoGatherList> Lists => _lists.AsReadOnly();
+    public ReadOnlyCollection<Gatherable> ActiveItems => _activeItems.AsReadOnly();
+    public ReadOnlyCollection<(Gatherable Item, uint Quantity)> FallbackItems => _fallbackItems.AsReadOnly();
 
-    private readonly AlarmManager _alarms;
     private          bool         _sortDirty = true;
 
-    public AutoGatherListsManager(AlarmManager alarms)
+    public AutoGatherListsManager()
     {
-        _alarms                                =  alarms;
         GatherBuddy.UptimeManager.UptimeChange += OnUptimeChange;
-        SetShowGatherWindowAlarms(GatherBuddy.Config.ShowGatherWindowAlarms);
-    }
-
-    public void SetShowGatherWindowAlarms(bool value)
-    {
-        if (value)
-            _alarms.ActiveAlarmsChanged += OnActiveAlarmsChange;
-        else
-            _alarms.ActiveAlarmsChanged -= OnActiveAlarmsChange;
-        SetActiveItems();
     }
 
     public void Dispose()
@@ -53,38 +46,34 @@ public partial class AutoGatherListsManager : IDisposable
 
     public void SetActiveItems()
     {
-        ActiveItems.Clear();
-        foreach (var item in Lists.Where(p => p.Enabled && !p.Fallback)
+        _activeItems.Clear();
+        foreach (var item in _lists.Where(p => p.Enabled && !p.Fallback)
                      .SelectMany(p => p.Items)
-                     .Where(i => !ActiveItems.Contains(i)))
-            ActiveItems.Add(item);
-        if (GatherBuddy.Config.ShowGatherWindowAlarms && GatherBuddy.Config.AlarmsEnabled)
-            foreach (var item in _alarms.ActiveAlarms.Select(a => a.Item1.Item)
-                         .Where(i => !ActiveItems.Contains(i)))
-                ActiveItems.Add(item);
-        SortedItems.Clear();
-        SortedItems.InsertRange(0, ActiveItems);
+                     .Where(i => !_activeItems.Contains(i)))
+            _activeItems.Add(item);
+        _sortedItems.Clear();
+        _sortedItems.InsertRange(0, _activeItems);
         _sortDirty = true;
 
-        var fallback = Lists
+        var fallback = _lists
             .Where(p => p.Enabled && p.Fallback)
             .SelectMany(p => p.Items.Select(i => (Item: i, Quantity: p.Quantities[i])))
             .GroupBy(i => i.Item)
             .Select(x => (x.Key, (uint)Math.Min(x.Sum(g => g.Quantity), uint.MaxValue)));
-        FallbackItems.Clear();
-        FallbackItems.AddRange(fallback);
+        _fallbackItems.Clear();
+        _fallbackItems.AddRange(fallback);
     }
 
-    public IList<IGatherable> GetList()
+    public IReadOnlyList<Gatherable> GetList()
     {
         if (!GatherBuddy.Config.SortGatherWindowByUptime)
-            return ActiveItems;
+            return _activeItems;
 
         if (_sortDirty)
-            SortedItems.StableSort((lhs, rhs)
+            _sortedItems.StableSort((lhs, rhs)
                 => GatherBuddy.UptimeManager.BestLocation(lhs).Interval.Compare(GatherBuddy.UptimeManager.BestLocation(rhs).Interval));
 
-        return SortedItems;
+        return _sortedItems;
     }
 
     public uint GetTotalQuantitiesForItem(IGatherable item)
@@ -93,7 +82,7 @@ public partial class AutoGatherListsManager : IDisposable
             return 0;
 
         uint total = 0;
-        foreach (var list in Lists)
+        foreach (var list in _lists)
         {
             if (list.Enabled && !list.Fallback && list.Quantities.TryGetValue(gatherable, out var quantity))
             {
@@ -158,35 +147,40 @@ public partial class AutoGatherListsManager : IDisposable
 
         try
         {
-            var text = JsonConvert.SerializeObject(Lists.Select(p => new AutoGatherList.Config(p)), Formatting.Indented);
+            var text = JsonConvert.SerializeObject(_lists.Select(p => new AutoGatherList.Config(p)), Formatting.Indented);
             File.WriteAllText(file.FullName, text);
         }
         catch (Exception e)
         {
-            GatherBuddy.Log.Error($"Error serializing gather window data:\n{e}");
+            GatherBuddy.Log.Error($"Error serializing auto-gather lists data:\n{e}");
         }
     }
 
-    public static AutoGatherListsManager Load(AlarmManager alarms)
+    public static AutoGatherListsManager Load()
     {
-        var ret  = new AutoGatherListsManager(alarms);
+        var ret  = new AutoGatherListsManager();
         var file = Functions.ObtainSaveFile(FileName);
+        var change = false;
         if (file is not { Exists: true })
         {
-            ret.Save();
-            return ret;
+            file = Functions.ObtainSaveFile(FileNameFallback);
+            if (file is not { Exists: true })
+            {
+                ret.Save();
+                return ret;
+            }
+            change = true;
         }
 
         try
         {
             var text = File.ReadAllText(file.FullName);
             var data = JsonConvert.DeserializeObject<AutoGatherList.Config[]>(text)!;
-            ret.Lists.Capacity = data.Length;
-            var change = false;
+            ret._lists.Capacity = data.Length;
             foreach (var cfg in data)
             {
                 change |= AutoGatherList.FromConfig(cfg, out var list);
-                ret.Lists.Add(list);
+                ret._lists.Add(list);
             }
 
             if (change)

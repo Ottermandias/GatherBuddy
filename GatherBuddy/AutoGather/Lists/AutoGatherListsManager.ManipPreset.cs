@@ -10,7 +10,7 @@ public partial class AutoGatherListsManager
 {
     public void AddList(AutoGatherList list)
     {
-        Lists.Add(list);
+        _lists.Add(list);
         Save();
         if (list.HasItems())
             SetActiveItems();
@@ -18,11 +18,11 @@ public partial class AutoGatherListsManager
 
     public void DeleteList(int idx)
     {
-        if (idx < 0 || idx >= Lists.Count)
+        if (idx < 0 || idx >= _lists.Count)
             return;
 
-        var enabled = Lists[idx].HasItems();
-        Lists.RemoveAt(idx);
+        var enabled = _lists[idx].HasItems();
+        _lists.RemoveAt(idx);
         Save();
         if (enabled)
             SetActiveItems();
@@ -30,7 +30,7 @@ public partial class AutoGatherListsManager
 
     public void MoveList(int idx1, int idx2)
     {
-        if (Functions.Move(Lists, idx1, idx2))
+        if (Functions.Move(_lists, idx1, idx2))
             Save();
     }
 
@@ -131,7 +131,7 @@ public partial class AutoGatherListsManager
 
     public GatheringNode? GetPreferredLocation(Gatherable item)
     {
-        foreach (var list in Lists)
+        foreach (var list in _lists)
         {
             if (list.Enabled && !list.Fallback && list.PreferredLocations.TryGetValue(item, out var loc))
             {

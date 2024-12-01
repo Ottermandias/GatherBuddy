@@ -195,12 +195,6 @@ public partial class Interface
             }
         }
 
-        if (ImGuiUtil.DrawDisabledButton("Create Alarms", Vector2.Zero, "Create a new Alarm Group from this auto-gather list.", _autoGatherListsCache.Selector.Current == null))
-        {
-            var list = new AlarmGroup(_autoGatherListsCache.Selector.Current!);
-            _plugin.AlarmManager.AddGroup(list);
-        }
-
         if (ImGuiUtil.DrawDisabledButton("Import from TeamCraft", Vector2.Zero, "Populate list from clipboard contents (TeamCraft format)",
                 _autoGatherListsCache.Selector.Current == null))
         {
