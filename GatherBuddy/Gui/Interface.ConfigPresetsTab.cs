@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
+using ECommons.DalamudServices;
+using ECommons.ImGuiMethods;
 using GatherBuddy.Classes;
 using static GatherBuddy.AutoGather.AutoGather;
 
@@ -28,7 +30,7 @@ namespace GatherBuddy.Gui
             private const string FileName = "actions.json";
 
             public ConfigPresetsSelector()
-                : base([], Flags.All ^ Flags.Import ^ Flags.Drop)
+                : base([], Flags.All ^ Flags.Drop)
             {
                 Load();
             }
@@ -64,16 +66,21 @@ namespace GatherBuddy.Gui
                 return true;
             }
 
-            //protected override bool OnClipboardImport(string name, string data)
-            //{
-            //    if (!GatherWindowPreset.Config.FromBase64(data, out var cfg))
-            //        return false;
+            protected override bool OnClipboardImport(string name, string data)
+            {
+                var preset = ConfigPreset.FromBase64String(data);
+                if (preset == null)
+                {
+                    Notify.Error("Failed to load config preset from clipboard. Are you sure it's valid?");
+                    return false;
+                }
+                preset.Name = name;
 
-            //    GatherWindowPreset.FromConfig(cfg, out var preset);
-            //    preset.Name = name;
-            //    _plugin.GatherWindowManager.AddPreset(preset);
-            //    return true;
-            //}
+                Items.Insert(Items.Count - 1, preset);
+                Save();
+                Notify.Success($"Imported config preset {preset.Name} from clipboard successfully.");
+                return true;
+            }
 
             protected override bool OnDuplicate(string name, int idx)
             {
@@ -195,6 +202,19 @@ namespace GatherBuddy.Gui
         
         private void DrawConfigPresetHeader()
         {
+            if (ImGui.Button("Export"))
+            {
+                var current = _configPresetsSelector.Current;
+                if (current == null)
+                {
+                    Notify.Error("No config preset selected.");
+                    return;
+                }
+
+                var text = current.ToBase64String();
+                ImGui.SetClipboardText(text);
+                Notify.Success($"Successfully copied {current.Name} to clipboard.");
+            }
             if (ImGui.Button("Check"))
             {
                 ImGui.OpenPopup("Config Presets Checker");
