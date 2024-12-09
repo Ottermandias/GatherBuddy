@@ -61,15 +61,15 @@ public class ContextMenu : IDisposable
     {
         if (_lastGatherable is Gatherable gatherable)
         {
-            var preset = _plugin.Interface.CurrentGatherWindowPreset;
+            var preset = _plugin.Interface.CurrentAutoGatherList;
 
             if (preset == null)
             {
                 preset = new();
-                _plugin.GatherWindowManager.AddPreset(preset);
+                _plugin.AutoGatherListsManager.AddList(preset);
             }
 
-            _plugin.GatherWindowManager.AddItem(preset, gatherable);
+            _plugin.AutoGatherListsManager.AddItem(preset, gatherable);
         }            
     }
 

@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Text;
 using GatherBuddy.Alarms;
-using GatherBuddy.Classes;
 using GatherBuddy.GatherGroup;
+using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
 
@@ -14,127 +13,52 @@ namespace GatherBuddy.GatherHelper;
 
 public class GatherWindowPreset
 {
-    public ReadOnlyCollection<Gatherable> Items => items.AsReadOnly();
-    public ReadOnlyDictionary<Gatherable, uint> Quantities => quantities.AsReadOnly();
-    public ReadOnlyDictionary<Gatherable, GatheringNode> PreferredLocations => preferredLocations.AsReadOnly();
-    public string                 Name               { get; set; }  = string.Empty;
-    public string                 Description        { get; set; }  = string.Empty;
-    public bool                   Enabled            { get; set; }  = false;
-    public bool                   Fallback           { get; set; }  = false;
-
-    private List<Gatherable> items = [];
-    private Dictionary<Gatherable, uint> quantities = [];
-    private Dictionary<Gatherable, GatheringNode> preferredLocations = [];
+    public List<IGatherable> Items       { get; init; } = new();
+    public string            Name        { get; set; }  = string.Empty;
+    public string            Description { get; set; }  = string.Empty;
+    public bool              Enabled     { get; set; }  = false;
 
     public GatherWindowPreset Clone()
         => new()
         {
-            items              = new(items),
-            quantities         = new(quantities),
-            preferredLocations = new(preferredLocations),
-            Name               = Name,
-            Description        = Description,
-            Enabled            = false,
-            Fallback           = Fallback
+            Name        = Name,
+            Description = Description,
+            Enabled     = false,
+            Items       = Items.ToList(),
         };
 
-    public bool Add(Gatherable item, uint quantity = 1)
+    public bool Add(IGatherable item)
     {
-        if (quantities.ContainsKey(item))
+        if (Items.Contains(item))
             return false;
 
-        items.Add(item);
-        quantities[item] = NormalizeQuantity(item, quantity);
+        Items.Add(item);
         return true;
-    }
-
-    public void RemoveAt(int index)
-    {
-        var item = items[index];
-        quantities.Remove(item);
-        preferredLocations.Remove(item);
-        items.RemoveAt(index);
-    }
-
-    public bool Replace(int index, Gatherable item)
-    {
-        if (quantities.ContainsKey(item))
-            return false;
-
-        var old = items[index];
-        quantities.Remove(old, out var quantity);
-        preferredLocations.Remove(old);
-        items[index] = item;
-        quantities[item] = NormalizeQuantity(item, quantity);
-        
-        return true;
-    }
-
-    public bool Move(int from, int to)
-    {
-        return Functions.Move(items, from, to);
-    }
-
-    public bool SetQuantity(Gatherable item, uint quantity)
-    {
-        if (quantities.TryGetValue(item, out var old))
-        {
-            quantity = NormalizeQuantity(item, quantity);
-
-            if (old != quantity)
-            {
-                quantities[item] = quantity;
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static uint NormalizeQuantity(Gatherable item, uint quantity)
-    {
-        if (quantity < 1)
-            quantity = 1;
-        if (quantity > 9999)
-            quantity = 9999;
-        if (quantity > 1 && item.IsTreasureMap)
-            quantity = 1;
-        return quantity;
-    }
-
-    public bool SetPrefferedLocation(Gatherable item, GatheringNode? location)
-    {
-        if (quantities.ContainsKey(item))
-        {
-            var old = preferredLocations.GetValueOrDefault(item);
-            if (old != location)
-            {
-                if (location == null)
-                    preferredLocations.Remove(item);
-                else
-                    preferredLocations[item] = location;
-
-                return true;
-            }
-        }
-        return false;
     }
 
     public bool HasItems()
         => Enabled && Items.Count > 0;
 
-    public struct Config(GatherWindowPreset preset)
+    public struct Config
     {
-        public const byte CurrentVersion = 4;
+        public const byte CurrentVersion = 1;
 
-        public uint[] ItemIds = preset.Items.Select(i => i.ItemId).ToArray();
-        public Dictionary<uint, uint> Quantities = preset.Quantities.ToDictionary(v => v.Key.ItemId, v => v.Value);
-        public Dictionary<uint, uint> PrefferedLocations = preset.PreferredLocations.ToDictionary(v => v.Key.ItemId, v => v.Value.Id);
-        public string Name = preset.Name;
-        public string Description = preset.Description;
-        public bool Enabled = preset.Enabled;
-        public bool Fallback = preset.Fallback;
+        public uint[]       ItemIds;
+        public ObjectType[] ItemTypes;
+        public string       Name;
+        public string       Description;
+        public bool         Enabled;
 
-        internal readonly string ToBase64()
+        public Config(GatherWindowPreset preset)
+        {
+            ItemIds     = preset.Items.Select(i => i.ItemId).ToArray();
+            ItemTypes   = preset.Items.Select(i => i.Type).ToArray();
+            Name        = preset.Name;
+            Description = preset.Description;
+            Enabled     = preset.Enabled;
+        }
+
+        internal string ToBase64()
         {
             var json  = JsonConvert.SerializeObject(this);
             var bytes = Encoding.UTF8.GetBytes(json).Prepend(CurrentVersion).ToArray();
@@ -153,7 +77,7 @@ public class GatherWindowPreset
 
                 var json = Encoding.UTF8.GetString(bytes.AsSpan()[1..]);
                 cfg = JsonConvert.DeserializeObject<Config>(json);
-                if (cfg.ItemIds == null || cfg.Name == null || cfg.Description == null || cfg.Quantities == null || cfg.PrefferedLocations == null)
+                if (cfg.ItemIds == null || cfg.ItemTypes == null || cfg.Name == null || cfg.Description == null)
                     return false;
 
                 return true;
@@ -165,37 +89,28 @@ public class GatherWindowPreset
         }
     }
 
-    public static bool FromConfig(Config cfg, out GatherWindowPreset preset)
+    public static bool FromConfig(Config cfg, out GatherWindowPreset ret)
     {
-        preset = new GatherWindowPreset()
+        ret = new GatherWindowPreset()
         {
-            Name               = cfg.Name,
-            Description        = cfg.Description,
-            Enabled            = cfg.Enabled,
-            Fallback           = cfg.Fallback,
-            items              = new(cfg.ItemIds.Length),
-            quantities         = new(cfg.ItemIds.Length),
-            preferredLocations = new(cfg.PrefferedLocations.Count)
+            Name        = cfg.Name,
+            Description = cfg.Description,
+            Enabled     = cfg.Enabled,
         };
-        var changes = false;
-        foreach (var itemId in cfg.ItemIds)
+        var maxLength = Math.Min(cfg.ItemIds.Length, cfg.ItemTypes.Length);
+        var changes   = cfg.ItemIds.Length != cfg.ItemTypes.Length;
+        for (var i = 0; i < maxLength; ++i)
         {
-            uint quantity;
-            if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var item) && preset.Add(item, quantity = cfg.Quantities.GetValueOrDefault(item.ItemId)))
+            IGatherable? gatherable = cfg.ItemTypes[i] switch
             {
-                changes |= preset.quantities[item] != quantity;
-                if (cfg.PrefferedLocations.TryGetValue(itemId, out var locId))
-                {
-                    if (item.NodeList.Where(n => n.Id == locId).FirstOrDefault() is var loc and not null)
-                        preset.SetPrefferedLocation(item, loc);
-                    else
-                        changes = true;
-                }
-            }
-            else
-            {
+                ObjectType.Gatherable => GatherBuddy.GameData.Gatherables.TryGetValue(cfg.ItemIds[i], out var item) ? item : null,
+                ObjectType.Fish       => GatherBuddy.GameData.Fishes.TryGetValue(cfg.ItemIds[i], out var item) ? item : null,
+                _                     => null,
+            };
+            if (gatherable == null)
                 changes = true;
-            }
+            else if (!ret.Add(gatherable))
+                changes = true;
         }
 
         return changes;
@@ -209,7 +124,8 @@ public class GatherWindowPreset
     {
         Name        = group.Name;
         Description = group.Description;
-        foreach (var item in group.Nodes.Select(n => n.Item).OfType<Gatherable>())
+        Items       = new List<IGatherable>(group.Nodes.Count);
+        foreach (var item in group.Nodes.Select(n => n.Item))
             Add(item);
     }
 
@@ -217,7 +133,8 @@ public class GatherWindowPreset
     {
         Name        = group.Name;
         Description = group.Description;
-        foreach (var item in group.Alarms.Select(n => n.Item).OfType<Gatherable>())
+        Items       = new List<IGatherable>(group.Alarms.Count);
+        foreach (var item in group.Alarms.Select(n => n.Item))
             Add(item);
     }
 }

@@ -2,9 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Alarms;
-using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
@@ -21,7 +19,6 @@ public partial class GatherWindowManager : IDisposable
 
     public List<IGatherable> ActiveItems = new();
     public List<IGatherable> SortedItems = new();
-    public List<(Gatherable Item, uint Quantity)> FallbackItems = new();
 
     private readonly AlarmManager _alarms;
     private          bool         _sortDirty = true;
@@ -54,7 +51,7 @@ public partial class GatherWindowManager : IDisposable
     public void SetActiveItems()
     {
         ActiveItems.Clear();
-        foreach (var item in Presets.Where(p => p.Enabled && !p.Fallback)
+        foreach (var item in Presets.Where(p => p.Enabled)
                      .SelectMany(p => p.Items)
                      .Where(i => !ActiveItems.Contains(i)))
             ActiveItems.Add(item);
@@ -65,14 +62,6 @@ public partial class GatherWindowManager : IDisposable
         SortedItems.Clear();
         SortedItems.InsertRange(0, ActiveItems);
         _sortDirty = true;
-
-        var fallback = Presets
-            .Where(p => p.Enabled && p.Fallback)
-            .SelectMany(p => p.Items.Select(i => (Item: i, Quantity: p.Quantities[i])))
-            .GroupBy(i => i.Item)
-            .Select(x => (x.Key, (uint)Math.Min(x.Sum(g => g.Quantity), uint.MaxValue)));
-        FallbackItems.Clear();
-        FallbackItems.AddRange(fallback);
     }
 
     public IList<IGatherable> GetList()
@@ -85,69 +74,6 @@ public partial class GatherWindowManager : IDisposable
                 => GatherBuddy.UptimeManager.BestLocation(lhs).Interval.Compare(GatherBuddy.UptimeManager.BestLocation(rhs).Interval));
 
         return SortedItems;
-    }
-
-    public uint GetTotalQuantitiesForItem(IGatherable item)
-    {
-        if (item is not Gatherable gatherable)
-            return 0;
-
-        uint total = 0;
-        foreach (var preset in Presets)
-        {
-            if (preset.Enabled && !preset.Fallback && preset.Quantities.TryGetValue(gatherable, out var quantity))
-            {
-                total += quantity;
-            }
-        }
-
-        return total;
-    }
-
-    public unsafe int GetInventoryCountForItem(IGatherable gatherable)
-    {
-        if (gatherable.ItemData.IsCollectable)
-        {
-            int count   = 0;
-            var manager = InventoryManager.Instance();
-            if (manager == null)
-                return count;
-            foreach (var inv in InventoryTypes)
-            {
-                var container = manager->GetInventoryContainer(inv);
-                if (container == null || container->Loaded == 0)
-                    continue;
-                for (int i = 0; i < container->Size; i++)
-                {
-                    var item = container->GetInventorySlot(i);
-                    if (item == null || item->ItemId == 0 || item->ItemId != gatherable.ItemId) continue;
-        
-                    count++;
-                }
-            }
-        
-            return count;
-        }
-        else
-        {
-            var inventory = InventoryManager.Instance();
-            return inventory->GetInventoryItemCount(gatherable.ItemId);
-        }
-    }
-    
-    public List<InventoryType> InventoryTypes
-    {
-        get
-        {
-            List<InventoryType> types = new List<InventoryType>()
-            {
-                InventoryType.Inventory1,
-                InventoryType.Inventory2,
-                InventoryType.Inventory3,
-                InventoryType.Inventory4,
-            };
-            return types;
-        }
     }
 
     public void Save()
@@ -195,7 +121,6 @@ public partial class GatherWindowManager : IDisposable
         catch (Exception e)
         {
             GatherBuddy.Log.Error($"Error deserializing gather window data:\n{e}");
-            Communicator.PrintError($"[GatherBuddy Reborn] Gather Window Presets failed to load. Gathering Lists have been reset.");
             ret.Save();
         }
 

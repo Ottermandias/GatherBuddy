@@ -14,6 +14,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.GatherGroup;
 using GatherBuddy.GatherHelper;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Plugin;
 using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -390,6 +391,13 @@ public partial class Interface
             {
                 Communicator.PrintClipboardMessage("Gather Group ", group.Name, e);
             }
+        }
+
+        if (ImGuiUtil.DrawDisabledButton("Create Auto-Gather List", Vector2.Zero, "Create a new Auto-Gather List from this gather group.",
+                _gatherGroupCache.Selector.Current == null))
+        {
+            var preset = new AutoGatherList(_gatherGroupCache.Selector.Current!);
+            _plugin.AutoGatherListsManager.AddList(preset);
         }
 
         if (ImGuiUtil.DrawDisabledButton("Create Window Preset", Vector2.Zero, "Create a new Gather Window Preset from this gather group.",

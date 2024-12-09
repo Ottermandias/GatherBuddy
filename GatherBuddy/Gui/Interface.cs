@@ -31,6 +31,7 @@ public partial class Interface : Window, IDisposable
     {
         _plugin            = plugin;
         _gatherGroupCache  = new GatherGroupCache(_plugin.GatherGroupManager);
+        _autoGatherListsCache = new AutoGatherListsCache();
         _gatherWindowCache = new GatherWindowCache();
         _locationTable     = new LocationTable();
         _alarmCache        = new AlarmCache(_plugin.AlarmManager);
@@ -61,6 +62,7 @@ public partial class Interface : Window, IDisposable
         DrawAlarmTab();
         DrawGatherGroupTab();
         DrawGatherWindowTab();
+        DrawAutoGatherTab();
         DrawConfigTab();
         DrawConfigPresetsTab();
         DrawLocationsTab();
@@ -96,6 +98,6 @@ public partial class Interface : Window, IDisposable
         _headerCache.Dispose();
         _weatherTable.Dispose();
         _itemTable.Dispose();
-        _gatherWindowCache.Dispose();
+        _autoGatherListsCache.Dispose();
     }
 }
