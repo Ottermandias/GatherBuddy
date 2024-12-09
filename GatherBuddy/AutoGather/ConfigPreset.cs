@@ -1,5 +1,7 @@
 ﻿using GatherBuddy.Classes;
 using System;
+using ECommons.DalamudServices;
+using Newtonsoft.Json;
 
 namespace GatherBuddy.AutoGather
 {
@@ -207,6 +209,31 @@ namespace GatherBuddy.AutoGather
                 && (   item.IsCrystal && ItemType.Crystals
                 || item.ItemData.IsCollectable && ItemType.Collectables
                 || !item.IsCrystal && !item.ItemData.IsCollectable && ItemType.Other);
+
+        public string ToBase64String()
+        {
+            var json = JsonConvert.SerializeObject(this);
+
+            var base64EncodedBytes = System.Text.Encoding.UTF8.GetBytes(json);
+            return System.Convert.ToBase64String(base64EncodedBytes);
+        }
+
+        public static ConfigPreset? FromBase64String(string base64String)
+        {
+            try
+            {
+                var bytes = System.Convert.FromBase64String(base64String);
+                var json  = System.Text.Encoding.UTF8.GetString(bytes);
+
+                var config = JsonConvert.DeserializeObject<ConfigPreset>(json);
+                return config;
+            }
+            catch (Exception ex)
+            {
+                Svc.Log.Debug($"Failed to deserialize config preset: {ex}");
+                return null;
+            }
+        }
     }
 
 }
