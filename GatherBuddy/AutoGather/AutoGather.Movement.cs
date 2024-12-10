@@ -187,7 +187,7 @@ namespace GatherBuddy.AutoGather
 
             if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
             {
-                if (Vector3.Distance(Player.Position, offset) > 3)
+                if (Vector3.Distance(Player.Position, offset) < 3 && Vector3.Distance(Player.Position, destination) > 3)
                 {
                     correctedDestination = offset;
                     GatherBuddy.Log.Debug($"Offset exists, corrected destination: {correctedDestination}");
