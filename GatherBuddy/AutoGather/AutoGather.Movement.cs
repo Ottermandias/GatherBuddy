@@ -101,7 +101,7 @@ namespace GatherBuddy.AutoGather
                 {
                     StopNavigation();
                     AutoStatus = "Waiting for GP to regenerate...";
-                } 
+                }
                 else
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
@@ -176,8 +176,7 @@ namespace GatherBuddy.AutoGather
 
             StopNavigation();
             CurrentDestination = destination;
-            var correctedDestination = GetCorrectedDestination(CurrentDestination);
-            GatherBuddy.Log.Debug($"Navigating to {destination} (corrected to {correctedDestination})");
+            var correctedDestination = GetCorrectedDestination(destination);
 
             LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
         }
@@ -185,19 +184,29 @@ namespace GatherBuddy.AutoGather
         private static Vector3 GetCorrectedDestination(Vector3 destination)
         {
             var correctedDestination = destination;
-            if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
-                correctedDestination = offset;
 
-            try
+            if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
             {
-                correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(correctedDestination, 3, 3);
-                if (Vector3.Distance(correctedDestination, destination) is var distance and > 3)
+                if (Vector3.Distance(Player.Position, offset) > 3)
                 {
-                    GatherBuddy.Log.Warning($"Offset is ignored, because distance {distance} is too large after correcting for mesh.");
-                    correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
+                    correctedDestination = offset;
+                    GatherBuddy.Log.Debug($"Offset exists, corrected destination: {correctedDestination}");
                 }
             }
-            catch (Exception) { }
+            else
+            {
+                try
+                {
+                    correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(correctedDestination, 3, 3);
+                    if (Vector3.Distance(correctedDestination, destination) is var distance and > 3)
+                    {
+                        GatherBuddy.Log.Warning($"Offset is ignored, because distance {distance} is too large after correcting for mesh.");
+                        correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
+                    }
+                }
+                catch (Exception)
+                { }
+            }
 
             return correctedDestination;
         }
