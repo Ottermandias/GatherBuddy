@@ -18,6 +18,10 @@ using OtterGui;
 using static GatherBuddy.FishTimer.FishRecord;
 using ImRaii = OtterGui.Raii.ImRaii;
 using System.Text;
+using System.Threading.Tasks;
+using ECommons.GameHelpers;
+using ECommons.ImGuiMethods;
+using Newtonsoft.Json;
 
 namespace GatherBuddy.Gui;
 
@@ -553,23 +557,164 @@ public partial class Interface
             }
         }
 
-        if (ImGui.CollapsingHeader("Saved World Objects"))
+        if (ImGui.CollapsingHeader("World Positions (Offset Creation)"))
         {
-            using var group = ImRaii.Group();
-            ImGui.Text("Saved Gatherables");
-            foreach (var kvp in WorldData.WorldLocationsByNodeId)
+            DrawWorldObjectDebug();
+        }
+    }
+
+    private bool _isFlightAllowed = true;
+    private bool _autoFillOffsetValues = true;
+
+    private void DrawWorldObjectDebug()
+    {
+        ImGui.Checkbox("Fly", ref _isFlightAllowed);
+        ImGuiUtil.HoverTooltip("Fly when navigating using below buttons");
+        ImGui.SameLine();
+        ImGui.Checkbox("Auto-Fill Offset Values", ref _autoFillOffsetValues);
+        ImGuiUtil.HoverTooltip("Automatically fill offset values in table with player's current position");
+
+        if (ImGui.Button("Import"))
+        {
+            try
             {
-                ImGui.PushID(kvp.Key.ToString());
-                ImGui.Text($"{kvp.Key}");
-                foreach (var loc in kvp.Value)
+                var settings = new JsonSerializerSettings();
+                var text     = ImGuiUtil.GetClipboardText();
+                var vectors  = JsonConvert.DeserializeObject<List<OffsetPair>>(text, settings) ?? [];
+                int inserted = 0;
+                foreach (var offset in vectors)
                 {
-                    ImGui.Indent();
-                    ImGui.Text($"{loc}");
-                    ImGui.Unindent();
+                    WorldData.NodeOffsets[offset.Original] = offset.Offset;
+                    GatherBuddy.Log.Information($"Added offset {offset} to dictionary");
+                    inserted++;
                 }
-                ImGui.PopID();
+
+                WorldData.SaveOffsetsToFile();
+                Notify.Success($"{inserted} offsets were imported");
+            }
+            catch (Exception ex)
+            {
+                Notify.Error($"Failed to import offsets: {ex.Message}");
             }
         }
+        ImGui.SameLine();
+        if (ImGui.Button("Export"))
+        {
+            var settings = new JsonSerializerSettings();
+            var offsetString = JsonConvert.SerializeObject(WorldData.NodeOffsets.Select(x => new OffsetPair(x.Key, x.Value)).ToList(), Formatting.Indented, settings);
+            ImGui.SetClipboardText(offsetString);
+            Notify.Info("Node offsets exported to clipboard");
+        }
+
+        var nodes = GatherBuddy.GameData.GatheringNodes.Where(o => o.Value.Territory.Id == Svc.ClientState.TerritoryType).Select(o => o.Value);
+
+        if (!nodes.Any())
+        {
+            ImGui.Text("No known gathering nodes in current zone");
+            return;
+        }
+
+        if (ImGui.BeginTable("Node Positions", 6, ImGuiTableFlags.Borders | ImGuiTableFlags.Resizable))
+        {
+            ImGui.TableSetupColumn("Node Name");
+            ImGui.TableSetupColumn("Contents");
+            ImGui.TableSetupColumn("Nav Button");
+            ImGui.TableSetupColumn("Offset Nav");
+            ImGui.TableSetupColumn("Distances");
+            ImGui.TableSetupColumn("Create Offset");
+
+            ImGui.TableHeadersRow();
+
+            foreach (var node in nodes)
+            {
+                var positions = node.WorldPositions.SelectMany(p => p.Value);
+                foreach (var position in positions)
+                {
+                    ImGui.TableNextRow();
+                    DrawPositionRow(position, node);
+                }
+            }
+
+            ImGui.EndTable();
+        }
+    }
+
+    private void DrawPositionRow(Vector3 position, GatheringNode node)
+    {
+        ImGui.PushID(position.ToString());
+        ImGui.TableSetColumnIndex(0);
+        ImGui.Text(node.Name);
+
+        ImGui.TableSetColumnIndex(1);
+        var contentsStrings = node.Items.Select(i => i.Name);
+        foreach (var contents in contentsStrings)
+        {
+            ImGui.Text(contents.ToString());
+        }
+
+        ImGui.TableSetColumnIndex(2);
+        DrawNavButton(position);
+
+        Vector3? offset = WorldData.NodeOffsets.TryGetValue(position, out var offsetRaw) ? offsetRaw : null;
+
+        ImGui.TableSetColumnIndex(3);
+        if (offset.HasValue)
+        {
+            DrawNavButton(offset.Value);
+            if (ImGui.Button("Clear Offset"))
+            {
+                WorldData.NodeOffsets.Remove(position);
+                Task.Run(WorldData.SaveOffsetsToFile);
+            }
+        }
+        else
+        {
+            ImGui.Text("No Offset");
+        }
+
+        ImGui.TableSetColumnIndex(4);
+        var positionDistance = Vector3.Distance(position, Player.Position);
+        var offsetDistance = offset.HasValue ? Vector3.Distance(offset.Value, Player.Position) : 0;
+        var distanceBetweenPositionAndOffset = offset.HasValue ? Vector3.Distance(position, offset.Value) : 0;
+        ImGui.Text($"Distance to actual node: {positionDistance}");
+        ImGui.Text($"Distance to offset: {offsetDistance}");
+        ImGui.Text($"Distance between: {distanceBetweenPositionAndOffset}");
+        
+        ImGui.TableSetColumnIndex(5);
+        if (_autoFillOffsetValues)
+        {
+            _offsetX = Player.Position.X;
+            _offsetY = Player.Position.Y;
+            _offsetZ = Player.Position.Z;
+        }
+        ImGui.SetNextItemWidth(60);
+        ImGui.InputFloat($"X", ref _offsetX);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(60);
+        ImGui.InputFloat("Y", ref _offsetY);
+        ImGui.SameLine();
+        ImGui.SetNextItemWidth(60);
+        ImGui.InputFloat("Z", ref _offsetZ);
+        if (ImGui.Button("Set Offset"))
+        {
+            Vector3 vector = new Vector3(_offsetX, _offsetY, _offsetZ);
+            WorldData.AddOffset(position, vector);
+        }
+        ImGui.PopID();
+    }
+
+    private float _offsetX = 0;
+    private float _offsetY = 0;
+    private float _offsetZ = 0;
+
+    private void DrawNavButton(Vector3 position)
+    {
+        if (ImGui.Button(position.ToString()))
+        {
+            VNavmesh_IPCSubscriber.Path_Stop();
+            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(position, _isFlightAllowed);
+        }
+        ImGuiUtil.HoverTooltip("Click to move to position via vnavmesh");
     }
 
     private void DrawAutoGatherDebug()
