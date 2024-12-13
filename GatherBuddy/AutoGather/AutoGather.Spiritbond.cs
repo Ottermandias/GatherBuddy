@@ -2,6 +2,7 @@ using Dalamud.Game.ClientState.Conditions;
 using ECommons.Automation;
 using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using GatherBuddy.Plugin;
 using static ECommons.UIHelpers.AddonMasterImplementations.AddonMaster;
 
 namespace GatherBuddy.AutoGather;
@@ -34,6 +35,12 @@ public partial class AutoGather
 
     unsafe void DoMateriaExtraction()
     {
+        if (!QuestManager.IsQuestComplete(66174))
+        {
+            GatherBuddy.Config.AutoGatherConfig.DoMaterialize = false;
+            Communicator.PrintError("[GatherBuddy Reborn] Materia Extraction enabled but relevant quest not complete yet. Feature disabled.");
+            return;
+        }
         if (MaterializeAddon == null)
         {
             TaskManager.Enqueue(StopNavigation);

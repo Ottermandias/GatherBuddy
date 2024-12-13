@@ -119,6 +119,17 @@ namespace GatherBuddy.AutoGather
             var RegularItemsToGather = new List<GatherInfo>();
             foreach (var (item, location, time) in activeItems)
             {
+                uint quest = item.GatheringType switch
+                {
+                    GatheringType.Miner    => 65728,
+                    GatheringType.Botanist => 65729,
+                    _                      => 0,
+                };
+                if (quest > 0 && !QuestManager.IsQuestComplete(quest))
+                {
+                    GatherBuddy.Log.Warning($"{item.Name} was requested but {item.GatheringType} is not unlocked");
+                    continue;
+                }
                 if (InventoryCount(item) >= QuantityTotal(item) || item.IsTreasureMap && InventoryCount(item) > 0)
                     continue;
 
