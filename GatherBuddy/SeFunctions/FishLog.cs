@@ -99,4 +99,10 @@ public unsafe class FishLog
 
     public bool IsUnlocked(Fish fish)
         => !fish.InLog || (fish.IsSpearFish ? SpearFishIsUnlocked(fish.FishId) : FishIsUnlocked(fish.FishId));
+
+    public void SetAllUnlocked()
+    {
+        for (var i = 0; i < _fishStore.Length; ++i)
+            _fish[i] = 0xFF;
+    }
 }
