@@ -8,25 +8,29 @@
         "resolved": "11.0.0",
         "contentHash": "bjT7XUlhIJSmsE/O76b7weUX+evvGQctbQB8aKXt94o+oPWxHpCepxAGMs7Thow3AzCyqWs7cOpp9/2wcgRRQA=="
       },
-      "NAudio": {
+      "OpenTK": {
         "type": "Direct",
-        "requested": "[2.2.1, )",
-        "resolved": "2.2.1",
-        "contentHash": "c0DzwiyyklM0TP39Y7RObwO3QkWecgM6H60ikiEnsV/aEAJPbj5MFCLaD8BSfKuZe0HGuh9GRGWWlJmSxDc9MA==",
+        "requested": "[5.0.0-pre.13, )",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "+Zwcxfviwag6C9oDxnMr1Tulr0jV484x8suYCJlZ5luDeJdsAMI7UfPCIDEP9CUh2AJfT0Jv+81eDaggyVGotQ==",
         "dependencies": {
-          "NAudio.Asio": "2.2.1",
-          "NAudio.Core": "2.2.1",
-          "NAudio.Midi": "2.2.1",
-          "NAudio.Wasapi": "2.2.1",
-          "NAudio.WinForms": "2.2.1",
-          "NAudio.WinMM": "2.2.1"
+          "OpenTK.Audio.OpenAL": "5.0.0-pre.13",
+          "OpenTK.Compute": "5.0.0-pre.13",
+          "OpenTK.Core": "5.0.0-pre.13",
+          "OpenTK.Graphics": "5.0.0-pre.13",
+          "OpenTK.Input": "5.0.0-pre.13",
+          "OpenTK.Mathematics": "5.0.0-pre.13",
+          "OpenTK.Platform": "5.0.0-pre.13",
+          "OpenTK.Windowing.Common": "5.0.0-pre.13",
+          "OpenTK.Windowing.Desktop": "5.0.0-pre.13",
+          "OpenTK.Windowing.GraphicsLibraryFramework": "5.0.0-pre.13"
         }
       },
-      "NAudio.Core": {
+      "System.Windows.Extensions": {
         "type": "Direct",
-        "requested": "[2.2.1, )",
-        "resolved": "2.2.1",
-        "contentHash": "GgkdP6K/7FqXFo7uHvoqGZTJvW4z8g2IffhOO4JHaLzKCdDOUEzVKtveoZkCuUX8eV2HAINqi7VFqlFndrnz/g=="
+        "requested": "[9.0.0, )",
+        "resolved": "9.0.0",
+        "contentHash": "U9msthvnH2Fsw7xwAvIhNHOdnIjOQTwOc8Vd0oGOsiRcGMGoBFlUD6qtYawRUoQdKH9ysxesZ9juFElt1Jw/7A=="
       },
       "JetBrains.Annotations": {
         "type": "Transitive",
@@ -46,87 +50,90 @@
         "resolved": "8.0.0",
         "contentHash": "cjWrLkJXK0rs4zofsK4bSdg+jhDLTaxrkXu4gS6Y7MAlCvRyNNgwY/lJi5RDlQOnSZweHqoyvgvbdvQsRIW+hg=="
       },
-      "Microsoft.NETCore.Platforms": {
+      "OpenTK.Audio.OpenAL": {
         "type": "Transitive",
-        "resolved": "3.1.0",
-        "contentHash": "z7aeg8oHln2CuNulfhiLYxCVMPEwBl3rzicjvIX+4sUuCwvXw5oXQEtbiU2c0z4qYL5L3Kmx0mMA/+t/SbY67w=="
-      },
-      "Microsoft.Win32.Registry": {
-        "type": "Transitive",
-        "resolved": "4.7.0",
-        "contentHash": "KSrRMb5vNi0CWSGG1++id2ZOs/1QhRqROt+qgbEAdQuGjGrFcl4AOl4/exGPUYz2wUnU42nvJqon1T3U0kPXLA==",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "q+YYwBHlP54/wjlapXRmv8Wy6IiCfoL8nz/+laMKXrlCxIBQ807dh2GowOc5Z6Sllr9I45GRQlqL8xbeniqrIQ==",
         "dependencies": {
-          "System.Security.AccessControl": "4.7.0",
-          "System.Security.Principal.Windows": "4.7.0"
+          "OpenTK.Core": "[5.0.0-pre.13, 6.0.0-pre)",
+          "OpenTK.Mathematics": "[5.0.0-pre.13, 6.0.0-pre)"
         }
       },
-      "NAudio.Asio": {
+      "OpenTK.Compute": {
         "type": "Transitive",
-        "resolved": "2.2.1",
-        "contentHash": "hQglyOT5iT3XuGpBP8ZG0+aoqwRfidHjTNehpoWwX0g6KJEgtH2VaqM2nuJ2mheKZa/IBqB4YQTZVvrIapzfOA==",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "qwQ2s2iXeb/NlbavnNSMUjCxxPCZrGDrhGBm2TysTeJpchICYzIgrIleY8kbuchSzAO8P/yTKm3sSF+yG1tEUA=="
+      },
+      "OpenTK.Core": {
+        "type": "Transitive",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "NohlYrmuR/H8dMMFzTEdTD7GgWa+mLpXzgnVa1Wixp8tzojdoalO+HYW/ixG1lzzYyBSMoENrZyRgt6njZxnkw=="
+      },
+      "OpenTK.Graphics": {
+        "type": "Transitive",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "oEbjB/r4EbhRKP9piOoklO8pseHK9mO7Bv4LQUyzFltdZ3tf+yD+L0l9Bf7lax7vHvYDB6bBqzMEp2/H0ucm+Q==",
         "dependencies": {
-          "Microsoft.Win32.Registry": "4.7.0",
-          "NAudio.Core": "2.2.1"
+          "OpenTK.Core": "[5.0.0-pre.13, 6.0.0-pre)",
+          "OpenTK.Mathematics": "[5.0.0-pre.13, 6.0.0-pre)"
         }
       },
-      "NAudio.Midi": {
+      "OpenTK.Input": {
         "type": "Transitive",
-        "resolved": "2.2.1",
-        "contentHash": "6r23ylGo5aeP02WFXsPquz0T0hFJWyh+7t++tz19tc3Kr38NHm+Z9j+FiAv+xkH8tZqXJqus9Q8p6u7bidIgbw==",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "TztSEwPrGAgUcGGiqXlWzP9QSSOci4B3XmuNpjkL8WvHRPxbYeIqfb/fFodxViCk6j9K68egPxFuQl70rL9ZKA=="
+      },
+      "OpenTK.Mathematics": {
+        "type": "Transitive",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "65qbZS49AfrTM6jtZ2RDTWAzLe13ywCXIiSP5QrAJLmZT6sQqHGd1LfFXLhx8Ccp77qy7qh/LHsxpUOlkgZTCg==",
         "dependencies": {
-          "NAudio.Core": "2.2.1"
+          "System.Runtime.CompilerServices.Unsafe": "5.0.0"
         }
       },
-      "NAudio.Wasapi": {
+      "OpenTK.Platform": {
         "type": "Transitive",
-        "resolved": "2.2.1",
-        "contentHash": "lFfXoqacZZe0WqNChJgGYI+XV/n/61LzPHT3C1CJp4khoxeo2sziyX5wzNYWeCMNbsWxFvT3b3iXeY1UYjBhZw==",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "OKCXd2/vjl3RRTzhcRTZdKWpmgEt7MI2cSs/9wEWB+z/lsddGA0uBchE3u8NG5V5ZvjyRiA9q7HvkFxPgJnt3A=="
+      },
+      "OpenTK.redist.glfw": {
+        "type": "Transitive",
+        "resolved": "3.3.8.39",
+        "contentHash": "JzjaBzHTyKenUk9CXOYIqA/v7VMnjFnqmd3SKR3I1YpuOTu/H3ohyy3o+ZfMCQ6IRKs7CLfSPXMarKLvwD0WgQ=="
+      },
+      "OpenTK.Windowing.Common": {
+        "type": "Transitive",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "RlEz7Boqalx38eCDYGA/YjN/KjwhJiR5nKWD0obMpVxnTDjmKk93kyJL0iT8n/9tIJxKgUHh1pEDs3Jr/cRH2Q==",
         "dependencies": {
-          "NAudio.Core": "2.2.1"
+          "OpenTK.Core": "[5.0.0-pre.13, 6.0.0-pre)",
+          "OpenTK.Mathematics": "[5.0.0-pre.13, 6.0.0-pre)"
         }
       },
-      "NAudio.WinForms": {
+      "OpenTK.Windowing.Desktop": {
         "type": "Transitive",
-        "resolved": "2.2.1",
-        "contentHash": "DlDkewY1myY0A+3NrYRJD+MZhZV0yy1mNF6dckB27IQ9XCs/My5Ip8BZcoSHOsaPSe2GAjvoaDnk6N9w8xTv7w==",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "Rx7LMx3n+Dz87qwSWYEk8qEhOsQ8w7lCOwzbsJZmGqcEfn4oyIGGbPvsxlEauHrUUF6Q99biN8jNmm8FGY4ITQ==",
         "dependencies": {
-          "NAudio.WinMM": "2.2.1"
+          "OpenTK.Core": "[5.0.0-pre.13, 6.0.0-pre)",
+          "OpenTK.Mathematics": "[5.0.0-pre.13, 6.0.0-pre)",
+          "OpenTK.Windowing.Common": "[5.0.0-pre.13, 6.0.0-pre)",
+          "OpenTK.Windowing.GraphicsLibraryFramework": "[5.0.0-pre.13, 6.0.0-pre)"
         }
       },
-      "NAudio.WinMM": {
+      "OpenTK.Windowing.GraphicsLibraryFramework": {
         "type": "Transitive",
-        "resolved": "2.2.1",
-        "contentHash": "xFHRFwH4x6aq3IxRbewvO33ugJRvZFEOfO62i7uQJRUNW2cnu6BeBTHUS0JD5KBucZbHZaYqxQG8dwZ47ezQuQ==",
+        "resolved": "5.0.0-pre.13",
+        "contentHash": "2VIh8AFWpGPo6oe5f+TGq4aUNjCXxyOnGNPTuIOt5pxWnwlvdC8YcBTRYfW3X73NHNdSr1K9Z6C8R265tDQOCQ==",
         "dependencies": {
-          "Microsoft.Win32.Registry": "4.7.0",
-          "NAudio.Core": "2.2.1"
+          "OpenTK.Core": "[5.0.0-pre.13, 6.0.0-pre)",
+          "OpenTK.redist.glfw": "3.3.8.39"
         }
       },
-      "Reloaded.Memory": {
+      "System.Runtime.CompilerServices.Unsafe": {
         "type": "Transitive",
-        "resolved": "7.1.0",
-        "contentHash": "4Y5tCsRWdW/shj9W7RqJq37LStuW1VVtjxsBp4LKZilPcjudeQg9k+u+6fnDgacCEJiG3S2EtcaiNtVMTdaSnQ=="
-      },
-      "System.Security.AccessControl": {
-        "type": "Transitive",
-        "resolved": "4.7.0",
-        "contentHash": "JECvTt5aFF3WT3gHpfofL2MNNP6v84sxtXxpqhLBCcDRzqsPBmHhQ6shv4DwwN2tRlzsUxtb3G9M3763rbXKDg==",
-        "dependencies": {
-          "Microsoft.NETCore.Platforms": "3.1.0",
-          "System.Security.Principal.Windows": "4.7.0"
-        }
-      },
-      "System.Security.Principal.Windows": {
-        "type": "Transitive",
-        "resolved": "4.7.0",
-        "contentHash": "ojD0PX0XhneCsUbAZVKdb7h/70vyYMDYs85lwEI+LngEONe/17A0cFaRFqZU+sOEidcVswYWikYOQ9PPfjlbtQ=="
-      },
-      "clicklib": {
-        "type": "Project",
-        "dependencies": {
-          "ECommons": "[2.2.0.2, )",
-          "Reloaded.Memory": "[7.1.0, )"
-        }
+        "resolved": "5.0.0",
+        "contentHash": "ZD9TMpsmYJLrxbbmdvhwt9YEgG5WntEnZ/d1eH8JBX9LBp+Ju8BSBhUGbZMNVHHomWo2KVImJhTDl2hIgw/6MA=="
       },
       "ecommons": {
         "type": "Project"
