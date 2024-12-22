@@ -302,7 +302,7 @@ public class GatherWindow : Window
     {
         var       colorId = GatherBuddy.AutoGather.Enabled ? ColorId.GatherWindowAvailable.Value() : ColorId.GatherWindowText.Value();
         using var color = ImRaii.PushColor(ImGuiCol.Text, colorId);
-        if (ImGui.Selectable($"Auto-Gather: {GatherBuddy.AutoGather.AutoStatus}"))
+        if (ImGui.Selectable($"Auto-Gather: {GatherBuddy.AutoGather.AutoStatus}###toggle-button"))
         {
             GatherBuddy.AutoGather.Enabled = !GatherBuddy.AutoGather.Enabled;
         }
