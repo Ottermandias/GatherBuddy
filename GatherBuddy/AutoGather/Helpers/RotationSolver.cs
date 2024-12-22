@@ -148,11 +148,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public State Execute(State state) => _execute(state with { GP = (ushort)(state.GP - (_action?.GpCost ?? 0)), Effects = state.Effects | _effect });
         }
 
-        private static readonly SolverAction[] SolverActions;
-
-        static RotationSolver()
-        {
-            SolverActions = [
+        private static readonly SolverAction[] SolverActions = [
                 new SolverAction(Actions.TwelvesBounty, x => true, s => s with { Yield = (byte)(s.Yield + s.Global.BountyYield) }, EffectType.TwelvesBounty, false),
                 new SolverAction(Actions.SolidAge, x => x.Integity < x.Global.MaxIntegity - 1, SolidAge, EffectType.None, true),
                 new SolverAction(Actions.Yield1, x => (x.Effects & EffectType.Yield2) == 0, s => s with { Yield = (byte)(s.Yield + 1) }, EffectType.Yield1, false),
@@ -163,8 +159,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 new SolverAction(Actions.Bountiful, x => true, s => s, EffectType.Bountiful, true),
                 new SolverAction(Actions.GivingLand, x => true, s => s with { Yield = (byte)(s.Yield + GivingLandYield) }, EffectType.GivingLand, false),
                 new SolverAction(null, x => true, Gather, EffectType.None, true)
-            ];
-        }
+        ];
 
         private static State SolidAge(State state)
         {
@@ -338,9 +333,9 @@ namespace GatherBuddy.AutoGather.Helpers
             var bestSimulatedYield = 0u;
             var fillerYield = Math.Max(bountifulYield, bountyYield);
 
-            //When Bountiful's yield is 3 and the item is not a crystal, we can skill all the calculations,
+            //When Bountiful's yield is 3 and the item is not a crystal, we can skip all the calculations,
             //because nothing can beat that, except actions for crystals.
-            if (bountifulYield < 3000 || isCrystal && state.Global.AvailableActions.Any(x => x.Action == Actions.TwelvesBounty))
+            if (bountifulYield < 3000 || bounty != null)
             {
                 state.Global.AvailableActions.RemoveAll(x => x.Action == Actions.Bountiful || x.Action == Actions.GivingLand);
                 state.Global.BaselineYield = (uint)(state.Yield * 1000 + state.BoonChance * 10 * state.BoonYield) * state.Integity;
@@ -359,7 +354,8 @@ namespace GatherBuddy.AutoGather.Helpers
 
                     //Start with little less then full GP
                     var startingGP = (ushort)state.Global.MaxGP;
-                    if (startingGP > KeepGPBelowMaxMinus + (bountiful?.Action?.GpCost ?? 0)) startingGP -= (ushort)(KeepGPBelowMaxMinus + (bountiful?.Action?.GpCost ?? 0));
+                    var startingGPDelta = KeepGPBelowMaxMinus + (bountiful?.Action?.GpCost ?? 0);
+                    if (startingGP > startingGPDelta) startingGP -= (ushort)startingGPDelta;
 
                     //Solve for +2 integrity bonus
                     var stateIntegrity = new State()
