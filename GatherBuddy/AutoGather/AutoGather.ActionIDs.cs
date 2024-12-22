@@ -24,7 +24,7 @@ public partial class AutoGather
             public static implicit operator Pair<T>((T Botanist, T Miner) value) => new(value.Botanist, value.Miner);
         }
 
-        public readonly struct BaseAction
+        public class BaseAction
         {
             public BaseAction(uint btnActionId, uint minActionId, uint btnEffectId = 0, uint minEffectId = 0, EffectType type = EffectType.Other)
             {

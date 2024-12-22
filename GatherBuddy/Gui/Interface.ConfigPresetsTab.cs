@@ -419,10 +419,31 @@ namespace GatherBuddy.Gui
                             selector.Save();
                     }
 
+                    if (ImGuiUtil.Checkbox("Automatically decide what actions to use",
+                        "This setting works differently depending on item or node type.\n" +
+                        "For collectables: the usual collectable rotation is used with all actions enabled.\n" +
+                        "For unspoiled and legendary nodes: actions are chosen to maximise the yield.\n" +
+                        "For regular nodes: actions are chosen to maximise the yield per GP spent.\n",
+                        preset.ChooseBestActionsAutomatically,
+                        x => preset.ChooseBestActionsAutomatically = x))
+                        selector.Save();
+
+                    if (preset.ChooseBestActionsAutomatically && preset.NodeType.Regular)
+                    {
+                        if (ImGuiUtil.Checkbox("Hold on spending GP until a node with the best bonuses",
+                            "This setting is for regular nodes only. When enabled, GP would be kept for nodes with bonuses\n" +
+                            "that would give the best possible yield per GP spent. Make sure that nodes with +2 integrity,\n" +
+                            "+3 yield, and +100% boon chance hidden bonuses do exist, and you can meet their requirements.\n" +
+                            $"It is ignored if {ConcatNames(Actions.Bountiful)} gives +3 bonus, because nothing can beat that.\n" +
+                            "Not recommended if you have the Revisit trait (level 91+).",
+                            preset.SpendGPOnBestNodesOnly,
+                            x => preset.SpendGPOnBestNodesOnly = x))
+                            selector.Save();
+                    }
                 }
             }
             using var width2 = ImRaii.ItemWidth(SetInputWidth - ImGui.GetStyle().IndentSpacing);
-            if (preset.ItemType.Crystals || preset.ItemType.Other)
+            if ((preset.ItemType.Crystals || preset.ItemType.Other) && !preset.ChooseBestActionsAutomatically)
             {
                 using var node = ImRaii.TreeNode("Gathering Actions", ImGuiTreeNodeFlags.Framed);
                 if (node)
@@ -441,7 +462,7 @@ namespace GatherBuddy.Gui
                     }
                 }
             }
-            if (preset.ItemType.Collectables)
+            if (preset.ItemType.Collectables && !preset.ChooseBestActionsAutomatically)
             {
                 using var node = ImRaii.TreeNode("Collectable Actions", ImGuiTreeNodeFlags.Framed);
                 if (node)

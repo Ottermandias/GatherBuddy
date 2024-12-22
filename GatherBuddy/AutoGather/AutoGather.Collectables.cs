@@ -96,6 +96,8 @@ namespace GatherBuddy.AutoGather
                     return false;
                 if (Player.Object.CurrentGp < Actions.Meticulous.GpCost)
                     return false;
+                if (config.ChooseBestActionsAutomatically)
+                    return true;
                 if (Player.Object.CurrentGp < config.CollectableActions.Meticulous.MinGP
                  || Player.Object.CurrentGp > config.CollectableActions.Meticulous.MaxGP)
                     return false;
@@ -109,6 +111,8 @@ namespace GatherBuddy.AutoGather
                     return false;
                 if (Player.Object.CurrentGp < Actions.Brazen.GpCost)
                     return false;
+                if (config.ChooseBestActionsAutomatically)
+                    return true;
                 if (Player.Object.CurrentGp < config.CollectableActions.Scour.MinGP
                  || Player.Object.CurrentGp > config.CollectableActions.Scour.MaxGP)
                     return false;
@@ -122,6 +126,8 @@ namespace GatherBuddy.AutoGather
                     return false;
                 if (Player.Object.CurrentGp < Actions.Meticulous.GpCost)
                     return false;
+                if (config.ChooseBestActionsAutomatically)
+                    return true;
                 if (Player.Object.CurrentGp < config.CollectableActions.Brazen.MinGP
                  || Player.Object.CurrentGp > config.CollectableActions.Brazen.MaxGP)
                     return false;
@@ -135,10 +141,12 @@ namespace GatherBuddy.AutoGather
                     return false;
                 if (Player.Object.CurrentGp < Actions.Scrutiny.GpCost)
                     return false;
+                if (Player.Status.Any(s => s.StatusId == Actions.Scrutiny.EffectId))
+                    return false;
+                if (config.ChooseBestActionsAutomatically)
+                    return true;
                 if (Player.Object.CurrentGp < config.CollectableActions.Scrutiny.MinGP
                  || Player.Object.CurrentGp > config.CollectableActions.Scrutiny.MaxGP)
-                    return false;
-                if (Player.Status.Any(s => s.StatusId == Actions.Scrutiny.EffectId))
                     return false;
 
                 return config.CollectableActions.Scrutiny.Enabled;
@@ -154,10 +162,12 @@ namespace GatherBuddy.AutoGather
                     return false;
                 if (Player.Object.CurrentGp < Actions.SolidAge.GpCost)
                     return false;
+                if (Player.Status.Any(s => s.StatusId == Actions.SolidAge.EffectId))
+                    return false;
+                if (config.ChooseBestActionsAutomatically)
+                    return true;
                 if (Player.Object.CurrentGp < config.CollectableActions.SolidAge.MinGP
                  || Player.Object.CurrentGp > config.CollectableActions.SolidAge.MaxGP)
-                    return false;
-                if (Player.Status.Any(s => s.StatusId == Actions.SolidAge.EffectId))
                     return false;
 
                 return config.CollectableActions.SolidAge.Enabled;
