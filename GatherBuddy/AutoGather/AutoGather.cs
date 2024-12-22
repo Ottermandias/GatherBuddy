@@ -3,6 +3,7 @@ using GatherBuddy.Plugin;
 using System;
 using System.Linq;
 using System.Numerics;
+using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
@@ -439,7 +440,7 @@ namespace GatherBuddy.AutoGather
             if (!string.IsNullOrEmpty(status))
                 AutoStatus = status;
             if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
-                _soundHelper.PlayHonkSound(3);
+                Task.Run(() => _soundHelper.PlayHonkSound(3));
             CloseGatheringAddons();
             if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone)
                 EnqueueActionWithDelay(GoHome);

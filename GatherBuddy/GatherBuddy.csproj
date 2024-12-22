@@ -42,14 +42,14 @@
     <EmbeddedResource Include="CustomInfo\world_locations.json" />
     <None Remove="CustomInfo\node_offsets.json" />
     <EmbeddedResource Include="CustomInfo\node_offsets.json" />
-    <None Remove="CustomInfo\honk-sound.mp3" />
-    <EmbeddedResource Include="CustomInfo\honk-sound.mp3" />
+    <None Remove="CustomInfo\honk-sound.wav" />
+    <EmbeddedResource Include="CustomInfo\honk-sound.wav" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="11.0.0" />
-    <PackageReference Include="NAudio" Version="2.2.1" />
-    <PackageReference Include="NAudio.Core" Version="2.2.1" />
+    <PackageReference Include="OpenTK" Version="5.0.0-pre.13" />
+    <PackageReference Include="System.Windows.Extensions" Version="9.0.0" />
     <Reference Include="Dalamud">
       <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>
       <Private>False</Private>
