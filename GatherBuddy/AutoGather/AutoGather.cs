@@ -61,6 +61,7 @@ namespace GatherBuddy.AutoGather
                         VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                     StopNavigation();
                     AutoStatus = "Idle...";
+                    ActionSequence = null;
                 }
                 else
                 {
@@ -177,6 +178,8 @@ namespace GatherBuddy.AutoGather
                 }
                 return;
             }
+
+            ActionSequence = null;
 
             //Cache IPC call results
             var isPathGenerating = IsPathGenerating;

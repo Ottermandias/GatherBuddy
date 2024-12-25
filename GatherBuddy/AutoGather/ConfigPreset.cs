@@ -32,6 +32,8 @@ namespace GatherBuddy.AutoGather
         public bool CollectableAlwaysUseSolidAge { get; set; } = true;
         public int CollectableTagetScore { get => collectableTagetScore; set => collectableTagetScore = Math.Max(0, Math.Min(MaxCollectability, value)); }
         public int CollectableMinScore { get => collectableMinScore; set => collectableMinScore = Math.Max(0, Math.Min(MaxCollectability, value)); }
+        public bool ChooseBestActionsAutomatically { get; set; } = true;
+        public bool SpendGPOnBestNodesOnly { get; set; } = false;
         public GatheringActionsRec GatherableActions { get; init; } = new();
         public CollectableActionsRec CollectableActions { get; init; } = new();
         public ConsumablesRec Consumables { get; init; } = new();
@@ -174,6 +176,9 @@ namespace GatherBuddy.AutoGather
             CollectableAlwaysUseSolidAge = original.CollectableAlwaysUseSolidAge;
             CollectableTagetScore = original.CollectableTagetScore;
             CollectableMinScore = original.CollectableMinScore;
+
+            ChooseBestActionsAutomatically = original.ChooseBestActionsAutomatically;
+            SpendGPOnBestNodesOnly = original.SpendGPOnBestNodesOnly;
 
             GatherableActions = original.GatherableActions with { };
             CollectableActions = original.CollectableActions with { };
