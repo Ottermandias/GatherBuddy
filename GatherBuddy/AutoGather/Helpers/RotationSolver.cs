@@ -42,6 +42,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public Job PlayerJob { get; init; }
             public int PlayerLevel { get; init; }
             public uint MaxGP { get; init; }
+            public uint InitialGP { get; init; }
             public int MaxIntegity { get; init; }
             public int BountifulYield { get; init; }
             public int BountyYield { get; init; }
@@ -69,6 +70,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 BountyYield = other.BountyYield;
                 GPRegenPerHit = other.GPRegenPerHit;
                 GPRegenPerTick = other.GPRegenPerTick;
+                InitialGP = other.InitialGP;
                 IsCrystal = other.IsCrystal;
                 Iterations = other.Iterations;
                 MaxGP = other.MaxGP;
@@ -94,7 +96,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public byte Yield { get; init; }
             public byte BoonYield { get; init; }
             public EffectType Effects { get; init; }
-            public byte GatheredTimes { get; init; }
+            public byte RestoredGP { get; init; }
         }
 
         private class SolverAction
@@ -143,7 +145,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public bool Check(State state) 
                 => (_action?.GpCost ?? 0) <= state.GP
                 && (_effect & state.Effects) == 0 
-                && (_singleUse || state.Integity == state.Global.MaxIntegity || state.GP - state.Global.GPRegenPerHit * state.GatheredTimes < _action?.GpCost) 
+                && (_singleUse || state.Integity == state.Global.MaxIntegity || state.GP - state.RestoredGP < _action?.GpCost) 
                 && _check(state);
             public State Execute(State state) => _execute(state with { GP = (ushort)(state.GP - (_action?.GpCost ?? 0)), Effects = state.Effects | _effect });
         }
@@ -184,7 +186,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 TotalYield = state.TotalYield + (uint)(state.Yield * 1000 + state.BoonYield * state.BoonChance * 10),
                 Integity = (byte)(state.Integity - 1),
                 GP = (ushort)Math.Min(state.GP + state.Global.GPRegenPerHit, state.Global.MaxGP),
-                GatheredTimes = (byte)(state.GatheredTimes + 1)
+                RestoredGP = (byte)(state.RestoredGP + Math.Min(state.Global.GPRegenPerHit, state.Global.MaxGP - state.GP))
             };
             if ((state.Effects & EffectType.Bountiful) != 0)
             {
@@ -204,7 +206,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 if (state.Global.OptimizeForCost)
                 {
                     var extraYield = checked(state.TotalYield - state.Global.BaselineYield);
-                    var usedGP = (uint)state.Global.UsedActions.Sum(a => a?.GpCost ?? 0);
+                    var usedGP = checked(state.Global.InitialGP + state.RestoredGP - state.GP);
                     var yield = checked(usedGP == 0 ? 0 : (uint)((long)extraYield * 100 / usedGP));
 
                     if (state.Global.BestYield == 0 || yield > state.Global.BestYield || yield == state.Global.BestYield && usedGP > state.Global.BestGP)
@@ -258,6 +260,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 PlayerJob = Player.Job,
                 PlayerLevel = Player.Level,
                 MaxGP = Player.Object.MaxGp,
+                InitialGP = Player.Object.CurrentGp,
                 MaxIntegity = slot.Node.MaxIntegrity,
                 BountifulYield = AutoGather.CalculateBountifulBonus(slot.Item),
                 BountyYield = Player.Level >= 71 ? 3 : 2,
@@ -363,6 +366,7 @@ namespace GatherBuddy.AutoGather.Helpers
                         Global = state.Global with
                         {
                             MaxIntegity = 6,
+                            InitialGP = startingGP,
                             BaselineYield = (uint)(1 * 1000 + (state.BoonChance > 0 ? 60 : 0) * 10) * 6 // TODO BoonChance
                         },
                         BoonChance = (byte)(state.BoonChance > 0 ? 60 : 0),//TODO BoonChance
@@ -379,6 +383,7 @@ namespace GatherBuddy.AutoGather.Helpers
                         Global = state.Global with
                         {
                             MaxIntegity = 4,
+                            InitialGP = startingGP,
                             BaselineYield = (uint)(4 * 1000 + (state.BoonChance > 0 ? 60 : 0) * 10) * 4 // TODO BoonChance
                         },
                         BoonChance = (byte)(state.BoonChance > 0 ? 60 : 0),//TODO BoonChance
@@ -395,6 +400,7 @@ namespace GatherBuddy.AutoGather.Helpers
                         Global = state.Global with
                         {
                             MaxIntegity = 4,
+                            InitialGP = startingGP,
                             BaselineYield = (uint)(1 * 1000 + 100 * 10) * 4
                         },
                         BoonChance = 100,
