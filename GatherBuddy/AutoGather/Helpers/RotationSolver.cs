@@ -312,7 +312,7 @@ namespace GatherBuddy.AutoGather.Helpers
             var isCrystal = state.Global.IsCrystal;
             var givingLand = isCrystal ? state.Global.AvailableActions.FirstOrDefault(x => x.Action == Actions.GivingLand) : null;
 
-            if (givingLand?.Check(state) == true)
+            if (givingLand?.Check(state) == true && state.Integity >= 4)
             {
                 //The Giving Land is the only ability with a cooldown, so we give it a special treatment.
                 //I did some math, and it appears that there is no point in waiting for +1 or + 2 integrity nodes,
