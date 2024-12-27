@@ -371,12 +371,12 @@ namespace GatherBuddy.AutoGather
             try
             {
                 var glvl = item.GatheringData.GatheringItemLevel.RowId;
-                var baseValue = WorldData.BaseGathering[glvl];
+                var baseValue = WorldData.IlvConvertTable[(int)glvl].BaseGathering;
                 var stat = CharacterGatheringStat;
 
-                if (stat >= (int)(baseValue * 1.1))
+                if (stat >= baseValue * 11 / 10)
                     return 3;
-                if (stat >= (int)(baseValue * 0.9))
+                if (stat >= baseValue * 9 / 10)
                     return 2;
 
                 return 1;

@@ -33,12 +33,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Remove="CustomInfo\base_gathering.json" />
+    <None Remove="CustomInfo\IlvConvertTable.csv" />
     <None Remove="CustomInfo\world_locations.json" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="CustomInfo\base_gathering.json" />
     <EmbeddedResource Include="CustomInfo\world_locations.json" />
     <None Remove="CustomInfo\node_offsets.json" />
     <EmbeddedResource Include="CustomInfo\node_offsets.json" />
@@ -92,5 +91,9 @@
 
 	<ItemGroup>
 	  <None Include="Plugin\AutoGather.cs" />
+	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="CustomInfo\IlvConvertTable.csv" />
 	</ItemGroup>
 </Project>
