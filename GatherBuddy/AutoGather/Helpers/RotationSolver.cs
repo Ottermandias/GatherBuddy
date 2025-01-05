@@ -149,7 +149,8 @@ namespace GatherBuddy.AutoGather.Helpers
             public bool Check(State state) 
                 => (_action?.GpCost ?? 0) <= state.GP
                 && (_effect & state.Effects) == 0 
-                && (_singleUse || state.Integity == state.Global.MaxIntegity || state.GP - state.RestoredGP < _action?.GpCost) 
+                //Only on the first step or if there were not enough GP on the first step
+                && (_singleUse || state.TotalYield == 0 || state.GP - state.RestoredGP < _action?.GpCost) 
                 && _check(state);
             public State Execute(State state) => _execute(state with { GP = (ushort)(state.GP - (_action?.GpCost ?? 0)), Effects = state.Effects | _effect });
         }
