@@ -139,11 +139,21 @@ namespace GatherBuddy.Gui
                 {
                     //Convert old settings to the new Default preset
                     Items.Add(GatherBuddy.Config.AutoGatherConfig.ConvertToPreset());
+                    Items[0].ChooseBestActionsAutomatically = true;
                     Save();
                     GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed = true;
+                    GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone = true;
                     GatherBuddy.Config.Save();
                 }
                 Items[Items.Count - 1] = Items[Items.Count - 1].MakeDefault();
+
+                if (!GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone)
+                {
+                    Items[Items.Count - 1].ChooseBestActionsAutomatically = true;
+                    GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone = true;
+                    Save();
+                    GatherBuddy.Config.Save();
+                }    
 
                 if (!GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed)
                 {

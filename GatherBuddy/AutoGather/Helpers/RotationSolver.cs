@@ -10,6 +10,8 @@ using Actions = GatherBuddy.AutoGather.AutoGather.Actions;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using ECommons.ExcelServices;
 using ECommons;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using GatherBuddy.CustomInfo;
 
 namespace GatherBuddy.AutoGather.Helpers
 {
@@ -42,6 +44,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public Job PlayerJob { get; init; }
             public int PlayerLevel { get; init; }
             public uint MaxGP { get; init; }
+            public uint InitialGP { get; init; }
             public int MaxIntegity { get; init; }
             public int BountifulYield { get; init; }
             public int BountyYield { get; init; }
@@ -51,6 +54,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public Stack<Actions.BaseAction?> UsedActions { get; init;  } = [];
             public uint BestYield { get; set; } = 0; // Milli
             public uint BaselineYield { get; set; } = 0; // Milli
+            public uint BaseBoonChance { get; set; } = 0;
             public int BestGP { get; set; } = 0;
             public List<Actions.BaseAction?> BestActions { get; init; } = [];
             public ulong Iterations { get; set; } = 0;
@@ -61,6 +65,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public GlobalState(GlobalState other)
             {
                 AvailableActions = other.AvailableActions;
+                BaseBoonChance = other.BaseBoonChance;
                 BaselineYield = other.BaselineYield;
                 BestGP = other.BestGP;
                 BestYield = other.BestYield;
@@ -69,6 +74,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 BountyYield = other.BountyYield;
                 GPRegenPerHit = other.GPRegenPerHit;
                 GPRegenPerTick = other.GPRegenPerTick;
+                InitialGP = other.InitialGP;
                 IsCrystal = other.IsCrystal;
                 Iterations = other.Iterations;
                 MaxGP = other.MaxGP;
@@ -94,7 +100,7 @@ namespace GatherBuddy.AutoGather.Helpers
             public byte Yield { get; init; }
             public byte BoonYield { get; init; }
             public EffectType Effects { get; init; }
-            public byte GatheredTimes { get; init; }
+            public byte RestoredGP { get; init; }
         }
 
         private class SolverAction
@@ -143,7 +149,8 @@ namespace GatherBuddy.AutoGather.Helpers
             public bool Check(State state) 
                 => (_action?.GpCost ?? 0) <= state.GP
                 && (_effect & state.Effects) == 0 
-                && (_singleUse || state.Integity == state.Global.MaxIntegity || state.GP - state.Global.GPRegenPerHit * state.GatheredTimes < _action?.GpCost) 
+                //Only on the first step or if there were not enough GP on the first step
+                && (_singleUse || state.TotalYield == 0 || state.GP - state.RestoredGP < _action?.GpCost) 
                 && _check(state);
             public State Execute(State state) => _execute(state with { GP = (ushort)(state.GP - (_action?.GpCost ?? 0)), Effects = state.Effects | _effect });
         }
@@ -184,7 +191,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 TotalYield = state.TotalYield + (uint)(state.Yield * 1000 + state.BoonYield * state.BoonChance * 10),
                 Integity = (byte)(state.Integity - 1),
                 GP = (ushort)Math.Min(state.GP + state.Global.GPRegenPerHit, state.Global.MaxGP),
-                GatheredTimes = (byte)(state.GatheredTimes + 1)
+                RestoredGP = (byte)(state.RestoredGP + Math.Min(state.Global.GPRegenPerHit, state.Global.MaxGP - state.GP))
             };
             if ((state.Effects & EffectType.Bountiful) != 0)
             {
@@ -204,7 +211,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 if (state.Global.OptimizeForCost)
                 {
                     var extraYield = checked(state.TotalYield - state.Global.BaselineYield);
-                    var usedGP = (uint)state.Global.UsedActions.Sum(a => a?.GpCost ?? 0);
+                    var usedGP = checked(state.Global.InitialGP + state.RestoredGP - state.GP);
                     var yield = checked(usedGP == 0 ? 0 : (uint)((long)extraYield * 100 / usedGP));
 
                     if (state.Global.BestYield == 0 || yield > state.Global.BestYield || yield == state.Global.BestYield && usedGP > state.Global.BestGP)
@@ -258,6 +265,7 @@ namespace GatherBuddy.AutoGather.Helpers
                 PlayerJob = Player.Job,
                 PlayerLevel = Player.Level,
                 MaxGP = Player.Object.MaxGp,
+                InitialGP = Player.Object.CurrentGp,
                 MaxIntegity = slot.Node.MaxIntegrity,
                 BountifulYield = AutoGather.CalculateBountifulBonus(slot.Item),
                 BountyYield = Player.Level >= 71 ? 3 : 2,
@@ -266,7 +274,8 @@ namespace GatherBuddy.AutoGather.Helpers
                 AvailableActions = SolverActions.Where(a => a.Filter(slot)).ToList(),
                 GPRegenPerTick = gpQuest ? (Player.Level switch { >= 83 => 8u, >= 80 => 7u, _ => 6u }) : 5u,
                 GPRegenPerHit = (gpQuest && Player.Level >= 80) ? 6u : 5u,
-                SpendGPOnBestNodesOnly = config.SpendGPOnBestNodesOnly
+                SpendGPOnBestNodesOnly = config.SpendGPOnBestNodesOnly,
+                BaseBoonChance = slot.BoonChance > 0 ? CalculateBoonChance(slot.Item.GatheringData.GatheringItemLevel.RowId) : 0
             };
             var state = new State()
             {
@@ -312,7 +321,7 @@ namespace GatherBuddy.AutoGather.Helpers
             var isCrystal = state.Global.IsCrystal;
             var givingLand = isCrystal ? state.Global.AvailableActions.FirstOrDefault(x => x.Action == Actions.GivingLand) : null;
 
-            if (givingLand?.Check(state) == true)
+            if (givingLand?.Check(state) == true && state.Integity >= 4)
             {
                 //The Giving Land is the only ability with a cooldown, so we give it a special treatment.
                 //I did some math, and it appears that there is no point in waiting for +1 or + 2 integrity nodes,
@@ -354,7 +363,7 @@ namespace GatherBuddy.AutoGather.Helpers
 
                     //Start with little less then full GP
                     var startingGP = (ushort)state.Global.MaxGP;
-                    var startingGPDelta = KeepGPBelowMaxMinus + (bountiful?.Action?.GpCost ?? 0);
+                    var startingGPDelta = KeepGPBelowMaxMinus + (bounty?.Action?.GpCost ?? bountiful?.Action?.GpCost ?? 0);
                     if (startingGP > startingGPDelta) startingGP -= (ushort)startingGPDelta;
 
                     //Solve for +2 integrity bonus
@@ -363,9 +372,10 @@ namespace GatherBuddy.AutoGather.Helpers
                         Global = state.Global with
                         {
                             MaxIntegity = 6,
-                            BaselineYield = (uint)(1 * 1000 + (state.BoonChance > 0 ? 60 : 0) * 10) * 6 // TODO BoonChance
+                            InitialGP = startingGP,
+                            BaselineYield = (1 * 1000 + state.Global.BaseBoonChance * 10) * 6
                         },
-                        BoonChance = (byte)(state.BoonChance > 0 ? 60 : 0),//TODO BoonChance
+                        BoonChance = (byte)state.Global.BaseBoonChance,
                         BoonYield = 1,
                         Integity = 6,
                         Yield = 1,
@@ -379,9 +389,10 @@ namespace GatherBuddy.AutoGather.Helpers
                         Global = state.Global with
                         {
                             MaxIntegity = 4,
-                            BaselineYield = (uint)(4 * 1000 + (state.BoonChance > 0 ? 60 : 0) * 10) * 4 // TODO BoonChance
+                            InitialGP = startingGP,
+                            BaselineYield = (4 * 1000 + state.Global.BaseBoonChance * 10) * 4
                         },
-                        BoonChance = (byte)(state.BoonChance > 0 ? 60 : 0),//TODO BoonChance
+                        BoonChance = (byte)state.Global.BaseBoonChance,
                         BoonYield = 1,
                         Integity = 4,
                         Yield = 4,
@@ -395,6 +406,7 @@ namespace GatherBuddy.AutoGather.Helpers
                         Global = state.Global with
                         {
                             MaxIntegity = 4,
+                            InitialGP = startingGP,
                             BaselineYield = (uint)(1 * 1000 + 100 * 10) * 4
                         },
                         BoonChance = 100,
@@ -492,5 +504,26 @@ namespace GatherBuddy.AutoGather.Helpers
                 return detail->Total - detail->Elapsed;
             }
         }
+
+        private static uint CalculateBoonChance(uint glvl)
+        {
+            if (!Svc.Framework.IsInFrameworkUpdateThread)
+            {
+                GatherBuddy.Log.Error("BUG: RotationSolver.CalculateBoonChance is accessed from a worker thread.");
+                return 0;
+            }
+            var basePerception = WorldData.IlvConvertTable[(int)glvl].BasePerception;            
+            if (basePerception == 0) return 0;
+
+            var score = (uint)Math.Min(150, 100 * CharacterPerceptionStat / basePerception);
+            if (score >= 100) return (score - 100) * (60 - 35) / (150 - 100) + 35;
+            if (score >=  80) return (score -  80) * (35 - 15) / (100 -  80) + 15;
+            if (score >=  70) return (score -  70) * (15 - 10) / ( 80 -  70) + 10;
+            if (score >=  60) return (score -  60) * (10 -  0) / ( 70 -  60);
+
+            return 0;
+        }
+
+        private static unsafe int CharacterPerceptionStat => PlayerState.Instance()->Attributes[73];
     }
 }

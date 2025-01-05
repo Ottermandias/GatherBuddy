@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -14,13 +16,13 @@ namespace GatherBuddy.CustomInfo
         private static string NodeOffsetsPath = Path.Combine(Dalamud.PluginInterface.ConfigDirectory.FullName, "node_offsets.json");
         public static Dictionary<uint, List<Vector3>> WorldLocationsByNodeId { get; set; } = new();
         public static Dictionary<Vector3, Vector3>    NodeOffsets            { get; set; } = new();
-        public static Dictionary<uint, uint> BaseGathering { get; set; } = new();
+        public static ReadOnlyCollection<(ushort BaseGathering, ushort BasePerception)> IlvConvertTable { get; private set; }
 
         static WorldData()
         {
             LoadLocationsFromFile();
             LoadOffsetsFromFile();
-            LoadBaseGatheringFromFile();
+            LoadIlvConvertTableFromFile();
         }
 
         private static void LoadOffsetsFromFile()
@@ -160,14 +162,24 @@ namespace GatherBuddy.CustomInfo
 
             File.WriteAllText(WorldLocationsPath, locJson);
         }
-        private static unsafe void LoadBaseGatheringFromFile()
+
+        [MemberNotNull(nameof(IlvConvertTable))]
+        private static unsafe void LoadIlvConvertTableFromFile()
         {
-            var settings = new JsonSerializerSettings();
-            var resourceName = "GatherBuddy.CustomInfo.base_gathering.json";
+            var resourceName = "GatherBuddy.CustomInfo.IlvConvertTable.csv";
             var assembly = typeof(GatherBuddy).Assembly;
-            var stream = assembly.GetManifestResourceStream(resourceName) ?? throw new FileNotFoundException("Embedded resource not found.", resourceName);
-            var fileContent = new StreamReader(stream).ReadToEnd();
-            BaseGathering = JsonConvert.DeserializeObject<Dictionary<uint, uint>>(fileContent, settings) ?? throw new Exception("Couldn't parse base_gathering.json");
+            var resource = assembly.GetManifestResourceStream(resourceName) ?? throw new FileNotFoundException("Embedded resource not found.", resourceName);
+            var stream = new StreamReader(resource);
+
+            stream.ReadLine();
+            var list = new List<(ushort, ushort)>(1000);
+            while (stream.ReadLine() is string line and { Length: > 5 })
+            {
+                Span<ushort> values = [.. line.Split(',').Select(ushort.Parse)];
+                while (list.Count < values[0] + 1) list.Add((0, 0));
+                list[values[0]] = (values[1], values[2]);
+            }
+            IlvConvertTable = new([.. list]);
         }
     }
 
