@@ -245,8 +245,8 @@ public partial class Interface
             "If the config option to sort by location is not selected, items are gathered in order of enabled list, then order of item in list.\n"
           + "You can drag and draw lists to move them.\n"
           + "You can drag and draw items in a specific list to move them.\n"
-          + "You can drag and draw an item onto a different list from the selector to add it to that list and remove it from the current.");
-          //+ "In the Gather Window, you can hold Control and Right-Click an item to delete it from the preset it comes from.");
+          + "You can drag and draw an item onto a different list from the selector to add it to that list and remove it from the current.\n"
+          + "In the Gather Window, you can hold Control and Right-Click an item to delete it from the list it comes from.");
     }
 
     private void DrawAutoGatherList(AutoGatherList list)
