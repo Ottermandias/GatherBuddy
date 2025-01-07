@@ -279,6 +279,13 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (HasBrokenGear())
+            {
+                Communicator.PrintError("Your gear is almost broken. Repair it before enabling Auto-Gather.");
+                AbortAutoGather("Gear is broken");
+                return;
+            }
+
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
             if (territoryId == 478 && targetInfo.Location.Territory.Id == 399 && Lifestream_IPCSubscriber.IsEnabled)
@@ -611,6 +618,24 @@ namespace GatherBuddy.AutoGather
 
                 return false;
             }
+        }
+
+        private unsafe bool HasBrokenGear()
+        {
+            var inventory = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
+            for (var slot = 0; slot < inventory->Size; slot++)
+            {
+                var inventoryItem = inventory->GetInventorySlot(slot);
+                if (inventoryItem == null || inventoryItem->ItemId <= 0)
+                    continue;
+
+                if (inventoryItem->Condition <= 300) //1%
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         public void Dispose()
