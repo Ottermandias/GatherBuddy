@@ -228,7 +228,9 @@ public partial class Interface
 
                         list.Add(gatherable, (uint)quantity);
                     }
-                    
+
+                    _plugin.AutoGatherListsManager.Save();
+
                     if (list.Enabled)
                         _plugin.AutoGatherListsManager.SetActiveItems();
                 }
