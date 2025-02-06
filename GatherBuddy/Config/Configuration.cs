@@ -107,6 +107,7 @@ public partial class Configuration : IPluginConfiguration
     public bool             ShowGatherWindowAlarms         { get; set; } = true;
     public bool             SortGatherWindowByUptime       { get; set; } = false;
     public bool             ShowGatherWindowOnlyAvailable  { get; set; } = false;
+    public bool             HideGatherWindowCompletedItems { get; set; } = false;
     public bool             HideGatherWindowInDuty         { get; set; } = true;
     public bool             OnlyShowGatherWindowHoldingKey { get; set; } = false;
     public bool             LockGatherWindow               { get; set; } = false;

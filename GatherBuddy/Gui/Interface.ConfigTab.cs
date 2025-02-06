@@ -564,6 +564,11 @@ public partial class Interface
                 "Show only those items from your gather window setup that are currently available.",
                 GatherBuddy.Config.ShowGatherWindowOnlyAvailable, b => GatherBuddy.Config.ShowGatherWindowOnlyAvailable = b);
 
+        public static void DrawHideGatherWindowCompletedItemsBox()
+            => DrawCheckbox("Hide Completed Items",
+                "Hide items that have the required inventory amount present in inventory.",
+                GatherBuddy.Config.HideGatherWindowCompletedItems, b => GatherBuddy.Config.HideGatherWindowCompletedItems = b);
+
         public static void DrawHideGatherWindowInDutyBox()
             => DrawCheckbox("Hide Gather Window in Duty",
                 "Hide the gather window when bound by any duty.",
@@ -784,6 +789,7 @@ public partial class Interface
                 ConfigFunctions.DrawGatherWindowAlarmsBox();
                 ConfigFunctions.DrawSortGatherWindowBox();
                 ConfigFunctions.DrawGatherWindowShowOnlyAvailableBox();
+                ConfigFunctions.DrawHideGatherWindowCompletedItemsBox();
                 ConfigFunctions.DrawHideGatherWindowInDutyBox();
                 ConfigFunctions.DrawGatherWindowHoldKey();
                 ConfigFunctions.DrawGatherWindowLockBox();

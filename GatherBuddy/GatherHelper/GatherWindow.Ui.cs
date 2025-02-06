@@ -117,6 +117,12 @@ public class GatherWindow : Window
         if (GatherBuddy.Config.ShowGatherWindowOnlyAvailable && time.Start > GatherBuddy.Time.ServerTime)
             return;
 
+        var inventoryCount = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
+        var quantity = _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(item);
+
+        if (quantity > 0 && inventoryCount >= quantity && GatherBuddy.Config.HideGatherWindowCompletedItems)
+            return;
+
         if (ImGui.TableNextColumn())
         {
             using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing / 2);
@@ -128,8 +134,6 @@ public class GatherWindow : Window
             var colorId = time == TimeInterval.Always    ? ColorId.GatherWindowText :
                 time.Start > GatherBuddy.Time.ServerTime ? ColorId.GatherWindowUpcoming : ColorId.GatherWindowAvailable;
 
-            var inventoryCount                      = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
-            var quantity                            = _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(item);
             if (quantity > 0 && inventoryCount >= quantity)
                 colorId = ColorId.DisabledText;
             using var color                         = ImRaii.PushColor(ImGuiCol.Text, colorId.Value());
