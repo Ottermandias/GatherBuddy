@@ -649,9 +649,9 @@ public partial class Interface
                 text.AppendLine($"Touched: {tr.Touched}");
                 text.AppendLine($"HiddenRevealed: {tr.HiddenRevealed}");
                 text.AppendLine($"Integrty: {tr.Integrity}/{tr.MaxIntegrity}");
-                text.Append($"Quick gathering: {(!tr.QuckGatheringAllowed ? "not" : "")} allowed");
-                if (tr.QuckGatheringAllowed) text.Append($", {(!tr.QuckGatheringChecked ? "not" : "")} checked");
-                if (tr.QuckGatheringInProcess) text.Append($", in process");
+                text.Append($"Quick gathering: {(!tr.QuickGatheringAllowed ? "not" : "")} allowed");
+                if (tr.QuickGatheringAllowed) text.Append($", {(!tr.QuickGatheringChecked ? "not" : "")} checked");
+                if (tr.QuickGatheringInProgress) text.Append($", in progress");
                 text.AppendLine();
                 for (var i = 0; i < 8; i++)
                 {
