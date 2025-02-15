@@ -4,7 +4,6 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using FFXIVClientStructs.FFXIV.Client.Game;
-using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;

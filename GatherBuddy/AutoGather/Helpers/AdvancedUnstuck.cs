@@ -72,14 +72,14 @@ namespace GatherBuddy.AutoGather.Movement
                     _lastPosition = Player.Object.Position;
                     _lastMovement = now;
                 }
-                //...but now fast enough: unstuck
+                //...but not fast enough: unstuck
                 else if (now.Subtract(_lastMovement).TotalSeconds > GatherBuddy.Config.AutoGatherConfig.NavResetThreshold)
                 {
                     GatherBuddy.Log.Warning($"Advanced Unstuck: the character is stuck. Moved {_lastPosition.DistanceToPlayer()} yalms in {now.Subtract(_lastMovement).TotalSeconds} seconds.");
                     Start();
                 }
             }
-            //Not generating path and not moving 2 framework updates in a sequence: unstuck
+            //Not generating path and not moving for 2 consecutive framework updates: unstuck
             else if (_lastWasFailure)
             {
                 GatherBuddy.Log.Warning($"Advanced Unstuck: vnavmesh failure detected.");

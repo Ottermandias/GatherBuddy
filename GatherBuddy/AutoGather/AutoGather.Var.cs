@@ -135,12 +135,12 @@ namespace GatherBuddy.AutoGather
                 if (InventoryCount(item) >= QuantityTotal(item) || item.IsTreasureMap && InventoryCount(item) > 0)
                     continue;
 
-                if (item.IsTreasureMap && NextTresureMapAllowance >= AdjuctedServerTime.DateTime)
+                if (item.IsTreasureMap && NextTreasureMapAllowance >= AdjustedServerTime.DateTime)
                     continue;
 
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                 {
-                    if (time.InRange(AdjuctedServerTime))
+                    if (time.InRange(AdjustedServerTime))
                         ItemsToGather.Add((item, location, time));
                 }
                 else
@@ -157,7 +157,7 @@ namespace GatherBuddy.AutoGather
             (ILocation? Location, TimeInterval Time) res = default;
             //First priority: selected preferred location.
             var node = _plugin.AutoGatherListsManager.GetPreferredLocation(item);
-            var time = AdjuctedServerTime;
+            var time = AdjustedServerTime;
             if (node != null && !VisitedTimedLocations.ContainsKey(node))
             {
                 res = (node, node.Times.NextUptime(time));
@@ -274,15 +274,15 @@ namespace GatherBuddy.AutoGather
             => ActionManager.Instance()->IsActionOffCooldown(ActionType.Action, Actions.GivingLand.ActionId);
 
         //Should be near the upper bound to reduce the probability of overcapping.
-        private const int GivingLandYeild = 30;
+        private const int GivingLandYield = 30;
 
-        private static unsafe DateTime NextTresureMapAllowance
+        private static unsafe DateTime NextTreasureMapAllowance
             => FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->GetNextMapAllowanceDateTime();
 
         private static unsafe uint FreeInventorySlots
             => InventoryManager.Instance()->GetEmptySlotsInBag();
 
-        private static TimeStamp AdjuctedServerTime
+        private static TimeStamp AdjustedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
 
         private static unsafe int CharacterGatheringStat

@@ -101,7 +101,7 @@ public class AutoGatherList
         return quantity;
     }
 
-    public bool SetPrefferedLocation(Gatherable item, GatheringNode? location)
+    public bool SetPreferredLocation(Gatherable item, GatheringNode? location)
     {
         if (quantities.ContainsKey(item))
         {
@@ -128,7 +128,7 @@ public class AutoGatherList
 
         public uint[] ItemIds = list.Items.Select(i => i.ItemId).ToArray();
         public Dictionary<uint, uint> Quantities = list.Quantities.ToDictionary(v => v.Key.ItemId, v => v.Value);
-        public Dictionary<uint, uint> PrefferedLocations = list.PreferredLocations.ToDictionary(v => v.Key.ItemId, v => v.Value.Id);
+        public Dictionary<uint, uint> PreferredLocations = list.PreferredLocations.ToDictionary(v => v.Key.ItemId, v => v.Value.Id);
         public string Name = list.Name;
         public string Description = list.Description;
         public bool Enabled = list.Enabled;
@@ -153,7 +153,7 @@ public class AutoGatherList
 
                 var json = Encoding.UTF8.GetString(bytes.AsSpan()[1..]);
                 cfg = JsonConvert.DeserializeObject<Config>(json);
-                if (cfg.ItemIds == null || cfg.Name == null || cfg.Description == null || cfg.Quantities == null || cfg.PrefferedLocations == null)
+                if (cfg.ItemIds == null || cfg.Name == null || cfg.Description == null || cfg.Quantities == null || cfg.PreferredLocations == null)
                     return false;
 
                 return true;
@@ -175,7 +175,7 @@ public class AutoGatherList
             Fallback = cfg.Fallback,
             items = new(cfg.ItemIds.Length),
             quantities = new(cfg.ItemIds.Length),
-            preferredLocations = new(cfg.PrefferedLocations.Count)
+            preferredLocations = new(cfg.PreferredLocations.Count)
         };
         var changes = false;
         foreach (var itemId in cfg.ItemIds)
@@ -184,10 +184,10 @@ public class AutoGatherList
             if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var item) && list.Add(item, quantity = cfg.Quantities.GetValueOrDefault(item.ItemId)))
             {
                 changes |= list.quantities[item] != quantity;
-                if (cfg.PrefferedLocations.TryGetValue(itemId, out var locId))
+                if (cfg.PreferredLocations.TryGetValue(itemId, out var locId))
                 {
                     if (item.NodeList.Where(n => n.Id == locId).FirstOrDefault() is var loc and not null)
-                        list.SetPrefferedLocation(item, loc);
+                        list.SetPreferredLocation(item, loc);
                     else
                         changes = true;
                 }

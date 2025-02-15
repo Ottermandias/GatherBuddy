@@ -75,7 +75,7 @@ namespace GatherBuddy.AutoGather
                 if (ShouldUseBrazen())
                     return Actions.Brazen;
 
-                throw new NoColectableActionsExceptions();
+                throw new NoCollectableActionsException();
             }
 
             private bool NeedScrutiny(int collectability, int scourColl, int meticulousColl, int brazenColl)

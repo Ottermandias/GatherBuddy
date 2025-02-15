@@ -57,7 +57,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (!IsGivingLandOffCooldown)
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - GivingLandYeild - slot.Yield)
+            if (InventoryCount(slot.Item) > 9999 - GivingLandYield - slot.Yield)
                 return false;
 
             return true;
@@ -67,7 +67,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot))
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYeild : 0))
+            if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYield : 0))
                 return false;
 
             return true;
@@ -105,9 +105,9 @@ namespace GatherBuddy.AutoGather
                 var left = int.MaxValue;
                 if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
                 { 
-                    if (desiredItem == null) throw new NoGatherableItemsInNodeExceptions();
+                    if (desiredItem == null) throw new NoGatherableItemsInNodeException();
                     left = (int)QuantityTotal(desiredItem) - InventoryCount(desiredItem);
-                    if (left < 1) throw new NoGatherableItemsInNodeExceptions();
+                    if (left < 1) throw new NoGatherableItemsInNodeException();
                 }
 
                 DoCollectibles(MatchConfigPreset(desiredItem), left);

@@ -74,7 +74,7 @@ namespace GatherBuddy.AutoGather
             public int MinBoonChance { get => minBoonChance; set => minBoonChance = Math.Max(0, Math.Min(100, value)); }
             public int MaxBoonChance { get => maxBoonChance; set => maxBoonChance = Math.Max(0, Math.Min(100, value)); }
         }
-        public record class ActionCofigConsumable : ActionConfig
+        public record class ActionConfigConsumable : ActionConfig
         {
             public uint ItemId { get; set; } = 0;
         }
@@ -142,12 +142,12 @@ namespace GatherBuddy.AutoGather
         }
         public record class ConsumablesRec
         {
-            public ActionCofigConsumable Cordial { get; init; } = new() { Enabled = false };
-            public ActionCofigConsumable Food { get; init; } = new() { Enabled = false };
-            public ActionCofigConsumable Potion { get; init; } = new() { Enabled = false };
-            public ActionCofigConsumable Manual { get; init; } = new() { Enabled = false };
-            public ActionCofigConsumable SquadronManual { get; init; } = new() { Enabled = false };
-            public ActionCofigConsumable SquadronPass { get; init; } = new() { Enabled = false };
+            public ActionConfigConsumable Cordial { get; init; } = new() { Enabled = false };
+            public ActionConfigConsumable Food { get; init; } = new() { Enabled = false };
+            public ActionConfigConsumable Potion { get; init; } = new() { Enabled = false };
+            public ActionConfigConsumable Manual { get; init; } = new() { Enabled = false };
+            public ActionConfigConsumable SquadronManual { get; init; } = new() { Enabled = false };
+            public ActionConfigConsumable SquadronPass { get; init; } = new() { Enabled = false };
             public ConsumablesRec(ConsumablesRec original)
             {
                 Cordial = original.Cordial with { };
