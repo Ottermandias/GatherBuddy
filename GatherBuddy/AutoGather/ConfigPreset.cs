@@ -83,8 +83,11 @@ namespace GatherBuddy.AutoGather
             private int min = 1;
             private int max = MaxLevel;
 
+            [JsonProperty(Order = 1)]
             public int Min { get => min; set => min = Math.Max(1, Math.Min(UseGlv ? MaxGvl : MaxLevel, value)); }
+            [JsonProperty(Order = 1)]
             public int Max { get => max; set => max = Math.Max(1, Math.Min(UseGlv ? MaxGvl : MaxLevel, value)); }
+            [JsonProperty(Order = 0)]
             public bool UseGlv { get; set; }
         }
         public record class ItemTypeRec
