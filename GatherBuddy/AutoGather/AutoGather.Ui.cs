@@ -212,7 +212,7 @@ namespace GatherBuddy.AutoGather
         }
 
         /// <summary>
-        /// Extension method to convert the strings to Proper Case.
+        /// Extension method to convert the string to Proper Case.
         /// </summary>
         /// <param name="input">The string input.</param>
         /// <returns>The string in Proper Case.</returns>

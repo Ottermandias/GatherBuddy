@@ -57,7 +57,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (!IsGivingLandOffCooldown)
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - GivingLandYeild - slot.Yield)
+            if (InventoryCount(slot.Item) > 9999 - GivingLandYield - slot.Yield)
                 return false;
 
             return true;
@@ -67,7 +67,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot))
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYeild : 0))
+            if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYield : 0))
                 return false;
 
             return true;
@@ -105,9 +105,9 @@ namespace GatherBuddy.AutoGather
                 var left = int.MaxValue;
                 if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
                 { 
-                    if (desiredItem == null) throw new NoGatherableItemsInNodeExceptions();
+                    if (desiredItem == null) throw new NoGatherableItemsInNodeException();
                     left = (int)QuantityTotal(desiredItem) - InventoryCount(desiredItem);
-                    if (left < 1) throw new NoGatherableItemsInNodeExceptions();
+                    if (left < 1) throw new NoGatherableItemsInNodeException();
                 }
 
                 DoCollectibles(MatchConfigPreset(desiredItem), left);
@@ -331,17 +331,18 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, ItemSlot slot, bool ignoreConfig = false)
+        private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, ItemSlot slot, bool autoMode = false)
         {
-            if (config.Enabled == false && !ignoreConfig)
+            // autoMode = true is used for TGL out-of-order check that occurs before the rotation solver kicks in.
+            if (config.Enabled == false && !autoMode)
                 return false;
             if (Player.Level < action.MinLevel)
                 return false;
             if (Player.Object.CurrentGp < action.GpCost)
                 return false;
-            if (Player.Object.CurrentGp < config.MinGP && !ignoreConfig)
+            if (Player.Object.CurrentGp < config.MinGP && !autoMode)
                 return false;
-            if (Player.Object.CurrentGp > config.MaxGP && !ignoreConfig)
+            if (Player.Object.CurrentGp > config.MaxGP && !autoMode)
                 return false;
             if (action.EffectId != 0 && Player.Status.Any(s => s.StatusId == action.EffectId))
                 return false;
@@ -353,9 +354,9 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.Rare)
                 return false;
-            if (config is ConfigPreset.ActionConfigIntegrity config2 && !ignoreConfig && (config2.MinIntegrity > NodeTracker.MaxIntegrity || config2.FirstStepOnly && NodeTracker.Touched))
+            if (config is ConfigPreset.ActionConfigIntegrity config2 && (!autoMode && config2.MinIntegrity > NodeTracker.MaxIntegrity || (config2.FirstStepOnly || autoMode) && NodeTracker.Touched))
                 return false;
-            if (config is ConfigPreset.ActionConfigBoon config3 && (slot.BoonChance == -1 || !ignoreConfig && (slot.BoonChance < config3.MinBoonChance || slot.BoonChance > config3.MaxBoonChance)))
+            if (config is ConfigPreset.ActionConfigBoon config3 && (slot.BoonChance == -1 || !autoMode && (slot.BoonChance < config3.MinBoonChance || slot.BoonChance > config3.MaxBoonChance)))
                 return false;
             if (action.EffectType is Actions.EffectType.BoonChance && slot.BoonChance == 100)
                 return false;

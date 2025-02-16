@@ -11,7 +11,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using ECommons.DalamudServices;
 using ECommons.ImGuiMethods;
 using GatherBuddy.Classes;
 using static GatherBuddy.AutoGather.AutoGather;
@@ -153,7 +152,7 @@ namespace GatherBuddy.Gui
                     GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone = true;
                     Save();
                     GatherBuddy.Config.Save();
-                }    
+                }
 
                 if (!GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed)
                 {
@@ -209,7 +208,7 @@ namespace GatherBuddy.Gui
                 DrawConfigPreset(selector.EnsureCurrent()!, selector.CurrentIdx == selector.Presets.Count - 1);
             });
         }
-        
+
         private void DrawConfigPresetHeader()
         {
             if (ImGui.Button("Export"))
@@ -404,14 +403,14 @@ namespace GatherBuddy.Gui
                             selector.Save();
 
                         tmp = preset.CollectableActionsMinGP;
-                        if (ImGui.DragInt("Minimum GP for using actions on collectibles", ref tmp, 1f, 0, ConfigPreset.MaxGP))
+                        if (ImGui.DragInt("Minimum GP for using actions on collectables", ref tmp, 1f, 0, ConfigPreset.MaxGP))
                             preset.CollectableActionsMinGP = tmp;
                         if (ImGui.IsItemDeactivatedAfterEdit())
                             selector.Save();
 
                         ImGui.SameLine();
                         if (ImGuiUtil.Checkbox($"Always use {ConcatNames(Actions.SolidAge)}",
-                            $"Use {ConcatNames(Actions.SolidAge)} regardless of starting GP if target collectability score is reached",
+                            $"Use {ConcatNames(Actions.SolidAge)} regardless of starting GP if the target collectability score is reached",
                             preset.CollectableAlwaysUseSolidAge,
                             x => preset.CollectableAlwaysUseSolidAge = x))
                             selector.Save();
@@ -423,7 +422,7 @@ namespace GatherBuddy.Gui
                             selector.Save();
 
                         tmp = preset.CollectableMinScore;
-                        if (ImGui.DragInt($"Minimum collectability score to collect on the last integrity point ({ConfigPreset.MaxCollectability} to disable)", ref tmp, 1f, 0, ConfigPreset.MaxCollectability))
+                        if (ImGui.DragInt($"Minimum collectability score to collect at the last integrity point (set to {ConfigPreset.MaxCollectability} to disable)", ref tmp, 1f, 0, ConfigPreset.MaxCollectability))
                             preset.CollectableMinScore = tmp;
                         if (ImGui.IsItemDeactivatedAfterEdit())
                             selector.Save();
@@ -440,7 +439,7 @@ namespace GatherBuddy.Gui
 
                     if (preset.ChooseBestActionsAutomatically && preset.NodeType.Regular)
                     {
-                        if (ImGuiUtil.Checkbox("Hold on spending GP until a node with the best bonuses",
+                        if (ImGuiUtil.Checkbox("Hold off spending GP until a node with the best bonuses",
                             "This setting is for regular nodes only. When enabled, GP would be kept for nodes with bonuses\n" +
                             "that would give the best possible yield per GP spent. Make sure that nodes with +2 integrity,\n" +
                             "+3 yield, and +100% boon chance hidden bonuses do exist, and you can meet their requirements.\n" +
@@ -562,7 +561,7 @@ namespace GatherBuddy.Gui
             if (action is ConfigPreset.ActionConfigIntegrity action4)
             {
                 var tmp = action4.MinIntegrity;
-                if (ImGui.DragInt("Minumum initial node integrity", ref tmp, 0.1f, 1, ConfigPreset.MaxIntegrity))
+                if (ImGui.DragInt("Minimum initial node integrity", ref tmp, 0.1f, 1, ConfigPreset.MaxIntegrity))
                     action4.MinIntegrity = tmp;
                 if (ImGui.IsItemDeactivatedAfterEdit())
                     save();
@@ -585,7 +584,7 @@ namespace GatherBuddy.Gui
                     save();
             }
 
-            if (action is ConfigPreset.ActionCofigConsumable action7 && items != null)
+            if (action is ConfigPreset.ActionConfigConsumable action7 && items != null)
             {
                 var list = items
                     .SelectMany(item => new[] { (item, rowid: item.RowId), (item, rowid: item.RowId + 100000) })
@@ -593,7 +592,7 @@ namespace GatherBuddy.Gui
                     .Select(x => (name: x.item.Name.ExtractText(), x.rowid, count: GetInventoryItemCount(x.rowid)))
                     .OrderBy(x => x.count == 0)
                     .ThenBy(x => x.name)
-                    .Select(x => x with { name = $"{(x.rowid > 100000 ? " " : "")}{x.name} ({x.count})" } )
+                    .Select(x => x with { name = $"{(x.rowid > 100000 ? " " : "")}{x.name} ({x.count})" })
                     .ToList();
 
                 var selected = (action7.ItemId > 0 ? list.FirstOrDefault(x => x.rowid == action7.ItemId).name : null) ?? string.Empty;

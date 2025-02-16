@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using GatherBuddy.AutoGather.Lists;
-using GatherBuddy.Classes;
-using GatherBuddy.Interfaces;
+﻿using GatherBuddy.Classes;
 using GatherBuddy.Plugin;
 
 namespace GatherBuddy.AutoGather.Lists;
@@ -59,6 +56,7 @@ public partial class AutoGatherListsManager
         if (list.Items.Count > 0)
             SetActiveItems();
     }
+
     public void SetFallback(AutoGatherList list, bool value)
     {
         list.Fallback = value;
@@ -81,7 +79,7 @@ public partial class AutoGatherListsManager
     {
         if (idx < 0 || idx >= list.Items.Count)
             return;
-        
+
         list.RemoveAt(idx);
         Save();
         if (list.Enabled)
@@ -123,7 +121,7 @@ public partial class AutoGatherListsManager
 
     public void ChangePreferredLocation(AutoGatherList list, Gatherable item, GatheringNode? location)
     {
-        if (list.SetPrefferedLocation(item, location))
+        if (list.SetPreferredLocation(item, location))
         {
             Save();
         }

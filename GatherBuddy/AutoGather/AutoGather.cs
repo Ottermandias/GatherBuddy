@@ -65,7 +65,7 @@ namespace GatherBuddy.AutoGather
                 }
                 else
                 {
-                    RefreshNextTresureMapAllowance();                    
+                    RefreshNextTreasureMapAllowance();                    
                     WentHome = true; //Prevents going home right after enabling auto-gather
                 }
 
@@ -89,8 +89,8 @@ namespace GatherBuddy.AutoGather
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
-        private class NoGatherableItemsInNodeExceptions : Exception { }
-        private class NoColectableActionsExceptions : Exception { }
+        private class NoGatherableItemsInNodeException : Exception { }
+        private class NoCollectableActionsException : Exception { }
         public void DoAutoGather()
         {
             if (!IsGathering)
@@ -167,11 +167,11 @@ namespace GatherBuddy.AutoGather
                 {
                     DoActionTasks(targetInfo?.Item);
                 }
-                catch (NoGatherableItemsInNodeExceptions)
+                catch (NoGatherableItemsInNodeException)
                 {
                     CloseGatheringAddons();
                 }
-                catch (NoColectableActionsExceptions)
+                catch (NoCollectableActionsException)
                 {
                     Communicator.PrintError("Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
                     AbortAutoGather();
@@ -208,14 +208,14 @@ namespace GatherBuddy.AutoGather
                 && Player.Job is Job.BTN or Job.MIN
                 && !isPathing 
                 && !Svc.Condition[ConditionFlag.Mounted] 
-                && SpiritBondMax > 0)
+                && SpiritbondMax > 0)
             {
                 DoMateriaExtraction();
                 return;
             }
 
             foreach (var (loc, time) in VisitedTimedLocations)
-                if (time.End < AdjuctedServerTime)
+                if (time.End < AdjustedServerTime)
                     VisitedTimedLocations.Remove(loc);
 
             {//Block to limit the scope of the variable "next"
@@ -239,7 +239,7 @@ namespace GatherBuddy.AutoGather
 
                 if (targetInfo == null
                     || targetInfo.Location == null
-                    || targetInfo.Time.End < AdjuctedServerTime
+                    || targetInfo.Time.End < AdjustedServerTime
                     || targetInfo.Item != next.Item
                     || VisitedTimedLocations.ContainsKey(targetInfo.Location))
                 {
@@ -257,10 +257,10 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (targetInfo.Item.IsTreasureMap && NextTresureMapAllowance == DateTime.MinValue)
+            if (targetInfo.Item.IsTreasureMap && NextTreasureMapAllowance == DateTime.MinValue)
             {
                 //Wait for timer refresh
-                RefreshNextTresureMapAllowance();
+                RefreshNextTreasureMapAllowance();
                 return;
             }
 
@@ -496,7 +496,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private static unsafe void RefreshNextTresureMapAllowance()
+        private static unsafe void RefreshNextTreasureMapAllowance()
         {
             if (EzThrottler.Throttle("RequestResetTimestamps", 1000))
             {
