@@ -316,7 +316,7 @@ namespace GatherBuddy.AutoGather
                 || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
             {
                 if (territoryId == 478 && !Lifestream_IPCSubscriber.IsEnabled)
-                    AutoStatus = $"Install Lifestraem or teleport to {targetInfo.Location.Territory.Name} manually";
+                    AutoStatus = $"Install Lifestream or teleport to {targetInfo.Location.Territory.Name} manually";
                 else
                     AutoStatus = "Manual teleporting required";
                 return;
