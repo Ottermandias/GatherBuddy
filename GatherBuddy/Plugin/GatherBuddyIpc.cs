@@ -1,5 +1,7 @@
 ﻿using System;
 using Dalamud.Plugin.Ipc;
+using ECommons.DalamudServices;
+using ECommons.EzIpcManager;
 
 namespace GatherBuddy.Plugin;
 
@@ -16,6 +18,7 @@ public class GatherBuddyIpc : IDisposable
     public GatherBuddyIpc(GatherBuddy plugin)
     {
         _plugin = plugin;
+        EzIPC.Init(this, prefix: "GatherBuddy");
 
         try
         {
@@ -52,4 +55,45 @@ public class GatherBuddyIpc : IDisposable
         _identifyProvider?.UnregisterFunc();
         _versionProvider?.UnregisterFunc();
     }
+
+    #region AutoGatherer IPC
+    /// <summary>
+    /// Event called when AutoGatherer is waiting for the next node to be ready
+    /// </summary>
+    [EzIPCEvent] public Action AutoGathererEventWaitingForNextNode;
+
+    /// <summary>
+    /// Event called then AutoGatherer is aborting its operations
+    /// </summary>
+    [EzIPCEvent] public Action<string?> AutoGathererEventAborting;
+
+    /// <summary>
+    /// Returns wether AutoGatherer is active or not.
+    /// </summary>
+    [EzIPC]
+    public bool IsAutoGathererEnabled()
+    {
+        return GatherBuddy.AutoGather.Enabled;
+    }
+    
+    /// <summary>
+    /// Returns wether AutoGatherer is idling (waiting for the next node) or not.
+    /// </summary>
+    [EzIPC]
+    public bool IsAutoGathererIdling()
+    {
+        return GatherBuddy.AutoGather.AutoStatus == "No available items to gather";
+    }
+
+    /// <summary>
+    /// Enable/Disable AutoGatherer
+    /// </summary>
+    /// <param name="param">this parameter is to set the Enabled property of AutoGatherer</param>
+    [EzIPC]
+    public void SetAutoGathererEnabled(bool isEnabled)
+    {
+        GatherBuddy.AutoGather.Enabled = isEnabled;
+    }
+
+    #endregion
 }

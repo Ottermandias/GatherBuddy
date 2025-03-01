@@ -141,7 +141,10 @@ namespace GatherBuddy.AutoGather
                 if (GatherBuddy.UptimeManager.TimedGatherables.Contains(item))
                 {
                     if (time.InRange(AdjustedServerTime))
+                    {
                         ItemsToGather.Add((item, location, time));
+                        _ipcEventWaitingFired = true;
+                    }
                 }
                 else
                 {

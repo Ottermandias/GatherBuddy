@@ -39,6 +39,9 @@ namespace GatherBuddy.AutoGather
             _advancedUnstuck                       =  new();
         }
 
+        //limit ipc event firing to only once
+        private bool _ipcEventWaitingFired = false;
+
         private readonly GatherBuddy _plugin;
         private readonly SoundHelper _soundHelper;
         private readonly AdvancedUnstuck _advancedUnstuck;
@@ -100,6 +103,7 @@ namespace GatherBuddy.AutoGather
             {
                 return;
             }
+            
 
             try
             {
@@ -139,6 +143,7 @@ namespace GatherBuddy.AutoGather
 
             if (IsGathering)
             {
+                _ipcEventWaitingFired = false;
                 if (targetInfo != null)
                 {
                     if (targetInfo.Location != null && targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary)
@@ -234,6 +239,11 @@ namespace GatherBuddy.AutoGather
                         GoHome();
 
                     AutoStatus = "No available items to gather";
+                    if(!_ipcEventWaitingFired)
+                    {
+                        _plugin.Ipc.AutoGathererEventWaitingForNextNode();
+                        _ipcEventWaitingFired = true;
+                    }
                     return;
                 }
 
@@ -447,6 +457,7 @@ namespace GatherBuddy.AutoGather
         private void AbortAutoGather(string? status = null)
         {
             Enabled = false;
+            _plugin.Ipc.AutoGathererEventAborting(status);
             if (!string.IsNullOrEmpty(status))
                 AutoStatus = status;
             if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
