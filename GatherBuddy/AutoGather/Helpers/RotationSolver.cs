@@ -452,8 +452,8 @@ namespace GatherBuddy.AutoGather.Helpers
 
                 var canUseGiving = (isCrystal || GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown)
                     && state.Global.PlayerLevel >= Actions.GivingLand.MinLevel;
-                //Aim to have 200 GP 10 seconds before The Giving Land is off cooldown
-                var keepGP = canUseGiving ? Actions.GivingLand.GpCost - Math.Max((int)((givingCooldown - 10) * state.Global.GPRegenPerTick / 3), 0) : 0;
+                //Aim for 200 GP 10s before The Giving Land is off cooldown (2s/gather, 2s close; 1s/Bountiful is not accounted for, covered by 10s buffer).
+                var keepGP = canUseGiving ? Actions.GivingLand.GpCost - Math.Max((int)((givingCooldown - 10 - state.Integrity * 2 - 2) * state.Global.GPRegenPerTick / 3), 0) : 0;
                 //If Bountiful bonus is +1, we may consider using Tidings
                 if (fillerYield <= 1000 && state.Global.PlayerLevel >= Actions.Tidings.MinLevel) keepGP = Math.Max(keepGP, Actions.Tidings.GpCost);
                 var overcapGP = bestSimulatedYield > fillerYield ? (int)state.Global.MaxGP - KeepGPBelowMaxMinus : 0;
