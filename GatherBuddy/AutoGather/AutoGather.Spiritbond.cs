@@ -56,7 +56,7 @@ public partial class AutoGather
 
         if (SpiritbondMax == 1) 
         {
-            EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) addon->Close(true); });
+            EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, -1); });
         }
     }
 }
