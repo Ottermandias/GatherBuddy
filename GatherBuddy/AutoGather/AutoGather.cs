@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.AutoGather.Movement;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
@@ -85,7 +84,7 @@ namespace GatherBuddy.AutoGather
 
             if (Lifestream_IPCSubscriber.IsEnabled && !Lifestream_IPCSubscriber.IsBusy())
                 Lifestream_IPCSubscriber.ExecuteCommand("auto");
-            else 
+            else
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
         }
 
@@ -124,7 +123,7 @@ namespace GatherBuddy.AutoGather
 
             if (!CanAct)
             {
-                AutoStatus = Dalamud.Conditions[ConditionFlag.Gathering] ? AutoStatus = "Gathering..." : "Player is busy...";
+                AutoStatus = Dalamud.Conditions[ConditionFlag.Gathering] ? "Gathering..." : "Player is busy...";
                 return;
             }
 
@@ -133,7 +132,17 @@ namespace GatherBuddy.AutoGather
 
             if (FreeInventorySlots == 0)
             {
-                AbortAutoGather("Inventory is full");
+                if (HasReducibleItems())
+                {
+                    if (IsGathering)
+                        CloseGatheringAddons();
+                    else
+                        ReduceItems(false);
+                }
+                else
+                {
+                    AbortAutoGather("Inventory is full");
+                }
                 return;
             }
 
@@ -204,14 +213,20 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (GatherBuddy.Config.AutoGatherConfig.DoMaterialize 
-                && Player.Job is Job.BTN or Job.MIN
+            if (Player.Job is Job.BTN or Job.MIN
                 && !isPathing 
-                && !Svc.Condition[ConditionFlag.Mounted] 
-                && SpiritbondMax > 0)
+                && !Svc.Condition[ConditionFlag.Mounted])
             {
-                DoMateriaExtraction();
-                return;
+                if (SpiritbondMax > 0)
+                {
+                    DoMateriaExtraction();
+                    return;
+                }
+                if (FreeInventorySlots < 10 && HasReducibleItems())
+                {
+                    ReduceItems(false);
+                    return;
+                }
             }
 
             foreach (var (loc, time) in VisitedTimedLocations)
@@ -232,6 +247,12 @@ namespace GatherBuddy.AutoGather
 
                     if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
                         GoHome();
+
+                    if (!(Lifestream_IPCSubscriber.IsEnabled && Lifestream_IPCSubscriber.IsBusy()) && HasReducibleItems())
+                    {
+                        ReduceItems(true);
+                        return;
+                    }
 
                     AutoStatus = "No available items to gather";
                     return;

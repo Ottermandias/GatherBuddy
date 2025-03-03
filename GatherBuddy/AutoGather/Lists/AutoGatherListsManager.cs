@@ -100,7 +100,7 @@ public partial class AutoGatherListsManager : IDisposable
             var manager = InventoryManager.Instance();
             if (manager == null)
                 return count;
-            foreach (var inv in InventoryTypes)
+            foreach (var inv in AutoGather.InventoryTypes)
             {
                 var container = manager->GetInventoryContainer(inv);
                 if (container == null || container->Loaded == 0)
@@ -123,21 +123,6 @@ public partial class AutoGatherListsManager : IDisposable
         }
     }
     
-    public List<InventoryType> InventoryTypes
-    {
-        get
-        {
-            List<InventoryType> types = new List<InventoryType>()
-            {
-                InventoryType.Inventory1,
-                InventoryType.Inventory2,
-                InventoryType.Inventory3,
-                InventoryType.Inventory4,
-            };
-            return types;
-        }
-    }
-
     public void Save()
     {
         var file = Functions.ObtainSaveFile(FileName);
