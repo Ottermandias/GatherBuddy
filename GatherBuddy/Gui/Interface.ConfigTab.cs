@@ -126,13 +126,6 @@ public partial class Interface
 
             ImGuiUtil.HoverTooltip("Delay executing each action by the specified amount.");
         }
-        public static void DrawForceCloseLingeringMasterpieceAddon()
-            => DrawCheckbox(
-                "Force close lingering GatheringMasterpiece addon (DANGEROUS, MAY CRASH THE GAME)",
-                "Attempt to forcefully close the GatheringMasterpiece addon if it is left lingering in the game memory after the end of the gathering session due to a bug",
-                GatherBuddy.Config.AutoGatherConfig.ForceCloseLingeringMasterpieceAddon,
-                b => GatherBuddy.Config.AutoGatherConfig.ForceCloseLingeringMasterpieceAddon = b);
-
         public static void DrawUseGivingLandOnCooldown()
             => DrawCheckbox("Gather any crystals when The Giving Land is off cooldown", "Gather random crystals on any regular node when The Giving Land is avaiable regardles of current target item.", GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown,
                 b => GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown = b);
@@ -692,7 +685,6 @@ public partial class Interface
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawMaterialExtraction();
-                ConfigFunctions.DrawForceCloseLingeringMasterpieceAddon();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();
