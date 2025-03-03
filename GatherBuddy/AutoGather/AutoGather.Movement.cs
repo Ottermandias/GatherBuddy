@@ -184,22 +184,27 @@ namespace GatherBuddy.AutoGather
 
         private static Vector3 GetCorrectedDestination(Vector3 destination)
         {
-            var correctedDestination = destination;
-            if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
-                correctedDestination = offset;
-
             try
             {
-                correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(correctedDestination, 3, 3);
-                if (Vector3.Distance(correctedDestination, destination) is var distance and > 3)
+                float distance;
+                if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
                 {
-                    GatherBuddy.Log.Warning($"Offset is ignored, because distance {distance} is too large after correcting for mesh.");
-                    correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
+                    offset = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(offset, 3, 3);
+                    if ((distance = Vector3.Distance(offset, destination)) > 3)
+                        GatherBuddy.Log.Warning($"Offset is ignored because the distance {distance} is too large after correcting for mesh.");
+                    else
+                        return offset;
                 }
+
+                var correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
+                if ((distance = Vector3.Distance(correctedDestination, destination)) > 3)
+                    GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point that is too far away from the node (distance {distance}).");
+                else 
+                    return correctedDestination;
             }
             catch (Exception) { }
 
-            return correctedDestination;
+            return destination;
         }
 
         private void MoveToFarNode(Vector3 position)
