@@ -222,7 +222,7 @@ namespace GatherBuddy.AutoGather
                     DoMateriaExtraction();
                     return;
                 }
-                if (FreeInventorySlots < 10 && HasReducibleItems())
+                if (FreeInventorySlots < 20 && HasReducibleItems())
                 {
                     ReduceItems(false);
                     return;
