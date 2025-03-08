@@ -29,7 +29,7 @@ namespace GatherBuddy.AutoGather
                 foreach (var invType in InventoryTypes)
                 {
                     var container = manager->GetInventoryContainer(invType);
-                    if (container == null || container->Loaded == 0)
+                    if (container == null || !container->IsLoaded)
                         continue;
 
                     for (int i = 0; i < container->Size; i++)
