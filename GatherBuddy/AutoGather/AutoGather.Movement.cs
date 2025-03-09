@@ -101,7 +101,7 @@ namespace GatherBuddy.AutoGather
                 {
                     StopNavigation();
                     AutoStatus = "Waiting for GP to regenerate...";
-                } 
+                }
                 else
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
@@ -114,6 +114,14 @@ namespace GatherBuddy.AutoGather
                     }
                     else
                     {
+                        // Check perception requirement before interacting with node
+                        if (CharacterPerceptionStat < targetItem.GatheringData.PerceptionReq)
+                        {
+                            Communicator.PrintError($"Insufficient Perception to gather this item. Required: {targetItem.GatheringData.PerceptionReq}, current: {CharacterPerceptionStat}");
+                            AbortAutoGather();
+                            return;
+                        }
+
                         EnqueueNodeInteraction(gameObject, targetItem);
                         //The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
                         //Enqueue navigation anyway, just in case.

@@ -288,6 +288,9 @@ namespace GatherBuddy.AutoGather
         private static unsafe int CharacterGatheringStat
             => PlayerState.Instance()->Attributes[72];
 
+        private static unsafe int CharacterPerceptionStat
+            => PlayerState.Instance()->Attributes[73];
+
         private ConfigPreset MatchConfigPreset(Gatherable? item) => _plugin.Interface.MatchConfigPreset(item);
 }
 
