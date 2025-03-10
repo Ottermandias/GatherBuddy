@@ -141,8 +141,6 @@ namespace GatherBuddy.AutoGather
             if (GatherBuddy.Config.AutoGatherConfig.SortingMethod == AutoGatherConfig.SortingType.Location)
             {
                 // Node coordinates are map coordinates multiplied by 100.
-                var playerPos3D = Player.Object.GetMapCoordinates();
-                var playerPos = new Vector2(playerPos3D.X * 100f, playerPos3D.Y * 100f);
                 var territoryId = Dalamud.ClientState.TerritoryType;
                 activeItems = activeItems
                     // Order by node type.
@@ -150,8 +148,7 @@ namespace GatherBuddy.AutoGather
                     // Then by teleportation cost.
                     .ThenBy(info => info.Location.Territory.Id == territoryId ? 0 : GetTeleportationCost(info.Location))
                     // Then by distance to the player (for current territory).
-                    .ThenBy(info => info.Location.Territory.Id != territoryId 
-                        ? 0 : Vector2.DistanceSquared(new Vector2(info.Location.IntegralXCoord, info.Location.IntegralYCoord), playerPos));
+                    .ThenBy(info => GetHorizontalSquaredDistanceToPlayer(info.Location));
             }
             ItemsToGather.AddRange(activeItems);
         }
@@ -189,15 +186,7 @@ namespace GatherBuddy.AutoGather
                 // Prioritize nodes in the current territory.
                 .ThenBy(info => info.Location.Territory.Id != Dalamud.ClientState.TerritoryType)
                 // Prioritize closest nodes in the current territory.
-                .ThenBy(info =>
-                {
-                    if (info.Location.Territory.Id != Dalamud.ClientState.TerritoryType)
-                        return 0f;
-                    // Node coordinates are map coordinates multiplied by 100.
-                    var playerPos3D = Player.Object.GetMapCoordinates();
-                    var playerPos = new Vector2(playerPos3D.X * 100f, playerPos3D.Y * 100f);
-                    return Vector2.DistanceSquared(new Vector2(info.Location.IntegralXCoord, info.Location.IntegralYCoord), playerPos);
-                })
+                .ThenBy(info => GetHorizontalSquaredDistanceToPlayer(info.Location))
                 // Order by end time, longest first as in the original UptimeManager.NextUptime().
                 .ThenByDescending(info => info.Time.End);
 
@@ -217,6 +206,17 @@ namespace GatherBuddy.AutoGather
                     break;
             }
             return nodes.FirstOrDefault();
+        }
+
+        private float GetHorizontalSquaredDistanceToPlayer(ILocation location)
+        {
+            if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
+                return float.MaxValue;
+
+            // Node coordinates are map coordinates multiplied by 100.
+            var playerPos3D = Player.Object.GetMapCoordinates();
+            var playerPos = new Vector2(playerPos3D.X * 100f, playerPos3D.Y * 100f);
+            return Vector2.DistanceSquared(new Vector2(location.IntegralXCoord, location.IntegralYCoord), playerPos);
         }
 
         private unsafe T* GetAddon<T>(string name)
