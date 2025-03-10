@@ -268,14 +268,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (!LocationMatchesJob(targetInfo.Location))
-            {
-                if (!ChangeGearSet(targetInfo.Location.GatheringType.ToGroup()))
-                    AbortAutoGather();
-
-                return;
-            }
-
             if (HasBrokenGear())
             {
                 Communicator.PrintError("Your gear is almost broken. Repair it before enabling Auto-Gather.");
@@ -338,6 +330,14 @@ namespace GatherBuddy.AutoGather
 
                 // Reset target to pick up closest item after teleport
                 targetInfo = default;
+
+                return;
+            }
+
+            if (!LocationMatchesJob(targetInfo.Location))
+            {
+                if (!ChangeGearSet(targetInfo.Location.GatheringType.ToGroup()))
+                    AbortAutoGather();
 
                 return;
             }
