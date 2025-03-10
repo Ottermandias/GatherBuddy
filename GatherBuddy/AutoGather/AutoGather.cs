@@ -262,18 +262,17 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (targetInfo.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(targetInfo.Item.GatheringType.ToGroup()))
+            {
+                AbortAutoGather();
+                return;
+            }
+
             if (!LocationMatchesJob(targetInfo.Location))
             {
                 if (!ChangeGearSet(targetInfo.Location.GatheringType.ToGroup()))
                     AbortAutoGather();
 
-                return;
-            }
-
-            //This check must be done after changing jobs.
-            if (targetInfo.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked())
-            {
-                AbortAutoGather();
                 return;
             }
 
@@ -505,18 +504,31 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private bool CheckCollectablesUnlocked()
+        private bool CheckCollectablesUnlocked(GatheringType gatheringType)
         {
-            if (Player.Level < Actions.Collect.MinLevel)
+            var level = gatheringType switch
+            {
+                GatheringType.Miner => GetMinerLevel(),
+                GatheringType.Botanist => GetBotanistLevel(),
+                _ => 0
+            };
+            if (level < Actions.Collect.MinLevel)
             {
                 Communicator.PrintError("You've put a collectable on the gathering list, but your level is not high enough to gather it.");
                 return false;
             }
-            if (Actions.Collect.QuestId != 0 && !QuestManager.IsQuestComplete(Actions.Collect.QuestId))
+            var questId = gatheringType switch
+            {
+                GatheringType.Miner => Actions.Collect.QuestIds.Miner,
+                GatheringType.Botanist => Actions.Collect.QuestIds.Botanist,
+                _ => 0u
+            };
+
+            if (questId != 0 && !QuestManager.IsQuestComplete(questId))
             {
                 Communicator.PrintError("You've put a collectable on the gathering list, but you haven't unlocked the collectables.");
                 var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Quest>()!;
-                var row = sheet.GetRow(Actions.Collect.QuestId)!;
+                var row = sheet.GetRow(questId)!;
                 var loc = row.IssuerLocation.Value!;
                 var map = loc.Map.Value!;
                 var pos = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
@@ -525,7 +537,7 @@ namespace GatherBuddy.AutoGather
                 text.AddText("Collectables are unlocked by ")
                     .AddUiForeground(0x0225)
                     .AddUiGlow(0x0226)
-                    .AddQuestLink(Actions.Collect.QuestId)
+                    .AddQuestLink(questId)
                     .AddUiForeground(500)
                     .AddUiGlow(501)
                     .AddText($"{(char)SeIconChar.LinkMarker}")
