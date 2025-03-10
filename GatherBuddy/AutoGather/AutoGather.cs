@@ -7,9 +7,7 @@ using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.AutoGather.Movement;
-using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
 using ECommons.Throttlers;
@@ -56,7 +54,7 @@ namespace GatherBuddy.AutoGather
                 if (!value)
                 {
                     TaskManager.Abort();
-                    targetInfo = null;
+                    targetInfo = default;
                     if (VNavmesh_IPCSubscriber.IsEnabled && IsPathGenerating) 
                         VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
                     StopNavigation();
@@ -136,7 +134,7 @@ namespace GatherBuddy.AutoGather
 
             if (IsGathering)
             {
-                if (targetInfo != null)
+                if (targetInfo != default)
                 {
                     if (targetInfo.Location != null && targetInfo.Item.NodeType is NodeType.Unspoiled or NodeType.Legendary)
                         VisitedTimedLocations[targetInfo.Location] = targetInfo.Time;
@@ -162,7 +160,7 @@ namespace GatherBuddy.AutoGather
                 StopNavigation();
                 try
                 {
-                    DoActionTasks(targetInfo?.Item);
+                    DoActionTasks(targetInfo == default ? null : targetInfo.Item);
                 }
                 catch (NoGatherableItemsInNodeException)
                 {
@@ -215,26 +213,26 @@ namespace GatherBuddy.AutoGather
                 if (time.End < AdjustedServerTime)
                     VisitedTimedLocations.Remove(loc);
 
-            {//Block to limit the scope of the variable "next"
-                UpdateItemsToGather();
-                var next = ItemsToGather.FirstOrDefault();
+            UpdateItemsToGather();
 
-                if (next == null)
+            if (ItemsToGather.Count == 0)
+            {
+                if (!_plugin.AutoGatherListsManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i) && !(i.IsTreasureMap && InventoryCount(i) != 0)))
                 {
-                    if (!_plugin.AutoGatherListsManager.ActiveItems.OfType<Gatherable>().Any(i => InventoryCount(i) < QuantityTotal(i) && !(i.IsTreasureMap && InventoryCount(i) != 0)))
-                    {
-                        AbortAutoGather();
-                        return;
-                    }
-
-                    if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
-                        GoHome();
-
-                    AutoStatus = "No available items to gather";
+                    AbortAutoGather();
                     return;
                 }
 
-                if (targetInfo == null
+                if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
+                    GoHome();
+
+                AutoStatus = "No available items to gather";
+                return;
+
+            } else {
+                var next = ItemsToGather[0];
+
+                if (targetInfo == default
                     || targetInfo.Location == null
                     || targetInfo.Time.End < AdjustedServerTime
                     || targetInfo.Item != next.Item
@@ -247,9 +245,9 @@ namespace GatherBuddy.AutoGather
                 }
             }
 
-            if (targetInfo.Location == null)
+            if (targetInfo == default || targetInfo.Location == null)
             {
-                //Should not happen because UpdateItemsToGather filters out all unavailable items
+                //Should not happen because taegetInfo is set above and UpdateItemsToGather filters out all unavailable items
                 GatherBuddy.Log.Debug("Couldn't find any location for the target item");
                 return;
             }

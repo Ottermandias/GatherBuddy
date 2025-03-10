@@ -110,7 +110,7 @@ namespace GatherBuddy.AutoGather
         public readonly Dictionary<GatheringNode, TimeInterval> VisitedTimedLocations = [];
         public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
         public readonly LinkedList<uint> VisitedNodes = [];
-        private GatherInfo? targetInfo = null;
+        private GatherInfo targetInfo;
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
 
@@ -130,7 +130,7 @@ namespace GatherBuddy.AutoGather
                 // Choose the best location and calculate the next uptime.
                 .Select(GetBestLocation)
                 // Filter out items that are not available right now or don't have an unvisited location.
-                .OfType<GatherInfo>()
+                .Where(info => info != default)
                 // Prioritize timed nodes first.
                 .OrderBy(info => info.Time == TimeInterval.Always);
 
@@ -146,7 +146,7 @@ namespace GatherBuddy.AutoGather
             ItemsToGather.AddRange(activeItems);
         }
 
-        private GatherInfo? GetBestLocation(Gatherable item)
+        private GatherInfo GetBestLocation(Gatherable item)
         {
             // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
             var minerLevel = (GetMinerLevel() + 4) / 5 * 5;
@@ -285,7 +285,7 @@ namespace GatherBuddy.AutoGather
         private ConfigPreset MatchConfigPreset(Gatherable? item) => _plugin.Interface.MatchConfigPreset(item);
     }
 
-    public record class GatherInfo(Gatherable Item, GatheringNode Location, TimeInterval Time)
+    public record struct GatherInfo(Gatherable Item, GatheringNode Location, TimeInterval Time)
     {
         public static implicit operator (Gatherable Item, GatheringNode Location, TimeInterval Time)(GatherInfo value)
         {
