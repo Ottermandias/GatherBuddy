@@ -22,6 +22,7 @@ using ECommons.Automation;
 using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using GatherBuddy.Time;
 
 namespace GatherBuddy.AutoGather
 {
@@ -60,6 +61,7 @@ namespace GatherBuddy.AutoGather
                     StopNavigation();
                     AutoStatus = "Idle...";
                     ActionSequence = null;
+                    TeleportationCostCacheTerritory = 0;
                 }
                 else
                 {
@@ -230,18 +232,19 @@ namespace GatherBuddy.AutoGather
                 return;
 
             } else {
-                var next = ItemsToGather[0];
 
                 if (targetInfo == default
-                    || targetInfo.Location == null
                     || targetInfo.Time.End < AdjustedServerTime
-                    || targetInfo.Item != next.Item
+                    || !ItemsToGather.Any(x => x.Item == targetInfo.Item)
                     || VisitedTimedLocations.ContainsKey(targetInfo.Location))
                 {
-                    //Find a new location only if the target item changes or the node expires to prevent switching to another node when a new one goes up
-                    targetInfo = next;
+                    // If we have a target selected, change it only if it's no longer in the list, expired, or visited
+                    targetInfo = ItemsToGather[0];
                     FarNodesSeenSoFar.Clear();
                     VisitedNodes.Clear();
+                    GatherBuddy.Log.Debug($"New target item: {targetInfo.Item.Name} in {targetInfo.Location.Territory.Name}.{(targetInfo.Time != TimeInterval.Always
+                        ? $" Time left: {TimeSpan.FromMilliseconds(targetInfo.Time.End - AdjustedServerTime)}"
+                        : "")}");
                 }
             }
 
@@ -333,6 +336,9 @@ namespace GatherBuddy.AutoGather
 
                 if (!MoveToTerritory(targetInfo.Location))
                     AbortAutoGather();
+
+                // Reset target to pick up closest item after teleport
+                targetInfo = default;
 
                 return;
             }

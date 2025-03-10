@@ -16,6 +16,7 @@ using System.Collections.Specialized;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using NodeType = GatherBuddy.Enums.NodeType;
+using Dalamud.Utility;
 
 namespace GatherBuddy.AutoGather
 {
@@ -110,6 +111,8 @@ namespace GatherBuddy.AutoGather
         public readonly Dictionary<GatheringNode, TimeInterval> VisitedTimedLocations = [];
         public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
         public readonly LinkedList<uint> VisitedNodes = [];
+        private readonly Dictionary<uint, uint> TeleportationCostCache = [];
+        private uint TeleportationCostCacheTerritory;
         private GatherInfo targetInfo;
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
@@ -136,13 +139,19 @@ namespace GatherBuddy.AutoGather
 
             if (GatherBuddy.Config.AutoGatherConfig.SortingMethod == AutoGatherConfig.SortingType.Location)
             {
+                // Node coordinates are map coordinates multiplied by 100.
+                var playerPos3D = Player.Object.GetMapCoordinates();
+                var playerPos = new Vector2(playerPos3D.X * 100f, playerPos3D.Y * 100f);
+                var territoryId = Dalamud.ClientState.TerritoryType;
                 activeItems = activeItems
                     // Order by node type.
                     .ThenBy(info => GetNodeTypeAsPriority(info.Item))
-                    // Then by territory.
-                    .ThenBy(info => info.Location.Territory.Id);
+                    // Then by teleportation cost.
+                    .ThenBy(info => info.Location.Territory.Id == territoryId ? 0 : GetTeleportationCost(info.Location))
+                    // Then by distance to the player (for current territory).
+                    .ThenBy(info => info.Location.Territory.Id != territoryId 
+                        ? 0 : Vector2.DistanceSquared(new Vector2(info.Location.IntegralXCoord, info.Location.IntegralYCoord), playerPos));
             }
-
             ItemsToGather.AddRange(activeItems);
         }
 

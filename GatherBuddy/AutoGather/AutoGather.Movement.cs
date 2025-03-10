@@ -14,6 +14,7 @@ using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Data;
+using System.Collections.Generic;
 
 namespace GatherBuddy.AutoGather
 {
@@ -229,7 +230,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private bool MoveToTerritory(ILocation location)
+        private static Aetheryte? FindClosestAetheryte(ILocation location)
         {
             var aetheryte = location.ClosestAetheryte;
 
@@ -244,6 +245,47 @@ namespace GatherBuddy.AutoGather
                     .OrderBy(a => a.WorldDistance(territory.Id, location.IntegralXCoord, location.IntegralYCoord))
                     .FirstOrDefault();
             }
+
+            return aetheryte;
+        }
+
+        private uint GetTeleportationCost(GatheringNode location)
+        {
+            var territory = Dalamud.ClientState.TerritoryType;
+            if (territory != TeleportationCostCacheTerritory)
+                UpdateTeleportationCosts();
+            if (territory != TeleportationCostCacheTerritory)
+                return uint.MaxValue;
+
+            var aetheryte = FindClosestAetheryte(location);
+            if (aetheryte == null)
+                return uint.MaxValue; // If there's no aetheryte, put it at the end
+
+            return TeleportationCostCache.GetValueOrDefault(aetheryte.Id, uint.MaxValue);
+        }
+
+        private unsafe void UpdateTeleportationCosts()
+        {
+            TeleportationCostCache.Clear();
+            TeleportationCostCacheTerritory = 0;
+
+            var telepo = Telepo.Instance();
+            if (telepo == null) return;
+
+            telepo->UpdateAetheryteList();
+
+            for (var i = 0; i < telepo->TeleportList.Count; i++)
+            {
+                var entry = telepo->TeleportList[i];
+                TeleportationCostCache[entry.AetheryteId] = entry.GilCost;
+            }
+            TeleportationCostCacheTerritory = Dalamud.ClientState.TerritoryType;
+        }
+
+
+        private bool MoveToTerritory(ILocation location)
+        {
+            var aetheryte = FindClosestAetheryte(location);
             if (aetheryte == null)
             {
                 Communicator.PrintError("Couldn't find an attuned aetheryte to teleport to.");
