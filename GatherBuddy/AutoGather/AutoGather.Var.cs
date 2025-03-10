@@ -17,6 +17,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using NodeType = GatherBuddy.Enums.NodeType;
 using Dalamud.Utility;
+using GatherBuddy.Config;
 
 namespace GatherBuddy.AutoGather
 {
@@ -165,16 +166,16 @@ namespace GatherBuddy.AutoGather
             var nodes = item.NodeList
                 // Remove nodes that have been visited.
                 .Except(VisitedTimedLocations.Keys)
-                // Remove nodes with level higher than the player can gather.
+                // Remove nodes with a level higher than the player can gather.
                 .Where(node => node.GatheringType.ToGroup() switch
                 {
                     GatheringType.Miner => node.Level <= minerLevel,
                     GatheringType.Botanist => node.Level <= botanistLevel,
                     _ => false
                 })
-                // Get next uptime.
+                // Get the next uptime.
                 .Select(node => new GatherInfo(item, node, node.Times.NextUptime(AdjustedServerTime)))
-                // Filter out nodes that are not up. Also filter out invalid intervals.
+                // Filter out nodes that are not up. Also, filter out invalid intervals.
                 .Where(info => info.Time.InRange(AdjustedServerTime))
                 // Prioritize preferred location, then preferred job, then the rest.
                 .OrderBy(info =>
@@ -185,9 +186,26 @@ namespace GatherBuddy.AutoGather
                         return 1;
                     return 2;
                 })
-                // Order by end time, longest first as in original UptimeManager.NextUptime().
+                // Prioritize nodes in the current territory.
+                .ThenBy(info => info.Location.Territory.Id != Dalamud.ClientState.TerritoryType)
+                // Order by end time, longest first as in the original UptimeManager.NextUptime().
                 .ThenByDescending(info => info.Time.End);
 
+            switch (GatherBuddy.Config.AetherytePreference)
+            {
+                case AetherytePreference.Distance:
+                    nodes = nodes
+                        // Order by distance to the closest aetheryte.
+                        .ThenBy(info => FindClosestAetheryte(info.Location)?
+                            .WorldDistance(info.Location.Territory.Id, info.Location.IntegralXCoord, info.Location.IntegralYCoord)
+                            ?? int.MaxValue);
+                    break;
+                case AetherytePreference.Cost:
+                    nodes = nodes
+                        // Order by teleportation cost.
+                        .ThenBy(info => GetTeleportationCost(info.Location));
+                    break;
+            }
             return nodes.FirstOrDefault();
         }
 
