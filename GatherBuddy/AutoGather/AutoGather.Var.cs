@@ -188,6 +188,16 @@ namespace GatherBuddy.AutoGather
                 })
                 // Prioritize nodes in the current territory.
                 .ThenBy(info => info.Location.Territory.Id != Dalamud.ClientState.TerritoryType)
+                // Prioritize closest nodes in the current territory.
+                .ThenBy(info =>
+                {
+                    if (info.Location.Territory.Id != Dalamud.ClientState.TerritoryType)
+                        return 0f;
+                    // Node coordinates are map coordinates multiplied by 100.
+                    var playerPos3D = Player.Object.GetMapCoordinates();
+                    var playerPos = new Vector2(playerPos3D.X * 100f, playerPos3D.Y * 100f);
+                    return Vector2.DistanceSquared(new Vector2(info.Location.IntegralXCoord, info.Location.IntegralYCoord), playerPos);
+                })
                 // Order by end time, longest first as in the original UptimeManager.NextUptime().
                 .ThenByDescending(info => info.Time.End);
 
