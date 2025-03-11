@@ -1,9 +1,8 @@
 ﻿using Dalamud.Plugin.Services;
-using ECommons.Automation.LegacyTaskManager;
 using ECommons.GameHelpers;
+using ECommons.MathHelpers;
 using GatherBuddy.CustomInfo;
 using System;
-using System.Diagnostics;
 using System.Numerics;
 
 namespace GatherBuddy.AutoGather.Movement
@@ -39,7 +38,7 @@ namespace GatherBuddy.AutoGather.Movement
             //On cooldown, not navigating or near the destination: disable tracking and reset
             if (now.Subtract(_unstuckStart).TotalSeconds < GatherBuddy.Config.AutoGatherConfig.NavResetCooldown
                 || destination == default
-                || destination.DistanceToPlayer() < 3)
+                || Vector2.Distance(destination.ToVector2(), Player.Position.ToVector2()) < 3.5)
             {
                 _lastCheck = DateTime.MinValue;
                 return AdvancedUnstuckCheckResult.Pass;

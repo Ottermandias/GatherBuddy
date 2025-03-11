@@ -1,6 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Conditions;
 using ECommons.GameHelpers;
-using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
@@ -15,6 +14,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Data;
 using System.Collections.Generic;
+using ECommons.MathHelpers;
 
 namespace GatherBuddy.AutoGather
 {
@@ -69,9 +69,11 @@ namespace GatherBuddy.AutoGather
 
         private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem, ConfigPreset config)
         {
-            var distance = gameObject.Position.DistanceToPlayer();
+            // We can open a node with less than 3 vertical and less than 3.5 horizontal separation
+            var hSeparation = Vector2.Distance(gameObject.Position.ToVector2(), Player.Position.ToVector2());
+            var vSeparation = Math.Abs(gameObject.Position.Y - Player.Position.Y);
 
-            if (distance < 3)
+            if (hSeparation < 3.5)
             {
                 var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.CollectableMinGP;
                 waitGP |= !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.GatherableMinGP;
@@ -89,6 +91,7 @@ namespace GatherBuddy.AutoGather
                                 var floor = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 3);
                                 Navigate(floor, true);
                                 TaskManager.Enqueue(() => !IsPathGenerating);
+                                TaskManager.DelayNext(50);
                                 TaskManager.Enqueue(() => !IsPathing, 1000);
                                 EnqueueDismount();
                             }
@@ -123,9 +126,12 @@ namespace GatherBuddy.AutoGather
                             return;
                         }
 
-                        EnqueueNodeInteraction(gameObject, targetItem);
-                        //The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
-                        //Enqueue navigation anyway, just in case.
+                        if (vSeparation < 3)                        
+                            EnqueueNodeInteraction(gameObject, targetItem);
+
+                        // The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
+                        // Enqueue navigation anyway, just in case.
+                        // Also move if vertical separation is too large.
                         if (!Dalamud.Conditions[ConditionFlag.Diving])
                         {
                             TaskManager.Enqueue(() => { if (!Dalamud.Conditions[ConditionFlag.Gathering]) Navigate(gameObject.Position, false); });
@@ -133,7 +139,7 @@ namespace GatherBuddy.AutoGather
                     }
                 }
             }
-            else if (distance < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5) && !Dalamud.Conditions[ConditionFlag.Diving])
+            else if (hSeparation < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5) && !Dalamud.Conditions[ConditionFlag.Diving])
             {
                 Navigate(gameObject.Position, false);
             }
@@ -199,14 +205,14 @@ namespace GatherBuddy.AutoGather
                 if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
                 {
                     offset = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(offset, 3, 3);
-                    if ((distance = Vector3.Distance(offset, destination)) > 3)
+                    if ((distance = Vector2.Distance(offset.ToVector2(), destination.ToVector2())) > 3)
                         GatherBuddy.Log.Warning($"Offset is ignored because the distance {distance} is too large after correcting for mesh.");
                     else
                         return offset;
                 }
 
                 var correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
-                if ((distance = Vector3.Distance(correctedDestination, destination)) > 3)
+                if ((distance = Vector2.Distance(correctedDestination.ToVector2(), destination.ToVector2())) > 3)
                     GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point that is too far away from the node (distance {distance}).");
                 else 
                     return correctedDestination;
