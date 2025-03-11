@@ -232,14 +232,16 @@ namespace GatherBuddy.AutoGather
                 return;
 
             } else {
-
+                var next = ItemsToGather[0];
                 if (targetInfo == default
                     || targetInfo.Time.End < AdjustedServerTime
+                    || targetInfo.Time == TimeInterval.Always && next.Time != TimeInterval.Always
+                    || targetInfo.Location.Territory != next.Location.Territory
                     || !ItemsToGather.Any(x => x.Item == targetInfo.Item)
                     || VisitedTimedLocations.ContainsKey(targetInfo.Location))
                 {
                     // If we have a target selected, change it only if it's no longer in the list, expired, or visited
-                    targetInfo = ItemsToGather[0];
+                    targetInfo = next;
                     FarNodesSeenSoFar.Clear();
                     VisitedNodes.Clear();
                     GatherBuddy.Log.Debug($"New target item: {targetInfo.Item.Name} in {targetInfo.Location.Territory.Name}.{(targetInfo.Time != TimeInterval.Always
