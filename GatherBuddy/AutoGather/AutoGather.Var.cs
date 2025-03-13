@@ -13,7 +13,6 @@ using GatherBuddy.Enums;
 using GatherBuddy.Time;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using System.Collections.Specialized;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using NodeType = GatherBuddy.Enums.NodeType;
 using Dalamud.Utility;
@@ -118,10 +117,6 @@ namespace GatherBuddy.AutoGather
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
 
-        private static int MinerExpArrayIndex { get; } = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.ClassJob>().GetRow((uint)Job.MIN).ExpArrayIndex;
-        private static int BotanistExpArrayIndex { get; } = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.ClassJob>().GetRow((uint)Job.BTN).ExpArrayIndex;
-        private static unsafe int GetMinerLevel() => PlayerState.Instance()->ClassJobLevels[MinerExpArrayIndex];
-        private static unsafe int GetBotanistLevel() => PlayerState.Instance()->ClassJobLevels[BotanistExpArrayIndex];
 
         public void UpdateItemsToGather()
         {
@@ -156,8 +151,8 @@ namespace GatherBuddy.AutoGather
         private GatherInfo GetBestLocation(Gatherable item)
         {
             // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
-            var minerLevel = (GetMinerLevel() + 4) / 5 * 5;
-            var botanistLevel = (GetBotanistLevel() + 4) / 5 * 5;
+            var minerLevel = (DiscipleOfLand.MinerLevel + 4) / 5 * 5;
+            var botanistLevel = (DiscipleOfLand.BotanistLevel + 4) / 5 * 5;
             // Preferred location from the list if set.
             var pref = _plugin.AutoGatherListsManager.GetPreferredLocation(item);
             var nodes = item.NodeList
@@ -312,12 +307,6 @@ namespace GatherBuddy.AutoGather
 
         private static TimeStamp AdjustedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
-
-        private static unsafe int CharacterGatheringStat
-            => PlayerState.Instance()->Attributes[72];
-
-        private static unsafe int CharacterPerceptionStat
-            => PlayerState.Instance()->Attributes[73];
 
         private ConfigPreset MatchConfigPreset(Gatherable? item) => _plugin.Interface.MatchConfigPreset(item);
     }

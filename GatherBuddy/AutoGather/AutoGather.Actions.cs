@@ -373,7 +373,7 @@ namespace GatherBuddy.AutoGather
             {
                 var glvl = item.GatheringData.GatheringItemLevel.RowId;
                 var baseValue = WorldData.IlvConvertTable[(int)glvl].BaseGathering;
-                var stat = CharacterGatheringStat;
+                var stat = DiscipleOfLand.Gathering;
 
                 if (stat >= baseValue * 11 / 10)
                     return 3;

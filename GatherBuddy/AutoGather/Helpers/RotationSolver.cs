@@ -10,7 +10,6 @@ using Actions = GatherBuddy.AutoGather.AutoGather.Actions;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using ECommons.ExcelServices;
 using ECommons;
-using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.CustomInfo;
 
 namespace GatherBuddy.AutoGather.Helpers
@@ -519,7 +518,7 @@ namespace GatherBuddy.AutoGather.Helpers
             var basePerception = WorldData.IlvConvertTable[(int)glvl].BasePerception;
             if (basePerception == 0) return 0;
 
-            var score = (uint)Math.Min(150, 100 * CharacterPerceptionStat / basePerception);
+            var score = (uint)Math.Min(150, 100 * DiscipleOfLand.Perception / basePerception);
             if (score >= 100) return (score - 100) * (60 - 35) / (150 - 100) + 35;
             if (score >=  80) return (score -  80) * (35 - 15) / (100 -  80) + 15;
             if (score >=  70) return (score -  70) * (15 - 10) / ( 80 -  70) + 10;
@@ -527,7 +526,5 @@ namespace GatherBuddy.AutoGather.Helpers
 
             return 0;
         }
-
-        private static unsafe int CharacterPerceptionStat => PlayerState.Instance()->Attributes[73];
     }
 }

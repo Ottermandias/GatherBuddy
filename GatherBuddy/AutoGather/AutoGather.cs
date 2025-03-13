@@ -510,8 +510,8 @@ namespace GatherBuddy.AutoGather
         {
             var level = gatheringType switch
             {
-                GatheringType.Miner => GetMinerLevel(),
-                GatheringType.Botanist => GetBotanistLevel(),
+                GatheringType.Miner => DiscipleOfLand.MinerLevel,
+                GatheringType.Botanist => DiscipleOfLand.BotanistLevel,
                 _ => 0
             };
             if (level < Actions.Collect.MinLevel)

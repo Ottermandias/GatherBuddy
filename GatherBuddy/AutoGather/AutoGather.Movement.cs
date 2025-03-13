@@ -119,9 +119,9 @@ namespace GatherBuddy.AutoGather
                     else
                     {
                         // Check perception requirement before interacting with node
-                        if (CharacterPerceptionStat < targetItem.GatheringData.PerceptionReq)
+                        if (DiscipleOfLand.Perception < targetItem.GatheringData.PerceptionReq)
                         {
-                            Communicator.PrintError($"Insufficient Perception to gather this item. Required: {targetItem.GatheringData.PerceptionReq}, current: {CharacterPerceptionStat}");
+                            Communicator.PrintError($"Insufficient Perception to gather this item. Required: {targetItem.GatheringData.PerceptionReq}, current: {DiscipleOfLand.Perception}");
                             AbortAutoGather();
                             return;
                         }
