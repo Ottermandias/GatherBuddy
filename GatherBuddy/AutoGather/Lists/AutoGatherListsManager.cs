@@ -94,33 +94,8 @@ public partial class AutoGatherListsManager : IDisposable
 
     public unsafe int GetInventoryCountForItem(IGatherable gatherable)
     {
-        if (gatherable.ItemData.IsCollectable)
-        {
-            int count   = 0;
-            var manager = InventoryManager.Instance();
-            if (manager == null)
-                return count;
-            foreach (var inv in InventoryTypes)
-            {
-                var container = manager->GetInventoryContainer(inv);
-                if (container == null || container->Loaded == 0)
-                    continue;
-                for (int i = 0; i < container->Size; i++)
-                {
-                    var item = container->GetInventorySlot(i);
-                    if (item == null || item->ItemId == 0 || item->ItemId != gatherable.ItemId) continue;
-        
-                    count++;
-                }
-            }
-        
-            return count;
-        }
-        else
-        {
-            var inventory = InventoryManager.Instance();
-            return inventory->GetInventoryItemCount(gatherable.ItemId);
-        }
+        var inventory = InventoryManager.Instance();
+        return inventory->GetInventoryItemCount(gatherable.ItemId, false, false, false, (short)(gatherable.ItemData.IsCollectable ? 1 : 0));
     }
     
     public List<InventoryType> InventoryTypes
