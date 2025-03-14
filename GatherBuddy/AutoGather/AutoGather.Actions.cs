@@ -7,6 +7,7 @@ using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
 using GatherBuddy.AutoGather.Helpers;
+using GatherBuddy.AutoGather.Extensions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -57,7 +58,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (!IsGivingLandOffCooldown)
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - GivingLandYield - slot.Yield)
+            if (slot.Item.GetInventoryCount() > 9999 - GivingLandYield - slot.Yield)
                 return false;
 
             return true;
@@ -67,7 +68,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot))
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYield : 0))
+            if (slot.Item.GetInventoryCount() > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYield : 0))
                 return false;
 
             return true;
@@ -106,7 +107,7 @@ namespace GatherBuddy.AutoGather
                 if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
                 { 
                     if (desiredItem == null) throw new NoGatherableItemsInNodeException();
-                    left = (int)QuantityTotal(desiredItem) - InventoryCount(desiredItem);
+                    left = (int)QuantityTotal(desiredItem) - desiredItem.GetInventoryCount();
                     if (left < 1) throw new NoGatherableItemsInNodeException();
                 }
 

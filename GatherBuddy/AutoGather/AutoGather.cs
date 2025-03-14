@@ -23,6 +23,7 @@ using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using GatherBuddy.Time;
+using GatherBuddy.AutoGather.Extensions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -219,7 +220,7 @@ namespace GatherBuddy.AutoGather
 
             if (ItemsToGather.Count == 0)
             {
-                if (!_plugin.AutoGatherListsManager.ActiveItems.Any(i => InventoryCount(i) < QuantityTotal(i) && !(i.IsTreasureMap && InventoryCount(i) != 0)))
+                if (!_plugin.AutoGatherListsManager.ActiveItems.Any(i => i.GetInventoryCount() < QuantityTotal(i) && !(i.IsTreasureMap && i.GetInventoryCount() != 0)))
                 {
                     AbortAutoGather();
                     return;

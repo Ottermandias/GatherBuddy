@@ -17,6 +17,7 @@ using FFXIVClientStructs.FFXIV.Component.GUI;
 using NodeType = GatherBuddy.Enums.NodeType;
 using Dalamud.Utility;
 using GatherBuddy.Config;
+using GatherBuddy.AutoGather.Extensions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -123,9 +124,9 @@ namespace GatherBuddy.AutoGather
             ItemsToGather.Clear();
             var activeItems = _plugin.AutoGatherListsManager.ActiveItems.OfType<Gatherable>()
                 // Not gathered enough.
-                .Where(item => InventoryCount(item) < QuantityTotal(item))
+                .Where(item => item.GetInventoryCount() < QuantityTotal(item))
                 // If treasure map, only gather if we have none or the allowance is up.
-                .Where(item => !item.IsTreasureMap || InventoryCount(item) == 0 && NextTreasureMapAllowance < AdjustedServerTime.DateTime)
+                .Where(item => !item.IsTreasureMap || item.GetInventoryCount() == 0 && NextTreasureMapAllowance < AdjustedServerTime.DateTime)
                 // Choose the best location and calculate the next uptime.
                 .Select(GetBestLocation)
                 // Filter out items that are not available right now or don't have an unvisited location.
@@ -270,9 +271,6 @@ namespace GatherBuddy.AutoGather
                 return true;
             }
         }
-
-        private int InventoryCount(IGatherable gatherable)
-            => _plugin.AutoGatherListsManager.GetInventoryCountForItem(gatherable);
 
         private uint QuantityTotal(IGatherable gatherable)
             => _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(gatherable);

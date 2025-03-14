@@ -92,12 +92,6 @@ public partial class AutoGatherListsManager : IDisposable
         return total;
     }
 
-    public unsafe int GetInventoryCountForItem(IGatherable gatherable)
-    {
-        var inventory = InventoryManager.Instance();
-        return inventory->GetInventoryItemCount(gatherable.ItemId, false, false, false, (short)(gatherable.ItemData.IsCollectable ? 1 : 0));
-    }
-    
     public List<InventoryType> InventoryTypes
     {
         get

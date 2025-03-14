@@ -7,6 +7,7 @@ using System.Runtime.InteropServices;
 using ECommons.Automation.UIInput;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using Dalamud.Game.ClientState.Conditions;
+using GatherBuddy.AutoGather.Extensions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -66,7 +67,7 @@ namespace GatherBuddy.AutoGather
 
             var target = targetItem != null ? available.Where(s => s.Item == targetItem).FirstOrDefault() : null;
 
-            if (target != null && InventoryCount(targetItem!) < QuantityTotal(targetItem!))
+            if (target != null && targetItem!.GetInventoryCount() < QuantityTotal(targetItem!))
             {
                 //The target item is found in the node, would not overcap and we need to gather more of it
                 return (!target.Collectable, target);
@@ -77,14 +78,14 @@ namespace GatherBuddy.AutoGather
                 //Join node slots, retaining list order
                 .Join(available, i => i.Item, s => s.Item, (i, s) => s)
                 //And we need more of them
-                .Where(s => InventoryCount(s.Item) < QuantityTotal(s.Item));
+                .Where(s => s.Item.GetInventoryCount() < QuantityTotal(s.Item));
 
             //Items in the fallback list
             var fallbackList = _plugin.AutoGatherListsManager.FallbackItems
                 //Join node slots, retaining list order
                 .Join(available, i => i.Item, s => s.Item, (i, s) => (Slot: s, i.Quantity))
                 //And we need more of them
-                .Where(x => InventoryCount(x.Slot.Item) < x.Quantity)
+                .Where(x => x.Slot.Item.GetInventoryCount() < x.Quantity)
                 .Select(x => x.Slot);
 
             var fallbackSkills = GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems;
@@ -132,10 +133,10 @@ namespace GatherBuddy.AutoGather
         private bool CheckItemOvercap(ItemSlot s)
         {
             //If it's a treasure map, we can have only one in the inventory
-            if (s.Item.IsTreasureMap && InventoryCount(s.Item) != 0)
+            if (s.Item.IsTreasureMap && s.Item.GetInventoryCount() != 0)
                 return false;
             //If it's a crystal, we can't have more than 9999
-            if (s.Item.IsCrystal && InventoryCount(s.Item) > 9999 - s.Yield)
+            if (s.Item.IsCrystal && s.Item.GetInventoryCount() > 9999 - s.Yield)
                 return false;
             return true;
         }
@@ -148,7 +149,7 @@ namespace GatherBuddy.AutoGather
                 //Prioritize crystals in the gathering list
                 .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
                 //Prioritize crystals with a lower amount in the inventory
-                .ThenBy(s => InventoryCount(s.Item))
+                .ThenBy(s => s.Item.GetInventoryCount())
                 .FirstOrDefault();
         }
     }

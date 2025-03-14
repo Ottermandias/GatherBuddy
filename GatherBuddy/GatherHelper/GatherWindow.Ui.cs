@@ -6,6 +6,7 @@ using System.Text;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
+using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
@@ -117,7 +118,7 @@ public class GatherWindow : Window
         if (GatherBuddy.Config.ShowGatherWindowOnlyAvailable && time.Start > GatherBuddy.Time.ServerTime)
             return;
 
-        var inventoryCount = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
+        var inventoryCount = item.GetInventoryCount();
         var quantity = _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(item);
 
         if (quantity > 0 && inventoryCount >= quantity && GatherBuddy.Config.HideGatherWindowCompletedItems)
