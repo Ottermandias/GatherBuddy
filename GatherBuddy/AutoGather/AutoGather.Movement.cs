@@ -205,14 +205,14 @@ namespace GatherBuddy.AutoGather
                 if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
                 {
                     offset = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(offset, 3, 3);
-                    if ((distance = Vector2.Distance(offset.ToVector2(), destination.ToVector2())) > 3.5f)
+                    if ((distance = Vector2.Distance(offset.ToVector2(), destination.ToVector2())) > 3)
                         GatherBuddy.Log.Warning($"Offset is ignored because the distance {distance} is too large after correcting for mesh.");
                     else
                         return offset;
                 }
 
                 var correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
-                if ((distance = Vector2.Distance(correctedDestination.ToVector2(), destination.ToVector2())) > 3.5f)
+                if ((distance = Vector2.Distance(correctedDestination.ToVector2(), destination.ToVector2())) > 3)
                     GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point that is too far away from the node (distance {distance}).");
                 else 
                     return correctedDestination;
