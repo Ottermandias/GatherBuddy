@@ -85,6 +85,11 @@ public partial class Interface
                 "Automatically extract materia from items with a complete spiritbond",
                 GatherBuddy.Config.AutoGatherConfig.DoMaterialize,
                 b => GatherBuddy.Config.AutoGatherConfig.DoMaterialize = b);
+        public static void DrawAetherialReduction()
+            => DrawCheckbox("Enable Aetherial Reduction",
+                "Automatically perform Aetherial Reduction when idling or the inventory is full",
+                GatherBuddy.Config.AutoGatherConfig.DoReduce,
+                b => GatherBuddy.Config.AutoGatherConfig.DoReduce = b);
 
         public static void DrawUseFlagBox()
             => DrawCheckbox("Disable map marker navigation",            "Whether or not to navigate using map markers (timed nodes only)",
@@ -685,6 +690,7 @@ public partial class Interface
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawMaterialExtraction();
+                ConfigFunctions.DrawAetherialReduction();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();

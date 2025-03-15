@@ -43,6 +43,14 @@ namespace GatherBuddy.AutoGather
         public Vector3 CurrentDestination { get; private set; } = default;
         private ILocation? CurrentFarNodeLocation;
 
+        public static IReadOnlyList<InventoryType> InventoryTypes { get; } =
+        [
+            InventoryType.Inventory1,
+            InventoryType.Inventory2,
+            InventoryType.Inventory3,
+            InventoryType.Inventory4,
+        ];
+
         public GatheringType JobAsGatheringType
         {
             get
@@ -112,7 +120,7 @@ namespace GatherBuddy.AutoGather
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
 
-        private unsafe T* GetAddon<T>(string name)
+        private static unsafe T* GetAddon<T>(string name) where T : unmanaged
         {
             var addon = (AtkUnitBase*)Dalamud.GameGui.GetAddonByName(name);
             if (addon != null && addon->IsFullyLoaded() && addon->IsReady)
@@ -120,20 +128,26 @@ namespace GatherBuddy.AutoGather
             else
                 return null;
         }
-        public unsafe AddonGathering* GatheringAddon
+        public static unsafe AddonGathering* GatheringAddon
             => GetAddon<AddonGathering>("Gathering");
 
-        public unsafe AddonGatheringMasterpiece* MasterpieceAddon
+        public static unsafe AddonGatheringMasterpiece* MasterpieceAddon
             => GetAddon<AddonGatheringMasterpiece>("GatheringMasterpiece");
 
-        public unsafe AddonMaterializeDialog* MaterializeAddon
+        public static unsafe AddonMaterializeDialog* MaterializeAddon
             => GetAddon<AddonMaterializeDialog>("Materialize");
 
-        public unsafe AddonMaterializeDialog* MaterializeDialogAddon
+        public static unsafe AddonMaterializeDialog* MaterializeDialogAddon
             => GetAddon<AddonMaterializeDialog>("MaterializeDialog");
 
-        public unsafe AddonSelectYesno* SelectYesnoAddon
+        public static unsafe AddonSelectYesno* SelectYesnoAddon
             => GetAddon<AddonSelectYesno>("SelectYesno");
+
+        public static unsafe AtkUnitBase* PurifyItemSelectorAddon
+            => GetAddon<AtkUnitBase>("PurifyItemSelector");
+
+        public static unsafe AtkUnitBase* PurifyResultAddon
+            => GetAddon<AtkUnitBase>("PurifyResult");
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
             => _activeItemList.Where(i => i.Node?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
@@ -149,6 +163,8 @@ namespace GatherBuddy.AutoGather
                     return false;
                 if (Dalamud.Conditions[ConditionFlag.BetweenAreas]
                  || Dalamud.Conditions[ConditionFlag.BetweenAreas51]
+                 || Dalamud.Conditions[ConditionFlag.OccupiedInQuestEvent]
+                 || Dalamud.Conditions[ConditionFlag.OccupiedSummoningBell]
                  || Dalamud.Conditions[ConditionFlag.BeingMoved]
                  || Dalamud.Conditions[ConditionFlag.Casting]
                  || Dalamud.Conditions[ConditionFlag.Casting87]
@@ -161,7 +177,7 @@ namespace GatherBuddy.AutoGather
                  || Dalamud.Conditions[ConditionFlag.Gathering42]
                  //Node is open? Fades off shortly after closing the node, can't use items (but can mount) while it's set
                  || Dalamud.Conditions[85] && !Dalamud.Conditions[ConditionFlag.Gathering]
-                 || Dalamud.ClientState.LocalPlayer.CurrentHp < 1
+                 || Dalamud.ClientState.LocalPlayer.IsDead
                  || Player.IsAnimationLocked)
                     return false;
 

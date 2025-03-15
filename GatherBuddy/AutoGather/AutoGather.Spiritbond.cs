@@ -14,6 +14,8 @@ public partial class AutoGather
     {
         get
         {
+            if (!GatherBuddy.Config.AutoGatherConfig.DoMaterialize) return 0;
+
             var inventory = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
             var result    = 0;
             for (var slot = 0; slot < inventory->Size; slot++)

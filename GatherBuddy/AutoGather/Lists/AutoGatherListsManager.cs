@@ -90,22 +90,7 @@ public partial class AutoGatherListsManager : IDisposable
 
         return _activeItems.Where(x => x.Item == gatherable).Select(x => x.Quantity).FirstOrDefault();
     }
-
-    public List<InventoryType> InventoryTypes
-    {
-        get
-        {
-            List<InventoryType> types = new List<InventoryType>()
-            {
-                InventoryType.Inventory1,
-                InventoryType.Inventory2,
-                InventoryType.Inventory3,
-                InventoryType.Inventory4,
-            };
-            return types;
-        }
-    }
-
+    
     public void Save()
     {
         var file = Functions.ObtainSaveFile(FileName);
