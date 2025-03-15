@@ -13,7 +13,6 @@ using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Data;
-using System.Collections.Generic;
 using ECommons.MathHelpers;
 
 namespace GatherBuddy.AutoGather
@@ -199,22 +198,29 @@ namespace GatherBuddy.AutoGather
 
         private static Vector3 GetCorrectedDestination(Vector3 destination)
         {
+            const float MaxHorizontalSeparation = 3.0f;
+            const float MaxVerticalSeparation = 2.5f;
+
             try
             {
-                float distance;
+                float separation;
                 if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
                 {
-                    offset = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(offset, 3, 3);
-                    if ((distance = Vector2.Distance(offset.ToVector2(), destination.ToVector2())) > 3)
-                        GatherBuddy.Log.Warning($"Offset is ignored because the distance {distance} is too large after correcting for mesh.");
+                    offset = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(offset, MaxHorizontalSeparation, MaxVerticalSeparation);
+                    if ((separation = Vector2.Distance(offset.ToVector2(), destination.ToVector2())) > MaxHorizontalSeparation)
+                        GatherBuddy.Log.Warning($"Offset is ignored because the horizontal separation {separation} is too large after correcting for mesh. Maximum allowed is {MaxHorizontalSeparation}.");
+                    else if ((separation = Math.Abs(offset.Y - destination.Y)) > MaxVerticalSeparation)
+                        GatherBuddy.Log.Warning($"Offset is ignored because the vertical separation {separation} is too large after correcting for mesh. Maximum allowed is {MaxVerticalSeparation}.");
                     else
                         return offset;
                 }
 
-                var correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
-                if ((distance = Vector2.Distance(correctedDestination.ToVector2(), destination.ToVector2())) > 3)
-                    GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point that is too far away from the node (distance {distance}).");
-                else 
+                var correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, MaxHorizontalSeparation, MaxVerticalSeparation);
+                if ((separation = Vector2.Distance(correctedDestination.ToVector2(), destination.ToVector2())) > MaxHorizontalSeparation)
+                    GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point with too large horizontal separation {separation}. Maximum allowed is {MaxHorizontalSeparation}.");
+                else if ((separation = Math.Abs(correctedDestination.Y - destination.Y)) > MaxVerticalSeparation)
+                    GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point with too large vertical separation {separation}. Maximum allowed is {MaxVerticalSeparation}.");
+                else
                     return correctedDestination;
             }
             catch (Exception) { }
