@@ -147,7 +147,7 @@ namespace GatherBuddy.AutoGather
                 .Where(s => s.Item.IsCrystal)
                 .Where(CheckItemOvercap)
                 //Prioritize crystals in the gathering list
-                .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
+                .OrderBy(s => _activeItemList.Contains(s.Item) ? 0 : 1)
                 //Prioritize crystals with a lower amount in the inventory
                 .ThenBy(s => s.Item.GetInventoryCount())
                 .FirstOrDefault();

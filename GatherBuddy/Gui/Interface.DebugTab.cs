@@ -580,7 +580,7 @@ public partial class Interface
         if (ImGui.Button("Clear Timed Node Memory"))
         {
             GatherBuddy.Log.Information("Timed node memory cleared manually!");
-            GatherBuddy.AutoGather.VisitedTimedLocations.Clear();
+            GatherBuddy.AutoGather.DebugClearVisited();
         }
 
         ImGui.Text($"Enabled: {GatherBuddy.AutoGather.Enabled}");
@@ -608,7 +608,7 @@ public partial class Interface
 
         if (ImGui.CollapsingHeader("Timed Node Memory"))
         {
-            foreach (var (location, time) in GatherBuddy.AutoGather.VisitedTimedLocations)
+            foreach (var (location, time) in GatherBuddy.AutoGather.DebugVisitedTimedLocations)
             {
                 ImGui.Text($"{location.Id} {time.End}");
             }

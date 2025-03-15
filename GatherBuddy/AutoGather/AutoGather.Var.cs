@@ -1,23 +1,20 @@
 ﻿using Dalamud.Game.ClientState.Conditions;
-using GatherBuddy.Interfaces;
-using GatherBuddy.Plugin;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using FFXIVClientStructs.FFXIV.Component.GUI;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
+using GatherBuddy.Interfaces;
+using GatherBuddy.Plugin;
 using GatherBuddy.Time;
-using FFXIVClientStructs.FFXIV.Client.Game;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Collections.Specialized;
-using FFXIVClientStructs.FFXIV.Component.GUI;
-using NodeType = GatherBuddy.Enums.NodeType;
-using Dalamud.Utility;
-using GatherBuddy.Config;
-using GatherBuddy.AutoGather.Extensions;
+using System.Linq;
+using System.Numerics;
 
 namespace GatherBuddy.AutoGather
 {
@@ -42,8 +39,8 @@ namespace GatherBuddy.AutoGather
         public bool IsGathering
             => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
 
-        public bool?    LastNavigationResult { get; set; } = null;
-        public Vector3 CurrentDestination   { get; private set; } = default;
+        public bool? LastNavigationResult { get; set; } = null;
+        public Vector3 CurrentDestination { get; private set; } = default;
         private ILocation? CurrentFarNodeLocation;
 
         public GatheringType JobAsGatheringType
@@ -82,11 +79,11 @@ namespace GatherBuddy.AutoGather
         {
             get
             {
-                var      map     = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
-                var      markers = map->MiniMapGatheringMarkers;
+                var map = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
+                var markers = map->MiniMapGatheringMarkers;
                 if (markers == null)
                     return null;
-                Vector2? result  = null;
+                Vector2? result = null;
                 foreach (var miniMapGatheringMarker in markers)
                 {
                     if (miniMapGatheringMarker.MapMarker.X != 0 && miniMapGatheringMarker.MapMarker.Y != 0)
@@ -108,112 +105,12 @@ namespace GatherBuddy.AutoGather
         private BitVector32 LuckUsed;
         private bool WentHome;
 
-        public readonly List<GatherInfo> ItemsToGather = [];
-        public readonly Dictionary<GatheringNode, TimeInterval> VisitedTimedLocations = [];
+        internal IEnumerable<GatherTarget> ItemsToGather => _activeItemList;
+        internal ReadOnlyDictionary<GatheringNode, TimeInterval> DebugVisitedTimedLocations => _activeItemList.DebugVisitedTimedLocations;
         public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
         public readonly LinkedList<uint> VisitedNodes = [];
-        private readonly Dictionary<uint, uint> TeleportationCostCache = [];
-        private uint TeleportationCostCacheTerritory;
-        private GatherInfo targetInfo;
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
-
-
-        public void UpdateItemsToGather()
-        {
-            ItemsToGather.Clear();
-            var activeItems = _plugin.AutoGatherListsManager.ActiveItems.OfType<Gatherable>()
-                // Not gathered enough.
-                .Where(item => item.GetInventoryCount() < QuantityTotal(item))
-                // If treasure map, only gather if we have none or the allowance is up.
-                .Where(item => !item.IsTreasureMap || item.GetInventoryCount() == 0 && NextTreasureMapAllowance < AdjustedServerTime.DateTime)
-                // Choose the best location and calculate the next uptime.
-                .Select(GetBestLocation)
-                // Filter out items that are not available right now or don't have an unvisited location.
-                .Where(info => info != default)
-                // Prioritize timed nodes first.
-                .OrderBy(info => info.Time == TimeInterval.Always);
-
-            if (GatherBuddy.Config.AutoGatherConfig.SortingMethod == AutoGatherConfig.SortingType.Location)
-            {
-                // Node coordinates are map coordinates multiplied by 100.
-                var territoryId = Dalamud.ClientState.TerritoryType;
-                activeItems = activeItems
-                    // Order by node type.
-                    .ThenBy(info => GetNodeTypeAsPriority(info.Item))
-                    // Then by teleportation cost.
-                    .ThenBy(info => info.Location.Territory.Id == territoryId ? 0 : GetTeleportationCost(info.Location))
-                    // Then by distance to the player (for current territory).
-                    .ThenBy(info => GetHorizontalSquaredDistanceToPlayer(info.Location));
-            }
-            ItemsToGather.AddRange(activeItems);
-        }
-
-        private GatherInfo GetBestLocation(Gatherable item)
-        {
-            // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
-            var minerLevel = (DiscipleOfLand.MinerLevel + 4) / 5 * 5;
-            var botanistLevel = (DiscipleOfLand.BotanistLevel + 4) / 5 * 5;
-            // Preferred location from the list if set.
-            var pref = _plugin.AutoGatherListsManager.GetPreferredLocation(item);
-            var nodes = item.NodeList
-                // Remove nodes that have been visited.
-                .Except(VisitedTimedLocations.Keys)
-                // Remove nodes with a level higher than the player can gather.
-                .Where(node => node.GatheringType.ToGroup() switch
-                {
-                    GatheringType.Miner => node.Level <= minerLevel,
-                    GatheringType.Botanist => node.Level <= botanistLevel,
-                    _ => false
-                })
-                // Get the next uptime.
-                .Select(node => new GatherInfo(item, node, node.Times.NextUptime(AdjustedServerTime)))
-                // Filter out nodes that are not up. Also, filter out invalid intervals.
-                .Where(info => info.Time.InRange(AdjustedServerTime))
-                // Prioritize preferred location, then preferred job, then the rest.
-                .OrderBy(info =>
-                {
-                    if (info.Location == pref)
-                        return 0;
-                    if (info.Location.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType)
-                        return 1;
-                    return 2;
-                })
-                // Prioritize nodes in the current territory.
-                .ThenBy(info => info.Location.Territory.Id != Dalamud.ClientState.TerritoryType)
-                // Prioritize closest nodes in the current territory.
-                .ThenBy(info => GetHorizontalSquaredDistanceToPlayer(info.Location))
-                // Order by end time, longest first as in the original UptimeManager.NextUptime().
-                .ThenByDescending(info => info.Time.End);
-
-            switch (GatherBuddy.Config.AetherytePreference)
-            {
-                case AetherytePreference.Distance:
-                    nodes = nodes
-                        // Order by distance to the closest aetheryte.
-                        .ThenBy(info => FindClosestAetheryte(info.Location)?
-                            .WorldDistance(info.Location.Territory.Id, info.Location.IntegralXCoord, info.Location.IntegralYCoord)
-                            ?? int.MaxValue);
-                    break;
-                case AetherytePreference.Cost:
-                    nodes = nodes
-                        // Order by teleportation cost.
-                        .ThenBy(info => GetTeleportationCost(info.Location));
-                    break;
-            }
-            return nodes.FirstOrDefault();
-        }
-
-        private float GetHorizontalSquaredDistanceToPlayer(ILocation location)
-        {
-            if (location.Territory.Id != Dalamud.ClientState.TerritoryType)
-                return float.MaxValue;
-
-            // Node coordinates are map coordinates multiplied by 100.
-            var playerPos3D = Player.Object.GetMapCoordinates();
-            var playerPos = new Vector2(playerPos3D.X * 100f, playerPos3D.Y * 100f);
-            return Vector2.DistanceSquared(new Vector2(location.IntegralXCoord, location.IntegralYCoord), playerPos);
-        }
 
         private unsafe T* GetAddon<T>(string name)
         {
@@ -239,7 +136,7 @@ namespace GatherBuddy.AutoGather
             => GetAddon<AddonSelectYesno>("SelectYesno");
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
-            => ItemsToGather.Where(i => i.Location?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
+            => _activeItemList.Where(i => i.Node?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
 
         private bool LocationMatchesJob(ILocation loc)
             => loc.GatheringType.ToGroup() == JobAsGatheringType;
@@ -275,19 +172,6 @@ namespace GatherBuddy.AutoGather
         private uint QuantityTotal(IGatherable gatherable)
             => _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(gatherable);
 
-        private int GetNodeTypeAsPriority(Gatherable item)
-        {
-            return item.NodeType switch
-            {
-                NodeType.Legendary => 0,
-                NodeType.Unspoiled => 1,
-                NodeType.Ephemeral => 2,
-                NodeType.Regular => 9,
-                NodeType.Unknown => 99,
-                _ => 99,
-            };
-        }
-
         private static unsafe bool HasGivingLandBuff
             => Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId == 1802) ?? false;
 
@@ -297,28 +181,12 @@ namespace GatherBuddy.AutoGather
         //Should be near the upper bound to reduce the probability of overcapping.
         private const int GivingLandYield = 30;
 
-        private static unsafe DateTime NextTreasureMapAllowance
-            => FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->GetNextMapAllowanceDateTime();
-
         private static unsafe uint FreeInventorySlots
             => InventoryManager.Instance()->GetEmptySlotsInBag();
 
-        private static TimeStamp AdjustedServerTime
+        public static TimeStamp AdjustedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
 
         private ConfigPreset MatchConfigPreset(Gatherable? item) => _plugin.Interface.MatchConfigPreset(item);
-    }
-
-    public record struct GatherInfo(Gatherable Item, GatheringNode Location, TimeInterval Time)
-    {
-        public static implicit operator (Gatherable Item, GatheringNode Location, TimeInterval Time)(GatherInfo value)
-        {
-            return (value.Item, value.Location, value.Time);
-        }
-
-        public static implicit operator GatherInfo((Gatherable Item, GatheringNode Location, TimeInterval Time) value)
-        {
-            return new GatherInfo(value.Item, value.Location, value.Time);
-        }
     }
 }

@@ -236,7 +236,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private static Aetheryte? FindClosestAetheryte(ILocation location)
+        public static Aetheryte? FindClosestAetheryte(ILocation location)
         {
             var aetheryte = location.ClosestAetheryte;
 
@@ -254,40 +254,6 @@ namespace GatherBuddy.AutoGather
 
             return aetheryte;
         }
-
-        private uint GetTeleportationCost(GatheringNode location)
-        {
-            var territory = Dalamud.ClientState.TerritoryType;
-            if (territory != TeleportationCostCacheTerritory)
-                UpdateTeleportationCosts();
-            if (territory != TeleportationCostCacheTerritory)
-                return uint.MaxValue;
-
-            var aetheryte = FindClosestAetheryte(location);
-            if (aetheryte == null)
-                return uint.MaxValue; // If there's no aetheryte, put it at the end
-
-            return TeleportationCostCache.GetValueOrDefault(aetheryte.Id, uint.MaxValue);
-        }
-
-        private unsafe void UpdateTeleportationCosts()
-        {
-            TeleportationCostCache.Clear();
-            TeleportationCostCacheTerritory = 0;
-
-            var telepo = Telepo.Instance();
-            if (telepo == null) return;
-
-            telepo->UpdateAetheryteList();
-
-            for (var i = 0; i < telepo->TeleportList.Count; i++)
-            {
-                var entry = telepo->TeleportList[i];
-                TeleportationCostCache[entry.AetheryteId] = entry.GilCost;
-            }
-            TeleportationCostCacheTerritory = Dalamud.ClientState.TerritoryType;
-        }
-
 
         private bool MoveToTerritory(ILocation location)
         {

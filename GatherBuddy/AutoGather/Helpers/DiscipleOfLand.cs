@@ -1,5 +1,6 @@
 using ECommons.ExcelServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using System;
 
 namespace GatherBuddy.AutoGather
 {
@@ -12,5 +13,7 @@ namespace GatherBuddy.AutoGather
         public static unsafe int BotanistLevel => PlayerState.Instance()->ClassJobLevels[_botanistExpArrayIndex];
         public static unsafe int Gathering => PlayerState.Instance()->Attributes[72];
         public static unsafe int Perception => PlayerState.Instance()->Attributes[73];
+        public static unsafe DateTime NextTreasureMapAllowance => UIState.Instance()->GetNextMapAllowanceDateTime();
+
     }
 }
