@@ -42,7 +42,7 @@ namespace GatherBuddy.AutoGather
             {
                 TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.Gathering42], 1000);
                 TaskManager.Enqueue(() => !Dalamud.Conditions[ConditionFlag.Gathering42]);
-                TaskManager.Enqueue(RefreshNextTreasureMapAllowance);
+                TaskManager.Enqueue(DiscipleOfLand.RefreshNextTreasureMapAllowance);
             }
         }
 

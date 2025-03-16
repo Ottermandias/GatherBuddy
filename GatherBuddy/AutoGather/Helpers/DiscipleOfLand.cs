@@ -1,4 +1,5 @@
 using ECommons.ExcelServices;
+using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System;
 
@@ -14,6 +15,14 @@ namespace GatherBuddy.AutoGather
         public static unsafe int Gathering => PlayerState.Instance()->Attributes[72];
         public static unsafe int Perception => PlayerState.Instance()->Attributes[73];
         public static unsafe DateTime NextTreasureMapAllowance => UIState.Instance()->GetNextMapAllowanceDateTime();
+
+        public static unsafe void RefreshNextTreasureMapAllowance()
+        {
+            if (EzThrottler.Throttle("RequestResetTimestamps", 1000))
+            {
+                UIState.Instance()->RequestResetTimestamps();
+            }
+        }
 
     }
 }

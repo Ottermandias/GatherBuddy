@@ -66,7 +66,7 @@ namespace GatherBuddy.AutoGather
                 }
                 else
                 {
-                    RefreshNextTreasureMapAllowance();                    
+                    DiscipleOfLand.RefreshNextTreasureMapAllowance();                    
                     WentHome = true; //Prevents going home right after enabling auto-gather
                 }
 
@@ -120,6 +120,14 @@ namespace GatherBuddy.AutoGather
             if (TaskManager.IsBusy)
             {
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
+                return;
+            }
+
+            if (DiscipleOfLand.NextTreasureMapAllowance == DateTime.MinValue)
+            {
+                //Wait for timer refresh
+                AutoStatus = "Refreshing timers...";
+                DiscipleOfLand.RefreshNextTreasureMapAllowance();
                 return;
             }
 
@@ -249,13 +257,6 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "No available items to gather";
                     return;
                 }
-
-            if (next.Item.IsTreasureMap && DiscipleOfLand.NextTreasureMapAllowance == DateTime.MinValue)
-            {
-                //Wait for timer refresh
-                RefreshNextTreasureMapAllowance();
-                return;
-            }
 
             if (next.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(next.Item.GatheringType.ToGroup()))
             {
@@ -488,14 +489,6 @@ namespace GatherBuddy.AutoGather
 
                     return !IsGathering;       
                 }, "Wait until Gathering addon is closed or SelectYesno addon pops up");
-            }
-        }
-
-        private static unsafe void RefreshNextTreasureMapAllowance()
-        {
-            if (EzThrottler.Throttle("RequestResetTimestamps", 1000))
-            {
-                FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance()->RequestResetTimestamps();
             }
         }
 
