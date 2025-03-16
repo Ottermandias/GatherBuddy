@@ -104,22 +104,24 @@ namespace GatherBuddy.AutoGather
         {
             if (MasterpieceAddon != null)
             {
-                var left = int.MaxValue;
-                if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
-                { 
-                    if (target == default) throw new NoGatherableItemsInNodeException();
-                    left = (int)target.Quantity - target.Item.GetInventoryCount();
-                    if (left < 1) throw new NoGatherableItemsInNodeException();
+                if (CurrentCollectableRotation == null)
+                {
+                    // Player clicked the item himself, or has just enabled auto-gather.
+                    // We can't detect what item is being gathered from inside the GatheringMasterpiece addon, so we need to reopen it.
+                    CloseGatheringAddons(false);
+                    return;
                 }
 
-                DoCollectibles(MatchConfigPreset(target.Item), left);
+                DoCollectibles();
             }
-            else if (GatheringAddon != null && NodeTracker.Ready)
+            else
             {
-                DoGatherWindowActions(target);
+                CurrentCollectableRotation = null;
+                if (GatheringAddon != null && NodeTracker.Ready)
+                {
+                    DoGatherWindowActions(target);
+                }
             }
-            if (MasterpieceAddon == null)
-                CurrentRotation = null;
         }
 
         private unsafe void DoGatherWindowActions(GatherTarget target)
@@ -267,12 +269,10 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private unsafe void DoCollectibles(ConfigPreset config, int itemsLeft)
+        private unsafe void DoCollectibles()
         {
-            if (MasterpieceAddon == null)
+            if (MasterpieceAddon == null || CurrentCollectableRotation == null)
                 return;
-
-            CurrentRotation ??= new CollectableRotation(config);
 
             var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
             if (textNode == null)
@@ -300,7 +300,7 @@ namespace GatherBuddy.AutoGather
                 LastCollectability = collectibility;
                 LastIntegrity      = integrity;
 
-                var collectibleAction = CurrentRotation.GetNextAction(MasterpieceAddon, itemsLeft);
+                var collectibleAction = CurrentCollectableRotation.GetNextAction(MasterpieceAddon);
 
                 EnqueueActionWithDelay(() => UseAction(collectibleAction));
             }

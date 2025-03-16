@@ -156,19 +156,8 @@ namespace GatherBuddy.AutoGather
             {
                 GatherTarget gatherTarget;
                 if (!_activeItemList.IsInitialized)
-                {
-                    // We can't detect what item is being gathered from inside the GatheringMasterpiece addon, so we need to reopen it.
-                    unsafe
-                    {
-                        if (MasterpieceAddon != null)
-                        {
-                            CloseGatheringAddons(false);
-                            return;
-                        }
-                    }
                     // If Auto-Gather is enabled after opening the node, the active item list is not initialized.
                     gatherTarget = _activeItemList.GetNextOrDefault();
-                }
                 else
                     // Otherwise, we don't want the list to suddenly change while gathering.
                     gatherTarget = _activeItemList.CurrentOrDefault;
@@ -213,6 +202,7 @@ namespace GatherBuddy.AutoGather
             }
 
             ActionSequence = null;
+            CurrentCollectableRotation = null;
 
             //Cache IPC call results
             var isPathGenerating = IsPathGenerating;

@@ -1,5 +1,7 @@
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.Classes;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,23 +10,27 @@ namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        private CollectableRotation? CurrentRotation;
+        private CollectableRotation? CurrentCollectableRotation;
 
         private unsafe partial class CollectableRotation
         {
-            public CollectableRotation(ConfigPreset config)
+            public CollectableRotation(ConfigPreset config, Gatherable item, uint quantity)
             {
                 this.config = config;
                 shouldUseFullRotation = Player.Object.CurrentGp >= config.CollectableActionsMinGP;
+                this.item = item;
+                this.quantity = quantity;
             }
 
-            private bool shouldUseFullRotation = false;
+            private readonly bool shouldUseFullRotation = false;
             private readonly ConfigPreset config;
+            private readonly Gatherable item;
+            private readonly uint quantity;
 
             [GeneratedRegex(@"\d+")]
             private static partial Regex NumberRegex();
 
-            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon, int itemsLeft)
+            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
             {
                 var regex = NumberRegex();
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
@@ -33,6 +39,7 @@ namespace GatherBuddy.AutoGather
                 int scourColl        = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString()).Value);
                 int meticulousColl   = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString()).Value);
                 int brazenColl       = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString()).Value);
+                int itemsLeft        = (int)(quantity - item.GetInventoryCount());
 
                 if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;

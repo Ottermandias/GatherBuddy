@@ -26,18 +26,26 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void EnqueueGatherItem(ItemSlot slot)
         {
-            if (GatheringAddon == null)
+            var gatheringAddon = GatheringAddon;
+            if (gatheringAddon == null)
                 return;
 
+            if (slot.Item.ItemData.IsCollectable)
+            {
+                // Since it's possible that we are not gathering the top item in the list,
+                // we need to remember what we are going to gather inside MasterpieceAddon
+                CurrentCollectableRotation = new CollectableRotation(MatchConfigPreset(slot.Item), slot.Item, _activeItemList.FirstOrDefault(x => x.Item == slot.Item).Quantity);
+            }
+
             var itemIndex           = slot.Index;
-            var receiveEventAddress = new nint(GatheringAddon->AtkUnitBase.AtkEventListener.VirtualTable->ReceiveEvent);
+            var receiveEventAddress = new nint(gatheringAddon->AtkUnitBase.AtkEventListener.VirtualTable->ReceiveEvent);
             var eventDelegate       = Marshal.GetDelegateForFunctionPointer<ClickHelper.ReceiveEventDelegate>(receiveEventAddress);
 
             var target    = AtkStage.Instance();
-            var eventData = EventData.ForNormalTarget(target, &GatheringAddon->AtkUnitBase);
+            var eventData = EventData.ForNormalTarget(target, &gatheringAddon->AtkUnitBase);
             var inputData = InputData.Empty();
 
-            EnqueueActionWithDelay(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data));
+            EnqueueActionWithDelay(() => eventDelegate.Invoke(&gatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data));
 
             if (slot.Item.IsTreasureMap)
             {
