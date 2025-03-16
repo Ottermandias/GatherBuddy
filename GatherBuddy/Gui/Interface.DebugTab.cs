@@ -610,11 +610,11 @@ public partial class Interface
         {
             foreach (var (location, time) in GatherBuddy.AutoGather.DebugVisitedTimedLocations)
             {
-                ImGui.Text($"{location.Id} {time.End}");
+                ImGui.Text($"{location.Name} {time.End}");
             }
         }
 
-        if (ImGui.CollapsingHeader("Visited nodes"))
+        if (ImGui.CollapsingHeader("Visited Nodes"))
         {
             foreach (var pos in GatherBuddy.AutoGather.VisitedNodes)
             {
@@ -630,11 +630,11 @@ public partial class Interface
             }
         }
 
-        if (ImGui.CollapsingHeader("Nodes to Gather"))
+        if (ImGui.CollapsingHeader("Items to Gather"))
         {
-            foreach (var item in GatherBuddy.AutoGather.ItemsToGather)
+            foreach (var x in GatherBuddy.AutoGather.ItemsToGather)
             {
-                ImGui.Text(item.Item.Name[GatherBuddy.Language]);
+                ImGui.Text($"Item: {x.Item.Name}; Location: {x.Node.Name}; Valid until: {(x.Time == TimeInterval.Always ? "Always" : x.Time.End)}; Quantity: {x.Quantity}");
             }
         }
 
