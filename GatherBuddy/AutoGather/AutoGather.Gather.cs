@@ -8,6 +8,7 @@ using ECommons.Automation.UIInput;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using Dalamud.Game.ClientState.Conditions;
 using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.AutoGather.Lists;
 
 namespace GatherBuddy.AutoGather
 {
@@ -51,7 +52,7 @@ namespace GatherBuddy.AutoGather
         /// </summary>
         /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather a collectable or some unneeded junk
         /// Slot: ItemSlot of item to gather</returns>
-        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? targetItem)
+        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(GatherTarget gatherTarget)
         {
             //Gather crystals when using The Giving Land
             if (HasGivingLandBuff)
@@ -65,9 +66,9 @@ namespace GatherBuddy.AutoGather
                 .Where(CheckItemOvercap)
                 .ToList();
 
-            var target = targetItem != null ? available.Where(s => s.Item == targetItem).FirstOrDefault() : null;
+            var target = gatherTarget.Item != null ? available.Where(s => s.Item == gatherTarget.Item).FirstOrDefault() : null;
 
-            if (target != null && targetItem!.GetInventoryCount() < QuantityTotal(targetItem!))
+            if (target != null && gatherTarget.Item!.GetInventoryCount() < gatherTarget.Quantity)
             {
                 //The target item is found in the node, would not overcap and we need to gather more of it
                 return (!target.Collectable, target);
@@ -76,9 +77,10 @@ namespace GatherBuddy.AutoGather
             //Items in the gathering list
             var gatherList = ItemsToGather
                 //Join node slots, retaining list order
-                .Join(available, i => i.Item, s => s.Item, (i, s) => s)
+                .Join(available, i => i.Item, s => s.Item, (i, s) => (Slot: s, i.Quantity))
                 //And we need more of them
-                .Where(s => s.Item.GetInventoryCount() < QuantityTotal(s.Item));
+                .Where(x => x.Slot.Item.GetInventoryCount() < x.Quantity)
+                .Select(x => x.Slot);
 
             //Items in the fallback list
             var fallbackList = _plugin.AutoGatherListsManager.FallbackItems

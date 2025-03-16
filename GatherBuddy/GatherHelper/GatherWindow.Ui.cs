@@ -111,15 +111,14 @@ public class GatherWindow : Window
             false);
     }
 
-    private readonly List<(IGatherable Item, ILocation Location, TimeInterval Uptime)> _data = new();
+    private readonly List<(IGatherable Item, ILocation Location, TimeInterval Uptime, uint Quantity)> _data = new();
 
-    private void DrawItem(IGatherable item, ILocation loc, TimeInterval time)
+    private void DrawItem(IGatherable item, ILocation loc, TimeInterval time, uint quantity)
     {
         if (GatherBuddy.Config.ShowGatherWindowOnlyAvailable && time.Start > GatherBuddy.Time.ServerTime)
             return;
 
         var inventoryCount = item.GetInventoryCount();
-        var quantity = _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(item);
 
         if (quantity > 0 && inventoryCount >= quantity && GatherBuddy.Config.HideGatherWindowCompletedItems)
             return;
@@ -237,12 +236,16 @@ public class GatherWindow : Window
     {
         _data.Clear();
 
-        var list = _plugin.AutoGatherListsManager.GetList().Concat(_plugin.GatherWindowManager.GetList()).Distinct();
+        var list = _plugin.AutoGatherListsManager.ActiveItems
+            .Select(x => (Item: x.Item as IGatherable, Quantity: x.Quantity))
+            .Concat(_plugin.GatherWindowManager.GetList().Select(i => (Item: i, Quantity: 0u)))
+            .GroupBy(x => x.Item)
+            .Select(g => (Item: g.Key, Quantity: (uint)g.Sum(x => x.Quantity)));
 
         _data.AddRange(list.Select(i =>
         {
-            var (loc, time) = GatherBuddy.UptimeManager.BestLocation(i);
-            return (i, loc, time);
+            var (loc, time) = GatherBuddy.UptimeManager.BestLocation(i.Item);
+            return (i.Item, loc, time, i.Quantity);
         }));
 
         if (GatherBuddy.Config.SortGatherWindowByUptime)
@@ -317,8 +320,8 @@ public class GatherWindow : Window
         if (!table)
             return;
         
-        foreach (var (item, loc, time) in _data)
-            DrawItem(item, loc, time);
+        foreach (var (item, loc, time, quantity) in _data)
+            DrawItem(item, loc, time, quantity);
 
         CheckAnchorPosition();
     }

@@ -22,30 +22,19 @@ public partial class AutoGatherListsManager : IDisposable
 
     private readonly List<AutoGatherList> _lists = [];
     private readonly List<(Gatherable Item, uint Quantity)> _activeItems = [];
-    private readonly List<Gatherable> _sortedItems = [];
     private readonly List<(Gatherable Item, uint Quantity)> _fallbackItems = [];
 
     public ReadOnlyCollection<AutoGatherList> Lists => _lists.AsReadOnly();
     public ReadOnlyCollection<(Gatherable Item, uint Quantity)> ActiveItems => _activeItems.AsReadOnly();
     public ReadOnlyCollection<(Gatherable Item, uint Quantity)> FallbackItems => _fallbackItems.AsReadOnly();
 
-    private          bool         _sortDirty = true;
+    public AutoGatherListsManager() { }
 
-    public AutoGatherListsManager()
-    {
-        GatherBuddy.UptimeManager.UptimeChange += OnUptimeChange;
-    }
-
-    public void Dispose()
-        => GatherBuddy.UptimeManager.UptimeChange -= OnUptimeChange;
-
-    private void OnUptimeChange(IGatherable item)
-        => _sortDirty = true;
+    public void Dispose() { }
 
     public void SetActiveItems()
     {
         _activeItems.Clear();
-        _sortedItems.Clear();
         _fallbackItems.Clear();
         var items = _lists
             .Where(l => l.Enabled)
@@ -62,35 +51,12 @@ public partial class AutoGatherListsManager : IDisposable
             else
             {
                 _activeItems.Add((item, quantity));
-                _sortedItems.Add(item);
             }
         }
 
-        _sortDirty = true;
         ActiveItemsChanged?.Invoke();
     }
 
-    public IReadOnlyList<Gatherable> GetList()
-    {
-        if (_sortDirty && GatherBuddy.Config.SortGatherWindowByUptime)
-        {
-            _sortedItems.StableSort((lhs, rhs)
-                => GatherBuddy.UptimeManager.BestLocation(lhs).Interval.Compare(GatherBuddy.UptimeManager.BestLocation(rhs).Interval));
-            _sortDirty = false;
-        }
-
-        return _sortedItems;
-    }
-
-    [Obsolete]
-    public uint GetTotalQuantitiesForItem(IGatherable item)
-    {
-        if (item is not Gatherable gatherable)
-            return 0;
-
-        return _activeItems.Where(x => x.Item == gatherable).Select(x => x.Quantity).FirstOrDefault();
-    }
-    
     public void Save()
     {
         var file = Functions.ObtainSaveFile(FileName);

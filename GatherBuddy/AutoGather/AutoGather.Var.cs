@@ -185,9 +185,6 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private uint QuantityTotal(IGatherable gatherable)
-            => _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(gatherable);
-
         private static unsafe bool HasGivingLandBuff
             => Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId == 1802) ?? false;
 

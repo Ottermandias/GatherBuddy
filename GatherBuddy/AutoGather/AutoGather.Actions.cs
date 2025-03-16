@@ -8,6 +8,7 @@ using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
 using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.AutoGather.Lists;
 
 namespace GatherBuddy.AutoGather
 {
@@ -99,40 +100,40 @@ namespace GatherBuddy.AutoGather
         }
 
 
-        private unsafe void DoActionTasks(Gatherable? desiredItem)
+        private unsafe void DoActionTasks(GatherTarget target)
         {
             if (MasterpieceAddon != null)
             {
                 var left = int.MaxValue;
                 if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
                 { 
-                    if (desiredItem == null) throw new NoGatherableItemsInNodeException();
-                    left = (int)QuantityTotal(desiredItem) - desiredItem.GetInventoryCount();
+                    if (target == default) throw new NoGatherableItemsInNodeException();
+                    left = (int)target.Quantity - target.Item.GetInventoryCount();
                     if (left < 1) throw new NoGatherableItemsInNodeException();
                 }
 
-                DoCollectibles(MatchConfigPreset(desiredItem), left);
+                DoCollectibles(MatchConfigPreset(target.Item), left);
             }
             else if (GatheringAddon != null && NodeTracker.Ready)
             {
-                DoGatherWindowActions(desiredItem);
+                DoGatherWindowActions(target);
             }
             if (MasterpieceAddon == null)
                 CurrentRotation = null;
         }
 
-        private unsafe void DoGatherWindowActions(Gatherable? desiredItem)
+        private unsafe void DoGatherWindowActions(GatherTarget target)
         {
             if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit) LuckUsed = new(0);
 
             //Use The Giving Land out of order to gather random crystals.
-            if (ShouldUseGivingLandOutOfOrder(desiredItem))
+            if (ShouldUseGivingLandOutOfOrder(target.Item))
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.GivingLand));
                 return;
             }
 
-            if (!HasGivingLandBuff && ShouldUseLuck(desiredItem))
+            if (!HasGivingLandBuff && ShouldUseLuck(target.Item))
             {
                 LuckUsed[1] = true;
                 LuckUsed[2] = NodeTracker.Revisit;
@@ -140,7 +141,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            var (useSkills, slot) = GetItemSlotToGather(desiredItem);
+            var (useSkills, slot) = GetItemSlotToGather(target);
             if (useSkills)
             {
                 var configPreset = MatchConfigPreset(slot.Item);

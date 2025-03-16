@@ -198,7 +198,7 @@ namespace GatherBuddy.AutoGather
                 StopNavigation();
                 try
                 {
-                    DoActionTasks(gatherTarget == default ? null : gatherTarget.Item);
+                    DoActionTasks(gatherTarget);
                 }
                 catch (NoGatherableItemsInNodeException)
                 {
