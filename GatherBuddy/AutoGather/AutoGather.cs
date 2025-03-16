@@ -10,7 +10,6 @@ using ECommons.GameHelpers;
 using GatherBuddy.AutoGather.Movement;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
-using ECommons.Throttlers;
 using ObjectKind = Dalamud.Game.ClientState.Objects.Enums.ObjectKind;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Dalamud.Game.Text.SeStringHandling;
@@ -155,7 +154,25 @@ namespace GatherBuddy.AutoGather
 
             if (IsGathering)
             {
-                var gatherTarget = _activeItemList.CurrentOrDefault;
+                GatherTarget gatherTarget;
+                if (!_activeItemList.IsInitialized)
+                {
+                    // We can't detect what item is being gathered from inside the GatheringMasterpiece addon, so we need to reopen it.
+                    unsafe
+                    {
+                        if (MasterpieceAddon != null)
+                        {
+                            CloseGatheringAddons(false);
+                            return;
+                        }
+                    }
+                    // If Auto-Gather is enabled after opening the node, the active item list is not initialized.
+                    gatherTarget = _activeItemList.GetNextOrDefault();
+                }
+                else
+                    // Otherwise, we don't want the list to suddenly change while gathering.
+                    gatherTarget = _activeItemList.CurrentOrDefault;
+
                 if (gatherTarget != default)
                 {
                     _activeItemList.MarkVisited(gatherTarget);
@@ -172,7 +189,7 @@ namespace GatherBuddy.AutoGather
                         while (VisitedNodes.Count > (gatherTarget.Node.WorldPositions.Count <= 4 ? 2 : 4))
                             VisitedNodes.RemoveFirst();
                     }
-                }
+                } 
 
                 if (!GatherBuddy.Config.AutoGatherConfig.DoGathering)
                     return;
@@ -452,7 +469,7 @@ namespace GatherBuddy.AutoGather
                 EnqueueActionWithDelay(GoHome);
         }
 
-        private unsafe void CloseGatheringAddons()
+        private unsafe void CloseGatheringAddons(bool closeGathering = true)
         {
             var masterpieceOpen = MasterpieceAddon != null;
             var gatheringOpen = GatheringAddon != null;
@@ -463,7 +480,7 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(() => GatheringAddon is var addon and not null, "Wait until Gathering addon pops up");
                 TaskManager.DelayNext(300);//There is some delay after the moment the addon pops up (and is ready) before the callback can be used to close it. We wait some time and retry the callback.
             }
-            if (gatheringOpen || masterpieceOpen)
+            if (closeGathering && (gatheringOpen || masterpieceOpen))
             {
                 TaskManager.Enqueue(() => {
                     if (GatheringAddon is var gathering and not null && gathering->IsReady)
