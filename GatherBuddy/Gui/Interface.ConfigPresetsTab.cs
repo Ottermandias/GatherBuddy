@@ -415,17 +415,27 @@ namespace GatherBuddy.Gui
                             x => preset.CollectableAlwaysUseSolidAge = x))
                             selector.Save();
 
-                        tmp = preset.CollectableTagetScore;
-                        if (ImGui.DragInt("Target collectability score to reach before collecting", ref tmp, 1f, 0, ConfigPreset.MaxCollectability))
-                            preset.CollectableTagetScore = tmp;
-                        if (ImGui.IsItemDeactivatedAfterEdit())
+                        if (ImGuiUtil.Checkbox("Manually set collectability scores",
+                            "When disabled, collectability scores will be automatically detected from the game UI.\n" +
+                            "When enabled, you can manually specify the target and minimum scores below.",
+                            preset.CollectableManualScores,
+                            x => preset.CollectableManualScores = x))
                             selector.Save();
 
-                        tmp = preset.CollectableMinScore;
-                        if (ImGui.DragInt($"Minimum collectability score to collect at the last integrity point (set to {ConfigPreset.MaxCollectability} to disable)", ref tmp, 1f, 0, ConfigPreset.MaxCollectability))
-                            preset.CollectableMinScore = tmp;
-                        if (ImGui.IsItemDeactivatedAfterEdit())
-                            selector.Save();
+                        if (preset.CollectableManualScores)
+                        {
+                            tmp = preset.CollectableTagetScore;
+                            if (ImGui.DragInt("Target collectability score to reach before collecting", ref tmp, 1f, 0, ConfigPreset.MaxCollectability))
+                                preset.CollectableTagetScore = tmp;
+                            if (ImGui.IsItemDeactivatedAfterEdit())
+                                selector.Save();
+
+                            tmp = preset.CollectableMinScore;
+                            if (ImGui.DragInt($"Minimum collectability score to collect at the last integrity point (set to {ConfigPreset.MaxCollectability} to disable)", ref tmp, 1f, 0, ConfigPreset.MaxCollectability))
+                                preset.CollectableMinScore = tmp;
+                            if (ImGui.IsItemDeactivatedAfterEdit())
+                                selector.Save();
+                        }
                     }
 
                     if (ImGuiUtil.Checkbox("Automatically decide what actions to use",

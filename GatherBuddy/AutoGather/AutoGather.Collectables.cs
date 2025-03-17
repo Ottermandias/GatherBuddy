@@ -33,18 +33,24 @@ namespace GatherBuddy.AutoGather
             public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
             {
                 var regex = NumberRegex();
+                var tNode = MasterpieceAddon->AtkUnitBase.GetNodeById(15)->IsVisible() ? 15u : 14u;
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
                 int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
                 int scourColl        = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString()).Value);
                 int meticulousColl   = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString()).Value);
                 int brazenColl       = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString()).Value);
+                int targetScore      = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(tNode)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+                int minScore         = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
                 int itemsLeft        = (int)(quantity - item.GetInventoryCount());
+
+                if (config.CollectableManualScores)
+                    (targetScore, minScore) = (config.CollectableTagetScore, config.CollectableMinScore);
 
                 if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
 
-                if (collectability >= config.CollectableTagetScore)
+                if (collectability >= targetScore)
                 {
                     if ((shouldUseFullRotation || config.CollectableAlwaysUseSolidAge)
                      && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity, itemsLeft))
@@ -54,20 +60,20 @@ namespace GatherBuddy.AutoGather
                 }
 
                 if (currentIntegrity == 1
-                 && collectability >= config.CollectableMinScore)
+                 && collectability >= minScore)
                     return Actions.Collect;
 
-                if (shouldUseFullRotation && NeedScrutiny(collectability, scourColl, meticulousColl, brazenColl) && ShouldUseScrutiny())
+                if (shouldUseFullRotation && NeedScrutiny(collectability, scourColl, meticulousColl, brazenColl, targetScore) && ShouldUseScrutiny())
                     return Actions.Scrutiny;
 
-                if (meticulousColl + collectability >= config.CollectableTagetScore
+                if (meticulousColl + collectability >= targetScore
                  && ShouldUseMeticulous())
                     return Actions.Meticulous;
 
                 if (Player.Status.Any(s => s.StatusId == 3911 /*Collector's High Standard*/) && ShouldUseBrazen())
                     return Actions.Brazen;
 
-                if (scourColl + collectability >= config.CollectableTagetScore
+                if (scourColl + collectability >= targetScore
                  && ShouldUseScour())
                     return Actions.Scour;
 
@@ -85,14 +91,13 @@ namespace GatherBuddy.AutoGather
                 throw new NoCollectableActionsException();
             }
 
-            private bool NeedScrutiny(int collectability, int scourColl, int meticulousColl, int brazenColl)
+            private bool NeedScrutiny(int collectability, int scourColl, int meticulousColl, int brazenColl, int targetScore)
             {
-                var collAim = config.CollectableTagetScore;
-                if (scourColl + collectability >= collAim && ShouldUseScour())
+                if (scourColl + collectability >= targetScore && ShouldUseScour())
                     return false;
-                if (meticulousColl + collectability >= collAim && ShouldUseMeticulous())
+                if (meticulousColl + collectability >= targetScore && ShouldUseMeticulous())
                     return false;
-                if (brazenColl + collectability >= collAim && ShouldUseBrazen())
+                if (brazenColl + collectability >= targetScore && ShouldUseBrazen())
                     return false;
 
                 return true;

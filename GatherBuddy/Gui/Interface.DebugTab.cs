@@ -18,6 +18,7 @@ using OtterGui;
 using static GatherBuddy.FishTimer.FishRecord;
 using ImRaii = OtterGui.Raii.ImRaii;
 using System.Text;
+using FFXIVClientStructs.FFXIV.Client.UI;
 
 namespace GatherBuddy.Gui;
 
@@ -605,6 +606,17 @@ public partial class Interface
         //ImGui.Text($"IsSquadronManualBuffUp: {GatherBuddy.AutoGather.GetIsSquadronManualBuffUp()}");
         //ImGui.Text($"IsSquadronPassBuffUp: {GatherBuddy.AutoGather.GetIsSquadronPassBuffUp()}");
         ImGui.Text($"SortingMethodType: {GatherBuddy.Config.AutoGatherConfig.SortingMethod.ToString()}");
+
+        unsafe
+        {
+            var addon = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece");
+            if (addon != null && addon->IsFullyLoaded() && addon->IsReady)
+            {
+                ImGui.Text($"Min collectability: {addon->GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText} {addon->AtkUnitBase.GetNodeById(13)->IsVisible()}");
+                ImGui.Text($"Med collectability: {addon->GetComponentByNodeId(14)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText} {addon->AtkUnitBase.GetNodeById(14)->IsVisible()}");
+                ImGui.Text($"Max collectability: {addon->GetComponentByNodeId(15)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText} {addon->AtkUnitBase.GetNodeById(15)->IsVisible()}");
+            }
+        }
 
         if (ImGui.CollapsingHeader("Timed Node Memory"))
         {
