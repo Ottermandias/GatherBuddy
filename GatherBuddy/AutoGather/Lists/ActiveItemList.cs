@@ -148,7 +148,7 @@ namespace GatherBuddy.AutoGather.Lists
                           x.Node == x.PreferredLocation ? 0
                         : x.Node.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType ? 1
                         : 2)
-                    // Prioritize closest nodes in the current territory (in case of not sorting by location).
+                    // Prioritize closest nodes in the current territory.
                     .ThenBy(x => GetHorizontalSquaredDistanceToPlayer(x.Node))
                     // Order by end time, longest first as in the original UptimeManager.NextUptime().
                     .ThenByDescending(x => x.Time.End)
