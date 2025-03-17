@@ -119,12 +119,13 @@ namespace GatherBuddy.AutoGather.Lists
             var minerLevel = (DiscipleOfLand.MinerLevel + 4) / 5 * 5;
             var botanistLevel = (DiscipleOfLand.BotanistLevel + 4) / 5 * 5;
             var adjustedServerTime = _lastUpdateTime;
+            DateTime? nextAllowance = null;
 
             var nodes = _listsManager.ActiveItems
                 // Filter out items that are already gathered.
                 .Where(NeedsGathering)
                 // If treasure map, only gather if the allowance is up.
-                .Where(x => !x.Item.IsTreasureMap || DiscipleOfLand.NextTreasureMapAllowance < adjustedServerTime.DateTime)
+                .Where(x => !x.Item.IsTreasureMap || (nextAllowance ??= DiscipleOfLand.NextTreasureMapAllowance) < adjustedServerTime.DateTime)
                 // Record original item order and fetch preferred location.
                 .Select((x, Index) => (x.Item, x.Quantity, Index, PreferredLocation: _listsManager.GetPreferredLocation(x.Item)))
                 // Flatten node list add calculate the next uptime.
