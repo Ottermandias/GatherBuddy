@@ -1,5 +1,4 @@
 ﻿using Dalamud.Utility;
-using ECommons;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.AutoGather.Extensions;
@@ -11,7 +10,6 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Numerics;
 
@@ -20,7 +18,6 @@ namespace GatherBuddy.AutoGather.Lists
     internal class ActiveItemList : IEnumerable<GatherTarget>, IDisposable
     {
         private readonly List<GatherTarget> _gatherableItems = [];
-        private readonly Dictionary<uint, uint> _allItemsIds = [];
         private readonly AutoGatherListsManager _listsManager;
         private readonly Dictionary<uint, uint> _teleportationCosts = [];
         private readonly Dictionary<GatheringNode, TimeInterval> _visitedTimedNodes = [];
@@ -86,18 +83,6 @@ namespace GatherBuddy.AutoGather.Lists
             if (info.Time != TimeInterval.Always && info.Node.NodeType is NodeType.Legendary or NodeType.Unspoiled)
                 _visitedTimedNodes[info.Node] = info.Time;
         }
-
-        /// <summary>
-        /// Determines whether the auto-gather list contains the specified item and it needs gathering.
-        /// </summary>
-        /// <param name="item"></param>
-        /// <returns>True if the item is in the list and needs gathering; otherwise, false.</returns>
-        public bool Contains(Gatherable item)
-        {
-            return _allItemsIds.TryGetValue(item.ItemId, out var quantity) && 
-                   item.GetInventoryCount() < (item.IsTreasureMap ? 1 : quantity);
-        }
-
         private bool NeedsGathering((Gatherable item, uint quantity) value)
         {
             var (item, quantity) = value;
@@ -200,10 +185,7 @@ namespace GatherBuddy.AutoGather.Lists
             }
 
             _gatherableItems.Clear();
-            _allItemsIds.Clear();
             _gatherableItems.AddRange(nodes.Select(x => new GatherTarget(x.Item, x.Node, x.Time, x.Quantity)));
-            foreach (var x in _gatherableItems)
-                _allItemsIds[x.Item.ItemId] = x.Quantity;
         }
 
         private static float GetHorizontalSquaredDistanceToPlayer(GatheringNode node)
