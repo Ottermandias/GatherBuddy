@@ -610,7 +610,7 @@ public partial class Interface
         {
             foreach (var (location, time) in GatherBuddy.AutoGather.DebugVisitedTimedLocations)
             {
-                ImGui.Text($"{location.Name} {time.End}");
+                ImGui.Text($"{location.Name} {time.End.ConvertToEorzea().DateTime.ToString("HH:mm", CultureInfo.InvariantCulture)} ET");
             }
         }
 
@@ -634,7 +634,7 @@ public partial class Interface
         {
             foreach (var x in GatherBuddy.AutoGather.ItemsToGather)
             {
-                ImGui.Text($"Item: {x.Item.Name}; Location: {x.Node.Name}; Valid until: {(x.Time == TimeInterval.Always ? "Always" : x.Time.End)}; Quantity: {x.Quantity}");
+                ImGui.Text($"Item: {x.Item.Name}; Location: {x.Node.Name}; Valid until: {(x.Time == TimeInterval.Always ? "Always" : x.Time.End.ConvertToEorzea().DateTime.ToString("HH:mm", CultureInfo.InvariantCulture))} ET; Quantity: {x.Quantity}");
             }
         }
 
