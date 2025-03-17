@@ -19,7 +19,7 @@ namespace GatherBuddy.AutoGather.Lists
     {
         private readonly List<GatherTarget> _gatherableItems = [];
         private readonly AutoGatherListsManager _listsManager;
-        private readonly Dictionary<uint, uint> _teleportationCosts = [];
+        private readonly Dictionary<uint, int> _teleportationCosts = [];
         private readonly Dictionary<GatheringNode, TimeInterval> _visitedTimedNodes = [];
         private TimeStamp _lastUpdateTime;
         private uint _lastTerritoryId;
@@ -126,10 +126,10 @@ namespace GatherBuddy.AutoGather.Lists
                 .Where(NeedsGathering)
                 // If treasure map, only gather if the allowance is up.
                 .Where(x => !x.Item.IsTreasureMap || (nextAllowance ??= DiscipleOfLand.NextTreasureMapAllowance) < adjustedServerTime.DateTime)
-                // Record original item order and fetch preferred location.
-                .Select((x, Index) => (x.Item, x.Quantity, Index, PreferredLocation: _listsManager.GetPreferredLocation(x.Item)))
+                // Fetch preferred location.
+                .Select(x => (x.Item, x.Quantity, PreferredLocation: _listsManager.GetPreferredLocation(x.Item)))
                 // Flatten node list add calculate the next uptime.
-                .SelectMany(x => x.Item.NodeList.Select(Node => (x.Item, Node, Time: Node.Times.NextUptime(adjustedServerTime), x.Quantity, x.Index, x.PreferredLocation)))
+                .SelectMany(x => x.Item.NodeList.Select(Node => (x.Item, Node, Time: Node.Times.NextUptime(adjustedServerTime), x.Quantity, x.PreferredLocation)))
                 // Remove nodes with a level higher than the player can gather.
                 .Where(info => info.Node.GatheringType.ToGroup() switch
                 {
@@ -141,6 +141,27 @@ namespace GatherBuddy.AutoGather.Lists
                 .Where(x => x.Time.InRange(adjustedServerTime))
                 // Remove nodes that are already gathered.
                 .Where(x => !_visitedTimedNodes.ContainsKey(x.Node))
+                // Group by item and select the best node.
+                .GroupBy(x => x.Item, x => x, (_, g) => g
+                    // Prioritize preferred location, then preferred job, then the rest.
+                    .OrderBy(x =>
+                          x.Node == x.PreferredLocation ? 0
+                        : x.Node.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType ? 1
+                        : 2)
+                    // Prioritize closest nodes in the current territory (in case of not sorting by location).
+                    .ThenBy(x => GetHorizontalSquaredDistanceToPlayer(x.Node))
+                    // Order by end time, longest first as in the original UptimeManager.NextUptime().
+                    .ThenByDescending(x => x.Time.End)
+                    .ThenBy(x => GatherBuddy.Config.AetherytePreference switch
+                    {
+                        // Order by distance to the closest aetheryte.
+                        AetherytePreference.Distance => AutoGather.FindClosestAetheryte(x.Node)?.WorldDistance(x.Node.Territory.Id, x.Node.IntegralXCoord, x.Node.IntegralYCoord)??int.MaxValue,
+                        // Order by teleportation cost.
+                        AetherytePreference.Cost => GetTeleportationCost(x.Node),
+                        _ => 0
+                    })
+                    .First()
+                )
                 // Prioritize timed nodes first.
                 .OrderBy(x => x.Time == TimeInterval.Always);
 
@@ -153,36 +174,6 @@ namespace GatherBuddy.AutoGather.Lists
                     .ThenBy(x => x.Node.Territory.Id == territoryId ? 0 : GetTeleportationCost(x.Node))
                     // Then by distance to the player (for current territory).
                     .ThenBy(x => GetHorizontalSquaredDistanceToPlayer(x.Node));
-            }
-
-            nodes = nodes
-                // Fix item order, so following sorts are only applied to nodes of the same item.
-                .ThenBy(x => x.Index)
-                // Prioritize preferred location, then preferred job, then the rest.
-                .ThenBy(x =>
-                      x.Node == x.PreferredLocation ? 0
-                    : x.Node.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType ? 1
-                    : 2)
-                // Prioritize closest nodes in the current territory (in case of not sorting by location).
-                .ThenBy(x => GetHorizontalSquaredDistanceToPlayer(x.Node))
-                // Order by end time, longest first as in the original UptimeManager.NextUptime().
-                .ThenByDescending(info => info.Time.End);
-            ;
-
-            switch (GatherBuddy.Config.AetherytePreference)
-            {
-                case AetherytePreference.Distance:
-                    nodes = nodes
-                        // Order by distance to the closest aetheryte.
-                        .ThenBy(info => AutoGather.FindClosestAetheryte(info.Node)?
-                            .WorldDistance(info.Node.Territory.Id, info.Node.IntegralXCoord, info.Node.IntegralYCoord)
-                            ?? int.MaxValue);
-                    break;
-                case AetherytePreference.Cost:
-                    nodes = nodes
-                        // Order by teleportation cost.
-                        .ThenBy(info => GetTeleportationCost(info.Node));
-                    break;
             }
 
             _gatherableItems.Clear();
@@ -215,13 +206,13 @@ namespace GatherBuddy.AutoGather.Lists
             };
         }
 
-        private uint GetTeleportationCost(GatheringNode location)
+        private int GetTeleportationCost(GatheringNode location)
         {
             var aetheryte = AutoGather.FindClosestAetheryte(location);
             if (aetheryte == null)
-                return uint.MaxValue; // If there's no aetheryte, put it at the end
+                return int.MaxValue; // If there's no aetheryte, put it at the end
 
-            return _teleportationCosts.GetValueOrDefault(aetheryte.Id, uint.MaxValue);
+            return _teleportationCosts.GetValueOrDefault(aetheryte.Id, int.MaxValue);
         }
 
         /// <summary>
@@ -240,7 +231,7 @@ namespace GatherBuddy.AutoGather.Lists
             for (var i = 0; i < telepo->TeleportList.Count; i++)
             {
                 var entry = telepo->TeleportList[i];
-                _teleportationCosts[entry.AetheryteId] = entry.GilCost;
+                _teleportationCosts[entry.AetheryteId] = (int)entry.GilCost;
             }
         }
 
