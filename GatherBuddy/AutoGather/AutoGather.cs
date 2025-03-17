@@ -505,6 +505,7 @@ namespace GatherBuddy.AutoGather
             {
                 GatheringType.Miner => DiscipleOfLand.MinerLevel,
                 GatheringType.Botanist => DiscipleOfLand.BotanistLevel,
+                GatheringType.Multiple => Math.Max(DiscipleOfLand.MinerLevel, DiscipleOfLand.BotanistLevel),
                 _ => 0
             };
             if (level < Actions.Collect.MinLevel)
