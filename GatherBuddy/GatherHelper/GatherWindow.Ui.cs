@@ -237,19 +237,15 @@ public class GatherWindow : Window
         _data.Clear();
 
         var list = _plugin.AutoGatherListsManager.ActiveItems
-            .Select(x => (Item: x.Item as IGatherable, Quantity: x.Quantity))
-            .Concat(_plugin.GatherWindowManager.GetList().Select(i => (Item: i, Quantity: 0u)))
+            .Select(x => (Item: x.Item as IGatherable, x.Quantity))
+            .Concat(_plugin.GatherWindowManager.ActiveItems.Select(i => (Item: i, Quantity: 0u)))
             .GroupBy(x => x.Item)
-            .Select(g => (Item: g.Key, Quantity: (uint)g.Sum(x => x.Quantity)));
-
-        _data.AddRange(list.Select(i =>
-        {
-            var (loc, time) = GatherBuddy.UptimeManager.BestLocation(i.Item);
-            return (i.Item, loc, time, i.Quantity);
-        }));
+            .Select(g => { var (loc, time) = GatherBuddy.UptimeManager.BestLocation(g.Key); return (g.Key, loc, time, (uint)g.Sum(x => x.Quantity)); });
 
         if (GatherBuddy.Config.SortGatherWindowByUptime)
-            _data.StableSort((lhs, rhs) => lhs.Uptime.Compare(rhs.Uptime));
+            list = list.OrderBy(i => i.time, Comparer<TimeInterval>.Create((x, y) => x.Compare(y)));
+
+        _data.AddRange(list);
 
         return _data.Count == 0 || GatherBuddy.Config.ShowGatherWindowOnlyAvailable && _data.All(f => f.Uptime.Start > GatherBuddy.Time.ServerTime);
     }
