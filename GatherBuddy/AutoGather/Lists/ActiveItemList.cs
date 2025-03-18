@@ -123,13 +123,13 @@ namespace GatherBuddy.AutoGather.Lists
         /// <summary>
         /// Updates the list of items to gather based on the current territory and player levels.
         /// </summary>
-        /// <param name="territoryId">The ID of the current territory.</param>
-        private void UpdateItemsToGather(uint territoryId)
+        private void UpdateItemsToGather()
         {
             // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
             var minerLevel = (DiscipleOfLand.MinerLevel + 4) / 5 * 5;
             var botanistLevel = (DiscipleOfLand.BotanistLevel + 4) / 5 * 5;
             var adjustedServerTime = _lastUpdateTime;
+            var territoryId = _lastTerritoryId;
             DateTime? nextAllowance = null;
 
             var nodes = _listsManager.ActiveItems
@@ -302,7 +302,7 @@ namespace GatherBuddy.AutoGather.Lists
             if (eorzeaHour != lastEorzeaHour)
                 RemoveExpiredVisited(adjustedServerTime);
 
-            UpdateItemsToGather(territoryId);
+            UpdateItemsToGather();
         }
 
         IEnumerator IEnumerable.GetEnumerator()
