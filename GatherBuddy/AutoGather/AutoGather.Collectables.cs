@@ -32,6 +32,11 @@ namespace GatherBuddy.AutoGather
 
             public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
             {
+                var itemsLeft = (int)(quantity - item.GetInventoryCount());
+
+                if (itemsLeft <= 0 && GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
+                    throw new NoGatherableItemsInNodeException();
+
                 var regex = NumberRegex();
                 var tNode = MasterpieceAddon->AtkUnitBase.GetNodeById(15)->IsVisible() ? 15u : 14u;
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
@@ -42,9 +47,8 @@ namespace GatherBuddy.AutoGather
                 int brazenColl       = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString()).Value);
                 int targetScore      = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(tNode)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
                 int minScore         = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
-                int itemsLeft        = (int)(quantity - item.GetInventoryCount());
 
-                // For custom deliveries and quest items we always want max collectability
+                // For custom deliveries and quest items, we always want max collectability
                 if (item.GatheringData.Unknown3 is 3 or 4 or 6)
                     minScore = targetScore;
 
