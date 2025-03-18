@@ -22,6 +22,7 @@ using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using GatherBuddy.AutoGather.Lists;
+using System.Collections.Generic;
 
 namespace GatherBuddy.AutoGather
 {
@@ -164,19 +165,20 @@ namespace GatherBuddy.AutoGather
 
                 if (gatherTarget != default)
                 {
-                    _activeItemList.MarkVisited(gatherTarget);
-
                     var target = Svc.Targets.Target;
-                    if (target != null
-                        && target.ObjectKind is ObjectKind.GatheringPoint
-                        && gatherTarget.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
-                        && VisitedNodes.Last?.Value != target.DataId
-                        && gatherTarget.Node?.WorldPositions.ContainsKey(target.DataId) == true)
+                    if (target != null && target.ObjectKind is ObjectKind.GatheringPoint)
                     {
-                        FarNodesSeenSoFar.Clear();
-                        VisitedNodes.AddLast(target.DataId);
-                        while (VisitedNodes.Count > (gatherTarget.Node.WorldPositions.Count <= 4 ? 2 : 4))
-                            VisitedNodes.RemoveFirst();
+                        _activeItemList.MarkVisited(target);
+
+                        if (gatherTarget.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
+                            && VisitedNodes.Last?.Value != target.DataId
+                            && gatherTarget.Node?.WorldPositions.ContainsKey(target.DataId) == true)
+                        {
+                            FarNodesSeenSoFar.Clear();
+                            VisitedNodes.AddLast(target.DataId);
+                            while (VisitedNodes.Count > (gatherTarget.Node.WorldPositions.Count <= 4 ? 2 : 4))
+                                VisitedNodes.RemoveFirst();
+                        }
                     }
                 } 
 

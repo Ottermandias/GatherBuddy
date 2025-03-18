@@ -1,4 +1,5 @@
-﻿using Dalamud.Utility;
+﻿using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Utility;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.AutoGather.Extensions;
@@ -21,7 +22,7 @@ namespace GatherBuddy.AutoGather.Lists
         private readonly AutoGatherListsManager _listsManager;
         private readonly Dictionary<uint, int> _teleportationCosts = [];
         private readonly Dictionary<GatheringNode, TimeInterval> _visitedTimedNodes = [];
-        private TimeStamp _lastUpdateTime;
+        private TimeStamp _lastUpdateTime = TimeStamp.MinValue;
         private uint _lastTerritoryId;
         private bool _activeItemsChanged;
         private bool _gatheredSomething;
@@ -77,11 +78,13 @@ namespace GatherBuddy.AutoGather.Lists
         /// Marks a node as visited.
         /// </summary>
         /// <param name="info">The GatherTarget containing the node to mark as visited.</param>
-        public void MarkVisited(GatherTarget info)
+        public void MarkVisited(IGameObject target)
         {
             _gatheredSomething = true;
-            if (info.Time != TimeInterval.Always && info.Node.NodeType is NodeType.Legendary or NodeType.Unspoiled)
-                _visitedTimedNodes[info.Node] = info.Time;
+            // In almost all cases, the target is the first item in the list, so it's O(1).
+            var x = _gatherableItems.FirstOrDefault(x => x.Node.WorldPositions.ContainsKey(target.DataId));
+            if (x != default && x.Time != TimeInterval.Always && x.Node.NodeType is NodeType.Legendary or NodeType.Unspoiled)
+                _visitedTimedNodes[x.Node] = x.Time;
         }
         private bool NeedsGathering((Gatherable item, uint quantity) value)
         {
@@ -155,7 +158,7 @@ namespace GatherBuddy.AutoGather.Lists
                     .ThenBy(x => GatherBuddy.Config.AetherytePreference switch
                     {
                         // Order by distance to the closest aetheryte.
-                        AetherytePreference.Distance => AutoGather.FindClosestAetheryte(x.Node)?.WorldDistance(x.Node.Territory.Id, x.Node.IntegralXCoord, x.Node.IntegralYCoord)??int.MaxValue,
+                        AetherytePreference.Distance => AutoGather.FindClosestAetheryte(x.Node)?.WorldDistance(x.Node.Territory.Id, x.Node.IntegralXCoord, x.Node.IntegralYCoord) ?? int.MaxValue,
                         // Order by teleportation cost.
                         AetherytePreference.Cost => GetTeleportationCost(x.Node),
                         _ => 0
