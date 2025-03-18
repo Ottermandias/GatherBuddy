@@ -22,7 +22,6 @@ using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using GatherBuddy.AutoGather.Lists;
-using System.Collections.Generic;
 
 namespace GatherBuddy.AutoGather
 {
@@ -605,6 +604,11 @@ namespace GatherBuddy.AutoGather
         internal void DebugClearVisited()
         {
             _activeItemList.DebugClearVisited();
+        }
+
+        internal void DebugMarkVisited(GatherTarget target)
+        {
+            _activeItemList.DebugMarkVisited(target);
         }
 
         public void Dispose()

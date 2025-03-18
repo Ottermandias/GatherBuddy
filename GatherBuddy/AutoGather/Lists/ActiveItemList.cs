@@ -86,6 +86,14 @@ namespace GatherBuddy.AutoGather.Lists
             if (x != default && x.Time != TimeInterval.Always && x.Node.NodeType is NodeType.Legendary or NodeType.Unspoiled)
                 _visitedTimedNodes[x.Node] = x.Time;
         }
+
+        internal void DebugMarkVisited(GatherTarget x)
+        {
+            _gatheredSomething = true;
+            if (x.Time != TimeInterval.Always && x.Node.NodeType is NodeType.Legendary or NodeType.Unspoiled)
+                _visitedTimedNodes[x.Node] = x.Time;
+        }
+
         private bool NeedsGathering((Gatherable item, uint quantity) value)
         {
             var (item, quantity) = value;
