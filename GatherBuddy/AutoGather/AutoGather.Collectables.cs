@@ -44,6 +44,10 @@ namespace GatherBuddy.AutoGather
                 int minScore         = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
                 int itemsLeft        = (int)(quantity - item.GetInventoryCount());
 
+                // For custom deliveries and quest items we always want max collectability
+                if (item.GatheringData.Unknown3 is 3 or 4 or 6)
+                    minScore = targetScore;
+
                 if (config.CollectableManualScores)
                     (targetScore, minScore) = (config.CollectableTagetScore, config.CollectableMinScore);
 
