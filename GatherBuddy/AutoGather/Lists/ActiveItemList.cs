@@ -111,7 +111,7 @@ namespace GatherBuddy.AutoGather.Lists
         private void RemoveExpiredVisited(TimeStamp adjustedServerTime)
         {
             foreach (var (loc, time) in _visitedTimedNodes)
-                if (time.End < adjustedServerTime)
+                if (time.End <= adjustedServerTime)
                     _visitedTimedNodes.Remove(loc);
         }
 
@@ -289,7 +289,7 @@ namespace GatherBuddy.AutoGather.Lists
             var adjustedServerTime = AutoGather.AdjustedServerTime;
             var eorzeaHour = adjustedServerTime.TotalEorzeaHours();
             var lastTerritoryId = _lastTerritoryId;
-            var lastEorzeaHour = adjustedServerTime.TotalEorzeaHours();
+            var lastEorzeaHour = _lastUpdateTime.TotalEorzeaHours();
 
             _activeItemsChanged = false;
             _gatheredSomething = false;
@@ -316,8 +316,6 @@ namespace GatherBuddy.AutoGather.Lists
             _lastUpdateTime = TimeStamp.MinValue;
             _gatherableItems.Clear();
             _gatherableItems.TrimExcess();
-            _visitedTimedNodes.Clear();
-            _visitedTimedNodes.TrimExcess();
             _teleportationCosts.Clear();
             _teleportationCosts.TrimExcess();
         }
