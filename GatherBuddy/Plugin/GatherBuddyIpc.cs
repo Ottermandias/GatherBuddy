@@ -1,55 +1,31 @@
-﻿using System;
-using Dalamud.Plugin.Ipc;
+﻿using ECommons.EzIpcManager;
+using System;
 
 namespace GatherBuddy.Plugin;
 
 public class GatherBuddyIpc : IDisposable
 {
-    public const int    IpcVersion   = 1;
-    public const string VersionName  = $"{GatherBuddy.InternalName}.Version";
-    public const string IdentifyName = $"{GatherBuddy.InternalName}.Identify";
+    public const int IpcVersion = 1;
 
-    private readonly  GatherBuddy  _plugin;
-    internal readonly ICallGateProvider<int>?          _versionProvider;
-    internal readonly ICallGateProvider<string, uint>? _identifyProvider;
+    private readonly GatherBuddy _plugin;
 
     public GatherBuddyIpc(GatherBuddy plugin)
     {
         _plugin = plugin;
-
-        try
-        {
-            _versionProvider = Dalamud.PluginInterface.GetIpcProvider<int>(VersionName);
-            _versionProvider.RegisterFunc(Version);
-        }
-        catch (Exception e)
-        {
-            _versionProvider = null;
-            GatherBuddy.Log.Error($"Could not obtain provider for {VersionName}:\n{e}");
-        }
-
-        _identifyProvider = Dalamud.PluginInterface.GetIpcProvider<string, uint>(IdentifyName);
-        try
-        {
-            _identifyProvider.RegisterFunc(Identify);
-        }
-        catch (Exception e)
-        {
-            _identifyProvider = null;
-            GatherBuddy.Log.Error($"Could not obtain provider for {IdentifyName}:\n{e}");
-        }
+        EzIPC.Init(this, GatherBuddy.InternalName);
     }
 
+    [EzIPC]
     private static int Version()
         => IpcVersion;
 
+    [EzIPC]
     private uint Identify(string text)
         => _plugin.Executor.Identificator.IdentifyGatherable(text)?.ItemId
          ?? _plugin.Executor.Identificator.IdentifyFish(text)?.ItemId ?? 0;
 
     public void Dispose()
     {
-        _identifyProvider?.UnregisterFunc();
-        _versionProvider?.UnregisterFunc();
+        // EzIPC will handle disposal automatically through ECommonsMain.Dispose()
     }
 }
