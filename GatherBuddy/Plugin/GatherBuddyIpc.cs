@@ -4,7 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace GatherBuddy.Plugin;
 
-public class GatherBuddyIpc : IDisposable
+public sealed class GatherBuddyIpc : IDisposable
 {
     public const int IpcVersion = 2;
 
@@ -43,12 +43,10 @@ public class GatherBuddyIpc : IDisposable
         => GatherBuddy.AutoGather.Waiting;
 
     [EzIPCEvent]
-    [AllowNull]
-    public Action AutoGatherWaiting;
+    public readonly Action? AutoGatherWaiting;
 
     [EzIPCEvent]
-    [AllowNull]
-    public Action<bool> AutoGatherEnabledChanged;
+    public readonly Action<bool>? AutoGatherEnabledChanged;
 
 #pragma warning restore CA1822 // Mark members as static
 
