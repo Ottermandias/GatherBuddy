@@ -107,7 +107,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        public string AutoStatus { get; set; } = "Idle";
+        public string AutoStatus { get; private set; } = "Idle";
         public int LastCollectability = 0;
         public int LastIntegrity = 0;
         private BitVector32 LuckUsed;

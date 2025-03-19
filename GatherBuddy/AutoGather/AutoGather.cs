@@ -48,11 +48,15 @@ namespace GatherBuddy.AutoGather
         private bool _enabled { get; set; } = false;
         internal readonly GatheringTracker NodeTracker = new();
 
+        public bool Waiting { get; private set; }
         public unsafe bool Enabled
         {
             get => _enabled;
             set
             {
+                if (_enabled == value)
+                    return;
+
                 if (!value)
                 {
                     TaskManager.Abort();
@@ -62,31 +66,39 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "Idle...";
                     ActionSequence = null;
                     _activeItemList.Reset();
+                    Waiting = false;
                 }
                 else
                 {
-                    DiscipleOfLand.RefreshNextTreasureMapAllowance();                    
                     WentHome = true; //Prevents going home right after enabling auto-gather
                 }
 
                 _enabled = value;
+                _plugin.Ipc.AutoGatherEnabledChanged(value);
             }
         }
 
-        public void GoHome()
+        public bool GoHome()
         {
             StopNavigation();
 
-            if (WentHome) return;
+            if (WentHome) return false;
             WentHome = true;
 
             if (Dalamud.Conditions[ConditionFlag.BoundByDuty])
-                return;
+                return false;
 
             if (Lifestream_IPCSubscriber.IsEnabled && !Lifestream_IPCSubscriber.IsBusy())
+            {
                 Lifestream_IPCSubscriber.ExecuteCommand("auto");
+                TaskManager.EnqueueImmediate(() => !Lifestream_IPCSubscriber.IsBusy(), 120000, "Wait until Lifestream is done");
+                return true;
+            }
             else
+            {
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
+                return false;
+            }
         }
 
         private class NoGatherableItemsInNodeException : Exception { }
@@ -254,17 +266,23 @@ namespace GatherBuddy.AutoGather
                 }
 
                 if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle)
-                    GoHome();
-
-                    if (!(Lifestream_IPCSubscriber.IsEnabled && Lifestream_IPCSubscriber.IsBusy()) && HasReducibleItems())
-                    {
-                        ReduceItems(true);
+                    if (GoHome())
                         return;
-                    }
 
-                    AutoStatus = "No available items to gather";
+                if (HasReducibleItems())
+                {
+                    ReduceItems(true);
                     return;
                 }
+                if (!Waiting)
+                {
+                    Waiting = true;
+                    _plugin.Ipc.AutoGatherWaiting();
+                }
+                AutoStatus = "No available items to gather";
+                return;
+            }
+            Waiting = false;
 
             if (next.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(next.Item.GatheringType.ToGroup()))
             {
@@ -450,14 +468,14 @@ namespace GatherBuddy.AutoGather
 
         private void AbortAutoGather(string? status = null)
         {
-            Enabled = false;
             if (!string.IsNullOrEmpty(status))
                 AutoStatus = status;
             if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
                 Task.Run(() => _soundHelper.PlayHonkSound(3));
             CloseGatheringAddons();
             if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone)
-                EnqueueActionWithDelay(GoHome);
+                EnqueueActionWithDelay(() => { GoHome(); });
+            TaskManager.Enqueue(() => { Enabled = false; AutoStatus = status ?? AutoStatus; });
         }
 
         private unsafe void CloseGatheringAddons(bool closeGathering = true)

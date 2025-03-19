@@ -388,6 +388,13 @@ public partial class Interface
 
     private string _identifyTest       = string.Empty;
     private uint   _lastItemIdentified = 0;
+    private bool _subscribeToAutoGatherWaiting = false;
+    private bool _subscribeToAutoGatherEnabledChanged = false;
+    private long _lastAutoGatherWaitingTime = 0;
+    private long _lastAutoGatherEnabledChangedTime = 0;
+    private bool _lastAutoGatherEnabledValue = false;
+    private Action? _autoGatherWaitingHandler = null;
+    private Action<bool>? _autoGatherEnabledChangedHandler = null;
 
     private void DrawWaymarkTab()
     {
@@ -518,20 +525,121 @@ public partial class Interface
 
         if (ImGui.CollapsingHeader("IPC"))
         {
-            using var group1 = ImRaii.Group();
-            ImGui.Text("Version");
-            ImGui.Text(GatherBuddyIpc.VersionName);
-            ImGui.Text(GatherBuddyIpc.IdentifyName);
-            if (_plugin.Ipc._identifyProvider != null && ImGui.InputTextWithHint("##IPCIdentifyTest", "Identify...", ref _identifyTest, 64))
-                _lastItemIdentified = Dalamud.PluginInterface.GetIpcSubscriber<string, uint>(GatherBuddyIpc.IdentifyName)
-                    .InvokeFunc(_identifyTest);
-            group1.Dispose();
-            ImGui.SameLine();
-            using var group2 = ImRaii.Group();
-            ImGui.Text(GatherBuddyIpc.IpcVersion.ToString());
-            ImGui.Text(_plugin.Ipc._versionProvider != null ? "Available" : "Unavailable");
-            ImGui.Text(_plugin.Ipc._identifyProvider != null ? "Available" : "Unavailable");
-            ImGui.Text(_lastItemIdentified.ToString());
+            var autoGatherEnabled = Dalamud.PluginInterface.GetIpcSubscriber<bool>($"{GatherBuddy.InternalName}.IsAutoGatherEnabled").InvokeFunc();
+            var autoGatherWaiting = Dalamud.PluginInterface.GetIpcSubscriber<bool>($"{GatherBuddy.InternalName}.IsAutoGatherWaiting").InvokeFunc();
+            var autoGatherStatusText = Dalamud.PluginInterface.GetIpcSubscriber<string>($"{GatherBuddy.InternalName}.GetAutoGatherStatusText").InvokeFunc();
+            var versionText = Dalamud.PluginInterface.GetIpcSubscriber<int>($"{GatherBuddy.InternalName}.Version").InvokeFunc().ToString();
+
+            // Create a table for IPC methods and values
+            using var table = ImRaii.Table("##IPCTable", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit);
+            if (table)
+            {
+                // Version
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text($"int {GatherBuddy.InternalName}.Version()");
+                ImGui.TableNextColumn();
+                ImGui.Text(versionText);
+
+                // Identify
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text($"uint {GatherBuddy.InternalName}.Identify(string)");
+                ImGui.SameLine();
+                ImGui.TableNextColumn();
+                ImGui.Text($"{_lastItemIdentified,-6}");
+                ImGui.SameLine();
+                ImGui.SetNextItemWidth(200);
+                if (ImGui.InputTextWithHint("##IPCIdentifyTest", "Identify...", ref _identifyTest, 64))
+                    _lastItemIdentified = Dalamud.PluginInterface.GetIpcSubscriber<string, uint>($"{GatherBuddy.InternalName}.Identify")
+                        .InvokeFunc(_identifyTest);
+
+                // IsAutoGatherEnabled
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text($"bool {GatherBuddy.InternalName}.IsAutoGatherEnabled()");
+                ImGui.TableNextColumn();
+                ImGui.Text(autoGatherEnabled.ToString());
+
+                // IsAutoGatherWaiting
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text($"bool {GatherBuddy.InternalName}.IsAutoGatherWaiting()");
+                ImGui.TableNextColumn();
+                ImGui.Text(autoGatherWaiting.ToString());
+
+                // GetAutoGatherStatusText
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text($"string {GatherBuddy.InternalName}.GetAutoGatherStatusText()");
+                ImGui.TableNextColumn();
+                ImGui.Text(autoGatherStatusText);
+
+                // SetAutoGatherEnabled
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                ImGui.Text($"void {GatherBuddy.InternalName}.SetAutoGatherEnabled(bool)");
+                ImGui.TableNextColumn();
+                if (ImGui.Button("Toggle"))
+                {
+                    Dalamud.PluginInterface.GetIpcSubscriber<bool, object>($"{GatherBuddy.InternalName}.SetAutoGatherEnabled")
+                        .InvokeAction(!autoGatherEnabled);
+                }
+                // AutoGatherWaiting event
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                if (ImGui.Checkbox($"Subscribe to {GatherBuddy.InternalName}.AutoGatherWaiting", ref _subscribeToAutoGatherWaiting))
+                {
+                    if (_subscribeToAutoGatherWaiting)
+                    {
+                        _autoGatherWaitingHandler = () => _lastAutoGatherWaitingTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                        Dalamud.PluginInterface.GetIpcSubscriber<Action>($"{GatherBuddy.InternalName}.AutoGatherWaiting")
+                            .Subscribe(_autoGatherWaitingHandler);
+                    }
+                    else if (_autoGatherWaitingHandler != null)
+                    {
+                        Dalamud.PluginInterface.GetIpcSubscriber<Action>($"{GatherBuddy.InternalName}.AutoGatherWaiting")
+                            .Unsubscribe(_autoGatherWaitingHandler);
+                        _autoGatherWaitingHandler = null;
+                        _lastAutoGatherWaitingTime = default;
+                    }
+                }
+                ImGui.TableNextColumn();
+                var secondsSinceWaiting = _lastAutoGatherWaitingTime > 0
+                    ? (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - _lastAutoGatherWaitingTime)
+                    : -1;
+                ImGui.Text($"{(secondsSinceWaiting >= 0 ? $"{secondsSinceWaiting}s ago" : "Never")}");
+
+                // AutoGatherEnabledChanged event
+                ImGui.TableNextRow();
+                ImGui.TableNextColumn();
+                if (ImGui.Checkbox($"Subscribe to {GatherBuddy.InternalName}.AutoGatherEnabledChanged(bool)", ref _subscribeToAutoGatherEnabledChanged))
+                {
+                    if (_subscribeToAutoGatherEnabledChanged)
+                    {
+                        _autoGatherEnabledChangedHandler = (bool value) =>
+                        {
+                            _lastAutoGatherEnabledChangedTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
+                            _lastAutoGatherEnabledValue = value;
+                        };
+                        Dalamud.PluginInterface.GetIpcSubscriber<bool, object>($"{GatherBuddy.InternalName}.AutoGatherEnabledChanged")
+                            .Subscribe(_autoGatherEnabledChangedHandler);
+                    }
+                    else if (_autoGatherEnabledChangedHandler != null)
+                    {
+                        Dalamud.PluginInterface.GetIpcSubscriber<bool, object>($"{GatherBuddy.InternalName}.AutoGatherEnabledChanged")
+                            .Unsubscribe(_autoGatherEnabledChangedHandler);
+                        _autoGatherEnabledChangedHandler = null;
+                        _lastAutoGatherEnabledValue = default;
+                        _lastAutoGatherEnabledChangedTime = default;
+                    }
+                }
+                ImGui.TableNextColumn();
+                var secondsSinceEnabled = _lastAutoGatherEnabledChangedTime > 0
+                    ? (int)(DateTimeOffset.UtcNow.ToUnixTimeSeconds() - _lastAutoGatherEnabledChangedTime)
+                    : -1;
+                ImGui.Text($"{(secondsSinceEnabled >= 0 ? $"{secondsSinceEnabled}s ago (value: {_lastAutoGatherEnabledValue})" : "Never")}");
+            }
         }
 
         if (ImGui.CollapsingHeader("World Objects"))
