@@ -7,6 +7,7 @@ using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
 
+#pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
 namespace GatherBuddy.Plugin
 {
     internal static class IPCSubscriber
