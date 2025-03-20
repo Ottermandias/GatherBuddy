@@ -74,7 +74,7 @@ namespace GatherBuddy.AutoGather
                 }
 
                 _enabled = value;
-                _plugin.Ipc.AutoGatherEnabledChanged?.Invoke(value);
+                _plugin.Ipc.AutoGatherEnabledChanged(value);
             }
         }
 
@@ -277,7 +277,7 @@ namespace GatherBuddy.AutoGather
                 if (!Waiting)
                 {
                     Waiting = true;
-                    _plugin.Ipc.AutoGatherWaiting?.Invoke();
+                    _plugin.Ipc.AutoGatherWaiting();
                 }
                 AutoStatus = "No available items to gather";
                 return;

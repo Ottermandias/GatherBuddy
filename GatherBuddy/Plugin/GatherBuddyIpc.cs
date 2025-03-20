@@ -1,6 +1,6 @@
 ﻿using ECommons.EzIpcManager;
 using System;
-using System.Diagnostics.CodeAnalysis;
+using System.Diagnostics;
 
 namespace GatherBuddy.Plugin;
 
@@ -14,6 +14,8 @@ public sealed class GatherBuddyIpc : IDisposable
     {
         _plugin = plugin;
         EzIPC.Init(this, GatherBuddy.InternalName);
+        Debug.Assert(AutoGatherWaiting != null);
+        Debug.Assert(AutoGatherEnabledChanged != null);
     }
 
 #pragma warning disable CA1822 // Mark members as static
@@ -43,10 +45,10 @@ public sealed class GatherBuddyIpc : IDisposable
         => GatherBuddy.AutoGather.Waiting;
 
     [EzIPCEvent]
-    public readonly Action? AutoGatherWaiting;
+    public readonly Action AutoGatherWaiting;
 
     [EzIPCEvent]
-    public readonly Action<bool>? AutoGatherEnabledChanged;
+    public readonly Action<bool> AutoGatherEnabledChanged;
 
 #pragma warning restore CA1822 // Mark members as static
 
