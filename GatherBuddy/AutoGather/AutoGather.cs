@@ -60,8 +60,8 @@ namespace GatherBuddy.AutoGather
                 if (!value)
                 {
                     TaskManager.Abort();
-                    if (VNavmesh_IPCSubscriber.IsEnabled && IsPathGenerating) 
-                        VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
+                    if (VNavmesh.Enabled && IsPathGenerating) 
+                        VNavmesh.Nav.PathfindCancelAll();
                     StopNavigation();
                     AutoStatus = "Idle...";
                     ActionSequence = null;
@@ -88,10 +88,10 @@ namespace GatherBuddy.AutoGather
             if (Dalamud.Conditions[ConditionFlag.BoundByDuty])
                 return false;
 
-            if (Lifestream_IPCSubscriber.IsEnabled && !Lifestream_IPCSubscriber.IsBusy())
+            if (Lifestream.Enabled && !Lifestream.IsBusy())
             {
-                Lifestream_IPCSubscriber.ExecuteCommand("auto");
-                TaskManager.EnqueueImmediate(() => !Lifestream_IPCSubscriber.IsBusy(), 120000, "Wait until Lifestream is done");
+                Lifestream.ExecuteCommand("auto");
+                TaskManager.EnqueueImmediate(() => !Lifestream.IsBusy(), 120000, "Wait until Lifestream is done");
                 return true;
             }
             else
@@ -299,7 +299,7 @@ namespace GatherBuddy.AutoGather
 
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
-            if (territoryId == 478 && next.Node.Territory.Id == 399 && Lifestream_IPCSubscriber.IsEnabled)
+            if (territoryId == 478 && next.Node.Territory.Id == 399 && Lifestream.Enabled)
             {
                 var aetheryte = Svc.Objects.Where(x => x.ObjectKind == ObjectKind.Aetheryte && x.IsTargetable).OrderBy(x => x.Position.DistanceToPlayer()).FirstOrDefault();
                 if (aetheryte != null)
@@ -309,13 +309,13 @@ namespace GatherBuddy.AutoGather
                         AutoStatus = "Moving to aetheryte...";
                         if (!isPathing && !isPathGenerating) Navigate(aetheryte.Position, false);
                     }
-                    else if (!Lifestream_IPCSubscriber.IsBusy())
+                    else if (!Lifestream.IsBusy())
                     {
                         AutoStatus = "Teleporting...";
                         StopNavigation();
                         var exit = next.Node.DefaultXCoord < 2000 ? 91u : 92u;
                         var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Aetheryte>().GetRow(exit).AethernetName.Value.Name.ToString();
-                        Lifestream_IPCSubscriber.AethernetTeleport(name);
+                        Lifestream.AethernetTeleport(name);
                     }
                     return;
                 }
@@ -326,7 +326,7 @@ namespace GatherBuddy.AutoGather
                 && (GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId
                 || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
             {
-                if (territoryId == 478 && !Lifestream_IPCSubscriber.IsEnabled)
+                if (territoryId == 478 && !Lifestream.Enabled)
                     AutoStatus = $"Install Lifestream or teleport to {next.Node.Territory.Name} manually";
                 else
                     AutoStatus = "Manual teleporting required";
@@ -334,7 +334,7 @@ namespace GatherBuddy.AutoGather
             }
 
             //At this point, we are definitely going to gather something, so we may go home after that.
-            if (Lifestream_IPCSubscriber.IsEnabled) Lifestream_IPCSubscriber.Abort();
+            if (Lifestream.Enabled) Lifestream.Abort();
             WentHome = false;
 
             if (next.Node.Territory.Id != territoryId)
@@ -445,7 +445,7 @@ namespace GatherBuddy.AutoGather
                     .OrderBy(o => Vector2.Distance(pos.Value, new Vector2(o.X, o.Z)))
                     .FirstOrDefault();
                 if (selectedFarNode == default)
-                    selectedFarNode = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(new Vector3(pos.Value.X, 0, pos.Value.Y), 10, 10000);
+                    selectedFarNode = VNavmesh.Query.Mesh.NearestPoint(new Vector3(pos.Value.X, 0, pos.Value.Y), 10, 10000);
             }
             else
             {

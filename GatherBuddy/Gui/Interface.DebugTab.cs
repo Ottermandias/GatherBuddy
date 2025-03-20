@@ -655,7 +655,7 @@ public partial class Interface
                 ImGui.SameLine();
                 if (ImGui.SmallButton("NavTo"))
                 {
-                    VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(obj.Position, true);
+                    VNavmesh.SimpleMove.PathfindAndMoveTo(obj.Position, true);
                 }
                 ImGui.SameLine();
                 ImGui.PopID();

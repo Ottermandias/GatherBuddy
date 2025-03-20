@@ -87,7 +87,7 @@ namespace GatherBuddy.AutoGather
                         {
                             try
                             {
-                                var floor = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 3);
+                                var floor = VNavmesh.Query.Mesh.PointOnFloor(Player.Position, false, 3);
                                 Navigate(floor, true);
                                 TaskManager.Enqueue(() => !IsPathGenerating);
                                 TaskManager.DelayNext(50);
@@ -164,10 +164,9 @@ namespace GatherBuddy.AutoGather
             // Reset navigation logic here
             // For example, reinitiate navigation to the destination
             CurrentDestination = default;
-            if (VNavmesh_IPCSubscriber.IsEnabled)
+            if (VNavmesh.Enabled)
             {
-                //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                VNavmesh_IPCSubscriber.Path_Stop();
+                VNavmesh.Path.Stop();
             }
             lastResetTime = DateTime.Now;
         }
@@ -193,7 +192,7 @@ namespace GatherBuddy.AutoGather
             var correctedDestination = GetCorrectedDestination(CurrentDestination);
             GatherBuddy.Log.Debug($"Navigating to {destination} (corrected to {correctedDestination})");
 
-            LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+            LastNavigationResult = VNavmesh.SimpleMove.PathfindAndMoveTo(correctedDestination, shouldFly);
         }
 
         private static Vector3 GetCorrectedDestination(Vector3 destination)
@@ -206,7 +205,7 @@ namespace GatherBuddy.AutoGather
                 float separation;
                 if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
                 {
-                    offset = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(offset, MaxHorizontalSeparation, MaxVerticalSeparation);
+                    offset = VNavmesh.Query.Mesh.NearestPoint(offset, MaxHorizontalSeparation, MaxVerticalSeparation);
                     if ((separation = Vector2.Distance(offset.ToVector2(), destination.ToVector2())) > MaxHorizontalSeparation)
                         GatherBuddy.Log.Warning($"Offset is ignored because the horizontal separation {separation} is too large after correcting for mesh. Maximum allowed is {MaxHorizontalSeparation}.");
                     else if ((separation = Math.Abs(offset.Y - destination.Y)) > MaxVerticalSeparation)
@@ -215,11 +214,11 @@ namespace GatherBuddy.AutoGather
                         return offset;
                 }
 
-                var correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, MaxHorizontalSeparation, MaxVerticalSeparation);
+                var correctedDestination = VNavmesh.Query.Mesh.NearestPoint(destination, MaxHorizontalSeparation, MaxVerticalSeparation);
                 if ((separation = Vector2.Distance(correctedDestination.ToVector2(), destination.ToVector2())) > MaxHorizontalSeparation)
-                    GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point with too large horizontal separation {separation}. Maximum allowed is {MaxHorizontalSeparation}.");
+                    GatherBuddy.Log.Warning($"Query.Mesh.NearestPoint() returned a point with too large horizontal separation {separation}. Maximum allowed is {MaxHorizontalSeparation}.");
                 else if ((separation = Math.Abs(correctedDestination.Y - destination.Y)) > MaxVerticalSeparation)
-                    GatherBuddy.Log.Warning($"Query_Mesh_NearestPoint() returned a point with too large vertical separation {separation}. Maximum allowed is {MaxVerticalSeparation}.");
+                    GatherBuddy.Log.Warning($"Query.Mesh.NearestPoint() returned a point with too large vertical separation {separation}. Maximum allowed is {MaxVerticalSeparation}.");
                 else
                     return correctedDestination;
             }

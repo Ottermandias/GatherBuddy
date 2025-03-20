@@ -137,8 +137,8 @@ namespace GatherBuddy.AutoGather
                             return;
                         }
                         //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                        VNavmesh_IPCSubscriber.Path_Stop();
-                        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly(node.Position));
+                        VNavmesh.Path.Stop();
+                        VNavmesh.SimpleMove.PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly(node.Position));
                     }
 
                     if (WorldData.NodeOffsets.TryGetValue(node.Position, out var offset))
@@ -157,8 +157,8 @@ namespace GatherBuddy.AutoGather
                                 return;
                             }
                             //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                            VNavmesh_IPCSubscriber.Path_Stop();
-                            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset, GatherBuddy.AutoGather.ShouldFly(offset));
+                            VNavmesh.Path.Stop();
+                            VNavmesh.SimpleMove.PathfindAndMoveTo(offset, GatherBuddy.AutoGather.ShouldFly(offset));
                         }
                     }
                     else

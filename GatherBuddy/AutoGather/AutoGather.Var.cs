@@ -21,13 +21,13 @@ namespace GatherBuddy.AutoGather
     public partial class AutoGather
     {
         public bool IsPathing
-            => VNavmesh_IPCSubscriber.Path_IsRunning();
+            => VNavmesh.Path.IsRunning();
 
         public bool IsPathGenerating
-            => VNavmesh_IPCSubscriber.Nav_PathfindInProgress();
+            => VNavmesh.Nav.PathfindInProgress();
 
         public bool NavReady
-            => VNavmesh_IPCSubscriber.Nav_IsReady();
+            => VNavmesh.Nav.IsReady();
 
         private bool IsBlacklisted(Vector3 g)
         {
