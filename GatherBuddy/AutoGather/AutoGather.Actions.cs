@@ -7,6 +7,8 @@ using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
 using GatherBuddy.AutoGather.Helpers;
+using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.AutoGather.Lists;
 
 namespace GatherBuddy.AutoGather
 {
@@ -57,7 +59,7 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (!IsGivingLandOffCooldown)
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - GivingLandYield - slot.Yield)
+            if (slot.Item.GetInventoryCount() > 9999 - GivingLandYield - slot.Yield)
                 return false;
 
             return true;
@@ -67,7 +69,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot))
                 return false;
-            if (InventoryCount(slot.Item) > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYield : 0))
+            if (slot.Item.GetInventoryCount() > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYield : 0))
                 return false;
 
             return true;
@@ -98,40 +100,42 @@ namespace GatherBuddy.AutoGather
         }
 
 
-        private unsafe void DoActionTasks(Gatherable? desiredItem)
+        private unsafe void DoActionTasks(GatherTarget target)
         {
             if (MasterpieceAddon != null)
             {
-                var left = int.MaxValue;
-                if (GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
-                { 
-                    if (desiredItem == null) throw new NoGatherableItemsInNodeException();
-                    left = (int)QuantityTotal(desiredItem) - InventoryCount(desiredItem);
-                    if (left < 1) throw new NoGatherableItemsInNodeException();
+                if (CurrentCollectableRotation == null)
+                {
+                    // Player clicked the item himself, or has just enabled auto-gather.
+                    // We can't detect what item is being gathered from inside the GatheringMasterpiece addon, so we need to reopen it.
+                    CloseGatheringAddons(false);
+                    return;
                 }
 
-                DoCollectibles(MatchConfigPreset(desiredItem), left);
+                DoCollectibles();
             }
-            else if (GatheringAddon != null && NodeTracker.Ready)
+            else
             {
-                DoGatherWindowActions(desiredItem);
+                CurrentCollectableRotation = null;
+                if (GatheringAddon != null && NodeTracker.Ready)
+                {
+                    DoGatherWindowActions(target);
+                }
             }
-            if (MasterpieceAddon == null)
-                CurrentRotation = null;
         }
 
-        private unsafe void DoGatherWindowActions(Gatherable? desiredItem)
+        private unsafe void DoGatherWindowActions(GatherTarget target)
         {
             if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit) LuckUsed = new(0);
 
             //Use The Giving Land out of order to gather random crystals.
-            if (ShouldUseGivingLandOutOfOrder(desiredItem))
+            if (ShouldUseGivingLandOutOfOrder(target.Item))
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.GivingLand));
                 return;
             }
 
-            if (!HasGivingLandBuff && ShouldUseLuck(desiredItem))
+            if (!HasGivingLandBuff && ShouldUseLuck(target.Item))
             {
                 LuckUsed[1] = true;
                 LuckUsed[2] = NodeTracker.Revisit;
@@ -139,7 +143,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            var (useSkills, slot) = GetItemSlotToGather(desiredItem);
+            var (useSkills, slot) = GetItemSlotToGather(target);
             if (useSkills)
             {
                 var configPreset = MatchConfigPreset(slot.Item);
@@ -265,12 +269,10 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private unsafe void DoCollectibles(ConfigPreset config, int itemsLeft)
+        private unsafe void DoCollectibles()
         {
-            if (MasterpieceAddon == null)
+            if (MasterpieceAddon == null || CurrentCollectableRotation == null)
                 return;
-
-            CurrentRotation ??= new CollectableRotation(config);
 
             var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
             if (textNode == null)
@@ -298,7 +300,7 @@ namespace GatherBuddy.AutoGather
                 LastCollectability = collectibility;
                 LastIntegrity      = integrity;
 
-                var collectibleAction = CurrentRotation.GetNextAction(MasterpieceAddon, itemsLeft);
+                var collectibleAction = CurrentCollectableRotation.GetNextAction(MasterpieceAddon);
 
                 EnqueueActionWithDelay(() => UseAction(collectibleAction));
             }
@@ -373,7 +375,7 @@ namespace GatherBuddy.AutoGather
             {
                 var glvl = item.GatheringData.GatheringItemLevel.RowId;
                 var baseValue = WorldData.IlvConvertTable[(int)glvl].BaseGathering;
-                var stat = CharacterGatheringStat;
+                var stat = DiscipleOfLand.Gathering;
 
                 if (stat >= baseValue * 11 / 10)
                     return 3;

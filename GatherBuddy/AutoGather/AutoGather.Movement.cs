@@ -1,6 +1,5 @@
 ﻿using Dalamud.Game.ClientState.Conditions;
 using ECommons.GameHelpers;
-using ECommons.Throttlers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
@@ -14,6 +13,7 @@ using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Data;
+using ECommons.MathHelpers;
 
 namespace GatherBuddy.AutoGather
 {
@@ -68,9 +68,11 @@ namespace GatherBuddy.AutoGather
 
         private void MoveToCloseNode(IGameObject gameObject, Gatherable targetItem, ConfigPreset config)
         {
-            var distance = gameObject.Position.DistanceToPlayer();
+            // We can open a node with less than 3 vertical and less than 3.5 horizontal separation
+            var hSeparation = Vector2.Distance(gameObject.Position.ToVector2(), Player.Position.ToVector2());
+            var vSeparation = Math.Abs(gameObject.Position.Y - Player.Position.Y);
 
-            if (distance < 3)
+            if (hSeparation < 3.5)
             {
                 var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.CollectableMinGP;
                 waitGP |= !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.GatherableMinGP;
@@ -85,9 +87,10 @@ namespace GatherBuddy.AutoGather
                         {
                             try
                             {
-                                var floor = VNavmesh_IPCSubscriber.Query_Mesh_PointOnFloor(Player.Position, false, 3);
+                                var floor = VNavmesh.Query.Mesh.PointOnFloor(Player.Position, false, 3);
                                 Navigate(floor, true);
                                 TaskManager.Enqueue(() => !IsPathGenerating);
+                                TaskManager.DelayNext(50);
                                 TaskManager.Enqueue(() => !IsPathing, 1000);
                                 EnqueueDismount();
                             }
@@ -101,7 +104,7 @@ namespace GatherBuddy.AutoGather
                 {
                     StopNavigation();
                     AutoStatus = "Waiting for GP to regenerate...";
-                } 
+                }
                 else
                 {
                     // Use consumables with cast time just before gathering a node when player is surely not mounted
@@ -114,9 +117,20 @@ namespace GatherBuddy.AutoGather
                     }
                     else
                     {
-                        EnqueueNodeInteraction(gameObject, targetItem);
-                        //The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
-                        //Enqueue navigation anyway, just in case.
+                        // Check perception requirement before interacting with node
+                        if (DiscipleOfLand.Perception < targetItem.GatheringData.PerceptionReq)
+                        {
+                            Communicator.PrintError($"Insufficient Perception to gather this item. Required: {targetItem.GatheringData.PerceptionReq}, current: {DiscipleOfLand.Perception}");
+                            AbortAutoGather();
+                            return;
+                        }
+
+                        if (vSeparation < 3)                        
+                            EnqueueNodeInteraction(gameObject, targetItem);
+
+                        // The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
+                        // Enqueue navigation anyway, just in case.
+                        // Also move if vertical separation is too large.
                         if (!Dalamud.Conditions[ConditionFlag.Diving])
                         {
                             TaskManager.Enqueue(() => { if (!Dalamud.Conditions[ConditionFlag.Gathering]) Navigate(gameObject.Position, false); });
@@ -124,7 +138,7 @@ namespace GatherBuddy.AutoGather
                     }
                 }
             }
-            else if (distance < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5) && !Dalamud.Conditions[ConditionFlag.Diving])
+            else if (hSeparation < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5) && !Dalamud.Conditions[ConditionFlag.Diving])
             {
                 Navigate(gameObject.Position, false);
             }
@@ -150,10 +164,9 @@ namespace GatherBuddy.AutoGather
             // Reset navigation logic here
             // For example, reinitiate navigation to the destination
             CurrentDestination = default;
-            if (VNavmesh_IPCSubscriber.IsEnabled)
+            if (VNavmesh.Enabled)
             {
-                //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                VNavmesh_IPCSubscriber.Path_Stop();
+                VNavmesh.Path.Stop();
             }
             lastResetTime = DateTime.Now;
         }
@@ -179,27 +192,39 @@ namespace GatherBuddy.AutoGather
             var correctedDestination = GetCorrectedDestination(CurrentDestination);
             GatherBuddy.Log.Debug($"Navigating to {destination} (corrected to {correctedDestination})");
 
-            LastNavigationResult = VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(correctedDestination, shouldFly);
+            LastNavigationResult = VNavmesh.SimpleMove.PathfindAndMoveTo(correctedDestination, shouldFly);
         }
 
         private static Vector3 GetCorrectedDestination(Vector3 destination)
         {
-            var correctedDestination = destination;
-            if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
-                correctedDestination = offset;
+            const float MaxHorizontalSeparation = 3.0f;
+            const float MaxVerticalSeparation = 2.5f;
 
             try
             {
-                correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(correctedDestination, 3, 3);
-                if (Vector3.Distance(correctedDestination, destination) is var distance and > 3)
+                float separation;
+                if (WorldData.NodeOffsets.TryGetValue(destination, out var offset))
                 {
-                    GatherBuddy.Log.Warning($"Offset is ignored, because distance {distance} is too large after correcting for mesh.");
-                    correctedDestination = VNavmesh_IPCSubscriber.Query_Mesh_NearestPoint(destination, 3, 3);
+                    offset = VNavmesh.Query.Mesh.NearestPoint(offset, MaxHorizontalSeparation, MaxVerticalSeparation);
+                    if ((separation = Vector2.Distance(offset.ToVector2(), destination.ToVector2())) > MaxHorizontalSeparation)
+                        GatherBuddy.Log.Warning($"Offset is ignored because the horizontal separation {separation} is too large after correcting for mesh. Maximum allowed is {MaxHorizontalSeparation}.");
+                    else if ((separation = Math.Abs(offset.Y - destination.Y)) > MaxVerticalSeparation)
+                        GatherBuddy.Log.Warning($"Offset is ignored because the vertical separation {separation} is too large after correcting for mesh. Maximum allowed is {MaxVerticalSeparation}.");
+                    else
+                        return offset;
                 }
+
+                var correctedDestination = VNavmesh.Query.Mesh.NearestPoint(destination, MaxHorizontalSeparation, MaxVerticalSeparation);
+                if ((separation = Vector2.Distance(correctedDestination.ToVector2(), destination.ToVector2())) > MaxHorizontalSeparation)
+                    GatherBuddy.Log.Warning($"Query.Mesh.NearestPoint() returned a point with too large horizontal separation {separation}. Maximum allowed is {MaxHorizontalSeparation}.");
+                else if ((separation = Math.Abs(correctedDestination.Y - destination.Y)) > MaxVerticalSeparation)
+                    GatherBuddy.Log.Warning($"Query.Mesh.NearestPoint() returned a point with too large vertical separation {separation}. Maximum allowed is {MaxVerticalSeparation}.");
+                else
+                    return correctedDestination;
             }
             catch (Exception) { }
 
-            return correctedDestination;
+            return destination;
         }
 
         private void MoveToFarNode(Vector3 position)
@@ -216,7 +241,7 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private bool MoveToTerritory(ILocation location)
+        public static Aetheryte? FindClosestAetheryte(ILocation location)
         {
             var aetheryte = location.ClosestAetheryte;
 
@@ -231,6 +256,13 @@ namespace GatherBuddy.AutoGather
                     .OrderBy(a => a.WorldDistance(territory.Id, location.IntegralXCoord, location.IntegralYCoord))
                     .FirstOrDefault();
             }
+
+            return aetheryte;
+        }
+
+        private bool MoveToTerritory(ILocation location)
+        {
+            var aetheryte = FindClosestAetheryte(location);
             if (aetheryte == null)
             {
                 Communicator.PrintError("Couldn't find an attuned aetheryte to teleport to.");

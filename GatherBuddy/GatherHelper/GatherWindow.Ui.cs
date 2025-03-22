@@ -6,6 +6,7 @@ using System.Text;
 using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
+using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
@@ -110,15 +111,14 @@ public class GatherWindow : Window
             false);
     }
 
-    private readonly List<(IGatherable Item, ILocation Location, TimeInterval Uptime)> _data = new();
+    private readonly List<(IGatherable Item, ILocation Location, TimeInterval Uptime, uint Quantity)> _data = new();
 
-    private void DrawItem(IGatherable item, ILocation loc, TimeInterval time)
+    private void DrawItem(IGatherable item, ILocation loc, TimeInterval time, uint quantity)
     {
         if (GatherBuddy.Config.ShowGatherWindowOnlyAvailable && time.Start > GatherBuddy.Time.ServerTime)
             return;
 
-        var inventoryCount = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
-        var quantity = _plugin.AutoGatherListsManager.GetTotalQuantitiesForItem(item);
+        var inventoryCount = item.GetInventoryCount();
 
         if (quantity > 0 && inventoryCount >= quantity && GatherBuddy.Config.HideGatherWindowCompletedItems)
             return;
@@ -236,16 +236,16 @@ public class GatherWindow : Window
     {
         _data.Clear();
 
-        var list = _plugin.AutoGatherListsManager.GetList().Concat(_plugin.GatherWindowManager.GetList()).Distinct();
-
-        _data.AddRange(list.Select(i =>
-        {
-            var (loc, time) = GatherBuddy.UptimeManager.BestLocation(i);
-            return (i, loc, time);
-        }));
+        var list = _plugin.AutoGatherListsManager.ActiveItems
+            .Select(x => (Item: x.Item as IGatherable, x.Quantity))
+            .Concat(_plugin.GatherWindowManager.ActiveItems.Select(i => (Item: i, Quantity: 0u)))
+            .GroupBy(x => x.Item)
+            .Select(g => { var (loc, time) = GatherBuddy.UptimeManager.BestLocation(g.Key); return (g.Key, loc, time, (uint)g.Sum(x => x.Quantity)); });
 
         if (GatherBuddy.Config.SortGatherWindowByUptime)
-            _data.StableSort((lhs, rhs) => lhs.Uptime.Compare(rhs.Uptime));
+            list = list.OrderBy(i => i.time, Comparer<TimeInterval>.Create((x, y) => x.Compare(y)));
+
+        _data.AddRange(list);
 
         return _data.Count == 0 || GatherBuddy.Config.ShowGatherWindowOnlyAvailable && _data.All(f => f.Uptime.Start > GatherBuddy.Time.ServerTime);
     }
@@ -316,8 +316,8 @@ public class GatherWindow : Window
         if (!table)
             return;
         
-        foreach (var (item, loc, time) in _data)
-            DrawItem(item, loc, time);
+        foreach (var (item, loc, time, quantity) in _data)
+            DrawItem(item, loc, time, quantity);
 
         CheckAnchorPosition();
     }

@@ -30,6 +30,7 @@ namespace GatherBuddy.AutoGather
         public int CollectableMinGP { get => collectableMinGP; set => collectableMinGP = Math.Max(0, Math.Min(MaxGP, value)); }
         public int CollectableActionsMinGP { get => collectableActionsMinGP; set => collectableActionsMinGP = Math.Max(0, Math.Min(MaxGP, value)); }
         public bool CollectableAlwaysUseSolidAge { get; set; } = true;
+        public bool CollectableManualScores { get; set; } = false;
         public int CollectableTagetScore { get => collectableTagetScore; set => collectableTagetScore = Math.Max(0, Math.Min(MaxCollectability, value)); }
         public int CollectableMinScore { get => collectableMinScore; set => collectableMinScore = Math.Max(0, Math.Min(MaxCollectability, value)); }
         public bool ChooseBestActionsAutomatically { get; set; } = false;

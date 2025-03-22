@@ -8,6 +8,7 @@ using System.Text.RegularExpressions;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using GatherBuddy.Alarms;
+using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -296,12 +297,12 @@ public partial class Interface
             }
             ImGui.SameLine();
             ImGui.Text("Inventory: ");
-            var invTotal = _plugin.AutoGatherListsManager.GetInventoryCountForItem(item);
+            var invTotal = item.GetInventoryCount();
             ImGui.SameLine(0f, ImGui.CalcTextSize($"0000 / ").X - ImGui.CalcTextSize($"{invTotal} / ").X);
             ImGui.Text($"{invTotal} / ");
             ImGui.SameLine(0, 3f);
             var quantity = list.Quantities.TryGetValue(item, out var q) ? (int)q : 1;
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SetNextItemWidth(100f * Scale);
             if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
                 _plugin.AutoGatherListsManager.ChangeQuantity(list, item, (uint)quantity);
             ImGui.SameLine();

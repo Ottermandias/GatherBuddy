@@ -14,6 +14,8 @@ public partial class AutoGather
     {
         get
         {
+            if (!GatherBuddy.Config.AutoGatherConfig.DoMaterialize) return 0;
+
             var inventory = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
             var result    = 0;
             for (var slot = 0; slot < inventory->Size; slot++)
@@ -56,7 +58,7 @@ public partial class AutoGather
 
         if (SpiritbondMax == 1) 
         {
-            EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) addon->Close(true); });
+            EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, -1); });
         }
     }
 }

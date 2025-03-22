@@ -36,7 +36,7 @@ namespace GatherBuddy;
 
 public partial class GatherBuddy : IDalamudPlugin
 {
-    public const string InternalName = "GatherBuddy";
+    public const string InternalName = "GatherBuddyReborn";
 
     public string Name
         => InternalName;

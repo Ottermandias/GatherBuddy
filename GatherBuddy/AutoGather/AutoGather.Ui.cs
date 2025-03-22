@@ -79,7 +79,7 @@ namespace GatherBuddy.AutoGather
 
                 ImGui.TableHeadersRow();
 
-                var playerPosition = Player.Object.Position;
+                var playerPosition = Player.Object?.Position ?? Vector3.Zero;
                 foreach (var node in Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint)
                              .OrderBy(o => Vector3.Distance(o.Position, playerPosition)))
                 {
@@ -93,7 +93,7 @@ namespace GatherBuddy.AutoGather
                     ImGui.TableSetColumnIndex(3);
                     ImGui.Text(node.Position.ToString());
                     ImGui.TableSetColumnIndex(4);
-                    var distance = Vector3.Distance(Player.Object.Position, node.Position);
+                    var distance = Vector3.Distance(playerPosition, node.Position);
                     ImGui.Text(distance.ToString());
                     ImGui.TableSetColumnIndex(5);
 
@@ -101,7 +101,7 @@ namespace GatherBuddy.AutoGather
                     var isBlacklisted = GatherBuddy.Config.AutoGatherConfig.BlacklistedNodesByTerritoryId.TryGetValue(territoryId, out var list)
                      && list.Contains(node.Position);
 
-                    if (isBlacklisted)
+                    if (isBlacklisted && list != null)
                     {
                         if (ImGui.Button($"Unblacklist##{node.Position}"))
                         {
@@ -137,8 +137,8 @@ namespace GatherBuddy.AutoGather
                             return;
                         }
                         //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                        VNavmesh_IPCSubscriber.Path_Stop();
-                        VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly(node.Position));
+                        VNavmesh.Path.Stop();
+                        VNavmesh.SimpleMove.PathfindAndMoveTo(node.Position, GatherBuddy.AutoGather.ShouldFly(node.Position));
                     }
 
                     if (WorldData.NodeOffsets.TryGetValue(node.Position, out var offset))
@@ -157,8 +157,8 @@ namespace GatherBuddy.AutoGather
                                 return;
                             }
                             //VNavmesh_IPCSubscriber.Nav_PathfindCancelAll();
-                            VNavmesh_IPCSubscriber.Path_Stop();
-                            VNavmesh_IPCSubscriber.SimpleMove_PathfindAndMoveTo(offset, GatherBuddy.AutoGather.ShouldFly(offset));
+                            VNavmesh.Path.Stop();
+                            VNavmesh.SimpleMove.PathfindAndMoveTo(offset, GatherBuddy.AutoGather.ShouldFly(offset));
                         }
                     }
                     else

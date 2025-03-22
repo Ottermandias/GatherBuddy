@@ -60,6 +60,7 @@ namespace GatherBuddy.AutoGather
         [Obsolete] public ConsumableConfig SquadronManualConfig { get; set; } = new(false, 0, 0, 0);
         [Obsolete] public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
         public bool DoMaterialize { get; set; } = false;
+        public bool DoReduce { get; set; } = false;
         public bool HonkMode { get; set; } = true;
         public SortingType SortingMethod { get; set; } = SortingType.Location;
         public bool GoHomeWhenIdle { get; set; } = true;
@@ -67,7 +68,6 @@ namespace GatherBuddy.AutoGather
         public bool UseSkillsForFallbackItems { get; set; } = false;
         public bool AbandonNodes { get; set; } = false;
         public uint ExecutionDelay { get; set; } = 0;
-        public bool ForceCloseLingeringMasterpieceAddon { get; set; } = false;
         public bool ConfigConversionFixed { get; set; } = false;
         public bool RotationSolverConversionDone { get; set; } = false;
 

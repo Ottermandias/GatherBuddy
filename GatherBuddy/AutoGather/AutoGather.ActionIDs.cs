@@ -52,6 +52,7 @@ public partial class AutoGather
 
             public Pair<Action> Actions => actions;
             public Pair<string> Names => names;
+            public Pair<uint> QuestIds => (actions.Botanist.UnlockLink.RowId, actions.Miner.UnlockLink.RowId);
             public uint ActionId => GetJobValue(actions).RowId;
             public uint QuestId  => GetJobValue(actions).UnlockLink.RowId;
             public uint EffectId => GetJobValue(effects);

@@ -15,127 +15,46 @@ namespace GatherBuddy.AutoGather.Lists;
 
 public partial class AutoGatherListsManager : IDisposable
 {
+    public event Action? ActiveItemsChanged;
+
     private const string FileName = "auto_gather_lists.json";
     private const string FileNameFallback = "gather_window.json";
 
     private readonly List<AutoGatherList> _lists = [];
-    private readonly List<Gatherable> _activeItems = [];
-    private readonly List<Gatherable> _sortedItems = [];
+    private readonly List<(Gatherable Item, uint Quantity)> _activeItems = [];
     private readonly List<(Gatherable Item, uint Quantity)> _fallbackItems = [];
 
     public ReadOnlyCollection<AutoGatherList> Lists => _lists.AsReadOnly();
-    public ReadOnlyCollection<Gatherable> ActiveItems => _activeItems.AsReadOnly();
+    public ReadOnlyCollection<(Gatherable Item, uint Quantity)> ActiveItems => _activeItems.AsReadOnly();
     public ReadOnlyCollection<(Gatherable Item, uint Quantity)> FallbackItems => _fallbackItems.AsReadOnly();
 
-    private          bool         _sortDirty = true;
+    public AutoGatherListsManager() { }
 
-    public AutoGatherListsManager()
-    {
-        GatherBuddy.UptimeManager.UptimeChange += OnUptimeChange;
-    }
-
-    public void Dispose()
-        => GatherBuddy.UptimeManager.UptimeChange -= OnUptimeChange;
-
-    private void OnUptimeChange(IGatherable item)
-        => _sortDirty = true;
-
-    private void OnActiveAlarmsChange()
-        => SetActiveItems();
+    public void Dispose() { }
 
     public void SetActiveItems()
     {
         _activeItems.Clear();
-        foreach (var item in _lists.Where(p => p.Enabled && !p.Fallback)
-                     .SelectMany(p => p.Items)
-                     .Where(i => !_activeItems.Contains(i)))
-            _activeItems.Add(item);
-        _sortedItems.Clear();
-        _sortedItems.InsertRange(0, _activeItems);
-        _sortDirty = true;
-
-        var fallback = _lists
-            .Where(p => p.Enabled && p.Fallback)
-            .SelectMany(p => p.Items.Select(i => (Item: i, Quantity: p.Quantities[i])))
-            .GroupBy(i => i.Item)
-            .Select(x => (x.Key, (uint)Math.Min(x.Sum(g => g.Quantity), uint.MaxValue)));
         _fallbackItems.Clear();
-        _fallbackItems.AddRange(fallback);
-    }
-
-    public IReadOnlyList<Gatherable> GetList()
-    {
-        if (!GatherBuddy.Config.SortGatherWindowByUptime)
-            return _activeItems;
-
-        if (_sortDirty)
-            _sortedItems.StableSort((lhs, rhs)
-                => GatherBuddy.UptimeManager.BestLocation(lhs).Interval.Compare(GatherBuddy.UptimeManager.BestLocation(rhs).Interval));
-
-        return _sortedItems;
-    }
-
-    public uint GetTotalQuantitiesForItem(IGatherable item)
-    {
-        if (item is not Gatherable gatherable)
-            return 0;
-
-        uint total = 0;
-        foreach (var list in _lists)
+        var items = _lists
+            .Where(l => l.Enabled)
+            .SelectMany(l => l.Items.Select(i => (Item: i, Quantity: l.Quantities[i], l.Fallback)))
+            .GroupBy(i => (i.Item, i.Fallback))
+            .Select(x => (x.Key.Item, Quantity: (uint)Math.Min(x.Sum(g => g.Quantity), uint.MaxValue), x.Key.Fallback));
+        
+        foreach (var (item, quantity, fallback) in items)
         {
-            if (list.Enabled && !list.Fallback && list.Quantities.TryGetValue(gatherable, out var quantity))
+            if (fallback)
             {
-                total += quantity;
+                _fallbackItems.Add((item, quantity));
+            }
+            else
+            {
+                _activeItems.Add((item, quantity));
             }
         }
 
-        return total;
-    }
-
-    public unsafe int GetInventoryCountForItem(IGatherable gatherable)
-    {
-        if (gatherable.ItemData.IsCollectable)
-        {
-            int count   = 0;
-            var manager = InventoryManager.Instance();
-            if (manager == null)
-                return count;
-            foreach (var inv in InventoryTypes)
-            {
-                var container = manager->GetInventoryContainer(inv);
-                if (container == null || container->Loaded == 0)
-                    continue;
-                for (int i = 0; i < container->Size; i++)
-                {
-                    var item = container->GetInventorySlot(i);
-                    if (item == null || item->ItemId == 0 || item->ItemId != gatherable.ItemId) continue;
-        
-                    count++;
-                }
-            }
-        
-            return count;
-        }
-        else
-        {
-            var inventory = InventoryManager.Instance();
-            return inventory->GetInventoryItemCount(gatherable.ItemId);
-        }
-    }
-    
-    public List<InventoryType> InventoryTypes
-    {
-        get
-        {
-            List<InventoryType> types = new List<InventoryType>()
-            {
-                InventoryType.Inventory1,
-                InventoryType.Inventory2,
-                InventoryType.Inventory3,
-                InventoryType.Inventory4,
-            };
-            return types;
-        }
+        ActiveItemsChanged?.Invoke();
     }
 
     public void Save()

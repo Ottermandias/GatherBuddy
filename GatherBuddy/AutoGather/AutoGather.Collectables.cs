@@ -1,5 +1,7 @@
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.Classes;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -8,36 +10,55 @@ namespace GatherBuddy.AutoGather
 {
     public partial class AutoGather
     {
-        private CollectableRotation? CurrentRotation;
+        private CollectableRotation? CurrentCollectableRotation;
 
         private unsafe partial class CollectableRotation
         {
-            public CollectableRotation(ConfigPreset config)
+            public CollectableRotation(ConfigPreset config, Gatherable item, uint quantity)
             {
                 this.config = config;
                 shouldUseFullRotation = Player.Object.CurrentGp >= config.CollectableActionsMinGP;
+                this.item = item;
+                this.quantity = quantity;
             }
 
-            private bool shouldUseFullRotation = false;
+            private readonly bool shouldUseFullRotation = false;
             private readonly ConfigPreset config;
+            private readonly Gatherable item;
+            private readonly uint quantity;
 
             [GeneratedRegex(@"\d+")]
             private static partial Regex NumberRegex();
 
-            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon, int itemsLeft)
+            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
             {
+                var itemsLeft = (int)(quantity - item.GetInventoryCount());
+
+                if (itemsLeft <= 0 && GatherBuddy.Config.AutoGatherConfig.AbandonNodes)
+                    throw new NoGatherableItemsInNodeException();
+
                 var regex = NumberRegex();
+                var tNode = MasterpieceAddon->AtkUnitBase.GetNodeById(15)->IsVisible() ? 15u : 14u;
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
                 int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
                 int scourColl        = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString()).Value);
                 int meticulousColl   = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString()).Value);
                 int brazenColl       = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString()).Value);
+                int targetScore      = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(tNode)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+                int minScore         = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+
+                // For custom deliveries and quest items, we always want max collectability
+                if (item.GatheringData.Unknown3 is 3 or 4 or 6)
+                    minScore = targetScore;
+
+                if (config.CollectableManualScores)
+                    (targetScore, minScore) = (config.CollectableTagetScore, config.CollectableMinScore);
 
                 if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
 
-                if (collectability >= config.CollectableTagetScore)
+                if (collectability >= targetScore)
                 {
                     if ((shouldUseFullRotation || config.CollectableAlwaysUseSolidAge)
                      && ShouldSolidAgeCollectables(currentIntegrity, maxIntegrity, itemsLeft))
@@ -47,20 +68,20 @@ namespace GatherBuddy.AutoGather
                 }
 
                 if (currentIntegrity == 1
-                 && collectability >= config.CollectableMinScore)
+                 && collectability >= minScore)
                     return Actions.Collect;
 
-                if (shouldUseFullRotation && NeedScrutiny(collectability, scourColl, meticulousColl, brazenColl) && ShouldUseScrutiny())
+                if (shouldUseFullRotation && NeedScrutiny(collectability, scourColl, meticulousColl, brazenColl, targetScore) && ShouldUseScrutiny())
                     return Actions.Scrutiny;
 
-                if (meticulousColl + collectability >= config.CollectableTagetScore
+                if (meticulousColl + collectability >= targetScore
                  && ShouldUseMeticulous())
                     return Actions.Meticulous;
 
                 if (Player.Status.Any(s => s.StatusId == 3911 /*Collector's High Standard*/) && ShouldUseBrazen())
                     return Actions.Brazen;
 
-                if (scourColl + collectability >= config.CollectableTagetScore
+                if (scourColl + collectability >= targetScore
                  && ShouldUseScour())
                     return Actions.Scour;
 
@@ -78,14 +99,13 @@ namespace GatherBuddy.AutoGather
                 throw new NoCollectableActionsException();
             }
 
-            private bool NeedScrutiny(int collectability, int scourColl, int meticulousColl, int brazenColl)
+            private bool NeedScrutiny(int collectability, int scourColl, int meticulousColl, int brazenColl, int targetScore)
             {
-                var collAim = config.CollectableTagetScore;
-                if (scourColl + collectability >= collAim && ShouldUseScour())
+                if (scourColl + collectability >= targetScore && ShouldUseScour())
                     return false;
-                if (meticulousColl + collectability >= collAim && ShouldUseMeticulous())
+                if (meticulousColl + collectability >= targetScore && ShouldUseMeticulous())
                     return false;
-                if (brazenColl + collectability >= collAim && ShouldUseBrazen())
+                if (brazenColl + collectability >= targetScore && ShouldUseBrazen())
                     return false;
 
                 return true;

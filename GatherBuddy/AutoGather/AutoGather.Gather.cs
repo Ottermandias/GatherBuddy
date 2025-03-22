@@ -7,6 +7,8 @@ using System.Runtime.InteropServices;
 using ECommons.Automation.UIInput;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using Dalamud.Game.ClientState.Conditions;
+using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.AutoGather.Lists;
 
 namespace GatherBuddy.AutoGather
 {
@@ -24,24 +26,32 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void EnqueueGatherItem(ItemSlot slot)
         {
-            if (GatheringAddon == null)
+            var gatheringAddon = GatheringAddon;
+            if (gatheringAddon == null)
                 return;
 
+            if (slot.Item.ItemData.IsCollectable)
+            {
+                // Since it's possible that we are not gathering the top item in the list,
+                // we need to remember what we are going to gather inside MasterpieceAddon
+                CurrentCollectableRotation = new CollectableRotation(MatchConfigPreset(slot.Item), slot.Item, _activeItemList.FirstOrDefault(x => x.Item == slot.Item).Quantity);
+            }
+
             var itemIndex           = slot.Index;
-            var receiveEventAddress = new nint(GatheringAddon->AtkUnitBase.AtkEventListener.VirtualTable->ReceiveEvent);
+            var receiveEventAddress = new nint(gatheringAddon->AtkUnitBase.AtkEventListener.VirtualTable->ReceiveEvent);
             var eventDelegate       = Marshal.GetDelegateForFunctionPointer<ClickHelper.ReceiveEventDelegate>(receiveEventAddress);
 
             var target    = AtkStage.Instance();
-            var eventData = EventData.ForNormalTarget(target, &GatheringAddon->AtkUnitBase);
+            var eventData = EventData.ForNormalTarget(target, &gatheringAddon->AtkUnitBase);
             var inputData = InputData.Empty();
 
-            EnqueueActionWithDelay(() => eventDelegate.Invoke(&GatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data));
+            EnqueueActionWithDelay(() => eventDelegate.Invoke(&gatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data));
 
             if (slot.Item.IsTreasureMap)
             {
                 TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.Gathering42], 1000);
                 TaskManager.Enqueue(() => !Dalamud.Conditions[ConditionFlag.Gathering42]);
-                TaskManager.Enqueue(RefreshNextTreasureMapAllowance);
+                TaskManager.Enqueue(DiscipleOfLand.RefreshNextTreasureMapAllowance);
             }
         }
 
@@ -50,7 +60,7 @@ namespace GatherBuddy.AutoGather
         /// </summary>
         /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather a collectable or some unneeded junk
         /// Slot: ItemSlot of item to gather</returns>
-        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(Gatherable? targetItem)
+        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(GatherTarget gatherTarget)
         {
             //Gather crystals when using The Giving Land
             if (HasGivingLandBuff)
@@ -64,9 +74,9 @@ namespace GatherBuddy.AutoGather
                 .Where(CheckItemOvercap)
                 .ToList();
 
-            var target = targetItem != null ? available.Where(s => s.Item == targetItem).FirstOrDefault() : null;
+            var target = gatherTarget.Item != null ? available.Where(s => s.Item == gatherTarget.Item).FirstOrDefault() : null;
 
-            if (target != null && InventoryCount(targetItem!) < QuantityTotal(targetItem!))
+            if (target != null && gatherTarget.Item!.GetInventoryCount() < gatherTarget.Quantity)
             {
                 //The target item is found in the node, would not overcap and we need to gather more of it
                 return (!target.Collectable, target);
@@ -75,16 +85,17 @@ namespace GatherBuddy.AutoGather
             //Items in the gathering list
             var gatherList = ItemsToGather
                 //Join node slots, retaining list order
-                .Join(available, i => i.Item, s => s.Item, (i, s) => s)
+                .Join(available, i => i.Item, s => s.Item, (i, s) => (Slot: s, i.Quantity))
                 //And we need more of them
-                .Where(s => InventoryCount(s.Item) < QuantityTotal(s.Item));
+                .Where(x => x.Slot.Item.GetInventoryCount() < x.Quantity)
+                .Select(x => x.Slot);
 
             //Items in the fallback list
             var fallbackList = _plugin.AutoGatherListsManager.FallbackItems
                 //Join node slots, retaining list order
                 .Join(available, i => i.Item, s => s.Item, (i, s) => (Slot: s, i.Quantity))
                 //And we need more of them
-                .Where(x => InventoryCount(x.Slot.Item) < x.Quantity)
+                .Where(x => x.Slot.Item.GetInventoryCount() < x.Quantity)
                 .Select(x => x.Slot);
 
             var fallbackSkills = GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems;
@@ -132,10 +143,10 @@ namespace GatherBuddy.AutoGather
         private bool CheckItemOvercap(ItemSlot s)
         {
             //If it's a treasure map, we can have only one in the inventory
-            if (s.Item.IsTreasureMap && InventoryCount(s.Item) != 0)
+            if (s.Item.IsTreasureMap && s.Item.GetInventoryCount() != 0)
                 return false;
             //If it's a crystal, we can't have more than 9999
-            if (s.Item.IsCrystal && InventoryCount(s.Item) > 9999 - s.Yield)
+            if (s.Item.IsCrystal && s.Item.GetInventoryCount() > 9999 - s.Yield)
                 return false;
             return true;
         }
@@ -146,9 +157,11 @@ namespace GatherBuddy.AutoGather
                 .Where(s => s.Item.IsCrystal)
                 .Where(CheckItemOvercap)
                 //Prioritize crystals in the gathering list
-                .OrderBy(s => ItemsToGather.Any(g => g.Item == s.Item) ? 0 : 1)
+                .GroupJoin(_activeItemList.Where(i => i.Item.IsCrystal), s => s.Item, i => i.Item, (s, x) => (Slot: s, Order: x.Any()?1:0))
+                .OrderBy(x => x.Order)
                 //Prioritize crystals with a lower amount in the inventory
-                .ThenBy(s => InventoryCount(s.Item))
+                .ThenBy(x => x.Slot.Item.GetInventoryCount())
+                .Select(x => x.Slot)
                 .FirstOrDefault();
         }
     }
