@@ -302,7 +302,7 @@ public partial class Interface
             ImGui.Text($"{invTotal} / ");
             ImGui.SameLine(0, 3f);
             var quantity = list.Quantities.TryGetValue(item, out var q) ? (int)q : 1;
-            ImGui.SetNextItemWidth(100f);
+            ImGui.SetNextItemWidth(100f * Scale);
             if (ImGui.InputInt("##quantity", ref quantity, 1, 10))
                 _plugin.AutoGatherListsManager.ChangeQuantity(list, item, (uint)quantity);
             ImGui.SameLine();
