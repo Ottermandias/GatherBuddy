@@ -45,18 +45,11 @@ namespace GatherBuddy.AutoGather
                 int scourColl        = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString()).Value);
                 int meticulousColl   = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString()).Value);
                 int brazenColl       = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString()).Value);
-                int targetScore      = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(tNode)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
-                int minScore         = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
-
-                // For custom deliveries and quest items, we always want max collectability
-                if (item.GatheringData.Unknown3 is 3 or 4 or 6)
-                    minScore = targetScore;
-
-                if (config.CollectableManualScores)
-                    (targetScore, minScore) = (config.CollectableTagetScore, config.CollectableMinScore);
 
                 if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
+
+                var (minScore, targetScore) = GetCollectabilityScores(MasterpieceAddon);
 
                 if (collectability >= targetScore)
                 {
@@ -97,6 +90,31 @@ namespace GatherBuddy.AutoGather
                     return Actions.Brazen;
 
                 throw new NoCollectableActionsException();
+            }
+
+            private (int targetScore, int minScore) GetCollectabilityScores(AddonGatheringMasterpiece* MasterpieceAddon)
+            {
+                if (config.CollectableManualScores)
+                    return (config.CollectableTagetScore, config.CollectableMinScore);
+
+                var regex = NumberRegex();
+                int targetScore, minScore;
+
+                // Check nodes in descending order (15, 14, 13) and use the first visible one for target score
+                if (MasterpieceAddon->AtkUnitBase.GetNodeById(15)->IsVisible())
+                    targetScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(15)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+                else if (MasterpieceAddon->AtkUnitBase.GetNodeById(14)->IsVisible())
+                    targetScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(14)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+                else
+                    targetScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+
+                // For custom deliveries and quest items, we always want max collectability
+                if (item.GatheringData.Unknown3 is 3 or 4 or 6)
+                    minScore = targetScore;
+                else
+                    minScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+
+                return (targetScore, minScore);
             }
 
             private bool NeedScrutiny(int collectability, int scourColl, int meticulousColl, int brazenColl, int targetScore)
