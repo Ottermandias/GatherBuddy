@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using GatherBuddy.Utility;
 using Lumina.Excel.Sheets;
@@ -68,6 +70,38 @@ public readonly struct BitfieldUptime : IEquatable<BitfieldUptime>
 
         var rotatedHours = currentHour == 0 ? hours : (hours >> currentHour) | ((hours << (32 - currentHour)) >> 8);
         return Bits.TrailingZeroCount(rotatedHours);
+    }
+
+    public IEnumerable<(uint StartHour, uint EndHour)> AllUptimes()
+    {
+        if (AlwaysUp())
+        {
+            yield return (0, 24);
+
+            yield break;
+        }
+
+        var firstHour        = FirstHour;
+        var currentStartHour = BadHour;
+        for (var i = 0u; i < RealTime.HoursPerDay; ++i)
+        {
+            var actualHour = (firstHour + i) % RealTime.HoursPerDay;
+            if ((_hours & (1u << (int) actualHour)) != 0)
+            {
+                if (currentStartHour is BadHour)
+                    currentStartHour = actualHour;
+            }
+            else if (currentStartHour is not BadHour)
+            {
+                yield return (currentStartHour, actualHour);
+
+                currentStartHour = BadHour;
+            }
+        }
+
+        // This should not happen I think?
+        if (currentStartHour is not BadHour)
+            yield return (currentStartHour, firstHour);
     }
 
     public uint NextUptime(int currentHour)
