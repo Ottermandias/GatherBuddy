@@ -2,12 +2,6 @@
   "version": 1,
   "dependencies": {
     "net9.0-windows7.0": {
-      "DalamudPackager": {
-        "type": "Direct",
-        "requested": "[12.0.0, )",
-        "resolved": "12.0.0",
-        "contentHash": "J5TJLV3f16T/E2H2P17ClWjtfEBPpq3yxvqW46eN36JCm6wR+EaoaYkqG9Rm5sHqs3/nK/vKjWWyvEs/jhKoXw=="
-      },
       "DotNet.ReproducibleBuilds": {
         "type": "Direct",
         "requested": "[1.2.25, )",
@@ -31,13 +25,6 @@
         "type": "Transitive",
         "resolved": "9.0.2",
         "contentHash": "MNe7GSTBf3jQx5vYrXF0NZvn6l7hUKF6J54ENfAgCO8y6xjN1XUmKKWG464LP2ye6QqDiA1dkaWEZBYnhoZzjg=="
-      },
-      "gatherbuddy.gamedata": {
-        "type": "Project",
-        "dependencies": {
-          "GatherBuddy.Levenshtein": "[1.0.0, )",
-          "OtterGui": "[1.0.0, )"
-        }
       },
       "gatherbuddy.levenshtein": {
         "type": "Project"
