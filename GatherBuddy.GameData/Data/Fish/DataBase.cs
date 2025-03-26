@@ -344,8 +344,9 @@ public static partial class Fish
         data.ApplyGrowingLight();
         data.ApplyDawntrail();
         data.ApplyCrossroads();
+        data.ApplySeekersOfEternity();
         data.ApplyMooches();
-        //DumpUnknown(Patch.Crossroads, data.Fishes.Values);
+        //DumpUnknown(Patch.SeekersOfEternity, data.Fishes.Values);
     }
 
     public static void DumpUnknown(Patch patch, IEnumerable<Classes.Fish> fish, [CallerFilePath] string? directory = null)
@@ -365,7 +366,12 @@ public static partial class Fish
             w.WriteLine($"    private static void Apply{patch}(this GameData data)");
             w.WriteLine("    {");
             foreach (var f in fish.Where(f => f.Patch is Patch.Unknown && f.InLog).OrderBy(f => f.IsSpearFish).ThenBy(f => f.ItemId))
-                w.WriteLine($"        data.Apply({f.ItemId}, Patch.{patch}); // {f.Name.English}");
+            {
+                w.WriteLine($"        data.Apply({f.ItemId}, Patch.{patch}) // {f.Name.English}");
+                w.WriteLine("            .Bait(data)");
+                w.WriteLine("            .Bite(data, HookSet.Unknown, BiteType.Unknown);");
+            }
+
             w.WriteLine("    }");
             w.WriteLine("    // @formatter:on");
             w.WriteLine("}");

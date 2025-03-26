@@ -1,4 +1,4 @@
-<Project Sdk="Dalamud.NET.Sdk/12.0.1">
+<Project Sdk="Dalamud.NET.Sdk/12.0.2">
   <PropertyGroup>
     <RootNamespace>GatherBuddy</RootNamespace>
     <AssemblyName>GatherBuddy.GameData</AssemblyName>
