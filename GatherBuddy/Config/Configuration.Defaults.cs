@@ -14,8 +14,8 @@ public partial class Configuration
     public const string DefaultAlarmFormat                = "{Alarm} {Item} {DelayString} at {Location}.";
 
     public static readonly Dictionary<int, uint> ForegroundColors = Dalamud.GameData.GetExcelSheet<UIColor>()!
-        .Where(c => (c.UIForeground & 0xFF) > 0)
-        .ToDictionary(c => (int)c.RowId, c => Functions.ReorderColor(c.UIForeground));
+        .Where(c => (c.Dark & 0xFF) > 0)
+        .ToDictionary(c => (int)c.RowId, c => Functions.ReorderColor(c.Dark));
 
     public const int DefaultSeColorNames     = 504;
     public const int DefaultSeColorCommands  = 31;

@@ -93,12 +93,12 @@ public partial class FishRecorder
         {
             Record.Flags |= buff.StatusId switch
             {
-                3972 when buff.StackCount == 1 => FishRecord.Effects.AmbitiousLure1,
-                3972 when buff.StackCount == 2 => FishRecord.Effects.AmbitiousLure2,
-                3972 when buff.StackCount == 3 => FishRecord.Effects.AmbitiousLure1 | FishRecord.Effects.AmbitiousLure2,
-                3973 when buff.StackCount == 1 => FishRecord.Effects.ModestLure1,
-                3973 when buff.StackCount == 2 => FishRecord.Effects.ModestLure2,
-                3973 when buff.StackCount == 3 => FishRecord.Effects.ModestLure1 | FishRecord.Effects.ModestLure2,
+                3972 when buff.Param == 1 => FishRecord.Effects.AmbitiousLure1,
+                3972 when buff.Param == 2 => FishRecord.Effects.AmbitiousLure2,
+                3972 when buff.Param == 3 => FishRecord.Effects.AmbitiousLure1 | FishRecord.Effects.AmbitiousLure2,
+                3973 when buff.Param == 1 => FishRecord.Effects.ModestLure1,
+                3973 when buff.Param == 2 => FishRecord.Effects.ModestLure2,
+                3973 when buff.Param == 3 => FishRecord.Effects.ModestLure1 | FishRecord.Effects.ModestLure2,
                 _                              => FishRecord.Effects.None,
             };
         }

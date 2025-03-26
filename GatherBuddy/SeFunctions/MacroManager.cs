@@ -40,7 +40,7 @@ public unsafe class MacroManager : IDisposable
         ret.BufUsed      = 1;
         ret.IsEmpty      = true;
         ret.StringLength = 0;
-        ret.StringPtr[0] = 0;
+        ret.StringPtr.Value[0] = 0;
     }
 
     public static void CreateEmptyString(ref Utf8String ret)
@@ -66,7 +66,7 @@ public unsafe class MacroManager : IDisposable
     public static void DisposeString(ref Utf8String ret)
     {
         if (ret.BufSize == DefaultLineSize)
-            Marshal.FreeHGlobal((nint)ret.StringPtr);
+            Marshal.FreeHGlobal((nint)ret.StringPtr.Value);
         CreateEmptyString(ref ret);
     }
 
@@ -75,10 +75,10 @@ public unsafe class MacroManager : IDisposable
         if (bytes.Length + 1 >= ret.BufSize)
             return false;
 
-        Marshal.Copy(bytes, 0, (nint)ret.StringPtr, bytes.Length);
+        Marshal.Copy(bytes, 0, (nint)ret.StringPtr.Value, bytes.Length);
         ret.BufUsed                 = bytes.Length + 1;
         ret.StringLength            = bytes.Length;
-        ret.StringPtr[bytes.Length] = 0;
+        ret.StringPtr.Value[bytes.Length] = 0;
         return true;
     }
 

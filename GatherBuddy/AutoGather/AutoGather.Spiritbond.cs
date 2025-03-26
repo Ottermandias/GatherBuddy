@@ -25,7 +25,7 @@ public partial class AutoGather
                     continue;
 
                 //GatherBuddy.Log.Debug("Slot " + slot + " has " + inventoryItem->Spiritbond + " Spiritbond");
-                if (inventoryItem->Spiritbond == 10000)
+                if (inventoryItem->SpiritbondOrCollectability == 10000)
                 {
                     result++;
                 }

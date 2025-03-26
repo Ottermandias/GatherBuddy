@@ -16,7 +16,7 @@ public static class Maps
 
     public static unsafe void SetFlagMarker(AgentMap* instance, IMarkable location, uint iconId = 60561U)
     {
-        instance->IsFlagMarkerSet = 0;
+        instance->IsFlagMarkerSet = false;
         var x = IntegerToInternal(location.IntegralXCoord, location.Territory.SizeFactor);
         var y = IntegerToInternal(location.IntegralYCoord, location.Territory.SizeFactor);
         instance->SetFlagMapMarker(location.Territory.Id, location.Territory.Data.Map.RowId, x, y, iconId);
