@@ -97,8 +97,8 @@ public class LocationManager
             {
                 ILocation? loc = location.Type switch
                 {
-                    ObjectType.Gatherable => GatherBuddy.GameData.GatheringNodes.TryGetValue(location.Id, out var l) ? l : null,
-                    ObjectType.Fish       => GatherBuddy.GameData.FishingSpots.TryGetValue(location.Id, out var l) ? l : null,
+                    ObjectType.Gatherable => GatherBuddy.GameData.GatheringNodes.GetValueOrDefault(location.Id),
+                    ObjectType.Fish       => GatherBuddy.GameData.FishingSpots.GetValueOrDefault(location.Id),
                     _                     => null,
                 };
                 if (loc == null)

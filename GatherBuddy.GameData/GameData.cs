@@ -84,7 +84,7 @@ public class GameData
                 .ToFrozenDictionary(w => (byte)w.RowId, w => new CumulativeWeatherRates(this, w));
 
             WeatherTerritories = DataManager.GetExcelSheet<TerritoryType>()
-                .Where(t => t.PCSearch && (byte)t.WeatherRate.RowId != 0)
+                .Where(t => t.PCSearch && t.WeatherRate.RowId != 0)
                 .Select(t => FindOrAddTerritory(t))
                 .Where(t => t is { WeatherRates.Rates.Length: > 1 })
                 .OfType<Territory>()

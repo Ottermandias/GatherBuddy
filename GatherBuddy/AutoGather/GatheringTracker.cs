@@ -118,7 +118,7 @@ namespace GatherBuddy.AutoGather
 
         private void ProcessArgs(Span<AtkValue> values)
         {
-            if (values.Length != 113)
+            if (values.Length != 114)
                 return;
 
             var n = 0; //Node type 2=logging 3=quarrying 4=harvesting 5=mining; 0 after revisit
@@ -253,6 +253,7 @@ namespace GatherBuddy.AutoGather
                 LogUnexpectedValue(values, n);
 
             //n = 112; //Up arrow on integrity
+            //n = 113; //Undefined, unknown
 
             Touched = Touched || Integrity != MaxIntegrity;
             HiddenRevealed = HiddenRevealed || (Flags.Data & 0xff) != 0;

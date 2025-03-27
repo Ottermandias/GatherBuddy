@@ -319,11 +319,33 @@ public partial class Interface
 
         var idx = _gatherGroupCache.NewItemIdx;
         ImGui.TableNextColumn();
-        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize, "Add new item...", false, true)
-         && _plugin.GatherGroupManager.ChangeGroupNode(group, group.Nodes.Count, GatherGroupCache.AllGatherables[idx], null, null, null, false))
+        if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Plus.ToIconString(), IconButtonSize, "Add new item...", false, true))
         {
-            _gatherGroupCache.SetDirty();
-            _plugin.GatherGroupManager.Save();
+            var gatherable = GatherGroupCache.AllGatherables[idx];
+            if (gatherable.InternalLocationId > 0)
+            {
+                var locations = gatherable.Locations.ToList();
+                if (locations.Count is 1 && locations[0] is GatheringNode node)
+                {
+                    var changes = false;
+                    foreach (var (start, end) in node.Times.AllUptimes())
+                        changes |= _plugin.GatherGroupManager.ChangeGroupNode(group, group.Nodes.Count, gatherable, (int)start * RealTime.MinutesPerHour, (int)end * RealTime.MinutesPerHour, null,
+                            false);
+                    if (changes)
+                    {
+                        _gatherGroupCache.SetDirty();
+                        _plugin.GatherGroupManager.Save();
+                    }
+                }
+            }
+            else
+            {
+                if (_plugin.GatherGroupManager.ChangeGroupNode(group, group.Nodes.Count, gatherable, null, null, null, false))
+                {
+                    _gatherGroupCache.SetDirty();
+                    _plugin.GatherGroupManager.Save();
+                }
+            }
         }
 
         ImGui.TableNextColumn();

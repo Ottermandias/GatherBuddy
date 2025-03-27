@@ -7,7 +7,7 @@ namespace GatherBuddy.SeFunctions;
 public sealed class CurrentBait : SeAddressBase
 {
     public CurrentBait(ISigScanner sigScanner)
-        : base(sigScanner, "3B 05 ?? ?? ?? ?? 75 ?? 80 7E")
+        : base(sigScanner, "8B 0D ?? ?? ?? ?? 3B D9 75")
     {
         Dalamud.Interop.InitializeFromAttributes(this);
     }
