@@ -37,6 +37,7 @@ public enum Patch : ushort
     GrowingLight               = 650,
     Dawntrail                  = 700,
     Crossroads                 = 710,
+    SeekersOfEternity          = 720,
 }
 
 [Flags]
@@ -74,6 +75,7 @@ public enum PatchFlag : ulong
     GrowingLight               = 1ul << 29,
     Dawntrail                  = 1ul << 30,
     Crossroads                 = 1ul << 31,
+    SeekersOfEternity          = 1ul << 32,
 }
 
 public static class PatchExtensions
@@ -132,6 +134,7 @@ public static class PatchExtensions
             65 => "Growing Light",
             70 => "Dawntrail",
             71 => "Crossroads",
+            72 => "Seekers of Eternity",
             _  => "Unknown",
         };
     }
@@ -172,6 +175,7 @@ public static class PatchExtensions
             Patch.GrowingLight               => PatchFlag.GrowingLight,
             Patch.Dawntrail                  => PatchFlag.Dawntrail,
             Patch.Crossroads                 => PatchFlag.Crossroads,
+            Patch.SeekersOfEternity          => PatchFlag.SeekersOfEternity,
             _                                => 0,
         };
     }
@@ -212,6 +216,7 @@ public static class PatchExtensions
             PatchFlag.GrowingLight               => Patch.GrowingLight,
             PatchFlag.Dawntrail                  => Patch.Dawntrail,
             PatchFlag.Crossroads                 => Patch.Crossroads,
+            PatchFlag.SeekersOfEternity          => Patch.SeekersOfEternity,
             _                                    => Patch.Unknown,
         };
     }

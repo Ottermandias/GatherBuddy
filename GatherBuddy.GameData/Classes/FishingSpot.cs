@@ -79,8 +79,7 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         ClosestAetheryte = Territory.Aetherytes.Count > 0
             ? Territory.Aetherytes.ArgMin(a => a.WorldDistance(Territory.Id, IntegralXCoord, IntegralYCoord))
             : null;
-        Radius = (ushort)(spot.Radius / 7);
-
+        Radius           = (ushort)(spot.Radius / 7);
         DefaultXCoord    = IntegralXCoord;
         DefaultYCoord    = IntegralYCoord;
         DefaultAetheryte = ClosestAetheryte;

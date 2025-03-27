@@ -62,6 +62,9 @@ public static partial class Fish
         data.Apply(44338, Patch.Crossroads) // Cenote Oyster
             .Bait(data, 28634)
             .Bite(data, HookSet.Precise, BiteType.Weak);
+        data.Apply(44335, Patch.Crossroads) // Yak Awak Core
+            .Bait(data, 28634)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
     }
     // @formatter:on
 }

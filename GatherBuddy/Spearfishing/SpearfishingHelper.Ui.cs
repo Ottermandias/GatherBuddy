@@ -149,6 +149,7 @@ public partial class SpearfishingHelper : Window
     public override unsafe bool DrawConditions()
     {
         var oldOpen = _isOpen;
+        
         _addon  = (SpearfishWindow*)Dalamud.GameGui.GetAddonByName("SpearFishing", 1);
         _isOpen = _addon != null && _addon->Base.WindowNode != null;
         if (!_isOpen)

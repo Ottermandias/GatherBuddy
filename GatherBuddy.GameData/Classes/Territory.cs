@@ -33,7 +33,7 @@ public class Territory : IComparable<Territory>, IEquatable<Territory>
         YStream    = aether?.Y ?? 0;
         Plane      = (ushort) (aether?.Relay.RowId ?? 0);
 
-        WeatherRates = gameData.CumulativeWeatherRates.TryGetValue((byte)data.WeatherRate.RowId, out var wr)
+        WeatherRates = gameData.CumulativeWeatherRates.TryGetValue((byte) data.WeatherRate.RowId, out var wr)
             ? wr
             : CumulativeWeatherRates.InvalidWeather;
     }
