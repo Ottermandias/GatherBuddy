@@ -38,7 +38,6 @@ namespace GatherBuddy.AutoGather
                     throw new NoGatherableItemsInNodeException();
 
                 var regex = NumberRegex();
-                var tNode = MasterpieceAddon->AtkUnitBase.GetNodeById(15)->IsVisible() ? 15u : 14u;
                 int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
                 int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
                 int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
@@ -49,7 +48,7 @@ namespace GatherBuddy.AutoGather
                 if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
 
-                var (minScore, targetScore) = GetCollectabilityScores(MasterpieceAddon);
+                var (targetScore, minScore) = GetCollectabilityScores(MasterpieceAddon);
 
                 if (collectability >= targetScore)
                 {
