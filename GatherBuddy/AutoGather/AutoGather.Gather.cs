@@ -62,19 +62,19 @@ namespace GatherBuddy.AutoGather
         /// Slot: ItemSlot of item to gather</returns>
         private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(GatherTarget gatherTarget)
         {
-            //Gather crystals when using The Giving Land
-            if (HasGivingLandBuff)
-            {
-                var crystal = GetAnyCrystalInNode();
-                if (crystal != null)
-                    return (true, crystal);
-            }
-
             var available = NodeTracker.Available
                 .Where(CheckItemOvercap)
                 .ToList();
 
             var target = gatherTarget.Item != null ? available.Where(s => s.Item == gatherTarget.Item).FirstOrDefault() : null;
+
+            //Gather crystals when using The Giving Land
+            if (HasGivingLandBuff && (target == null || !target.Item.IsCrystal))
+            {
+                var crystal = GetAnyCrystalInNode();
+                if (crystal != null)
+                    return (true, crystal);
+            }
 
             if (target != null && gatherTarget.Item!.GetInventoryCount() < gatherTarget.Quantity)
             {
