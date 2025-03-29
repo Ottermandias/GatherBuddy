@@ -80,6 +80,10 @@ public partial class Interface
             => DrawCheckbox("Play a sound when done gathering", "Play a sound when auto-gathering shuts down because your list is complete",
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
 
+        public static void DrawRepairGearBox()
+            => DrawCheckbox("Repair gear when needed", "Repair gear when it is almost broken",
+                GatherBuddy.Config.AutoGatherConfig.DoRepair, b => GatherBuddy.Config.AutoGatherConfig.DoRepair = b);
+
         public static void DrawMaterialExtraction()
             => DrawCheckbox("Enable materia extraction",
                 "Automatically extract materia from items with a complete spiritbond",

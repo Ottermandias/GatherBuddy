@@ -148,6 +148,15 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (RepairsNeeded() != 0){
+                if (GatherBuddy.Config.AutoGatherConfig.DoRepair){
+                    Repair();
+                } else {
+                    AbortAutoGather("Repairs needed. Stoping.");
+                }
+                return;
+            }
+
             if (FreeInventorySlots == 0)
             {
                 if (HasReducibleItems())
