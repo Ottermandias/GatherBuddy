@@ -80,7 +80,7 @@ public partial class Interface
             => DrawCheckbox("Play a sound when done gathering", "Play a sound when auto-gathering shuts down because your list is complete",
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
 
-        public static void DrawRepairGearBox()
+        public static void DrawRepairBox()
             => DrawCheckbox("Repair gear when needed", "Repair gear when it is almost broken",
                 GatherBuddy.Config.AutoGatherConfig.DoRepair, b => GatherBuddy.Config.AutoGatherConfig.DoRepair = b);
 
@@ -693,6 +693,7 @@ public partial class Interface
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
+                ConfigFunctions.DrawRepairBox();
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();
                 ConfigFunctions.DrawAntiStuckCooldown();

@@ -149,7 +149,7 @@ namespace GatherBuddy.AutoGather
             }
 
             if (EquipmentNeedingRepair() != null){
-                if (GatherBuddy.Config.AutoGatherConfig.DoRepair){
+                if (GatherBuddy.Config.AutoGatherConfig.DoRepair && !Svc.Condition[ConditionFlag.Mounted]){
                     Repair();
                 } else {
                     AbortAutoGather("Repairs needed. Stoping.");
