@@ -18,7 +18,7 @@ public unsafe partial class AutoGather
             var equippedItem = equippedItems->GetInventorySlot(i);
             if (equippedItem != null && equippedItem->ItemId > 0)
             {
-                if (equippedItem->Condition <= 300)
+                if (equippedItem->Condition / 300 <= GatherBuddy.Config.AutoGatherConfig.RepairThreshold)
                 {
                     return Svc.Data.Excel.GetSheet<Item>().GetRow(equippedItem->ItemId);
                 }
