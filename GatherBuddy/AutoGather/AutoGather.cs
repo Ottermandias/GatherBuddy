@@ -148,7 +148,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (RepairsNeeded() != 0){
+            if (EquipmentNeedingRepair() != null){
                 if (GatherBuddy.Config.AutoGatherConfig.DoRepair){
                     Repair();
                 } else {
