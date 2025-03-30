@@ -30,22 +30,22 @@ namespace GatherBuddy.AutoGather
         public AutoGather(GatherBuddy plugin)
         {
             // Initialize the task manager
-            TaskManager           = new();
+            TaskManager = new();
             TaskManager.ShowDebug = false;
-            _plugin               = plugin;
-            _soundHelper          = new SoundHelper();
-            _advancedUnstuck      = new();
-            _activeItemList       = new ActiveItemList(plugin.AutoGatherListsManager);
+            _plugin = plugin;
+            _soundHelper = new SoundHelper();
+            _advancedUnstuck = new();
+            _activeItemList = new ActiveItemList(plugin.AutoGatherListsManager);
         }
 
-        private readonly GatherBuddy     _plugin;
-        private readonly SoundHelper     _soundHelper;
+        private readonly GatherBuddy _plugin;
+        private readonly SoundHelper _soundHelper;
         private readonly AdvancedUnstuck _advancedUnstuck;
-        private readonly ActiveItemList  _activeItemList;
+        private readonly ActiveItemList _activeItemList;
 
         public TaskManager TaskManager { get; }
 
-        private           bool             _enabled { get; set; } = false;
+        private bool _enabled { get; set; } = false;
         internal readonly GatheringTracker NodeTracker = new();
 
         public bool Waiting { get; private set; }
@@ -161,20 +161,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (EquipmentNeedingRepair() != null && !Svc.Condition[ConditionFlag.Mounted])
-            {
-                if (GatherBuddy.Config.AutoGatherConfig.DoRepair)
-                {
-                    Repair();
-                }
-                else
-                {
-                    AbortAutoGather("Repairs needed. Stoping.");
-                }
-
-                return;
-            }
-
             if (FreeInventorySlots == 0)
             {
                 if (HasReducibleItems())
@@ -244,12 +230,12 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            ActionSequence             = null;
+            ActionSequence = null;
             CurrentCollectableRotation = null;
 
             //Cache IPC call results
             var isPathGenerating = IsPathGenerating;
-            var isPathing        = IsPathing;
+            var isPathing = IsPathing;
 
             switch (_advancedUnstuck.Check(CurrentDestination, isPathGenerating, isPathing))
             {
@@ -263,7 +249,7 @@ namespace GatherBuddy.AutoGather
 
             if (isPathGenerating)
             {
-                AutoStatus       = "Generating path...";
+                AutoStatus = "Generating path...";
                 return;
             }
 
@@ -321,12 +307,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (HasBrokenGear())
-            {
-                Communicator.PrintError("Your gear is almost broken. Repair it before enabling Auto-Gather.");
-                AbortAutoGather("Gear is broken");
-                return;
-            }
+            if (EquipmentNeedingRepair() != null) { Repair(); }
 
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
@@ -513,7 +494,7 @@ namespace GatherBuddy.AutoGather
                 EnqueueActionWithDelay(() => { GoHome(); });
             TaskManager.Enqueue(() =>
             {
-                Enabled    = false;
+                Enabled = false;
                 AutoStatus = status ?? AutoStatus;
             });
         }
@@ -521,7 +502,7 @@ namespace GatherBuddy.AutoGather
         private unsafe void CloseGatheringAddons(bool closeGathering = true)
         {
             var masterpieceOpen = MasterpieceAddon != null;
-            var gatheringOpen   = GatheringAddon != null;
+            var gatheringOpen = GatheringAddon != null;
             if (masterpieceOpen)
             {
                 EnqueueActionWithDelay(() =>
@@ -531,7 +512,7 @@ namespace GatherBuddy.AutoGather
                         Callback.Fire(&addon->AtkUnitBase, true, -1);
                     }
                 });
-                TaskManager.Enqueue(() => MasterpieceAddon == null,                 "Wait until GatheringMasterpiece addon is closed");
+                TaskManager.Enqueue(() => MasterpieceAddon == null, "Wait until GatheringMasterpiece addon is closed");
                 TaskManager.Enqueue(() => GatheringAddon is var addon and not null, "Wait until Gathering addon pops up");
                 TaskManager.DelayNext(
                     300); //There is some delay after the moment the addon pops up (and is ready) before the callback can be used to close it. We wait some time and retry the callback.
@@ -572,10 +553,10 @@ namespace GatherBuddy.AutoGather
         {
             var level = gatheringType switch
             {
-                GatheringType.Miner    => DiscipleOfLand.MinerLevel,
+                GatheringType.Miner => DiscipleOfLand.MinerLevel,
                 GatheringType.Botanist => DiscipleOfLand.BotanistLevel,
                 GatheringType.Multiple => Math.Max(DiscipleOfLand.MinerLevel, DiscipleOfLand.BotanistLevel),
-                _                      => 0
+                _ => 0
             };
             if (level < Actions.Collect.MinLevel)
             {
@@ -585,21 +566,21 @@ namespace GatherBuddy.AutoGather
 
             var questId = gatheringType switch
             {
-                GatheringType.Miner    => Actions.Collect.QuestIds.Miner,
+                GatheringType.Miner => Actions.Collect.QuestIds.Miner,
                 GatheringType.Botanist => Actions.Collect.QuestIds.Botanist,
-                _                      => 0u
+                _ => 0u
             };
 
             if (questId != 0 && !QuestManager.IsQuestComplete(questId))
             {
                 Communicator.PrintError("You've put a collectable on the gathering list, but you haven't unlocked the collectables.");
-                var sheet      = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Quest>()!;
-                var row        = sheet.GetRow(questId)!;
-                var loc        = row.IssuerLocation.Value!;
-                var map        = loc.Map.Value!;
-                var pos        = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
+                var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Quest>()!;
+                var row = sheet.GetRow(questId)!;
+                var loc = row.IssuerLocation.Value!;
+                var map = loc.Map.Value!;
+                var pos = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
                 var mapPayload = new MapLinkPayload(loc.Territory.RowId, loc.Map.RowId, pos.X, pos.Y);
-                var text       = new SeStringBuilder();
+                var text = new SeStringBuilder();
                 text.AddText("Collectables are unlocked by ")
                     .AddUiForeground(0x0225)
                     .AddUiGlow(0x0226)
@@ -638,9 +619,9 @@ namespace GatherBuddy.AutoGather
         {
             var set = job switch
             {
-                GatheringType.Miner    => GatherBuddy.Config.MinerSetName,
+                GatheringType.Miner => GatherBuddy.Config.MinerSetName,
                 GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
-                _                      => null,
+                _ => null,
             };
             if (string.IsNullOrEmpty(set))
             {
@@ -651,24 +632,6 @@ namespace GatherBuddy.AutoGather
             Chat.Instance.ExecuteCommand($"/gearset change \"{set}\"");
             TaskManager.DelayNext(Random.Shared.Next(500, 1500)); //Add a random delay to be less suspicious
             return true;
-        }
-
-        private unsafe bool HasBrokenGear()
-        {
-            var inventory = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
-            for (var slot = 0; slot < inventory->Size; slot++)
-            {
-                var inventoryItem = inventory->GetInventorySlot(slot);
-                if (inventoryItem == null || inventoryItem->ItemId <= 0)
-                    continue;
-
-                if (inventoryItem->Condition <= 300) //1%
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         internal void DebugClearVisited()
