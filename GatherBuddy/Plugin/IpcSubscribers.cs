@@ -220,18 +220,21 @@ namespace GatherBuddy.Plugin
 
     internal static class YesAlready
     {
+        private static bool _locked = false;
         internal static void Lock()
         {
-            if (EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var stopRequests))
+            if (!_locked && EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var stopRequests))
             {
                 stopRequests.Add(Svc.PluginInterface.InternalName);
+                _locked = true;
             }
         }
         internal static void Unlock()
         {
-            if (EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var stopRequests))
+            if (_locked && EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var stopRequests))
             {
                 stopRequests.Remove(Svc.PluginInterface.InternalName);
+                _locked = false;
             }
         }
     }
