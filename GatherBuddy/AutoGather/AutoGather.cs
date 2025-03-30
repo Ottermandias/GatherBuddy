@@ -62,6 +62,7 @@ namespace GatherBuddy.AutoGather
                 {
                     AutoStatus = "Idle...";
                     TaskManager.Abort();
+                    YesAlready.Unlock();
 
                     _activeItemList.Reset();
                     Waiting = false;
@@ -160,6 +161,8 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = Dalamud.Conditions[ConditionFlag.Gathering] ? "Gathering..." : "Player is busy...";
                 return;
             }
+
+            YesAlready.Unlock(); // Clean up lock that may have been left behind by cancelled tasks
 
             if (FreeInventorySlots == 0)
             {
