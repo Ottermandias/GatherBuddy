@@ -14,13 +14,24 @@ namespace GatherBuddy.AutoGather;
 public unsafe partial class AutoGather
 {
     private Item? EquipmentNeedingRepair()
-    {
+    {   
+        if (Svc.Condition[ConditionFlag.Mounted])
+        {
+            return null;
+        }
+
         var equippedItems = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
         for (var i = 0; i < equippedItems->Size; i++)
         {
             var equippedItem = equippedItems->GetInventorySlot(i);
             if (equippedItem != null && equippedItem->ItemId > 0)
             {
+                if (equippedItem->Condition / 300 <= 5 && !GatherBuddy.Config.AutoGatherConfig.DoRepair)
+                {
+                    Communicator.PrintError("Your gear is almost broken. Repair it before enabling Auto-Gather.");
+                    AbortAutoGather("Repairs needed.");
+                    return Svc.Data.Excel.GetSheet<Item>().GetRow(equippedItem->ItemId);
+                }
                 if (equippedItem->Condition / 300 <= GatherBuddy.Config.AutoGatherConfig.RepairThreshold)
                 {
                     return Svc.Data.Excel.GetSheet<Item>().GetRow(equippedItem->ItemId);
