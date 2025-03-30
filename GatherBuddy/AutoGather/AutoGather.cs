@@ -258,7 +258,6 @@ namespace GatherBuddy.AutoGather
             if (isPathGenerating)
             {
                 AutoStatus       = "Generating path...";
-                lastMovementTime = DateTime.Now;
                 return;
             }
 

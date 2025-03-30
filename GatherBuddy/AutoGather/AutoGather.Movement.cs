@@ -155,10 +155,6 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private Vector3? lastPosition = null;
-        private DateTime lastMovementTime;
-        private DateTime lastResetTime;
-
         private void StopNavigation()
         {
             // Reset navigation logic here
@@ -168,7 +164,6 @@ namespace GatherBuddy.AutoGather
             {
                 VNavmesh.Path.Stop();
             }
-            lastResetTime = DateTime.Now;
         }
 
         private void Navigate(Vector3 destination, bool shouldFly)
