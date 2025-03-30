@@ -1,3 +1,4 @@
+using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.Automation;
 using ECommons.DalamudServices;
@@ -51,6 +52,7 @@ public partial class AutoGather
             return;
         }
 
+        TaskManager.Enqueue(YesAlready.Lock);
         EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, 2, 0); });
         TaskManager.Enqueue(() => MaterializeDialogAddon != null, 1000);
         EnqueueActionWithDelay(() => { if (MaterializeDialogAddon is var addon and not null) new MaterializeDialog(addon).Materialize(); });
@@ -59,6 +61,7 @@ public partial class AutoGather
         if (SpiritbondMax == 1) 
         {
             EnqueueActionWithDelay(() => { if (MaterializeAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, -1); });
+            TaskManager.Enqueue(YesAlready.Unlock);
         }
     }
 }
