@@ -310,7 +310,8 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (EquipmentNeedingRepair() != null) { Repair(); }
+            if (RepairIfNeeded())
+                return;
 
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands

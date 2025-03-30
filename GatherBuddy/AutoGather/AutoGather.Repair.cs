@@ -1,6 +1,4 @@
 using ECommons.DalamudServices;
-using ECommons.ExcelServices;
-using ECommons.GameHelpers;
 using GatherBuddy.Plugin;
 using Lumina.Excel.Sheets;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -8,17 +6,16 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using System;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using ECommons.Automation;
 
 namespace GatherBuddy.AutoGather;
 
 public unsafe partial class AutoGather
 {
     private Item? EquipmentNeedingRepair()
-    {   
-        if (Svc.Condition[ConditionFlag.Mounted])
-        {
-            return null;
-        }
+    {
+        const int defaultThreshold = 5;
+        var threshold = GatherBuddy.Config.AutoGatherConfig.DoRepair ? GatherBuddy.Config.AutoGatherConfig.RepairThreshold : defaultThreshold;
 
         var equippedItems = InventoryManager.Instance()->GetInventoryContainer(InventoryType.EquippedItems);
         for (var i = 0; i < equippedItems->Size; i++)
@@ -26,13 +23,7 @@ public unsafe partial class AutoGather
             var equippedItem = equippedItems->GetInventorySlot(i);
             if (equippedItem != null && equippedItem->ItemId > 0)
             {
-                if (equippedItem->Condition / 300 <= 5 && !GatherBuddy.Config.AutoGatherConfig.DoRepair)
-                {
-                    Communicator.PrintError("Your gear is almost broken. Repair it before enabling Auto-Gather.");
-                    AbortAutoGather("Repairs needed.");
-                    return Svc.Data.Excel.GetSheet<Item>().GetRow(equippedItem->ItemId);
-                }
-                if (equippedItem->Condition / 300 <= GatherBuddy.Config.AutoGatherConfig.RepairThreshold)
+                if (equippedItem->Condition / 300 <= threshold)
                 {
                     return Svc.Data.Excel.GetSheet<Item>().GetRow(equippedItem->ItemId);
                 }
@@ -53,7 +44,6 @@ public unsafe partial class AutoGather
                 return true;
         }
 
-        AbortAutoGather("Repairs needed, but no repair job found.");
         return false;
     }
 
@@ -65,35 +55,61 @@ public unsafe partial class AutoGather
             if (darkMatter.Item.RowId < itemToRepair.ItemRepair.Value.Item.RowId)
                 continue;
 
-            if (InventoryManager.Instance()->GetInventoryItemCount(darkMatter.Item.RowId) > 0)
+            if (GetInventoryItemCount(darkMatter.Item.RowId) > 0)
                 return true;
         }
 
-        AbortAutoGather("Repairs needed, but no dark matter found.");
         return false;
     }
 
-    private void Repair()
+    private bool RepairIfNeeded()
     {
-        AutoStatus = "Repairing...";
-        TaskManager.Enqueue(StopNavigation);
-        TaskManager.Enqueue(YesAlready.Lock);
+        if (Svc.Condition[ConditionFlag.Mounted])
+            return false;
+
         var itemToRepair = EquipmentNeedingRepair();
-        if (itemToRepair == null || !HasRepairJob((Item)itemToRepair) || !HasDarkMatter((Item)itemToRepair))
+
+        if (itemToRepair == null)
+            return false;
+
+        if (!GatherBuddy.Config.AutoGatherConfig.DoRepair)
         {
-            AbortAutoGather("Repairs needed, but no repair job or dark matter found.");
+            Communicator.PrintError("Your gear is almost broken. Repair it before enabling Auto-Gather.");
+            AbortAutoGather("Repairs needed.");
+            return true;
         }
 
+        if (!HasRepairJob((Item)itemToRepair))
+        {
+            AbortAutoGather("Repairs needed, but no repair job found.");
+            return true;
+        }
+        if (!HasDarkMatter((Item)itemToRepair))
+        {
+            AbortAutoGather("Repairs needed, but no dark matter found.");
+            return true;
+        }
+
+        AutoStatus = "Repairing...";
+        StopNavigation();
+        YesAlready.Lock();
+
         var delay = (int)GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
-        TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 6), 1000, true, "Open repair menu.");
-        TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39],                         5000, true, "Wait for repairs.");
+        if (RepairAddon == null)
+            ActionManager.Instance()->UseAction(ActionType.GeneralAction, 6);
+
+        TaskManager.Enqueue(() => RepairAddon != null, 1000, true, "Wait until repair menu is ready.");
         TaskManager.DelayNext(delay);
-        TaskManager.Enqueue(() => new AddonMaster.Repair(RepairAddon).RepairAll(), 1000, true, "Repairing all.");
-        TaskManager.Enqueue(() => new AddonMaster.SelectYesno(SelectYesnoAddon).Yes(), 1000, true, "Confirm repairs.");
-        TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39],        5000, true, "Wait for repairs.");
+        TaskManager.Enqueue(() => { if (RepairAddon is var addon && addon != null) new AddonMaster.Repair(addon).RepairAll(); }, 1000, "Repairing all.");
+        TaskManager.Enqueue(() => SelectYesnoAddon != null, 1000, true, "Wait until YesnoAddon is ready.");
         TaskManager.DelayNext(delay);
-        TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 6), 1000, true, "Close repair menu.");
+        TaskManager.Enqueue(() => { if (SelectYesnoAddon is var addon && addon != null) new AddonMaster.SelectYesno(addon).Yes(); }, 1000, "Confirm repairs.");
+        TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39], 5000, "Wait for repairs.");
+        TaskManager.DelayNext(delay);
+        TaskManager.Enqueue(() => { if (RepairAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, -1); }, 1000, true, "Close repair menu.");
         TaskManager.DelayNext(delay);
         TaskManager.Enqueue(YesAlready.Unlock);
+
+        return true;
     }
 }
