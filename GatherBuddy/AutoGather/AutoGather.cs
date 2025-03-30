@@ -60,14 +60,20 @@ namespace GatherBuddy.AutoGather
 
                 if (!value)
                 {
+                    AutoStatus = "Idle...";
                     TaskManager.Abort();
+
+                    _activeItemList.Reset();
+                    Waiting = false;
+                    ActionSequence = null;
+                    CurrentCollectableRotation = null;
+
                     if (VNavmesh.Enabled && IsPathGenerating)
                         VNavmesh.Nav.PathfindCancelAll();
                     StopNavigation();
-                    AutoStatus     = "Idle...";
-                    ActionSequence = null;
-                    _activeItemList.Reset();
-                    Waiting = false;
+                    CurrentFarNodeLocation = null;
+                    FarNodesSeenSoFar.Clear();
+                    VisitedNodes.Clear();
                 }
                 else
                 {
@@ -258,7 +264,6 @@ namespace GatherBuddy.AutoGather
             if (isPathGenerating)
             {
                 AutoStatus       = "Generating path...";
-                lastMovementTime = DateTime.Now;
                 return;
             }
 
