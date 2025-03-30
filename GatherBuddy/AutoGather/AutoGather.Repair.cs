@@ -1,6 +1,7 @@
 using ECommons.DalamudServices;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
+using GatherBuddy.Plugin;
 using Lumina.Excel.Sheets;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
@@ -65,7 +66,7 @@ public unsafe partial class AutoGather
     {
         AutoStatus = "Repairing...";
         TaskManager.Enqueue(StopNavigation);
-
+        TaskManager.Enqueue(YesAlready.Lock);
         var itemToRepair = EquipmentNeedingRepair();
         if (itemToRepair == null || !HasRepairJob((Item)itemToRepair) || !HasDarkMatter((Item)itemToRepair))
         {
@@ -76,10 +77,12 @@ public unsafe partial class AutoGather
         TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 6), 1000, true, "Open repair menu.");
         TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39],                         5000, true, "Wait for repairs.");
         TaskManager.DelayNext(delay);
-        TaskManager.Enqueue(() => new AddonMaster.Repair(RepairAddon).RepairAll(), 3000, true, "Repairing all.");
+        TaskManager.Enqueue(() => new AddonMaster.Repair(RepairAddon).RepairAll(), 1000, true, "Repairing all.");
+        TaskManager.Enqueue(() => new AddonMaster.SelectYesno(SelectYesnoAddon).Yes(), 1000, true, "Confirm repairs.");
         TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39],        5000, true, "Wait for repairs.");
         TaskManager.DelayNext(delay);
         TaskManager.Enqueue(() => ActionManager.Instance()->UseAction(ActionType.GeneralAction, 6), 1000, true, "Close repair menu.");
         TaskManager.DelayNext(delay);
+        TaskManager.Enqueue(YesAlready.Unlock);
     }
 }
