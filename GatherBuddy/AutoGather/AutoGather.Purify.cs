@@ -4,6 +4,7 @@ using Dalamud.Game.ClientState.Conditions;
 using PurifyResult = ECommons.UIHelpers.AddonMasterImplementations.AddonMaster.PurifyResult;
 using ECommons.Automation;
 using ECommons.DalamudServices;
+using ECommons.EzSharedDataManager;
 
 namespace GatherBuddy.AutoGather
 {
@@ -11,12 +12,14 @@ namespace GatherBuddy.AutoGather
     {
         private bool HasReducibleItems()
         {
-            if (!GatherBuddy.Config.AutoGatherConfig.DoReduce || Svc.Condition[ConditionFlag.Mounted]) return false;
+            if (!GatherBuddy.Config.AutoGatherConfig.DoReduce || Svc.Condition[ConditionFlag.Mounted])
+                return false;
 
             if (!QuestManager.IsQuestComplete(67633)) // No Longer a Collectable
             {
                 GatherBuddy.Config.AutoGatherConfig.DoReduce = false;
-                Communicator.PrintError("[GatherBuddyReborn] Aetherial reduction is enabled, but the relevant quest has not been completed yet. The feature has been disabled.");
+                Communicator.PrintError(
+                    "[GatherBuddyReborn] Aetherial reduction is enabled, but the relevant quest has not been completed yet. The feature has been disabled.");
                 return false;
             }
 
@@ -36,14 +39,15 @@ namespace GatherBuddy.AutoGather
                     {
                         var slot = container->GetInventorySlot(i);
                         if (slot != null
-                            && slot->ItemId != 0
-                            && GatherBuddy.GameData.Gatherables.TryGetValue(slot->ItemId, out var gatherable)
-                            && gatherable.ItemData.AetherialReduce != 0)
+                         && slot->ItemId != 0
+                         && GatherBuddy.GameData.Gatherables.TryGetValue(slot->ItemId, out var gatherable)
+                         && gatherable.ItemData.AetherialReduce != 0)
                         {
                             return true;
                         }
                     }
                 }
+
                 return false;
             }
         }
@@ -53,6 +57,7 @@ namespace GatherBuddy.AutoGather
             AutoStatus = "Aetherial reduction";
             var delay = (int)GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
             TaskManager.Enqueue(StopNavigation);
+            TaskManager.Enqueue(YesAlready.Lock);
             if (PurifyItemSelectorAddon == null)
             {
                 EnqueueActionWithDelay(() => { ActionManager.Instance()->UseAction(ActionType.GeneralAction, 21); });
@@ -60,25 +65,36 @@ namespace GatherBuddy.AutoGather
                 TaskManager.DelayNext(500);
             }
 
-            TaskManager.Enqueue(ReduceFirstItem, 3000, true, "Reduce first item");
+            TaskManager.Enqueue(ReduceFirstItem,                                3000, true, "Reduce first item");
             TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39], 5000, true, "Wait until first item reduction is complete");
             TaskManager.DelayNext(delay);
-            TaskManager.Enqueue(StartAutoReduction, 1000, true, "Start auto reduction");
+            TaskManager.Enqueue(StartAutoReduction,                             1000, true, "Start auto reduction");
             TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39], 180000, true, "Wait until all items have been reduced");
             TaskManager.DelayNext(delay);
-            TaskManager.Enqueue(() => {
-                EnqueueActionWithDelay(() => { if (PurifyResultAddon is var addon and not null) Callback.Fire(addon, true, -1); });
+            TaskManager.Enqueue(() =>
+            {
+                EnqueueActionWithDelay(() =>
+                {
+                    if (PurifyResultAddon is var addon and not null)
+                        Callback.Fire(addon, true, -1);
+                });
                 if (reduceAll && HasReducibleItems())
                     ReduceItems(true);
                 else
-                    EnqueueActionWithDelay(() => { if (PurifyItemSelectorAddon is var addon and not null) Callback.Fire(addon, true, -1); });
+                    EnqueueActionWithDelay(() =>
+                    {
+                        if (PurifyItemSelectorAddon is var addon and not null)
+                            Callback.Fire(addon, true, -1);
+                    });
             });
+            TaskManager.Enqueue(YesAlready.Unlock);
         }
 
         private unsafe bool? ReduceFirstItem()
         {
             var addon = PurifyItemSelectorAddon;
-            if (addon == null) return false;
+            if (addon == null)
+                return false;
 
             Callback.Fire(addon, true, 12, 0u);
             return true;
@@ -87,7 +103,8 @@ namespace GatherBuddy.AutoGather
         private unsafe bool? StartAutoReduction()
         {
             var addon = PurifyResultAddon;
-            if (addon == null) return false;
+            if (addon == null)
+                return false;
 
             new PurifyResult(addon).Automatic();
             return true;
