@@ -155,9 +155,9 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (EquipmentNeedingRepair() != null)
+            if (EquipmentNeedingRepair() != null && !Svc.Condition[ConditionFlag.Mounted])
             {
-                if (GatherBuddy.Config.AutoGatherConfig.DoRepair && !Svc.Condition[ConditionFlag.Mounted])
+                if (GatherBuddy.Config.AutoGatherConfig.DoRepair)
                 {
                     Repair();
                 }
