@@ -80,6 +80,22 @@ public partial class Interface
             => DrawCheckbox("Play a sound when done gathering", "Play a sound when auto-gathering shuts down because your list is complete",
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
 
+        public static void DrawRepairBox()
+            => DrawCheckbox("Repair gear when needed", "Repair gear when it is almost broken",
+                GatherBuddy.Config.AutoGatherConfig.DoRepair, b => GatherBuddy.Config.AutoGatherConfig.DoRepair = b);
+
+        public static void DrawRepairThreshold()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.RepairThreshold;
+            if (ImGui.DragInt("Repair Threshold", ref tmp, 1, 1, 100))
+            {
+                GatherBuddy.Config.AutoGatherConfig.RepairThreshold = tmp;
+                GatherBuddy.Config.Save();
+            }
+
+            ImGuiUtil.HoverTooltip("The percentage of durability at which you will repair your gear.");
+        }
+
         public static void DrawMaterialExtraction()
             => DrawCheckbox("Enable materia extraction",
                 "Automatically extract materia from items with a complete spiritbond",
@@ -689,6 +705,8 @@ public partial class Interface
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
+                ConfigFunctions.DrawRepairBox();
+                if (GatherBuddy.Config.AutoGatherConfig.DoRepair) {ConfigFunctions.DrawRepairThreshold();}
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();
                 ConfigFunctions.DrawAntiStuckCooldown();

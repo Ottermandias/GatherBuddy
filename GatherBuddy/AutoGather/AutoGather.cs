@@ -30,25 +30,26 @@ namespace GatherBuddy.AutoGather
         public AutoGather(GatherBuddy plugin)
         {
             // Initialize the task manager
-            TaskManager                            =  new();
-            TaskManager.ShowDebug                  =  false;
-            _plugin                                =  plugin;
-            _soundHelper                           =  new SoundHelper();
-            _advancedUnstuck                       =  new();
-            _activeItemList                        =  new ActiveItemList(plugin.AutoGatherListsManager);
+            TaskManager           = new();
+            TaskManager.ShowDebug = false;
+            _plugin               = plugin;
+            _soundHelper          = new SoundHelper();
+            _advancedUnstuck      = new();
+            _activeItemList       = new ActiveItemList(plugin.AutoGatherListsManager);
         }
 
-        private readonly GatherBuddy _plugin;
-        private readonly SoundHelper _soundHelper;
+        private readonly GatherBuddy     _plugin;
+        private readonly SoundHelper     _soundHelper;
         private readonly AdvancedUnstuck _advancedUnstuck;
-        private readonly ActiveItemList _activeItemList;
+        private readonly ActiveItemList  _activeItemList;
 
-        public           TaskManager TaskManager { get; }
+        public TaskManager TaskManager { get; }
 
-        private bool _enabled { get; set; } = false;
+        private           bool             _enabled { get; set; } = false;
         internal readonly GatheringTracker NodeTracker = new();
 
         public bool Waiting { get; private set; }
+
         public unsafe bool Enabled
         {
             get => _enabled;
@@ -60,10 +61,10 @@ namespace GatherBuddy.AutoGather
                 if (!value)
                 {
                     TaskManager.Abort();
-                    if (VNavmesh.Enabled && IsPathGenerating) 
+                    if (VNavmesh.Enabled && IsPathGenerating)
                         VNavmesh.Nav.PathfindCancelAll();
                     StopNavigation();
-                    AutoStatus = "Idle...";
+                    AutoStatus     = "Idle...";
                     ActionSequence = null;
                     _activeItemList.Reset();
                     Waiting = false;
@@ -82,7 +83,9 @@ namespace GatherBuddy.AutoGather
         {
             StopNavigation();
 
-            if (WentHome) return false;
+            if (WentHome)
+                return false;
+
             WentHome = true;
 
             if (Dalamud.Conditions[ConditionFlag.BoundByDuty])
@@ -101,8 +104,12 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private class NoGatherableItemsInNodeException : Exception { }
-        private class NoCollectableActionsException : Exception { }
+        private class NoGatherableItemsInNodeException : Exception
+        { }
+
+        private class NoCollectableActionsException : Exception
+        { }
+
         public void DoAutoGather()
         {
             if (!IsGathering)
@@ -148,6 +155,20 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (EquipmentNeedingRepair() != null)
+            {
+                if (GatherBuddy.Config.AutoGatherConfig.DoRepair && !Svc.Condition[ConditionFlag.Mounted])
+                {
+                    Repair();
+                }
+                else
+                {
+                    AbortAutoGather("Repairs needed. Stoping.");
+                }
+
+                return;
+            }
+
             if (FreeInventorySlots == 0)
             {
                 if (HasReducibleItems())
@@ -161,6 +182,7 @@ namespace GatherBuddy.AutoGather
                 {
                     AbortAutoGather("Inventory is full");
                 }
+
                 return;
             }
 
@@ -182,8 +204,8 @@ namespace GatherBuddy.AutoGather
                         _activeItemList.MarkVisited(target);
 
                         if (gatherTarget.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
-                            && VisitedNodes.Last?.Value != target.DataId
-                            && gatherTarget.Node?.WorldPositions.ContainsKey(target.DataId) == true)
+                         && VisitedNodes.Last?.Value != target.DataId
+                         && gatherTarget.Node?.WorldPositions.ContainsKey(target.DataId) == true)
                         {
                             FarNodesSeenSoFar.Clear();
                             VisitedNodes.AddLast(target.DataId);
@@ -191,7 +213,7 @@ namespace GatherBuddy.AutoGather
                                 VisitedNodes.RemoveFirst();
                         }
                     }
-                } 
+                }
 
                 if (!GatherBuddy.Config.AutoGatherConfig.DoGathering)
                     return;
@@ -208,25 +230,25 @@ namespace GatherBuddy.AutoGather
                 }
                 catch (NoCollectableActionsException)
                 {
-                    Communicator.PrintError("Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
+                    Communicator.PrintError(
+                        "Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
                     AbortAutoGather();
                 }
+
                 return;
             }
 
-            ActionSequence = null;
+            ActionSequence             = null;
             CurrentCollectableRotation = null;
 
             //Cache IPC call results
             var isPathGenerating = IsPathGenerating;
-            var isPathing = IsPathing;
+            var isPathing        = IsPathing;
 
             switch (_advancedUnstuck.Check(CurrentDestination, isPathGenerating, isPathing))
             {
-                case AdvancedUnstuckCheckResult.Pass:
-                    break;
-                case AdvancedUnstuckCheckResult.Wait:
-                    return;
+                case AdvancedUnstuckCheckResult.Pass: break;
+                case AdvancedUnstuckCheckResult.Wait: return;
                 case AdvancedUnstuckCheckResult.Fail:
                     StopNavigation();
                     AutoStatus = $"Advanced unstuck in progress!";
@@ -235,20 +257,21 @@ namespace GatherBuddy.AutoGather
 
             if (isPathGenerating)
             {
-                AutoStatus = "Generating path...";
+                AutoStatus       = "Generating path...";
                 lastMovementTime = DateTime.Now;
                 return;
             }
 
             if (Player.Job is Job.BTN or Job.MIN
-                && !isPathing 
-                && !Svc.Condition[ConditionFlag.Mounted])
+             && !isPathing
+             && !Svc.Condition[ConditionFlag.Mounted])
             {
                 if (SpiritbondMax > 0)
                 {
                     DoMateriaExtraction();
                     return;
                 }
+
                 if (FreeInventorySlots < 20 && HasReducibleItems())
                 {
                     ReduceItems(false);
@@ -274,14 +297,17 @@ namespace GatherBuddy.AutoGather
                     ReduceItems(true);
                     return;
                 }
+
                 if (!Waiting)
                 {
                     Waiting = true;
                     _plugin.Ipc.AutoGatherWaiting();
                 }
+
                 AutoStatus = "No available items to gather";
                 return;
             }
+
             Waiting = false;
 
             if (next.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(next.Item.GatheringType.ToGroup()))
@@ -301,30 +327,34 @@ namespace GatherBuddy.AutoGather
             //Idyllshire to The Dravanian Hinterlands
             if (territoryId == 478 && next.Node.Territory.Id == 399 && Lifestream.Enabled)
             {
-                var aetheryte = Svc.Objects.Where(x => x.ObjectKind == ObjectKind.Aetheryte && x.IsTargetable).OrderBy(x => x.Position.DistanceToPlayer()).FirstOrDefault();
+                var aetheryte = Svc.Objects.Where(x => x.ObjectKind == ObjectKind.Aetheryte && x.IsTargetable)
+                    .OrderBy(x => x.Position.DistanceToPlayer()).FirstOrDefault();
                 if (aetheryte != null)
                 {
                     if (aetheryte.Position.DistanceToPlayer() > 10)
                     {
                         AutoStatus = "Moving to aetheryte...";
-                        if (!isPathing && !isPathGenerating) Navigate(aetheryte.Position, false);
+                        if (!isPathing && !isPathGenerating)
+                            Navigate(aetheryte.Position, false);
                     }
                     else if (!Lifestream.IsBusy())
                     {
                         AutoStatus = "Teleporting...";
                         StopNavigation();
                         var exit = next.Node.DefaultXCoord < 2000 ? 91u : 92u;
-                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Aetheryte>().GetRow(exit).AethernetName.Value.Name.ToString();
+                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Aetheryte>().GetRow(exit).AethernetName.Value.Name
+                            .ToString();
                         Lifestream.AethernetTeleport(name);
                     }
+
                     return;
                 }
             }
 
             var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes.Where(z => z.ZoneId == next.Node.Territory.Id).FirstOrDefault();
-            if (forcedAetheryte.ZoneId != 0 
-                && (GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId
-                || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
+            if (forcedAetheryte.ZoneId != 0
+             && (GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId
+                 || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
             {
                 if (territoryId == 478 && !Lifestream.Enabled)
                     AutoStatus = $"Install Lifestream or teleport to {next.Node.Territory.Name} manually";
@@ -334,7 +364,8 @@ namespace GatherBuddy.AutoGather
             }
 
             //At this point, we are definitely going to gather something, so we may go home after that.
-            if (Lifestream.Enabled) Lifestream.Abort();
+            if (Lifestream.Enabled)
+                Lifestream.Abort();
             WentHome = false;
 
             if (next.Node.Territory.Id != territoryId)
@@ -344,6 +375,7 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "Can not teleport when bound by duty";
                     return;
                 }
+
                 AutoStatus = "Teleporting...";
                 StopNavigation();
 
@@ -428,7 +460,7 @@ namespace GatherBuddy.AutoGather
             }
 
             Vector3 selectedFarNode;
-            
+
             // only Legendary and Unspoiled show marker
             if (ShouldUseFlag && next.Item.NodeType is NodeType.Legendary or NodeType.Unspoiled)
             {
@@ -460,9 +492,8 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Log.Verbose($"Selected node was null and far node filters have been cleared");
                     return;
                 }
-
             }
-             
+
             MoveToFarNode(selectedFarNode);
         }
 
@@ -475,29 +506,43 @@ namespace GatherBuddy.AutoGather
             CloseGatheringAddons();
             if (GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone)
                 EnqueueActionWithDelay(() => { GoHome(); });
-            TaskManager.Enqueue(() => { Enabled = false; AutoStatus = status ?? AutoStatus; });
+            TaskManager.Enqueue(() =>
+            {
+                Enabled    = false;
+                AutoStatus = status ?? AutoStatus;
+            });
         }
 
         private unsafe void CloseGatheringAddons(bool closeGathering = true)
         {
             var masterpieceOpen = MasterpieceAddon != null;
-            var gatheringOpen = GatheringAddon != null;
+            var gatheringOpen   = GatheringAddon != null;
             if (masterpieceOpen)
             {
-                EnqueueActionWithDelay(() => { if (MasterpieceAddon is var addon and not null) { Callback.Fire(&addon->AtkUnitBase, true, -1); } });
-                TaskManager.Enqueue(() => MasterpieceAddon == null, "Wait until GatheringMasterpiece addon is closed");
+                EnqueueActionWithDelay(() =>
+                {
+                    if (MasterpieceAddon is var addon and not null)
+                    {
+                        Callback.Fire(&addon->AtkUnitBase, true, -1);
+                    }
+                });
+                TaskManager.Enqueue(() => MasterpieceAddon == null,                 "Wait until GatheringMasterpiece addon is closed");
                 TaskManager.Enqueue(() => GatheringAddon is var addon and not null, "Wait until Gathering addon pops up");
-                TaskManager.DelayNext(300);//There is some delay after the moment the addon pops up (and is ready) before the callback can be used to close it. We wait some time and retry the callback.
+                TaskManager.DelayNext(
+                    300); //There is some delay after the moment the addon pops up (and is ready) before the callback can be used to close it. We wait some time and retry the callback.
             }
+
             if (closeGathering && (gatheringOpen || masterpieceOpen))
             {
-                TaskManager.Enqueue(() => {
+                TaskManager.Enqueue(() =>
+                {
                     if (GatheringAddon is var gathering and not null && gathering->IsReady)
                     {
                         Callback.Fire(&gathering->AtkUnitBase, true, -1);
                         TaskManager.DelayNextImmediate(100);
                         return false;
                     }
+
                     var addon = SelectYesnoAddon;
                     if (addon != null)
                     {
@@ -513,7 +558,7 @@ namespace GatherBuddy.AutoGather
                         return true;
                     }
 
-                    return !IsGathering;       
+                    return !IsGathering;
                 }, "Wait until Gathering addon is closed or SelectYesno addon pops up");
             }
         }
@@ -522,33 +567,34 @@ namespace GatherBuddy.AutoGather
         {
             var level = gatheringType switch
             {
-                GatheringType.Miner => DiscipleOfLand.MinerLevel,
+                GatheringType.Miner    => DiscipleOfLand.MinerLevel,
                 GatheringType.Botanist => DiscipleOfLand.BotanistLevel,
                 GatheringType.Multiple => Math.Max(DiscipleOfLand.MinerLevel, DiscipleOfLand.BotanistLevel),
-                _ => 0
+                _                      => 0
             };
             if (level < Actions.Collect.MinLevel)
             {
                 Communicator.PrintError("You've put a collectable on the gathering list, but your level is not high enough to gather it.");
                 return false;
             }
+
             var questId = gatheringType switch
             {
-                GatheringType.Miner => Actions.Collect.QuestIds.Miner,
+                GatheringType.Miner    => Actions.Collect.QuestIds.Miner,
                 GatheringType.Botanist => Actions.Collect.QuestIds.Botanist,
-                _ => 0u
+                _                      => 0u
             };
 
             if (questId != 0 && !QuestManager.IsQuestComplete(questId))
             {
                 Communicator.PrintError("You've put a collectable on the gathering list, but you haven't unlocked the collectables.");
-                var sheet = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Quest>()!;
-                var row = sheet.GetRow(questId)!;
-                var loc = row.IssuerLocation.Value!;
-                var map = loc.Map.Value!;
-                var pos = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
+                var sheet      = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Quest>()!;
+                var row        = sheet.GetRow(questId)!;
+                var loc        = row.IssuerLocation.Value!;
+                var map        = loc.Map.Value!;
+                var pos        = MapUtil.WorldToMap(new Vector2(loc.X, loc.Z), map);
                 var mapPayload = new MapLinkPayload(loc.Territory.RowId, loc.Map.RowId, pos.X, pos.Y);
-                var text = new SeStringBuilder();
+                var text       = new SeStringBuilder();
                 text.AddText("Collectables are unlocked by ")
                     .AddUiForeground(0x0225)
                     .AddUiGlow(0x0226)
@@ -579,6 +625,7 @@ namespace GatherBuddy.AutoGather
                 Communicator.Print(text.BuiltString);
                 return false;
             }
+
             return true;
         }
 
@@ -586,9 +633,9 @@ namespace GatherBuddy.AutoGather
         {
             var set = job switch
             {
-                GatheringType.Miner => GatherBuddy.Config.MinerSetName,
+                GatheringType.Miner    => GatherBuddy.Config.MinerSetName,
                 GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
-                _ => null,
+                _                      => null,
             };
             if (string.IsNullOrEmpty(set))
             {
@@ -597,7 +644,7 @@ namespace GatherBuddy.AutoGather
             }
 
             Chat.Instance.ExecuteCommand($"/gearset change \"{set}\"");
-            TaskManager.DelayNext(Random.Shared.Next(500, 1500));  //Add a random delay to be less suspicious 
+            TaskManager.DelayNext(Random.Shared.Next(500, 1500)); //Add a random delay to be less suspicious
             return true;
         }
 

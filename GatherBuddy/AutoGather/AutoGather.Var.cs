@@ -149,6 +149,9 @@ namespace GatherBuddy.AutoGather
         public static unsafe AtkUnitBase* PurifyResultAddon
             => GetAddon<AtkUnitBase>("PurifyResult");
 
+        public static unsafe AddonRepair* RepairAddon
+            => GetAddon<AddonRepair>("Repair");
+
         public IEnumerable<IGatherable> ItemsToGatherInZone
             => _activeItemList.Where(i => i.Node?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
 

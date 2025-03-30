@@ -61,6 +61,8 @@ namespace GatherBuddy.AutoGather
         [Obsolete] public ConsumableConfig SquadronPassConfig { get; set; } = new(false, 0, 0, 0);
         public bool DoMaterialize { get; set; } = false;
         public bool DoReduce { get; set; } = false;
+        public bool DoRepair { get; set; } = false;
+        public int RepairThreshold { get; set; } = 50;
         public bool HonkMode { get; set; } = true;
         public SortingType SortingMethod { get; set; } = SortingType.Location;
         public bool GoHomeWhenIdle { get; set; } = true;
