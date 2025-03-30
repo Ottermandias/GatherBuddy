@@ -6,6 +6,8 @@ using System.Diagnostics;
 using System.Numerics;
 using System.Threading;
 using System.Threading.Tasks;
+using ECommons.DalamudServices;
+using ECommons.EzSharedDataManager;
 
 #pragma warning disable CS0649 // Field is never assigned to, and will always have its default value
 namespace GatherBuddy.Plugin
@@ -214,5 +216,23 @@ namespace GatherBuddy.Plugin
 
         [EzIPC("Lifestream.AethernetTeleport", applyPrefix: false)]
         internal static readonly Func<string, bool> AethernetTeleport;
+    }
+
+    internal static class YesAlready
+    {
+        internal static void Lock()
+        {
+            if (EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var stopRequests))
+            {
+                stopRequests.Add(Svc.PluginInterface.InternalName);
+            }
+        }
+        internal static void Unlock()
+        {
+            if (EzSharedData.TryGet<HashSet<string>>("YesAlready.StopRequests", out var stopRequests))
+            {
+                stopRequests.Remove(Svc.PluginInterface.InternalName);
+            }
+        }
     }
 }
