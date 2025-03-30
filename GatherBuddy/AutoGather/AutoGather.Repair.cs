@@ -7,6 +7,8 @@ using System;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using ECommons.Automation;
+using ECommons.ExcelServices;
+using ECommons.GameHelpers;
 
 namespace GatherBuddy.AutoGather;
 
@@ -64,7 +66,7 @@ public unsafe partial class AutoGather
 
     private bool RepairIfNeeded()
     {
-        if (Svc.Condition[ConditionFlag.Mounted])
+        if (Svc.Condition[ConditionFlag.Mounted] || Player.Job is not Job.BTN and not Job.MIN)
             return false;
 
         var itemToRepair = EquipmentNeedingRepair();
