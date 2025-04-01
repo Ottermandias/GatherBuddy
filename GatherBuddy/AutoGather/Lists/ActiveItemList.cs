@@ -126,8 +126,8 @@ namespace GatherBuddy.AutoGather.Lists
         private void UpdateItemsToGather()
         {
             // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
-            var minerLevel = (DiscipleOfLand.MinerLevel + 4) / 5 * 5;
-            var botanistLevel = (DiscipleOfLand.BotanistLevel + 4) / 5 * 5;
+            var minerLevel = (DiscipleOfLand.MinerLevel + 5) / 5 * 5;
+            var botanistLevel = (DiscipleOfLand.BotanistLevel + 5) / 5 * 5;
             var adjustedServerTime = _lastUpdateTime;
             var territoryId = _lastTerritoryId;
             DateTime? nextAllowance = null;
@@ -144,8 +144,8 @@ namespace GatherBuddy.AutoGather.Lists
                 // Remove nodes with a level higher than the player can gather.
                 .Where(info => info.Node.GatheringType.ToGroup() switch
                 {
-                    GatheringType.Miner => info.Item.Level <= minerLevel,
-                    GatheringType.Botanist => info.Item.Level <= botanistLevel,
+                    GatheringType.Miner => info.Node.Level <= minerLevel,
+                    GatheringType.Botanist => info.Node.Level <= botanistLevel,
                     _ => false
                 })
                 // Remove nodes that are not up.
