@@ -144,8 +144,8 @@ namespace GatherBuddy.AutoGather.Lists
                 // Remove nodes with a level higher than the player can gather.
                 .Where(info => info.Node.GatheringType.ToGroup() switch
                 {
-                    GatheringType.Miner => info.Node.Level <= minerLevel,
-                    GatheringType.Botanist => info.Node.Level <= botanistLevel,
+                    GatheringType.Miner => info.Item.Level <= minerLevel,
+                    GatheringType.Botanist => info.Item.Level <= botanistLevel,
                     _ => false
                 })
                 // Remove nodes that are not up.
