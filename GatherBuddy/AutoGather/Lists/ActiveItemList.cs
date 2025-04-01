@@ -126,8 +126,8 @@ namespace GatherBuddy.AutoGather.Lists
         private void UpdateItemsToGather()
         {
             // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
-            var minerLevel = (DiscipleOfLand.MinerLevel + 4) / 5 * 5;
-            var botanistLevel = (DiscipleOfLand.BotanistLevel + 4) / 5 * 5;
+            var minerLevel = (DiscipleOfLand.MinerLevel + 5) / 5 * 5;
+            var botanistLevel = (DiscipleOfLand.BotanistLevel + 5) / 5 * 5;
             var adjustedServerTime = _lastUpdateTime;
             var territoryId = _lastTerritoryId;
             DateTime? nextAllowance = null;
