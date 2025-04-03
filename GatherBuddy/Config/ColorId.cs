@@ -29,6 +29,7 @@ public enum ColorId
     FishTimerMarkersBait,
     FishTimerMarkersAll,
     FishTimerText,
+    FishTimerLureNoCatch, // New Config setting!
 
     HeaderEorzeaTime,
     HeaderNextHour,
@@ -81,6 +82,7 @@ public static class ColorIdExtensions
             ColorId.FishTimerMarkersAll                    => (0xFFE00000, "Fish Timer Window Bite time Highlight Markers (Overall)",        "The two lines that indicate the beginning and end of the recorded bite window for a specific fish over all baits."),
             ColorId.FishTimerText                          => (0xFFFFFFFF, "Fish Timer Window Text",                                         "Text in the fish timer window."),
             ColorId.FishTimerBackground                    => (0x80000000, "Fish Timer Window Background",                                   "The background of the fish timer window."),
+            ColorId.FishTimerLureNoCatch                   => (0x404040EF, "Fish Timer Window Lure Dead Zone",                               "Block indicating time when fish may not be caught due to Lure Cooldown"), // A nice transparent grey for a box to indicate that no fish may be caught during this time. 
                                                                                                                                             
             ColorId.HeaderEorzeaTime                       => (0xFF008080, "Header Eorzea Time Background",                                  "The background of the Eorzea Time field in the main interface header."),
             ColorId.HeaderNextHour                         => (0xFF404040, "Header Next Eorzea Hour Background",                             "The background of the Time to Next Eorzea Hour field in the main interface header."),

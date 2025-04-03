@@ -77,7 +77,7 @@ public partial class FishRecorder : IDisposable
 
     private void AddRecordToTimes(FishRecord record)
     {
-        if (record.Catch == null || !record.Flags.HasFlag(FishRecord.Effects.Valid) || record.Flags.HasLure())
+        if (record.Catch == null || !record.Flags.HasFlag(FishRecord.Effects.Valid) || record.Flags.HasLure() && record.LureBite <= 5200) //If the fish is caught less than 200ms after leaving the dead zone, don't count it.... Not 100% rigourous, but from testing I saw ~100ms. Doubled it just to be safe. Ping dependant...
             return;
 
         if (!Times.TryGetValue(record.Catch.ItemId, out var times))
