@@ -33,8 +33,8 @@ public partial class FishRecorder
     internal          FishingState  LastState = FishingState.None;
     internal readonly Stopwatch     Timer     = new();
     internal readonly Stopwatch     LureTimer     = new(); // Timer
-    private FishRecord.Effects hasLureEffect = FishRecord.Effects.None; // For checking new lures. Init to default fishing state. 
-    private FishRecord.Effects oldEffect = FishRecord.Effects.None; // For checking new lures. Init to default fishing state. 
+    private byte hasLureEffect = 0; // For checking new lures. Init to default fishing state. 
+    private byte oldEffect = 9; // For checking new lures. Init to default fishing state. 
 
     public Fish? LastCatch;
 
@@ -148,8 +148,8 @@ public partial class FishRecorder
         Record.TimeStamp = TimeStamp.Epoch;
         Timer.Reset();
         LureTimer.Reset(); // Reset
-        oldEffect = FishRecord.Effects.None;
-        hasLureEffect = FishRecord.Effects.None;
+        oldEffect = 0;
+        hasLureEffect = 0;
     }
 
     private void SubscribeToParser()
@@ -184,14 +184,10 @@ public partial class FishRecorder
         UpdateLure();
         Record.SetTugHook(GatherBuddy.TugType.Bite, Record.Hook);
         Step |= CatchSteps.FishBit;
-        if (LureTimer.ElapsedMilliseconds > 0) // Modify log message based on if lure was used. 
-        {
+        if (LureTimer.ElapsedMilliseconds > 0) 
             GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms. Time since last lure: {LureTimer.ElapsedMilliseconds} ms.");
-        }
         else
-        {
             GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms.");
-        }
     }
 
     private void OnIdentification(FishingSpot spot)
@@ -210,9 +206,8 @@ public partial class FishRecorder
     // Code to run whenever a lure is used... Ideally would be hooked from gaining the status event.
     private void OnLure() 
     {
-        LureTimer.Reset();
-        LureTimer.Start();
-        GatherBuddy.Log.Verbose($"Reseting and starting lure timer!");
+        LureTimer.Restart();
+        GatherBuddy.Log.Verbose($"Restarting lure timer!");
     }
 
     private void OnCatch(Fish fish, ushort size, byte amount, bool large, bool collectible)
@@ -257,8 +252,8 @@ public partial class FishRecorder
             return;
 
         Record.Bite = (ushort)Math.Clamp(Timer.ElapsedMilliseconds, 0, ushort.MaxValue);
-        Record.LureBite = (ushort)Math.Clamp(LureTimer.ElapsedMilliseconds, 0, Timer.ElapsedMilliseconds); //Clamp between 0 and bite time.
-        // GatherBuddy.Log.Verbose($"LureTimer is {LureTimer.ElapsedMilliseconds}"); // For checking fish outside of range times. 
+        if((ushort)Math.Clamp(LureTimer.ElapsedMilliseconds, 0, Timer.ElapsedMilliseconds) >= 5200)
+            Record.Flags |= FishRecord.Effects.ValidLure;
         UpdateLure();
         if (!Record.VerifyValidity())
             Record.Flags &= ~FishRecord.Effects.Valid;
@@ -279,25 +274,22 @@ public partial class FishRecorder
 
         //There has to be a better way of checking this..... Presumably with Action/Events, but I'm unsure how I could create an event to fire when I gain a buff.
         { // Check if I have a lure buff, then check if it is different from the last one. If I have a new lure buff, run OnLure() code. 
-            foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList) //My Editor says: "Dereference of a possibly null reference.CS8602" Unsure of what this means/Consequences....
             {
-                hasLureEffect = buff.StatusId switch
+                foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
                 {
-                    3972 when buff.Param == 1 => FishRecord.Effects.AmbitiousLure1,
-                    3972 when buff.Param == 2 => FishRecord.Effects.AmbitiousLure2,
-                    3972 when buff.Param == 3 => FishRecord.Effects.AmbitiousLure3,
-                    3973 when buff.Param == 1 => FishRecord.Effects.ModestLure1,
-                    3973 when buff.Param == 2 => FishRecord.Effects.ModestLure2,
-                    3973 when buff.Param == 3 => FishRecord.Effects.ModestLure3,
-                    _                              => FishRecord.Effects.None,
-                };
-            }
-            if (oldEffect != hasLureEffect)
-            {
-                oldEffect = hasLureEffect;
-                if (hasLureEffect != FishRecord.Effects.None)
+                    hasLureEffect = buff.StatusId switch
+                    {
+                        3972 => (byte)buff.Param,
+                        3973 => (byte)buff.Param,
+                        _    => hasLureEffect,
+                    };
+                }
+                // GatherBuddy.Log.Information($"{oldEffect} | {hasLureEffect}"); //There's a single frame where hasLureEffect is both Lure1 and Lure2 when first gaining the Lure2 status
+                if (oldEffect != hasLureEffect)
                 {
-                    OnLure();
+                    if (hasLureEffect != 0)
+                        OnLure();
+                    oldEffect = hasLureEffect;
                 }
             }
         }

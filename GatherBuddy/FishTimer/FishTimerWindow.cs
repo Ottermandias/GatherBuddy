@@ -44,8 +44,8 @@ public partial class FishTimerWindow : Window
     private float   _listHeight;
     private int     _milliseconds;
     private int     _lureTime  = -10000; //Init at -10000 so it's never drawn on screen. (Hopefully)
-    private Effects hasLureEffect = Effects.None; // Init to default fishing state. 
-    private Effects oldEffect = Effects.None; // Init to default fishing state. 
+    private byte hasLureEffect = 0; // Init to default fishing state. 
+    private byte oldEffect = 0; // Init to default fishing state. 
     private string? _spotName;
 
 
@@ -62,6 +62,7 @@ public partial class FishTimerWindow : Window
     private void OnLure()
     {
         _lureTime = _milliseconds;
+        // hasLureEffect = Effects.None;
         UpdateFish(); // Pretty sure fish are recalculated on using a lure.
     }
 
@@ -188,8 +189,8 @@ public partial class FishTimerWindow : Window
             _spotName = null;
             UpdateFish();
             _lureTime = -10000; // Reset state
-            oldEffect = Effects.None;
-            hasLureEffect = Effects.None;
+            oldEffect = 0;
+            hasLureEffect = 0;
         }
         else if (newMilliseconds < _milliseconds
               || GatherBuddy.EventFramework.FishingState is FishingState.None or FishingState.PoleReady
@@ -197,8 +198,8 @@ public partial class FishTimerWindow : Window
         {
             UpdateFish();
             _lureTime = -10000; // Reset state
-            oldEffect = Effects.None;
-            hasLureEffect = Effects.None;
+            oldEffect = 0;
+            hasLureEffect = 0;
         }
 
         _milliseconds = spot == null ? 0 : newMilliseconds;
@@ -308,25 +309,22 @@ public partial class FishTimerWindow : Window
     {
         //There has to be a better way of checking this..... Presumably with Action/Events, but I'm unsure how I could create an event to fire when I gain a buff.
         { // Check if I have a lure buff, then check if it is different from the last one. If I have a new lure buff, run OnLure() code. 
-            foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList) //My Editor says: "Dereference of a possibly null reference.CS8602" Unsure of what this means/Consequences....
             {
-                hasLureEffect = buff.StatusId switch
+                foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
                 {
-                    3972 when buff.Param == 1 => Effects.AmbitiousLure1,
-                    3972 when buff.Param == 2 => Effects.AmbitiousLure2,
-                    3972 when buff.Param == 3 => Effects.AmbitiousLure3,
-                    3973 when buff.Param == 1 => Effects.ModestLure1,
-                    3973 when buff.Param == 2 => Effects.ModestLure2,
-                    3973 when buff.Param == 3 => Effects.ModestLure3,
-                    _                              => Effects.None,
-                };
-            }
-            if (oldEffect != hasLureEffect)
-            {
-                oldEffect = hasLureEffect;
-                if (hasLureEffect != Effects.None)
+                    hasLureEffect = buff.StatusId switch
+                    {
+                        3972 => (byte)buff.Param,
+                        3973 => (byte)buff.Param,
+                        _    => hasLureEffect,
+                    };
+                }
+                // GatherBuddy.Log.Information($"{oldEffect} | {hasLureEffect}"); //There's a single frame where hasLureEffect is both Lure1 and Lure2 when first gaining the Lure2 status
+                if (oldEffect != hasLureEffect)
                 {
-                    OnLure();
+                    if (hasLureEffect != 0)
+                        OnLure();
+                    oldEffect = hasLureEffect;
                 }
             }
         }

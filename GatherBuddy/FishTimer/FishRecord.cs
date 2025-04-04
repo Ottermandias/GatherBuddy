@@ -36,6 +36,9 @@ public static class EffectsExtensions
 
     public static bool HasLure(this FishRecord.Effects effects)
         => (effects & Lures) != 0;
+
+    public static bool HasValidLure(this FishRecord.Effects effects)
+        => (effects & FishRecord.Effects.ValidLure) != 0;
 }
 
 public struct FishRecord
@@ -43,7 +46,7 @@ public struct FishRecord
     public const ushort MinBiteTime        = 1000;
     public const ushort MaxBiteTime        = 65000;
     public const byte   Version            = 1;
-    public const int    Version1ByteLength = 4 + 4 + 4 + 4 + 4 + 2 + 2 + 2 + 2 + 2 + 1 + 1 + 4; // Spooky business. By adding this, it breaks all the old records?
+    public const int    Version1ByteLength = 4 + 4 + 4 + 4 + 4 + 2 + 2 + 2 + 2 + 2 + 1 + 1;
     public const int    ByteLength         = Version1ByteLength;
 
     public static readonly Effects ValidEffects = Enum.GetValues<Effects>().Aggregate((a, b) => a | b);
@@ -70,8 +73,7 @@ public struct FishRecord
         AmbitiousLure2 = 0x00080000,
         ModestLure1    = 0x00100000,
         ModestLure2    = 0x00200000,
-        AmbitiousLure3 = 0x00400000, // Needed AL3 to check if I have not 1 or 2
-        ModestLure3    = 0x00800000, // Needed ML3 to check if I have not 1 or 2
+        ValidLure      = 0x00400000,
     }
 
     private uint    _bait;
@@ -86,7 +88,6 @@ public struct FishRecord
     private ushort  _fishingSpot;
     private byte    _tugAndHook;
     public  byte    Amount;
-    public  ushort  LureBite; // Value for how long it took to bite after using Lure
 
     public TimeStamp TimeStamp
     {
@@ -227,7 +228,7 @@ public struct FishRecord
         public float    Size;
         public bool     Collectible;
         public bool     Large;
-        public ushort   LureBiteTime; // Value for how long it took to bite after using Lure
+        public bool     ValidLure;
     }
 
     internal JsonStruct ToJson()
@@ -252,6 +253,7 @@ public struct FishRecord
             BigGameFishing = Flags.HasFlag(Effects.BigGameFishing),
             AmbitiousLure  = Flags.AmbitiousLure(),
             ModestLure     = Flags.ModestLure(),
+            ValidLure      = Flags.HasValidLure(),
             BiteTime       = Bite,
             Tug            = Tug,
             HookSet        = Hook,
@@ -260,7 +262,6 @@ public struct FishRecord
             Size           = Size / 10f,
             Collectible    = Flags.HasFlag(Effects.Collectible),
             Large          = Flags.HasFlag(Effects.Large),
-            LureBiteTime   = LureBite,  // Add time to JSon
         };
 
     private static ushort From2Bytes(ReadOnlySpan<byte> bytes, int from)
@@ -302,7 +303,6 @@ public struct FishRecord
          || TimeStamp <= TimeStamp.Epoch
          || TimeStamp > GatherBuddy.Time.ServerTime
          || Bite is < MinBiteTime or > MaxBiteTime
-         || LureBite is < 0 or > MaxBiteTime // Rough Validation for if LureBite is good or not. Ideally, would check if LureBite is < Bite.
          || Gathering == 0
          || ContentIdHash == 0
          || _fishingSpot == 0)
@@ -310,6 +310,9 @@ public struct FishRecord
 
         if ((Flags & (Effects.AmbitiousLure1 | Effects.AmbitiousLure2)) != 0 && (Flags & (Effects.ModestLure1 | Effects.ModestLure2)) != 0)
             return false;
+        
+        if (Flags.HasValidLure() && !((Flags & (Effects.AmbitiousLure1 | Effects.AmbitiousLure2)) == 0 || (Flags & (Effects.ModestLure1 | Effects.ModestLure2)) == 0))
+            return false; //If it has a valid lure flag, but doesn't have either of the lures, its not valid. I think this logic is correct? Hard to test if its not.
 
         if (_catch == 0 && (Amount > 0 || Size != 0 || Flags.HasFlag(Effects.Collectible | Effects.Large)))
             return false;
@@ -350,7 +353,6 @@ public struct FishRecord
         record._fishingSpot  = From2Bytes(bytes, from += 2);
         record._tugAndHook   = bytes[from             += 2];
         record.Amount        = bytes[from             += 1];
-        record.LureBite      = From2Bytes(bytes, from += 1); // Spooky business. By adding this, it breaks all the old records?
         return record.VerifyData();
     }
 }
