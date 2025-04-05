@@ -16,6 +16,9 @@ namespace GatherBuddy.FishTimer;
 
 public partial class FishRecorder
 {
+    public const int DeadLureTiming    = 5000;
+    public const int InvalidLureTiming = DeadLureTiming + 500;
+
     [Flags]
     internal enum CatchSteps
     {
@@ -32,12 +35,9 @@ public partial class FishRecorder
     internal          CatchSteps    Step      = 0;
     internal          FishingState  LastState = FishingState.None;
     internal readonly Stopwatch     Timer     = new();
-    internal readonly Stopwatch     LureTimer     = new();
-    private byte _hasLureEffect = 0;
-    private byte _oldEffect = 0;
-    public const int DeadLureTiming = 5000;
-    public const int InvalidLureTiming = 500;
-    public event System.Action? UsedLure;
+    internal readonly Stopwatch     LureTimer = new();
+    private           byte          _currentLureStack;
+    public event System.Action      UsedLure;
 
     public Fish? LastCatch;
 
@@ -94,6 +94,7 @@ public partial class FishRecorder
     {
         if (Dalamud.ClientState.LocalPlayer?.StatusList == null)
             return;
+
         foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
         {
             Record.Flags |= buff.StatusId switch
@@ -104,14 +105,12 @@ public partial class FishRecorder
                 3973 when buff.Param == 1 => FishRecord.Effects.ModestLure1,
                 3973 when buff.Param == 2 => FishRecord.Effects.ModestLure2,
                 3973 when buff.Param == 3 => FishRecord.Effects.ModestLure1 | FishRecord.Effects.ModestLure2,
-                _                              => FishRecord.Effects.None,
+                _                         => FishRecord.Effects.None,
             };
         }
-        if(Record.Flags.HasLure())
-            if((ushort)Math.Clamp(LureTimer.ElapsedMilliseconds, 0, Timer.ElapsedMilliseconds) >= DeadLureTiming + InvalidLureTiming)
-                Record.Flags |= FishRecord.Effects.ValidLure;
-        LureTimer.Stop();
 
+        if (Record.Flags.HasLure() && LureTimer.ElapsedMilliseconds >= InvalidLureTiming)
+            Record.Flags |= FishRecord.Effects.ValidLure;
     }
 
     private static readonly uint GatheringIdx =
@@ -154,8 +153,7 @@ public partial class FishRecorder
         Record.TimeStamp = TimeStamp.Epoch;
         Timer.Reset();
         LureTimer.Reset();
-        _oldEffect = 0;
-        _hasLureEffect = 0;
+        _currentLureStack = 0;
     }
 
     private void SubscribeToParser()
@@ -189,8 +187,9 @@ public partial class FishRecorder
         UpdateLure();
         Record.SetTugHook(GatherBuddy.TugType.Bite, Record.Hook);
         Step |= CatchSteps.FishBit;
-        if (LureTimer.ElapsedMilliseconds > 0) 
-            GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms. Time since last lure: {LureTimer.ElapsedMilliseconds} ms.");
+        if (LureTimer.ElapsedMilliseconds > 0)
+            GatherBuddy.Log.Verbose(
+                $"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms. Time since last lure: {LureTimer.ElapsedMilliseconds} ms.");
         else
             GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms.");
     }
@@ -206,11 +205,6 @@ public partial class FishRecorder
     {
         Record.SetTugHook(Record.Tug, hook);
         GatherBuddy.Log.Verbose($"Hooking {Record.Tug} tug with {hook}.");
-    }
-
-    private void OnLure() 
-    {
-        LureTimer.Restart();
     }
 
     private void OnCatch(Fish fish, ushort size, byte amount, bool large, bool collectible)
@@ -267,38 +261,31 @@ public partial class FishRecorder
     private void OnFrameworkUpdate(IFramework _)
     {
         TimedSave();
+        UpdateLureStatus();
         var state = GatherBuddy.EventFramework.FishingState;
         if (LastState == state)
             return;
 
         LastState = state;
 
-        CheckStatusForLure();
-
         switch (state)
         {
-            case FishingState.Bite:
-                OnBite();
-                break;
-            case FishingState.Reeling:
-                Step |= CatchSteps.FishReeled;
-                break;
+            case FishingState.Bite:    OnBite(); break;
+            case FishingState.Reeling: Step |= CatchSteps.FishReeled; break;
             case FishingState.PoleReady:
             case FishingState.Quit:
                 OnFishingStop();
                 break;
         }
     }
-    private void CheckStatusForLure()
-    {
-        if (Dalamud.ClientState.LocalPlayer == null)
-            return;
 
-        if (Dalamud.ClientState.LocalPlayer?.StatusList.FirstOrDefault(s => s.StatusId is 3972 or 3973) is { } currentStatus && currentStatus.Param != _oldEffect)
-        { 
-            OnLure(); 
-            _oldEffect = (byte) currentStatus.Param;
-            UsedLure?.Invoke();
+    private void UpdateLureStatus()
+    {
+        if (Dalamud.ClientState.LocalPlayer?.StatusList.FirstOrDefault(s => s.StatusId is 3972 or 3973) is { } currentStatus
+         && currentStatus.Param != _currentLureStack)
+        {
+            _currentLureStack = (byte)currentStatus.Param;
+            UsedLure.Invoke();
         }
     }
 }

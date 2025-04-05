@@ -37,6 +37,7 @@ public partial class FishRecorder : IDisposable
 
         Parser = new FishingParser(provider);
         SubscribeToParser();
+        UsedLure += LureTimer.Restart;
     }
 
     public void Enable()
