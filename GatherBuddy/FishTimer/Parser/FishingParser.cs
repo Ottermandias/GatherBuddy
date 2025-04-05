@@ -18,7 +18,6 @@ public partial class FishingParser : IDisposable
     public event Action<Fish, ushort, byte, bool, bool>? CaughtFish;
     public event Action<FishingSpot>?                    IdentifiedSpot;
     public event Action<HookSet>?                        HookedIn;
-
     private readonly Hook<UpdateCatchDelegate>? _catchHook;
     private readonly Hook<UseActionDelegate>?   _hookHook;
 

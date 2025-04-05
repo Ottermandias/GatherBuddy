@@ -71,6 +71,7 @@ public partial class GatherBuddy : IDalamudPlugin
     internal readonly Executor                       Executor;
     internal readonly ContextMenu                    ContextMenu;
     internal readonly FishRecorder                   FishRecorder;
+    internal readonly FishTimerWindow                FishTimerWindow;
 
     internal readonly GatherBuddyIpc Ipc;
     //    internal readonly WotsitIpc Wotsit;
@@ -113,7 +114,8 @@ public partial class GatherBuddy : IDalamudPlugin
             Interface    = new Interface(this);
             WindowSystem.AddWindow(Interface);
             WindowSystem.AddWindow(new GatherWindow(this));
-            WindowSystem.AddWindow(new FishTimerWindow(FishRecorder));
+            FishTimerWindow = new FishTimerWindow(FishRecorder);
+            WindowSystem.AddWindow(FishTimerWindow);
             WindowSystem.AddWindow(new SpearfishingHelper(GameData));
             Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
             Dalamud.PluginInterface.UiBuilder.OpenConfigUi += Interface.Toggle;
@@ -131,6 +133,7 @@ public partial class GatherBuddy : IDalamudPlugin
 
     void IDisposable.Dispose()
     {
+        FishTimerWindow.Dispose();
         FishRecorder?.Dispose();
         ContextMenu?.Dispose();
         UptimeManager?.Dispose();

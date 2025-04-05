@@ -37,6 +37,7 @@ public partial class FishRecorder : IDisposable
 
         Parser = new FishingParser(provider);
         SubscribeToParser();
+        UsedLure += LureTimer.Restart;
     }
 
     public void Enable()
@@ -77,7 +78,7 @@ public partial class FishRecorder : IDisposable
 
     private void AddRecordToTimes(FishRecord record)
     {
-        if (record.Catch == null || !record.Flags.HasFlag(FishRecord.Effects.Valid) || record.Flags.HasLure())
+        if (record.Catch == null || !record.Flags.HasFlag(FishRecord.Effects.Valid) || record.Flags.HasLure() && !record.Flags.HasValidLure())
             return;
 
         if (!Times.TryGetValue(record.Catch.ItemId, out var times))
