@@ -18,7 +18,6 @@ public partial class FishingParser : IDisposable
     public event Action<Fish, ushort, byte, bool, bool>? CaughtFish;
     public event Action<FishingSpot>?                    IdentifiedSpot;
     public event Action<HookSet>?                        HookedIn;
-    // public event Action?                           UsedLure; // Unused Action :c
     private readonly Hook<UpdateCatchDelegate>? _catchHook;
     private readonly Hook<UseActionDelegate>?   _hookHook;
 
@@ -94,16 +93,6 @@ public partial class FishingParser : IDisposable
                 case 27523:
                     HookedIn?.Invoke(HookSet.TripleHook);
                     break;
-
-                //Below cases are actually unused..... They trigger if they are clicked no matter if they are not actually used.
-                // case 37594:
-                //     //Ambitious Lure
-                //     UsedLure?.Invoke();
-                //     break;
-                // case 37595:
-                //     //Modest Lure
-                //     UsedLure?.Invoke();
-                //     break;
             }
 
         return _hookHook!.Original(manager, actionType, actionId, targetId, a4, a5, a6, a7);

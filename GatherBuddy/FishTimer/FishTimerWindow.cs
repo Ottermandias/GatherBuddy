@@ -12,6 +12,7 @@ using OtterGui.Raii;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using TimeStamp = GatherBuddy.Time.TimeStamp;
 using static GatherBuddy.FishTimer.FishRecord;
+using GatherBuddy.FishTimer.OldRecords;
 
 namespace GatherBuddy.FishTimer;
 
@@ -43,9 +44,7 @@ public partial class FishTimerWindow : Window
     private float   _maxListHeight;
     private float   _listHeight;
     private int     _milliseconds;
-    private int     _lureTime  = -10000; //Init at -10000 so it's never drawn on screen. (Hopefully)
-    private byte hasLureEffect = 0; // Init to default fishing state. 
-    private byte oldEffect = 0; // Init to default fishing state. 
+    private int     _lureTime  = -10000;
     private string? _spotName;
 
 
@@ -56,14 +55,13 @@ public partial class FishTimerWindow : Window
         IsOpen             = GatherBuddy.Config.ShowFishTimer;
         Namespace          = "FishingTimer";
         RespectCloseHotkey = false;
+        SubscribeToLureAction();
     }
 
-    // Code to run whenever a lure is used... Ideally would be hooked from gaining the status event.
     private void OnLure()
     {
         _lureTime = _milliseconds;
-        // hasLureEffect = Effects.None;
-        UpdateFish(); // Pretty sure fish are recalculated on using a lure.
+        UpdateFish();
     }
 
     private static float Rounding
@@ -98,7 +96,7 @@ public partial class FishTimerWindow : Window
             return;
 
         var diff  = _windowPos.X + _iconSize.X + 2 + (_windowSize.X - _iconSize.X) * _milliseconds / GatherBuddy.Config.FishTimerScale;
-        var start = new Vector2(diff, _windowPos.Y + _textLines);
+        var start = new Vector2(diff, _windowPos.Y + _textLines - 1);
         var end   = new Vector2(diff, _windowPos.Y + _listHeight - 2 * ImGuiHelpers.GlobalScale);
         ImGui.GetWindowDrawList()
             .AddLine(start, end, ColorId.FishTimerProgress.Value(), 3 * ImGuiHelpers.GlobalScale);
@@ -116,7 +114,7 @@ public partial class FishTimerWindow : Window
         var scale     = Vector2.UnitX * ImGuiHelpers.GlobalScale;
         for (byte i = 1; i <= GatherBuddy.Config.ShowSecondIntervals; ++i)
         {
-            var start = baseLine + new Vector2(increment * i, _textLines);
+            var start = baseLine + new Vector2(increment * i, _textLines - 1);
             var end   = start with { Y = baseLine.Y + _listHeight - 2 * ImGuiHelpers.GlobalScale };
             drawList.AddLine(start - scale, end - scale, 0x80000000, ImGuiHelpers.GlobalScale);
             drawList.AddLine(start,         end,         0xFFFFFFFF, ImGuiHelpers.GlobalScale);
@@ -188,18 +186,14 @@ public partial class FishTimerWindow : Window
             // Recalculated and cached on the first draw.
             _spotName = null;
             UpdateFish();
-            _lureTime = -10000; // Reset state
-            oldEffect = 0;
-            hasLureEffect = 0;
+            _lureTime = -10000;
         }
         else if (newMilliseconds < _milliseconds
               || GatherBuddy.EventFramework.FishingState is FishingState.None or FishingState.PoleReady
               && GatherBuddy.Time.ServerTime >= _nextUptimeChange)
         {
             UpdateFish();
-            _lureTime = -10000; // Reset state
-            oldEffect = 0;
-            hasLureEffect = 0;
+            _lureTime = -10000;
         }
 
         _milliseconds = spot == null ? 0 : newMilliseconds;
@@ -297,43 +291,24 @@ public partial class FishTimerWindow : Window
             DrawSecondLines();
             foreach (var fish in _availableFish)
                 fish.Draw(this);
-            DrawLureBox(); // Draw box where fish may not be caught during lure cooldown.
+            DrawLureBox();
 
             DrawProgressLine();
         }
 
         _style.Push(ImGuiStyleVar.WindowPadding, Vector2.Zero);
     }
+    private void SubscribeToLureAction()
+    {
+        _recorder.UsedLure += OnLure; //Do I have to "dispose" of this somewhere?
+    }
 
     private void DrawLureBox()
-    {
-        //There has to be a better way of checking this..... Presumably with Action/Events, but I'm unsure how I could create an event to fire when I gain a buff.
-        { // Check if I have a lure buff, then check if it is different from the last one. If I have a new lure buff, run OnLure() code. 
-            {
-                foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
-                {
-                    hasLureEffect = buff.StatusId switch
-                    {
-                        3972 => (byte)buff.Param,
-                        3973 => (byte)buff.Param,
-                        _    => hasLureEffect,
-                    };
-                }
-                // GatherBuddy.Log.Information($"{oldEffect} | {hasLureEffect}"); //There's a single frame where hasLureEffect is both Lure1 and Lure2 when first gaining the Lure2 status
-                if (oldEffect != hasLureEffect)
-                {
-                    if (hasLureEffect != 0)
-                        OnLure();
-                    oldEffect = hasLureEffect;
-                }
-            }
-        }
-        
-        //Show that fish are blocked for 5 seconds
+    {     
         if (_lureTime>=0)
         {
             var startX  = _windowPos.X + _iconSize.X + 2 + (_windowSize.X - _iconSize.X) * _lureTime / GatherBuddy.Config.FishTimerScale;
-            var endX = _windowPos.X + _iconSize.X + 2 + (_windowSize.X - _iconSize.X) * (_lureTime+4985) / GatherBuddy.Config.FishTimerScale;
+            var endX = _windowPos.X + _iconSize.X + 2 + (_windowSize.X - _iconSize.X) * (_lureTime+FishRecorder.DeadLureTiming) / GatherBuddy.Config.FishTimerScale;
             var topY = _windowPos.Y + _textLines - 1;
             var bottomY = _windowPos.Y + _listHeight - 2 * ImGuiHelpers.GlobalScale;
 

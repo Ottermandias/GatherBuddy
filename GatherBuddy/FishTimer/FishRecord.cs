@@ -311,8 +311,8 @@ public struct FishRecord
         if ((Flags & (Effects.AmbitiousLure1 | Effects.AmbitiousLure2)) != 0 && (Flags & (Effects.ModestLure1 | Effects.ModestLure2)) != 0)
             return false;
         
-        if (Flags.HasValidLure() && !((Flags & (Effects.AmbitiousLure1 | Effects.AmbitiousLure2)) == 0 || (Flags & (Effects.ModestLure1 | Effects.ModestLure2)) == 0))
-            return false; //If it has a valid lure flag, but doesn't have either of the lures, its not valid. I think this logic is correct? Hard to test if its not.
+        if (Flags.HasValidLure() && !Flags.HasLure())
+            return false;
 
         if (_catch == 0 && (Amount > 0 || Size != 0 || Flags.HasFlag(Effects.Collectible | Effects.Large)))
             return false;

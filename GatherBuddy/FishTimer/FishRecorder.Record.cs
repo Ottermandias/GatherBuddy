@@ -32,9 +32,12 @@ public partial class FishRecorder
     internal          CatchSteps    Step      = 0;
     internal          FishingState  LastState = FishingState.None;
     internal readonly Stopwatch     Timer     = new();
-    internal readonly Stopwatch     LureTimer     = new(); // Timer
-    private byte hasLureEffect = 0; // For checking new lures. Init to default fishing state. 
-    private byte oldEffect = 9; // For checking new lures. Init to default fishing state. 
+    internal readonly Stopwatch     LureTimer     = new();
+    private byte _hasLureEffect = 0;
+    private byte _oldEffect = 0;
+    public const int DeadLureTiming = 5000;
+    public const int InvalidLureTiming = 500;
+    public event System.Action? UsedLure;
 
     public Fish? LastCatch;
 
@@ -91,8 +94,6 @@ public partial class FishRecorder
     {
         if (Dalamud.ClientState.LocalPlayer?.StatusList == null)
             return;
-
-        LureTimer.Stop(); // When we bite and update lure, stop the timer.
         foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
         {
             Record.Flags |= buff.StatusId switch
@@ -106,6 +107,11 @@ public partial class FishRecorder
                 _                              => FishRecord.Effects.None,
             };
         }
+        if(Record.Flags.HasLure())
+            if((ushort)Math.Clamp(LureTimer.ElapsedMilliseconds, 0, Timer.ElapsedMilliseconds) >= DeadLureTiming + InvalidLureTiming)
+                Record.Flags |= FishRecord.Effects.ValidLure;
+        LureTimer.Stop();
+
     }
 
     private static readonly uint GatheringIdx =
@@ -147,9 +153,9 @@ public partial class FishRecorder
         Step             = CatchSteps.None;
         Record.TimeStamp = TimeStamp.Epoch;
         Timer.Reset();
-        LureTimer.Reset(); // Reset
-        oldEffect = 0;
-        hasLureEffect = 0;
+        LureTimer.Reset();
+        _oldEffect = 0;
+        _hasLureEffect = 0;
     }
 
     private void SubscribeToParser()
@@ -159,7 +165,6 @@ public partial class FishRecorder
         Parser.CaughtFish     += OnCatch;
         Parser.IdentifiedSpot += OnIdentification;
         Parser.HookedIn       += OnHooking;
-        // Parser.UsedLure        += OnLure; // Where I would put my event if it worked right :c
     }
 
     private void OnBeganFishing(FishingSpot? spot)
@@ -203,11 +208,9 @@ public partial class FishRecorder
         GatherBuddy.Log.Verbose($"Hooking {Record.Tug} tug with {hook}.");
     }
 
-    // Code to run whenever a lure is used... Ideally would be hooked from gaining the status event.
     private void OnLure() 
     {
         LureTimer.Restart();
-        GatherBuddy.Log.Verbose($"Restarting lure timer!");
     }
 
     private void OnCatch(Fish fish, ushort size, byte amount, bool large, bool collectible)
@@ -252,8 +255,6 @@ public partial class FishRecorder
             return;
 
         Record.Bite = (ushort)Math.Clamp(Timer.ElapsedMilliseconds, 0, ushort.MaxValue);
-        if((ushort)Math.Clamp(LureTimer.ElapsedMilliseconds, 0, Timer.ElapsedMilliseconds) >= 5200)
-            Record.Flags |= FishRecord.Effects.ValidLure;
         UpdateLure();
         if (!Record.VerifyValidity())
             Record.Flags &= ~FishRecord.Effects.Valid;
@@ -272,27 +273,7 @@ public partial class FishRecorder
 
         LastState = state;
 
-        //There has to be a better way of checking this..... Presumably with Action/Events, but I'm unsure how I could create an event to fire when I gain a buff.
-        { // Check if I have a lure buff, then check if it is different from the last one. If I have a new lure buff, run OnLure() code. 
-            {
-                foreach (var buff in Dalamud.ClientState.LocalPlayer.StatusList)
-                {
-                    hasLureEffect = buff.StatusId switch
-                    {
-                        3972 => (byte)buff.Param,
-                        3973 => (byte)buff.Param,
-                        _    => hasLureEffect,
-                    };
-                }
-                // GatherBuddy.Log.Information($"{oldEffect} | {hasLureEffect}"); //There's a single frame where hasLureEffect is both Lure1 and Lure2 when first gaining the Lure2 status
-                if (oldEffect != hasLureEffect)
-                {
-                    if (hasLureEffect != 0)
-                        OnLure();
-                    oldEffect = hasLureEffect;
-                }
-            }
-        }
+        CheckStatusForLure();
 
         switch (state)
         {
@@ -306,6 +287,18 @@ public partial class FishRecorder
             case FishingState.Quit:
                 OnFishingStop();
                 break;
+        }
+    }
+    private void CheckStatusForLure()
+    {
+        if (Dalamud.ClientState.LocalPlayer == null)
+            return;
+
+        if (Dalamud.ClientState.LocalPlayer?.StatusList.FirstOrDefault(s => s.StatusId is 3972 or 3973) is { } currentStatus && currentStatus.Param != _oldEffect)
+        { 
+            OnLure(); 
+            _oldEffect = (byte) currentStatus.Param;
+            UsedLure?.Invoke();
         }
     }
 }
