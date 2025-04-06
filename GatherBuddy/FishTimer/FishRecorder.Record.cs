@@ -111,6 +111,7 @@ public partial class FishRecorder
 
         if (Record.Flags.HasLure() && LureTimer.ElapsedMilliseconds >= InvalidLureTiming)
             Record.Flags |= FishRecord.Effects.ValidLure;
+        LureTimer.Stop();
     }
 
     private static readonly uint GatheringIdx =
