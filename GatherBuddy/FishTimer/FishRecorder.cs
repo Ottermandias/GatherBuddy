@@ -124,7 +124,7 @@ public partial class FishRecorder : IDisposable
         data.Data.Remove(record.Bait.Id);
         foreach (var rec in Records.Where(r
                      => r.Flags.HasFlag(FishRecord.Effects.Valid)
-                  && !record.Flags.HasLure()
+                  && (!record.Flags.HasLure() || record.Flags.HasValidLure())
                   && r.Catch?.ItemId == record.Catch.ItemId
                   && r.Bait.Id == record.Bait.Id))
             data.Apply(rec.Bait.Id, rec.Bite, rec.Flags.HasFlag(FishRecord.Effects.Chum));
