@@ -6,8 +6,6 @@ using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Dalamud.Interface;
-using Dalamud.Interface.Components;
-using GatherBuddy.Alarms;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
@@ -18,6 +16,9 @@ using ImGuiNET;
 using OtterGui;
 using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
+using static GatherBuddy.AutoGather.Helpers.Reflection.Artisan_Reflection;
+using ECommons.ImGuiMethods;
+using ECommons;
 
 namespace GatherBuddy.Gui;
 
@@ -25,14 +26,14 @@ public partial class Interface
 {
     private class AutoGatherListsDragDropData
     {
-        public AutoGatherList     list;
-        public Gatherable         Item;
-        public int                ItemIdx;
+        public AutoGatherList list;
+        public Gatherable Item;
+        public int ItemIdx;
 
         public AutoGatherListsDragDropData(AutoGatherList list, Gatherable item, int idx)
         {
-            this.list  = list;
-            Item    = item;
+            this.list = list;
+            Item = item;
             ItemIdx = idx;
         }
     }
@@ -50,7 +51,7 @@ public partial class Interface
 
             protected override bool OnDraw(int idx)
             {
-                using var id    = ImRaii.PushId(idx);
+                using var id = ImRaii.PushId(idx);
                 using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
                 return ImGui.Selectable(CheckUnnamed(Items[idx].Name), idx == CurrentIdx);
             }
@@ -63,6 +64,16 @@ public partial class Interface
 
             protected override bool OnAdd(string name)
             {
+                if (TouchArtisanAssembly)
+                {
+                    var importedList = ArtisanImport(name);
+                    if (importedList != null)
+                    {
+                        _plugin.AutoGatherListsManager.AddList(importedList);
+                        return true;
+                    }
+                }
+                
                 _plugin.AutoGatherListsManager.AddList(new AutoGatherList()
                 {
                     Name = name,
@@ -170,7 +181,7 @@ public partial class Interface
             WorldData.WorldLocationsChanged -= UpdateGatherables;
         }
 
-        public int  NewGatherableIdx;
+        public int NewGatherableIdx;
         public bool EditName;
         public bool EditDesc;
     }
@@ -217,7 +228,7 @@ public partial class Interface
                         var itemName = match.Groups[2].Value;
                         items[itemName] = quantity;
                     }
-                    
+
                     var list = _autoGatherListsCache.Selector.Current!;
 
                     foreach (var (itemName, quantity) in items)
@@ -242,12 +253,51 @@ public partial class Interface
             }
         }
 
-        ImGuiComponents.HelpMarker(
+        if (ArtisanAssemblyEnabled)
+        {
+            if (ImGuiUtil.DrawDisabledButton("Import from Artisan", Vector2.Zero, "Populate list by finding Artisan Crafting List of same name.",
+                    _autoGatherListsCache.Selector.Current == null))
+            {
+                try
+                {
+                    var workingList = _autoGatherListsCache.Selector.Current!;
+                    var importedList = ArtisanImport(workingList.Name);
+                    if (importedList == null)
+                    {
+                        Communicator.PrintError("Artisan Crafting List not found. Artisan List name must be identical to the Auto-Gather List name.");
+                        return;
+                    }
+
+                    foreach (var item in importedList.Items)
+                    {
+                        workingList.Add(item, importedList.Quantities[item]);
+                    }
+
+                    _plugin.AutoGatherListsManager.Save();
+
+                    if (workingList.Enabled)
+                        _plugin.AutoGatherListsManager.SetActiveItems();
+                }
+                catch (Exception e)
+                {
+                    Communicator.PrintError("Error importing auto-gather list: " + e.Message);
+                }
+            }
+        }
+
+        ImGui.SetCursorPosX(ImGui.GetWindowSize().X - 50);
+        string agHelpText =
             "If the config option to sort by location is not selected, items are gathered in order of enabled list, then order of item in list.\n"
           + "You can drag and draw lists to move them.\n"
           + "You can drag and draw items in a specific list to move them.\n"
           + "You can drag and draw an item onto a different list from the selector to add it to that list and remove it from the current.\n"
-          + "In the Gather Window, you can hold Control and Right-Click an item to delete it from the list it comes from.");
+          + "In the Gather Window, you can hold Control and Right-Click an item to delete it from the list it comes from.";
+        
+        ImGuiEx.InfoMarker(agHelpText, null, FontAwesomeIcon.InfoCircle.ToIconString(), false);
+        ImGuiEx.InfoMarker("Auto-Gather Support Discord", null, FontAwesomeIcon.Comments.ToIconString(), false);
+        if (ImGuiEx.HoveredAndClicked()){
+            GenericHelpers.ShellStart("https://discord.gg/p54TZMPnC9");
+        }
     }
 
     private void DrawAutoGatherList(AutoGatherList list)
@@ -267,7 +317,7 @@ public partial class Interface
         ImGuiUtil.Checkbox("Fallback##list",
             "Items from fallback lists won't be auto-gathered.\n"
           + "But if a node doesn't contain any items from regular lists or if you gathered enough of them,\n"
-          + "items from fallback lists would be gathered instead if they could be found in that node.", 
+          + "items from fallback lists would be gathered instead if they could be found in that node.",
             list.Fallback, (v) => _plugin.AutoGatherListsManager.SetFallback(list, v));
 
         ImGui.NewLine();
@@ -283,8 +333,8 @@ public partial class Interface
 
         for (var i = 0; i < list.Items.Count; ++i)
         {
-            var       item  = list.Items[i];
-            using var id    = ImRaii.PushId((int)item.ItemId);
+            var item = list.Items[i];
+            using var id = ImRaii.PushId((int)item.ItemId);
             using var group = ImRaii.Group();
             if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the list", false, true))
                 deleteIndex = i;
@@ -336,7 +386,7 @@ public partial class Interface
 
     private void DrawAutoGatherTab()
     {
-        using var id  = ImRaii.PushId("AutoGatherLists");
+        using var id = ImRaii.PushId("AutoGatherLists");
         using var tab = ImRaii.TabItem("Auto-Gather");
 
         ImGuiUtil.HoverTooltip(
