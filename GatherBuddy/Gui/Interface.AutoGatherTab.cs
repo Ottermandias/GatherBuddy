@@ -6,8 +6,6 @@ using System.Linq;
 using System.Numerics;
 using System.Text.RegularExpressions;
 using Dalamud.Interface;
-using Dalamud.Interface.Components;
-using GatherBuddy.Alarms;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
@@ -19,11 +17,8 @@ using OtterGui;
 using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
 using static GatherBuddy.AutoGather.Helpers.Reflection.Artisan_Reflection;
-using ECommons.Reflection;
-using System.Reflection;
-using System.Collections;
-using ECommons.ExcelServices;
-using static GatherBuddy.AutoGather.Helpers.Reflection;
+using ECommons.ImGuiMethods;
+using ECommons;
 
 namespace GatherBuddy.Gui;
 
@@ -290,14 +285,19 @@ public partial class Interface
             }
         }
 
-        ImGui.SetCursorPosX(ImGui.GetCursorPosX() + 20);
-
-        ImGuiComponents.HelpMarker(
+        ImGui.SetCursorPosX(ImGui.GetWindowSize().X - 50);
+        string agHelpText =
             "If the config option to sort by location is not selected, items are gathered in order of enabled list, then order of item in list.\n"
           + "You can drag and draw lists to move them.\n"
           + "You can drag and draw items in a specific list to move them.\n"
           + "You can drag and draw an item onto a different list from the selector to add it to that list and remove it from the current.\n"
-          + "In the Gather Window, you can hold Control and Right-Click an item to delete it from the list it comes from.");
+          + "In the Gather Window, you can hold Control and Right-Click an item to delete it from the list it comes from.";
+        
+        ImGuiEx.InfoMarker(agHelpText, null, FontAwesomeIcon.InfoCircle.ToIconString(), false);
+        ImGuiEx.InfoMarker("Auto-Gather Support Discord", null, FontAwesomeIcon.Comments.ToIconString(), false);
+        if (ImGuiEx.HoveredAndClicked()){
+            GenericHelpers.ShellStart("https://discord.gg/p54TZMPnC9");
+        }
     }
 
     private void DrawAutoGatherList(AutoGatherList list)

@@ -816,8 +816,6 @@ public partial class Interface
         AutoGatherUI.DrawDebugTables();
     }
 
-    Dictionary<uint, int>? matList = null;
-
     private void DrawReflectionDebug()
     {
 
