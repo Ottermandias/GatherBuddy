@@ -19,6 +19,13 @@ using static GatherBuddy.FishTimer.FishRecord;
 using ImRaii = OtterGui.Raii.ImRaii;
 using System.Text;
 using FFXIVClientStructs.FFXIV.Client.UI;
+using static GatherBuddy.AutoGather.Helpers.Reflection.Artisan_Reflection;
+using ECommons.Reflection;
+using System.Reflection;
+using System.Collections;
+using ECommons;
+using ECommons.ExcelServices;
+using GatherBuddy.AutoGather.Lists;
 
 namespace GatherBuddy.Gui;
 
@@ -386,8 +393,8 @@ public partial class Interface
         }
     }
 
-    private string _identifyTest       = string.Empty;
-    private uint   _lastItemIdentified = 0;
+    private string _identifyTest = string.Empty;
+    private uint _lastItemIdentified = 0;
     private bool _subscribeToAutoGatherWaiting = false;
     private bool _subscribeToAutoGatherEnabledChanged = false;
     private long _lastAutoGatherWaitingTime = 0;
@@ -410,8 +417,8 @@ public partial class Interface
 
         for (var i = 0; i < GatherBuddy.WaymarkManager.Count; ++i)
         {
-            using var id      = ImRaii.PushId(i);
-            var       waymark = GatherBuddy.WaymarkManager[i];
+            using var id = ImRaii.PushId(i);
+            var waymark = GatherBuddy.WaymarkManager[i];
             ImGui.TableNextColumn();
             if (ImGui.Button("Clear"))
                 GatherBuddy.WaymarkManager.ClearWaymark(i);
@@ -452,7 +459,7 @@ public partial class Interface
         using (var table = ImRaii.Table("##OceanTimeline", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
         {
             if (table)
-                for(var idx = 0; idx < GatherBuddy.GameData.OceanTimeline.Count; ++idx)
+                for (var idx = 0; idx < GatherBuddy.GameData.OceanTimeline.Count; ++idx)
                 {
                     var routeAldenard = GatherBuddy.GameData.OceanTimeline[OceanArea.Aldenard][idx];
                     var routeOthard = GatherBuddy.GameData.OceanTimeline[OceanArea.Othard][idx];
@@ -471,7 +478,7 @@ public partial class Interface
 
     private void DrawDebugTab()
     {
-        using var id  = ImRaii.PushId("Debug");
+        using var id = ImRaii.PushId("Debug");
         using var tab = ImRaii.TabItem("Debug");
         ImGuiUtil.HoverTooltip("I really hope there is a good reason for you seeing this.");
 
@@ -490,6 +497,7 @@ public partial class Interface
         DrawDebugFishingTimes();
         DrawAlarmDebug();
         DrawAutoGatherDebug();
+        DrawReflectionDebug();
         ImGuiTable.DrawTabbedTable($"Aetherytes ({GatherBuddy.GameData.Aetherytes.Count})", GatherBuddy.GameData.Aetherytes.Values,
             DrawDebugAetheryte, flags, "Id", "Name", "Territory", "Coords", "Aetherstream");
         ImGuiTable.DrawTabbedTable($"Territories ({GatherBuddy.GameData.WeatherTerritories.Length})", GatherBuddy.GameData.WeatherTerritories,
@@ -789,14 +797,14 @@ public partial class Interface
                     }
                     text.Append($" {n.Item.Name};");
                     if (!n.Enabled) text.Append(" disabled;");
-                    text.Append($" level: {n.Level}; yield: {n.Yield}{(n.RandomYield?"+?":"")}; chance: {n.GatherChance}; boon: {n.BoonChance};");
+                    text.Append($" level: {n.Level}; yield: {n.Yield}{(n.RandomYield ? "+?" : "")}; chance: {n.GatherChance}; boon: {n.BoonChance};");
                     if (n.Hidden) text.Append(" hidden;");
                     if (n.Rare) text.Append(" rare;");
                     if (n.Bonus) text.Append(" bonus;");
                     if (n.Collectable) text.Append($" collectable;");
                     text.AppendLine();
                 }
-            }   
+            }
             else
             {
                 text.AppendLine("Not ready");
@@ -806,5 +814,20 @@ public partial class Interface
         }
 
         AutoGatherUI.DrawDebugTables();
+    }
+
+    Dictionary<uint, int>? matList = null;
+
+    private void DrawReflectionDebug()
+    {
+
+        if (!ImGui.CollapsingHeader("Reflection"))
+            return;
+
+        ImGui.Text($"Artisan Assembly Enabled: {ArtisanAssemblyEnabled}");
+        if (TouchArtisanAssembly)
+        {
+            ImGui.Text($"Artisan Instance: {ArtisanAssemblyInstance}");
+        }
     }
 }
