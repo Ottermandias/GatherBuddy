@@ -73,6 +73,7 @@ namespace GatherBuddy.AutoGather
         public bool ConfigConversionFixed { get; set; } = false;
         public bool RotationSolverConversionDone { get; set; } = false;
         public bool HandleArtisanListsAutomatically { get; set; } = true;
+        public bool AlwaysGatherMaps { get; set; } = false;
 
         public enum SortingType
         {

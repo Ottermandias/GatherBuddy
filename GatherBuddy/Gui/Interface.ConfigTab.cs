@@ -680,7 +680,12 @@ public partial class Interface
                 "Keep empty to have no chat output.\nCan replace:\n- {Input} with the entered search text.\n- {Item} with the item link.",
                 GatherBuddy.Config.IdentifiedGatherableFormat, Configuration.DefaultIdentifiedGatherableFormat,
                 s => GatherBuddy.Config.IdentifiedGatherableFormat = s);
+
+        public static void DrawAlwaysMapsBox()
+            => DrawCheckbox("Always gather maps when available",      "GBR will always grab maps first if it sees one in a node",
+                GatherBuddy.Config.AutoGatherConfig.AlwaysGatherMaps, b => GatherBuddy.Config.AutoGatherConfig.AlwaysGatherMaps = b);
     }
+
 
     private void DrawConfigTab()
     {
@@ -708,6 +713,7 @@ public partial class Interface
                 ConfigFunctions.DrawGoHomeBox();
                 ConfigFunctions.DrawUseSkillsForFallabckBox();
                 ConfigFunctions.DrawAbandonNodesBox();
+                ConfigFunctions.DrawAlwaysMapsBox();
                 ConfigFunctions.DrawArtisanImportBox();
                 ImGui.TreePop();
             }
