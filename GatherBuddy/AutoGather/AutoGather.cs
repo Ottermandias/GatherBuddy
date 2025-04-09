@@ -21,7 +21,9 @@ using ECommons.Automation;
 using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Lists;
+using GatherBuddy.Classes;
 
 namespace GatherBuddy.AutoGather
 {
@@ -116,6 +118,55 @@ namespace GatherBuddy.AutoGather
 
         private class NoCollectableActionsException : Exception
         { }
+
+        public void HandleArtisanImport()
+        {
+            if (Reflection.Artisan_Reflection.ArtisanExportInProgress)
+            {
+                Svc.Log.Verbose("Artisan export in progress, skipping HandleArtisanImport");
+                return;
+            }
+            else if (Reflection.Artisan_Reflection.ArtisanExportFailed)
+            {
+                Svc.Log.Verbose("Artisan export failed, clearing task");
+                Reflection.Artisan_Reflection.ResetArtisanExportTask();
+                return;
+            }
+            else if (Reflection.Artisan_Reflection.ArtisanExportComplete)
+            {
+                Svc.Log.Verbose("Artisan export complete, finishing import");
+                var importedList = Reflection.Artisan_Reflection.ArtisanExportTask!.Result;
+                if (importedList == null)
+                {
+                    Svc.Log.Error("Import list was null, aborting import");
+                    Reflection.Artisan_Reflection.ResetArtisanExportTask();
+                    return;
+                }
+                var listToReplaceIdx = Reflection.Artisan_Reflection.ListIndexToReplace;
+                if (listToReplaceIdx == null)
+                {
+                    Svc.Log.Error("List index to replace was null, aborting import");
+                    Reflection.Artisan_Reflection.ResetArtisanExportTask();
+                    return;
+                }
+                var listToModify = _plugin.AutoGatherListsManager.Lists[listToReplaceIdx.Value];
+                listToModify.Description = importedList.Description;
+                listToModify.Name = importedList.Name;
+                for (var i = 0; i < listToModify.Items.Count; i++)
+                {
+                    listToModify.RemoveAt(i);
+                }
+
+                foreach (var item in importedList.Items)
+                {
+                    listToModify.Add(item);
+                    listToModify.SetQuantity(item, importedList.Quantities[item]);
+                }
+
+                Reflection.Artisan_Reflection.ResetArtisanExportTask();
+                Communicator.Print($"Successfully imported {importedList.Name} from Artisan!");
+            }
+        }
 
         public void DoAutoGather()
         {

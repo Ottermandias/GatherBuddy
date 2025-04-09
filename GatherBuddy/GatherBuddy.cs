@@ -172,6 +172,7 @@ public partial class GatherBuddy : IDalamudPlugin
             foreach (var obj in objs)
                 WorldData.AddLocation(obj.DataId, obj.Position);
         }
+        AutoGather.HandleArtisanImport();
         AutoGather.DoAutoGather();
     }
 
