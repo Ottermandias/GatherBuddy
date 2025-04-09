@@ -8,7 +8,7 @@ public struct Record
     public const uint MinTime = 1000;
     public const uint MaxTime = 45000;
 
-    public HashSet<uint> SuccessfulBaits   { get; }      = new();
+    public HashSet<uint> SuccessfulBaits   { get; }      = [];
     public ushort        EarliestCatch     { get; set; } = ushort.MaxValue;
     public ushort        LatestCatch       { get; set; } = 0;
     public ushort        EarliestCatchChum { get; set; } = ushort.MaxValue;
@@ -25,12 +25,6 @@ public struct Record
 
     public static (uint, Record)? FromLine(string line)
     {
-        (uint, Record)? Error()
-        {
-            GatherBuddy.Log.Error($"Could not create fishing record from \"{line}\".");
-            return null;
-        }
-
         line = MigrateToV3(line);
         var split  = line.Split(' ');
         var length = split.Length;
@@ -108,5 +102,11 @@ public struct Record
         }
 
         return (fishId, ret);
+
+        (uint, Record)? Error()
+        {
+            GatherBuddy.Log.Error($"Could not create fishing record from \"{line}\".");
+            return null;
+        }
     }
 }
