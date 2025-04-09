@@ -16,6 +16,9 @@ namespace GatherBuddy.FishTimer;
 
 public partial class FishRecorder
 {
+    public const int DeadLureTiming    = 5000;
+    public const int InvalidLureTiming = DeadLureTiming + 500;
+
     [Flags]
     internal enum CatchSteps
     {
@@ -32,6 +35,9 @@ public partial class FishRecorder
     internal          CatchSteps    Step      = 0;
     internal          FishingState  LastState = FishingState.None;
     internal readonly Stopwatch     Timer     = new();
+    internal readonly Stopwatch     LureTimer = new();
+    private           byte          _currentLureStack;
+    public event System.Action      UsedLure;
 
     public Fish? LastCatch;
 
@@ -99,9 +105,13 @@ public partial class FishRecorder
                 3973 when buff.Param == 1 => FishRecord.Effects.ModestLure1,
                 3973 when buff.Param == 2 => FishRecord.Effects.ModestLure2,
                 3973 when buff.Param == 3 => FishRecord.Effects.ModestLure1 | FishRecord.Effects.ModestLure2,
-                _                              => FishRecord.Effects.None,
+                _                         => FishRecord.Effects.None,
             };
         }
+
+        if (Record.Flags.HasLure() && LureTimer.ElapsedMilliseconds >= InvalidLureTiming)
+            Record.Flags |= FishRecord.Effects.ValidLure;
+        LureTimer.Stop();
     }
 
     private static readonly uint GatheringIdx =
@@ -143,6 +153,8 @@ public partial class FishRecorder
         Step             = CatchSteps.None;
         Record.TimeStamp = TimeStamp.Epoch;
         Timer.Reset();
+        LureTimer.Reset();
+        _currentLureStack = 0;
     }
 
     private void SubscribeToParser()
@@ -176,7 +188,11 @@ public partial class FishRecorder
         UpdateLure();
         Record.SetTugHook(GatherBuddy.TugType.Bite, Record.Hook);
         Step |= CatchSteps.FishBit;
-        GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds}.");
+        if (LureTimer.ElapsedMilliseconds > 0)
+            GatherBuddy.Log.Verbose(
+                $"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms. Time since last lure: {LureTimer.ElapsedMilliseconds} ms.");
+        else
+            GatherBuddy.Log.Verbose($"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms.");
     }
 
     private void OnIdentification(FishingSpot spot)
@@ -246,6 +262,7 @@ public partial class FishRecorder
     private void OnFrameworkUpdate(IFramework _)
     {
         TimedSave();
+        UpdateLureStatus();
         var state = GatherBuddy.EventFramework.FishingState;
         if (LastState == state)
             return;
@@ -254,16 +271,22 @@ public partial class FishRecorder
 
         switch (state)
         {
-            case FishingState.Bite:
-                OnBite();
-                break;
-            case FishingState.Reeling:
-                Step |= CatchSteps.FishReeled;
-                break;
+            case FishingState.Bite:    OnBite(); break;
+            case FishingState.Reeling: Step |= CatchSteps.FishReeled; break;
             case FishingState.PoleReady:
             case FishingState.Quit:
                 OnFishingStop();
                 break;
+        }
+    }
+
+    private void UpdateLureStatus()
+    {
+        if (Dalamud.ClientState.LocalPlayer?.StatusList.FirstOrDefault(s => s.StatusId is 3972 or 3973) is { } currentStatus
+         && currentStatus.Param != _currentLureStack)
+        {
+            _currentLureStack = (byte)currentStatus.Param;
+            UsedLure.Invoke();
         }
     }
 }

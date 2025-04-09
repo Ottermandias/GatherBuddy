@@ -1,13 +1,14 @@
-﻿using System;
-using System.Linq;
-using System.Numerics;
-using Dalamud.Interface.Textures;
+﻿using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Time;
 using ImGuiNET;
+using System;
+using System.Drawing;
+using System.Linq;
+using System.Numerics;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
 
@@ -171,20 +172,24 @@ public partial class FishTimerWindow
             DrawLine(offsetEndAll,    ColorId.FishTimerMarkersAll.Value());
         }
 
-        public void Draw(FishTimerWindow window)
+        public void DrawBackground(FishTimerWindow window, int i)
         {
-            var padding = 5 * ImGuiHelpers.GlobalScale;
-            var pos     = window._windowPos + ImGui.GetCursorPos();
-            var size    = window._windowSize with { Y = ImGui.GetFrameHeight() };
-            var ptr     = ImGui.GetWindowDrawList();
-
+            var ptr  = ImGui.GetWindowDrawList();
+            var pos  = window._windowPos + ImGui.GetCursorPos();
+            pos.Y += i * ImGui.GetFrameHeightWithSpacing();
+            var size = window._windowSize with { Y = ImGui.GetFrameHeight() };
             // Background
-            ptr.AddRectFilled(pos, pos + size, _color.Value(), 0);
+            ImGui.GetWindowDrawList().AddRectFilled(pos, pos + size, _color.Value(), 0);
 
             // Markers and highlights.
             pos.X  += window._iconSize.X;
             size.X -= window._iconSize.X;
             DrawMarkers(ptr, pos, size.Y, size.X);
+        }
+
+        public void Draw(FishTimerWindow window)
+        {
+            var padding = 5 * ImGuiHelpers.GlobalScale;
 
             // Icon
             if (_icon.TryGetWrap(out var wrap, out _))
@@ -198,7 +203,7 @@ public partial class FishTimerWindow
             ImGui.SameLine(window._iconSize.X + padding);
             ImGui.AlignTextToFramePadding();
             using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
-            ImGui.Text(_textLine);
+            ImGui.TextUnformatted(_textLine);
             hovered |= ImGui.IsItemHovered();
 
             if (hovered && _fish != null)
@@ -224,7 +229,7 @@ public partial class FishTimerWindow
             var offset = ImGui.CalcTextSize(timeString).X;
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImGui.AlignTextToFramePadding();
-            ImGui.Text(timeString);
+            ImGui.TextUnformatted(timeString);
         }
     }
 }
