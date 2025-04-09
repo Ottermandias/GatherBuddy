@@ -56,24 +56,31 @@ public partial class Interface
 
         public static void DrawGoHomeBox()
         {
-            DrawCheckbox("Go home when done", "Uses the '/li auto' command to take you home when done gathering",
-                        GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone = b);
+            DrawCheckbox("Go home when done",                       "Uses the '/li auto' command to take you home when done gathering",
+                GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenDone = b);
             ImGui.SameLine();
             ImGuiEx.PluginAvailabilityIndicator([new("Lifestream")]);
-            DrawCheckbox("Go home when idle", "Uses the '/li auto' command to take you home when waiting for timed nodes",
-                        GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
+            DrawCheckbox("Go home when idle",                       "Uses the '/li auto' command to take you home when waiting for timed nodes",
+                GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
             ImGui.SameLine();
             ImGuiEx.PluginAvailabilityIndicator([new("Lifestream")]);
         }
 
         public static void DrawUseSkillsForFallabckBox()
             => DrawCheckbox("Use skills for fallback items", "Use skills when gathering items from fallback presets",
-                GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems, b => GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems = b);
+                GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems,
+                b => GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems = b);
+
+        public static void DrawArtisanImportBox()
+            => DrawCheckbox("Automatically import lists from Artisan",
+                "When adding a new Auto-Gather list GBR will attempt to import the needed ingredients from your Artisan list if the names match.",
+                GatherBuddy.Config.AutoGatherConfig.HandleArtisanListsAutomatically,
+                b => GatherBuddy.Config.AutoGatherConfig.HandleArtisanListsAutomatically = b);
 
         public static void DrawAbandonNodesBox()
-            => DrawCheckbox("Abandon nodes without needed items", 
-                "Stop gathering and abandon the node when you have gathered enough items,\n" +
-                "or if the node didn't have any needed items on the first place.",
+            => DrawCheckbox("Abandon nodes without needed items",
+                "Stop gathering and abandon the node when you have gathered enough items,\n"
+              + "or if the node didn't have any needed items on the first place.",
                 GatherBuddy.Config.AutoGatherConfig.AbandonNodes, b => GatherBuddy.Config.AutoGatherConfig.AbandonNodes = b);
 
         public static void DrawHonkModeBox()
@@ -81,7 +88,7 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
 
         public static void DrawRepairBox()
-            => DrawCheckbox("Repair gear when needed", "Repair gear when it is almost broken",
+            => DrawCheckbox("Repair gear when needed",        "Repair gear when it is almost broken",
                 GatherBuddy.Config.AutoGatherConfig.DoRepair, b => GatherBuddy.Config.AutoGatherConfig.DoRepair = b);
 
         public static void DrawRepairThreshold()
@@ -101,6 +108,7 @@ public partial class Interface
                 "Automatically extract materia from items with a complete spiritbond",
                 GatherBuddy.Config.AutoGatherConfig.DoMaterialize,
                 b => GatherBuddy.Config.AutoGatherConfig.DoMaterialize = b);
+
         public static void DrawAetherialReduction()
             => DrawCheckbox("Enable Aetherial Reduction",
                 "Automatically perform Aetherial Reduction when idling or the inventory is full",
@@ -147,8 +155,11 @@ public partial class Interface
 
             ImGuiUtil.HoverTooltip("Delay executing each action by the specified amount.");
         }
+
         public static void DrawUseGivingLandOnCooldown()
-            => DrawCheckbox("Gather any crystals when The Giving Land is off cooldown", "Gather random crystals on any regular node when The Giving Land is avaiable regardles of current target item.", GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown,
+            => DrawCheckbox("Gather any crystals when The Giving Land is off cooldown",
+                "Gather random crystals on any regular node when The Giving Land is avaiable regardles of current target item.",
+                GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown,
                 b => GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown = b);
 
         public static void DrawMountUpDistance()
@@ -697,6 +708,7 @@ public partial class Interface
                 ConfigFunctions.DrawGoHomeBox();
                 ConfigFunctions.DrawUseSkillsForFallabckBox();
                 ConfigFunctions.DrawAbandonNodesBox();
+                ConfigFunctions.DrawArtisanImportBox();
                 ImGui.TreePop();
             }
 
@@ -706,7 +718,11 @@ public partial class Interface
                 ConfigFunctions.DrawUseFlagBox();
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawRepairBox();
-                if (GatherBuddy.Config.AutoGatherConfig.DoRepair) {ConfigFunctions.DrawRepairThreshold();}
+                if (GatherBuddy.Config.AutoGatherConfig.DoRepair)
+                {
+                    ConfigFunctions.DrawRepairThreshold();
+                }
+
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();
                 ConfigFunctions.DrawAntiStuckCooldown();
