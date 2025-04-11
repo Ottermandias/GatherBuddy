@@ -13,26 +13,29 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
+using ECommons.DalamudServices;
 
 namespace GatherBuddy.AutoGather.Lists
 {
     internal class ActiveItemList : IEnumerable<GatherTarget>, IDisposable
     {
-        private readonly List<GatherTarget> _gatherableItems = [];
-        private readonly AutoGatherListsManager _listsManager;
-        private readonly Dictionary<uint, int> _teleportationCosts = [];
-        private readonly Dictionary<GatheringNode, TimeInterval> _visitedTimedNodes = [];
-        private TimeStamp _lastUpdateTime = TimeStamp.MinValue;
-        private uint _lastTerritoryId;
-        private bool _activeItemsChanged;
-        private bool _gatheredSomething;
+        private readonly List<GatherTarget>                      _gatherableItems = [];
+        private readonly AutoGatherListsManager                  _listsManager;
+        private readonly Dictionary<uint, int>                   _teleportationCosts = [];
+        private readonly Dictionary<GatheringNode, TimeInterval> _visitedTimedNodes  = [];
+        private          TimeStamp                               _lastUpdateTime     = TimeStamp.MinValue;
+        private          uint                                    _lastTerritoryId;
+        private          bool                                    _activeItemsChanged;
+        private          bool                                    _gatheredSomething;
 
-        internal ReadOnlyDictionary<GatheringNode, TimeInterval> DebugVisitedTimedLocations => _visitedTimedNodes.AsReadOnly();
+        internal ReadOnlyDictionary<GatheringNode, TimeInterval> DebugVisitedTimedLocations
+            => _visitedTimedNodes.AsReadOnly();
 
         /// <summary>
         /// First item on the list as of the last enumeration or default.
         /// </summary>
-        public GatherTarget CurrentOrDefault => _gatherableItems.FirstOrDefault();
+        public GatherTarget CurrentOrDefault
+            => _gatherableItems.FirstOrDefault();
 
         /// <summary>
         /// Determines whether there are any items that need to be gathered,
@@ -41,13 +44,15 @@ namespace GatherBuddy.AutoGather.Lists
         /// <value>
         /// True if there are items that need to be gathered; otherwise, false.
         /// </value>
-        public bool HasItemsToGather => _listsManager.ActiveItems.Where(NeedsGathering).Any();
+        public bool HasItemsToGather
+            => _listsManager.ActiveItems.Where(NeedsGathering).Any();
 
-        public bool IsInitialized => _lastUpdateTime != TimeStamp.MinValue;
+        public bool IsInitialized
+            => _lastUpdateTime != TimeStamp.MinValue;
 
         public ActiveItemList(AutoGatherListsManager listsManager)
         {
-            _listsManager = listsManager;
+            _listsManager                    =  listsManager;
             _listsManager.ActiveItemsChanged += OnActiveItemsChanged;
         }
 
@@ -66,12 +71,19 @@ namespace GatherBuddy.AutoGather.Lists
         /// Refreshes the list of items to gather (if needed) and returns the first item.
         /// </summary>
         /// <returns>The next item to gather. </returns>
-        public GatherTarget GetNextOrDefault()
+        public IEnumerable<GatherTarget> GetNextOrDefault(IEnumerable<uint> nearbyNodes)
         {
             if (IsUpdateNeeded())
                 DoUpdate();
 
-            return this.FirstOrDefault();
+            //Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
+            IEnumerable<GatherTarget> nearbyItems = [];
+            nearbyItems = this.Any(n => !n.Node.Times.AlwaysUp())
+                ? [this.First(n => n.Time.InRange(AutoGather.AdjustedServerTime))]
+                : this.Where(i => i.Node.WorldPositions.Keys.Any(nearbyNodes.Contains));
+
+            //Svc.Log.Verbose($"Nearby items: ({nearbyItems.Count()}): {string.Join(", ", nearbyItems.Select(x => x.Item.Name))}.");
+            return nearbyItems.Any() ? nearbyItems : _gatherableItems.Where(NeedsGathering).Take(1);
         }
 
         /// <summary>
@@ -100,7 +112,8 @@ namespace GatherBuddy.AutoGather.Lists
             return item.GetInventoryCount() < (item.IsTreasureMap ? 1 : quantity);
         }
 
-        private bool NeedsGathering(GatherTarget target) => NeedsGathering((target.Item, target.Quantity));
+        private bool NeedsGathering(GatherTarget target)
+            => NeedsGathering((target.Item, target.Quantity));
 
 
         private void OnActiveItemsChanged()
@@ -126,11 +139,11 @@ namespace GatherBuddy.AutoGather.Lists
         private void UpdateItemsToGather()
         {
             // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
-            var minerLevel = (DiscipleOfLand.MinerLevel + 5) / 5 * 5;
-            var botanistLevel = (DiscipleOfLand.BotanistLevel + 5) / 5 * 5;
-            var adjustedServerTime = _lastUpdateTime;
-            var territoryId = _lastTerritoryId;
-            DateTime? nextAllowance = null;
+            var       minerLevel         = (DiscipleOfLand.MinerLevel + 5) / 5 * 5;
+            var       botanistLevel      = (DiscipleOfLand.BotanistLevel + 5) / 5 * 5;
+            var       adjustedServerTime = _lastUpdateTime;
+            var       territoryId        = _lastTerritoryId;
+            DateTime? nextAllowance      = null;
 
             var nodes = _listsManager.ActiveItems
                 // Filter out items that are already gathered.
@@ -140,13 +153,14 @@ namespace GatherBuddy.AutoGather.Lists
                 // Fetch preferred location.
                 .Select(x => (x.Item, x.Quantity, PreferredLocation: _listsManager.GetPreferredLocation(x.Item)))
                 // Flatten node list add calculate the next uptime.
-                .SelectMany(x => x.Item.NodeList.Select(Node => (x.Item, Node, Time: Node.Times.NextUptime(adjustedServerTime), x.Quantity, x.PreferredLocation)))
+                .SelectMany(x => x.Item.NodeList.Select(Node
+                    => (x.Item, Node, Time: Node.Times.NextUptime(adjustedServerTime), x.Quantity, x.PreferredLocation)))
                 // Remove nodes with a level higher than the player can gather.
                 .Where(info => info.Node.GatheringType.ToGroup() switch
                 {
-                    GatheringType.Miner => info.Node.Level <= minerLevel,
+                    GatheringType.Miner    => info.Node.Level <= minerLevel,
                     GatheringType.Botanist => info.Node.Level <= botanistLevel,
-                    _ => false
+                    _                      => false
                 })
                 // Remove nodes that are not up.
                 .Where(x => x.Time.InRange(adjustedServerTime))
@@ -156,9 +170,9 @@ namespace GatherBuddy.AutoGather.Lists
                 .GroupBy(x => x.Item, x => x, (_, g) => g
                     // Prioritize preferred location, then preferred job, then the rest.
                     .OrderBy(x =>
-                          x.Node == x.PreferredLocation ? 0
+                        x.Node == x.PreferredLocation                                                 ? 0
                         : x.Node.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType ? 1
-                        : 2)
+                            : 2)
                     // Prioritize closest nodes in the current territory.
                     .ThenBy(x => GetHorizontalSquaredDistanceToPlayer(x.Node))
                     // Order by end time, longest first as in the original UptimeManager.NextUptime().
@@ -166,10 +180,12 @@ namespace GatherBuddy.AutoGather.Lists
                     .ThenBy(x => GatherBuddy.Config.AetherytePreference switch
                     {
                         // Order by distance to the closest aetheryte.
-                        AetherytePreference.Distance => AutoGather.FindClosestAetheryte(x.Node)?.WorldDistance(x.Node.Territory.Id, x.Node.IntegralXCoord, x.Node.IntegralYCoord) ?? int.MaxValue,
+                        AetherytePreference.Distance => AutoGather.FindClosestAetheryte(x.Node)
+                                ?.WorldDistance(x.Node.Territory.Id, x.Node.IntegralXCoord, x.Node.IntegralYCoord)
+                         ?? int.MaxValue,
                         // Order by teleportation cost.
                         AetherytePreference.Cost => GetTeleportationCost(x.Node),
-                        _ => 0
+                        _                        => 0
                     })
                     .First()
                 )
@@ -198,7 +214,7 @@ namespace GatherBuddy.AutoGather.Lists
 
             // Node coordinates are map coordinates multiplied by 100.
             var playerPos3D = Player.Object.GetMapCoordinates();
-            var playerPos = new Vector2(playerPos3D.X * 100f, playerPos3D.Y * 100f);
+            var playerPos   = new Vector2(playerPos3D.X * 100f,             playerPos3D.Y * 100f);
             return Vector2.DistanceSquared(new Vector2(node.IntegralXCoord, node.IntegralYCoord), playerPos);
         }
 
@@ -212,8 +228,8 @@ namespace GatherBuddy.AutoGather.Lists
                 NodeType.Legendary => 0,
                 NodeType.Unspoiled => 1,
                 NodeType.Ephemeral => 2,
-                NodeType.Regular => 9,
-                _ => 99,
+                NodeType.Regular   => 9,
+                _                  => 99,
             };
         }
 
@@ -234,7 +250,8 @@ namespace GatherBuddy.AutoGather.Lists
             _teleportationCosts.Clear();
 
             var telepo = Telepo.Instance();
-            if (telepo == null) return;
+            if (telepo == null)
+                return;
 
             telepo->UpdateAetheryteList();
             _teleportationCosts.EnsureCapacity(telepo->TeleportList.Count);
@@ -259,8 +276,8 @@ namespace GatherBuddy.AutoGather.Lists
         private bool IsUpdateNeeded()
         {
             if (_activeItemsChanged
-                || _lastUpdateTime.TotalEorzeaHours() != AutoGather.AdjustedServerTime.TotalEorzeaHours()
-                || _lastTerritoryId != Dalamud.ClientState.TerritoryType)
+             || _lastUpdateTime.TotalEorzeaHours() != AutoGather.AdjustedServerTime.TotalEorzeaHours()
+             || _lastTerritoryId != Dalamud.ClientState.TerritoryType)
                 return true;
 
             if (_gatheredSomething)
@@ -271,9 +288,11 @@ namespace GatherBuddy.AutoGather.Lists
                 {
                     if (item == current)
                         return false;
+
                     if (item.Node.Territory.Id != _lastTerritoryId)
                         break;
                 }
+
                 return true;
             }
 
@@ -285,16 +304,16 @@ namespace GatherBuddy.AutoGather.Lists
         /// </summary>
         private void DoUpdate()
         {
-            var territoryId = Dalamud.ClientState.TerritoryType;
+            var territoryId        = Dalamud.ClientState.TerritoryType;
             var adjustedServerTime = AutoGather.AdjustedServerTime;
-            var eorzeaHour = adjustedServerTime.TotalEorzeaHours();
-            var lastTerritoryId = _lastTerritoryId;
-            var lastEorzeaHour = _lastUpdateTime.TotalEorzeaHours();
+            var eorzeaHour         = adjustedServerTime.TotalEorzeaHours();
+            var lastTerritoryId    = _lastTerritoryId;
+            var lastEorzeaHour     = _lastUpdateTime.TotalEorzeaHours();
 
             _activeItemsChanged = false;
-            _gatheredSomething = false;
-            _lastUpdateTime = adjustedServerTime;
-            _lastTerritoryId = territoryId;
+            _gatheredSomething  = false;
+            _lastUpdateTime     = adjustedServerTime;
+            _lastTerritoryId    = territoryId;
 
             if (territoryId != lastTerritoryId)
                 UpdateTeleportationCosts();
@@ -313,7 +332,7 @@ namespace GatherBuddy.AutoGather.Lists
         internal void Reset()
         {
             _lastTerritoryId = 0;
-            _lastUpdateTime = TimeStamp.MinValue;
+            _lastUpdateTime  = TimeStamp.MinValue;
             _gatherableItems.Clear();
             _gatherableItems.TrimExcess();
             _teleportationCosts.Clear();
@@ -328,5 +347,7 @@ namespace GatherBuddy.AutoGather.Lists
             }
         }
     }
-    public record struct GatherTarget(Gatherable Item, GatheringNode Node, TimeInterval Time, uint Quantity) { }
+
+    public record struct GatherTarget(Gatherable Item, GatheringNode Node, TimeInterval Time, uint Quantity)
+    { }
 }
