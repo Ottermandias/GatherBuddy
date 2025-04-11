@@ -17,14 +17,21 @@ using Dalamud.Game.Text.SeStringHandling;
 using Dalamud.Game.Text.SeStringHandling.Payloads;
 using Dalamud.Game.Text;
 using Dalamud.Utility;
+using ECommons;
 using ECommons.ExcelServices;
 using ECommons.Automation;
 using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI.Agent;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
+using Lumina.Excel.Sheets;
+using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy.AutoGather
 {
@@ -76,6 +83,8 @@ namespace GatherBuddy.AutoGather
                         VNavmesh.Nav.PathfindCancelAll();
                     StopNavigation();
                     CurrentFarNodeLocation = null;
+                    _homeWorldWarning      = false;
+                    _diademQueuingInProgress = false;
                     FarNodesSeenSoFar.Clear();
                     VisitedNodes.Clear();
                 }
@@ -171,6 +180,9 @@ namespace GatherBuddy.AutoGather
             }
         }
 
+        private bool _diademQueuingInProgress = false;
+        private bool _homeWorldWarning = false;
+
         public void DoAutoGather()
         {
             if (!IsGathering)
@@ -202,6 +214,12 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (!_homeWorldWarning && !Functions.OnHomeWorld())
+            {
+                _homeWorldWarning = true;
+                Communicator.PrintError("You are not on your home world, some items will not be gatherable.");
+            }
+
             if (DiscipleOfLand.NextTreasureMapAllowance == DateTime.MinValue)
             {
                 //Wait for timer refresh
@@ -210,7 +228,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (!CanAct)
+            if (!CanAct && !_diademQueuingInProgress)
             {
                 AutoStatus = Dalamud.Conditions[ConditionFlag.Gathering] ? "Gathering..." : "Player is busy...";
                 return;
@@ -328,7 +346,7 @@ namespace GatherBuddy.AutoGather
             }
 
             var nearbyNodes = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).Select(o => o.DataId);
-            var next        = _activeItemList.GetNextOrDefault(nearbyNodes)
+            var next = _activeItemList.GetNextOrDefault(nearbyNodes)
                 .OrderByDescending(nodes => nodes.Item.ItemId);
             if (!next.Any())
             {
@@ -360,7 +378,7 @@ namespace GatherBuddy.AutoGather
 
             Waiting = false;
 
-            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Item.GatheringType)))
+            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Item.GatheringType.ToGroup())))
             {
                 AbortAutoGather();
                 return;
@@ -369,9 +387,18 @@ namespace GatherBuddy.AutoGather
             if (RepairIfNeeded())
                 return;
 
+            if (!LocationMatchesJob(next.First().Node))
+            {
+                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
+                    AbortAutoGather();
+
+                return;
+            }
+
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
-            if (territoryId == 478 && next.First().Node.Territory.Id == 399 && Lifestream.Enabled)
+            if ((territoryId == 478 && next.First().Node.Territory.Id == 399)
+             || (territoryId == 418 && next.First().Node.Territory.Id is 901 or 929 or 939) && Lifestream.Enabled)
             {
                 var aetheryte = Svc.Objects.Where(x => x.ObjectKind == ObjectKind.Aetheryte && x.IsTargetable)
                     .OrderBy(x => x.Position.DistanceToPlayer()).FirstOrDefault();
@@ -387,21 +414,99 @@ namespace GatherBuddy.AutoGather
                     {
                         AutoStatus = "Teleporting...";
                         StopNavigation();
-                        var exit = next.First().Node.DefaultXCoord < 2000 ? 91u : 92u;
-                        var name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Aetheryte>().GetRow(exit).AethernetName.Value.Name
-                            .ToString();
-                        Lifestream.AethernetTeleport(name);
+                        string name = string.Empty;
+                        switch (territoryId)
+                        {
+                            case 478:
+                                var exit = next.First().Node.DefaultXCoord < 2000 ? 91u : 92u;
+                                name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Aetheryte>().GetRow(exit).AethernetName.Value.Name
+                                    .ToString();
+                                break;
+                            case 418:
+                                name = Dalamud.GameData.GetExcelSheet<TerritoryType>().GetRow(886).PlaceName.Value.Name.ToString()
+                                    .Split(" ")[1];
+                                break;
+                        }
+
+                        TaskManager.Enqueue(() => Lifestream.AethernetTeleport(name));
+                        TaskManager.DelayNext(1000);
+                        TaskManager.Enqueue(() => GenericHelpers.IsScreenReady());
                     }
 
                     return;
                 }
             }
 
-            var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes.Where(z => z.ZoneId == next.First().Node.Territory.Id)
-                .FirstOrDefault();
+            if (territoryId == 886 && next.First().Node.Territory.Id is 901 or 929 or 939)
+            {
+                var dutyNpc                    = Svc.Objects.FirstOrDefault(o => o.DataId == 1031694);
+                var selectStringAddon          = Dalamud.GameGui.GetAddonByName("SelectString");
+                var talkAddon                  = Dalamud.GameGui.GetAddonByName("Talk");
+                var selectYesNoAddon           = Dalamud.GameGui.GetAddonByName("SelectYesno");
+                var contentsFinderConfirmAddon = Dalamud.GameGui.GetAddonByName("ContentsFinderConfirm");
+                Svc.Log.Verbose($"Addons: {selectStringAddon}, {talkAddon}, {selectYesNoAddon}, {contentsFinderConfirmAddon}");
+                if (dutyNpc != null && dutyNpc.Position.DistanceToPlayer() > 3)
+                {
+                    var point = VNavmesh.Query.Mesh.NearestPoint(dutyNpc.Position, 10, 10000);
+                    VNavmesh.SimpleMove.PathfindAndMoveTo(point, false);
+                    return;
+                }
+                else
+                    switch (Dalamud.Conditions[ConditionFlag.OccupiedInQuestEvent])
+                    {
+                        case false when contentsFinderConfirmAddon > 0:
+                        {
+                            var contents = new AddonMaster.ContentsFinderConfirm(contentsFinderConfirmAddon);
+                            TaskManager.Enqueue(contents.Commence);
+                            TaskManager.Enqueue(() => _diademQueuingInProgress = false);
+                            TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.BoundByDuty]);
+                            TaskManager.Enqueue(YesAlready.Unlock);
+                            return;
+                        }
+                        case false when contentsFinderConfirmAddon == nint.Zero
+                         && selectStringAddon == nint.Zero
+                         && selectYesNoAddon == nint.Zero:
+                            unsafe
+                            {
+                                var targetSystem = TargetSystem.Instance();
+                                if (targetSystem == null)
+                                    return;
+
+                                TaskManager.Enqueue(YesAlready.Lock);
+                                TaskManager.Enqueue(StopNavigation);
+                                TaskManager.Enqueue(()
+                                    => targetSystem->OpenObjectInteraction(
+                                        (FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)dutyNpc.Address));
+                                TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.OccupiedInQuestEvent]);
+                                TaskManager.Enqueue(() => _diademQueuingInProgress = true);
+                                return;
+                            }
+                        case true when selectStringAddon > 0:
+                        {
+                            var select = new AddonMaster.SelectString(selectStringAddon);
+                            TaskManager.Enqueue(() => select.Entries[0].Select());
+                            return;
+                        }
+                        case true when selectYesNoAddon > 0:
+                        {
+                            var yesNo = new AddonMaster.SelectYesno(selectYesNoAddon);
+                            TaskManager.Enqueue(yesNo.Yes);
+                            TaskManager.DelayNext(5000);
+                            return;
+                        }
+                        case true when talkAddon > 0:
+                        {
+                            var talk = new AddonMaster.Talk(talkAddon);
+                            TaskManager.Enqueue(talk.Click);
+                            return;
+                        }
+                    }
+            }
+
+            var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes
+                .FirstOrDefault(z => z.ZoneId == next.First().Node.Territory.Id);
             if (forcedAetheryte.ZoneId != 0
-             && (GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId
-                 || forcedAetheryte.AetheryteId == 70 && territoryId == 886)) //The Firmament
+             && GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId)
             {
                 if (territoryId == 478 && !Lifestream.Enabled)
                     AutoStatus = $"Install Lifestream or teleport to {next.First().Node.Territory.Name} manually";
@@ -417,10 +522,27 @@ namespace GatherBuddy.AutoGather
 
             if (next.First().Node.Territory.Id != territoryId)
             {
-                if (Dalamud.Conditions[ConditionFlag.BoundByDuty])
+                if (Dalamud.Conditions[ConditionFlag.BoundByDuty] && !Functions.InTheDiadem())
                 {
                     AutoStatus = "Can not teleport when bound by duty";
                     return;
+                }
+                else if (Functions.InTheDiadem())
+                {
+                    unsafe
+                    {
+                        AgentModule.Instance()->GetAgentByInternalId(AgentId.ContentsFinderMenu)->Show();
+                        if (GenericHelpers.TryGetAddonByName("ContentsFinderMenu", out AtkUnitBase* addon))
+                        {
+                            TaskManager.Enqueue(YesAlready.Lock);
+                            TaskManager.Enqueue(() => Callback.Fire(addon, true,  0));
+                            TaskManager.Enqueue(() => Callback.Fire(addon, false, -2));
+                            TaskManager.DelayNext(1000);
+                            TaskManager.Enqueue(() => Callback.Fire((AtkUnitBase*)Dalamud.GameGui.GetAddonByName("SelectYesno"), true, 0));
+                            TaskManager.Enqueue(YesAlready.Unlock);
+                            return;
+                        }
+                    }
                 }
 
                 AutoStatus = "Teleporting...";
@@ -443,18 +565,10 @@ namespace GatherBuddy.AutoGather
             if (DoUseConsumablesWithoutCastTime(config))
                 return;
 
-            if (!LocationMatchesJob(next.First().Node))
-            {
-                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
-                    AbortAutoGather();
-
-                return;
-            }
-
             var allPositions = next.SelectMany(ne => ne.Node.WorldPositions
-                .ExceptBy(VisitedNodes, n => n.Key)
-                .SelectMany(w => w.Value)
-                .Where(v => !IsBlacklisted(v))).Select(s => s)
+                    .ExceptBy(VisitedNodes, n => n.Key)
+                    .SelectMany(w => w.Value)
+                    .Where(v => !IsBlacklisted(v))).Select(s => s)
                 .ToHashSet();
 
             //Svc.Log.Verbose($"All positions: {allPositions.Count()}");
