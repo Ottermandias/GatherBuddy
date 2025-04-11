@@ -14,6 +14,7 @@ using System.Collections.ObjectModel;
 using System.Linq;
 using System.Numerics;
 using ECommons.DalamudServices;
+using GatherBuddy.Plugin;
 
 namespace GatherBuddy.AutoGather.Lists
 {
@@ -148,6 +149,7 @@ namespace GatherBuddy.AutoGather.Lists
             var nodes = _listsManager.ActiveItems
                 // Filter out items that are already gathered.
                 .Where(NeedsGathering)
+                .Where(x => RequiresHomeWorld(x) && Functions.OnHomeWorld())
                 // If treasure map, only gather if the allowance is up.
                 .Where(x => !x.Item.IsTreasureMap || (nextAllowance ??= DiscipleOfLand.NextTreasureMapAllowance) < adjustedServerTime.DateTime)
                 // Fetch preferred location.
@@ -205,6 +207,16 @@ namespace GatherBuddy.AutoGather.Lists
 
             _gatherableItems.Clear();
             _gatherableItems.AddRange(nodes.Select(x => new GatherTarget(x.Item, x.Node, x.Time, x.Quantity)));
+        }
+
+        private bool RequiresHomeWorld((Gatherable Item, uint Quantity) valueTuple)
+        {
+            var item = valueTuple.Item1;
+            return item.IsTreasureMap
+             || item.NodeType == NodeType.Legendary
+             || item.NodeType == NodeType.Unspoiled
+             || item.NodeType == NodeType.Ephemeral
+             || item.NodeList.Any(nl => nl.Territory.Id is 901 or 929 or 939); // The Diadem
         }
 
         private static float GetHorizontalSquaredDistanceToPlayer(GatheringNode node)

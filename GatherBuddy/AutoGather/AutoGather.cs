@@ -83,6 +83,8 @@ namespace GatherBuddy.AutoGather
                         VNavmesh.Nav.PathfindCancelAll();
                     StopNavigation();
                     CurrentFarNodeLocation = null;
+                    _homeWorldWarning      = false;
+                    _diademQueuingInProgress = false;
                     FarNodesSeenSoFar.Clear();
                     VisitedNodes.Clear();
                 }
@@ -179,6 +181,7 @@ namespace GatherBuddy.AutoGather
         }
 
         private bool _diademQueuingInProgress = false;
+        private bool _homeWorldWarning = false;
 
         public void DoAutoGather()
         {
@@ -209,6 +212,12 @@ namespace GatherBuddy.AutoGather
             {
                 //GatherBuddy.Log.Verbose("TaskManager has tasks, skipping DoAutoGather");
                 return;
+            }
+
+            if (!_homeWorldWarning && !Functions.OnHomeWorld())
+            {
+                _homeWorldWarning = true;
+                Communicator.PrintError("You are not on your home world, some items will not be gatherable.");
             }
 
             if (DiscipleOfLand.NextTreasureMapAllowance == DateTime.MinValue)
@@ -369,7 +378,7 @@ namespace GatherBuddy.AutoGather
 
             Waiting = false;
 
-            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Item.GatheringType)))
+            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Item.GatheringType.ToGroup())))
             {
                 AbortAutoGather();
                 return;
@@ -377,6 +386,14 @@ namespace GatherBuddy.AutoGather
 
             if (RepairIfNeeded())
                 return;
+
+            if (!LocationMatchesJob(next.First().Node))
+            {
+                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
+                    AbortAutoGather();
+
+                return;
+            }
 
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
@@ -547,14 +564,6 @@ namespace GatherBuddy.AutoGather
 
             if (DoUseConsumablesWithoutCastTime(config))
                 return;
-
-            if (!LocationMatchesJob(next.First().Node))
-            {
-                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
-                    AbortAutoGather();
-
-                return;
-            }
 
             var allPositions = next.SelectMany(ne => ne.Node.WorldPositions
                     .ExceptBy(VisitedNodes, n => n.Key)
