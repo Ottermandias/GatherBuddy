@@ -149,7 +149,7 @@ namespace GatherBuddy.AutoGather.Lists
             var nodes = _listsManager.ActiveItems
                 // Filter out items that are already gathered.
                 .Where(NeedsGathering)
-                .Where(x => RequiresHomeWorld(x) && Functions.OnHomeWorld())
+                .Where(x => (RequiresHomeWorld(x) && Functions.OnHomeWorld()) || !RequiresHomeWorld(x))
                 // If treasure map, only gather if the allowance is up.
                 .Where(x => !x.Item.IsTreasureMap || (nextAllowance ??= DiscipleOfLand.NextTreasureMapAllowance) < adjustedServerTime.DateTime)
                 // Fetch preferred location.
