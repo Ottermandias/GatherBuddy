@@ -5,6 +5,7 @@ using System.IO.Compression;
 using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Conditions;
 using Dalamud.Game.ClientState.Keys;
+using ECommons.DalamudServices;
 using Lumina.Excel.Sheets;
 using OtterGui.Classes;
 
@@ -107,16 +108,21 @@ public static class Functions
     }
 
     public static bool BoundByDuty()
-        => !InIslandSanctuary() && (Dalamud.Conditions[ConditionFlag.BoundByDuty]
-         || Dalamud.Conditions[ConditionFlag.WatchingCutscene]
-         || Dalamud.Conditions[ConditionFlag.BoundByDuty56]
-         || Dalamud.Conditions[ConditionFlag.BoundByDuty95]
-         || Dalamud.Conditions[ConditionFlag.WatchingCutscene78]
-         || Dalamud.Conditions[ConditionFlag.InDeepDungeon]);
+        => (Dalamud.Conditions[ConditionFlag.BoundByDuty]
+             || Dalamud.Conditions[ConditionFlag.BoundByDuty56]
+             || Dalamud.Conditions[ConditionFlag.BoundByDuty95]
+             || Dalamud.Conditions[ConditionFlag.WatchingCutscene]
+             || Dalamud.Conditions[ConditionFlag.WatchingCutscene78]
+             || Dalamud.Conditions[ConditionFlag.InDeepDungeon])
+         && !InIslandSanctuary()
+         && !InTheDiadem();
 
     public static bool BetweenAreas()
         => Dalamud.Conditions[ConditionFlag.BetweenAreas]
          || Dalamud.Conditions[ConditionFlag.BetweenAreas51];
+
+    public static bool InTheDiadem()
+        => Dalamud.ClientState.TerritoryType is 901 or 929 or 939;
 
     public static bool InIslandSanctuary()
         => Dalamud.GameData.GetExcelSheet<TerritoryType>()

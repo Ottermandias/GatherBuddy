@@ -139,6 +139,21 @@ public partial class Interface
                 _weatherTable.SetDirty();
             if (ImGui.Button("Set Locations Dirty"))
                 GatherBuddy.UptimeManager.ResetLocations();
+            if (ImGui.Button("Populate Diadem List"))
+            {
+                var diademItems = GatherBuddy.GameData.Gatherables.Values.Where(g => g.Name[ClientLanguage.English].Contains("Grade 4 Skybuilder", StringComparison.InvariantCultureIgnoreCase));
+                var list = new AutoGatherList()
+                {
+                    Name        = "Diadem Debug",
+                    Description = "Debug list for diadem gatherables",
+                };
+                foreach (var item in diademItems)
+                {
+                    list.Add(item);
+                    list.SetQuantity(item, 1000);
+                }
+                _plugin.AutoGatherListsManager.AddList(list);
+            }
         }
     }
 

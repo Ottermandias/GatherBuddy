@@ -200,7 +200,7 @@ public class UptimeManager : IDisposable
         {
             > 0 => UpdateUptime(item),
             < 0 => (GetLocation(item), TimeInterval.Always),
-            _   => (item.Locations.First(), TimeInterval.Always),
+            _   => (item.Locations.FirstOrDefault() ?? GatherBuddy.GameData.GatheringNodes.First().Value, TimeInterval.Always),
         };
 
     public TimeInterval NextUptime(Fish fish, Territory territory, TimeStamp now)
