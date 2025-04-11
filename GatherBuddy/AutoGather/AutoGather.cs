@@ -476,15 +476,6 @@ namespace GatherBuddy.AutoGather
             }
 
             AutoStatus = "Moving to far node...";
-            if (CurrentDestination != default && CurrentFarNodeLocation != next.First().Node)
-            {
-                GatherBuddy.Log.Debug("Current destination doesn't match the target location, resetting navigation");
-                StopNavigation();
-                FarNodesSeenSoFar.Clear();
-                VisitedNodes.Clear();
-            }
-
-            CurrentFarNodeLocation = next.First().Node;
 
             if (CurrentDestination != default)
             {
