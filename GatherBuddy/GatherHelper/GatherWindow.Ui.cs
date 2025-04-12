@@ -257,7 +257,7 @@ public class GatherWindow : Window
     }
 
     public override bool DrawConditions()
-        => !(CheckHoldKey() || CheckDuty() || CheckAvailable());
+        => !(CheckHoldKey() || CheckDuty() || CheckAvailable()) && Dalamud.ClientState.IsLoggedIn;
 
     public override void PreDraw()
     {
