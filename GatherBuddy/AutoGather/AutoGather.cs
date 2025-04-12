@@ -82,8 +82,8 @@ namespace GatherBuddy.AutoGather
                     if (VNavmesh.Enabled && IsPathGenerating)
                         VNavmesh.Nav.PathfindCancelAll();
                     StopNavigation();
-                    CurrentFarNodeLocation = null;
-                    _homeWorldWarning      = false;
+                    CurrentFarNodeLocation   = null;
+                    _homeWorldWarning        = false;
                     _diademQueuingInProgress = false;
                     FarNodesSeenSoFar.Clear();
                     VisitedNodes.Clear();
@@ -181,7 +181,7 @@ namespace GatherBuddy.AutoGather
         }
 
         private bool _diademQueuingInProgress = false;
-        private bool _homeWorldWarning = false;
+        private bool _homeWorldWarning        = false;
 
         public void DoAutoGather()
         {
@@ -387,14 +387,6 @@ namespace GatherBuddy.AutoGather
             if (RepairIfNeeded())
                 return;
 
-            if (!LocationMatchesJob(next.First().Node))
-            {
-                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
-                    AbortAutoGather();
-
-                return;
-            }
-
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
             if ((territoryId == 478 && next.First().Node.Territory.Id == 399)
@@ -529,20 +521,8 @@ namespace GatherBuddy.AutoGather
                 }
                 else if (Functions.InTheDiadem())
                 {
-                    unsafe
-                    {
-                        AgentModule.Instance()->GetAgentByInternalId(AgentId.ContentsFinderMenu)->Show();
-                        if (GenericHelpers.TryGetAddonByName("ContentsFinderMenu", out AtkUnitBase* addon))
-                        {
-                            TaskManager.Enqueue(YesAlready.Lock);
-                            TaskManager.Enqueue(() => Callback.Fire(addon, true,  0));
-                            TaskManager.Enqueue(() => Callback.Fire(addon, false, -2));
-                            TaskManager.DelayNext(1000);
-                            TaskManager.Enqueue(() => Callback.Fire((AtkUnitBase*)Dalamud.GameGui.GetAddonByName("SelectYesno"), true, 0));
-                            TaskManager.Enqueue(YesAlready.Unlock);
-                            return;
-                        }
-                    }
+                    LeaveTheDiadem();
+                    return;
                 }
 
                 AutoStatus = "Teleporting...";
@@ -571,8 +551,6 @@ namespace GatherBuddy.AutoGather
                     .Where(v => !IsBlacklisted(v))).Select(s => s)
                 .ToHashSet();
 
-            //Svc.Log.Verbose($"All positions: {allPositions.Count()}");
-
             var visibleNodes = Svc.Objects
                 .Where(o => allPositions.Contains(o.Position))
                 .ToList();
@@ -580,6 +558,14 @@ namespace GatherBuddy.AutoGather
             var closestTargetableNode = visibleNodes
                 .Where(o => o.IsTargetable)
                 .MinBy(o => Vector3.Distance(Player.Position, o.Position));
+
+            if (closestTargetableNode == null && !LocationMatchesJob(next.First().Node))
+            {
+                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
+                    AbortAutoGather();
+
+                return;
+            }
 
             if (closestTargetableNode != null)
             {
@@ -653,8 +639,28 @@ namespace GatherBuddy.AutoGather
             MoveToFarNode(selectedFarNode);
         }
 
+        private unsafe void LeaveTheDiadem()
+        {
+            AgentModule.Instance()->GetAgentByInternalId(AgentId.ContentsFinderMenu)->Show();
+            if (GenericHelpers.TryGetAddonByName("ContentsFinderMenu", out AtkUnitBase* addon))
+            {
+                TaskManager.Enqueue(YesAlready.Lock);
+                TaskManager.Enqueue(() => Callback.Fire(addon, true,  0));
+                TaskManager.Enqueue(() => Callback.Fire(addon, false, -2));
+                TaskManager.DelayNext(1000);
+                TaskManager.Enqueue(() => Callback.Fire((AtkUnitBase*)Dalamud.GameGui.GetAddonByName("SelectYesno"), true, 0));
+                TaskManager.Enqueue(YesAlready.Unlock);
+                return;
+            }
+        }
+
         private void AbortAutoGather(string? status = null)
         {
+            if (Functions.InTheDiadem())
+            {
+                LeaveTheDiadem();
+                return;
+            }
             if (!string.IsNullOrEmpty(status))
                 AutoStatus = status;
             if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
