@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -18,85 +17,85 @@ namespace GatherBuddy.AutoGather.Helpers
     {
         private const BindingFlags All = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static;
 
-        internal static class Artisan_Reflection
+        public class ArtisanExporter
         {
-            public static IDalamudPlugin? ArtisanAssemblyInstance;
+            private readonly AutoGatherListsManager _listsManager;
+            public ArtisanExporter(AutoGatherListsManager listsManager)
+            {
+                _listsManager = listsManager;
+            }
+            public IDalamudPlugin? ArtisanAssemblyInstance;
 
-            public static bool ArtisanAssemblyEnabled
+            public bool ArtisanAssemblyEnabled
                 => DalamudReflector.TryGetDalamudPlugin("Artisan", out _, false, true);
 
-            public static bool TouchArtisanAssembly
+            public bool TouchArtisanAssembly
                 => DalamudReflector.TryGetDalamudPlugin("Artisan", out ArtisanAssemblyInstance, out _, false, true);
 
-            public static Task<AutoGatherList?>? ArtisanExportTask  = null;
-            public static int?                   ListIndexToReplace = null;
-
-            public static bool ArtisanExportInProgress
-                => ArtisanExportTask != null && ArtisanExportTask.Status == TaskStatus.Running;
-
-            public static bool ArtisanExportComplete
-                => ArtisanExportTask != null && ArtisanExportTask.Status == TaskStatus.RanToCompletion;
-
-            public static bool ArtisanExportFailed
-                => ArtisanExportTask != null && ArtisanExportTask.Status == TaskStatus.Faulted;
-
-            public static bool ArtisanExportBusy
-                => ArtisanExportTask != null && ListIndexToReplace != null;
-
-            public static void StartArtisanImportTask(string listName, int listIndexToReplace)
+            public Dictionary<int, string> GetArtisanListNames()
             {
-                ListIndexToReplace = listIndexToReplace;
-                ArtisanExportTask  = Task.Run(() => ArtisanImportAsync(listName));
+                Dictionary<int, string> listNames = [];
+                try
+                {
+                    if (TouchArtisanAssembly)
+                    {
+                        System.Collections.IList artisanCraftingLists = (System.Collections.IList)ArtisanAssemblyInstance.GetFoP("Config").GetFoP("NewCraftingLists");
+                        foreach (var list in artisanCraftingLists)
+                        {
+                            var name = list.GetFoP("Name").ToString();
+                            var id   = (int)list.GetFoP("ID");
+                            if (name != null)
+                                listNames.Add(id, name);
+                        }
+                    }
+                    return listNames;
+                }
+                catch (Exception e)
+                {
+                    Svc.Log.Error(e, "Error while getting Artisan List names: ");
+                    return listNames;
+                }
             }
 
-            public static void ResetArtisanExportTask()
+            public void StartArtisanImport(KeyValuePair<int, string> listKvp)
             {
-                ArtisanExportTask  = null;
-                ListIndexToReplace = null;
+                Task.Run(() => ImportArtisanList(listKvp));
             }
 
-            public static async Task<AutoGatherList?> ArtisanImportAsync(string listName)
+            private bool ImportArtisanList(KeyValuePair<int, string> listKvp)
             {
                 try
                 {
                     if (TouchArtisanAssembly)
                     {
-                        IList artisanCraftingLists      = (IList)ArtisanAssemblyInstance.GetFoP("Config").GetFoP("NewCraftingLists");
-                        var   artisanRootAssembly       = Assembly.GetAssembly(ArtisanAssemblyInstance!.GetType())!;
+                        System.Collections.IList artisanCraftingLists = (System.Collections.IList)ArtisanAssemblyInstance.GetFoP("Config").GetFoP("NewCraftingLists");
+                        var   artisanRootAssembly  = Assembly.GetAssembly(ArtisanAssemblyInstance!.GetType())!;
                         var   craftingListFunctionsType = artisanRootAssembly.GetType("Artisan.CraftingLists.CraftingListFunctions")!;
-                        var listMaterialsMethodInfo =
-                            craftingListFunctionsType.GetMethod("ListMaterials", BindingFlags.Public | BindingFlags.Static);
-
-                        AutoGatherList importedList = new()
-                        {
-                            Name        = listName,
-                            Description = "Imported from Artisan",
-                            Enabled     = false,
-                            Fallback    = false,
-                        };
-                        var targetList = artisanCraftingLists.Cast<object>().SingleOrDefault(l => l.GetFoP("Name").ToString() == listName);
+                        var listMaterialsMethodInfo = craftingListFunctionsType.GetMethod("ListMaterials", All);
+                        var targetList = artisanCraftingLists.Cast<object>().SingleOrDefault(l => (int)l.GetFoP("ID") == listKvp.Key);
                         if (targetList == null)
                         {
-                            Svc.Log.Error("Artisan Crafting List not found. Artisan List name must be identical to the Auto-Gather List name.");
-                            return null;
+                            Svc.Log.Error($"Artisan list '{listKvp.Value}' ({listKvp.Key}) could not be found");
+                            return false;
                         }
 
                         var matList = (Dictionary<uint, int>)listMaterialsMethodInfo!.Invoke(null, [targetList])!;
 
+                        AutoGatherList list = new AutoGatherList();
+                        list.Name        = listKvp.Value;
+                        list.Description = "Imported from Artisan";
                         foreach (var (itemId, quantity) in matList)
                         {
-                            var gatherable =
-                                GatherBuddy.GameData.Gatherables.FirstOrDefault(g => g.Key == itemId);
+                            var gatherable = GatherBuddy.GameData.Gatherables.FirstOrDefault(g => g.Key == itemId);
                             if (gatherable.Value == null || gatherable.Value.NodeList.Count == 0)
                                 continue;
-
-                            importedList.Add(gatherable.Value, (uint)quantity);
+                            list.Add(gatherable.Value, (uint)quantity);
                         }
-
-                        return importedList;
+                        _listsManager.AddList(list);
+                        Communicator.Print($"List '{listKvp.Value}' imported successfully!");
+                        return true;
                     }
-
-                    return null;
+                    return false;
                 }
                 catch (Exception e)
                 {
@@ -104,6 +103,56 @@ namespace GatherBuddy.AutoGather.Helpers
                     throw;
                 }
             }
+
+            // public static async Task<AutoGatherList?> ArtisanImportAsync(string listName)
+            // {
+            //     try
+            //     {
+            //         if (TouchArtisanAssembly)
+            //         {
+            //             IList artisanCraftingLists      = (IList)ArtisanAssemblyInstance.GetFoP("Config").GetFoP("NewCraftingLists");
+            //             var   artisanRootAssembly       = Assembly.GetAssembly(ArtisanAssemblyInstance!.GetType())!;
+            //             var   craftingListFunctionsType = artisanRootAssembly.GetType("Artisan.CraftingLists.CraftingListFunctions")!;
+            //             var listMaterialsMethodInfo =
+            //                 craftingListFunctionsType.GetMethod("ListMaterials", BindingFlags.Public | BindingFlags.Static);
+            //
+            //             AutoGatherList importedList = new()
+            //             {
+            //                 Name        = listName,
+            //                 Description = "Imported from Artisan",
+            //                 Enabled     = false,
+            //                 Fallback    = false,
+            //             };
+            //             var targetList = artisanCraftingLists.Cast<object>().SingleOrDefault(l => l.GetFoP("Name").ToString() == listName);
+            //             if (targetList == null)
+            //             {
+            //                 Svc.Log.Error("Artisan Crafting List not found. Artisan List name must be identical to the Auto-Gather List name.");
+            //                 return null;
+            //             }
+            //
+            //             var matList = (Dictionary<uint, int>)listMaterialsMethodInfo!.Invoke(null, [targetList])!;
+            //
+            //             foreach (var (itemId, quantity) in matList)
+            //             {
+            //                 var gatherable =
+            //                     GatherBuddy.GameData.Gatherables.FirstOrDefault(g => g.Key == itemId);
+            //                 if (gatherable.Value == null || gatherable.Value.NodeList.Count == 0)
+            //                     continue;
+            //
+            //                 importedList.Add(gatherable.Value, (uint)quantity);
+            //             }
+            //
+            //             return importedList;
+            //         }
+            //
+            //         return null;
+            //     }
+            //     catch (Exception e)
+            //     {
+            //         Svc.Log.Error(e, "Error while importing Artisan List: ");
+            //         throw;
+            //     }
+            // }
         }
     }
 }

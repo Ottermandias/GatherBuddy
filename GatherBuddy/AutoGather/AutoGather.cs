@@ -46,6 +46,7 @@ namespace GatherBuddy.AutoGather
             _soundHelper          = new SoundHelper();
             _advancedUnstuck      = new();
             _activeItemList       = new ActiveItemList(plugin.AutoGatherListsManager);
+            ArtisanExporter      = new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
         }
 
         private readonly GatherBuddy     _plugin;
@@ -53,7 +54,8 @@ namespace GatherBuddy.AutoGather
         private readonly AdvancedUnstuck _advancedUnstuck;
         private readonly ActiveItemList  _activeItemList;
 
-        public TaskManager TaskManager { get; }
+        public Reflection.ArtisanExporter ArtisanExporter;
+        public TaskManager                TaskManager { get; }
 
         private           bool             _enabled { get; set; } = false;
         internal readonly GatheringTracker NodeTracker = new();
@@ -128,57 +130,6 @@ namespace GatherBuddy.AutoGather
 
         private class NoCollectableActionsException : Exception
         { }
-
-        public void HandleArtisanImport()
-        {
-            if (Reflection.Artisan_Reflection.ArtisanExportInProgress)
-            {
-                Svc.Log.Verbose("Artisan export in progress, skipping HandleArtisanImport");
-                return;
-            }
-            else if (Reflection.Artisan_Reflection.ArtisanExportFailed)
-            {
-                Svc.Log.Verbose("Artisan export failed, clearing task");
-                Reflection.Artisan_Reflection.ResetArtisanExportTask();
-                return;
-            }
-            else if (Reflection.Artisan_Reflection.ArtisanExportComplete)
-            {
-                Svc.Log.Verbose("Artisan export complete, finishing import");
-                var importedList = Reflection.Artisan_Reflection.ArtisanExportTask!.Result;
-                if (importedList == null)
-                {
-                    Svc.Log.Error("Import list was null, aborting import");
-                    Reflection.Artisan_Reflection.ResetArtisanExportTask();
-                    return;
-                }
-
-                var listToReplaceIdx = Reflection.Artisan_Reflection.ListIndexToReplace;
-                if (listToReplaceIdx == null)
-                {
-                    Svc.Log.Error("List index to replace was null, aborting import");
-                    Reflection.Artisan_Reflection.ResetArtisanExportTask();
-                    return;
-                }
-
-                var listToModify = _plugin.AutoGatherListsManager.Lists[listToReplaceIdx.Value];
-                listToModify.Description = importedList.Description;
-                listToModify.Name        = importedList.Name;
-                for (var i = 0; i < listToModify.Items.Count; i++)
-                {
-                    listToModify.RemoveAt(i);
-                }
-
-                foreach (var item in importedList.Items)
-                {
-                    listToModify.Add(item);
-                    listToModify.SetQuantity(item, importedList.Quantities[item]);
-                }
-
-                Reflection.Artisan_Reflection.ResetArtisanExportTask();
-                Communicator.Print($"Successfully imported {importedList.Name} from Artisan!");
-            }
-        }
 
         private bool _diademQueuingInProgress = false;
         private bool _homeWorldWarning        = false;

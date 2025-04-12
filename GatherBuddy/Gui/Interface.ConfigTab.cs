@@ -71,12 +71,6 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems,
                 b => GatherBuddy.Config.AutoGatherConfig.UseSkillsForFallbackItems = b);
 
-        public static void DrawArtisanImportBox()
-            => DrawCheckbox("Automatically import lists from Artisan",
-                "When adding a new Auto-Gather list GBR will attempt to import the needed ingredients from your Artisan list if the names match.",
-                GatherBuddy.Config.AutoGatherConfig.HandleArtisanListsAutomatically,
-                b => GatherBuddy.Config.AutoGatherConfig.HandleArtisanListsAutomatically = b);
-
         public static void DrawAbandonNodesBox()
             => DrawCheckbox("Abandon nodes without needed items",
                 "Stop gathering and abandon the node when you have gathered enough items,\n"
@@ -708,7 +702,6 @@ public partial class Interface
                 ConfigFunctions.DrawGoHomeBox();
                 ConfigFunctions.DrawUseSkillsForFallabckBox();
                 ConfigFunctions.DrawAbandonNodesBox();
-                ConfigFunctions.DrawArtisanImportBox();
                 ImGui.TreePop();
             }
 
