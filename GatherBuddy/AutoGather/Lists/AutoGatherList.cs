@@ -17,14 +17,16 @@ public class AutoGatherList
     public ReadOnlyCollection<Gatherable> Items => items.AsReadOnly();
     public ReadOnlyDictionary<Gatherable, uint> Quantities => quantities.AsReadOnly();
     public ReadOnlyDictionary<Gatherable, GatheringNode> PreferredLocations => preferredLocations.AsReadOnly();
+    public ReadOnlyDictionary<Gatherable, bool> EnabledItems => enabledItems.AsReadOnly();
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public bool Enabled { get; set; } = false;
     public bool Fallback { get; set; } = false;
 
-    private List<Gatherable> items = [];
-    private Dictionary<Gatherable, uint> quantities = [];
+    private List<Gatherable>                      items              = [];
+    private Dictionary<Gatherable, uint>          quantities         = [];
     private Dictionary<Gatherable, GatheringNode> preferredLocations = [];
+    private Dictionary<Gatherable, bool>          enabledItems       = [];
 
     public AutoGatherList Clone()
         => new()
@@ -45,12 +47,14 @@ public class AutoGatherList
 
         items.Add(item);
         quantities[item] = NormalizeQuantity(item, quantity);
+        enabledItems[item] = true;
         return true;
     }
 
     public void RemoveAt(int index)
     {
         var item = items[index];
+        enabledItems.Remove(item);
         quantities.Remove(item);
         preferredLocations.Remove(item);
         items.RemoveAt(index);
@@ -63,9 +67,11 @@ public class AutoGatherList
 
         var old = items[index];
         quantities.Remove(old, out var quantity);
+        enabledItems.Remove(old, out var enabled);
         preferredLocations.Remove(old);
         items[index] = item;
         quantities[item] = NormalizeQuantity(item, quantity);
+        enabledItems[item] = enabled;
 
         return true;
     }
@@ -84,6 +90,19 @@ public class AutoGatherList
             if (old != quantity)
             {
                 quantities[item] = quantity;
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public bool SetEnabled(Gatherable item, bool enabled)
+    {
+        if (enabledItems.TryGetValue(item, out var old))
+        {
+            if (old != enabled)
+            {
+                enabledItems[item] = enabled;
                 return true;
             }
         }
@@ -129,6 +148,7 @@ public class AutoGatherList
         public uint[] ItemIds = list.Items.Select(i => i.ItemId).ToArray();
         public Dictionary<uint, uint> Quantities = list.Quantities.ToDictionary(v => v.Key.ItemId, v => v.Value);
         public Dictionary<uint, uint> PrefferedLocations = list.PreferredLocations.ToDictionary(v => v.Key.ItemId, v => v.Value.Id);
+        public Dictionary<uint, bool> EnabledItems = list.EnabledItems.ToDictionary(v => v.Key.ItemId, v => v.Value);
         public string Name = list.Name;
         public string Description = list.Description;
         public bool Enabled = list.Enabled;
@@ -167,6 +187,15 @@ public class AutoGatherList
 
     public static bool FromConfig(Config cfg, out AutoGatherList list)
     {
+        //Migrate Individual Enabled
+        if ((cfg.EnabledItems?.Count ?? 0) == 0)
+        {
+            cfg.EnabledItems = new Dictionary<uint, bool>(cfg.ItemIds.Length);
+            foreach (var item in cfg.ItemIds)
+            {
+                cfg.EnabledItems[item] = true;
+            }
+        }
         list = new AutoGatherList()
         {
             Name = cfg.Name,
@@ -175,7 +204,8 @@ public class AutoGatherList
             Fallback = cfg.Fallback,
             items = new(cfg.ItemIds.Length),
             quantities = new(cfg.ItemIds.Length),
-            preferredLocations = new(cfg.PrefferedLocations.Count)
+            preferredLocations = new(cfg.PrefferedLocations.Count),
+            enabledItems = new(cfg.EnabledItems.Count),
         };
         var changes = false;
         foreach (var itemId in cfg.ItemIds)
