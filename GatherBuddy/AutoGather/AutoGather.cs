@@ -387,14 +387,6 @@ namespace GatherBuddy.AutoGather
             if (RepairIfNeeded())
                 return;
 
-            if (!LocationMatchesJob(next.First().Node))
-            {
-                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
-                    AbortAutoGather();
-
-                return;
-            }
-
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
             if ((territoryId == 478 && next.First().Node.Territory.Id == 399)
@@ -559,8 +551,6 @@ namespace GatherBuddy.AutoGather
                     .Where(v => !IsBlacklisted(v))).Select(s => s)
                 .ToHashSet();
 
-            //Svc.Log.Verbose($"All positions: {allPositions.Count()}");
-
             var visibleNodes = Svc.Objects
                 .Where(o => allPositions.Contains(o.Position))
                 .ToList();
@@ -568,6 +558,14 @@ namespace GatherBuddy.AutoGather
             var closestTargetableNode = visibleNodes
                 .Where(o => o.IsTargetable)
                 .MinBy(o => Vector3.Distance(Player.Position, o.Position));
+
+            if (closestTargetableNode == null && !LocationMatchesJob(next.First().Node))
+            {
+                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
+                    AbortAutoGather();
+
+                return;
+            }
 
             if (closestTargetableNode != null)
             {
