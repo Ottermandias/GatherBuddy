@@ -92,10 +92,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <None Include="Plugin\AutoGather.cs" />
-	</ItemGroup>
-
-	<ItemGroup>
 	  <EmbeddedResource Include="CustomInfo\IlvConvertTable.csv" />
 	</ItemGroup>
 </Project>
