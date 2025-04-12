@@ -56,8 +56,8 @@ public partial class AutoGather
             public uint ActionId => GetJobValue(actions).RowId;
             public uint QuestId  => GetJobValue(actions).UnlockLink.RowId;
             public uint EffectId => GetJobValue(effects);
-            public int MinLevel => GetJobValue(actions).ClassJobLevel;
-            public int GpCost => GetJobValue(actions).PrimaryCostValue;
+            public int MinLevel => actions.Botanist.ClassJobLevel;
+            public int GpCost => actions.Botanist.PrimaryCostValue;
             public EffectType EffectType { get; }
 
             private static T GetJobValue<T>(Pair<T> pair)
