@@ -16,7 +16,6 @@ using ImGuiNET;
 using OtterGui;
 using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
-using static GatherBuddy.AutoGather.Helpers.Reflection.Artisan_Reflection;
 using ECommons.ImGuiMethods;
 using ECommons;
 
@@ -64,20 +63,11 @@ public partial class Interface
 
             protected override bool OnAdd(string name)
             {
-                if (TouchArtisanAssembly && ArtisanExportBusy)
-                {
-                    Communicator.PrintError("Artisan Crafting List export is in progress. Please wait until it is finished.");
-                    return false;
-                }
                 var list = new AutoGatherList()
                 {
                     Name = name,
                 };
                 _plugin.AutoGatherListsManager.AddList(list);
-                if (GatherBuddy.Config.AutoGatherConfig.HandleArtisanListsAutomatically && TouchArtisanAssembly)
-                {
-                    StartArtisanImportTask(name, _plugin.AutoGatherListsManager.Lists.IndexOf(list));
-                }
                 return true;
             }
 
@@ -211,6 +201,45 @@ public partial class Interface
             }
         }
 
+        if (GatherBuddy.AutoGather.ArtisanExporter.ArtisanAssemblyEnabled)
+        {
+            if (ImGuiUtil.DrawDisabledButton("Import From Artisan", Vector2.Zero,
+                    "Import your lists from Artisan into GBR\nBrings up a dropdown to select which list to import.\nA new list will be created in GBR when you click on the name of the list in the dropdown.",
+                    !GatherBuddy.AutoGather.ArtisanExporter.ArtisanAssemblyEnabled))
+            {
+                ImGui.OpenPopup($"artisanImport");
+            }
+
+            if (ImGui.BeginPopup($"artisanImport"))
+            {
+                var lists = GatherBuddy.AutoGather.ArtisanExporter.GetArtisanListNames();
+
+                float rowHeight       = ImGui.GetTextLineHeightWithSpacing();
+                float totalListHeight = lists.Count * rowHeight;
+                float totalListWidth  = lists.Max(n => ImGui.CalcTextSize(n.Value).X) + 40;
+
+                float maxHeight   = ImGui.GetIO().DisplaySize.Y * 0.4f;
+                float childHeight = Math.Min(totalListHeight, maxHeight);
+
+                if (ImGui.BeginChild("ArtisanListsChild", new Vector2(totalListWidth, childHeight), true))
+                {
+                    foreach (var kvp in lists)
+                    {
+                        if (ImGui.Selectable($"{kvp.Value}##{kvp.Key}"))
+                        {
+                            Communicator.Print($"Importing '{kvp.Value}' from Artisan...");
+                            GatherBuddy.AutoGather.ArtisanExporter.StartArtisanImport(kvp);
+                        }
+
+                        ImGuiUtil.HoverTooltip($"{kvp.Value} ({kvp.Key})\n(Click to import to new auto-gather list)");
+                    }
+                }
+
+                ImGui.EndChild();
+                ImGui.EndPopup();
+            }
+        }
+
         if (ImGuiUtil.DrawDisabledButton("Import from TeamCraft", Vector2.Zero, "Populate list from clipboard contents (TeamCraft format)",
                 _autoGatherListsCache.Selector.Current == null))
         {
@@ -254,18 +283,6 @@ public partial class Interface
                 {
                     Communicator.PrintClipboardMessage("Error importing auto-gather list", e.ToString());
                 }
-            }
-        }
-
-        if (ArtisanAssemblyEnabled)
-        {
-            var label = ArtisanExportBusy ? "Artisan import in progress..." : "Import from Artisan";
-            if (ImGuiUtil.DrawDisabledButton(label, Vector2.Zero,
-                    "Populate list by finding Artisan Crafting List of same name.",
-                    _autoGatherListsCache.Selector.Current == null || ArtisanExportBusy))
-            {
-                var workingList     = _autoGatherListsCache.Selector.Current!;
-                StartArtisanImportTask(workingList.Name, _autoGatherListsCache.Selector.CurrentIdx);
             }
         }
 

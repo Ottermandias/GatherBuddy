@@ -19,7 +19,6 @@ using static GatherBuddy.FishTimer.FishRecord;
 using ImRaii = OtterGui.Raii.ImRaii;
 using System.Text;
 using FFXIVClientStructs.FFXIV.Client.UI;
-using static GatherBuddy.AutoGather.Helpers.Reflection.Artisan_Reflection;
 using ECommons.Reflection;
 using System.Reflection;
 using System.Collections;
@@ -837,10 +836,11 @@ public partial class Interface
         if (!ImGui.CollapsingHeader("Reflection"))
             return;
 
-        ImGui.Text($"Artisan Assembly Enabled: {ArtisanAssemblyEnabled}");
-        if (TouchArtisanAssembly)
+        var exporter = GatherBuddy.AutoGather.ArtisanExporter;
+        ImGui.Text($"Artisan Assembly Enabled: {exporter.ArtisanAssemblyEnabled}");
+        if (exporter.TouchArtisanAssembly)
         {
-            ImGui.Text($"Artisan Instance: {ArtisanAssemblyInstance}");
+            ImGui.Text($"Artisan Instance: {exporter.ArtisanAssemblyInstance}");
         }
     }
 }
