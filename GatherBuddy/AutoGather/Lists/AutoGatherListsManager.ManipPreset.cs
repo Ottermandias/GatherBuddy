@@ -109,6 +109,16 @@ public partial class AutoGatherListsManager
         }
     }
 
+    public void ChangeEnabled(AutoGatherList list, Gatherable item, bool enabled)
+    {
+        if (list.SetEnabled(item, enabled))
+        {
+            Save();
+            if (list.Enabled)
+                SetActiveItems();
+        }
+    }
+
     public void MoveItem(AutoGatherList list, int idx1, int idx2)
     {
         if (list.Move(idx1, idx2))

@@ -341,6 +341,11 @@ public partial class Interface
             if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Trash.ToIconString(), IconButtonSize, "Delete this item from the list", false,
                     true))
                 deleteIndex = i;
+            ImGui.SameLine();
+
+            var enabled = list.EnabledItems[item];
+            if (ImGui.Checkbox($"##{item.ItemId}", ref enabled))
+                _plugin.AutoGatherListsManager.ChangeEnabled(list, item, enabled);
 
             ImGui.SameLine();
             if (selector.Draw(item.Name[GatherBuddy.Language], out var newIdx))
