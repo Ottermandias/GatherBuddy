@@ -105,6 +105,19 @@ public partial class Interface
             ImGuiUtil.HoverTooltip("The percentage of durability at which you will repair your gear.");
         }
 
+        public static void DrawLifestreamCommandTextInput()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.LifestreamCommand;
+            if (ImGui.InputText("Lifestream Command", ref tmp, 100))
+            {
+                if (string.IsNullOrEmpty(tmp))
+                    tmp = "auto";
+                GatherBuddy.Config.AutoGatherConfig.LifestreamCommand = tmp;
+                GatherBuddy.Config.Save();
+            }
+            ImGuiUtil.HoverTooltip("The command used when idling or done gathering. DO NOT include '/li'\nBe careful when changing this, GBR does not validate this command!");
+        }
+
         public static void DrawMaterialExtraction()
             => DrawCheckbox("Enable materia extraction",
                 "Automatically extract materia from items with a complete spiritbond",
@@ -724,9 +737,9 @@ public partial class Interface
                 {
                     ConfigFunctions.DrawRepairThreshold();
                 }
-
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();
+                ConfigFunctions.DrawLifestreamCommandTextInput();
                 ConfigFunctions.DrawAntiStuckCooldown();
                 ConfigFunctions.DrawStuckThreshold();
                 ConfigFunctions.DrawTimedNodePrecog();

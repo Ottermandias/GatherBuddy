@@ -114,7 +114,10 @@ namespace GatherBuddy.AutoGather
 
             if (Lifestream.Enabled && !Lifestream.IsBusy())
             {
-                Lifestream.ExecuteCommand("auto");
+                var command = GatherBuddy.Config.AutoGatherConfig.LifestreamCommand;
+                if (command.Contains("/li "))
+                    command = command.Replace("/li ", "");
+                Lifestream.ExecuteCommand(command);
                 TaskManager.EnqueueImmediate(() => !Lifestream.IsBusy(), 120000, "Wait until Lifestream is done");
                 return true;
             }
