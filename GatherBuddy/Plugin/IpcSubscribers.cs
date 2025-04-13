@@ -238,4 +238,17 @@ namespace GatherBuddy.Plugin
             }
         }
     }
+
+    internal static class AllaganTools
+    {
+        static AllaganTools()
+        {
+            EzIPC.Init(typeof(AllaganTools), "AllaganTools");
+        }
+
+        internal static bool Enabled => IPCSubscriber.IsReady("InventoryTools");
+
+        [EzIPC("AllaganTools.ItemCountOwned", applyPrefix: false)]
+        internal static readonly Func<uint, bool, uint[], uint> ItemCountOwned;
+    }
 }

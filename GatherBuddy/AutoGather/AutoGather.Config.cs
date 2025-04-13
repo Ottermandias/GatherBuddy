@@ -72,8 +72,8 @@ namespace GatherBuddy.AutoGather
         public uint ExecutionDelay { get; set; } = 0;
         public bool ConfigConversionFixed { get; set; } = false;
         public bool RotationSolverConversionDone { get; set; } = false;
-        public bool HandleArtisanListsAutomatically { get; set; } = true;
-
+        [Obsolete] public bool HandleArtisanListsAutomatically { get; set; } = true;
+        public bool CheckRetainers { get; set; } = false;
         public enum SortingType
         {
             None = 0,
