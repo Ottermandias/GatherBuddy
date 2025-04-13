@@ -3,42 +3,55 @@ using System.IO;
 using System.Media;
 using System.Reflection;
 using System.Threading.Tasks;
-using OpenTK.Audio.OpenAL;
+using ECommons.DalamudServices;
+using NAudio.Wave;
 
-namespace GatherBuddy.AutoGather.Movement;
-
+namespace GatherBuddy.AutoGather.Helpers;
 
 public class SoundHelper
 {
     private const string SoundResource = "GatherBuddy.CustomInfo.honk-sound.wav";
 
-    public void PlayHonkSound(int repeatCount)
-    {
-        // Load the embedded WAV file stream
-        var assembly = Assembly.GetExecutingAssembly();
-        using (Stream audioStream = assembly.GetManifestResourceStream(SoundResource))
-        {
-            if (audioStream == null)
-            {
-                throw new FileNotFoundException($"Embedded resource {SoundResource} not found.");
-            }
+    private WaveOutEvent _waveOut = new();
 
-            // Repeat the sound the specified number of times
-            for (int i = 0; i < repeatCount; i++)
+    public void StartHonkSoundTask(int repeatCount)
+        => Task.Run(() => PlayHonkSound(repeatCount));
+
+    private void PlayHonkSound(int repeatCount)
+    {
+        try
+        {
+            // Load the embedded WAV file stream
+            var assembly = Assembly.GetExecutingAssembly();
+            using (Stream audioStream = assembly.GetManifestResourceStream(SoundResource))
             {
-                PlaySound(audioStream);
-                audioStream.Position = 0; // Reset stream for next play
+                if (audioStream == null)
+                {
+                    throw new FileNotFoundException($"Embedded resource {SoundResource} not found.");
+                }
+
+                using var reader = new WaveFileReader(audioStream);
+                _waveOut.Init(reader);
+                // Repeat the sound the specified number of times
+                for (int i = 0; i < repeatCount; i++)
+                {
+                    PlaySound(audioStream);
+                    audioStream.Position = 0; // Reset stream for next play
+                    Task.Delay(500).Wait();
+                }
             }
+        }
+        catch (Exception ex)
+        {
+            Svc.Log.Error(ex, "Error during honk: ");
         }
     }
 
     private void PlaySound(Stream stream)
     {
-        // Use SoundPlayer to play the WAV file from the stream
-        using (var player = new SoundPlayer(stream))
-        {
-            player.Load();     // Load the stream into the player
-            player.PlaySync(); // Play synchronously
-        }
+        var prevVolume = _waveOut.Volume;
+        _waveOut.Volume = GatherBuddy.Config.AutoGatherConfig.SoundPlaybackVolume / 100f;
+        _waveOut.Play();
+        _waveOut.PlaybackStopped += (sender, args) => _waveOut.Volume = prevVolume;
     }
 }
