@@ -74,6 +74,7 @@ namespace GatherBuddy.AutoGather
         public bool RotationSolverConversionDone { get; set; } = false;
         [Obsolete] public bool HandleArtisanListsAutomatically { get; set; } = true;
         public bool CheckRetainers { get; set; } = false;
+        public string LifestreamCommand { get; set; } = "auto";
         public enum SortingType
         {
             None = 0,
