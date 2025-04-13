@@ -488,9 +488,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (ActivateGatheringBuffs(next.First().Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
-                return;
-
             var config = MatchConfigPreset(next.First().Item);
 
             if (DoUseConsumablesWithoutCastTime(config))
@@ -517,6 +514,9 @@ namespace GatherBuddy.AutoGather
 
                 return;
             }
+
+            if (ActivateGatheringBuffs(next.First().Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
+                return;
 
             if (closestTargetableNode != null)
             {
