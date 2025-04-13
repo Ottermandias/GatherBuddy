@@ -143,10 +143,10 @@ namespace GatherBuddy.AutoGather
         private bool CheckItemOvercap(ItemSlot s)
         {
             //If it's a treasure map, we can have only one in the inventory
-            if (s.Item.IsTreasureMap && s.Item.GetInventoryCount() != 0)
+            if (s.Item.IsTreasureMap && GetInventoryItemCount(s.Item.ItemId) != 0)
                 return false;
             //If it's a crystal, we can't have more than 9999
-            if (s.Item.IsCrystal && s.Item.GetInventoryCount() > 9999 - s.Yield)
+            if (s.Item.IsCrystal && GetInventoryItemCount(s.Item.ItemId) > 9999 - s.Yield)
                 return false;
             return true;
         }
