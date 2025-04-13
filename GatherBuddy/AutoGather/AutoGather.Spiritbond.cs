@@ -1,3 +1,4 @@
+using System;
 using System.Threading.Tasks;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.Automation;
@@ -36,6 +37,7 @@ public partial class AutoGather
         }
     }
 
+    private Random _rng = new();
     unsafe void DoMateriaExtraction()
     {
         if (!QuestManager.IsQuestComplete(66174))
@@ -57,6 +59,7 @@ public partial class AutoGather
         TaskManager.Enqueue(() => MaterializeDialogAddon != null, 1000);
         EnqueueActionWithDelay(() => { if (MaterializeDialogAddon is var addon and not null) new MaterializeDialog(addon).Materialize(); });
         TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39]);
+        TaskManager.DelayNext(_rng.Next(500, 2000));
 
         if (SpiritbondMax == 1) 
         {
