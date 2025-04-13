@@ -75,6 +75,7 @@ namespace GatherBuddy.AutoGather
         [Obsolete] public bool HandleArtisanListsAutomatically { get; set; } = true;
         public bool CheckRetainers { get; set; } = false;
         public string LifestreamCommand { get; set; } = "auto";
+        public int SoundPlaybackVolume { get; set; } = 100;
         public enum SortingType
         {
             None = 0,

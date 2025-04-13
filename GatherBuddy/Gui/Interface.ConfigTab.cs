@@ -85,6 +85,22 @@ public partial class Interface
             ImGuiEx.PluginAvailabilityIndicator([new("InventoryTools", "Allagan Tools")]);
         }
 
+        public static void DrawHonkVolumeSlider()
+        {
+            ImGui.SetNextItemWidth(150);
+            var volume = GatherBuddy.Config.AutoGatherConfig.SoundPlaybackVolume;
+            if (ImGui.DragInt("Playback Volume", ref volume, 1, 0, 100))
+            {
+                if (volume < 0)
+                    volume = 0;
+                else if (volume > 100)
+                    volume = 100;
+                GatherBuddy.Config.AutoGatherConfig.SoundPlaybackVolume = volume;
+                GatherBuddy.Config.Save();
+            }
+            ImGuiUtil.HoverTooltip("The volume of the sound played when auto-gathering shuts down because your list is complete.\nHold CTRL and click to enter custom value");
+        }
+
         public static void DrawHonkModeBox()
             => DrawCheckbox("Play a sound when done gathering", "Play a sound when auto-gathering shuts down because your list is complete",
                 GatherBuddy.Config.AutoGatherConfig.HonkMode,   b => GatherBuddy.Config.AutoGatherConfig.HonkMode = b);
@@ -716,6 +732,7 @@ public partial class Interface
             if (ImGui.TreeNodeEx("General##autoGeneral"))
             {
                 ConfigFunctions.DrawHonkModeBox();
+                ConfigFunctions.DrawHonkVolumeSlider();
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
                 ConfigFunctions.DrawSortingMethodCombo();
