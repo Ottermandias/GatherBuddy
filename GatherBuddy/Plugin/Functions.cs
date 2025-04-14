@@ -127,14 +127,8 @@ public static class Functions
     public static bool OnHomeWorld()
     {
         var world = Dalamud.ClientState.LocalPlayer?.CurrentWorld;
-        if (world == null)
-            return false;
-
         var home = Dalamud.ClientState.LocalPlayer?.HomeWorld;
-        if (home == null)
-            return false;
-
-        return world.Value.RowId == home.Value.RowId;
+        return world?.Value.RowId == home?.Value.RowId;
     }
 
     public static bool InIslandSanctuary()
