@@ -1,11 +1,17 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Numerics;
 using System.Runtime.InteropServices;
+using ECommons.MathHelpers;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
+using Lumina.Excel.Sheets;
+using MessagePack;
+using FishingSpot = GatherBuddy.Classes.FishingSpot;
 
 namespace GatherBuddy.FishTimer;
 
@@ -41,13 +47,15 @@ public static class EffectsExtensions
         => (effects & FishRecord.Effects.ValidLure) != 0;
 }
 
-public struct FishRecord
+[MessagePackObject(AllowPrivate = true)]
+public partial class FishRecord
 {
     public const ushort MinBiteTime        = 1000;
     public const ushort MaxBiteTime        = 65000;
-    public const byte   Version            = 1;
+    public const byte   Version            = 2;
     public const int    Version1ByteLength = 4 + 4 + 4 + 4 + 4 + 2 + 2 + 2 + 2 + 2 + 1 + 1;
-    public const int    ByteLength         = Version1ByteLength;
+    public const int    Version2ByteLength = 4 + 4 + 4 + 4 + 4 + 2 + 2 + 2 + 2 + 2 + 1 + 1 + 4 + 4 + 4 + 4 + 16 + 4;
+    public const int    ByteLength         = Version2ByteLength;
 
     public static readonly Effects ValidEffects = Enum.GetValues<Effects>().Aggregate((a, b) => a | b);
 
@@ -76,34 +84,99 @@ public struct FishRecord
         ValidLure      = 0x00400000,
     }
 
+    [Key(0)]
     private uint    _bait;
+    [Key(1)]
     private uint    _catch;
-    public  int     ContentIdHash;
+    [Key(2)]
+    public  int     ContentIdHash { get; set; }
+    [Key(3)]
     private int     _timeStamp;
-    public  Effects Flags;
-    public  ushort  Bite;
-    public  ushort  Perception;
-    public  ushort  Gathering;
-    public  ushort  Size;
+    [Key(4)]
+    public  Effects Flags      { get; set; }
+    [Key(5)]
+    public  ushort  Bite       { get; set; }
+    [Key(6)]
+    public  ushort  Perception { get; set; }
+    [Key(7)]
+    public  ushort  Gathering  { get; set; }
+    [Key(8)]
+    public  ushort  Size       { get; set; }
+    [Key(9)]
     private ushort  _fishingSpot;
+    [Key(10)]
     private byte    _tugAndHook;
-    public  byte    Amount;
+    [Key(11)]
+    public  byte    Amount { get; set; }
+    [Key(12)]
+    private float   _x;
+    [Key(13)]
+    private float   _y;
+    [Key(14)]
+    private float   _z;
+    [Key(15)]
+    private float   _rotation;
+    [Key(16)]
+    public  Guid    Id       { get; set; } = Guid.NewGuid();
+    [Key(17)]
+    private uint    _worldId;
 
+
+    [NotMapped]
+    [IgnoreMember]
+    public World World
+    {
+        get => Dalamud.GameData.GetExcelSheet<World>().GetRow(_worldId);
+        set => _worldId = value.RowId;
+    }
+
+    [NotMapped]
+    [IgnoreMember]
     public TimeStamp TimeStamp
     {
         get => new(_timeStamp * 1000L);
         set => _timeStamp = (int)(value.Time / 1000);
     }
 
+    [NotMapped]
+    [IgnoreMember]
+    public Vector3 Position
+    {
+        get => new(_x, _y, _z);
+        set
+        {
+            _x = value.X;
+            _y = value.Y;
+            _z = value.Z;
+        }
+    }
+
+    [NotMapped]
+    [IgnoreMember]
+    public Angle RotationAngle
+    {
+        get => new Angle(_rotation);
+        set => _rotation = value.Rad;
+    }
+
+    [IgnoreMember]
+    public bool PositionDataValid
+        => _x != 0 && _y != 0 && _z != 0 && _rotation != 0;
+
+    [NotMapped]
+    [IgnoreMember]
     public FishingSpot? FishingSpot
     {
         get => HasSpot ? GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_fishingSpot) : null;
         set => _fishingSpot = (ushort)(value?.Id ?? 0);
     }
 
+    [IgnoreMember]
     public bool HasSpot
         => _fishingSpot != 0;
 
+    [NotMapped]
+    [IgnoreMember]
     public Bait Bait
     {
         get => HasBait
@@ -113,24 +186,31 @@ public struct FishRecord
         set => _bait = value.Id;
     }
 
+    [IgnoreMember]
     public bool HasBait
         => _bait != 0;
 
+    [NotMapped]
+    [IgnoreMember]
     public Fish? Catch
     {
         get => HasCatch ? GatherBuddy.GameData.Fishes.GetValueOrDefault(_catch) : null;
         set => _catch = value?.ItemId ?? 0;
     }
 
+    [IgnoreMember]
     public uint CatchId
         => _catch;
 
+    [IgnoreMember]
     public uint BaitId
         => _bait;
 
+    [IgnoreMember]
     public ushort SpotId
         => _fishingSpot;
 
+    [IgnoreMember]
     public bool HasCatch
         => _catch != 0;
 
@@ -157,6 +237,7 @@ public struct FishRecord
         _tugAndHook = (byte)b;
     }
 
+    [IgnoreMember]
     public BiteType Tug
         => (_tugAndHook & 0x0F) switch
         {
@@ -167,6 +248,7 @@ public struct FishRecord
             _ => BiteType.Unknown,
         };
 
+    [IgnoreMember]
     public HookSet Hook
         => (_tugAndHook >> 4) switch
         {
@@ -187,17 +269,6 @@ public struct FishRecord
 
     public bool NothingHooked()
         => Hook == HookSet.None && Tug != BiteType.None;
-
-    public unsafe void ToBytes(byte[] bytes, int from)
-    {
-        if (bytes.Length < from + ByteLength)
-            throw new ArgumentException("Not enough storage");
-
-        fixed (FishRecord* ptr = &this)
-        {
-            Marshal.Copy((IntPtr)ptr, bytes, from, ByteLength);
-        }
-    }
 
     internal struct JsonStruct
     {
@@ -229,6 +300,10 @@ public struct FishRecord
         public bool     Collectible;
         public bool     Large;
         public bool     ValidLure;
+        public float    X;
+        public float    Y;
+        public float    Z;
+        public float    Rotation;
     }
 
     internal JsonStruct ToJson()
@@ -262,6 +337,10 @@ public struct FishRecord
             Size           = Size / 10f,
             Collectible    = Flags.HasFlag(Effects.Collectible),
             Large          = Flags.HasFlag(Effects.Large),
+            X              = _x,
+            Y              = _y,
+            Z              = _z,
+            Rotation       = _rotation,
         };
 
     private static ushort From2Bytes(ReadOnlySpan<byte> bytes, int from)
@@ -310,7 +389,7 @@ public struct FishRecord
 
         if ((Flags & (Effects.AmbitiousLure1 | Effects.AmbitiousLure2)) != 0 && (Flags & (Effects.ModestLure1 | Effects.ModestLure2)) != 0)
             return false;
-        
+
         if (Flags.HasValidLure() && !Flags.HasLure())
             return false;
 
@@ -353,6 +432,12 @@ public struct FishRecord
         record._fishingSpot  = From2Bytes(bytes, from += 2);
         record._tugAndHook   = bytes[from             += 2];
         record.Amount        = bytes[from             += 1];
+        return record.VerifyData();
+    }
+
+    public static bool FromBytesV2(ReadOnlySpan<byte> bytes, out FishRecord record)
+    {
+        record = MessagePackSerializer.Deserialize<FishRecord>(bytes.ToArray());
         return record.VerifyData();
     }
 }

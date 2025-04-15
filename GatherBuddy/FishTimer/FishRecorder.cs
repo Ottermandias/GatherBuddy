@@ -25,8 +25,6 @@ public partial class FishRecorder : IDisposable
             GatherBuddy.Log.Error($"Could not create fish record directory {FishRecordDirectory.FullName}:\n{e}");
         }
 
-        if (Directory.Exists(FishRecordDirectory.FullName))
-            MigrateOldFiles();
         LoadFile();
 
         if (Changes > 0)

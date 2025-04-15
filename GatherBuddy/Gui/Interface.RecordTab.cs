@@ -28,8 +28,8 @@ public partial class Interface
 
         public RecordTable()
             : base("Fish Records", _plugin.FishRecorder.Records, _catchHeader, _baitHeader, _durationHeader, _castStartHeader,
-                _biteTypeHeader, _hookHeader, _amountHeader, _spotHeader, _contentIdHeader, _gatheringHeader, _perceptionHeader, _sizeHeader,
-                _flagHeader)
+                _biteTypeHeader, _hookHeader, _amountHeader, _spotHeader, _worldHeader, _gatheringHeader, _perceptionHeader, _sizeHeader,
+                _flagHeader, _positionHeader)
             => Flags |= ImGuiTableFlags.Resizable | ImGuiTableFlags.Reorderable | ImGuiTableFlags.Hideable;
 
         private        int _lastCount;
@@ -51,7 +51,7 @@ public partial class Interface
             }
         }
 
-        private static readonly ContentIdHeader  _contentIdHeader  = new() { Label = "Content ID" };
+        private static readonly WorldHeader      _worldHeader      = new() { Label = "World" };
         private static readonly BaitHeader       _baitHeader       = new() { Label = "Bait" };
         private static readonly SpotHeader       _spotHeader       = new() { Label = "Fishing Spot" };
         private static readonly CatchHeader      _catchHeader      = new() { Label = "Caught Fish" };
@@ -64,6 +64,27 @@ public partial class Interface
         private static readonly AmountHeader     _amountHeader     = new() { Label = "Amt" };
         private static readonly SizeHeader       _sizeHeader       = new() { Label = "Ilm" };
         private static readonly FlagHeader       _flagHeader       = new() { Label = "Flags" };
+        private static readonly PositionHeader   _positionHeader   = new() { Label = "Position" };
+
+        private sealed class PositionHeader : ColumnString<FishRecord>
+        {
+            public override string ToName(FishRecord record)
+                => record.PositionDataValid ? $"{record.Position.ToString()} ({record.RotationAngle.ToString()})" : "Invalid";
+
+            public override float Width
+                => 100 * ImGuiHelpers.GlobalScale;
+
+            public override int Compare(FishRecord lhs, FishRecord rhs)
+                => base.Compare(lhs, rhs);
+
+            public override void DrawColumn(FishRecord record, int _)
+            {
+                ImGuiUtil.RightAlign(ToName(record));
+                ImGuiUtil.HoverTooltip(record.PositionDataValid
+                    ? ToName(record)
+                    : "Invalid Position Data\nYou probably caught this fish before position storing was implemented.");
+            }
+        }
 
         private sealed class GatheringHeader : ColumnString<FishRecord>
         {
@@ -137,16 +158,16 @@ public partial class Interface
         }
 
 
-        private sealed class ContentIdHeader : ColumnString<FishRecord>
+        private sealed class WorldHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord item)
-                => item.Flags.HasFlag(FishRecord.Effects.Legacy) ? "Legacy" : item.ContentIdHash.ToString("X8");
+                => item.World.RowId == 0 ? "Unknown" : item.World.Name.ToString();
 
             public override float Width
                 => 75 * ImGuiHelpers.GlobalScale;
 
             public override int Compare(FishRecord lhs, FishRecord rhs)
-                => lhs.ContentIdHash.CompareTo(rhs.ContentIdHash);
+                => String.Compare(lhs.World.Name.ToString(), rhs.World.Name.ToString(), StringComparison.Ordinal);
         }
 
         private sealed class BaitHeader : ColumnString<FishRecord>
@@ -534,30 +555,16 @@ public partial class Interface
                         ImGui.SameLine();
                         switch (item.Flags.ModestLure())
                         {
-                            case 0:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), false, "Modest Lure");
-                                break;
-                            case 1:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), true, "Modest Lure");
-                                break;
-                            case 2:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218910), true, "Modest Lure");
-                                break;
-                            case 3:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218911), true, "Modest Lure");
-                                break;
+                            case 0: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), false, "Modest Lure"); break;
+                            case 1: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), true,  "Modest Lure"); break;
+                            case 2: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218910), true,  "Modest Lure"); break;
+                            case 3: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218911), true,  "Modest Lure"); break;
                         }
 
                         return;
-                    case 1:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218905), true, "Ambitious Lure");
-                        break;
-                    case 2:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218906), true, "Ambitious Lure");
-                        break;
-                    case 3:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218907), true, "Ambitious Lure");
-                        break;
+                    case 1: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218905), true, "Ambitious Lure"); break;
+                    case 2: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218906), true, "Ambitious Lure"); break;
+                    case 3: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218907), true, "Ambitious Lure"); break;
                 }
 
                 ImGui.SameLine();

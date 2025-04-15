@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
+using MessagePack;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.FishTimer;
@@ -110,16 +111,12 @@ public partial class FishRecorder
 
     private byte[] GetRecordBytes()
     {
-        var bytes = new byte[Records.Count * FishRecord.ByteLength + 1];
-        bytes[0] = FishRecord.Version;
-        for (var i = 0; i < Records.Count; ++i)
-        {
-            var record = Records[i];
-            var offset = 1 + i * FishRecord.ByteLength;
-            record.ToBytes(bytes, offset);
-        }
+        using var ms = new MemoryStream();
+        ms.WriteByte(FishRecord.Version);
 
-        return bytes;
+        MessagePackSerializer.Serialize(ms, Records);
+
+        return ms.ToArray();
     }
 
     private static List<FishRecord> ReadBytes(byte[] data, string name)
@@ -152,6 +149,20 @@ public partial class FishRecorder
 
                 return ret;
             }
+            case 2:
+            {
+                var span = data.AsSpan()[1..];
+                try
+                {
+                    var list = MessagePackSerializer.Deserialize<List<FishRecord>>(span.ToArray());
+                    return list;
+                }
+                catch (Exception e)
+                {
+                    GatherBuddy.Log.Error($"{name} was unable to be deserialized using V2 logic.");
+                    return new List<FishRecord>();
+                }
+            }
             default:
                 GatherBuddy.Log.Error($"{name} has no valid record version, skipped.\n");
                 return new List<FishRecord>();
@@ -173,24 +184,5 @@ public partial class FishRecorder
             GatherBuddy.Log.Error($"Could not read fish record file {file.FullName}:\n{e}");
         }
         ResetTimes();
-    }
-
-    private void MigrateOldFiles()
-    {
-        foreach (var file in FishRecordDirectory.EnumerateFiles("fish_records_*.dat"))
-        {
-            try
-            {
-                Records.AddRange(ReadFile(file));
-                file.Delete();
-                AddChanges();
-            }
-            catch (Exception e)
-            {
-                GatherBuddy.Log.Error($"Error migrating fish record file {file.FullName}:\n{e}");
-            }
-        }
-
-        OldRecords.Migration.MigrateRecords(this);
     }
 }

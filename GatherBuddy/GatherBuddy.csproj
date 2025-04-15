@@ -45,6 +45,7 @@
 
   <ItemGroup>
     <PackageReference Include="DalamudPackager" Version="12.0.0" />
+    <PackageReference Include="MessagePack" Version="3.1.3" />
     <PackageReference Include="NAudio" Version="2.2.1" />
     <Reference Include="Dalamud">
       <HintPath>$(DalamudLibPath)Dalamud.dll</HintPath>

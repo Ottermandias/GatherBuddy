@@ -3,6 +3,9 @@ using System.Diagnostics;
 using System.Linq;
 using Dalamud.Game;
 using Dalamud.Plugin.Services;
+using ECommons.ExcelServices;
+using ECommons.GameHelpers;
+using ECommons.MathHelpers;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer.Parser;
@@ -41,7 +44,7 @@ public partial class FishRecorder
 
     public Fish? LastCatch;
 
-    public FishRecord Record;
+    public FishRecord Record = new FishRecord();
 
     private static Bait GetCurrentBait()
     {
@@ -174,8 +177,11 @@ public partial class FishRecorder
         Step = CatchSteps.BeganFishing;
         CheckBuffs();
         CheckStats();
-        Record.Bait        = GetCurrentBait();
-        Record.FishingSpot = spot;
+        Record.Bait          = GetCurrentBait();
+        Record.FishingSpot   = spot;
+        Record.Position      = Player.Position;
+        Record.RotationAngle = new Angle(Player.Rotation);
+        Record.World         = ExcelWorldHelper.Get(Player.CurrentWorld)!.Value;
         if (Record.HasSpot)
             Step |= CatchSteps.IdentifiedSpot;
 
@@ -187,7 +193,7 @@ public partial class FishRecorder
         Timer.Stop();
         UpdateLure();
         Record.SetTugHook(GatherBuddy.TugType.Bite, Record.Hook);
-        Step |= CatchSteps.FishBit;
+        Step                 |= CatchSteps.FishBit;
         if (LureTimer.ElapsedMilliseconds > 0)
             GatherBuddy.Log.Verbose(
                 $"Fish bit with {Record.Tug} after {Timer.ElapsedMilliseconds} ms. Time since last lure: {LureTimer.ElapsedMilliseconds} ms.");
@@ -210,10 +216,10 @@ public partial class FishRecorder
 
     private void OnCatch(Fish fish, ushort size, byte amount, bool large, bool collectible)
     {
-        Step          |= CatchSteps.FishCaught;
-        Record.Catch  =  fish;
-        Record.Size   =  size;
-        Record.Amount =  amount;
+        Step            |= CatchSteps.FishCaught;
+        Record.Catch    =  fish;
+        Record.Size     =  size;
+        Record.Amount   =  amount;
         if (large)
             Record.Flags |= FishRecord.Effects.Large;
         if (collectible)
