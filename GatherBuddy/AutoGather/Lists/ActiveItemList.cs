@@ -212,10 +212,8 @@ namespace GatherBuddy.AutoGather.Lists
         private bool RequiresHomeWorld((Gatherable Item, uint Quantity) valueTuple)
         {
             var item = valueTuple.Item1;
-            return item.IsTreasureMap
-             || item.NodeType == NodeType.Legendary
+            return item.NodeType == NodeType.Legendary
              || item.NodeType == NodeType.Unspoiled
-             || item.NodeType == NodeType.Ephemeral
              || item.NodeList.Any(nl => nl.Territory.Id is 901 or 929 or 939); // The Diadem
         }
 
