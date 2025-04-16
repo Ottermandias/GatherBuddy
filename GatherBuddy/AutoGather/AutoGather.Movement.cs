@@ -128,7 +128,7 @@ namespace GatherBuddy.AutoGather
 
                         if (vSeparation < 3)                        
                             if (targetItem.GatheringType.ToGroup() != JobAsGatheringType) {
-                                if (ChangeGearSet(targetItem.GatheringType.ToGroup())){
+                                if (ChangeGearSet(targetItem.GatheringType.ToGroup(), 0)){
                                     EnqueueNodeInteraction(gameObject, targetItem);
                                 } else {
                                     AbortAutoGather();

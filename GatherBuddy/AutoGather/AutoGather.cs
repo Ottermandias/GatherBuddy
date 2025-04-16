@@ -512,7 +512,7 @@ namespace GatherBuddy.AutoGather
 
             if (closestTargetableNode == null && !LocationMatchesJob(next.First().Node))
             {
-                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup()))
+                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup(), 2400))
                     AbortAutoGather();
 
                 return;
@@ -745,7 +745,7 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private bool ChangeGearSet(GatheringType job)
+        private bool ChangeGearSet(GatheringType job, int delay)
         {
             var set = job switch
             {
@@ -760,7 +760,7 @@ namespace GatherBuddy.AutoGather
             }
 
             Chat.Instance.ExecuteCommand($"/gearset change \"{set}\"");
-            TaskManager.DelayNext(Random.Shared.Next(200, 500)); //Add a random delay to be less suspicious
+            TaskManager.DelayNext(Random.Shared.Next(delay, delay+500)); //Add a random delay to be less suspicious
             return true;
         }
 
