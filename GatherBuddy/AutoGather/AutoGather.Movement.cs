@@ -14,6 +14,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Data;
 using ECommons.MathHelpers;
+using GatherBuddy.Enums;
 
 namespace GatherBuddy.AutoGather
 {
@@ -126,8 +127,8 @@ namespace GatherBuddy.AutoGather
                         }
 
                         if (vSeparation < 3)                        
-                            if (targetItem.GatheringType != JobAsGatheringType) {
-                                if (ChangeGearSet(targetItem.GatheringType)){
+                            if (targetItem.GatheringType.ToGroup() != JobAsGatheringType) {
+                                if (ChangeGearSet(targetItem.GatheringType.ToGroup())){
                                     EnqueueNodeInteraction(gameObject, targetItem);
                                 } else {
                                     AbortAutoGather();
