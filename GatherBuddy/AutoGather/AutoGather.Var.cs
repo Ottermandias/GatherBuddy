@@ -102,7 +102,6 @@ namespace GatherBuddy.AutoGather
                     }
                     // GatherBuddy.Log.Information(miniMapGatheringMarker.MapMarker.IconId +  " => X: " + miniMapGatheringMarker.MapMarker.X / 16 + " Y: " + miniMapGatheringMarker.MapMarker.Y / 16);
                 }
-
                 return result;
             }
         }

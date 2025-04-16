@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
+using MessagePack;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.FishTimer;
@@ -25,12 +26,17 @@ public partial class FishRecorder
     public void WriteFile()
     {
         var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
-        GatherBuddy.Log.Debug($"Saving fish record file to {file.FullName} with {Changes} changes.");
         Changes  = 0;
         SaveTime = TimeStamp.MaxValue;
+        WriteFileInternal(file, false);
+    }
+
+    private void WriteFileInternal(FileInfo file, bool remote)
+    {
+        GatherBuddy.Log.Debug($"Saving fish record file to {file.FullName} with {Changes} changes.");
         try
         {
-            var bytes = GetRecordBytes();
+            var bytes = GetRecordBytes(remote);
             File.WriteAllBytes(file.FullName, bytes);
         }
         catch (Exception e)
@@ -38,7 +44,6 @@ public partial class FishRecorder
             GatherBuddy.Log.Error($"Could not write fish record file {file.FullName}:\n{e}");
         }
     }
-
 
     private void TimedSave()
     {
@@ -50,7 +55,7 @@ public partial class FishRecorder
 
     public string ExportBase64()
     {
-        var bytes = GetRecordBytes();
+        var bytes = GetRecordBytes(false);
         return Functions.CompressedBase64(bytes);
     }
 
@@ -108,18 +113,15 @@ public partial class FishRecorder
         }
     }
 
-    private byte[] GetRecordBytes()
+    private byte[] GetRecordBytes(bool remote)
     {
-        var bytes = new byte[Records.Count * FishRecord.ByteLength + 1];
-        bytes[0] = FishRecord.Version;
-        for (var i = 0; i < Records.Count; ++i)
-        {
-            var record = Records[i];
-            var offset = 1 + i * FishRecord.ByteLength;
-            record.ToBytes(bytes, offset);
-        }
+        using var ms = new MemoryStream();
+        ms.WriteByte(FishRecord.Version);
 
-        return bytes;
+        var records = remote ? RemoteRecords : Records;
+        MessagePackSerializer.Serialize(ms, records);
+
+        return ms.ToArray();
     }
 
     private static List<FishRecord> ReadBytes(byte[] data, string name)
@@ -152,15 +154,28 @@ public partial class FishRecorder
 
                 return ret;
             }
+            case 2:
+            {
+                var span = data.AsSpan()[1..];
+                try
+                {
+                    var list = MessagePackSerializer.Deserialize<List<FishRecord>>(span.ToArray());
+                    return list;
+                }
+                catch (Exception e)
+                {
+                    GatherBuddy.Log.Error($"{name} was unable to be deserialized using V2 logic.");
+                    return new List<FishRecord>();
+                }
+            }
             default:
                 GatherBuddy.Log.Error($"{name} has no valid record version, skipped.\n");
                 return new List<FishRecord>();
         }
     }
 
-    private void LoadFile()
+    private void LoadFile(FileInfo file)
     {
-        var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
         if (!file.Exists)
             return;
 
@@ -173,24 +188,5 @@ public partial class FishRecorder
             GatherBuddy.Log.Error($"Could not read fish record file {file.FullName}:\n{e}");
         }
         ResetTimes();
-    }
-
-    private void MigrateOldFiles()
-    {
-        foreach (var file in FishRecordDirectory.EnumerateFiles("fish_records_*.dat"))
-        {
-            try
-            {
-                Records.AddRange(ReadFile(file));
-                file.Delete();
-                AddChanges();
-            }
-            catch (Exception e)
-            {
-                GatherBuddy.Log.Error($"Error migrating fish record file {file.FullName}:\n{e}");
-            }
-        }
-
-        OldRecords.Migration.MigrateRecords(this);
     }
 }

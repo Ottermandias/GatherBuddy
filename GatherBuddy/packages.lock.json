@@ -14,6 +14,17 @@
         "resolved": "1.2.25",
         "contentHash": "xCXiw7BCxHJ8pF6wPepRUddlh2dlQlbr81gXA72hdk4FLHkKXas7EH/n+fk5UCA/YfMqG1Z6XaPiUjDbUNBUzg=="
       },
+      "MessagePack": {
+        "type": "Direct",
+        "requested": "[3.1.3, )",
+        "resolved": "3.1.3",
+        "contentHash": "UiNv3fknvPzh5W+S0VV96R17RBZQQU71qgmsMnjjRZU2rtQM/XcTnOB+klT2dA6T1mxjnNKYrEm164AoXvGmYg==",
+        "dependencies": {
+          "MessagePack.Annotations": "3.1.3",
+          "MessagePackAnalyzer": "3.1.3",
+          "Microsoft.NET.StringTools": "17.11.4"
+        }
+      },
       "NAudio": {
         "type": "Direct",
         "requested": "[2.2.1, )",
@@ -33,6 +44,16 @@
         "resolved": "2024.3.0",
         "contentHash": "ox5pkeLQXjvJdyAB4b2sBYAlqZGLh3PjSnP1bQNVx72ONuTJ9+34/+Rq91Fc0dG29XG9RgZur9+NcP4riihTug=="
       },
+      "MessagePack.Annotations": {
+        "type": "Transitive",
+        "resolved": "3.1.3",
+        "contentHash": "XTy4njgTAf6UVBKFj7c7ad5R0WVKbvAgkbYZy4f00kplzX2T3VOQ34AUke/Vn/QgQZ7ETdd34/IDWS3KBInSGA=="
+      },
+      "MessagePackAnalyzer": {
+        "type": "Transitive",
+        "resolved": "3.1.3",
+        "contentHash": "19u1oVNv2brCs5F/jma8O8CnsKMMpYwNqD0CAEDEzvqwDTAhqC9r7xHZP4stPb3APs/ryO/zVn7LvjoEHfvs7Q=="
+      },
       "Microsoft.Extensions.DependencyInjection": {
         "type": "Transitive",
         "resolved": "9.0.2",
@@ -45,6 +66,11 @@
         "type": "Transitive",
         "resolved": "9.0.2",
         "contentHash": "MNe7GSTBf3jQx5vYrXF0NZvn6l7hUKF6J54ENfAgCO8y6xjN1XUmKKWG464LP2ye6QqDiA1dkaWEZBYnhoZzjg=="
+      },
+      "Microsoft.NET.StringTools": {
+        "type": "Transitive",
+        "resolved": "17.11.4",
+        "contentHash": "mudqUHhNpeqIdJoUx2YDWZO/I9uEDYVowan89R6wsomfnUJQk6HteoQTlNjZDixhT2B4IXMkMtgZtoceIjLRmA=="
       },
       "Microsoft.NETCore.Platforms": {
         "type": "Transitive",
@@ -132,6 +158,12 @@
         }
       },
       "gatherbuddy.levenshtein": {
+        "type": "Project"
+      },
+      "gatherbuddy.models": {
+        "type": "Project"
+      },
+      "gatherbuddy.secretkeys": {
         "type": "Project"
       },
       "ottergui": {

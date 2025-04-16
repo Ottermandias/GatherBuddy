@@ -5,6 +5,7 @@ using System.IO;
 using System.Linq;
 using Dalamud.Plugin.Services;
 using GatherBuddy.FishTimer.Parser;
+using GatherBuddy.Models;
 
 namespace GatherBuddy.FishTimer;
 
@@ -25,9 +26,11 @@ public partial class FishRecorder : IDisposable
             GatherBuddy.Log.Error($"Could not create fish record directory {FishRecordDirectory.FullName}:\n{e}");
         }
 
-        if (Directory.Exists(FishRecordDirectory.FullName))
-            MigrateOldFiles();
-        LoadFile();
+        var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
+        LoadFile(file);
+
+        var remoteFile = new FileInfo(Path.Combine(FishRecordDirectory.FullName, RemoteFishRecordsFileName));
+        LoadRemoteFile(remoteFile);
 
         if (Changes > 0)
         {
@@ -56,6 +59,8 @@ public partial class FishRecorder : IDisposable
     {
         Disable();
         Parser.Dispose();
+        StopRemoteRecordsRequests();
+        WriteRemoteFile();
         if (Changes > 0)
             WriteFile();
     }
@@ -63,6 +68,7 @@ public partial class FishRecorder : IDisposable
     private void AddUnchecked(FishRecord record)
     {
         Records.Add(record);
+        RecordsToUpload.Enqueue(record);
         AddRecordToTimes(record);
         AddChanges();
     }
@@ -78,7 +84,7 @@ public partial class FishRecorder : IDisposable
 
     private void AddRecordToTimes(FishRecord record)
     {
-        if (record.Catch == null || !record.Flags.HasFlag(FishRecord.Effects.Valid) || record.Flags.HasLure() && !record.Flags.HasValidLure())
+        if (record.Catch == null || !record.Flags.HasFlag(Effects.Valid) || record.Flags.HasLure() && !record.Flags.HasValidLure())
             return;
 
         if (!Times.TryGetValue(record.Catch.ItemId, out var times))
@@ -87,7 +93,7 @@ public partial class FishRecorder : IDisposable
             Times[record.Catch.ItemId] = times;
         }
 
-        times.Apply(record.Bait.Id, record.Bite, record.Flags.HasFlag(FishRecord.Effects.Chum));
+        times.Apply(record.Bait.Id, record.Bite, record.Flags.HasFlag(Effects.Chum));
     }
 
     public void Add(FishRecord record)
@@ -109,7 +115,7 @@ public partial class FishRecorder : IDisposable
 
     private void RemoveRecordFromTimes(FishRecord record)
     {
-        if (!record.Flags.HasFlag(FishRecord.Effects.Valid) || !record.HasCatch)
+        if (!record.Flags.HasFlag(Effects.Valid) || !record.HasCatch)
             return;
 
         if (!Times.TryGetValue(record.Catch!.ItemId, out var data) || !data.Data.TryGetValue(record.Bait.Id, out var times))
@@ -123,11 +129,11 @@ public partial class FishRecorder : IDisposable
 
         data.Data.Remove(record.Bait.Id);
         foreach (var rec in Records.Where(r
-                     => r.Flags.HasFlag(FishRecord.Effects.Valid)
+                     => r.Flags.HasFlag(Effects.Valid)
                   && (!record.Flags.HasLure() || record.Flags.HasValidLure())
                   && r.Catch?.ItemId == record.Catch.ItemId
                   && r.Bait.Id == record.Bait.Id))
-            data.Apply(rec.Bait.Id, rec.Bite, rec.Flags.HasFlag(FishRecord.Effects.Chum));
+            data.Apply(rec.Bait.Id, rec.Bite, rec.Flags.HasFlag(Effects.Chum));
 
         if (data.Data.Count != 0)
         {
@@ -155,7 +161,7 @@ public partial class FishRecorder : IDisposable
 
     public void RemoveInvalid()
     {
-        if (Records.RemoveAll(r => !r.Flags.HasFlag(FishRecord.Effects.Valid)) <= 0)
+        if (Records.RemoveAll(r => !r.Flags.HasFlag(Effects.Valid)) <= 0)
             return;
 
         ResetTimes();
@@ -183,9 +189,9 @@ public partial class FishRecorder : IDisposable
     }
 
     private static bool Similar(FishRecord lhs, FishRecord rhs)
-        => lhs.Flags.HasFlag(FishRecord.Effects.Legacy)
+        => lhs.Flags.HasFlag(Effects.Legacy)
             ? lhs.Flags == rhs.Flags && lhs.CatchId == rhs.CatchId && lhs.Bite == rhs.Bite
-            : lhs.ContentIdHash == rhs.ContentIdHash && Math.Abs(lhs.TimeStamp - rhs.TimeStamp) < 1000;
+            : Math.Abs(lhs.TimeStamp - rhs.TimeStamp) < 1000;
 
     private bool CheckSimilarity(FishRecord record)
         => !Records.Any(r => Similar(r, record));
