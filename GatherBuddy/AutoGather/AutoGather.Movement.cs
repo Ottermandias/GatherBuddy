@@ -14,6 +14,7 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Data;
 using ECommons.MathHelpers;
+using GatherBuddy.Enums;
 
 namespace GatherBuddy.AutoGather
 {
@@ -126,7 +127,16 @@ namespace GatherBuddy.AutoGather
                         }
 
                         if (vSeparation < 3)                        
-                            EnqueueNodeInteraction(gameObject, targetItem);
+                            if (targetItem.GatheringType.ToGroup() != JobAsGatheringType) {
+                                if (ChangeGearSet(targetItem.GatheringType.ToGroup(), 0)){
+                                    EnqueueNodeInteraction(gameObject, targetItem);
+                                } else {
+                                    AbortAutoGather();
+                                }
+                            }
+                            else {
+                                EnqueueNodeInteraction(gameObject, targetItem);
+                            }
 
                         // The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
                         // Enqueue navigation anyway, just in case.
