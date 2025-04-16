@@ -760,7 +760,7 @@ namespace GatherBuddy.AutoGather
             }
 
             Chat.Instance.ExecuteCommand($"/gearset change \"{set}\"");
-            TaskManager.DelayNext(Random.Shared.Next(500, 1500)); //Add a random delay to be less suspicious
+            TaskManager.DelayNext(Random.Shared.Next(200, 500)); //Add a random delay to be less suspicious
             return true;
         }
 
