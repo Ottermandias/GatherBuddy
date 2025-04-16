@@ -26,12 +26,17 @@ public partial class FishRecorder
     public void WriteFile()
     {
         var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
-        GatherBuddy.Log.Debug($"Saving fish record file to {file.FullName} with {Changes} changes.");
         Changes  = 0;
         SaveTime = TimeStamp.MaxValue;
+        WriteFileInternal(file, false);
+    }
+
+    private void WriteFileInternal(FileInfo file, bool remote)
+    {
+        GatherBuddy.Log.Debug($"Saving fish record file to {file.FullName} with {Changes} changes.");
         try
         {
-            var bytes = GetRecordBytes();
+            var bytes = GetRecordBytes(remote);
             File.WriteAllBytes(file.FullName, bytes);
         }
         catch (Exception e)
@@ -39,7 +44,6 @@ public partial class FishRecorder
             GatherBuddy.Log.Error($"Could not write fish record file {file.FullName}:\n{e}");
         }
     }
-
 
     private void TimedSave()
     {
@@ -51,7 +55,7 @@ public partial class FishRecorder
 
     public string ExportBase64()
     {
-        var bytes = GetRecordBytes();
+        var bytes = GetRecordBytes(false);
         return Functions.CompressedBase64(bytes);
     }
 
@@ -109,12 +113,13 @@ public partial class FishRecorder
         }
     }
 
-    private byte[] GetRecordBytes()
+    private byte[] GetRecordBytes(bool remote)
     {
         using var ms = new MemoryStream();
         ms.WriteByte(FishRecord.Version);
 
-        MessagePackSerializer.Serialize(ms, Records);
+        var records = remote ? RemoteRecords : Records;
+        MessagePackSerializer.Serialize(ms, records);
 
         return ms.ToArray();
     }
@@ -169,9 +174,8 @@ public partial class FishRecorder
         }
     }
 
-    private void LoadFile()
+    private void LoadFile(FileInfo file)
     {
-        var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
         if (!file.Exists)
             return;
 

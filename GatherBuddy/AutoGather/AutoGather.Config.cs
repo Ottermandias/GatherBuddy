@@ -76,6 +76,7 @@ namespace GatherBuddy.AutoGather
         public bool CheckRetainers { get; set; } = false;
         public string LifestreamCommand { get; set; } = "auto";
         public int SoundPlaybackVolume { get; set; } = 100;
+        public bool FishDataCollection { get; set; } = false;
         public enum SortingType
         {
             None = 0,

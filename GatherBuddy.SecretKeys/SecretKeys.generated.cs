@@ -4,7 +4,6 @@ namespace GatherBuddy.Keys
 {
     public static class SecretKeys
     {
-        private const string _apiKey = "00000000-0000-0000-0000-000000000000";
-        public static Guid   ApiKey  = Guid.Parse(_apiKey);
+        public static string ApiKey = "ghp_7bf8162c0dda421885645d6f51c4ce6bd7fa"; //NOT A REAL KEY, DEMO PURPOSES ONLY
     }
 }

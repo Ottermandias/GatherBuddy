@@ -25,6 +25,7 @@ using System.Collections;
 using ECommons;
 using ECommons.ExcelServices;
 using GatherBuddy.AutoGather.Lists;
+using GatherBuddy.Models;
 
 namespace GatherBuddy.Gui;
 
@@ -194,6 +195,13 @@ public partial class Interface
         if (!ImGui.CollapsingHeader("Fishing State"))
             return;
 
+        ImGui.Text($"Remote Task State (Upload): {_plugin.FishRecorder.RemoteRecordsUploadTask.Status}");
+        ImGui.Text($"Remote Task State (Download): {_plugin.FishRecorder.RemoteRecordsDownloadTask.Status}");
+        if (ImGui.Button("Force Cancellation"))
+        {
+            _plugin.FishRecorder.StopRemoteRecordsRequests();
+        }
+
         using var table = ImRaii.Table("##Framework", 2);
         if (!table)
             return;
@@ -230,8 +238,6 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.LastState.ToString());
         ImGuiUtil.DrawTableColumn("Current Step");
         ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.Step.ToString());
-        ImGuiUtil.DrawTableColumn("ContentIdHash");
-        ImGuiUtil.DrawTableColumn(record.ContentIdHash.ToString());
         ImGuiUtil.DrawTableColumn("Gathering");
         ImGuiUtil.DrawTableColumn(record.Gathering.ToString());
         ImGuiUtil.DrawTableColumn("Perception");

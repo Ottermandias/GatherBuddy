@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Dalamud.Game;
 using Dalamud.Plugin.Services;
 using ECommons.ExcelServices;
@@ -9,6 +10,7 @@ using ECommons.MathHelpers;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer.Parser;
+using GatherBuddy.Models;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
@@ -74,23 +76,23 @@ public partial class FishRecorder
         {
             Record.Flags |= buff.StatusId switch
             {
-                761  => FishRecord.Effects.Snagging,
-                763  => FishRecord.Effects.Chum,
-                568  => FishRecord.Effects.Intuition,
-                762  => FishRecord.Effects.FishEyes,
-                1804 => FishRecord.Effects.IdenticalCast,
-                1803 => FishRecord.Effects.SurfaceSlap,
-                2780 => FishRecord.Effects.PrizeCatch,
-                3907 => FishRecord.Effects.BigGameFishing,
-                850  => FishRecord.Effects.Patience,
-                765  => FishRecord.Effects.Patience2,
-                _    => FishRecord.Effects.None,
+                761  => Effects.Snagging,
+                763  => Effects.Chum,
+                568  => Effects.Intuition,
+                762  => Effects.FishEyes,
+                1804 => Effects.IdenticalCast,
+                1803 => Effects.SurfaceSlap,
+                2780 => Effects.PrizeCatch,
+                3907 => Effects.BigGameFishing,
+                850  => Effects.Patience,
+                765  => Effects.Patience2,
+                _    => Effects.None,
             };
         }
 
-        if (Record.Flags.HasFlag(FishRecord.Effects.Patience)
-         && Record.Flags.HasFlag(FishRecord.Effects.Patience2))
-            Record.Flags &= ~FishRecord.Effects.Patience;
+        if (Record.Flags.HasFlag(Effects.Patience)
+         && Record.Flags.HasFlag(Effects.Patience2))
+            Record.Flags &= ~Effects.Patience;
     }
 
     private void UpdateLure()
@@ -102,18 +104,18 @@ public partial class FishRecorder
         {
             Record.Flags |= buff.StatusId switch
             {
-                3972 when buff.Param == 1 => FishRecord.Effects.AmbitiousLure1,
-                3972 when buff.Param == 2 => FishRecord.Effects.AmbitiousLure2,
-                3972 when buff.Param == 3 => FishRecord.Effects.AmbitiousLure1 | FishRecord.Effects.AmbitiousLure2,
-                3973 when buff.Param == 1 => FishRecord.Effects.ModestLure1,
-                3973 when buff.Param == 2 => FishRecord.Effects.ModestLure2,
-                3973 when buff.Param == 3 => FishRecord.Effects.ModestLure1 | FishRecord.Effects.ModestLure2,
-                _                         => FishRecord.Effects.None,
+                3972 when buff.Param == 1 => Effects.AmbitiousLure1,
+                3972 when buff.Param == 2 => Effects.AmbitiousLure2,
+                3972 when buff.Param == 3 => Effects.AmbitiousLure1 | Effects.AmbitiousLure2,
+                3973 when buff.Param == 1 => Effects.ModestLure1,
+                3973 when buff.Param == 2 => Effects.ModestLure2,
+                3973 when buff.Param == 3 => Effects.ModestLure1 | Effects.ModestLure2,
+                _                         => Effects.None,
             };
         }
 
         if (Record.Flags.HasLure() && LureTimer.ElapsedMilliseconds >= InvalidLureTiming)
-            Record.Flags |= FishRecord.Effects.ValidLure;
+            Record.Flags |= Effects.ValidLure;
         LureTimer.Stop();
     }
 
@@ -140,7 +142,6 @@ public partial class FishRecorder
         if (uiState == null)
             return;
 
-        Record.ContentIdHash = GetContentHash(uiState->PlayerState.ContentId);
         Record.Gathering     = (ushort)uiState->PlayerState.Attributes[(int)GatheringIdx];
         Record.Perception    = (ushort)uiState->PlayerState.Attributes[(int)PerceptionIdx];
     }
@@ -151,7 +152,7 @@ public partial class FishRecorder
         LastCatch = Record.Catch ?? LastCatch;
         Record = new FishRecord()
         {
-            Flags = FishRecord.Effects.Valid,
+            Flags = Effects.Valid,
         };
         Step             = CatchSteps.None;
         Record.TimeStamp = TimeStamp.Epoch;
@@ -221,9 +222,9 @@ public partial class FishRecorder
         Record.Size     =  size;
         Record.Amount   =  amount;
         if (large)
-            Record.Flags |= FishRecord.Effects.Large;
+            Record.Flags |= Effects.Large;
         if (collectible)
-            Record.Flags |= FishRecord.Effects.Collectible;
+            Record.Flags |= Effects.Collectible;
         GatherBuddy.Log.Verbose(
             $"Caught {amount} {(large ? "large " : string.Empty)}{(collectible ? "collectible " : string.Empty)}{Record.Catch.Name[ClientLanguage.English]} of size {size / 10f:F1}.");
     }
@@ -258,7 +259,7 @@ public partial class FishRecorder
         Record.Bite = (ushort)Math.Clamp(Timer.ElapsedMilliseconds, 0, ushort.MaxValue);
         UpdateLure();
         if (!Record.VerifyValidity())
-            Record.Flags &= ~FishRecord.Effects.Valid;
+            Record.Flags &= ~Effects.Valid;
 
         Step = CatchSteps.None;
         if (GatherBuddy.Config.StoreFishRecords)
@@ -267,6 +268,11 @@ public partial class FishRecorder
 
     private void OnFrameworkUpdate(IFramework _)
     {
+        if (GatherBuddy.Config.AutoGatherConfig.FishDataCollection && UploadTaskReady && NextRemoteRecordsUpdate < DateTime.Now)
+        {
+            var token = RemoteRecordsCancellationTokenSource.Token;
+            RemoteRecordsUploadTask = Task.Run(() => UploadLocalRecords(token), token);
+        }
         TimedSave();
         UpdateLureStatus();
         var state = GatherBuddy.EventFramework.FishingState;

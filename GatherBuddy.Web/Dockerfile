@@ -1,23 +1,21 @@
-﻿FROM ubuntu:24.04
+﻿FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
+ARG SECRET_KEY=ghp_7bf8162c0dda421885645d6f51c4ce6bd7fa
+#THIS IS NOT A REAL KEY
 
-ENV WINEDEBUG="-all"
-ARG BUILD_DIR=./bin/Release/net9.0-windows/win-x64/publish
+WORKDIR /build
+
+COPY . ./
+
+RUN dotnet restore GatherBuddy.Web/GatherBuddy.Web.csproj
+RUN dotnet publish GatherBuddy.Web/GatherBuddy.Web.csproj -c Release -o out /p:SecretKey=${SECRET_KEY}
+RUN cat /build/GatherBuddy.SecretKeys/SecretKeys.generated.cs
+
+FROM mcr.microsoft.com/dotnet/aspnet:9.0 AS final
 ENV ASPNETCORE_URLS=http://0.0.0.0:5000
-
-# Install Wine
-RUN apt-get update && \
-    DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-        wine64 \
-        unzip \
-        ca-certificates && \
-    rm -rf /var/lib/apt/lists/*
-
 WORKDIR /app
 
-COPY ${BUILD_DIR} "/app/"
+COPY --from=build /build/out ./
 
 EXPOSE 5000
 
-RUN useradd -m appuser
-USER appuser
-ENTRYPOINT ["/usr/lib/wine/wine64", "GatherBuddy.Web.exe"]
+CMD ["dotnet", "GatherBuddy.Web.dll"]

@@ -98,7 +98,9 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.SoundPlaybackVolume = volume;
                 GatherBuddy.Config.Save();
             }
-            ImGuiUtil.HoverTooltip("The volume of the sound played when auto-gathering shuts down because your list is complete.\nHold CTRL and click to enter custom value");
+
+            ImGuiUtil.HoverTooltip(
+                "The volume of the sound played when auto-gathering shuts down because your list is complete.\nHold CTRL and click to enter custom value");
         }
 
         public static void DrawHonkModeBox()
@@ -131,8 +133,18 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.LifestreamCommand = tmp;
                 GatherBuddy.Config.Save();
             }
-            ImGuiUtil.HoverTooltip("The command used when idling or done gathering. DO NOT include '/li'\nBe careful when changing this, GBR does not validate this command!");
+
+            ImGuiUtil.HoverTooltip(
+                "The command used when idling or done gathering. DO NOT include '/li'\nBe careful when changing this, GBR does not validate this command!");
         }
+
+        public static void DrawFishCollectionBox()
+            => DrawCheckbox("Opt-in to fishing data collection",
+                "With this enabled, whenever you catch a fish the data for that fish will be uploaded to a remote server\n"
+              + "The purpose of this data collection is to allow for a usable auto-fishing feature to be built\n"
+              + "No personal information about you or your character will be collected, only data relevant to the caught fish\n"
+              + "You can opt-out again at any time by simply disabling this checkbox.", GatherBuddy.Config.AutoGatherConfig.FishDataCollection,
+                b => GatherBuddy.Config.AutoGatherConfig.FishDataCollection = b);
 
         public static void DrawMaterialExtraction()
             => DrawCheckbox("Enable materia extraction",
@@ -741,6 +753,7 @@ public partial class Interface
                 ConfigFunctions.DrawUseSkillsForFallabckBox();
                 ConfigFunctions.DrawAbandonNodesBox();
                 ConfigFunctions.DrawCheckRetainersBox();
+                ConfigFunctions.DrawFishCollectionBox();
                 ImGui.TreePop();
             }
 
@@ -754,6 +767,7 @@ public partial class Interface
                 {
                     ConfigFunctions.DrawRepairThreshold();
                 }
+
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();
                 ConfigFunctions.DrawLifestreamCommandTextInput();
