@@ -2,6 +2,7 @@ using GatherBuddy.Keys;
 using GatherBuddy.Web.Controllers;
 using GatherBuddy.Web.Database;
 using GatherBuddy.Web.Database.Models;
+using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.EntityFrameworkCore;
 
 namespace GatherBuddy.Web;
@@ -25,6 +26,13 @@ public class Program
         builder.Services.AddMemoryCache();
         builder.Logging.AddFilter("Microsoft.EntityFrameworkCore",       LogLevel.Warning);
         //builder.Logging.AddFilter("Microsoft.AspNetCore.Server.Kestrel", LogLevel.None);
+        builder.Services.Configure<ForwardedHeadersOptions>(options =>
+        {
+            options.ForwardedHeaders =
+                ForwardedHeaders.XForwardedFor
+              | ForwardedHeaders.XForwardedProto;
+        });
+
 
 
         var app = builder.Build();
@@ -59,6 +67,8 @@ public class Program
         app.UseRouting();
 
         app.UseAuthorization();
+
+        app.UseForwardedHeaders();
 
         app.MapStaticAssets();
 
