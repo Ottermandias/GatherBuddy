@@ -6,8 +6,8 @@ namespace GatherBuddy.Web.Controllers;
 
 public class ApiKeyAuthFilter : IAsyncActionFilter
 {
-    private const string ApiKeyHeaderName = "X-API-Key";
-    private readonly GatherBuddyDbContext _dbContext;
+    private const    string                    ApiKeyHeaderName = "X-API-Key";
+    private readonly GatherBuddyDbContext      _dbContext;
     private readonly ILogger<ApiKeyAuthFilter> _logger;
 
     public ApiKeyAuthFilter(ILogger<ApiKeyAuthFilter> logger, GatherBuddyDbContext dbContext)
@@ -20,7 +20,8 @@ public class ApiKeyAuthFilter : IAsyncActionFilter
     {
         if (!context.HttpContext.Request.Headers.TryGetValue(ApiKeyHeaderName, out var extractedKey))
         {
-            _logger.LogWarning($"No API key provided from {context.HttpContext.Connection.RemoteIpAddress}.");
+            _logger.LogWarning($"No API key provided from {context.HttpContext.Request.Headers["X-Forwarded-For"].FirstOrDefault()
+             ?? context.HttpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown"}.");
             context.Result = new UnauthorizedResult();
             return Task.CompletedTask;
         }
