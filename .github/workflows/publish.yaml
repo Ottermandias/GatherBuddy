@@ -4,7 +4,19 @@ on:
     tags:
       - '*.*.*.*'
 jobs:
+  KeyGen:
+    runs-on: ubuntu-latest
+    outputs:
+      SECRET_KEY: ${{ steps.generate_key.outputs.SECRET_KEY }}
+    steps:
+      - name: Generate Secret Key
+        id: generate_key
+        run: |
+          SECRET_KEY_VALUE=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c32)
+          echo "::add-mask::$SECRET_KEY_VALUE"
+          echo "::set-output name=SECRET_KEY::$SECRET_KEY_VALUE"
   Plugin:
+    needs: KeyGen
     permissions:
       contents: write
     runs-on: windows-latest
@@ -48,6 +60,7 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   Web:
+    needs: KeyGen
     permissions:
       contents: read
       packages: write
