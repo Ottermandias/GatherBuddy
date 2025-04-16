@@ -2,3 +2,4 @@ bin/
 obj/
 .vs/
 .idea/
+SecretKeys.generated.cs

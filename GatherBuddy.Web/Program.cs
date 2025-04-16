@@ -33,8 +33,6 @@ public class Program
               | ForwardedHeaders.XForwardedProto;
         });
 
-
-
         var app = builder.Build();
 
         using (var scope = app.Services.CreateScope())
