@@ -22,6 +22,7 @@ jobs:
     runs-on: windows-latest
     env:
       REPO_NAME: ${{ github.repository }}
+      SECRET_KEY: ${{ needs.generate_key.outputs.SECRET_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -48,7 +49,7 @@ jobs:
         run: dotnet restore Gatherbuddy/Gatherbuddy.csproj
 
       - name: Build Plugin
-        run: dotnet build --no-restore -c Release Gatherbuddy/Gatherbuddy.csproj /p:SecretKey="${{ env.SECRET_KEY }}" -p:AssemblyVersion=${{ env.tag }} -p:FileVersion=${{ env.tag }} -p:PackageVersion=${{ env.tag }} -p:InformationalVersion=${{ env.tag }} --output .\build
+        run: dotnet build --no-restore -c Release Gatherbuddy/Gatherbuddy.csproj /p:SecretKey=${{ env.SECRET_KEY }} -p:AssemblyVersion=${{ env.tag }} -p:FileVersion=${{ env.tag }} -p:PackageVersion=${{ env.tag }} -p:InformationalVersion=${{ env.tag }} --output .\build
 
       - name: Zip Plugin
         run: Compress-Archive -Path .\build\* -DestinationPath .\build\GatherbuddyReborn.zip
@@ -67,6 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REPO_NAME: ${{ github.repository }}
+      SECRET_KEY: ${{ needs.generate_key.outputs.SECRET_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
