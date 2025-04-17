@@ -14,7 +14,7 @@ jobs:
         run: |
           SECRET_KEY_VALUE=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c32)
           echo "::add-mask::$SECRET_KEY_VALUE"
-          echo "::set-output name=SECRET_KEY::$SECRET_KEY_VALUE"
+          echo "SECRET_KEY=$SECRET_KEY_VALUE" >> $GITHUB_OUTPUT
   Plugin:
     needs: KeyGen
     permissions:
@@ -22,7 +22,7 @@ jobs:
     runs-on: windows-latest
     env:
       REPO_NAME: ${{ github.repository }}
-      SECRET_KEY: ${{ needs.generate_key.outputs.SECRET_KEY }}
+      SECRET_KEY: ${{ needs.KeyGen.outputs.SECRET_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -68,7 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       REPO_NAME: ${{ github.repository }}
-      SECRET_KEY: ${{ needs.generate_key.outputs.SECRET_KEY }}
+      SECRET_KEY: ${{ needs.KeyGen.outputs.SECRET_KEY }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
