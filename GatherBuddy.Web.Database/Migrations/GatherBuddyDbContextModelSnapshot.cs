@@ -71,24 +71,6 @@ namespace GatherBuddy.Web.Database.Migrations
 
                     b.ToTable("FishRecords");
                 });
-
-            modelBuilder.Entity("GatherBuddy.Web.Database.Models.SecretKey", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("char(36)");
-
-                    b.Property<DateTime>("Expiry")
-                        .HasColumnType("datetime(6)");
-
-                    b.Property<string>("Key")
-                        .IsRequired()
-                        .HasColumnType("longtext");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("SecretKeys");
-                });
 #pragma warning restore 612, 618
         }
     }

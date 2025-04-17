@@ -7,7 +7,7 @@ namespace GatherBuddy.Web.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
-[ServiceFilter(typeof(ApiKeyAuthFilter))]
+[ServiceFilter(typeof(ClientAccessControlFilter))]
 [ServiceFilter(typeof(RateLimitFilter))]
 public class FishRecordsController : Controller
 {

@@ -26,6 +26,7 @@ public partial class FishRecorder : IDisposable
             GatherBuddy.Log.Error($"Could not create fish record directory {FishRecordDirectory.FullName}:\n{e}");
         }
 
+        RemoteHash = GetClientHash();
         var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
         LoadFile(file);
 
