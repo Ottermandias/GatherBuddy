@@ -189,6 +189,9 @@ public partial class FishRecorder
             DefaultRequestHeaders.Add("X-Client-Version", version);
             var hash = clientHash;
             DefaultRequestHeaders.Add("X-Client-Hash", hash);
+
+            DefaultRequestHeaders.UserAgent.Clear();
+            DefaultRequestHeaders.UserAgent.ParseAdd($"GatherBuddyReborn/{version} (https://github.com/FFXIV-CombatReborn/GatherBuddyReborn)");
         }
     }
 
