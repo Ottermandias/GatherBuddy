@@ -85,7 +85,6 @@
 	  <ProjectReference Include="..\ECommons\ECommons\ECommons.csproj" />
 	  <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
 	  <ProjectReference Include="..\GatherBuddy.Models\GatherBuddy.Models.csproj" />
-	  <ProjectReference Include="..\GatherBuddy.SecretKeys\GatherBuddy.SecretKeys.csproj" />
 	  <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
 	</ItemGroup>
 

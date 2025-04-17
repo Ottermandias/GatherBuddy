@@ -12,7 +12,6 @@
   
   <ItemGroup>
     <ProjectReference Include="..\GatherBuddy.Models\GatherBuddy.Models.csproj" />
-    <ProjectReference Include="..\GatherBuddy.SecretKeys\GatherBuddy.SecretKeys.csproj" />
   </ItemGroup>
 
 

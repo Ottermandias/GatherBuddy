@@ -7,7 +7,6 @@ using System.Net.Http;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using GatherBuddy.Keys;
 using GatherBuddy.Models;
 using Newtonsoft.Json;
 
@@ -176,8 +175,19 @@ public partial class FishRecorder
         internal FishRecorderClient()
             : base(new RateLimitingHandler(new HttpClientHandler()))
         {
-            var keyString = SecretKeys.ApiKey;
-            DefaultRequestHeaders.Add("X-API-Key", keyString);
+            var version = typeof(GatherBuddy).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
+            DefaultRequestHeaders.Add("X-Client-Version", version);
+            var hash = GetClientHash();
+            DefaultRequestHeaders.Add("X-Client-Hash", hash);
+        }
+
+        private string GetClientHash()
+        {
+            var pluginPath = Dalamud.PluginInterface.AssemblyLocation.FullName;
+            using var sha256 = System.Security.Cryptography.SHA256.Create();
+            using var stream = File.OpenRead(pluginPath);
+            var       hash   = sha256.ComputeHash(stream);
+            return Convert.ToHexString(hash);
         }
     }
 

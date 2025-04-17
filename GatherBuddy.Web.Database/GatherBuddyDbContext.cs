@@ -8,7 +8,6 @@ namespace GatherBuddy.Web.Database;
 public class GatherBuddyDbContext(DbContextOptions<GatherBuddyDbContext> options) : DbContext(options)
 {
     public DbSet<SimpleFishRecord> FishRecords { get; set; }
-    public DbSet<SecretKey>  SecretKeys  { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {

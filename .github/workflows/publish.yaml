@@ -4,25 +4,12 @@ on:
     tags:
       - '*.*.*.*'
 jobs:
-  KeyGen:
-    runs-on: ubuntu-latest
-    outputs:
-      RANDOM: ${{ steps.generate_key.outputs.RANDOM }}
-    steps:
-      - name: Generate Secret Key
-        id: generate_key
-        run: |
-          VALUE=$(openssl rand -base64 32 | tr -dc 'A-Za-z0-9' | head -c32)
-          echo "::add-mask::$VALUE"
-          echo "RANDOM=$VALUE" >> $GITHUB_OUTPUT
   Plugin:
-    needs: KeyGen
     permissions:
       contents: write
     runs-on: windows-latest
     env:
       REPO_NAME: ${{ github.repository }}
-      RANDOM: ${{ needs.KeyGen.outputs.RANDOM }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -49,7 +36,7 @@ jobs:
         run: dotnet restore Gatherbuddy/Gatherbuddy.csproj
 
       - name: Build Plugin
-        run: dotnet build --no-restore -c Release Gatherbuddy/Gatherbuddy.csproj /p:SecretKey=${{ env.RANDOM }} -p:AssemblyVersion=${{ env.tag }} -p:FileVersion=${{ env.tag }} -p:PackageVersion=${{ env.tag }} -p:InformationalVersion=${{ env.tag }} --output .\build
+        run: dotnet build --no-restore -c Release Gatherbuddy/Gatherbuddy.csproj -p:AssemblyVersion=${{ env.tag }} -p:FileVersion=${{ env.tag }} -p:PackageVersion=${{ env.tag }} -p:InformationalVersion=${{ env.tag }} --output .\build
 
       - name: Zip Plugin
         run: Compress-Archive -Path .\build\* -DestinationPath .\build\GatherbuddyReborn.zip
@@ -61,14 +48,12 @@ jobs:
           token: ${{ secrets.GITHUB_TOKEN }}
 
   Web:
-    needs: KeyGen
     permissions:
       contents: read
       packages: write
     runs-on: ubuntu-latest
     env:
       REPO_NAME: ${{ github.repository }}
-      RANDOM: ${{ needs.KeyGen.outputs.RANDOM }}
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
@@ -98,7 +83,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish Web Service
-        run: docker build . -f ./GatherBuddy.Web/Dockerfile --build-arg SECRET_KEY=${{ env.RANDOM }} -t ghcr.io/${{ env.REPO_NAME_LOWER }}:${{ env.tag }} --quiet --load
+        run: docker build . -f ./GatherBuddy.Web/Dockerfile --build-arg BUILD_TYPE=Release -t ghcr.io/${{ env.REPO_NAME_LOWER }}:${{ env.tag }} --quiet --load
 
       - name: Tag Docker Image
         run: docker tag ghcr.io/${{ env.REPO_NAME_LOWER }}:${{ env.tag }} ghcr.io/${{ env.REPO_NAME_LOWER }}:latest

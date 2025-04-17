@@ -39,20 +39,6 @@ namespace GatherBuddy.Web.Database.Migrations
                     table.PrimaryKey("PK_FishRecords", x => x.Id);
                 })
                 .Annotation("MySQL:Charset", "utf8mb4");
-
-            migrationBuilder.CreateTable(
-                name: "SecretKeys",
-                columns: table => new
-                {
-                    Id = table.Column<Guid>(type: "char(36)", nullable: false),
-                    Key = table.Column<string>(type: "longtext", nullable: false),
-                    Expiry = table.Column<DateTime>(type: "datetime(6)", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_SecretKeys", x => x.Id);
-                })
-                .Annotation("MySQL:Charset", "utf8mb4");
         }
 
         /// <inheritdoc />
@@ -60,9 +46,6 @@ namespace GatherBuddy.Web.Database.Migrations
         {
             migrationBuilder.DropTable(
                 name: "FishRecords");
-
-            migrationBuilder.DropTable(
-                name: "SecretKeys");
         }
     }
 }
