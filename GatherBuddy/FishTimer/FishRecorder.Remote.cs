@@ -27,7 +27,8 @@ public partial class FishRecorder
     public        Task                    RemoteRecordsDownloadTask            { get; private set; } = Task.CompletedTask;
     private       CancellationTokenSource RemoteRecordsCancellationTokenSource { get; }              = new();
     public        DateTime                NextRemoteRecordsUpdate = DateTime.MinValue;
-    public        bool                    UploadTaskReady         => RemoteRecordsUploadTask.IsCompleted;
+    public        bool                    UploadTaskReady => RemoteRecordsUploadTask.IsCompleted;
+    public        string                  RemoteHash      { get; private set; } = string.Empty;
 
     public void StartLoadRemoteRecords()
     {
@@ -35,6 +36,15 @@ public partial class FishRecorder
             return;
         var token = RemoteRecordsCancellationTokenSource.Token;
         RemoteRecordsDownloadTask = Task.Run(() => LoadRemoteRecords(token), token);
+    }
+
+    private string GetClientHash()
+    {
+        var       pluginPath = Dalamud.PluginInterface.AssemblyLocation.FullName;
+        using var sha256     = System.Security.Cryptography.SHA256.Create();
+        using var stream     = File.OpenRead(pluginPath);
+        var       hash       = sha256.ComputeHash(stream);
+        return Convert.ToHexString(hash);
     }
 
     public void StartUploadLocalRecords()
@@ -80,7 +90,7 @@ public partial class FishRecorder
 
                 var       json     = JsonConvert.SerializeObject(simpleRecords);
                 var       content  = new StringContent(json, Encoding.UTF8, "application/json");
-                using var client   = new FishRecorderClient();
+                using var client   = new FishRecorderClient(RemoteHash);
                 var       response = await client.PostAsync(RemoteUrl + "add", content, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                     GatherBuddy.Log.Error($"Could not upload local fish records: {response.StatusCode}");
@@ -102,7 +112,7 @@ public partial class FishRecorder
             if (total == 0)
                 throw new Exception("No records found.");
 
-            using var client = new FishRecorderClient();
+            using var client = new FishRecorderClient(RemoteHash);
             for (var i = 0; i < total; i += RecordsPerRequest)
             {
                 var responseMessage = await client.GetAsync(RemoteUrl + "get" + $"?page={i}" + $"&pageSize={RecordsPerRequest}",
@@ -135,7 +145,7 @@ public partial class FishRecorder
     {
         try
         {
-            using var client   = new FishRecorderClient();
+            using var client   = new FishRecorderClient(RemoteHash);
             var       response = await client.GetAsync(RemoteUrl + "total", cancellationToken: cancellationToken);
             response.EnsureSuccessStatusCode();
             var total = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken);
@@ -172,22 +182,13 @@ public partial class FishRecorder
 
     private class FishRecorderClient : HttpClient
     {
-        internal FishRecorderClient()
+        internal FishRecorderClient(string clientHash)
             : base(new RateLimitingHandler(new HttpClientHandler()))
         {
             var version = typeof(GatherBuddy).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
             DefaultRequestHeaders.Add("X-Client-Version", version);
-            var hash = GetClientHash();
+            var hash = clientHash;
             DefaultRequestHeaders.Add("X-Client-Hash", hash);
-        }
-
-        private string GetClientHash()
-        {
-            var pluginPath = Dalamud.PluginInterface.AssemblyLocation.FullName;
-            using var sha256 = System.Security.Cryptography.SHA256.Create();
-            using var stream = File.OpenRead(pluginPath);
-            var       hash   = sha256.ComputeHash(stream);
-            return Convert.ToHexString(hash);
         }
     }
 
