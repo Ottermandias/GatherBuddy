@@ -738,13 +738,6 @@ public partial class Interface
             // ignored
         }
 
-        var taskButtonShouldWork = true;
-        ImGui.SameLine();
-        if (ImGuiUtil.DrawDisabledButton("Download Remote Fish Data", new Vector2(0, 0), "Download fish data from the GBR web service. This may take a while.\nThis feature will be available at a later date.",
-                taskButtonShouldWork))
-        {
-            _plugin.FishRecorder.StartLoadRemoteRecords();
-        }
         ImGui.SameLine();
 
         var name                  = string.Empty;
