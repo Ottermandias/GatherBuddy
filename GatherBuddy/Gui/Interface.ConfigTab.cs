@@ -753,6 +753,7 @@ public partial class Interface
                 ConfigFunctions.DrawUseSkillsForFallabckBox();
                 ConfigFunctions.DrawAbandonNodesBox();
                 ConfigFunctions.DrawCheckRetainersBox();
+                ConfigFunctions.DrawFishCollectionBox();
                 ImGui.TreePop();
             }
 
