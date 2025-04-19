@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Objects.Types;
+﻿using System;
+using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
@@ -65,6 +66,11 @@ namespace GatherBuddy.AutoGather
             var available = NodeTracker.Available
                 .Where(CheckItemOvercap)
                 .ToList();
+
+            if (GatherBuddy.Config.AutoGatherConfig.AlwaysGatherMaps && available.Any(i => i.Item.IsTreasureMap) && DiscipleOfLand.NextTreasureMapAllowance < GatherBuddy.Time.ServerTime.DateTime)
+            {
+                return (false, available.First(i => i.Item.IsTreasureMap));
+            }
 
             var target = gatherTarget.Item != null ? available.Where(s => s.Item == gatherTarget.Item).FirstOrDefault() : null;
 

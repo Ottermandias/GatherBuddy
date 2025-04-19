@@ -14,54 +14,33 @@ namespace GatherBuddy.FishTimer;
 
 public partial class FishRecorder
 {
-#if DEBUG
-    public const string RemoteUrl = "http://localhost:5000/api/fishrecords/";
-#else
-    public const string RemoteUrl = "https://gatherbuddy.nostrathomas.net/api/fishrecords/";
-#endif
+    public const  string                  RemoteUrl                 = "https://sevxzz9056.execute-api.us-east-1.amazonaws.com/fishwrap";
     private const string                  RemoteFishRecordsFileName = "remote_fish_records.dat";
-    private const int                     RecordsPerRequest         = 1000;
+    private const int                     RecordsPerRequest         = 100;
     internal      List<FishRecord>        RemoteRecords             = [];
     internal      Queue<FishRecord>       RecordsToUpload           = new();
     public        Task                    RemoteRecordsUploadTask              { get; private set; } = Task.CompletedTask;
     public        Task                    RemoteRecordsDownloadTask            { get; private set; } = Task.CompletedTask;
     private       CancellationTokenSource RemoteRecordsCancellationTokenSource { get; }              = new();
     public        DateTime                NextRemoteRecordsUpdate = DateTime.MinValue;
-    public        bool                    UploadTaskReady => RemoteRecordsUploadTask.IsCompleted;
-    public        string                  RemoteHash      { get; private set; } = string.Empty;
 
-    public void StartLoadRemoteRecords()
-    {
-        if (!GatherBuddy.Config.AutoGatherConfig.FishDataCollection)
-            return;
-        var token = RemoteRecordsCancellationTokenSource.Token;
-        RemoteRecordsDownloadTask = Task.Run(() => LoadRemoteRecords(token), token);
-    }
-
-    private string GetClientHash()
-    {
-        var       pluginPath = Dalamud.PluginInterface.AssemblyLocation.FullName;
-        using var sha256     = System.Security.Cryptography.SHA256.Create();
-        using var stream     = File.OpenRead(pluginPath);
-        var       hash       = sha256.ComputeHash(stream);
-        return Convert.ToHexString(hash);
-    }
-
-    public void StartUploadLocalRecords()
-    {
-        if (!RemoteRecordsUploadTask.IsCompleted)
-        {
-            GatherBuddy.Log.Warning("Remote records upload task is still running, skipping.");
-            return;
-        }
-        var token = RemoteRecordsCancellationTokenSource.Token;
-        RemoteRecordsUploadTask = Task.Run(() => UploadLocalRecords(token), token);
-    }
+    public bool UploadTaskReady
+        => RemoteRecordsUploadTask.IsCompleted;
 
     public void StopRemoteRecordsRequests()
     {
         RemoteRecordsCancellationTokenSource.Cancel();
         WriteRemoteFile();
+    }
+
+    public void QueueHistoricalRecords()
+    {
+        var records = Records.Where(r => r.PositionDataValid).ToList();
+        foreach (var record in records)
+        {
+            RecordsToUpload.Enqueue(record);
+        }
+        GatherBuddy.Log.Information($"Queued {records.Count()} records for upload");
     }
 
     private async Task UploadLocalRecords(CancellationToken cancellationToken = default)
@@ -90,8 +69,8 @@ public partial class FishRecorder
 
                 var       json     = JsonConvert.SerializeObject(simpleRecords);
                 var       content  = new StringContent(json, Encoding.UTF8, "application/json");
-                using var client   = new FishRecorderClient(RemoteHash);
-                var       response = await client.PostAsync(RemoteUrl + "add", content, cancellationToken);
+                using var client   = new FishRecorderClient();
+                var       response = await client.PostAsync(RemoteUrl, content, cancellationToken);
                 if (!response.IsSuccessStatusCode)
                     GatherBuddy.Log.Error($"Could not upload local fish records: {response.StatusCode}");
                 GatherBuddy.Log.Information($"Uploaded {records.Count} local fish records to remote server.");
@@ -101,63 +80,10 @@ public partial class FishRecorder
                 GatherBuddy.Log.Error($"Could not upload local fish records:\n{e}");
             }
         }
+
         NextRemoteRecordsUpdate = DateTime.Now.AddMinutes(1);
     }
 
-    private async Task LoadRemoteRecords(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            var total = await GetRemoteRecordsTotal(cancellationToken: cancellationToken);
-            if (total == 0)
-                throw new Exception("No records found.");
-
-            using var client = new FishRecorderClient(RemoteHash);
-            for (var i = 0; i < total; i += RecordsPerRequest)
-            {
-                var responseMessage = await client.GetAsync(RemoteUrl + "get" + $"?page={i}" + $"&pageSize={RecordsPerRequest}",
-                    cancellationToken: cancellationToken);
-                if (!responseMessage.IsSuccessStatusCode)
-                    throw new Exception($"Could not get remote records: {responseMessage.StatusCode}");
-
-                var remoteRecordsJson = await responseMessage.Content.ReadAsStringAsync(cancellationToken: cancellationToken);
-                var records           = JsonConvert.DeserializeObject<List<SimpleFishRecord>>(remoteRecordsJson);
-                if (records == null)
-                    throw new Exception("Could not deserialize remote records.");
-
-                foreach (var record in records)
-                {
-                    RemoteRecords.Add(FishRecord.FromSimpleRecord(record));
-                }
-
-                WriteRemoteFile();
-            }
-
-            GatherBuddy.Log.Information($"Loaded {RemoteRecords.Count} remote fish records.");
-        }
-        catch (Exception e)
-        {
-            GatherBuddy.Log.Error($"Could not load remote fish records:\n{e}");
-        }
-    }
-
-    public async Task<int> GetRemoteRecordsTotal(CancellationToken cancellationToken = default)
-    {
-        try
-        {
-            using var client   = new FishRecorderClient(RemoteHash);
-            var       response = await client.GetAsync(RemoteUrl + "total", cancellationToken: cancellationToken);
-            response.EnsureSuccessStatusCode();
-            var total = await response.Content.ReadAsStringAsync(cancellationToken: cancellationToken);
-            GatherBuddy.Log.Information($"Remote fish records total: {total}");
-            return int.Parse(total);
-        }
-        catch (Exception e)
-        {
-            GatherBuddy.Log.Error($"Could not get remote fish records total:\n{e}");
-            return 0;
-        }
-    }
 
     private void LoadRemoteFile(FileInfo file)
     {
@@ -182,13 +108,11 @@ public partial class FishRecorder
 
     private class FishRecorderClient : HttpClient
     {
-        internal FishRecorderClient(string clientHash)
+        internal FishRecorderClient()
             : base(new RateLimitingHandler(new HttpClientHandler()))
         {
             var version = typeof(GatherBuddy).Assembly.GetName().Version?.ToString() ?? "0.0.0.0";
             DefaultRequestHeaders.Add("X-Client-Version", version);
-            var hash = clientHash;
-            DefaultRequestHeaders.Add("X-Client-Hash", hash);
 
             DefaultRequestHeaders.UserAgent.Clear();
             DefaultRequestHeaders.UserAgent.ParseAdd($"GatherBuddyReborn/{version} (https://github.com/FFXIV-CombatReborn/GatherBuddyReborn)");

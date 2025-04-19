@@ -739,6 +739,12 @@ public partial class Interface
         }
 
         ImGui.SameLine();
+        if (ImGui.Button("Queue Historical Fish Data for Upload"))
+        {
+            _plugin.FishRecorder.QueueHistoricalRecords();
+        }
+
+        ImGui.SameLine();
 
         var name                  = string.Empty;
         if (!ImGuiUtil.OpenNameField(RecordTable.FileNamePopup, ref name) || name.Length <= 0)
