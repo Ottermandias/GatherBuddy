@@ -46,7 +46,7 @@ namespace GatherBuddy.AutoGather
             _soundHelper          = new SoundHelper();
             _advancedUnstuck      = new();
             _activeItemList       = new ActiveItemList(plugin.AutoGatherListsManager);
-            ArtisanExporter      = new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
+            ArtisanExporter       = new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
         }
 
         private readonly GatherBuddy     _plugin;
@@ -299,7 +299,7 @@ namespace GatherBuddy.AutoGather
                 }
             }
 
-            var nearbyNodes = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint).Select(o => o.DataId);
+            var nearbyNodes = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint && o.IsTargetable).Select(o => o.DataId);
             var next = _activeItemList.GetNextOrDefault(nearbyNodes)
                 .OrderByDescending(nodes => nodes.Item.ItemId);
             if (!next.Any())
@@ -615,6 +615,7 @@ namespace GatherBuddy.AutoGather
                 LeaveTheDiadem();
                 return;
             }
+
             if (!string.IsNullOrEmpty(status))
                 AutoStatus = status;
             if (GatherBuddy.Config.AutoGatherConfig.HonkMode)
@@ -760,7 +761,7 @@ namespace GatherBuddy.AutoGather
             }
 
             Chat.Instance.ExecuteCommand($"/gearset change \"{set}\"");
-            TaskManager.DelayNext(Random.Shared.Next(delay, delay+500)); //Add a random delay to be less suspicious
+            TaskManager.DelayNext(Random.Shared.Next(delay, delay + 500)); //Add a random delay to be less suspicious
             return true;
         }
 
