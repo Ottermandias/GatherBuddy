@@ -221,6 +221,8 @@ public class AutoGatherList
                     else
                         changes = true;
                 }
+                if (cfg.EnabledItems.TryGetValue(itemId, out var enabled))
+                    list.SetEnabled(item, enabled);
             }
             else
             {
