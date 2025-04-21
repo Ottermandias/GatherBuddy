@@ -539,11 +539,11 @@ namespace GatherBuddy.AutoGather
 
                 //It takes some time (roundtrip to the server) before a node becomes targetable after it becomes visible,
                 //so we need to delay excluding it. But instead of measuring time, we use distance, since character is traveling at a constant speed.
-                //Value 80 was determined empirically.
-                foreach (var node in allPositions.Where(o => o.DistanceToPlayer() < 80))
+                //Value 50 was determined empirically.
+                foreach (var node in allPositions.Where(o => o.DistanceToPlayer() < 50))
                     FarNodesSeenSoFar.Add(node);
 
-                if (CurrentDestination.DistanceToPlayer() < 80)
+                if (CurrentDestination.DistanceToPlayer() < 50)
                 {
                     GatherBuddy.Log.Verbose("Far node is not targetable, choosing another");
                 }
