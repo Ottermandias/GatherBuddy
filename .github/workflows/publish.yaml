@@ -4,7 +4,7 @@ on:
     tags:
       - '*.*.*.*'
 jobs:
-  Plugin:
+  Build:
     permissions:
       contents: write
     runs-on: windows-latest
@@ -46,49 +46,3 @@ jobs:
         with:
           files: ./build/GatherbuddyReborn.zip
           token: ${{ secrets.GITHUB_TOKEN }}
-
-  Web:
-    permissions:
-      contents: read
-      packages: write
-    runs-on: ubuntu-latest
-    env:
-      REPO_NAME: ${{ github.repository }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          submodules: recursive
-
-      - name: Get Environment Variables
-        shell: pwsh
-        run: |
-          $tag = "${{ github.ref }}" -replace 'refs/tags/', ''
-          
-          "tag=$tag" | Out-File -Append -FilePath $Env:GITHUB_ENV
-
-      - name: Set Lowercase Repo Name
-        run: echo "REPO_NAME_LOWER=$(echo $REPO_NAME | tr '[:upper:]' '[:lower:]')" >> $GITHUB_ENV
-
-      - name: Set up Docker
-        uses: docker/setup-buildx-action@v3
-        with:
-          install: 'true'
-
-      - name: Login to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Publish Web Service
-        run: docker build . -f ./GatherBuddy.Web/Dockerfile --build-arg BUILD_TYPE=Release -t ghcr.io/${{ env.REPO_NAME_LOWER }}:${{ env.tag }} --quiet --load
-
-      - name: Tag Docker Image
-        run: docker tag ghcr.io/${{ env.REPO_NAME_LOWER }}:${{ env.tag }} ghcr.io/${{ env.REPO_NAME_LOWER }}:latest
-
-      - name: Push Docker Image
-        run: |
-          docker push ghcr.io/${{ env.REPO_NAME_LOWER }}:${{ env.tag }}
-          docker push ghcr.io/${{ env.REPO_NAME_LOWER }}:latest
