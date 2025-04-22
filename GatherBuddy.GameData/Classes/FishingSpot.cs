@@ -124,15 +124,11 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         => spot.RowId switch
         {
             10_000 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(759), // the rows in between are no longer used diadem objects
-            10_017 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_018 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_019 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_020 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_021 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_022 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_023 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_024 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            10_025 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
-            _      => spot.TerritoryType.Value,
+            > 10_016 and < 10_026 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
+            > 10_025 and < 10_031 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1073),
+            > 10_030 and < 10_040 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
+            > 10_042 and < 10_094 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
+            10_096 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
+            _      => spot.TerritoryType.ValueNullable,
         };
 }
