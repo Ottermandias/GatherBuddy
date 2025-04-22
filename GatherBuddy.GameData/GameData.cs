@@ -96,8 +96,8 @@ public class GameData
             ForcedAetherytes.ApplyMissingAetherytes(this);
 
             Gatherables = DataManager.GetExcelSheet<GatheringItem>()
-                .Where(g => g.Item.RowId != 0 && g.Item.RowId < 1000000)
-                .GroupBy(g => g.Item)
+                .Where(g => g.Item.RowId != 0 && g.Item.RowId < 1000000 && g.Item.TryGetValue<Item>(out var i) && !i.Name.IsEmpty)
+                .GroupBy(g => g.Item.RowId)
                 .Select(group => group.First())
                 .ToFrozenDictionary(g => g.Item.RowId, g => new Gatherable(this, g));
             GatherablesByGatherId = Gatherables.Values.ToFrozenDictionary(g => g.GatheringId, g => g);
