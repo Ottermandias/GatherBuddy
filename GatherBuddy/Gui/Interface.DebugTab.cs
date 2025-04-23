@@ -451,7 +451,7 @@ public partial class Interface
     }
 
     private void DrawDebugTab()
-    {
+    {       
         if (!GatherBuddy.DebugMode)
             return;
 
