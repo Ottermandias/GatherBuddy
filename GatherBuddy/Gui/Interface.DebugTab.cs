@@ -23,6 +23,8 @@ public partial class Interface
 {
     [GeneratedRegex(@"\((?<Id>\d{5})\)$", RegexOptions.ExplicitCapture | RegexOptions.NonBacktracking)]
     private static partial Regex CosmicMissionRegex();
+    private static int startId = 10031;
+    private static int endId = 10096;
 
     private static void DrawDebugAetheryte(Aetheryte a)
     {
@@ -540,6 +542,39 @@ public partial class Interface
             ImGui.Text(_plugin.Ipc._versionProvider != null ? "Available" : "Unavailable");
             ImGui.Text(_plugin.Ipc._identifyProvider != null ? "Available" : "Unavailable");
             ImGui.Text(_lastItemIdentified.ToString());
+        }
+        ImGui.PushItemWidth(100);
+        ImGui.InputInt($"Start ID: {GatherBuddy.GameData.FishingSpots.Values.FirstOrDefault(s => s.Id == startId)?.Name}", ref startId);
+        ImGui.InputInt($"End ID: {GatherBuddy.GameData.FishingSpots.Values.FirstOrDefault(s => s.Id == endId)?.Name}", ref endId);
+        ImGui.PopItemWidth();
+        if (ImGui.Button("Copy Most Recent Unknown Fish Data"))
+        {
+            var patch = "Patch.SeekersOfEternity";
+            string text = "";
+            foreach (FishingSpot spot in GatherBuddy.GameData.FishingSpots.Values)
+            {
+                if (spot.Id >= startId && spot.Id <= endId)
+                {
+                    var regex = new Regex(@"^(.*?)\s\((.*?)\)$");
+                    var match = regex.Match(spot.Name);
+                    var name = spot.Name;
+                    if (match.Success)
+                    {
+                        var spotName = match.Groups[1].Value;
+                        var missionId = match.Groups[2].Value;
+                        uint.TryParse(missionId, out uint missionIdAsUInt);
+                        name = spotName + " " + Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().GetRow(missionIdAsUInt).Unknown0.ToString();
+                    }
+                    text   += $"\n        // {name}\n";
+                    foreach (var fish in spot.Items)
+                    {
+                        text += $"        data.Apply({fish.ItemId}, {patch}) // {fish.Name}\n";
+                        text += $"            .Bait(data)\n";
+                        text += $"            .Bite(data, HookSet.Unknown, BiteType.Unknown);\n";
+                    }
+                }
+            }
+            ImGui.SetClipboardText(text);
         }
     }
 }
