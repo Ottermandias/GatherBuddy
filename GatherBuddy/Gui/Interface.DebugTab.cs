@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Dalamud.Game;
 using GatherBuddy.Classes;
+using GatherBuddy.Enums;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
@@ -12,6 +13,7 @@ using GatherBuddy.Time;
 using ImGuiNET;
 using Lumina.Excel.Sheets;
 using OtterGui;
+using OtterGui.Text;
 using static GatherBuddy.FishTimer.FishRecord;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
@@ -21,8 +23,11 @@ namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
-    [GeneratedRegex(@"\((?<Id>\d{5})\)$", RegexOptions.ExplicitCapture | RegexOptions.NonBacktracking)]
+    [GeneratedRegex(@"(?<Name>.*) \((?<Id>\d{5})\)$", RegexOptions.ExplicitCapture | RegexOptions.NonBacktracking)]
     private static partial Regex CosmicMissionRegex();
+
+    private static uint _startId = 10031;
+    private static uint _endId   = 10096;
 
     private static void DrawDebugAetheryte(Aetheryte a)
     {
@@ -218,7 +223,7 @@ public partial class Interface
             if (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().TryGetRow(id, out var row))
             {
                 ImGuiUtil.DrawTableColumn("Current Mission");
-                ImGuiUtil.DrawTableColumn($"{row.Unknown0} ({id})");
+                ImGuiUtil.DrawTableColumn($"{row.Unknown0.ExtractText()} ({id})");
             }
         }
 
@@ -526,14 +531,16 @@ public partial class Interface
 
         if (ImGui.CollapsingHeader("IPC"))
         {
-            using var group1 = ImRaii.Group();
-            ImGui.Text("Version");
-            ImGui.Text(GatherBuddyIpc.VersionName);
-            ImGui.Text(GatherBuddyIpc.IdentifyName);
-            if (_plugin.Ipc._identifyProvider != null && ImGui.InputTextWithHint("##IPCIdentifyTest", "Identify...", ref _identifyTest, 64))
-                _lastItemIdentified = Dalamud.PluginInterface.GetIpcSubscriber<string, uint>(GatherBuddyIpc.IdentifyName)
-                    .InvokeFunc(_identifyTest);
-            group1.Dispose();
+            using (var group1 = ImRaii.Group())
+            {
+                ImGui.Text("Version");
+                ImGui.Text(GatherBuddyIpc.VersionName);
+                ImGui.Text(GatherBuddyIpc.IdentifyName);
+                if (_plugin.Ipc._identifyProvider != null && ImGui.InputTextWithHint("##IPCIdentifyTest", "Identify...", ref _identifyTest, 64))
+                    _lastItemIdentified = Dalamud.PluginInterface.GetIpcSubscriber<string, uint>(GatherBuddyIpc.IdentifyName)
+                        .InvokeFunc(_identifyTest);
+            }
+
             ImGui.SameLine();
             using var group2 = ImRaii.Group();
             ImGui.Text(GatherBuddyIpc.IpcVersion.ToString());
@@ -541,5 +548,50 @@ public partial class Interface
             ImGui.Text(_plugin.Ipc._identifyProvider != null ? "Available" : "Unavailable");
             ImGui.Text(_lastItemIdentified.ToString());
         }
+
+        DrawCosmicFishDataButton();
+    }
+
+    private static void DrawCosmicFishDataButton()
+    {
+        ImGui.PushItemWidth(100);
+        ImUtf8.InputScalar($"Start ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_startId)?.Name}", ref _startId);
+        ImUtf8.InputScalar($"End ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_endId)?.Name}",     ref _endId);
+        ImGui.PopItemWidth();
+
+        if (!ImUtf8.Button("Copy Most Recent Unknown Fish Data"u8))
+            return;
+
+        var patch = $"{nameof(Patch)}.{Enum.GetValues<Patch>().Last()}";
+        var text  = "";
+        foreach (var spot in GatherBuddy.GameData.FishingSpots.Values)
+        {
+            if (spot.Id < _startId || spot.Id > _endId)
+                continue;
+
+            if (spot.Items.Length is 0)
+                continue;
+
+            var match = CosmicMissionRegex().Match(spot.Name);
+            var name  = spot.Name;
+            if (match.Success)
+            {
+                var spotName  = match.Groups[1].Value;
+                var missionId = uint.Parse(match.Groups[2].Value);
+                name = spotName
+                  + " "
+                  + (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().GetRowOrDefault(missionId)?.Unknown0.ExtractText() ?? "Unknown");
+            }
+
+            text += $"\n        // {name}\n";
+            foreach (var fish in spot.Items)
+            {
+                text += $"        data.Apply({fish.ItemId}, {patch}) // {fish.Name}\n";
+                text += $"            .Bait(data)\n";
+                text += $"            .Bite(data, HookSet.Unknown, BiteType.Unknown);\n";
+            }
+        }
+
+        ImGui.SetClipboardText(text);
     }
 }
