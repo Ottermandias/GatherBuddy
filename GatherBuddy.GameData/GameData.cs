@@ -122,6 +122,8 @@ public class GameData
 
             Bait = DataManager.GetExcelSheet<Item>()
                 .Where(i => i.ItemSearchCategory.RowId == Structs.Bait.FishingTackleRow)
+                .Concat(DataManager.GetExcelSheet<WKSItemInfo>().Where(i => i.Unknown3 is 5)
+                    .Select(i => DataManager.GetExcelSheet<Item>().GetRow(i.Unknown0))) // Unknown3 is WKSItemSubCategory, Unknown 0 is ItemId.
                 .ToFrozenDictionary(b => b.RowId, b => new Bait(b));
             Log.Verbose("Collected {NumBaits} different types of bait.", Bait.Count);
 
