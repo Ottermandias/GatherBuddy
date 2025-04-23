@@ -266,6 +266,7 @@ public partial class Interface
             Double   = 0x08,
             Triple   = 0x10,
             Invalid  = 0x20,
+            Stellar  = 0x40,
         }
 
         private sealed class HookHeader : ColumnFlags<HookSetFilter, FishRecord>
@@ -277,6 +278,7 @@ public partial class Interface
                   | HookSetFilter.Regular
                   | HookSetFilter.Double
                   | HookSetFilter.Triple
+                  | HookSetFilter.Stellar
                   | HookSetFilter.Invalid;
                 _filter = AllFlags;
             }
@@ -308,6 +310,7 @@ public partial class Interface
                     HookSet.Hook       => _filter.HasFlag(HookSetFilter.Regular),
                     HookSet.DoubleHook => _filter.HasFlag(HookSetFilter.Double),
                     HookSet.TripleHook => _filter.HasFlag(HookSetFilter.Triple),
+                    HookSet.StellarHook => _filter.HasFlag(HookSetFilter.Stellar),
                     _                  => _filter.HasFlag(HookSetFilter.Invalid),
                 };
 

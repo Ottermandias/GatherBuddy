@@ -10,6 +10,7 @@ public enum HookSet : byte
     Hook       = 3,
     DoubleHook = 4,
     TripleHook = 5,
+    StellarHook = 6,
     None       = 255,
 }
 
@@ -24,6 +25,7 @@ public static class HookSetExtensions
             HookSet.Hook       => "Regular",
             HookSet.DoubleHook => "Double",
             HookSet.TripleHook => "Triple",
+            HookSet.StellarHook => "Stellar",
             HookSet.None       => "None",
             _                  => "Invalid",
         };

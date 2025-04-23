@@ -152,7 +152,8 @@ public struct FishRecord
             HookSet.Powerful   => 3 << 4,
             HookSet.DoubleHook => 4 << 4,
             HookSet.TripleHook => 5 << 4,
-            _                  => 6 << 4,
+            HookSet.StellarHook => 6 << 4,
+            _                  => 7 << 4,
         };
         _tugAndHook = (byte)b;
     }
@@ -176,6 +177,7 @@ public struct FishRecord
             3 => HookSet.Powerful,
             4 => HookSet.DoubleHook,
             5 => HookSet.TripleHook,
+            6 => HookSet.StellarHook,
             _ => HookSet.Unknown,
         };
 

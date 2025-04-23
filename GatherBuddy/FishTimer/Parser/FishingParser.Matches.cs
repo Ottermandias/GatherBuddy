@@ -2,6 +2,8 @@
 using Dalamud.Game;
 using Dalamud.Game.Text;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Memory;
+using FFXIVClientStructs.FFXIV.Component.GUI;
 
 namespace GatherBuddy.FishTimer.Parser;
 
@@ -39,10 +41,27 @@ public partial class FishingParser
             GatherBuddy.Log.Error($"Discovered unknown fishing spot: \"{fishingSpotName}\".");
     }
 
+    private void HandleCastMatchCosmic(Match match, string missionName)
+    {      
+        var tmp = match.Groups["FishingSpot"];
+        var fishingSpotName = tmp.Success
+            ? FishingSpotNameHacks(tmp.Value.ToLowerInvariant())
+            : match.Groups["FishingSpotWithArticle"].Value.ToLowerInvariant();
+        fishingSpotName += " | " + missionName.ToLowerInvariant();
+        if (FishingSpotNames.TryGetValue(fishingSpotName, out var fishingSpot))
+            BeganFishing?.Invoke(fishingSpot);
+        // Hack against 'The' special cases.
+        else if (GatherBuddy.Language == ClientLanguage.English
+              && fishingSpotName.StartsWith("the ")
+              && FishingSpotNames.TryGetValue(fishingSpotName[4..], out fishingSpot))
+            BeganFishing?.Invoke(fishingSpot);
+        else
+            GatherBuddy.Log.Error($"Began fishing at unknown fishing spot: \"{fishingSpotName}\".");
+    }
+
     private const XivChatType FishingMessage = (XivChatType)2243;
 
-
-    private void OnMessageDelegate(XivChatType type, int timeStamp, ref SeString sender, ref SeString message, ref bool isHandled)
+    private unsafe void OnMessageDelegate(XivChatType type, int timeStamp, ref SeString sender, ref SeString message, ref bool isHandled)
     {
         switch (type)
         {
@@ -59,7 +78,14 @@ public partial class FishingParser
                 var match = _regexes.Cast.Match(text);
                 if (match.Success)
                 {
-                    HandleCastMatch(match);
+                    if(Dalamud.ClientState.TerritoryType == 1237)
+                    {
+                        var missionName = MemoryHelper.ReadSeString(&((AtkUnitBase*)Dalamud.GameGui.GetAddonByName("_ToDoList", 1))->UldManager.NodeList[11]->GetAsAtkComponentNode()->Component->UldManager.NodeList[13]->GetAsAtkTextNode()->NodeText).ToString();
+                        GatherBuddy.Log.Verbose($"Loaded quest: {missionName}");
+                        HandleCastMatchCosmic(match, missionName);
+                    }
+                    else 
+                        HandleCastMatch(match);
                     return;
                 }
 

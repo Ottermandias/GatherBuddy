@@ -70,7 +70,8 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         _data     = spot;
         Territory = data.FindOrAddTerritory(FishingSpotTerritoryHacks(data, spot)) ?? Territory.Invalid;
         Name      = MultiString.ParseSeStringLumina(spot.PlaceName.ValueNullable?.Name);
-
+        if (spot.RowId > 10_042 && spot.RowId < 10_094 || spot.RowId == 10_096)
+            Name += " | " + FishingSpotNameHacks(data, spot);
         IntegralXCoord = Maps.MarkerToMap(spot.X, Territory.SizeFactor);
         IntegralYCoord = Maps.MarkerToMap(spot.Z, Territory.SizeFactor);
         ClosestAetheryte = Territory.Aetherytes.Count > 0
@@ -128,4 +129,17 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
             10_096 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
             _      => spot.TerritoryType.ValueNullable,
         };
+    
+    private static string? FishingSpotNameHacks(GameData data, FishingSpotRow spot)
+        {
+            if (spot.RowId == 10_096)
+                return data.DataManager.GetExcelSheet<WKSMissionUnit>().GetRow(544).Unknown0.ToString();
+            var row = spot.RowId - 10_043 + 451;
+            if (row > 495)
+                row += 12;
+            if (row > 511)
+                row += 30;
+            var excelRow = data.DataManager.GetExcelSheet<WKSMissionUnit>().GetRow(row);
+            return excelRow.Unknown0.ToString();
+        }
 }
