@@ -9,6 +9,7 @@ using GatherBuddy.SeFunctions;
 using ImGuiNET;
 using OtterGui;
 using OtterGui.Raii;
+using OtterGui.Text;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using TimeStamp = GatherBuddy.Time.TimeStamp;
 
@@ -155,16 +156,16 @@ public partial class FishTimerWindow : Window, IDisposable
         }
     }
 
-    private string EllipsifyString(string text, float maxWidth)
+    private string EllipsifyString(ReadOnlySpan<char> text, float maxWidth)
     {
-        if (ImGui.CalcTextSize(text).X < maxWidth)
-            return text;
+        if (ImUtf8.CalcTextSize(text).X < maxWidth)
+            return new string(text);
 
-        maxWidth -= ImGui.CalcTextSize("...").X;
+        maxWidth -= ImUtf8.CalcTextSize("...").X;
         var length = Math.Max(text.Length - 3, 0);
         while (length-- > 0)
         {
-            if (ImGui.CalcTextSize(text, 0, length).X < maxWidth)
+            if (ImUtf8.CalcTextSize(text, false, length).X < maxWidth)
                 return $"{text[..length]}...";
         }
 
@@ -176,8 +177,14 @@ public partial class FishTimerWindow : Window, IDisposable
         if (spot == null)
             return "Unknown";
 
+        var name = spot.Name.AsSpan();
+        if (name.EndsWith(')'))
+        {
+            if (name.Length > 8 && name[^7] is '(')
+                name = name[..^8];
+        }
         var maxWidth = _windowSize.X - ImGui.CalcTextSize("100.0").X - 2 * _textMargin;
-        return EllipsifyString(spot.Name, maxWidth);
+        return EllipsifyString(name, maxWidth);
     }
 
     private void SetSpot(FishingSpot? spot)
