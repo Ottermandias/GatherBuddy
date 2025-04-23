@@ -51,21 +51,21 @@ public static partial class Fish
         // Weeping Pool  Lunch Emergency
         data.Apply(45693, Patch.SeekersOfEternity) // Astacus Lamentorum
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45694, Patch.SeekersOfEternity) // Lunar Tilapia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45695, Patch.SeekersOfEternity) // Lunar Blue Guppy
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Northward Hop-print  Large Aquatic Specimens
         data.Apply(45696, Patch.SeekersOfEternity) // Melancholia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45697, Patch.SeekersOfEternity) // Hop-shrimp
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45698, Patch.SeekersOfEternity) // Blue Cichlid
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -73,29 +73,29 @@ public static partial class Fish
         // Westward Hop-print  Western Water Inspection
         data.Apply(45699, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45700, Patch.SeekersOfEternity) // Lunar Raiamas
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45701, Patch.SeekersOfEternity) // Cobalt Eel
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Southeast Well  Aquatic Foodstuffs
         data.Apply(45702, Patch.SeekersOfEternity) // Star Pleco
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45703, Patch.SeekersOfEternity) // Lunar Axolotl
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45704, Patch.SeekersOfEternity) // Lunar Catfish
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Weeping Pool  Weeping Pool Ecological Survey
         data.Apply(45705, Patch.SeekersOfEternity) // Astacus Lamentorum
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45706, Patch.SeekersOfEternity) // Lunar Peacock Bass
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -106,7 +106,7 @@ public static partial class Fish
         // Northward Hop-print  Assorted Alchemical Materials
         data.Apply(45708, Patch.SeekersOfEternity) // Melancholia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45709, Patch.SeekersOfEternity) // High Noontide Oscar
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -117,7 +117,7 @@ public static partial class Fish
         // Southeast Well  Big Fish
         data.Apply(45711, Patch.SeekersOfEternity) // Star Pleco
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45712, Patch.SeekersOfEternity) // Lunar Grass Carp
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -131,7 +131,7 @@ public static partial class Fish
         // Weeping Pool  Environmental Inspection
         data.Apply(45715, Patch.SeekersOfEternity) // Astacus Lamentorum
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45716, Patch.SeekersOfEternity) // Starcrier
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -145,10 +145,10 @@ public static partial class Fish
         // Westward Hop-print  Polarized Dyes
         data.Apply(45719, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45720, Patch.SeekersOfEternity) // Lunar Raiamas
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45721, Patch.SeekersOfEternity) // Lunar Salmon
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -159,7 +159,7 @@ public static partial class Fish
         // Southeast Well  Southeast Well Ecological Survey
         data.Apply(45723, Patch.SeekersOfEternity) // Star Pleco
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45724, Patch.SeekersOfEternity) // Pinkmoon Cichlid
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -173,7 +173,7 @@ public static partial class Fish
         // Weeping Pool  Fish Sauce Ingredients
         data.Apply(45727, Patch.SeekersOfEternity) // Astacus Lamentorum
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45728, Patch.SeekersOfEternity) // Starcrier
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -187,10 +187,10 @@ public static partial class Fish
         // Westward Hop-print  Aquatic Samples
         data.Apply(45731, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45732, Patch.SeekersOfEternity) // Lunar Raiamas
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45733, Patch.SeekersOfEternity) // Hopping Star
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -201,7 +201,7 @@ public static partial class Fish
         // Northward Hop-print  Northwestern Water Inspection
         data.Apply(45735, Patch.SeekersOfEternity) // Melancholia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45736, Patch.SeekersOfEternity) // Hopped-on Leaffish
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -232,7 +232,7 @@ public static partial class Fish
         // Weeping Pool  Preserved Foodstuffs
         data.Apply(45744, Patch.SeekersOfEternity) // Astacus Lamentorum
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45745, Patch.SeekersOfEternity) // Starcrier
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -266,7 +266,7 @@ public static partial class Fish
         // Northward Hop-print  Absolute Specimen
         data.Apply(45754, Patch.SeekersOfEternity) // Melancholia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45755, Patch.SeekersOfEternity) // Mooncrystal Perch
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -300,7 +300,7 @@ public static partial class Fish
         // Westward Hop-print  Westward Ecological Survey
         data.Apply(45764, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45765, Patch.SeekersOfEternity) // Leaping Loach
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -317,7 +317,7 @@ public static partial class Fish
         // Southeast Well  Supper Emergency
         data.Apply(45769, Patch.SeekersOfEternity) // Star Pleco
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45770, Patch.SeekersOfEternity) // Lunar Grass Carp
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -348,7 +348,7 @@ public static partial class Fish
         // Northward Hop-print A-1: Northward Ecological Survey
         data.Apply(45778, Patch.SeekersOfEternity) // Melancholia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45779, Patch.SeekersOfEternity) // Mooncrystal Perch
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -368,10 +368,10 @@ public static partial class Fish
         // Westward Hop-print A-1: Rare Aquatic Specimens
         data.Apply(45784, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45785, Patch.SeekersOfEternity) // Lunar Raiamas
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45786, Patch.SeekersOfEternity) // Preceptor Betta
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -436,7 +436,7 @@ public static partial class Fish
         // Weeping Pool A-2: Large Aquatic Specimens
         data.Apply(45826, Patch.SeekersOfEternity) // Astacus Lamentorum
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45827, Patch.SeekersOfEternity) // Starcrier
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -453,7 +453,7 @@ public static partial class Fish
         // Southeast Well A-2: Assorted Alchemical Materials
         data.Apply(45820, Patch.SeekersOfEternity) // Star Pleco
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45821, Patch.SeekersOfEternity) // Lunar Grass Carp
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -567,7 +567,7 @@ public static partial class Fish
         // Southeast Well A-2: Aquatic Inspection II
         data.Apply(45841, Patch.SeekersOfEternity) // Star Pleco
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45842, Patch.SeekersOfEternity) // Lunar Grass Carp
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -587,10 +587,10 @@ public static partial class Fish
         // Westward Hop-print A-1: Fine-grade Water Filter Materials I
         data.Apply(45810, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45811, Patch.SeekersOfEternity) // Lunar Raiamas
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45812, Patch.SeekersOfEternity) // Preceptor Betta
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -604,7 +604,7 @@ public static partial class Fish
         // Weeping Pool A-2: Fine-grade Water Filter Materials II
         data.Apply(45847, Patch.SeekersOfEternity) // Astacus Lamentorum
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45848, Patch.SeekersOfEternity) // Teardrop Knifefish
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -641,7 +641,7 @@ public static partial class Fish
         // Northward Hop-print A-2: Coexisting Species I
         data.Apply(45853, Patch.SeekersOfEternity) // Melancholia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45857, Patch.SeekersOfEternity) // Mooncrystal Perch
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -798,13 +798,13 @@ public static partial class Fish
         // Southeast Well A-2: Processed Aquatic Metals
         data.Apply(45913, Patch.SeekersOfEternity) // Star Pleco
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45914, Patch.SeekersOfEternity) // Lunar Grass Carp
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
         data.Apply(45915, Patch.SeekersOfEternity) // Lunar Catfish
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45916, Patch.SeekersOfEternity) // Lunar Longhair
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -815,10 +815,10 @@ public static partial class Fish
         // Westward Hop-print A-2: Refined Moon Gel
         data.Apply(45918, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45919, Patch.SeekersOfEternity) // Lunar Raiamas
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45920, Patch.SeekersOfEternity) // Preceptor Betta
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -872,7 +872,7 @@ public static partial class Fish
         // Westward Hop-print  Work Ladders
         data.Apply(45935, Patch.SeekersOfEternity) // Bluemoon Loach
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45936, Patch.SeekersOfEternity) // Lamentorum Geayi
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
@@ -883,7 +883,7 @@ public static partial class Fish
         // Northward Hop-print  Kindling
         data.Apply(45938, Patch.SeekersOfEternity) // Melancholia
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45939, Patch.SeekersOfEternity) // Sunken Drone
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
