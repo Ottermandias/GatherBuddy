@@ -2,22 +2,28 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 using Dalamud.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
-using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
 using ImGuiNET;
+using Lumina.Excel.Sheets;
 using OtterGui;
 using static GatherBuddy.FishTimer.FishRecord;
+using Aetheryte = GatherBuddy.Classes.Aetheryte;
+using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
+    [GeneratedRegex(@"\((?<Id>\d{5})\)$", RegexOptions.ExplicitCapture | RegexOptions.NonBacktracking)]
+    private static partial Regex CosmicMissionRegex();
+
     private static void DrawDebugAetheryte(Aetheryte a)
     {
         ImGuiUtil.DrawTableColumn(a.Id.ToString());
@@ -165,7 +171,9 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn("Current Save Changes");
         ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.Changes.ToString());
         ImGuiUtil.DrawTableColumn("Next Timed Save");
-        ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.SaveTime == TimeStamp.MaxValue ? "Never" : TimeInterval.DurationString(_plugin.FishRecorder.SaveTime, TimeStamp.UtcNow, false));
+        ImGuiUtil.DrawTableColumn(_plugin.FishRecorder.SaveTime == TimeStamp.MaxValue
+            ? "Never"
+            : TimeInterval.DurationString(_plugin.FishRecorder.SaveTime, TimeStamp.UtcNow, false));
         ImGuiUtil.DrawTableColumn("UiState Address");
         ImGuiUtil.DrawTableColumn($"{(IntPtr)FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance():X}");
         ImGuiUtil.DrawTableColumn("Event Framework Address");
@@ -204,6 +212,16 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn((record.TimeStamp / 1000).ToString());
         ImGuiUtil.DrawTableColumn("Current Spot");
         ImGuiUtil.DrawTableColumn($"{record.FishingSpot?.Name ?? "Unknown"} ({record.FishingSpot?.Id ?? 0})");
+        if (CosmicMissionRegex().Match(record.FishingSpot?.Name ?? string.Empty).Groups["Id"] is { Success: true, Value: { } mission })
+        {
+            var id = uint.Parse(mission);
+            if (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().TryGetRow(id, out var row))
+            {
+                ImGuiUtil.DrawTableColumn("Current Mission");
+                ImGuiUtil.DrawTableColumn($"{row.Unknown0} ({id})");
+            }
+        }
+
         ImGuiUtil.DrawTableColumn("Selected Bait");
         var baitId = GatherBuddy.CurrentBait.Current;
         ImGuiUtil.DrawTableColumn($"{GatherBuddy.GameData.Bait.GetValueOrDefault(baitId, Bait.Unknown).Name} ({baitId})");
@@ -433,10 +451,10 @@ public partial class Interface
         using (var table = ImRaii.Table("##OceanTimeline", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
         {
             if (table)
-                for(var idx = 0; idx < GatherBuddy.GameData.OceanTimeline.Count; ++idx)
+                for (var idx = 0; idx < GatherBuddy.GameData.OceanTimeline.Count; ++idx)
                 {
                     var routeAldenard = GatherBuddy.GameData.OceanTimeline[OceanArea.Aldenard][idx];
-                    var routeOthard = GatherBuddy.GameData.OceanTimeline[OceanArea.Othard][idx];
+                    var routeOthard   = GatherBuddy.GameData.OceanTimeline[OceanArea.Othard][idx];
                     ImGuiUtil.DrawTableColumn(idx.ToString());
                     ImGuiUtil.DrawTableColumn(routeAldenard.ToString());
                     ImGuiUtil.DrawTableColumn(routeAldenard.GetSpots(0).Normal.Name);
@@ -451,7 +469,7 @@ public partial class Interface
     }
 
     private void DrawDebugTab()
-    {       
+    {
         if (!GatherBuddy.DebugMode)
             return;
 
