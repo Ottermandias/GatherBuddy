@@ -94,7 +94,7 @@ public partial class FishingParser : IDisposable
                     HookedIn?.Invoke(HookSet.TripleHook);
                     break;
                 case 41278:
-                    HookedIn?.Invoke(HookSet.StellarHook);
+                    HookedIn?.Invoke(HookSet.Stellar);
                     break;
             }
 

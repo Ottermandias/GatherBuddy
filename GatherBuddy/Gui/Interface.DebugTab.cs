@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using Dalamud.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
+using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
 using ImGuiNET;
@@ -202,6 +204,9 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn((record.TimeStamp / 1000).ToString());
         ImGuiUtil.DrawTableColumn("Current Spot");
         ImGuiUtil.DrawTableColumn($"{record.FishingSpot?.Name ?? "Unknown"} ({record.FishingSpot?.Id ?? 0})");
+        ImGuiUtil.DrawTableColumn("Selected Bait");
+        var baitId = GatherBuddy.CurrentBait.Current;
+        ImGuiUtil.DrawTableColumn($"{GatherBuddy.GameData.Bait.GetValueOrDefault(baitId, Bait.Unknown).Name} ({baitId})");
         ImGuiUtil.DrawTableColumn("Current Bait");
         ImGuiUtil.DrawTableColumn($"{record.Bait.Name} ({record.Bait.Id})");
         ImGuiUtil.DrawTableColumn("Duration");

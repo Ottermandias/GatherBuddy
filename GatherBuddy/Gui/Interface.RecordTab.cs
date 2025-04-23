@@ -310,7 +310,7 @@ public partial class Interface
                     HookSet.Hook       => _filter.HasFlag(HookSetFilter.Regular),
                     HookSet.DoubleHook => _filter.HasFlag(HookSetFilter.Double),
                     HookSet.TripleHook => _filter.HasFlag(HookSetFilter.Triple),
-                    HookSet.StellarHook => _filter.HasFlag(HookSetFilter.Stellar),
+                    HookSet.Stellar    => _filter.HasFlag(HookSetFilter.Stellar),
                     _                  => _filter.HasFlag(HookSetFilter.Invalid),
                 };
 
