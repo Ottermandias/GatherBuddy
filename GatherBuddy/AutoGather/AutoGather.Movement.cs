@@ -53,9 +53,14 @@ namespace GatherBuddy.AutoGather
                 doMount = () => am->UseAction(ActionType.GeneralAction, 24);
             }
 
-            TaskManager.Enqueue(StopNavigation);
+            if (!GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting)
+                TaskManager.Enqueue(StopNavigation);
             EnqueueActionWithDelay(doMount);
             TaskManager.Enqueue(() => Svc.Condition[ConditionFlag.Mounted], 2000);
+
+            // Reset navigation to find a better path if the mount can fly
+            if (GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting && !Dalamud.Conditions[ConditionFlag.Diving])
+                TaskManager.Enqueue(StopNavigation);
         }
 
         private unsafe bool IsMountUnlocked(uint mount)
@@ -148,7 +153,7 @@ namespace GatherBuddy.AutoGather
                     }
                 }
             }
-            else if (hSeparation < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5) && !Dalamud.Conditions[ConditionFlag.Diving])
+            else if (hSeparation < Math.Max(GatherBuddy.Config.AutoGatherConfig.MountUpDistance, 5))
             {
                 Navigate(gameObject.Position, false);
             }
@@ -156,6 +161,8 @@ namespace GatherBuddy.AutoGather
             {
                 if (!Dalamud.Conditions[ConditionFlag.Mounted])
                 {
+                    if (GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting)
+                        Navigate(gameObject.Position, false);
                     EnqueueMountUp();
                 }
                 else
@@ -180,15 +187,6 @@ namespace GatherBuddy.AutoGather
         {
             if (CurrentDestination == destination && (IsPathing || IsPathGenerating))
                 return;
-
-            //vnavmesh can't find a path on mesh underwater (because the character is basically flying), nor can it fly without a mount.
-            //Ensure that you are always mounted when underwater.
-            if (Dalamud.Conditions[ConditionFlag.Diving] && !Dalamud.Conditions[ConditionFlag.Mounted])
-            {
-                GatherBuddy.Log.Error("BUG: Navigate() called underwater without mounting up first");
-                Enabled = false;
-                return;
-            }
 
             shouldFly |= Dalamud.Conditions[ConditionFlag.Diving];
 
@@ -238,6 +236,8 @@ namespace GatherBuddy.AutoGather
 
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
             {
+                if (GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting)
+                    Navigate(farNode, false);
                 EnqueueMountUp();
             }
             else
