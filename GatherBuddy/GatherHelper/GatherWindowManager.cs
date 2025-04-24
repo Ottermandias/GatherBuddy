@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Dalamud.Interface.ImGuiNotification;
 using GatherBuddy.Alarms;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -116,7 +117,16 @@ public partial class GatherWindowManager : IDisposable
             }
 
             if (change)
-                ret.Save();
+            {
+                Dalamud.Notifications.AddNotification(new Notification()
+                {
+                    Title = "GatherBuddy Error",
+                    Content =
+                        "Failed to load some gather window presets. See the plugin log for more details. This is not saved, if it keeps happening you need to manually change a preset to cause a save.",
+                    MinimizedText = "Failed to load gather window presets.",
+                    Type          = NotificationType.Error,
+                });
+            }
         }
         catch (Exception e)
         {
