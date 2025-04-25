@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Dalamud.Game.Text.SeStringHandling;
+using Dalamud.Interface.ImGuiNotification;
 using GatherBuddy.Config;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
@@ -239,19 +240,25 @@ public class GatherGroupManager
                     continue;
                 }
 
-                if (manager.Groups.ContainsKey(searchName))
+                if (!manager.Groups.TryAdd(searchName, group))
                 {
                     changes = true;
                     GatherBuddy.Log.Error($"Multiple gather groups with the same name {searchName} found, skipping later ones.");
-                    continue;
                 }
-
-                manager.Groups.Add(searchName, group);
             }
 
             changes |= manager.SetDefaults();
             if (changes)
-                manager.Save();
+            {
+                Dalamud.Notifications.AddNotification(new Notification()
+                {
+                    Title = "GatherBuddy Error",
+                    Content =
+                        "Failed to load some gather groups. See the plugin log for more details. This is not saved, if it keeps happening you need to manually change an Gather Group to cause a save.",
+                    MinimizedText = "Failed to load gather groups.",
+                    Type          = NotificationType.Error,
+                });
+            }
         }
         catch (Exception e)
         {
