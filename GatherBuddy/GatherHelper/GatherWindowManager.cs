@@ -5,9 +5,8 @@ using System.Linq;
 using Dalamud.Interface.ImGuiNotification;
 using GatherBuddy.Alarms;
 using GatherBuddy.Interfaces;
-using GatherBuddy.Plugin;
 using Newtonsoft.Json;
-using OtterGui;
+using OtterGui.Extensions;
 using Functions = GatherBuddy.Plugin.Functions;
 
 namespace GatherBuddy.GatherHelper;
