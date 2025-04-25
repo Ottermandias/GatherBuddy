@@ -234,6 +234,7 @@ public partial class FishRecord
             HookSet.Powerful   => 3 << 4,
             HookSet.DoubleHook => 4 << 4,
             HookSet.TripleHook => 5 << 4,
+            HookSet.Stellar    => 7 << 4,
             _                  => 6 << 4,
         };
         _tugAndHook = (byte)b;
@@ -260,6 +261,7 @@ public partial class FishRecord
             3 => HookSet.Powerful,
             4 => HookSet.DoubleHook,
             5 => HookSet.TripleHook,
+            7 => HookSet.Stellar,
             _ => HookSet.Unknown,
         };
 

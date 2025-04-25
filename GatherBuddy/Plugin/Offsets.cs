@@ -11,4 +11,6 @@ public static class Offsets
     public const int GatheringNoteContextItemId        = 0xA0;
     public const int GatheringNoteContextDiscriminator = 0x38;
     public const int ChatLogContextItemId              = 0x958;
+    public const int CurrentCosmicBaitOffset           = 0xC9C;
+    public const int CurrentCosmicQuestOffset          = 0xC60;
 }

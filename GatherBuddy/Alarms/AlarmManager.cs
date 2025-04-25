@@ -2,13 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Dalamud.Interface.ImGuiNotification;
 using Dalamud.Plugin.Services;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Classes;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using Newtonsoft.Json;
-using OtterGui;
+using OtterGui.Extensions;
 using Functions = GatherBuddy.Plugin.Functions;
 
 namespace GatherBuddy.Alarms;
@@ -305,7 +306,16 @@ public partial class AlarmManager : IDisposable
             }
 
             if (changes)
-                manager.Save();
+            {
+                Dalamud.Notifications.AddNotification(new Notification()
+                {
+                    Title = "GatherBuddy Error",
+                    Content =
+                        "Failed to load some Alarm groups. See the plugin log for more details. This is not saved, if it keeps happening you need to manually change an Alarm Group to cause a save.",
+                    MinimizedText = "Failed to load Alarm groups.",
+                    Type          = NotificationType.Error,
+                });
+            }
         }
         catch (Exception e)
         {

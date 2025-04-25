@@ -160,7 +160,9 @@ public class GatherWindow : Window
                         if (!list.Enabled)
                             continue;
 
-                        var idx = list.Items.IndexOf(item);
+                        if (item is not Gatherable gatherable)
+                            continue;
+                        var idx = list.Items.IndexOf(gatherable);
                         if (idx < 0)
                             continue;
 
