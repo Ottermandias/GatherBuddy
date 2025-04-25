@@ -8,6 +8,7 @@ using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
 using ImGuiNET;
 using OtterGui;
+using OtterGui.Extensions;
 using OtterGui.Raii;
 using OtterGui.Text;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
@@ -34,11 +35,12 @@ public partial class FishTimerWindow : Window, IDisposable
     private readonly ImRaii.Style _style       = new();
 
     private float   _lineHeight;
-    private Vector2 _iconSize    = Vector2.Zero;
-    private Vector2 _itemSpacing = Vector2.Zero;
-    private Vector2 _windowPos   = Vector2.Zero;
-    private Vector2 _windowSize  = Vector2.Zero;
-    private float   _textMargin  = 5 * ImGuiHelpers.GlobalScale;
+    private Vector2 _iconSize        = Vector2.Zero;
+    private Vector2 _originalSpacing = Vector2.Zero;
+    private Vector2 _itemSpacing     = Vector2.Zero;
+    private Vector2 _windowPos       = Vector2.Zero;
+    private Vector2 _windowSize      = Vector2.Zero;
+    private float   _textMargin      = 5 * ImGuiHelpers.GlobalScale;
     private float   _textLines;
     private float   _maxListHeight;
     private float   _listHeight;
@@ -236,7 +238,8 @@ public partial class FishTimerWindow : Window, IDisposable
 
     public override void PreDraw()
     {
-        _itemSpacing = new Vector2(0, ImGuiHelpers.GlobalScale);
+        _originalSpacing = ImGui.GetStyle().ItemSpacing;
+        _itemSpacing     = new Vector2(0, ImGuiHelpers.GlobalScale);
         _style.Push(ImGuiStyleVar.ItemSpacing,   _itemSpacing);
         _style.Push(ImGuiStyleVar.WindowPadding, Vector2.Zero);
         _lineHeight = ImGui.GetFrameHeight();

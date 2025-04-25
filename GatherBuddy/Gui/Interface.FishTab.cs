@@ -153,7 +153,7 @@ public partial class Interface
                 if (selected)
                     _plugin.Executor.GatherItem(item.Data);
                 if (hovered)
-                    item.SetTooltip(item.Uptime.Item1.Territory, IconSize, SmallIconSize, WeatherIconSize);
+                    item.SetTooltip(item.Uptime.Item1.Territory, IconSize, SmallIconSize, WeatherIconSize, false);
             }
         }
 

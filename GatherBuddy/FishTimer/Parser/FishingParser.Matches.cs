@@ -9,7 +9,7 @@ namespace GatherBuddy.FishTimer.Parser;
 
 public partial class FishingParser
 {
-    private void HandleCastMatch(Match match, uint? cosmicMissionHack = null)
+    private void HandleCastMatch(Match match, ushort? cosmicMissionHack = null)
     {
         var tmp = match.Groups["FishingSpot"];
         var fishingSpotName = tmp.Success
@@ -61,14 +61,14 @@ public partial class FishingParser
                 var match = _regexes.Cast.Match(text);
                 if (match.Success)
                 {
-                    uint? missionId = null;
+                    ushort? missionId = null;
                     if (GatherBuddy.GameData.Territories.TryGetValue(Dalamud.ClientState.TerritoryType, out var territory)
                      && territory.Data.TerritoryIntendedUse.RowId is 60)
                     {
                         var wks = WKSManager.Instance();
                         if (wks is not null)
                         {
-                            missionId = *(uint*)((byte*)wks + Offsets.CurrentCosmicQuestOffset);
+                            missionId = *(ushort*)((byte*)wks + Offsets.CurrentCosmicQuestOffset);
                             GatherBuddy.Log.Verbose($"Loaded quest: {missionId.Value}");
                         }
                     }
