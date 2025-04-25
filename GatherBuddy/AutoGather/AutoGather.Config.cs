@@ -9,6 +9,7 @@ namespace GatherBuddy.AutoGather
     {
         public float                           MountUpDistance               { get; set; } = 15.0f;
         public uint                            AutoGatherMountId             { get; set; } = 1;
+        public bool MoveWhileMounting { get; set; } = false;
         public Dictionary<uint, List<Vector3>> BlacklistedNodesByTerritoryId { get; set; } = new();
 
         [Obsolete] public ActionConfig BYIIConfig    { get; set; } = new(true, 100, uint.MaxValue, new ActionConditions(), new Dictionary<string, object> { { "UseWithCystals", false }, { "MinimumIncrease", 1 } });

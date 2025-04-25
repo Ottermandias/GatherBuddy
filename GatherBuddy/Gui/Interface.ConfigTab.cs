@@ -217,6 +217,12 @@ public partial class Interface
             ImGuiUtil.HoverTooltip("The distance at which you will mount up to move to a node.");
         }
 
+        public static void DrawMoveWhileMounting()
+        => DrawCheckbox("Move while mounting up",
+                "Begin pathfinding to the next node while summoning a mount",
+                GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting,
+                b => GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting = b);
+
         public static void DrawAntiStuckCooldown()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.NavResetCooldown;
@@ -752,6 +758,7 @@ public partial class Interface
                 ConfigFunctions.DrawHonkVolumeSlider();
                 AutoGatherUI.DrawMountSelector();
                 ConfigFunctions.DrawMountUpDistance();
+                ConfigFunctions.DrawMoveWhileMounting();
                 ConfigFunctions.DrawSortingMethodCombo();
                 ConfigFunctions.DrawUseGivingLandOnCooldown();
                 ConfigFunctions.DrawGoHomeBox();
