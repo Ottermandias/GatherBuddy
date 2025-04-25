@@ -137,7 +137,7 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
                 var missionRow = spot.RowId - 10_043 + 451;
                 if (missionRow > 495)
                 {
-                    if (missionRow > 511)
+                    if (missionRow > 499)
                         missionRow += 42;
                     else
                         missionRow += 12;

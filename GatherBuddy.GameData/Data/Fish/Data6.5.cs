@@ -78,7 +78,7 @@ public static partial class Fish
             .Bait(data, 38808)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(41407, Patch.GrowingLight) // Hyphalosaurus
-            .Bait(data, 36412)
+            .Mooch(data, 36412)
             .Time(540, 720)
             .Predators(data, 90, (36412, 3))
             .Transition(data, 1)
@@ -111,7 +111,7 @@ public static partial class Fish
             .Weather(data, 2)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41412, Patch.GrowingLight) // Sidereal Whale
-            .Bait(data, 36518)
+            .Mooch(data, 36518)
             .Time(0, 480)
             .Predators(data, 600, (36521, 1), (36520, 2), (36519, 3))
             .Transition(data, 49)
