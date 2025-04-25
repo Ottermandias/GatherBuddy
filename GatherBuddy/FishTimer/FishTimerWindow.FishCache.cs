@@ -10,6 +10,7 @@ using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Models;
+using OtterGui.Text;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
 
@@ -22,13 +23,17 @@ public partial class FishTimerWindow
         private readonly ExtendedFish?           _fish;
         private readonly string                  _textLine;
         private readonly ISharedImmediateTexture _icon;
-        private readonly FishRecordTimes.Times   _all;
-        private readonly FishRecordTimes.Times   _baitSpecific;
-        private readonly ColorId                 _color;
-        public readonly  bool                    Uncaught;
-        public readonly  bool                    Unavailable;
-        public readonly  ulong                   SortOrder;
-        public readonly  TimeInterval            NextUptime;
+
+        private readonly ISharedImmediateTexture _collectableIcon =
+            Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001110));
+
+        private readonly FishRecordTimes.Times _all;
+        private readonly FishRecordTimes.Times _baitSpecific;
+        private readonly ColorId               _color;
+        public readonly  bool                  Uncaught;
+        public readonly  bool                  Unavailable;
+        public readonly  ulong                 SortOrder;
+        public readonly  TimeInterval          NextUptime;
 
 
         private static ulong MakeSortOrder(ushort min, ushort max)
@@ -175,8 +180,8 @@ public partial class FishTimerWindow
 
         public void DrawBackground(FishTimerWindow window, int i)
         {
-            var ptr  = ImGui.GetWindowDrawList();
-            var pos  = window._windowPos + ImGui.GetCursorPos();
+            var ptr = ImGui.GetWindowDrawList();
+            var pos = window._windowPos + ImGui.GetCursorPos();
             pos.Y += i * ImGui.GetFrameHeightWithSpacing();
             var size = window._windowSize with { Y = ImGui.GetFrameHeight() };
             // Background
@@ -192,6 +197,15 @@ public partial class FishTimerWindow
         {
             var padding = 5 * ImGuiHelpers.GlobalScale;
 
+            var timeString = NextUptime == TimeInterval.Always
+                ? null
+                : NextUptime.Start > GatherBuddy.Time.ServerTime
+                    ? TimeInterval.DurationString(NextUptime.Start, GatherBuddy.Time.ServerTime, true)
+                    : NextUptime.End < GatherBuddy.Time.ServerTime
+                        ? "(ended)"
+                        : TimeInterval.DurationString(NextUptime.End, GatherBuddy.Time.ServerTime, true);
+            var textWidth = timeString is null ? 0 : ImUtf8.CalcTextSize(timeString).X;
+
             // Icon
             if (_icon.TryGetWrap(out var wrap, out _))
                 ImGui.Image(wrap.ImGuiHandle, window._iconSize);
@@ -202,35 +216,53 @@ public partial class FishTimerWindow
 
             // Name
             ImGui.SameLine(window._iconSize.X + padding);
-            ImGui.AlignTextToFramePadding();
-            using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
-            ImGui.TextUnformatted(_textLine);
+            using var color       = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
+            var       clipRectMin = ImGui.GetCursorScreenPos();
+            var       clipRectMax = clipRectMin + ImGui.GetContentRegionAvail();
+            var       collectible = _fish?.Collectible is true;
+            if (collectible)
+                clipRectMax.X -= window._iconSize.X;
+            if (textWidth > 0)
+                clipRectMax.X -= textWidth + window._originalSpacing.X + padding;
+
+            using (ImUtf8.PushClipRect(clipRectMin, clipRectMax))
+            {
+                ImUtf8.TextFrameAligned(_textLine);
+            }
+
             hovered |= ImGui.IsItemHovered();
 
             if (hovered && _fish != null)
             {
-                window._style.Pop();
+                window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
                 _fish.SetTooltip(window._spot?.Territory ?? Territory.Invalid,
                     ImGuiHelpers.ScaledVector2(40, 40),
                     ImGuiHelpers.ScaledVector2(20, 20),
-                    ImGuiHelpers.ScaledVector2(30, 30));
-                window._style.Push(ImGuiStyleVar.ItemSpacing, window._itemSpacing);
+                    ImGuiHelpers.ScaledVector2(30, 30), true);
+                window._style.Pop();
+            }
+
+            // Collectable Icon
+            if (collectible)
+            {
+                var tint = Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId is 805) is true
+                    ? Vector4.One
+                    : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
+
+                ImGui.SameLine(window._windowSize.X - window._iconSize.X);
+                if (_collectableIcon.TryGetWrap(out var wrap2, out _))
+                    ImGui.Image(wrap2.ImGuiHandle, window._iconSize, Vector2.Zero, Vector2.One, tint);
+                else
+                    ImGui.Dummy(window._iconSize);
             }
 
             // Time
-            if (NextUptime == TimeInterval.Always)
+            if (timeString is null)
                 return;
 
-            var timeString =
-                NextUptime.Start > GatherBuddy.Time.ServerTime
-                    ? TimeInterval.DurationString(NextUptime.Start, GatherBuddy.Time.ServerTime, true)
-                    : NextUptime.End < GatherBuddy.Time.ServerTime
-                        ? "(ended)"
-                        : TimeInterval.DurationString(NextUptime.End, GatherBuddy.Time.ServerTime, true);
-            var offset = ImGui.CalcTextSize(timeString).X;
+            var offset = ImGui.CalcTextSize(timeString).X + (collectible ? window._iconSize.X : 0);
             ImGui.SameLine(window._windowSize.X - offset - padding);
-            ImGui.AlignTextToFramePadding();
-            ImGui.TextUnformatted(timeString);
+            ImUtf8.TextFrameAligned(timeString);
         }
     }
 }

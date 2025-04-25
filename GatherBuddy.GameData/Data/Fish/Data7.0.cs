@@ -94,10 +94,10 @@ public static partial class Fish
             .Bait(data, 43849)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(43692, Patch.Dawntrail) // Pleated Matamata
-            .Bait(data, 43691)
+            .Mooch(data, 43691)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43693, Patch.Dawntrail) // Uyuy Xage
-            .Bait(data, 43691)
+            .Mooch(data, 43691)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43694, Patch.Dawntrail) // Plattershell
             .Bait(data, 43852)

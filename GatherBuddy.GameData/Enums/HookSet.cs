@@ -1,5 +1,3 @@
-using System;
-
 namespace GatherBuddy.Enums;
 
 public enum HookSet : byte
@@ -10,6 +8,7 @@ public enum HookSet : byte
     Hook       = 3,
     DoubleHook = 4,
     TripleHook = 5,
+    Stellar    = 6,
     None       = 255,
 }
 
@@ -24,6 +23,7 @@ public static class HookSetExtensions
             HookSet.Hook       => "Regular",
             HookSet.DoubleHook => "Double",
             HookSet.TripleHook => "Triple",
+            HookSet.Stellar    => "Stellar",
             HookSet.None       => "None",
             _                  => "Invalid",
         };
