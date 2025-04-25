@@ -218,8 +218,9 @@ public partial class FishTimerWindow
             using var color       = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
             var       clipRectMin = ImGui.GetCursorScreenPos();
             var       clipRectMax = clipRectMin + ImGui.GetContentRegionAvail();
-            if (_fish?.Collectible is true)
-                clipRectMax.X -= window._iconSize.X + padding;
+            var       collectible = _fish?.Collectible is true;
+            if (collectible)
+                clipRectMax.X -= window._iconSize.X;
             if (textWidth > 0)
                 clipRectMax.X -= textWidth + window._originalSpacing.X + padding;
 
@@ -241,13 +242,13 @@ public partial class FishTimerWindow
             }
 
             // Collectable Icon
-            if (_fish?.Collectible is true)
+            if (collectible)
             {
                 var tint = Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId is 805) is true
                     ? Vector4.One
                     : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
 
-                ImGui.SameLine(window._windowSize.X - window._iconSize.X - padding);
+                ImGui.SameLine(window._windowSize.X - window._iconSize.X);
                 if (_collectableIcon.TryGetWrap(out var wrap2, out _))
                     ImGui.Image(wrap2.ImGuiHandle, window._iconSize, Vector2.Zero, Vector2.One, tint);
                 else
@@ -258,7 +259,7 @@ public partial class FishTimerWindow
             if (timeString is null)
                 return;
 
-            var offset = ImGui.CalcTextSize(timeString).X + (_fish?.Collectible is true ? window._iconSize.X + padding : 0);
+            var offset = ImGui.CalcTextSize(timeString).X + (collectible ? window._iconSize.X : 0);
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImUtf8.TextFrameAligned(timeString);
         }
