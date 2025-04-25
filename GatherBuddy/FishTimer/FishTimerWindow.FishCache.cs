@@ -21,6 +21,7 @@ public partial class FishTimerWindow
         private readonly ExtendedFish?           _fish;
         private readonly string                  _textLine;
         private readonly ISharedImmediateTexture _icon;
+        private readonly ISharedImmediateTexture _collectableIcon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001110));
         private readonly FishRecordTimes.Times   _all;
         private readonly FishRecordTimes.Times   _baitSpecific;
         private readonly ColorId                 _color;
@@ -216,6 +217,18 @@ public partial class FishTimerWindow
                 window._style.Push(ImGuiStyleVar.ItemSpacing, window._itemSpacing);
             }
 
+            // Collectable Icon
+            if (_fish?.Collectible ?? false)
+            {
+                var tint = Dalamud.ClientState.LocalPlayer?.StatusList?.Any(s => s.StatusId == 805) ?? false ? Vector4.One : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
+                
+                ImGui.SameLine(window._windowSize.X - window._iconSize.X - padding);
+                if (_collectableIcon.TryGetWrap(out var wrap2, out _))
+                    ImGui.Image(wrap2.ImGuiHandle, window._iconSize, Vector2.Zero, Vector2.One, tint);
+                else
+                    ImGui.Dummy(window._iconSize);
+            }
+            
             // Time
             if (NextUptime == TimeInterval.Always)
                 return;
@@ -226,7 +239,7 @@ public partial class FishTimerWindow
                     : NextUptime.End < GatherBuddy.Time.ServerTime
                         ? "(ended)"
                         : TimeInterval.DurationString(NextUptime.End, GatherBuddy.Time.ServerTime, true);
-            var offset = ImGui.CalcTextSize(timeString).X;
+            var offset = ImGui.CalcTextSize(timeString).X + (window._iconSize.X + padding) * (_fish?.Collectible ?? false ? 1 : 0);
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImGui.AlignTextToFramePadding();
             ImGui.TextUnformatted(timeString);
