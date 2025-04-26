@@ -223,8 +223,8 @@ public partial class FishTimerWindow
             using var color       = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
             var       clipRectMin = ImGui.GetCursorScreenPos();
             var       clipRectMax = clipRectMin + ImGui.GetContentRegionAvail();
-            var       collectible = _fish?.Collectible is true;
-            var       doubleHook  = _fish?.DoubleHook > 1;
+            var       collectible = _fish?.Collectible is true && GatherBuddy.Config.ShowCollectableHints;
+            var       doubleHook  = _fish?.DoubleHook > 1 && GatherBuddy.Config.ShowDoubleHookHints;
             if (collectible)
                 clipRectMax.X -= window._iconSize.X;
             if (doubleHook)
