@@ -316,23 +316,18 @@ public static partial class Fish
         // Palus Arsenici  Aetherochemical Creatures
         data.Apply(45759, Patch.SeekersOfEternity) // Lunar Scorpion
             .Bait(data, aarthrolure57)
-            .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45760, Patch.SeekersOfEternity) // Moonwhip
             .Bait(data, aarthrolure57)
-            .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45761, Patch.SeekersOfEternity) // Polypus Arsenici
             .Bait(data, aarthrolure57)
-            .Time(360, 480)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45762, Patch.SeekersOfEternity) // Eolactoria
             .Bait(data, aarthrolure57)
-            .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45763, Patch.SeekersOfEternity) // Raw Lunar Tourmaline
             .Bait(data, aarthrolure57)
-            .Time(360, 480)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Westward Hop-print  Westward Ecological Survey
@@ -739,18 +734,23 @@ public static partial class Fish
         // Palus Arsenici A-1: Aetherochemical Samples I
         data.Apply(45815, Patch.SeekersOfEternity) // Lunar Scorpion
             .Bait(data, cosmicleech)
+            .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45816, Patch.SeekersOfEternity) // Moonwhip
             .Bait(data, cosmicleech)
+            .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45817, Patch.SeekersOfEternity) // Polypus Arsenici
             .Bait(data, cosmicleech)
+            .Time(360, 480)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45818, Patch.SeekersOfEternity) // Lunar Tadpole
             .Bait(data, cosmicleech)
+            .Time(360, 480)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45819, Patch.SeekersOfEternity) // Grand Atopodentatus
             .Bait(data, cosmicleech)
+            .Time(360, 480)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Glimmerpond Beta A-2: Aetherochemical Samples II
@@ -942,11 +942,11 @@ public static partial class Fish
         // Northward Hop-print  Sunken Drone Salvage
         data.Apply(45938, Patch.SeekersOfEternity) // Melancholia
             .Bait(data, farthrolure67)
-            .Weather(data, 196)
+            // .Weather(data, 196) Astromagnetic Storms??? 2 Values, this is what was up during the one I got.
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45939, Patch.SeekersOfEternity) // Sunken Drone
             .Bait(data, farthrolure67)
-            .Weather(data, 196)
+            // .Weather(data, 196)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Weeping Pool  Mutated Fish
