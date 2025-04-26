@@ -284,10 +284,10 @@ public static partial class Fish
             .Bait(data)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45750, Patch.SeekersOfEternity) // Moongill
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure55)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45751, Patch.SeekersOfEternity) // Lunar Cabomba
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure55)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45752, Patch.SeekersOfEternity) // Opal Eel
             .Bait(data, ctarantula)
@@ -315,23 +315,23 @@ public static partial class Fish
 
         // Palus Arsenici  Aetherochemical Creatures
         data.Apply(45759, Patch.SeekersOfEternity) // Lunar Scorpion
-            .Bait(data, aarthrolure)
+            .Bait(data, aarthrolure57)
             .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45760, Patch.SeekersOfEternity) // Moonwhip
-            .Bait(data, aarthrolure)
+            .Bait(data, aarthrolure57)
             .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45761, Patch.SeekersOfEternity) // Polypus Arsenici
-            .Bait(data, aarthrolure)
+            .Bait(data, aarthrolure57)
             .Time(360, 480)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45762, Patch.SeekersOfEternity) // Eolactoria
-            .Bait(data, aarthrolure)
+            .Bait(data, aarthrolure57)
             .Time(360, 480)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45763, Patch.SeekersOfEternity) // Raw Lunar Tourmaline
-            .Bait(data, aarthrolure)
+            .Bait(data, aarthrolure57)
             .Time(360, 480)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
@@ -678,22 +678,22 @@ public static partial class Fish
 
         // Hollow Harbor A-3: Fine-grade Water Filter Materials III
         data.Apply(45877, Patch.SeekersOfEternity) // Moonrock Candy
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45878, Patch.SeekersOfEternity) // Moongill
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45879, Patch.SeekersOfEternity) // Darkside Bass
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45880, Patch.SeekersOfEternity) // Opal Guppy
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45881, Patch.SeekersOfEternity) // Harbor Fang
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45882, Patch.SeekersOfEternity) // Deepmoon Cabomba
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Northward Hop-print A-2: Coexisting Species I
@@ -855,19 +855,19 @@ public static partial class Fish
 
         // Southeast Well A-2: Processed Aquatic Metals
         data.Apply(45913, Patch.SeekersOfEternity) // Star Pleco
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45914, Patch.SeekersOfEternity) // Lunar Grass Carp
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45915, Patch.SeekersOfEternity) // Lunar Catfish
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45916, Patch.SeekersOfEternity) // Lunar Longhair
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(45917, Patch.SeekersOfEternity) // Heavy Ataxite 
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure61)
             .DoubleHook(4)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
