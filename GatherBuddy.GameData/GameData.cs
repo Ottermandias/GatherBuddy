@@ -130,7 +130,7 @@ public class GameData
             CosmicFishingMissions = DataManager.GetExcelSheet<WKSMissionUnit>()
                 .Where(m => m.Unknown0.ByteLength > 0 && m.Unknown1 is 19)
                 .ToFrozenDictionary(m => (ushort)m.RowId, m => new CosmicMission(m));
-            Log.Verbose("Collected {NumCosmicMissions} different fishing spots.", CosmicFishingMissions.Count);
+            Log.Verbose("Collected {NumCosmicMissions} different cosmic fishing missions.", CosmicFishingMissions.Count);
 
             Bait = DataManager.GetExcelSheet<Item>()
                 .Where(i => i.ItemSearchCategory.RowId == Structs.Bait.FishingTackleRow)
