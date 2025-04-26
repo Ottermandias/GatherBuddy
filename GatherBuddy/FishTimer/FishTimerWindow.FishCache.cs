@@ -8,6 +8,7 @@ using ImGuiNET;
 using System;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using OtterGui.Text;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -30,6 +31,9 @@ public partial class FishTimerWindow
 
         private readonly ISharedImmediateTexture _tripleHookIcon =
             Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001138));
+        
+        private readonly ISharedImmediateTexture? _quadHookIcon =
+            Dalamud.Textures.GetFromManifestResource(Assembly.GetExecutingAssembly(), "GatherBuddy.images.QuadHookIcon.bmp");
 
         private readonly FishRecordTimes.Times _all;
         private readonly FishRecordTimes.Times _baitSpecific;
@@ -251,16 +255,24 @@ public partial class FishTimerWindow
 
             if (multiHook)
             {
+                var resources = Assembly.GetExecutingAssembly().GetManifestResourceNames();
+                foreach (var r in resources)
+                    GatherBuddy.Log.Information($"{r}");
+                // if (_quadHookIcon != null && !_quadHookIcon.TryGetWrap(out var wrapTest, out _))
+                // {
+                //     GatherBuddy.Log.Information("QuadHookIcon loaded but TryGetWrap failed.");
+                // }
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X);
 
                 var hookIcon = _fish.DoubleHook switch
                 {
                     2 => _doubleHookIcon,
                     3 => _tripleHookIcon,
-                    _ => _tripleHookIcon,
+                    4 => _quadHookIcon,
+                    _ => null,
                 };
 
-                if (hookIcon.TryGetWrap(out var wrap2, out _))
+                if (hookIcon?.TryGetWrap(out var wrap2, out _) ?? false)
                 {
                     ImGui.Image(wrap2.ImGuiHandle, window._iconSize);
                     if (ImGui.IsItemHovered())
