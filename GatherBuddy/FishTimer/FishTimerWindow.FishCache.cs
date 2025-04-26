@@ -255,13 +255,6 @@ public partial class FishTimerWindow
 
             if (multiHook)
             {
-                var resources = Assembly.GetExecutingAssembly().GetManifestResourceNames();
-                foreach (var r in resources)
-                    GatherBuddy.Log.Information($"{r}");
-                // if (_quadHookIcon != null && !_quadHookIcon.TryGetWrap(out var wrapTest, out _))
-                // {
-                //     GatherBuddy.Log.Information("QuadHookIcon loaded but TryGetWrap failed.");
-                // }
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X);
 
                 var hookIcon = _fish.DoubleHook switch
