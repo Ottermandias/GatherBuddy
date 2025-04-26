@@ -321,13 +321,13 @@ public partial class Interface
 
         public static void DrawCollectableHintPopupBox()
             => DrawCheckbox("Show Collectable Hints",
-                "Show if a fish is collectable in the fish timer window",
+                "Show if a fish is collectable in the fish timer window.",
                 GatherBuddy.Config.ShowCollectableHints, b => GatherBuddy.Config.ShowCollectableHints = b);
 
         public static void DrawDoubleHookHintPopupBox()
-            => DrawCheckbox("Show Double/Triple Hook Hints",
-                "Show if a fish can be double hooked in Cosmic Exploration (and, to be implemented, Oceanfishing)",
-                GatherBuddy.Config.ShowDoubleHookHints, b => GatherBuddy.Config.ShowDoubleHookHints = b);
+            => DrawCheckbox("Show Multi Hook Hints",
+                "Show if a fish can be double or triple hooked in Cosmic Exploration.", // TODO: add ocean fishing when implemented.
+                GatherBuddy.Config.ShowMultiHookHints, b => GatherBuddy.Config.ShowMultiHookHints = b);
 
 
         // Spearfishing Helper

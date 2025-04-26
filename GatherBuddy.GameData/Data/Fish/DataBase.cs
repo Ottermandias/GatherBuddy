@@ -277,12 +277,23 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? DoubleHook(this Classes.Fish? fish, int value)
+    private static Classes.Fish? MultiHook(this Classes.Fish? fish, int value)
     {
         if (fish == null)
             return null;
 
-        fish.DHook = value;
+        fish.MultiHook = value;
+        return fish;
+    }
+
+    private static Classes.Fish? Mission(this Classes.Fish? fish, GameData data, ushort value)
+    {
+        if (fish == null)
+            return null;
+
+        fish.CosmicMission = data.CosmicFishingMissions.TryGetValue(value, out var mission)
+            ? mission
+            : throw new Exception($"Could not find cosmic fishing mission {value}.");
         return fish;
     }
 

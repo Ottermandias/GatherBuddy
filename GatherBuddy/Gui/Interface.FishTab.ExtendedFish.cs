@@ -252,7 +252,7 @@ public partial class Interface
         {
             Data        = data;
             Collectible = data.ItemData.IsCollectable;
-            DoubleHook  = data.DHook;
+            DoubleHook  = data.MultiHook;
             Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
             Territories = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
             if (!Territories.Contains("\n"))
