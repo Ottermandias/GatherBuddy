@@ -941,10 +941,12 @@ public static partial class Fish
 
         // Northward Hop-print  Sunken Drone Salvage
         data.Apply(45938, Patch.SeekersOfEternity) // Melancholia
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure67)
+            .Weather(data, 196)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45939, Patch.SeekersOfEternity) // Sunken Drone
-            .Bait(data, farthrolure)
+            .Bait(data, farthrolure67)
+            .Weather(data, 196)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Weeping Pool  Mutated Fish
