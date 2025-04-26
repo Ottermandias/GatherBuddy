@@ -127,6 +127,11 @@ public class GameData
             if (GatheringNodes.Count is 0)
                 throw new Exception("Could not fetch any gathering nodes, this is certainly an error, terminating.");
 
+            CosmicFishingMissions = DataManager.GetExcelSheet<WKSMissionUnit>()
+                .Where(m => m.Unknown0.ByteLength > 0 && m.Unknown1 is 19)
+                .ToFrozenDictionary(m => (ushort)m.RowId, m => new CosmicMission(m));
+            Log.Verbose("Collected {NumCosmicMissions} different fishing spots.", CosmicFishingMissions.Count);
+
             Bait = DataManager.GetExcelSheet<Item>()
                 .Where(i => i.ItemSearchCategory.RowId == Structs.Bait.FishingTackleRow)
                 .Concat(DataManager.GetExcelSheet<WKSItemInfo>().Where(i => i.Unknown3 is 5)
@@ -171,11 +176,6 @@ public class GameData
             OceanRoutes   = SetupOceanRoutes(gameData, FishingSpots);
             OceanTimeline = new OceanTimeline(gameData, OceanRoutes);
             SetOceanFish(OceanRoutes, Fishes.Values);
-
-            CosmicFishingMissions = DataManager.GetExcelSheet<WKSMissionUnit>()
-                .Where(m => m.Unknown0.ByteLength > 0 && m.Unknown1 is 19)
-                .ToFrozenDictionary(m => (ushort)m.RowId, m => new CosmicMission(m));
-            Log.Verbose("Collected {NumCosmicMissions} different fishing spots.", CosmicFishingMissions.Count);
 
             foreach (var gatherable in Gatherables.Values)
             {
