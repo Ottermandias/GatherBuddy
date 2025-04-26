@@ -74,6 +74,7 @@ public partial class Interface
         public ushort                    UptimePercent;
         public bool                      Unlocked = false;
         public bool                      Collectible;
+        public int                       DoubleHook;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -251,6 +252,7 @@ public partial class Interface
         {
             Data        = data;
             Collectible = data.ItemData.IsCollectable;
+            DoubleHook  = data.MultiHook;
             Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
             Territories = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
             if (!Territories.Contains("\n"))
