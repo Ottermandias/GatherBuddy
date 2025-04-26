@@ -24,6 +24,7 @@ public partial class Fish
     public Fish?             SurfaceSlap     { get; internal set; } = null;
     public string            Guide           { get; internal set; } = string.Empty;
     public OceanTime         OceanTime       { get; internal set; } = OceanTime.Always; 
+    public int               DHook           { get; internal set; } = 0;
 
     internal OptionalBool BigFishOverride { get; set; } = null;
 }

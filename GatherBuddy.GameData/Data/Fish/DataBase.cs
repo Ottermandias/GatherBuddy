@@ -277,6 +277,15 @@ public static partial class Fish
         return fish;
     }
 
+    private static Classes.Fish? DoubleHook(this Classes.Fish? fish, int value)
+    {
+        if (fish == null)
+            return null;
+
+        fish.DHook = value;
+        return fish;
+    }
+
     private static Classes.Fish? Ocean(this Classes.Fish? fish, params OceanTime[] times)
     {
         if (fish == null)
