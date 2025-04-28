@@ -6,7 +6,6 @@ using GatherBuddy.Enums;
 using GatherBuddy.Time;
 using ImGuiNET;
 using System;
-using System.Drawing;
 using System.Linq;
 using System.Numerics;
 using GatherBuddy.Models;
@@ -20,12 +19,18 @@ public partial class FishTimerWindow
 {
     private readonly struct FishCache
     {
-        private readonly ExtendedFish?           _fish;
+        private readonly ExtendedFish            _fish;
         private readonly string                  _textLine;
         private readonly ISharedImmediateTexture _icon;
 
         private readonly ISharedImmediateTexture _collectableIcon =
             Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001110));
+
+        private readonly ISharedImmediateTexture _doubleHookIcon =
+            Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001118));
+
+        private readonly ISharedImmediateTexture _tripleHookIcon =
+            Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001138));
 
         private readonly FishRecordTimes.Times _all;
         private readonly FishRecordTimes.Times _baitSpecific;
@@ -65,7 +70,7 @@ public partial class FishTimerWindow
 
         public FishCache(FishRecorder recorder, Fish fish, FishingSpot spot)
         {
-            _fish = ExtendedFishList.FirstOrDefault(f => f.Data == fish);
+            _fish = ExtendedFishList.FirstOrDefault(f => f.Data == fish) ?? new ExtendedFish(fish);
 
             // Get All and Bait Times and set caught-with-bait information.
             _all          = new FishRecordTimes.Times();
@@ -219,8 +224,11 @@ public partial class FishTimerWindow
             using var color       = ImRaii.PushColor(ImGuiCol.Text, ColorId.FishTimerText.Value());
             var       clipRectMin = ImGui.GetCursorScreenPos();
             var       clipRectMax = clipRectMin + ImGui.GetContentRegionAvail();
-            var       collectible = _fish?.Collectible is true;
+            var       collectible = _fish.Collectible && GatherBuddy.Config.ShowCollectableHints;
+            var       multiHook   = _fish.DoubleHook > 1 && GatherBuddy.Config.ShowMultiHookHints;
             if (collectible)
+                clipRectMax.X -= window._iconSize.X;
+            if (multiHook)
                 clipRectMax.X -= window._iconSize.X;
             if (textWidth > 0)
                 clipRectMax.X -= textWidth + window._originalSpacing.X + padding;
@@ -232,7 +240,7 @@ public partial class FishTimerWindow
 
             hovered |= ImGui.IsItemHovered();
 
-            if (hovered && _fish != null)
+            if (hovered)
             {
                 window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
                 _fish.SetTooltip(window._spot?.Territory ?? Territory.Invalid,
@@ -242,6 +250,35 @@ public partial class FishTimerWindow
                 window._style.Pop();
             }
 
+            if (multiHook)
+            {
+                ImGui.SameLine(window._windowSize.X - window._iconSize.X);
+
+                var hookIcon = _fish.DoubleHook switch
+                {
+                    2 => _doubleHookIcon,
+                    3 => _tripleHookIcon,
+                    _ => _tripleHookIcon,
+                };
+
+                if (hookIcon.TryGetWrap(out var wrap2, out _))
+                {
+                    ImGui.Image(wrap2.ImGuiHandle, window._iconSize);
+                    if (ImGui.IsItemHovered())
+                    {
+                        using var tooltip = ImRaii.Tooltip();
+                        window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
+                        ImUtf8.Text($"Double Hook for {_fish.DoubleHook} fish.");
+                        ImUtf8.Text($"Triple Hook for {2 * _fish.DoubleHook - 1} fish.");
+                        window._style.Pop();
+                    }
+                }
+                else
+                {
+                    ImGui.Dummy(window._iconSize);
+                }
+            }
+
             // Collectable Icon
             if (collectible)
             {
@@ -249,9 +286,9 @@ public partial class FishTimerWindow
                     ? Vector4.One
                     : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
 
-                ImGui.SameLine(window._windowSize.X - window._iconSize.X);
-                if (_collectableIcon.TryGetWrap(out var wrap2, out _))
-                    ImGui.Image(wrap2.ImGuiHandle, window._iconSize, Vector2.Zero, Vector2.One, tint);
+                ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0));
+                if (_collectableIcon.TryGetWrap(out var wrap3, out _))
+                    ImGui.Image(wrap3.ImGuiHandle, window._iconSize, Vector2.Zero, Vector2.One, tint);
                 else
                     ImGui.Dummy(window._iconSize);
             }
@@ -260,7 +297,7 @@ public partial class FishTimerWindow
             if (timeString is null)
                 return;
 
-            var offset = ImGui.CalcTextSize(timeString).X + (collectible ? window._iconSize.X : 0);
+            var offset = ImGui.CalcTextSize(timeString).X + (collectible ? window._iconSize.X : 0) + (multiHook ? window._iconSize.X : 0);
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImUtf8.TextFrameAligned(timeString);
         }

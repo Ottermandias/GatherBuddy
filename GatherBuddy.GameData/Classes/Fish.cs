@@ -56,6 +56,11 @@ public partial class Fish : IComparable<Fish>, IGatherable
     public bool OceanFish
         => OceanArea is not OceanArea.None;
 
+    public CosmicMission? CosmicMission = null;
+
+    public bool IsCosmicFish
+        => CosmicMission is not null;
+
     public FishRestrictions FishRestrictions { get; set; }
 
     public string Folklore { get; init; }
