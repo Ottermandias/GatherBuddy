@@ -21,9 +21,10 @@ public partial class Fish
     public BiteType          BiteType        { get; internal set; } = BiteType.Unknown;
     public SpearfishSize     Size            { get; internal set; } = SpearfishSize.Unknown;
     public SpearfishSpeed    Speed           { get; internal set; } = SpearfishSpeed.Unknown;
-    public Fish?             SurfaceSlap     { get; internal set; } = null;
+    public Fish?             SurfaceSlap     { get; internal set; }
     public string            Guide           { get; internal set; } = string.Empty;
-    public OceanTime         OceanTime       { get; internal set; } = OceanTime.Always; 
+    public OceanTime         OceanTime       { get; internal set; } = OceanTime.Always;
+    public int               MultiHook       { get; internal set; }
 
     internal OptionalBool BigFishOverride { get; set; } = null;
 }
