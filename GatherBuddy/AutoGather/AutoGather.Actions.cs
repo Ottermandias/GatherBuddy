@@ -129,13 +129,13 @@ namespace GatherBuddy.AutoGather
             if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit) LuckUsed = new(0);
 
             //Use The Giving Land out of order to gather random crystals.
-            if (ShouldUseGivingLandOutOfOrder(target.Item))
+            if (ShouldUseGivingLandOutOfOrder(target.Gatherable))
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.GivingLand));
                 return;
             }
 
-            if (!HasGivingLandBuff && ShouldUseLuck(target.Item))
+            if (!HasGivingLandBuff && ShouldUseLuck(target.Gatherable))
             {
                 LuckUsed[1] = true;
                 LuckUsed[2] = NodeTracker.Revisit;

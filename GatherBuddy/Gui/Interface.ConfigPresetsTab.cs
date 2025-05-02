@@ -246,7 +246,7 @@ namespace GatherBuddy.Gui
                             .Select(x => ("", x.name, GatherBuddy.GameData.Gatherables[x.id]));
                         var items = _plugin.AutoGatherListsManager.Lists
                             .Where(x => x.Enabled && !x.Fallback)
-                            .SelectMany(x => x.Items.Select(i => (x.Name, i.Name[GatherBuddy.Language], i)));
+                            .SelectMany(x => x.Items.Select(i => (x.Name, i.Name[GatherBuddy.Language], i as Gatherable)));
 
                         foreach (var (list, name, item) in crystals.Concat(items))
                         {

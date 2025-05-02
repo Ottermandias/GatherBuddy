@@ -17,20 +17,31 @@ public partial class AutoGatherListsManager : IDisposable
 {
     public event Action? ActiveItemsChanged;
 
-    private const string FileName = "auto_gather_lists.json";
+    private const string FileName         = "auto_gather_lists.json";
     private const string FileNameFallback = "gather_window.json";
 
-    private readonly List<AutoGatherList> _lists = [];
-    private readonly List<(Gatherable Item, uint Quantity)> _activeItems = [];
+    private readonly List<AutoGatherList>                   _lists         = [];
+    private readonly List<(Gatherable Item, uint Quantity)> _activeItems   = [];
     private readonly List<(Gatherable Item, uint Quantity)> _fallbackItems = [];
+    private readonly List<(Fish Fish, uint Quantity)>       _activeFish    = [];
 
-    public ReadOnlyCollection<AutoGatherList> Lists => _lists.AsReadOnly();
-    public ReadOnlyCollection<(Gatherable Item, uint Quantity)> ActiveItems => _activeItems.AsReadOnly();
-    public ReadOnlyCollection<(Gatherable Item, uint Quantity)> FallbackItems => _fallbackItems.AsReadOnly();
+    public ReadOnlyCollection<AutoGatherList> Lists
+        => _lists.AsReadOnly();
 
-    public AutoGatherListsManager() { }
+    public ReadOnlyCollection<(Gatherable Item, uint Quantity)> ActiveItems
+        => _activeItems.AsReadOnly();
 
-    public void Dispose() { }
+    public ReadOnlyCollection<(Gatherable Item, uint Quantity)> FallbackItems
+        => _fallbackItems.AsReadOnly();
+
+    public ReadOnlyCollection<(Fish Fish, uint Quantity)> ActiveFish
+        => _activeFish.AsReadOnly();
+
+    public AutoGatherListsManager()
+    { }
+
+    public void Dispose()
+    { }
 
     public void SetActiveItems()
     {
@@ -42,16 +53,25 @@ public partial class AutoGatherListsManager : IDisposable
             .Where(i => i.ItemEnabled)
             .GroupBy(i => (i.Item, i.Fallback))
             .Select(x => (x.Key.Item, Quantity: (uint)Math.Min(x.Sum(g => g.Quantity), uint.MaxValue), x.Key.Fallback));
-        
+
         foreach (var (item, quantity, fallback) in items)
         {
-            if (fallback)
+            if (item is Fish fish)
             {
-                _fallbackItems.Add((item, quantity));
+                _activeFish.Add((fish, quantity));
+                continue;
             }
-            else
+
+            if (item is Gatherable gatherable)
             {
-                _activeItems.Add((item, quantity));
+                if (fallback)
+                {
+                    _fallbackItems.Add((gatherable, quantity));
+                }
+                else
+                {
+                    _activeItems.Add((gatherable, quantity));
+                }
             }
         }
 
@@ -77,8 +97,8 @@ public partial class AutoGatherListsManager : IDisposable
 
     public static AutoGatherListsManager Load()
     {
-        var ret  = new AutoGatherListsManager();
-        var file = Functions.ObtainSaveFile(FileName);
+        var ret    = new AutoGatherListsManager();
+        var file   = Functions.ObtainSaveFile(FileName);
         var change = false;
         if (file is not { Exists: true })
         {
@@ -88,6 +108,7 @@ public partial class AutoGatherListsManager : IDisposable
                 ret.Save();
                 return ret;
             }
+
             change = true;
         }
 

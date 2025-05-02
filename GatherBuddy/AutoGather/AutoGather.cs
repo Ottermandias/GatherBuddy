@@ -224,7 +224,7 @@ namespace GatherBuddy.AutoGather
                     {
                         _activeItemList.MarkVisited(target);
 
-                        if (gatherTarget.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
+                        if (gatherTarget.Gatherable?.NodeType is NodeType.Regular or NodeType.Ephemeral
                          && VisitedNodes.Last?.Value != target.DataId
                          && gatherTarget.Node?.WorldPositions.ContainsKey(target.DataId) == true)
                         {
@@ -332,7 +332,7 @@ namespace GatherBuddy.AutoGather
 
             Waiting = false;
 
-            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Item.GatheringType.ToGroup())))
+            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Fish != null ? GatheringType.Fisher : n.Gatherable!.GatheringType.ToGroup())))
             {
                 AbortAutoGather();
                 return;
@@ -450,12 +450,12 @@ namespace GatherBuddy.AutoGather
             }
 
             var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes
-                .FirstOrDefault(z => z.ZoneId == next.First().Node.Territory.Id);
+                .FirstOrDefault(z => z.ZoneId == next.First().Location.Territory.Id);
             if (forcedAetheryte.ZoneId != 0
              && GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId)
             {
                 if (territoryId == 478 && !Lifestream.Enabled)
-                    AutoStatus = $"Install Lifestream or teleport to {next.First().Node.Territory.Name} manually";
+                    AutoStatus = $"Install Lifestream or teleport to {next.First().Location.Territory.Name} manually";
                 else
                     AutoStatus = "Manual teleporting required";
                 return;
@@ -466,7 +466,7 @@ namespace GatherBuddy.AutoGather
                 Lifestream.Abort();
             WentHome = false;
 
-            if (next.First().Node.Territory.Id != territoryId)
+            if (next.First().Location.Territory.Id != territoryId)
             {
                 if (Dalamud.Conditions[ConditionFlag.BoundByDuty] && !Functions.InTheDiadem())
                 {
@@ -482,7 +482,7 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Teleporting...";
                 StopNavigation();
 
-                if (!MoveToTerritory(next.First().Node))
+                if (!MoveToTerritory(next.First().Location))
                     AbortAutoGather();
 
                 // Reset target to pick up closest item after teleport
@@ -491,7 +491,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            var config = MatchConfigPreset(next.First().Item);
+            var config = MatchConfigPreset(next.First().Gatherable);
 
             if (DoUseConsumablesWithoutCastTime(config))
                 return;
@@ -518,13 +518,13 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (ActivateGatheringBuffs(next.First().Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
+            if (ActivateGatheringBuffs(next.First().Gatherable.NodeType is NodeType.Unspoiled or NodeType.Legendary))
                 return;
 
             if (closestTargetableNode != null)
             {
                 AutoStatus = "Moving to node...";
-                var targetItem = next.First(ti => ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId)).Item;
+                var targetItem = next.First(ti => ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId)).Gatherable;
                 MoveToCloseNode(closestTargetableNode, targetItem, config);
                 return;
             }
@@ -686,6 +686,7 @@ namespace GatherBuddy.AutoGather
             {
                 GatheringType.Miner    => DiscipleOfLand.MinerLevel,
                 GatheringType.Botanist => DiscipleOfLand.BotanistLevel,
+                GatheringType.Fisher   => DiscipleOfLand.FisherLevel,
                 GatheringType.Multiple => Math.Max(DiscipleOfLand.MinerLevel, DiscipleOfLand.BotanistLevel),
                 _                      => 0
             };

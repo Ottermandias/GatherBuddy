@@ -18,6 +18,7 @@ using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
 using ECommons.ImGuiMethods;
 using ECommons;
+using GatherBuddy.Interfaces;
 
 namespace GatherBuddy.Gui;
 
@@ -26,10 +27,10 @@ public partial class Interface
     private class AutoGatherListsDragDropData
     {
         public AutoGatherList list;
-        public Gatherable     Item;
+        public IGatherable    Item;
         public int            ItemIdx;
 
-        public AutoGatherListsDragDropData(AutoGatherList list, Gatherable item, int idx)
+        public AutoGatherListsDragDropData(AutoGatherList list, IGatherable item, int idx)
         {
             this.list = list;
             Item      = item;
@@ -121,12 +122,12 @@ public partial class Interface
 
         public readonly AutoGatherListSelector Selector = new();
 
-        public  ReadOnlyCollection<Gatherable>     AllGatherables      { get; private set; }
-        public  ReadOnlyCollection<Gatherable>     FilteredGatherables { get; private set; }
-        public  ClippedSelectableCombo<Gatherable> GatherableSelector  { get; private set; }
-        private HashSet<Gatherable>                ExcludedGatherables = [];
+        public  ReadOnlyCollection<IGatherable>     AllGatherables      { get; private set; }
+        public  ReadOnlyCollection<IGatherable>     FilteredGatherables { get; private set; }
+        public  ClippedSelectableCombo<IGatherable> GatherableSelector  { get; private set; }
+        private HashSet<IGatherable>                ExcludedGatherables = [];
 
-        public void SetExcludedGatherbales(IEnumerable<Gatherable> exclude)
+        public void SetExcludedGatherbales(IEnumerable<IGatherable> exclude)
         {
             var excludeSet = exclude.ToHashSet();
             if (!ExcludedGatherables.SetEquals(excludeSet))
@@ -136,19 +137,22 @@ public partial class Interface
             }
         }
 
-        private static ReadOnlyCollection<Gatherable> GenAllGatherables()
-            => GatherBuddy.GameData.Gatherables.Values
-                .Where(g => g.NodeList.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any())
-                .OrderBy(g => g.Name[GatherBuddy.Language])
-                .ToArray()
-                .AsReadOnly();
+        private static ReadOnlyCollection<IGatherable> GenAllGatherables()
+        {
+            List<IGatherable> gatherables = new();
+            gatherables.AddRange(GatherBuddy.GameData.Gatherables.Values
+                .Where(g => g.NodeList.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any()));
+            gatherables.AddRange(GatherBuddy.GameData.Fishes.Values);
+            var orderedEnumerable = gatherables.OrderBy(g => g.Name[GatherBuddy.Language]);
+            return orderedEnumerable.ToList().AsReadOnly();
+        }
 
         [MemberNotNull(nameof(FilteredGatherables)), MemberNotNull(nameof(GatherableSelector)), MemberNotNull(nameof(AllGatherables))]
         private void UpdateGatherables()
             => UpdateGatherables(AllGatherables = GenAllGatherables(), []);
 
         [MemberNotNull(nameof(FilteredGatherables)), MemberNotNull(nameof(GatherableSelector))]
-        private void UpdateGatherables(ReadOnlyCollection<Gatherable> newGatherables, HashSet<Gatherable> newExcluded)
+        private void UpdateGatherables(ReadOnlyCollection<IGatherable> newGatherables, HashSet<IGatherable> newExcluded)
         {
             while (NewGatherableIdx > 0)
             {
