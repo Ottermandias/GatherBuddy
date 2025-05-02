@@ -548,6 +548,16 @@ public partial class Interface
                 "Prevents the popup window that shows you your caught fish and its size, amount and quality from being shown.",
                 GatherBuddy.Config.HideFishSizePopup, b => GatherBuddy.Config.HideFishSizePopup = b);
 
+        public static void DrawCollectableHintPopupBox()
+            => DrawCheckbox("Show Collectable Hints",
+                "Show if a fish is collectable in the fish timer window.",
+                GatherBuddy.Config.ShowCollectableHints, b => GatherBuddy.Config.ShowCollectableHints = b);
+
+        public static void DrawDoubleHookHintPopupBox()
+            => DrawCheckbox("Show Multi Hook Hints",
+                "Show if a fish can be double or triple hooked in Cosmic Exploration.", // TODO: add ocean fishing when implemented.
+                GatherBuddy.Config.ShowMultiHookHints, b => GatherBuddy.Config.ShowMultiHookHints = b);
+
 
         // Spearfishing Helper
         public static void DrawSpearfishHelperBox()
@@ -869,6 +879,8 @@ public partial class Interface
                 ConfigFunctions.DrawFishTimerScale();
                 ConfigFunctions.DrawFishTimerIntervals();
                 ConfigFunctions.DrawHideFishPopupBox();
+                ConfigFunctions.DrawCollectableHintPopupBox();
+                ConfigFunctions.DrawDoubleHookHintPopupBox();
                 ImGui.TreePop();
             }
 

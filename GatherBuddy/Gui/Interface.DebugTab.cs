@@ -524,6 +524,22 @@ public partial class Interface
         }
     }
 
+    private static void DrawCosmicTab()
+    {
+        if (!ImUtf8.CollapsingHeader("Cosmic Exploration Fishing Missions##CosmicDebug"u8))
+            return;
+
+        using (var table = ImUtf8.Table("##Cosmic", 2, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        {
+            if (table)
+                foreach (var mission in GatherBuddy.GameData.CosmicFishingMissions.Values.OrderBy(m => m.Id))
+                {
+                    ImUtf8.DrawTableColumn($"{mission.Id}");
+                    ImUtf8.DrawTableColumn(mission.Name);
+                }
+        }
+    }
+
     private void DrawDebugTab()
     {
         using var id = ImRaii.PushId("Debug");
@@ -564,6 +580,7 @@ public partial class Interface
             DrawFishingSpotDebug, flags, "Id", "Name", "Territory", "Aetheryte", "Coords", "Shadow", "Fishes");
         DrawUptimeManagerTable();
         DrawOceanTab();
+        DrawCosmicTab();
         DrawWaymarkTab();
         if (ImGui.CollapsingHeader("GatheringTree"))
         {
@@ -900,12 +917,13 @@ public partial class Interface
             if (spot.Items.Length is 0)
                 continue;
 
-            var match = CosmicMissionRegex().Match(spot.Name);
-            var name  = spot.Name;
+            var  match     = CosmicMissionRegex().Match(spot.Name);
+            uint missionId = 0;
+            var  name      = spot.Name;
             if (match.Success)
             {
-                var spotName  = match.Groups[1].Value;
-                var missionId = uint.Parse(match.Groups[2].Value);
+                var spotName = match.Groups[1].Value;
+                missionId = uint.Parse(match.Groups[2].Value);
                 name = spotName
                   + " "
                   + (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().GetRowOrDefault(missionId)?.Unknown0.ExtractText() ?? "Unknown");
@@ -915,8 +933,10 @@ public partial class Interface
             foreach (var fish in spot.Items)
             {
                 text += $"        data.Apply({fish.ItemId}, {patch}) // {fish.Name}\n";
-                text += $"            .Bait(data)\n";
-                text += $"            .Bite(data, HookSet.Unknown, BiteType.Unknown);\n";
+                text += "            .Bait(data)\n";
+                if (missionId is not 0)
+                    text += $"            .Mission(data, {missionId})\n";
+                text += "            .Bite(data, HookSet.Unknown, BiteType.Unknown);\n";
             }
         }
 

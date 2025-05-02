@@ -89,6 +89,8 @@ public partial class Configuration : IPluginConfiguration
     public bool   HideFishSizePopup     { get; set; } = false;
     public ushort FishTimerScale        { get; set; } = 40000;
     public byte   ShowSecondIntervals   { get; set; } = 7;
+    public bool   ShowCollectableHints  { get; set; } = true;
+    public bool   ShowMultiHookHints    { get; set; } = true;
 
     // Spearfish Helper
     public bool ShowSpearfishHelper          { get; set; } = true;
