@@ -38,11 +38,15 @@ namespace GatherBuddy.AutoGather
         }
 
         public bool IsGathering
-            => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
+            => (Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42])
+             && !Dalamud.Conditions[ConditionFlag.Fishing];
 
-        public bool? LastNavigationResult { get; set; } = null;
-        public Vector3 CurrentDestination { get; private set; } = default;
-        public Angle CurrentRotation { get; private set; } = default;
+        public bool IsFishing
+            => Dalamud.Conditions[ConditionFlag.Fishing];
+
+        public  bool?      LastNavigationResult { get; set; }         = null;
+        public  Vector3    CurrentDestination   { get; private set; } = default;
+        public  Angle      CurrentRotation      { get; private set; } = default;
         private ILocation? CurrentFarNodeLocation;
 
         public static IReadOnlyList<InventoryType> InventoryTypes { get; } =
@@ -82,17 +86,18 @@ namespace GatherBuddy.AutoGather
             }
 
             return Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, destination)
-                >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
+             >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
         }
 
         public unsafe Vector2? TimedNodePosition
         {
             get
             {
-                var map = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
+                var map     = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
                 var markers = map->MiniMapGatheringMarkers;
                 if (markers == null)
                     return null;
+
                 Vector2? result = null;
                 foreach (var miniMapGatheringMarker in markers)
                 {
@@ -104,20 +109,25 @@ namespace GatherBuddy.AutoGather
                     }
                     // GatherBuddy.Log.Information(miniMapGatheringMarker.MapMarker.IconId +  " => X: " + miniMapGatheringMarker.MapMarker.X / 16 + " Y: " + miniMapGatheringMarker.MapMarker.Y / 16);
                 }
+
                 return result;
             }
         }
 
-        public string AutoStatus { get; private set; } = "Idle";
-        public int LastCollectability = 0;
-        public int LastIntegrity = 0;
+        public  string      AutoStatus { get; private set; } = "Idle";
+        public  int         LastCollectability = 0;
+        public  int         LastIntegrity      = 0;
         private BitVector32 LuckUsed;
-        private bool WentHome;
+        private bool        WentHome;
 
-        internal IEnumerable<GatherTarget> ItemsToGather => _activeItemList;
-        internal ReadOnlyDictionary<GatheringNode, TimeInterval> DebugVisitedTimedLocations => _activeItemList.DebugVisitedTimedLocations;
+        internal IEnumerable<GatherTarget> ItemsToGather
+            => _activeItemList;
+
+        internal ReadOnlyDictionary<GatheringNode, TimeInterval> DebugVisitedTimedLocations
+            => _activeItemList.DebugVisitedTimedLocations;
+
         public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
-        public readonly LinkedList<uint> VisitedNodes = [];
+        public readonly LinkedList<uint> VisitedNodes      = [];
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
 
@@ -129,6 +139,7 @@ namespace GatherBuddy.AutoGather
             else
                 return null;
         }
+
         public static unsafe AddonGathering* GatheringAddon
             => GetAddon<AddonGathering>("Gathering");
 
@@ -180,7 +191,7 @@ namespace GatherBuddy.AutoGather
                  || Dalamud.Conditions[ConditionFlag.Unconscious]
                  || Dalamud.Conditions[ConditionFlag.Gathering42]
                  || Dalamud.Conditions[ConditionFlag.Unknown57] // Mounting up
-                 //Node is open? Fades off shortly after closing the node, can't use items (but can mount) while it's set
+                    //Node is open? Fades off shortly after closing the node, can't use items (but can mount) while it's set
                  || Dalamud.Conditions[85] && !Dalamud.Conditions[ConditionFlag.Gathering]
                  || Dalamud.ClientState.LocalPlayer.IsDead
                  || Player.IsAnimationLocked)
@@ -205,6 +216,7 @@ namespace GatherBuddy.AutoGather
         public static TimeStamp AdjustedServerTime
             => GatherBuddy.Time.ServerTime.AddSeconds(GatherBuddy.Config.AutoGatherConfig.TimedNodePrecog);
 
-        private ConfigPreset MatchConfigPreset(Gatherable? item) => _plugin.Interface.MatchConfigPreset(item);
+        private ConfigPreset MatchConfigPreset(Gatherable? item)
+            => _plugin.Interface.MatchConfigPreset(item);
     }
 }

@@ -283,12 +283,16 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (Player.Job is Job.BTN or Job.MIN
+            if (Player.Job is Job.BTN or Job.MIN or Job.FSH
              && !isPathing
              && !Svc.Condition[ConditionFlag.Mounted])
             {
                 if (SpiritbondMax > 0)
                 {
+                    if (IsFishing)
+                    {
+                        QueueQuitFishingTasks();
+                    }
                     DoMateriaExtraction();
                     return;
                 }
@@ -538,7 +542,7 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
-                DateTime spotExpiration = DateTime.Now.AddMinutes(1);
+                DateTime spotExpiration = DateTime.Now.AddMinutes(20); //TODO: Make this configurable
                 FishingSpotData.Add(next.First(), (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
                 return;
             }
@@ -547,6 +551,10 @@ namespace GatherBuddy.AutoGather
             {
                 Svc.Log.Debug("Time for a new fishing spot!");
                 FishingSpotData.Remove(next.First());
+                if (IsFishing)
+                {
+                    QueueQuitFishingTasks();
+                }
                 return;
             }
 
@@ -559,7 +567,12 @@ namespace GatherBuddy.AutoGather
                 if (playerAngle != fishingSpotData.Rotation)
                     TaskManager.Enqueue(() => SetRotation(fishingSpotData.Rotation));
                 Svc.Log.Debug($"Fishing Spot is valid for {(fishingSpotData.Expiration - DateTime.Now).TotalSeconds} seconds");
-                AutoStatus = "Ready for AutoHook";
+                if (!IsFishing)
+                {
+                    QueueStartFishingTasks();
+                }
+
+                AutoStatus = "Fishing...";
                 return;
             }
             if (CurrentDestination != fishingSpotData.Position)
@@ -568,6 +581,18 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Moving to fishing spot...";
                 MoveToFishingSpot(fishingSpotData.Position, fishingSpotData.Rotation);
             }
+        }
+
+        private void QueueStartFishingTasks()
+        {
+            TaskManager.Enqueue(() => AutoHook.SetPluginState(true));
+            TaskManager.Enqueue(() => Actions.Cast.UseAction());
+        }
+
+        private void QueueQuitFishingTasks()
+        {
+            TaskManager.Enqueue(() => AutoHook.SetPluginState(false));
+            TaskManager.Enqueue(() => Actions.Quit.UseAction());
         }
 
         private void DoNodeMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
