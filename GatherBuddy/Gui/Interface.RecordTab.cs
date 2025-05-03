@@ -214,14 +214,15 @@ public partial class Interface
             Weak      = 0x01,
             Strong    = 0x02,
             Legendary = 0x04,
-            Invalid   = 0x08,
+            Unknown   = 0x08,
+            None      = 0x10,
         }
 
         private sealed class BiteTypeHeader : ColumnFlags<TugTypeFilter, FishRecord>
         {
             public BiteTypeHeader()
             {
-                AllFlags = TugTypeFilter.Weak | TugTypeFilter.Strong | TugTypeFilter.Legendary | TugTypeFilter.Invalid;
+                AllFlags = TugTypeFilter.Weak | TugTypeFilter.Strong | TugTypeFilter.Legendary | TugTypeFilter.Unknown | TugTypeFilter.None;
                 _filter  = AllFlags;
             }
 
@@ -250,7 +251,8 @@ public partial class Interface
                     BiteType.Weak      => _filter.HasFlag(TugTypeFilter.Weak),
                     BiteType.Strong    => _filter.HasFlag(TugTypeFilter.Strong),
                     BiteType.Legendary => _filter.HasFlag(TugTypeFilter.Legendary),
-                    _                  => _filter.HasFlag(TugTypeFilter.Invalid),
+                    BiteType.None      => _filter.HasFlag(TugTypeFilter.None),
+                    _                  => _filter.HasFlag(TugTypeFilter.Unknown),
                 };
 
             public override float Width
@@ -265,8 +267,9 @@ public partial class Interface
             Powerful = 0x04,
             Double   = 0x08,
             Triple   = 0x10,
-            Invalid  = 0x20,
+            Unknown  = 0x20,
             Stellar  = 0x40,
+            None     = 0x80,
         }
 
         private sealed class HookHeader : ColumnFlags<HookSetFilter, FishRecord>
@@ -279,7 +282,8 @@ public partial class Interface
                   | HookSetFilter.Double
                   | HookSetFilter.Triple
                   | HookSetFilter.Stellar
-                  | HookSetFilter.Invalid;
+                  | HookSetFilter.Unknown
+                  | HookSetFilter.None;
                 _filter = AllFlags;
             }
 
@@ -311,7 +315,8 @@ public partial class Interface
                     HookSet.DoubleHook => _filter.HasFlag(HookSetFilter.Double),
                     HookSet.TripleHook => _filter.HasFlag(HookSetFilter.Triple),
                     HookSet.Stellar    => _filter.HasFlag(HookSetFilter.Stellar),
-                    _                  => _filter.HasFlag(HookSetFilter.Invalid),
+                    HookSet.None       => _filter.HasFlag(HookSetFilter.None),
+                    _                  => _filter.HasFlag(HookSetFilter.Unknown),
                 };
 
             public override float Width
