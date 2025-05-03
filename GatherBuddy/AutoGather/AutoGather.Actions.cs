@@ -6,9 +6,14 @@ using System.Linq;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
+using ECommons;
+using ECommons.DalamudServices;
 using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
+using GatherBuddy.Enums;
+using GatherBuddy.FishTimer;
+using GatherBuddy.SeFunctions;
 
 namespace GatherBuddy.AutoGather
 {
@@ -37,6 +42,7 @@ namespace GatherBuddy.AutoGather
 
             return true;
         }
+
         public bool ShouldUseKingII(ItemSlot slot, ConfigPreset.GatheringActionsRec config)
         {
             if (!CheckConditions(Actions.Yield2, config.Yield2, slot.Item, slot))
@@ -55,7 +61,8 @@ namespace GatherBuddy.AutoGather
 
         private bool ShouldUseGivingLand(ItemSlot slot, ConfigPreset config)
         {
-            if (!CheckConditions(Actions.GivingLand, config.GatherableActions.GivingLand, slot.Item, slot, config.ChooseBestActionsAutomatically))
+            if (!CheckConditions(Actions.GivingLand, config.GatherableActions.GivingLand, slot.Item, slot,
+                    config.ChooseBestActionsAutomatically))
                 return false;
             if (!IsGivingLandOffCooldown)
                 return false;
@@ -95,7 +102,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.Tidings, config.Tidings, slot.Item, slot))
                 return false;
-            
+
             return true;
         }
 
@@ -124,9 +131,57 @@ namespace GatherBuddy.AutoGather
             }
         }
 
+        public FishingState LastState = FishingState.None;
+
+        private void DoFishingTasks(GatherTarget target)
+        {
+            var state = GatherBuddy.EventFramework.FishingState;
+
+            switch (state)
+            {
+                case FishingState.Bite:      HandleBite(target); break;
+                case FishingState.PoleReady: HandleReady(target); break;
+                case FishingState.Waiting3:  HandleWaiting(target); break;
+            }
+        }
+
+        private void HandleWaiting(GatherTarget target)
+        {
+            Svc.Log.Debug("Waiting for fish");
+        }
+
+        private void HandleReady(GatherTarget target)
+        {
+            if (target.Fish?.Snagging == Snagging.Required)
+                EnqueueActionWithDelay(() => UseAction(Actions.Snagging));
+            if (target.Fish?.HookSet is HookSet.Powerful or HookSet.Precise)
+                EnqueueActionWithDelay(() => UseAction(Actions.Patience));
+            EnqueueActionWithDelay(() => UseAction(Actions.Cast));
+        }
+
+        private void HandleBite(GatherTarget target)
+        {
+            if (GatherBuddy.TugType.Bite == target.Fish?.BiteType)
+            {
+                switch (target.Fish.HookSet)
+                {
+                    case HookSet.Powerful:
+                        EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset));
+                        break;
+                    case HookSet.Precise:
+                        EnqueueActionWithDelay(() => UseAction(Actions.PrecisionHookset));
+                        break;
+                    default:
+                        EnqueueActionWithDelay(() => UseAction(Actions.Hook));
+                        break;
+                }
+            }
+        }
+
         private unsafe void DoGatherWindowActions(GatherTarget target)
         {
-            if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit) LuckUsed = new(0);
+            if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit)
+                LuckUsed = new(0);
 
             //Use The Giving Land out of order to gather random crystals.
             if (ShouldUseGivingLandOutOfOrder(target.Gatherable))
@@ -147,11 +202,10 @@ namespace GatherBuddy.AutoGather
             if (useSkills)
             {
                 var configPreset = MatchConfigPreset(slot.Item);
-                var config = configPreset.GatherableActions;
+                var config       = configPreset.GatherableActions;
 
                 if (configPreset.ChooseBestActionsAutomatically)
                 {
-
                     if (ShouldUseWise(NodeTracker.Integrity, NodeTracker.MaxIntegrity))
                     {
                         ActionSequence = null; //Recalculate rotation since we've got unaccounted 6 GP and 1 integrity.
@@ -171,13 +225,15 @@ namespace GatherBuddy.AutoGather
                             {
                                 TaskManager.Enqueue(() =>
                                 {
-                                    if (task.IsCompleted) ActionSequence = task.Result.GetEnumerator();
+                                    if (task.IsCompleted)
+                                        ActionSequence = task.Result.GetEnumerator();
                                     return task.IsCompleted;
                                 });
                                 AutoStatus = "Calculating best action sequence...";
                                 return;
                             }
                         }
+
                         if (!ActionSequence.MoveNext())
                         {
                             ActionSequence = null;
@@ -226,13 +282,25 @@ namespace GatherBuddy.AutoGather
 
         private bool ShouldUseGivingLandOutOfOrder(Gatherable? desiredItem)
         {
-            if (GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown && desiredItem != null && desiredItem.NodeType == Enums.NodeType.Regular)
+            if (GatherBuddy.Config.AutoGatherConfig.UseGivingLandOnCooldown
+             && desiredItem != null
+             && desiredItem.NodeType == Enums.NodeType.Regular)
             {
                 var anyCrystal = GetAnyCrystalInNode();
                 return anyCrystal != null && ShouldUseGivingLand(anyCrystal, MatchConfigPreset(anyCrystal.Item));
             }
 
             return false;
+        }
+
+        private unsafe void UseAction(Actions.FishingAction act)
+        {
+            var amInstance = ActionManager.Instance();
+            if (amInstance->GetActionStatus(ActionType.Action, act.ActionId) == 0)
+            {
+                //Communicator.Print("Action used: " + act.Name);
+                amInstance->UseAction(ActionType.Action, act.ActionId);
+            }
         }
 
         private unsafe void UseAction(Actions.BaseAction act)
@@ -277,11 +345,13 @@ namespace GatherBuddy.AutoGather
             var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
             if (textNode == null)
                 return;
+
             var text = textNode->NodeText.ToString();
 
             var integrityNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(126);
             if (integrityNode == null)
                 return;
+
             var integrityText = integrityNode->NodeText.ToString();
 
             if (!int.TryParse(text, out var collectibility))
@@ -322,6 +392,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.SolidAge, config.SolidAge, slot.Item, slot))
                 return false;
+
             var yield = slot.Yield;
             if (Dalamud.ClientState.LocalPlayer!.StatusList.Any(s => s.StatusId == Actions.Bountiful.EffectId))
                 yield -= 1;
@@ -333,7 +404,8 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, ItemSlot slot, bool autoMode = false)
+        private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, ItemSlot slot,
+            bool autoMode = false)
         {
             // autoMode = true is used for TGL out-of-order check that occurs before the rotation solver kicks in.
             if (config.Enabled == false && !autoMode)
@@ -349,16 +421,18 @@ namespace GatherBuddy.AutoGather
             if (action.EffectId != 0 && Player.Status.Any(s => s.StatusId == action.EffectId))
                 return false;
             if (action.QuestId != 0 && !QuestManager.IsQuestComplete(action.QuestId))
-                return false; 
+                return false;
             if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
                 return false;
             if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity > Math.Min(2, NodeTracker.MaxIntegrity - 1))
                 return false;
             if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.Rare)
                 return false;
-            if (config is ConfigPreset.ActionConfigIntegrity config2 && (!autoMode && config2.MinIntegrity > NodeTracker.MaxIntegrity || (config2.FirstStepOnly || autoMode) && NodeTracker.Touched))
+            if (config is ConfigPreset.ActionConfigIntegrity config2
+             && (!autoMode && config2.MinIntegrity > NodeTracker.MaxIntegrity || (config2.FirstStepOnly || autoMode) && NodeTracker.Touched))
                 return false;
-            if (config is ConfigPreset.ActionConfigBoon config3 && (slot.BoonChance == -1 || !autoMode && (slot.BoonChance < config3.MinBoonChance || slot.BoonChance > config3.MaxBoonChance)))
+            if (config is ConfigPreset.ActionConfigBoon config3
+             && (slot.BoonChance == -1 || !autoMode && (slot.BoonChance < config3.MinBoonChance || slot.BoonChance > config3.MaxBoonChance)))
                 return false;
             if (action.EffectType is Actions.EffectType.BoonChance && slot.BoonChance == 100)
                 return false;
@@ -370,12 +444,12 @@ namespace GatherBuddy.AutoGather
         {
             if (!QuestManager.IsQuestComplete(Actions.BountifulII.QuestId))
                 return 1;
-            
+
             try
             {
-                var glvl = item.GatheringData.GatheringItemLevel.RowId;
+                var glvl      = item.GatheringData.GatheringItemLevel.RowId;
                 var baseValue = WorldData.IlvConvertTable[(int)glvl].BaseGathering;
-                var stat = DiscipleOfLand.Gathering;
+                var stat      = DiscipleOfLand.Gathering;
 
                 if (stat >= baseValue * 11 / 10)
                     return 3;
@@ -397,17 +471,30 @@ namespace GatherBuddy.AutoGather
                 EnqueueActionWithDelay(() => UseAction(Actions.Prospect));
                 return true;
             }
+
             if (!Player.Status.Any(s => s.StatusId == Actions.Sneak.EffectId) && Player.Level >= Actions.Sneak.MinLevel)
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.Sneak));
                 return true;
             }
+
             if (activateTruth && !Player.Status.Any(s => s.StatusId == Actions.Truth.EffectId))
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.Truth));
                 return true;
             }
+
             return false;
+        }
+
+        private void QueueStartFishingTasks()
+        {
+            EnqueueActionWithDelay(() => UseAction(Actions.Cast));
+        }
+
+        private void QueueQuitFishingTasks()
+        {
+            EnqueueActionWithDelay(() => UseAction(Actions.Quit));
         }
     }
 }

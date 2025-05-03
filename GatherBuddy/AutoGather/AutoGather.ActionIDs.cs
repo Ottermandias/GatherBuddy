@@ -16,15 +16,6 @@ public partial class AutoGather
             public readonly int     MinLevel      = minLevel;
             public readonly int     GpCost        = gpCost;
             public readonly uint[]? StatusProvide = statusProvide;
-
-            public unsafe void UseAction()
-            {
-                var amInstance = ActionManager.Instance();
-                if (amInstance->GetActionStatus(ActionType.Action, ActionId) == 0)
-                {
-                    amInstance->UseAction(ActionType.Action, ActionId);
-                }
-            }
         }
 
         public enum EffectType
@@ -110,6 +101,7 @@ public partial class AutoGather
             }
         }
 
+        //MIN/BTN Actions
         public static readonly BaseAction Prospect      = new(210, 227, 217, 225);
         public static readonly BaseAction Sneak         = new(304, 303, 47);
         public static readonly BaseAction TwelvesBounty = new(282, 280, 825, type: EffectType.CrystalsYield);

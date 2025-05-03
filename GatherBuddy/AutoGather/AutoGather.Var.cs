@@ -38,8 +38,7 @@ namespace GatherBuddy.AutoGather
         }
 
         public bool IsGathering
-            => (Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42])
-             && !Dalamud.Conditions[ConditionFlag.Fishing];
+            => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
 
         public bool IsFishing
             => Dalamud.Conditions[ConditionFlag.Fishing];

@@ -242,21 +242,28 @@ namespace GatherBuddy.AutoGather
 
                 AutoStatus = "Gathering...";
                 StopNavigation();
-                try
+                if (gatherTarget.Fish != null)
                 {
-                    DoActionTasks(gatherTarget);
+                    DoFishingTasks(gatherTarget);
+                    return;
                 }
-                catch (NoGatherableItemsInNodeException)
+                else
                 {
-                    CloseGatheringAddons();
+                    try
+                    {
+                        DoActionTasks(gatherTarget);
+                    }
+                    catch (NoGatherableItemsInNodeException)
+                    {
+                        CloseGatheringAddons();
+                    }
+                    catch (NoCollectableActionsException)
+                    {
+                        Communicator.PrintError(
+                            "Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
+                        AbortAutoGather();
+                    }
                 }
-                catch (NoCollectableActionsException)
-                {
-                    Communicator.PrintError(
-                        "Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
-                    AbortAutoGather();
-                }
-
                 return;
             }
 
@@ -581,18 +588,6 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Moving to fishing spot...";
                 MoveToFishingSpot(fishingSpotData.Position, fishingSpotData.Rotation);
             }
-        }
-
-        private void QueueStartFishingTasks()
-        {
-            TaskManager.Enqueue(() => AutoHook.SetPluginState(true));
-            TaskManager.Enqueue(() => Actions.Cast.UseAction());
-        }
-
-        private void QueueQuitFishingTasks()
-        {
-            TaskManager.Enqueue(() => AutoHook.SetPluginState(false));
-            TaskManager.Enqueue(() => Actions.Quit.UseAction());
         }
 
         private void DoNodeMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
