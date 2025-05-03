@@ -6,6 +6,7 @@ using System.Text.RegularExpressions;
 using Dalamud.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
+using GatherBuddy.FishTimer;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
@@ -128,6 +129,21 @@ public partial class Interface
                 _weatherTable.SetDirty();
             if (ImGui.Button("Set Locations Dirty"))
                 GatherBuddy.UptimeManager.ResetLocations();
+
+            if (FishTimerWindow.CollectableIcon.TryGetWrap(out var wrapCollectable, out _))
+                ImGui.Image(wrapCollectable.ImGuiHandle, wrapCollectable.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.DoubleHookIcon.TryGetWrap(out var wrapDoubleHook, out _))
+                ImGui.Image(wrapDoubleHook.ImGuiHandle, wrapDoubleHook.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.TripleHookIcon.TryGetWrap(out var wrapTripleHook, out _))
+                ImGui.Image(wrapTripleHook.ImGuiHandle, wrapTripleHook.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.QuadHookIcon.TryGetWrap(out var wrapQuadHook, out _))
+                ImGui.Image(wrapQuadHook.ImGuiHandle, wrapQuadHook.Size);
         }
     }
 
