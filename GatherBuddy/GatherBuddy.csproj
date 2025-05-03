@@ -16,8 +16,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="images\QuadHookIcon.bmp">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </EmbeddedResource>
+    <EmbeddedResource Include="images\QuadHookIcon.bmp" />
   </ItemGroup>
 </Project>
