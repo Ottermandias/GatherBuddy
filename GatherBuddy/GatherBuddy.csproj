@@ -14,4 +14,8 @@
     <ProjectReference Include="..\GatherBuddy.GameData\GatherBuddy.GameData.csproj" />
     <ProjectReference Include="..\OtterGui\OtterGui.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="..\images\QuadHookIcon.bmp" ManifestResourceName="QuadHookIcon" />
+  </ItemGroup>
 </Project>

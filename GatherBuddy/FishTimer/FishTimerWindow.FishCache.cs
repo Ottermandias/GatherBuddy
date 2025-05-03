@@ -8,6 +8,7 @@ using ImGuiNET;
 using System;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using OtterGui.Text;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -16,28 +17,30 @@ namespace GatherBuddy.FishTimer;
 
 public partial class FishTimerWindow
 {
+    public static readonly ISharedImmediateTexture CollectableIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001110));
+
+    public static readonly ISharedImmediateTexture DoubleHookIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001118));
+
+    public static readonly ISharedImmediateTexture TripleHookIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001138));
+
+    public static readonly ISharedImmediateTexture QuadHookIcon =
+        Dalamud.Textures.GetFromManifestResource(Assembly.GetExecutingAssembly(), "QuadHookIcon.bmp");
+
     private readonly struct FishCache
     {
         private readonly ExtendedFish            _fish;
         private readonly string                  _textLine;
         private readonly ISharedImmediateTexture _icon;
-
-        private readonly ISharedImmediateTexture _collectableIcon =
-            Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001110));
-
-        private readonly ISharedImmediateTexture _doubleHookIcon =
-            Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001118));
-
-        private readonly ISharedImmediateTexture _tripleHookIcon =
-            Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001138));
-
-        private readonly FishRecordTimes.Times _all;
-        private readonly FishRecordTimes.Times _baitSpecific;
-        private readonly ColorId               _color;
-        public readonly  bool                  Uncaught;
-        public readonly  bool                  Unavailable;
-        public readonly  ulong                 SortOrder;
-        public readonly  TimeInterval          NextUptime;
+        private readonly FishRecordTimes.Times   _all;
+        private readonly FishRecordTimes.Times   _baitSpecific;
+        private readonly ColorId                 _color;
+        public readonly  bool                    Uncaught;
+        public readonly  bool                    Unavailable;
+        public readonly  ulong                   SortOrder;
+        public readonly  TimeInterval            NextUptime;
 
 
         private static ulong MakeSortOrder(ushort min, ushort max)
@@ -255,12 +258,13 @@ public partial class FishTimerWindow
 
                 var hookIcon = _fish.DoubleHook switch
                 {
-                    2 => _doubleHookIcon,
-                    3 => _tripleHookIcon,
-                    _ => _tripleHookIcon,
+                    2 => DoubleHookIcon,
+                    3 => TripleHookIcon,
+                    4 => QuadHookIcon,
+                    _ => null,
                 };
 
-                if (hookIcon.TryGetWrap(out var wrap2, out _))
+                if (hookIcon?.TryGetWrap(out var wrap2, out _) ?? false)
                 {
                     ImGui.Image(wrap2.ImGuiHandle, window._iconSize);
                     if (ImGui.IsItemHovered())
@@ -286,7 +290,7 @@ public partial class FishTimerWindow
                     : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
 
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0));
-                if (_collectableIcon.TryGetWrap(out var wrap3, out _))
+                if (CollectableIcon.TryGetWrap(out var wrap3, out _))
                     ImGui.Image(wrap3.ImGuiHandle, window._iconSize, Vector2.Zero, Vector2.One, tint);
                 else
                     ImGui.Dummy(window._iconSize);
