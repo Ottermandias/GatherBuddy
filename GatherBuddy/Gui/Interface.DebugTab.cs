@@ -209,7 +209,6 @@ public partial class Interface
             return;
 
         ImGui.Text($"Remote Task State (Upload): {_plugin.FishRecorder.RemoteRecordsUploadTask.Status}");
-        ImGui.Text($"Remote Task State (Download): {_plugin.FishRecorder.RemoteRecordsDownloadTask.Status}");
         if (ImGui.Button("Force Cancellation"))
         {
             _plugin.FishRecorder.StopRemoteRecordsRequests();

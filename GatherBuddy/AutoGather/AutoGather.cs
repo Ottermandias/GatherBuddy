@@ -20,6 +20,7 @@ using Dalamud.Utility;
 using ECommons;
 using ECommons.ExcelServices;
 using ECommons.Automation;
+using ECommons.MathHelpers;
 using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
@@ -332,7 +333,8 @@ namespace GatherBuddy.AutoGather
 
             Waiting = false;
 
-            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Fish != null ? GatheringType.Fisher : n.Gatherable!.GatheringType.ToGroup())))
+            if (next.Any(n => n.Item.ItemData.IsCollectable
+                 && !CheckCollectablesUnlocked(n.Fish != null ? GatheringType.Fisher : n.Gatherable!.GatheringType.ToGroup())))
             {
                 AbortAutoGather();
                 return;
@@ -496,6 +498,80 @@ namespace GatherBuddy.AutoGather
             if (DoUseConsumablesWithoutCastTime(config))
                 return;
 
+            if (!LocationMatchesJob(next.First().Location))
+            {
+                if (!ChangeGearSet(next.First().Location.GatheringType.ToGroup(), 2400))
+                    AbortAutoGather();
+            }
+
+            if (next.First().Fish != null)
+            {
+                DoFishMovement(next, config);
+                return;
+            }
+
+            if (next.First().Gatherable != null)
+            {
+                DoNodeMovement(next, config);
+                return;
+            }
+
+            AutoStatus = "Fell out of control loop unexpectedly. Please report this error.";
+            return;
+        }
+
+        public Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData = new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
+        private void DoFishMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
+        {
+            var fish = next.First().Fish;
+            if (fish == null)
+                throw new InvalidOperationException("Fish is null");
+
+            if (!FishingSpotData.TryGetValue(next.First(), out var fishingSpotData))
+            {
+                var positionData = _plugin.FishRecorder.GetPositionForFishingSpot(next.First().FishingSpot);
+                if (!positionData.HasValue)
+                {
+                    Communicator.PrintError(
+                        $"No position data for fishing spot {next.First().FishingSpot.Name}. Auto-Fishing cannot continue.");
+                    AbortAutoGather();
+                    return;
+                }
+
+                DateTime spotExpiration = DateTime.Now.AddMinutes(1);
+                FishingSpotData.Add(next.First(), (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
+                return;
+            }
+
+            if (fishingSpotData.Expiration < DateTime.Now)
+            {
+                Svc.Log.Debug("Time for a new fishing spot!");
+                FishingSpotData.Remove(next.First());
+                return;
+            }
+
+            if (Vector3.Distance(fishingSpotData.Position, Player.Position) < 1)
+            {
+                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                    EnqueueDismount();
+
+                var playerAngle = new Angle(Player.Rotation);
+                if (playerAngle != fishingSpotData.Rotation)
+                    TaskManager.Enqueue(() => SetRotation(fishingSpotData.Rotation));
+                Svc.Log.Debug($"Fishing Spot is valid for {(fishingSpotData.Expiration - DateTime.Now).TotalSeconds} seconds");
+                AutoStatus = "Ready for AutoHook";
+                return;
+            }
+            if (CurrentDestination != fishingSpotData.Position)
+            {
+                StopNavigation();
+                AutoStatus = "Moving to fishing spot...";
+                MoveToFishingSpot(fishingSpotData.Position, fishingSpotData.Rotation);
+            }
+        }
+
+        private void DoNodeMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
+        {
             var allPositions = next.SelectMany(ne => ne.Node.WorldPositions
                     .ExceptBy(VisitedNodes, n => n.Key)
                     .SelectMany(w => w.Value)
@@ -509,14 +585,6 @@ namespace GatherBuddy.AutoGather
             var closestTargetableNode = visibleNodes
                 .Where(o => o.IsTargetable)
                 .MinBy(o => Vector3.Distance(Player.Position, o.Position));
-
-            if (closestTargetableNode == null && !LocationMatchesJob(next.First().Node))
-            {
-                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup(), 2400))
-                    AbortAutoGather();
-
-                return;
-            }
 
             if (ActivateGatheringBuffs(next.First().Gatherable.NodeType is NodeType.Unspoiled or NodeType.Legendary))
                 return;
@@ -753,6 +821,7 @@ namespace GatherBuddy.AutoGather
             {
                 GatheringType.Miner    => GatherBuddy.Config.MinerSetName,
                 GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
+                GatheringType.Fisher   => GatherBuddy.Config.FisherSetName,
                 _                      => null,
             };
             if (string.IsNullOrEmpty(set))

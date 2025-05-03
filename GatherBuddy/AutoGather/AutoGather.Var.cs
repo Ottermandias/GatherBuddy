@@ -15,6 +15,7 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Numerics;
+using ECommons.MathHelpers;
 
 namespace GatherBuddy.AutoGather
 {
@@ -41,6 +42,7 @@ namespace GatherBuddy.AutoGather
 
         public bool? LastNavigationResult { get; set; } = null;
         public Vector3 CurrentDestination { get; private set; } = default;
+        public Angle CurrentRotation { get; private set; } = default;
         private ILocation? CurrentFarNodeLocation;
 
         public static IReadOnlyList<InventoryType> InventoryTypes { get; } =

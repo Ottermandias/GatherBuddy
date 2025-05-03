@@ -4,10 +4,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using ECommons.MathHelpers;
+using GatherBuddy.Classes;
 using GatherBuddy.Models;
+using Lumina.Data.Parsing;
 using Newtonsoft.Json;
 
 namespace GatherBuddy.FishTimer;
@@ -15,12 +19,11 @@ namespace GatherBuddy.FishTimer;
 public partial class FishRecorder
 {
     public const  string                  RemoteUrl                 = "https://sevxzz9056.execute-api.us-east-1.amazonaws.com/fishwrap";
-    private const string                  RemoteFishRecordsFileName = "remote_fish_records.dat";
+    public const  string                  RemoteFishRecordsFileName = "GatherBuddy.CustomInfo.fish_records.json";
     private const int                     RecordsPerRequest         = 100;
     internal      List<FishRecord>        RemoteRecords             = [];
     internal      Queue<FishRecord>       RecordsToUpload           = new();
     public        Task                    RemoteRecordsUploadTask              { get; private set; } = Task.CompletedTask;
-    public        Task                    RemoteRecordsDownloadTask            { get; private set; } = Task.CompletedTask;
     private       CancellationTokenSource RemoteRecordsCancellationTokenSource { get; }              = new();
     public        DateTime                NextRemoteRecordsUpdate = DateTime.MinValue;
 
@@ -41,6 +44,18 @@ public partial class FishRecorder
             RecordsToUpload.Enqueue(record);
         }
         GatherBuddy.Log.Information($"Queued {records.Count()} records for upload");
+    }
+
+    private readonly Random _random = new();
+    public (Vector3 Position, Angle Rotation)? GetPositionForFishingSpot(FishingSpot spot)
+    {
+        var allValidRecords = RemoteRecords.Union(Records).Where(r => r.FishingSpot == spot && r.PositionDataValid);
+        if (!allValidRecords.Any())
+            return null;
+
+        var random = _random.Next(0, allValidRecords.Count());
+        var selectedRecord = allValidRecords.ElementAt(random);
+        return (selectedRecord.Position, selectedRecord.RotationAngle);
     }
 
     private async Task UploadLocalRecords(CancellationToken cancellationToken = default)
@@ -85,18 +100,28 @@ public partial class FishRecorder
     }
 
 
-    private void LoadRemoteFile(FileInfo file)
+    private void LoadRemoteFile()
     {
-        if (!file.Exists)
-            return;
-
         try
         {
-            RemoteRecords.AddRange(ReadFile(file));
+            var embeddedResource = typeof(FishRecorder).Assembly.GetManifestResourceStream(RemoteFishRecordsFileName);
+            if (embeddedResource == null)
+                throw new FileNotFoundException($"Could not find embedded resource {RemoteFishRecordsFileName}");
+            using var reader = new StreamReader(embeddedResource);
+            var       json   = reader.ReadToEnd();
+            var       records = JsonConvert.DeserializeObject<List<SimpleFishRecord>>(json);
+            if (records == null)
+                throw new JsonException("Could not deserialize remote fish records.");
+
+            foreach (var record in records)
+            {
+                var fishRecord = FishRecord.FromSimpleRecord(record);
+                RemoteRecords.Add(fishRecord);
+            }
         }
         catch (Exception e)
         {
-            GatherBuddy.Log.Error($"Could not read fish record file {file.FullName}:\n{e}");
+            GatherBuddy.Log.Error($"Could not read fish record file {FishRecordFileName}:\n{e}");
         }
     }
 

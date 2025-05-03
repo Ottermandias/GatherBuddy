@@ -14,7 +14,9 @@ using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Data;
 using ECommons.MathHelpers;
+using FFXIVClientStructs.FFXIV.Client.Game.Object;
 using GatherBuddy.Enums;
+using Aetheryte = GatherBuddy.Classes.Aetheryte;
 
 namespace GatherBuddy.AutoGather
 {
@@ -177,13 +179,21 @@ namespace GatherBuddy.AutoGather
             // Reset navigation logic here
             // For example, reinitiate navigation to the destination
             CurrentDestination = default;
+            CurrentRotation    = default;
             if (VNavmesh.Enabled)
             {
                 VNavmesh.Path.Stop();
             }
         }
 
-        private void Navigate(Vector3 destination, bool shouldFly)
+        private unsafe void SetRotation(Angle angle)
+        {
+            var playerObject = (GameObject*)Player.Object.Address;
+            Svc.Log.Debug($"Setting rotation to {angle.Rad}");
+            playerObject->SetRotation(angle.Rad);
+        }
+
+        private void Navigate(Vector3 destination, bool shouldFly, Angle angle = default)
         {
             if (CurrentDestination == destination && (IsPathing || IsPathGenerating))
                 return;
@@ -192,6 +202,7 @@ namespace GatherBuddy.AutoGather
 
             StopNavigation();
             CurrentDestination = destination;
+            CurrentRotation    = angle;
             var correctedDestination = GetCorrectedDestination(CurrentDestination);
             GatherBuddy.Log.Debug($"Navigating to {destination} (corrected to {correctedDestination})");
 
@@ -243,6 +254,20 @@ namespace GatherBuddy.AutoGather
             else
             {
                 Navigate(farNode, ShouldFly(farNode));
+            }
+        }
+
+        private void MoveToFishingSpot(Vector3 position, Angle angle)
+        {
+            if (!Dalamud.Conditions[ConditionFlag.Mounted])
+            {
+                if (GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting)
+                    Navigate(position, false, angle);
+                EnqueueMountUp();
+            }
+            else
+            {
+                Navigate(position, ShouldFly(position), angle);
             }
         }
 

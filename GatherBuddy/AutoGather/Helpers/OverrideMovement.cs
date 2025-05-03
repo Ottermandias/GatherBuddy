@@ -8,6 +8,7 @@ using System.Runtime.InteropServices;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.DalamudServices;
 using ECommons.Logging;
+using ECommons.MathHelpers;
 
 //Credit: https://github.com/NightmareXIV/Lifestream/blob/main/Lifestream/Movement/OverrideMovement.cs#7ad417a
 namespace GatherBuddy.AutoGather.Movement;

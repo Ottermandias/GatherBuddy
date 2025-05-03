@@ -29,8 +29,7 @@ public partial class FishRecorder : IDisposable
         var file = new FileInfo(Path.Combine(FishRecordDirectory.FullName, FishRecordFileName));
         LoadFile(file);
 
-        var remoteFile = new FileInfo(Path.Combine(FishRecordDirectory.FullName, RemoteFishRecordsFileName));
-        LoadRemoteFile(remoteFile);
+        LoadRemoteFile();
 
         if (Changes > 0)
         {
