@@ -27,7 +27,7 @@ public partial class FishTimerWindow
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(001138));
 
     public static readonly ISharedImmediateTexture QuadHookIcon =
-        Dalamud.Textures.GetFromManifestResource(Assembly.GetExecutingAssembly(), "GatherBuddy.images.QuadHookIcon.bmp");
+        Dalamud.Textures.GetFromManifestResource(Assembly.GetExecutingAssembly(), "QuadHookIcon.bmp");
 
     private readonly struct FishCache
     {
