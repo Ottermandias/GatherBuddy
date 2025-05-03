@@ -290,7 +290,7 @@ public struct FishRecord
         if ((Flags & ~ValidEffects) != 0)
             return false;
 
-        if ((_tugAndHook & 0x0F) > 4 || ((_tugAndHook >> 4) > 6 && (_tugAndHook >> 4) != 7))
+        if ((_tugAndHook & 0x0F) > 4 || ((_tugAndHook >> 4) >= 6 && (_tugAndHook >> 4) != 7))
             return false;
 
         return true;
