@@ -11,6 +11,7 @@ using ECommons.DalamudServices;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Enums;
+using GatherBuddy.FishTimer;
 using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
@@ -167,6 +168,21 @@ public partial class Interface
                 }
                 _plugin.AutoGatherListsManager.AddList(list);
             }
+
+            if (FishTimerWindow.CollectableIcon.TryGetWrap(out var wrapCollectable, out _))
+                ImGui.Image(wrapCollectable.ImGuiHandle, wrapCollectable.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.DoubleHookIcon.TryGetWrap(out var wrapDoubleHook, out _))
+                ImGui.Image(wrapDoubleHook.ImGuiHandle, wrapDoubleHook.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.TripleHookIcon.TryGetWrap(out var wrapTripleHook, out _))
+                ImGui.Image(wrapTripleHook.ImGuiHandle, wrapTripleHook.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.QuadHookIcon.TryGetWrap(out var wrapQuadHook, out _))
+                ImGui.Image(wrapQuadHook.ImGuiHandle, wrapQuadHook.Size);
         }
     }
 

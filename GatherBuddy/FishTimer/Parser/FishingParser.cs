@@ -18,8 +18,8 @@ public partial class FishingParser : IDisposable
     public event Action<Fish, ushort, byte, bool, bool>? CaughtFish;
     public event Action<FishingSpot>?                    IdentifiedSpot;
     public event Action<HookSet>?                        HookedIn;
-    private readonly Hook<UpdateCatchDelegate>? _catchHook;
-    private readonly Hook<UseActionDelegate>?   _hookHook;
+    private readonly Hook<UpdateCatchDelegate>?          _catchHook;
+    private readonly Hook<UseActionDelegate>?            _hookHook;
 
     public unsafe FishingParser(IGameInteropProvider provider)
     {
@@ -78,24 +78,12 @@ public partial class FishingParser : IDisposable
         if (actionType == ActionType.Action)
             switch (actionId)
             {
-                case 296:
-                    HookedIn?.Invoke(HookSet.Hook);
-                    break;
-                case 269:
-                    HookedIn?.Invoke(HookSet.DoubleHook);
-                    break;
-                case 4103:
-                    HookedIn?.Invoke(HookSet.Powerful);
-                    break;
-                case 4179:
-                    HookedIn?.Invoke(HookSet.Precise);
-                    break;
-                case 27523:
-                    HookedIn?.Invoke(HookSet.TripleHook);
-                    break;
-                case 41278:
-                    HookedIn?.Invoke(HookSet.Stellar);
-                    break;
+                case 296:   HookedIn?.Invoke(HookSet.Hook); break;
+                case 269:   HookedIn?.Invoke(HookSet.DoubleHook); break;
+                case 4103:  HookedIn?.Invoke(HookSet.Powerful); break;
+                case 4179:  HookedIn?.Invoke(HookSet.Precise); break;
+                case 27523: HookedIn?.Invoke(HookSet.TripleHook); break;
+                case 41278: HookedIn?.Invoke(HookSet.Stellar); break;
             }
 
         return _hookHook!.Original(manager, actionType, actionId, targetId, a4, a5, a6, a7);
