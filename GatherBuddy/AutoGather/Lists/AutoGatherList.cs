@@ -65,8 +65,7 @@ public class AutoGatherList
         var item = items[index];
         enabledItems.Remove(item);
         quantities.Remove(item);
-        if (item is Gatherable gatherable)
-            preferredLocations.Remove(gatherable);
+        preferredLocations.Remove(item);
         items.RemoveAt(index);
     }
 

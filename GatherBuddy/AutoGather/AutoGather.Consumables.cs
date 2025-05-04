@@ -172,11 +172,11 @@ namespace GatherBuddy.AutoGather
         }
 
         // Cordial, food and potion have no cast time and can be used while mounted
-        private bool DoUseConsumablesWithoutCastTime(ConfigPreset config)
+        private bool DoUseConsumablesWithoutCastTime(ConfigPreset config, bool skipThrottle = false)
         {
             // Check if consumables need to be refreshed every 5 seconds
             // Give sufficient time for buffs to activate otherwise items could be used multiple times and wasted
-            if (EzThrottler.Throttle("DoUseConsumablesWithoutCastTime", 5000))
+            if (EzThrottler.Throttle("DoUseConsumablesWithoutCastTime", 5000) || skipThrottle)
             {
                 if (config.Consumables.Cordial.Enabled
                     && config.Consumables.Cordial.ItemId > 0

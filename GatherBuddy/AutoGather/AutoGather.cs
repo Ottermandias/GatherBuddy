@@ -269,6 +269,7 @@ namespace GatherBuddy.AutoGather
                 StopNavigation();
                 if (gatherTarget.Fish != null)
                 {
+                    DoFishMovement([gatherTarget]);
                     DoFishingTasks(gatherTarget);
                     return;
                 }
@@ -321,7 +322,7 @@ namespace GatherBuddy.AutoGather
             {
                 if (SpiritbondMax > 0)
                 {
-                    if (IsFishing)
+                    if (IsGathering)
                     {
                         QueueQuitFishingTasks();
                     }
@@ -542,7 +543,7 @@ namespace GatherBuddy.AutoGather
 
             if (next.First().Fish != null)
             {
-                DoFishMovement(next, config);
+                DoFishMovement(next);
                 return;
             }
 
@@ -556,8 +557,8 @@ namespace GatherBuddy.AutoGather
             return;
         }
 
-        public Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData = new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
-        private void DoFishMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
+        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData = new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
+        private void DoFishMovement(IEnumerable<GatherTarget> next)
         {
             var fish = next.First().Fish;
             if (fish == null)
@@ -583,7 +584,7 @@ namespace GatherBuddy.AutoGather
             {
                 Svc.Log.Debug("Time for a new fishing spot!");
                 FishingSpotData.Remove(next.First());
-                if (IsFishing)
+                if (IsGathering || IsFishing)
                 {
                     QueueQuitFishingTasks();
                 }
@@ -599,18 +600,19 @@ namespace GatherBuddy.AutoGather
                 if (playerAngle != fishingSpotData.Rotation)
                     TaskManager.Enqueue(() => SetRotation(fishingSpotData.Rotation));
                 Svc.Log.Debug($"Fishing Spot is valid for {(fishingSpotData.Expiration - DateTime.Now).TotalSeconds} seconds");
-                if (!IsFishing)
-                {
-                    QueueStartFishingTasks();
-                }
 
                 AutoStatus = "Fishing...";
+                DoFishingTasks(next.First());
                 return;
             }
             if (CurrentDestination != fishingSpotData.Position)
             {
                 StopNavigation();
                 AutoStatus = "Moving to fishing spot...";
+                if (IsGathering || IsFishing)
+                {
+                    QueueQuitFishingTasks();
+                }
                 MoveToFishingSpot(fishingSpotData.Position, fishingSpotData.Rotation);
             }
         }

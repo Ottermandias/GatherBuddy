@@ -46,6 +46,7 @@ public partial class AutoGatherListsManager : IDisposable
     public void SetActiveItems()
     {
         _activeItems.Clear();
+        _activeFish.Clear();
         _fallbackItems.Clear();
         var items = _lists
             .Where(l => l.Enabled)
@@ -59,7 +60,6 @@ public partial class AutoGatherListsManager : IDisposable
             if (item is Fish fish)
             {
                 _activeFish.Add((fish, quantity));
-                continue;
             }
 
             if (item is Gatherable gatherable)

@@ -8,6 +8,7 @@ using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
 using ECommons;
 using ECommons.DalamudServices;
+using ECommons.Throttlers;
 using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
@@ -135,55 +136,63 @@ namespace GatherBuddy.AutoGather
 
         private void DoFishingTasks(GatherTarget target)
         {
-            var state = GatherBuddy.EventFramework.FishingState;
-
-            switch (state)
+            var state  = GatherBuddy.EventFramework.FishingState;
+            var config = MatchConfigPreset(target.Fish);
+            if (DoUseConsumablesWithoutCastTime(config, true))
             {
-                case FishingState.Bite:      HandleBite(target); break;
-                case FishingState.PoleReady: HandleReady(target); break;
-                case FishingState.Waiting3:  HandleWaiting(target); break;
+                TaskManager.DelayNext(1000);
+                return;
+            }
+            if (EzThrottler.Throttle("GBR Fishing", 1500))
+            {
+                switch (state)
+                {
+                    case FishingState.Bite: HandleBite(target, config); break;
+                    case FishingState.None:
+                    case FishingState.PoleReady:
+                        HandleReady(target, config);
+                        break;
+                    case FishingState.Waiting3: HandleWaiting(target, config); break;
+                }
             }
         }
 
-        private void HandleWaiting(GatherTarget target)
+        private void HandleWaiting(GatherTarget target, ConfigPreset config)
         {
             if (target.Fish?.Lure == Lure.Ambitious && !LureSuccess)
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.AmbitiousLure));
             }
+
             if (target.Fish?.Lure == Lure.Modest && !LureSuccess)
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.ModestLure));
             }
         }
 
-        private void HandleReady(GatherTarget target)
+        private void HandleReady(GatherTarget target, ConfigPreset config)
         {
             LureSuccess = false;
+
             if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
                 EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
             if (target.Fish?.Snagging == Snagging.Required)
                 EnqueueActionWithDelay(() => UseAction(Actions.Snagging));
-            if (target.Fish?.HookSet is HookSet.Powerful or HookSet.Precise)
+            if (target.Fish?.HookSet is HookSet.Powerful or HookSet.Precise
+             && Player.Status.All(s => !Actions.Patience.StatusProvide.Contains(s.StatusId)))
                 EnqueueActionWithDelay(() => UseAction(Actions.Patience));
             EnqueueActionWithDelay(() => UseAction(Actions.Cast));
         }
 
-        private void HandleBite(GatherTarget target)
+        private void HandleBite(GatherTarget target, ConfigPreset config)
         {
             if (GatherBuddy.TugType.Bite == target.Fish?.BiteType)
             {
                 switch (target.Fish.HookSet)
                 {
-                    case HookSet.Powerful:
-                        EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset));
-                        break;
-                    case HookSet.Precise:
-                        EnqueueActionWithDelay(() => UseAction(Actions.PrecisionHookset));
-                        break;
-                    default:
-                        EnqueueActionWithDelay(() => UseAction(Actions.Hook));
-                        break;
+                    case HookSet.Powerful: EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset)); break;
+                    case HookSet.Precise:  EnqueueActionWithDelay(() => UseAction(Actions.PrecisionHookset)); break;
+                    default:               EnqueueActionWithDelay(() => UseAction(Actions.Hook)); break;
                 }
             }
         }
@@ -505,6 +514,7 @@ namespace GatherBuddy.AutoGather
         private void QueueQuitFishingTasks()
         {
             EnqueueActionWithDelay(() => UseAction(Actions.Quit));
+            TaskManager.DelayNext(3000); //Delay to make sure we stand up properly
         }
     }
 }

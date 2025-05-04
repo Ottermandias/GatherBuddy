@@ -218,5 +218,8 @@ namespace GatherBuddy.AutoGather
 
         private ConfigPreset MatchConfigPreset(Gatherable? item)
             => _plugin.Interface.MatchConfigPreset(item);
+
+        private ConfigPreset MatchConfigPreset(Fish? item)
+            => _plugin.Interface.MatchConfigPreset(item);
     }
 }

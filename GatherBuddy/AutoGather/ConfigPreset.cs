@@ -93,9 +93,10 @@ namespace GatherBuddy.AutoGather
         }
         public record class ItemTypeRec
         {
-            public bool Crystals { get; set; } = true;
+            public bool Crystals     { get; set; } = true;
             public bool Collectables { get; set; } = true;
-            public bool Other { get; set; } = true;
+            public bool Other        { get; set; } = true;
+            public bool Fish         { get; set; } = true;
         }
         public record class NodeTypeRec
         {
@@ -218,6 +219,9 @@ namespace GatherBuddy.AutoGather
                 && (   item.IsCrystal && ItemType.Crystals
                 || item.ItemData.IsCollectable && ItemType.Collectables
                 || !item.IsCrystal && !item.ItemData.IsCollectable && ItemType.Other);
+
+        public bool Match(Fish fish)
+            => Enabled && ItemType.Fish;
 
         public string ToBase64String()
         {
