@@ -78,14 +78,14 @@ namespace GatherBuddy.AutoGather.Lists
             if (IsUpdateNeeded())
                 DoUpdate();
 
-            //Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
+            Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
             IEnumerable<GatherTarget> nearbyItems = [];
             nearbyItems = this.Any(n => !n.Node?.Times.AlwaysUp() ?? false)
                 ? [this.First(n => n.Time.InRange(AutoGather.AdjustedServerTime))]
                 : this.Where(i => i.Node?.WorldPositions.Keys.Any(nearbyNodes.Contains) ?? false);
 
-            //Svc.Log.Verbose($"Nearby items: ({nearbyItems.Count()}): {string.Join(", ", nearbyItems.Select(x => x.Item.Name))}.");
-            return nearbyItems.Any() ? nearbyItems : _gatherableItems.Where(NeedsGathering).Take(1);
+            Svc.Log.Verbose($"Nearby items: ({nearbyItems.Count()}): {string.Join(", ", nearbyItems.Select(x => x.Item.Name))}.");
+            return nearbyItems.Any() ? nearbyItems : _gatherableItems.Where(NeedsGathering);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace GatherBuddy.AutoGather.Lists
             _gatheredSomething = true;
             // In almost all cases, the target is the first item in the list, so it's O(1).
             var x = _gatherableItems.FirstOrDefault(x => x.Node.WorldPositions.ContainsKey(target.DataId));
-            if (x != default && x.Time != TimeInterval.Always && x.Node.NodeType is NodeType.Legendary or NodeType.Unspoiled)
+            if (x != default && x.Time != TimeInterval.Always && x.Node?.NodeType is NodeType.Legendary or NodeType.Unspoiled)
                 _visitedTimedNodes[x.Node] = x.Time;
         }
 
@@ -116,18 +116,13 @@ namespace GatherBuddy.AutoGather.Lists
 
         private bool NeedsGathering((Fish fish, uint quantity) value)
         {
-            var (fish, quantity) = value;
-            return fish.GetInventoryCount() < quantity;
+            var (item, quantity) = value;
+            return item.GetInventoryCount() < quantity;
         }
 
         private bool NeedsGathering(GatherTarget target)
         {
-            if (target.Gatherable != null)
-                return NeedsGathering((target.Gatherable, target.Quantity));
-            if (target.Fish != null)
-                return NeedsGathering((target.Fish, target.Quantity));
-
-            return false;
+            return target.Item.GetInventoryCount() < target.Quantity;
         }
 
 
@@ -212,7 +207,8 @@ namespace GatherBuddy.AutoGather.Lists
                 .Where(NeedsGathering)
                 .Where(x => (RequiresHomeWorld(x) && Functions.OnHomeWorld()) || !RequiresHomeWorld(x))
                 .Select(x => (x.Fish, x.Quantity, PreferredLocation: _listsManager.GetPreferredLocation(x.Fish) ?? x.Fish.FishingSpots.First()))
-                .Select(x => (x.Fish, x.PreferredLocation, Time: GatherBuddy.UptimeManager.NextUptime(x.Fish, adjustedServerTime).interval, x.Quantity))
+                .Select(x => (x.Fish, x.PreferredLocation, Time: GatherBuddy.UptimeManager.NextUptime(x.Fish, adjustedServerTime).interval,
+                    x.Quantity))
                 .Where(x => x.Time.InRange(adjustedServerTime))
                 .GroupBy(x => x.Fish, x => x, (_, g) => g
                     // Order by end time, longest first as in the original UptimeManager.NextUptime().
@@ -221,7 +217,8 @@ namespace GatherBuddy.AutoGather.Lists
                     {
                         // Order by distance to the closest aetheryte.
                         AetherytePreference.Distance => AutoGather.FindClosestAetheryte(x.PreferredLocation)
-                                ?.WorldDistance(x.PreferredLocation.Territory.Id, x.PreferredLocation.IntegralXCoord, x.PreferredLocation.IntegralYCoord)
+                                ?.WorldDistance(x.PreferredLocation.Territory.Id, x.PreferredLocation.IntegralXCoord,
+                                    x.PreferredLocation.IntegralYCoord)
                          ?? int.MaxValue,
                         // Order by teleportation cost.
                         AetherytePreference.Cost => GetTeleportationCost(x.PreferredLocation),
@@ -243,9 +240,8 @@ namespace GatherBuddy.AutoGather.Lists
             }
 
             _gatherableItems.Clear();
-            _gatherableItems.AddRange(nodes.Select(x => new GatherTarget(x.Item, x.Node, x.Time, x.Quantity)));
-            _gatherableItems.AddRange(fish.Select(x => new GatherTarget(x.Fish, x.PreferredLocation, x.Time, x.Quantity)));
-            _gatherableItems.TrimExcess();
+            _gatherableItems.AddRange(nodes.Select(x => new GatherTarget(x.Item, x.Node,              x.Time, x.Quantity)));
+            _gatherableItems.AddRange(fish.Select(x => new GatherTarget(x.Fish,  x.PreferredLocation, x.Time, x.Quantity)));
         }
 
         private bool RequiresHomeWorld((Gatherable Item, uint Quantity) valueTuple)

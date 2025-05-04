@@ -252,25 +252,6 @@ namespace GatherBuddy.AutoGather
                     // Otherwise, we don't want the list to suddenly change while gathering.
                     gatherTarget = _activeItemList.CurrentOrDefault;
 
-                if (gatherTarget != default)
-                {
-                    var target = Svc.Targets.Target;
-                    if (target != null && target.ObjectKind is ObjectKind.GatheringPoint)
-                    {
-                        _activeItemList.MarkVisited(target);
-
-                        if (gatherTarget.Gatherable?.NodeType is NodeType.Regular or NodeType.Ephemeral
-                         && VisitedNodes.Last?.Value != target.DataId
-                         && gatherTarget.Node?.WorldPositions.ContainsKey(target.DataId) == true)
-                        {
-                            FarNodesSeenSoFar.Clear();
-                            VisitedNodes.AddLast(target.DataId);
-                            while (VisitedNodes.Count > (gatherTarget.Node.WorldPositions.Count <= 4 ? 2 : 4))
-                                VisitedNodes.RemoveFirst();
-                        }
-                    }
-                }
-
                 if (!GatherBuddy.Config.AutoGatherConfig.DoGathering)
                     return;
 
@@ -278,8 +259,10 @@ namespace GatherBuddy.AutoGather
                 StopNavigation();
                 if (gatherTarget.Fish != null)
                 {
-                    DoFishMovement([gatherTarget]);
-                    DoFishingTasks(gatherTarget);
+                    var fish = _activeItemList.GetNextOrDefault(new List<uint>()).Where(g => g.Fish != null);
+                    if (GatherBuddy.Config.AutoGatherConfig.UseNavigation)
+                        DoFishMovement(fish);
+                    DoFishingTasks(fish);
                     return;
                 }
                 else
@@ -390,6 +373,12 @@ namespace GatherBuddy.AutoGather
 
             if (RepairIfNeeded())
                 return;
+
+            if (!GatherBuddy.Config.AutoGatherConfig.UseNavigation)
+            {
+                AutoStatus = "Waiting for Gathering Point... (No Nav Mode)";
+                return;
+            }
 
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
@@ -588,7 +577,8 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
-                DateTime spotExpiration = DateTime.Now.AddMinutes(GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes); //TODO: Make this configurable
+                DateTime spotExpiration =
+                    DateTime.Now.AddMinutes(GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes); //TODO: Make this configurable
                 FishingSpotData.Add(next.First(), (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
                 return;
             }
@@ -616,7 +606,7 @@ namespace GatherBuddy.AutoGather
                 Svc.Log.Debug($"Fishing Spot is valid for {(fishingSpotData.Expiration - DateTime.Now).TotalSeconds} seconds");
 
                 AutoStatus = "Fishing...";
-                DoFishingTasks(next.First());
+                DoFishingTasks(next);
                 return;
             }
 

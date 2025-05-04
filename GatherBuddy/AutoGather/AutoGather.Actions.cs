@@ -6,6 +6,7 @@ using System.Linq;
 using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
+using Dalamud.Game.ClientState.Objects.Enums;
 using ECommons;
 using ECommons.DalamudServices;
 using ECommons.Throttlers;
@@ -129,17 +130,36 @@ namespace GatherBuddy.AutoGather
                 if (GatheringAddon != null && NodeTracker.Ready)
                 {
                     DoGatherWindowActions(target);
+                    if (target != default)
+                    {
+                        var targetNode = Svc.Targets.Target;
+                        if (targetNode != null && targetNode.ObjectKind is ObjectKind.GatheringPoint)
+                        {
+                            _activeItemList.MarkVisited(targetNode);
+
+                            if (target.Gatherable?.NodeType is NodeType.Regular or NodeType.Ephemeral
+                             && VisitedNodes.Last?.Value != targetNode.DataId
+                             && target.Node?.WorldPositions.ContainsKey(targetNode.DataId) == true)
+                            {
+                                FarNodesSeenSoFar.Clear();
+                                VisitedNodes.AddLast(targetNode.DataId);
+                                while (VisitedNodes.Count > (target.Node.WorldPositions.Count <= 4 ? 2 : 4))
+                                    VisitedNodes.RemoveFirst();
+                            }
+                        }
+                    }
                 }
             }
         }
 
         public FishingState LastState = FishingState.None;
 
-        private void DoFishingTasks(GatherTarget target)
+        private void DoFishingTasks(IEnumerable<GatherTarget> targets)
         {
-            AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
+            if (AutoHook.Enabled)
+                AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
             var state  = GatherBuddy.EventFramework.FishingState;
-            var config = MatchConfigPreset(target.Fish);
+            var config = MatchConfigPreset(targets.First(t => t.Fish != null).Fish!);
             if (DoUseConsumablesWithoutCastTime(config, true))
             {
                 TaskManager.DelayNext(1000);
@@ -149,12 +169,12 @@ namespace GatherBuddy.AutoGather
             {
                 switch (state)
                 {
-                    case FishingState.Bite: HandleBite(target, config); break;
+                    case FishingState.Bite: HandleBite(targets, config); break;
                     case FishingState.None:
                     case FishingState.PoleReady:
-                        HandleReady(target, config);
+                        HandleReady(targets.First(t => t.Fish != null), config);
                         break;
-                    case FishingState.Waiting3: HandleWaiting(target, config); break;
+                    case FishingState.Waiting3: HandleWaiting(targets.First(t => t.Fish != null), config); break;
                 }
             }
         }
@@ -186,11 +206,12 @@ namespace GatherBuddy.AutoGather
             EnqueueActionWithDelay(() => UseAction(Actions.Cast));
         }
 
-        private void HandleBite(GatherTarget target, ConfigPreset config)
+        private void HandleBite(IEnumerable<GatherTarget> targets, ConfigPreset config)
         {
-            if (GatherBuddy.TugType.Bite == target.Fish?.BiteType)
+            if (targets.Any(t => t.Fish?.BiteType == GatherBuddy.TugType.Bite))
             {
-                switch (target.Fish.HookSet)
+                var hookset = targets.First(t => t.Fish!.BiteType == GatherBuddy.TugType.Bite).Fish.HookSet;
+                switch (hookset)
                 {
                     case HookSet.Powerful: EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset)); break;
                     case HookSet.Precise:  EnqueueActionWithDelay(() => UseAction(Actions.PrecisionHookset)); break;

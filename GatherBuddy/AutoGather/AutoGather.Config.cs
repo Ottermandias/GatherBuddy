@@ -79,6 +79,7 @@ namespace GatherBuddy.AutoGather
         public bool FishDataCollection { get; set; } = false;
         public bool AlwaysGatherMaps { get; set; } = false;
         public int MaxFishingSpotMinutes { get; set; } = 20;
+        public bool UseNavigation { get; set; } = true;
 
         public enum SortingType
         {
