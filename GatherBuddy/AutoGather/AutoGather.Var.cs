@@ -47,6 +47,7 @@ namespace GatherBuddy.AutoGather
         public  Vector3    CurrentDestination   { get; private set; } = default;
         public  Angle      CurrentRotation      { get; private set; } = default;
         private ILocation? CurrentFarNodeLocation;
+        public bool LureSuccess { get; private set; } = false;
 
         public static IReadOnlyList<InventoryType> InventoryTypes { get; } =
         [

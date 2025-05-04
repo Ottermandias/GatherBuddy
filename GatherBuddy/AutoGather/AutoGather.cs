@@ -41,13 +41,38 @@ namespace GatherBuddy.AutoGather
         public AutoGather(GatherBuddy plugin)
         {
             // Initialize the task manager
-            TaskManager           = new();
-            TaskManager.ShowDebug = false;
-            _plugin               = plugin;
-            _soundHelper          = new SoundHelper();
-            _advancedUnstuck      = new();
-            _activeItemList       = new ActiveItemList(plugin.AutoGatherListsManager);
-            ArtisanExporter       = new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
+            TaskManager                  =  new();
+            TaskManager.ShowDebug        =  false;
+            _plugin                      =  plugin;
+            _soundHelper                 =  new SoundHelper();
+            _advancedUnstuck             =  new();
+            _activeItemList              =  new ActiveItemList(plugin.AutoGatherListsManager);
+            ArtisanExporter              =  new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
+            Svc.Chat.CheckMessageHandled += OnMessageHandled;
+        }
+
+        private void OnMessageHandled(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
+        {
+            try
+            {
+                if (type is (XivChatType)2243)
+                {
+                    var text = message.TextValue;
+                    var id = Svc.Data.GetExcelSheet<LogMessage>()
+                        ?.FirstOrDefault(x => x.Text.ToString() == text).RowId;
+
+                    LureSuccess = GatherBuddy.GameData.Fishes.Values.FirstOrDefault(f => f.FishData?.Unknown_70_1 == text) != null;
+
+                    if (LureSuccess)
+                        return;
+
+                    LureSuccess = id is 5565 or 5569;
+                }
+            }
+            catch (Exception e)
+            {
+                GatherBuddy.Log.Error($"Failed to handle message: {e}");
+            }
         }
 
         private readonly GatherBuddy     _plugin;

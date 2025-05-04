@@ -147,11 +147,21 @@ namespace GatherBuddy.AutoGather
 
         private void HandleWaiting(GatherTarget target)
         {
-            Svc.Log.Debug("Waiting for fish");
+            if (target.Fish?.Lure == Lure.Ambitious && !LureSuccess)
+            {
+                EnqueueActionWithDelay(() => UseAction(Actions.AmbitiousLure));
+            }
+            if (target.Fish?.Lure == Lure.Modest && !LureSuccess)
+            {
+                EnqueueActionWithDelay(() => UseAction(Actions.ModestLure));
+            }
         }
 
         private void HandleReady(GatherTarget target)
         {
+            LureSuccess = false;
+            if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
+                EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
             if (target.Fish?.Snagging == Snagging.Required)
                 EnqueueActionWithDelay(() => UseAction(Actions.Snagging));
             if (target.Fish?.HookSet is HookSet.Powerful or HookSet.Precise)
