@@ -14,6 +14,7 @@ using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
+using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 
 namespace GatherBuddy.AutoGather
@@ -136,6 +137,7 @@ namespace GatherBuddy.AutoGather
 
         private void DoFishingTasks(GatherTarget target)
         {
+            AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
             var state  = GatherBuddy.EventFramework.FishingState;
             var config = MatchConfigPreset(target.Fish);
             if (DoUseConsumablesWithoutCastTime(config, true))

@@ -233,6 +233,15 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (_activeItemList.GetNextOrDefault(new List<uint>()).Any(g => g.Fish != null)
+             && !GatherBuddy.Config.AutoGatherConfig.FishDataCollection)
+            {
+                Communicator.PrintError(
+                    "You have fish on your auto-gather list but you have not opted in to fishing data collection. Auto-gather cannot continue. Please enable fishing data collection in your configuration options or remove fish from your auto-gather lists.");
+                AbortAutoGather();
+                return;
+            }
+
             if (IsGathering)
             {
                 GatherTarget gatherTarget;
@@ -290,6 +299,7 @@ namespace GatherBuddy.AutoGather
                         AbortAutoGather();
                     }
                 }
+
                 return;
             }
 
@@ -326,6 +336,7 @@ namespace GatherBuddy.AutoGather
                     {
                         QueueQuitFishingTasks();
                     }
+
                     DoMateriaExtraction();
                     return;
                 }
@@ -557,7 +568,9 @@ namespace GatherBuddy.AutoGather
             return;
         }
 
-        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData = new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
+        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData =
+            new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
+
         private void DoFishMovement(IEnumerable<GatherTarget> next)
         {
             var fish = next.First().Fish;
@@ -575,7 +588,7 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
-                DateTime spotExpiration = DateTime.Now.AddMinutes(20); //TODO: Make this configurable
+                DateTime spotExpiration = DateTime.Now.AddMinutes(GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes); //TODO: Make this configurable
                 FishingSpotData.Add(next.First(), (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
                 return;
             }
@@ -588,6 +601,7 @@ namespace GatherBuddy.AutoGather
                 {
                     QueueQuitFishingTasks();
                 }
+
                 return;
             }
 
@@ -605,6 +619,7 @@ namespace GatherBuddy.AutoGather
                 DoFishingTasks(next.First());
                 return;
             }
+
             if (CurrentDestination != fishingSpotData.Position)
             {
                 StopNavigation();
@@ -613,6 +628,7 @@ namespace GatherBuddy.AutoGather
                 {
                     QueueQuitFishingTasks();
                 }
+
                 MoveToFishingSpot(fishingSpotData.Position, fishingSpotData.Rotation);
             }
         }
