@@ -319,7 +319,8 @@ public partial class Interface
             int value = GatherBuddy.Config.SecondIntervalsRounding;
             ImGui.SetNextItemWidth(SetInputWidth);
             var ret = ImGui.DragInt("Fish Timer Interval Rounding", ref value, 0.01f, 0, 3);
-            ImGuiUtil.HoverTooltip("Round the number of digits displayed past the decimal to this value.");
+            ImGuiUtil.HoverTooltip("Round the displayed seconds value to this number of digits past the decimal. \n"
+                + "Set to 0 to display only whole numbers.");
             if (!ret)
                 return;
 
