@@ -251,4 +251,20 @@ namespace GatherBuddy.Plugin
         [EzIPC("AllaganTools.ItemCountOwned", applyPrefix: false)]
         internal static readonly Func<uint, bool, uint[], uint> ItemCountOwned;
     }
+
+    internal static class AutoHook
+    {
+        static AutoHook()
+        {
+            EzIPC.Init(typeof(AutoHook), "AutoHook");
+        }
+
+        internal static bool Enabled => IPCSubscriber.IsReady("AutoHook");
+
+        [EzIPC("AutoHook.SetPluginState", applyPrefix: false)]
+        internal static readonly Action<bool> SetPluginState;
+
+        [EzIPC("AutoHook.CreateAndSelectAnonymousPreset", applyPrefix: false)]
+        internal static readonly Action<string> CreateAndSelectAnonymousPreset;
+    }
 }

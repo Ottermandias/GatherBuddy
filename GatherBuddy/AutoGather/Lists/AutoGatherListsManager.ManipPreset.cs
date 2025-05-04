@@ -1,4 +1,5 @@
 ﻿using GatherBuddy.Classes;
+using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 
 namespace GatherBuddy.AutoGather.Lists;
@@ -65,7 +66,7 @@ public partial class AutoGatherListsManager
             SetActiveItems();
     }
 
-    public void AddItem(AutoGatherList list, Gatherable item)
+    public void AddItem(AutoGatherList list, IGatherable item)
     {
         if (list.Add(item))
         {
@@ -86,7 +87,7 @@ public partial class AutoGatherListsManager
             SetActiveItems();
     }
 
-    public void ChangeItem(AutoGatherList list, Gatherable item, int idx)
+    public void ChangeItem(AutoGatherList list, IGatherable item, int idx)
     {
         if (idx < 0 || idx >= list.Items.Count)
             return;
@@ -99,7 +100,7 @@ public partial class AutoGatherListsManager
         }
     }
 
-    public void ChangeQuantity(AutoGatherList list, Gatherable item, uint quantity)
+    public void ChangeQuantity(AutoGatherList list, IGatherable item, uint quantity)
     {
         if (list.SetQuantity(item, quantity))
         {
@@ -109,7 +110,7 @@ public partial class AutoGatherListsManager
         }
     }
 
-    public void ChangeEnabled(AutoGatherList list, Gatherable item, bool enabled)
+    public void ChangeEnabled(AutoGatherList list, IGatherable item, bool enabled)
     {
         if (list.SetEnabled(item, enabled))
         {
@@ -129,15 +130,17 @@ public partial class AutoGatherListsManager
         }
     }
 
-    public void ChangePreferredLocation(AutoGatherList list, Gatherable item, GatheringNode? location)
+    public void ChangePreferredLocation(AutoGatherList list, IGatherable? item, ILocation? location)
     {
+        if (item == null || location == null)
+            return;
         if (list.SetPreferredLocation(item, location))
         {
             Save();
         }
     }
 
-    public GatheringNode? GetPreferredLocation(Gatherable item)
+    public ILocation? GetPreferredLocation(IGatherable item)
     {
         foreach (var list in _lists)
         {

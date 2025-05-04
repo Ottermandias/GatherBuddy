@@ -95,4 +95,8 @@
 	<ItemGroup>
 	  <EmbeddedResource Include="CustomInfo\IlvConvertTable.csv" />
 	</ItemGroup>
+
+	<ItemGroup>
+	  <EmbeddedResource Include="CustomInfo\fish_records.json" />
+	</ItemGroup>
 </Project>

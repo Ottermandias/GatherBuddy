@@ -78,6 +78,7 @@ namespace GatherBuddy.AutoGather
         public int SoundPlaybackVolume { get; set; } = 100;
         public bool FishDataCollection { get; set; } = false;
         public bool AlwaysGatherMaps { get; set; } = false;
+        public int MaxFishingSpotMinutes { get; set; } = 20;
 
         public enum SortingType
         {

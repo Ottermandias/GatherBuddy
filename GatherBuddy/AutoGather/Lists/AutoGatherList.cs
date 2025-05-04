@@ -7,6 +7,7 @@ using System.Text;
 using GatherBuddy.Alarms;
 using GatherBuddy.Classes;
 using GatherBuddy.GatherGroup;
+using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using Newtonsoft.Json;
 
@@ -14,39 +15,47 @@ namespace GatherBuddy.AutoGather.Lists;
 
 public class AutoGatherList
 {
-    public ReadOnlyCollection<Gatherable> Items => items.AsReadOnly();
-    public ReadOnlyDictionary<Gatherable, uint> Quantities => quantities.AsReadOnly();
-    public ReadOnlyDictionary<Gatherable, GatheringNode> PreferredLocations => preferredLocations.AsReadOnly();
-    public ReadOnlyDictionary<Gatherable, bool> EnabledItems => enabledItems.AsReadOnly();
-    public string Name { get; set; } = string.Empty;
-    public string Description { get; set; } = string.Empty;
-    public bool Enabled { get; set; } = false;
-    public bool Fallback { get; set; } = false;
+    public ReadOnlyCollection<IGatherable> Items
+        => items.AsReadOnly();
 
-    private List<Gatherable>                      items              = [];
-    private Dictionary<Gatherable, uint>          quantities         = [];
-    private Dictionary<Gatherable, GatheringNode> preferredLocations = [];
-    private Dictionary<Gatherable, bool>          enabledItems       = [];
+    public ReadOnlyDictionary<IGatherable, uint> Quantities
+        => quantities.AsReadOnly();
+
+    public ReadOnlyDictionary<IGatherable, ILocation> PreferredLocations
+        => preferredLocations.AsReadOnly();
+
+    public ReadOnlyDictionary<IGatherable, bool> EnabledItems
+        => enabledItems.AsReadOnly();
+
+    public string Name        { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public bool   Enabled     { get; set; } = false;
+    public bool   Fallback    { get; set; } = false;
+
+    private List<IGatherable>                  items              = [];
+    private Dictionary<IGatherable, uint>      quantities         = [];
+    private Dictionary<IGatherable, ILocation> preferredLocations = [];
+    private Dictionary<IGatherable, bool>      enabledItems       = [];
 
     public AutoGatherList Clone()
         => new()
         {
-            items = new(items),
-            quantities = new(quantities),
+            items              = new(items),
+            quantities         = new(quantities),
             preferredLocations = new(preferredLocations),
-            Name = Name,
-            Description = Description,
-            Enabled = false,
-            Fallback = Fallback
+            Name               = Name,
+            Description        = Description,
+            Enabled            = false,
+            Fallback           = Fallback
         };
 
-    public bool Add(Gatherable item, uint quantity = 1)
+    public bool Add(IGatherable item, uint quantity = 1)
     {
         if (quantities.ContainsKey(item))
             return false;
 
         items.Add(item);
-        quantities[item] = NormalizeQuantity(item, quantity);
+        quantities[item]   = NormalizeQuantity(item, quantity);
         enabledItems[item] = true;
         return true;
     }
@@ -60,7 +69,7 @@ public class AutoGatherList
         items.RemoveAt(index);
     }
 
-    public bool Replace(int index, Gatherable item)
+    public bool Replace(int index, IGatherable item)
     {
         if (quantities.ContainsKey(item))
             return false;
@@ -68,9 +77,10 @@ public class AutoGatherList
         var old = items[index];
         quantities.Remove(old, out var quantity);
         enabledItems.Remove(old, out var enabled);
-        preferredLocations.Remove(old);
-        items[index] = item;
-        quantities[item] = NormalizeQuantity(item, quantity);
+        if (old is Gatherable gatherable)
+            preferredLocations.Remove(gatherable);
+        items[index]       = item;
+        quantities[item]   = NormalizeQuantity(item, quantity);
         enabledItems[item] = enabled;
 
         return true;
@@ -81,7 +91,7 @@ public class AutoGatherList
         return Functions.Move(items, from, to);
     }
 
-    public bool SetQuantity(Gatherable item, uint quantity)
+    public bool SetQuantity(IGatherable item, uint quantity)
     {
         if (quantities.TryGetValue(item, out var old))
         {
@@ -93,10 +103,11 @@ public class AutoGatherList
                 return true;
             }
         }
+
         return false;
     }
 
-    public bool SetEnabled(Gatherable item, bool enabled)
+    public bool SetEnabled(IGatherable item, bool enabled)
     {
         if (enabledItems.TryGetValue(item, out var old))
         {
@@ -106,21 +117,22 @@ public class AutoGatherList
                 return true;
             }
         }
+
         return false;
     }
 
-    private static uint NormalizeQuantity(Gatherable item, uint quantity)
+    private static uint NormalizeQuantity(IGatherable item, uint quantity)
     {
         if (quantity < 1)
             quantity = 1;
         if (quantity > 999999)
             quantity = 999999;
-        if (quantity > 1 && item.IsTreasureMap)
+        if (quantity > 1 && item is Gatherable { IsTreasureMap: true })
             quantity = 1;
         return quantity;
     }
 
-    public bool SetPreferredLocation(Gatherable item, GatheringNode? location)
+    public bool SetPreferredLocation(IGatherable item, ILocation? location)
     {
         if (quantities.ContainsKey(item))
         {
@@ -135,6 +147,7 @@ public class AutoGatherList
                 return true;
             }
         }
+
         return false;
     }
 
@@ -145,18 +158,18 @@ public class AutoGatherList
     {
         public const byte CurrentVersion = 4;
 
-        public uint[] ItemIds = list.Items.Select(i => i.ItemId).ToArray();
-        public Dictionary<uint, uint> Quantities = list.Quantities.ToDictionary(v => v.Key.ItemId, v => v.Value);
+        public uint[]                 ItemIds            = list.Items.Select(i => i.ItemId).ToArray();
+        public Dictionary<uint, uint> Quantities         = list.Quantities.ToDictionary(v => v.Key.ItemId, v => v.Value);
         public Dictionary<uint, uint> PrefferedLocations = list.PreferredLocations.ToDictionary(v => v.Key.ItemId, v => v.Value.Id);
-        public Dictionary<uint, bool> EnabledItems = list.EnabledItems.ToDictionary(v => v.Key.ItemId, v => v.Value);
-        public string Name = list.Name;
-        public string Description = list.Description;
-        public bool Enabled = list.Enabled;
-        public bool Fallback = list.Fallback;
+        public Dictionary<uint, bool> EnabledItems       = list.EnabledItems.ToDictionary(v => v.Key.ItemId, v => v.Value);
+        public string                 Name               = list.Name;
+        public string                 Description        = list.Description;
+        public bool                   Enabled            = list.Enabled;
+        public bool                   Fallback           = list.Fallback;
 
         internal readonly string ToBase64()
         {
-            var json = JsonConvert.SerializeObject(this);
+            var json  = JsonConvert.SerializeObject(this);
             var bytes = Encoding.UTF8.GetBytes(json).Prepend(CurrentVersion).ToArray();
             return Functions.CompressedBase64(bytes);
         }
@@ -173,7 +186,11 @@ public class AutoGatherList
 
                 var json = Encoding.UTF8.GetString(bytes.AsSpan()[1..]);
                 cfg = JsonConvert.DeserializeObject<Config>(json);
-                if (cfg.ItemIds == null || cfg.Name == null || cfg.Description == null || cfg.Quantities == null || cfg.PrefferedLocations == null)
+                if (cfg.ItemIds == null
+                 || cfg.Name == null
+                 || cfg.Description == null
+                 || cfg.Quantities == null
+                 || cfg.PrefferedLocations == null)
                     return false;
 
                 return true;
@@ -196,22 +213,24 @@ public class AutoGatherList
                 cfg.EnabledItems[item] = true;
             }
         }
+
         list = new AutoGatherList()
         {
-            Name = cfg.Name,
-            Description = cfg.Description,
-            Enabled = cfg.Enabled,
-            Fallback = cfg.Fallback,
-            items = new(cfg.ItemIds.Length),
-            quantities = new(cfg.ItemIds.Length),
+            Name               = cfg.Name,
+            Description        = cfg.Description,
+            Enabled            = cfg.Enabled,
+            Fallback           = cfg.Fallback,
+            items              = new(cfg.ItemIds.Length),
+            quantities         = new(cfg.ItemIds.Length),
             preferredLocations = new(cfg.PrefferedLocations.Count),
-            enabledItems = new(cfg.EnabledItems.Count),
+            enabledItems       = new(cfg.EnabledItems.Count),
         };
         var changes = false;
         foreach (var itemId in cfg.ItemIds)
         {
             uint quantity;
-            if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var item) && list.Add(item, quantity = cfg.Quantities.GetValueOrDefault(item.ItemId)))
+            if (GatherBuddy.GameData.Gatherables.TryGetValue(itemId, out var item)
+             && list.Add(item, quantity = cfg.Quantities.GetValueOrDefault(item.ItemId)))
             {
                 changes |= list.quantities[item] != quantity;
                 if (cfg.PrefferedLocations.TryGetValue(itemId, out var locId))
@@ -221,8 +240,18 @@ public class AutoGatherList
                     else
                         changes = true;
                 }
+
                 if (cfg.EnabledItems.TryGetValue(itemId, out var enabled))
                     list.SetEnabled(item, enabled);
+            }
+
+            if (GatherBuddy.GameData.Fishes.TryGetValue(itemId, out var fish)
+             && list.Add(fish, quantity = cfg.Quantities.GetValueOrDefault(fish.ItemId)))
+            {
+                changes |= list.quantities[fish] != quantity;
+
+                if (cfg.EnabledItems.TryGetValue(itemId, out var enabled))
+                    list.SetEnabled(fish, enabled);
             }
             else
             {
@@ -239,7 +268,7 @@ public class AutoGatherList
 
     public AutoGatherList(TimedGroup group)
     {
-        Name = group.Name;
+        Name        = group.Name;
         Description = group.Description;
         foreach (var item in group.Nodes.Select(n => n.Item).OfType<Gatherable>())
             Add(item);
@@ -247,7 +276,7 @@ public class AutoGatherList
 
     public AutoGatherList(AlarmGroup group)
     {
-        Name = group.Name;
+        Name        = group.Name;
         Description = group.Description;
         foreach (var item in group.Alarms.Select(n => n.Item).OfType<Gatherable>())
             Add(item);

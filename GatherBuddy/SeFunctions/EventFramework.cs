@@ -13,6 +13,7 @@ public enum FishingState : byte
     Reeling    = 6,
     Waiting    = 8,
     Waiting2   = 9,
+    Waiting3   = 12,
 }
 
 public sealed unsafe class EventFramework

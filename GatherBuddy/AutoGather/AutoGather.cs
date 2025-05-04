@@ -20,6 +20,7 @@ using Dalamud.Utility;
 using ECommons;
 using ECommons.ExcelServices;
 using ECommons.Automation;
+using ECommons.MathHelpers;
 using GatherBuddy.Data;
 using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
@@ -40,13 +41,38 @@ namespace GatherBuddy.AutoGather
         public AutoGather(GatherBuddy plugin)
         {
             // Initialize the task manager
-            TaskManager           = new();
-            TaskManager.ShowDebug = false;
-            _plugin               = plugin;
-            _soundHelper          = new SoundHelper();
-            _advancedUnstuck      = new();
-            _activeItemList       = new ActiveItemList(plugin.AutoGatherListsManager);
-            ArtisanExporter       = new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
+            TaskManager                  =  new();
+            TaskManager.ShowDebug        =  false;
+            _plugin                      =  plugin;
+            _soundHelper                 =  new SoundHelper();
+            _advancedUnstuck             =  new();
+            _activeItemList              =  new ActiveItemList(plugin.AutoGatherListsManager);
+            ArtisanExporter              =  new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
+            Svc.Chat.CheckMessageHandled += OnMessageHandled;
+        }
+
+        private void OnMessageHandled(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
+        {
+            try
+            {
+                if (type is (XivChatType)2243)
+                {
+                    var text = message.TextValue;
+                    var id = Svc.Data.GetExcelSheet<LogMessage>()
+                        ?.FirstOrDefault(x => x.Text.ToString() == text).RowId;
+
+                    LureSuccess = GatherBuddy.GameData.Fishes.Values.FirstOrDefault(f => f.FishData?.Unknown_70_1 == text) != null;
+
+                    if (LureSuccess)
+                        return;
+
+                    LureSuccess = id is 5565 or 5569;
+                }
+            }
+            catch (Exception e)
+            {
+                GatherBuddy.Log.Error($"Failed to handle message: {e}");
+            }
         }
 
         private readonly GatherBuddy     _plugin;
@@ -207,6 +233,15 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (_activeItemList.GetNextOrDefault(new List<uint>()).Any(g => g.Fish != null)
+             && !GatherBuddy.Config.AutoGatherConfig.FishDataCollection)
+            {
+                Communicator.PrintError(
+                    "You have fish on your auto-gather list but you have not opted in to fishing data collection. Auto-gather cannot continue. Please enable fishing data collection in your configuration options or remove fish from your auto-gather lists.");
+                AbortAutoGather();
+                return;
+            }
+
             if (IsGathering)
             {
                 GatherTarget gatherTarget;
@@ -224,7 +259,7 @@ namespace GatherBuddy.AutoGather
                     {
                         _activeItemList.MarkVisited(target);
 
-                        if (gatherTarget.Item.NodeType is NodeType.Regular or NodeType.Ephemeral
+                        if (gatherTarget.Gatherable?.NodeType is NodeType.Regular or NodeType.Ephemeral
                          && VisitedNodes.Last?.Value != target.DataId
                          && gatherTarget.Node?.WorldPositions.ContainsKey(target.DataId) == true)
                         {
@@ -241,19 +276,28 @@ namespace GatherBuddy.AutoGather
 
                 AutoStatus = "Gathering...";
                 StopNavigation();
-                try
+                if (gatherTarget.Fish != null)
                 {
-                    DoActionTasks(gatherTarget);
+                    DoFishMovement([gatherTarget]);
+                    DoFishingTasks(gatherTarget);
+                    return;
                 }
-                catch (NoGatherableItemsInNodeException)
+                else
                 {
-                    CloseGatheringAddons();
-                }
-                catch (NoCollectableActionsException)
-                {
-                    Communicator.PrintError(
-                        "Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
-                    AbortAutoGather();
+                    try
+                    {
+                        DoActionTasks(gatherTarget);
+                    }
+                    catch (NoGatherableItemsInNodeException)
+                    {
+                        CloseGatheringAddons();
+                    }
+                    catch (NoCollectableActionsException)
+                    {
+                        Communicator.PrintError(
+                            "Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
+                        AbortAutoGather();
+                    }
                 }
 
                 return;
@@ -282,12 +326,17 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (Player.Job is Job.BTN or Job.MIN
+            if (Player.Job is Job.BTN or Job.MIN or Job.FSH
              && !isPathing
              && !Svc.Condition[ConditionFlag.Mounted])
             {
                 if (SpiritbondMax > 0)
                 {
+                    if (IsGathering)
+                    {
+                        QueueQuitFishingTasks();
+                    }
+
                     DoMateriaExtraction();
                     return;
                 }
@@ -332,7 +381,8 @@ namespace GatherBuddy.AutoGather
 
             Waiting = false;
 
-            if (next.Any(n => n.Item.ItemData.IsCollectable && !CheckCollectablesUnlocked(n.Item.GatheringType.ToGroup())))
+            if (next.Any(n => n.Item.ItemData.IsCollectable
+                 && !CheckCollectablesUnlocked(n.Fish != null ? GatheringType.Fisher : n.Gatherable!.GatheringType.ToGroup())))
             {
                 AbortAutoGather();
                 return;
@@ -450,12 +500,12 @@ namespace GatherBuddy.AutoGather
             }
 
             var forcedAetheryte = ForcedAetherytes.ZonesWithoutAetherytes
-                .FirstOrDefault(z => z.ZoneId == next.First().Node.Territory.Id);
+                .FirstOrDefault(z => z.ZoneId == next.First().Location.Territory.Id);
             if (forcedAetheryte.ZoneId != 0
              && GatherBuddy.GameData.Aetherytes[forcedAetheryte.AetheryteId].Territory.Id == territoryId)
             {
                 if (territoryId == 478 && !Lifestream.Enabled)
-                    AutoStatus = $"Install Lifestream or teleport to {next.First().Node.Territory.Name} manually";
+                    AutoStatus = $"Install Lifestream or teleport to {next.First().Location.Territory.Name} manually";
                 else
                     AutoStatus = "Manual teleporting required";
                 return;
@@ -466,7 +516,7 @@ namespace GatherBuddy.AutoGather
                 Lifestream.Abort();
             WentHome = false;
 
-            if (next.First().Node.Territory.Id != territoryId)
+            if (next.First().Location.Territory.Id != territoryId)
             {
                 if (Dalamud.Conditions[ConditionFlag.BoundByDuty] && !Functions.InTheDiadem())
                 {
@@ -482,7 +532,7 @@ namespace GatherBuddy.AutoGather
                 AutoStatus = "Teleporting...";
                 StopNavigation();
 
-                if (!MoveToTerritory(next.First().Node))
+                if (!MoveToTerritory(next.First().Location))
                     AbortAutoGather();
 
                 // Reset target to pick up closest item after teleport
@@ -491,11 +541,100 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            var config = MatchConfigPreset(next.First().Item);
+            var config = MatchConfigPreset(next.First().Gatherable);
 
             if (DoUseConsumablesWithoutCastTime(config))
                 return;
 
+            if (!LocationMatchesJob(next.First().Location))
+            {
+                if (!ChangeGearSet(next.First().Location.GatheringType.ToGroup(), 2400))
+                    AbortAutoGather();
+            }
+
+            if (next.First().Fish != null)
+            {
+                DoFishMovement(next);
+                return;
+            }
+
+            if (next.First().Gatherable != null)
+            {
+                DoNodeMovement(next, config);
+                return;
+            }
+
+            AutoStatus = "Fell out of control loop unexpectedly. Please report this error.";
+            return;
+        }
+
+        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData =
+            new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
+
+        private void DoFishMovement(IEnumerable<GatherTarget> next)
+        {
+            var fish = next.First().Fish;
+            if (fish == null)
+                throw new InvalidOperationException("Fish is null");
+
+            if (!FishingSpotData.TryGetValue(next.First(), out var fishingSpotData))
+            {
+                var positionData = _plugin.FishRecorder.GetPositionForFishingSpot(next.First().FishingSpot);
+                if (!positionData.HasValue)
+                {
+                    Communicator.PrintError(
+                        $"No position data for fishing spot {next.First().FishingSpot.Name}. Auto-Fishing cannot continue.");
+                    AbortAutoGather();
+                    return;
+                }
+
+                DateTime spotExpiration = DateTime.Now.AddMinutes(GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes); //TODO: Make this configurable
+                FishingSpotData.Add(next.First(), (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
+                return;
+            }
+
+            if (fishingSpotData.Expiration < DateTime.Now)
+            {
+                Svc.Log.Debug("Time for a new fishing spot!");
+                FishingSpotData.Remove(next.First());
+                if (IsGathering || IsFishing)
+                {
+                    QueueQuitFishingTasks();
+                }
+
+                return;
+            }
+
+            if (Vector3.Distance(fishingSpotData.Position, Player.Position) < 1)
+            {
+                if (Dalamud.Conditions[ConditionFlag.Mounted])
+                    EnqueueDismount();
+
+                var playerAngle = new Angle(Player.Rotation);
+                if (playerAngle != fishingSpotData.Rotation)
+                    TaskManager.Enqueue(() => SetRotation(fishingSpotData.Rotation));
+                Svc.Log.Debug($"Fishing Spot is valid for {(fishingSpotData.Expiration - DateTime.Now).TotalSeconds} seconds");
+
+                AutoStatus = "Fishing...";
+                DoFishingTasks(next.First());
+                return;
+            }
+
+            if (CurrentDestination != fishingSpotData.Position)
+            {
+                StopNavigation();
+                AutoStatus = "Moving to fishing spot...";
+                if (IsGathering || IsFishing)
+                {
+                    QueueQuitFishingTasks();
+                }
+
+                MoveToFishingSpot(fishingSpotData.Position, fishingSpotData.Rotation);
+            }
+        }
+
+        private void DoNodeMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
+        {
             var allPositions = next.SelectMany(ne => ne.Node.WorldPositions
                     .ExceptBy(VisitedNodes, n => n.Key)
                     .SelectMany(w => w.Value)
@@ -510,21 +649,13 @@ namespace GatherBuddy.AutoGather
                 .Where(o => o.IsTargetable)
                 .MinBy(o => Vector3.Distance(Player.Position, o.Position));
 
-            if (closestTargetableNode == null && !LocationMatchesJob(next.First().Node))
-            {
-                if (!ChangeGearSet(next.First().Node.GatheringType.ToGroup(), 2400))
-                    AbortAutoGather();
-
-                return;
-            }
-
-            if (ActivateGatheringBuffs(next.First().Item.NodeType is NodeType.Unspoiled or NodeType.Legendary))
+            if (ActivateGatheringBuffs(next.First().Gatherable.NodeType is NodeType.Unspoiled or NodeType.Legendary))
                 return;
 
             if (closestTargetableNode != null)
             {
                 AutoStatus = "Moving to node...";
-                var targetItem = next.First(ti => ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId)).Item;
+                var targetItem = next.First(ti => ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId)).Gatherable;
                 MoveToCloseNode(closestTargetableNode, targetItem, config);
                 return;
             }
@@ -686,6 +817,7 @@ namespace GatherBuddy.AutoGather
             {
                 GatheringType.Miner    => DiscipleOfLand.MinerLevel,
                 GatheringType.Botanist => DiscipleOfLand.BotanistLevel,
+                GatheringType.Fisher   => DiscipleOfLand.FisherLevel,
                 GatheringType.Multiple => Math.Max(DiscipleOfLand.MinerLevel, DiscipleOfLand.BotanistLevel),
                 _                      => 0
             };
@@ -752,6 +884,7 @@ namespace GatherBuddy.AutoGather
             {
                 GatheringType.Miner    => GatherBuddy.Config.MinerSetName,
                 GatheringType.Botanist => GatherBuddy.Config.BotanistSetName,
+                GatheringType.Fisher   => GatherBuddy.Config.FisherSetName,
                 _                      => null,
             };
             if (string.IsNullOrEmpty(set))

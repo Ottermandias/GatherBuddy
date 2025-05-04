@@ -123,6 +123,17 @@ public partial class Interface
             ImGuiUtil.HoverTooltip("The percentage of durability at which you will repair your gear.");
         }
 
+        public static void DrawFishingSpotMinutes()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes;
+            if (ImGui.DragInt("Max Fishing Spot Minutes", ref tmp, 1, 1, 40))
+            {
+                GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes = tmp;
+                GatherBuddy.Config.Save();
+            }
+            ImGuiUtil.HoverTooltip("The maximum number of minutes you will fish at a fishing spot.");
+        }
+
         public static void DrawLifestreamCommandTextInput()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.LifestreamCommand;
@@ -790,7 +801,7 @@ public partial class Interface
                 {
                     ConfigFunctions.DrawRepairThreshold();
                 }
-
+                ConfigFunctions.DrawFishingSpotMinutes();
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();
                 ConfigFunctions.DrawLifestreamCommandTextInput();

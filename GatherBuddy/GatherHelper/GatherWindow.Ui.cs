@@ -240,6 +240,7 @@ public class GatherWindow : Window
 
         var list = _plugin.AutoGatherListsManager.ActiveItems
             .Select(x => (Item: x.Item as IGatherable, x.Quantity))
+            .Union(_plugin.AutoGatherListsManager.ActiveFish.Select(x => (Item: x.Fish as IGatherable, x.Quantity)))
             .Concat(_plugin.GatherWindowManager.ActiveItems.Select(i => (Item: i, Quantity: 0u)))
             .GroupBy(x => x.Item)
             .Select(g => { var (loc, time) = GatherBuddy.UptimeManager.BestLocation(g.Key); return (g.Key, loc, time, (uint)g.Sum(x => x.Quantity)); });
