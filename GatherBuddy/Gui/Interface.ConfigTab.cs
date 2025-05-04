@@ -131,6 +131,7 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes = tmp;
                 GatherBuddy.Config.Save();
             }
+
             ImGuiUtil.HoverTooltip("The maximum number of minutes you will fish at a fishing spot.");
         }
 
@@ -229,7 +230,7 @@ public partial class Interface
         }
 
         public static void DrawMoveWhileMounting()
-        => DrawCheckbox("Move while mounting up",
+            => DrawCheckbox("Move while mounting up",
                 "Begin pathfinding to the next node while summoning a mount",
                 GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting,
                 b => GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting = b);
@@ -249,6 +250,10 @@ public partial class Interface
         public static void DrawForceWalkingBox()
             => DrawCheckbox("Force Walking",                      "Force walking to nodes instead of using mounts.",
                 GatherBuddy.Config.AutoGatherConfig.ForceWalking, b => GatherBuddy.Config.AutoGatherConfig.ForceWalking = b);
+
+        public static void DrawUseNavigationBox()
+            => DrawCheckbox("Use vnavmesh Navigation",             "Use vnavmesh Navigation to move your character automatically",
+                GatherBuddy.Config.AutoGatherConfig.UseNavigation, b => GatherBuddy.Config.AutoGatherConfig.UseNavigation = b);
 
         public static void DrawStuckThreshold()
         {
@@ -795,12 +800,14 @@ public partial class Interface
             {
                 ConfigFunctions.DrawAutoGatherBox();
                 ConfigFunctions.DrawUseFlagBox();
+                ConfigFunctions.DrawUseNavigationBox();
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawRepairBox();
                 if (GatherBuddy.Config.AutoGatherConfig.DoRepair)
                 {
                     ConfigFunctions.DrawRepairThreshold();
                 }
+
                 ConfigFunctions.DrawFishingSpotMinutes();
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();

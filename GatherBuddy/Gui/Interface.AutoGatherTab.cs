@@ -370,7 +370,7 @@ public partial class Interface
                 _plugin.AutoGatherListsManager.ChangeQuantity(list, item, (uint)quantity);
             ImGui.SameLine();
             if (DrawLocationInput(item, list.PreferredLocations.GetValueOrDefault(item), out var newLoc))
-                _plugin.AutoGatherListsManager.ChangePreferredLocation(list, item, newLoc as GatheringNode);
+                _plugin.AutoGatherListsManager.ChangePreferredLocation(list, item, newLoc);
             group.Dispose();
 
             _autoGatherListsCache.Selector.CreateDropSource(new AutoGatherListsDragDropData(list, item, i), item.Name[GatherBuddy.Language]);

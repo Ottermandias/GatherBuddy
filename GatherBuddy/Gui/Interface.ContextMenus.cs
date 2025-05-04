@@ -159,7 +159,7 @@ public partial class Interface
         {
             try
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:14500/{addressEnd}");
+                using var request  = new HttpRequestMessage(HttpMethod.Get, $"http://localhost:14500/{addressEnd}");
                 using var response = GatherBuddy.HttpClient.Send(request);
             }
             catch
@@ -204,8 +204,7 @@ public partial class Interface
         DrawAddAlarm(item);
         DrawAddToGatherGroup(item);
         DrawAddGatherWindow(item);
-        if (item is Gatherable gatherable)
-            DrawAddToAutoGather(gatherable);
+        DrawAddToAutoGather(item);
         if (ImGui.Selectable("Create Link"))
             Communicator.Print(SeString.CreateItemLink(item.ItemId));
         DrawOpenInGarlandTools(item.ItemId);
@@ -214,7 +213,7 @@ public partial class Interface
 
     private const string PresetName = "From Gatherables List";
 
-    private void DrawAddToAutoGather(Gatherable item)
+    private void DrawAddToAutoGather(IGatherable item)
     {
         var current = _autoGatherListsCache.Selector.EnsureCurrent();
 
@@ -231,7 +230,7 @@ public partial class Interface
                 $"Add {item.Name[GatherBuddy.Language]} to {(current == null ? "a new gather window preset." : CheckUnnamed(current.Name))}");
     }
 
-    private static AutoGatherList CreateAndAddPreset(Gatherable item)
+    private static AutoGatherList CreateAndAddPreset(IGatherable item)
     {
         var preset = new AutoGatherList
         {
