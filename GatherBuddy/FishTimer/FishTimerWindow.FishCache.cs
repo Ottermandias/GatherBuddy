@@ -9,6 +9,7 @@ using System;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using GatherBuddy.Models;
 using OtterGui.Text;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -90,7 +91,7 @@ public partial class FishTimerWindow
 
             // If using Chum, only use Chum times. Sort Order prioritizes earlier bite times, then shorter windows.
             var flags = recorder.Record.Flags;
-            if (flags.HasFlag(FishRecord.Effects.Chum))
+            if (flags.HasFlag(Effects.Chum))
             {
                 SortOrder         = MakeSortOrder(Math.Min(_all.MinChum, _baitSpecific.MinChum), Math.Max(_all.MaxChum, _baitSpecific.MaxChum));
                 _baitSpecific.Max = _baitSpecific.MaxChum;
@@ -109,7 +110,7 @@ public partial class FishTimerWindow
 
             _icon       = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(fish.ItemData.Icon));
             Unavailable = false;
-            if (fish.Predators.Length > 0 && !recorder.Record.Flags.HasFlag(FishRecord.Effects.Intuition))
+            if (fish.Predators.Length > 0 && !recorder.Record.Flags.HasFlag(Effects.Intuition))
             {
                 Unavailable = true;
                 SortOrder   = ulong.MaxValue;
@@ -124,9 +125,9 @@ public partial class FishTimerWindow
             // Some non-spectral ocean fish have weather restrictions, but this is not handled.
             var hasWeatherRestriction = fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && !fish.OceanFish;
             if (GatherBuddy.Time.ServerTime < uptime.Start
-             && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || hasWeatherRestriction))
+             && (!flags.HasFlag(Effects.FishEyes) || fish.IsBigFish || hasWeatherRestriction))
                 Unavailable = true;
-            if (fish.Snagging == Snagging.Required && !flags.HasFlag(FishRecord.Effects.Snagging))
+            if (fish.Snagging == Snagging.Required && !flags.HasFlag(Effects.Snagging))
                 Unavailable = true;
             // Unavailable fish should be last.
             if (Unavailable)
