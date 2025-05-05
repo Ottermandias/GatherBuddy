@@ -156,8 +156,6 @@ namespace GatherBuddy.AutoGather
 
         private void DoFishingTasks(IEnumerable<GatherTarget> targets)
         {
-            if (AutoHook.Enabled)
-                AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
             var state  = GatherBuddy.EventFramework.FishingState;
             var config = MatchConfigPreset(targets.First(t => t.Fish != null).Fish!);
             if (DoUseConsumablesWithoutCastTime(config, true))

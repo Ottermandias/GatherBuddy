@@ -119,6 +119,8 @@ namespace GatherBuddy.AutoGather
                 else
                 {
                     WentHome = true; //Prevents going home right after enabling auto-gather
+                    if (AutoHook.Enabled)
+                        AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
                 }
 
                 _enabled = value;
