@@ -64,6 +64,7 @@ public partial class Interface : Window, IDisposable
         DrawConfigTab();
         DrawLocationsTab();
         DrawRecordTab();
+        DrawStatsPageTab();
         DrawDebugTab();
     }
 
