@@ -163,7 +163,8 @@ namespace GatherBuddy.AutoGather
                 TaskManager.DelayNext(1000);
                 return;
             }
-            if (EzThrottler.Throttle("GBR Fishing", 1500))
+
+            if (EzThrottler.Throttle("GBR Fishing", 500))
             {
                 switch (state)
                 {
@@ -194,6 +195,42 @@ namespace GatherBuddy.AutoGather
         {
             LureSuccess = false;
 
+            var bait = GetInventoryItemCount(target.Fish!.InitialBait.Id) > 0
+                ? target.Fish!.InitialBait.Id
+                : GatherBuddy.GameData.Bait.FirstOrDefault(b => GetInventoryItemCount(b.Key) > 0).Key;
+            if (bait == 0)
+            {
+                Communicator.Print($"No bait found in inventory. Auto-fishing cannot continue.");
+                AbortAutoGather();
+            }
+
+            if (bait != GatherBuddy.CurrentBait.Current)
+            {
+                var switchResult = GatherBuddy.CurrentBait.ChangeBait(bait);
+                switch (switchResult)
+                {
+                    case CurrentBait.ChangeBaitReturn.InvalidBait:
+                        Svc.Log.Error("Invalid bait selected: " + bait);
+                        AbortAutoGather();
+                        break;
+                    case CurrentBait.ChangeBaitReturn.NotInInventory:
+                        Communicator.Print(
+                            $"Bait '{target.Fish!.InitialBait.Name}' for fish '{target.Fish!.Name[GatherBuddy.Language]}' not in inventory. Auto-fishing cannot continue.");
+                        AbortAutoGather();
+                        break;
+                    case CurrentBait.ChangeBaitReturn.Success:
+                    case CurrentBait.ChangeBaitReturn.AlreadyEquipped:
+                        break;
+                    case CurrentBait.ChangeBaitReturn.UnknownError:
+                        Svc.Log.Error("Unknown error when switching bait. Auto-gather cannot continue.");
+                        AbortAutoGather();
+                        break;
+                }
+
+                TaskManager.DelayNext(1000);
+                return;
+            }
+
             if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
                 EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
             if (target.Fish?.Snagging == Snagging.Required)
@@ -209,6 +246,12 @@ namespace GatherBuddy.AutoGather
             if (targets.Any(t => t.Fish?.BiteType == GatherBuddy.TugType.Bite))
             {
                 var hookset = targets.First(t => t.Fish!.BiteType == GatherBuddy.TugType.Bite).Fish.HookSet;
+                if (hookset is HookSet.Powerful or HookSet.Precise
+                 && Player.Status.All(s => !Actions.Patience.StatusProvide.Contains(s.StatusId)))
+                {
+                    EnqueueActionWithDelay(() => UseAction(Actions.Hook));
+                    return;
+                }
                 switch (hookset)
                 {
                     case HookSet.Powerful: EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset)); break;
