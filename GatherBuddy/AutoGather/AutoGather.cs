@@ -559,8 +559,7 @@ namespace GatherBuddy.AutoGather
             return;
         }
 
-        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData =
-            new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
+        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData = new();
 
         private void DoFishMovement(IEnumerable<GatherTarget> next)
         {
