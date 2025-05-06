@@ -1,6 +1,7 @@
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using System;
+using ECommons.DalamudServices;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using Action = Lumina.Excel.Sheets.Action;
 
@@ -16,6 +17,7 @@ public partial class AutoGather
             public readonly int     MinLevel      = minLevel;
             public readonly int     GpCost        = gpCost;
             public readonly uint[]? StatusProvide = statusProvide;
+            public string  Name          => Svc.Data.Excel.GetSheet<Action>().GetRow(actionId).Name.ExtractText();
         }
 
         public enum EffectType

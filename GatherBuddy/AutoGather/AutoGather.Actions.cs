@@ -177,9 +177,7 @@ namespace GatherBuddy.AutoGather
         {
             LureSuccess = false;
 
-            var bait = GetInventoryItemCount(target.Fish!.InitialBait.Id) > 0
-                ? target.Fish!.InitialBait.Id
-                : GatherBuddy.GameData.Bait.FirstOrDefault(b => GetInventoryItemCount(b.Key) > 0).Key;
+            var bait = GetCorrectBaitId(target);
             if (bait == 0)
             {
                 Communicator.Print($"No bait found in inventory. Auto-fishing cannot continue.");
@@ -213,27 +211,64 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (Player.Status.All(s => !Actions.CollectorsGlove.StatusProvide.Contains(s.StatusId)))
+                EnqueueActionWithDelay(() => UseAction(Actions.CollectorsGlove));
             if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
                 EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
             if (target.Fish?.Snagging == Snagging.Required)
                 EnqueueActionWithDelay(() => UseAction(Actions.Snagging));
-            if (target.Fish?.HookSet is HookSet.Powerful or HookSet.Precise
-             && Player.Status.All(s => !Actions.Patience.StatusProvide.Contains(s.StatusId)))
-                EnqueueActionWithDelay(() => UseAction(Actions.Patience));
+            if ((target.Fish?.ItemData.IsCollectable ?? false) && !HasPatienceStatus())
+                EnqueueActionWithDelay(() => UseAction(GetCorrectPatienceAction()!));
             EnqueueActionWithDelay(() => UseAction(Actions.Cast));
+        }
+
+        private uint GetCorrectBaitId(GatherTarget target)
+        {
+            var bait = target.Fish!.InitialBait;
+            if (GetInventoryItemCount(bait.Id) > 0)
+                return bait.Id;
+
+            var versatileLure = GatherBuddy.GameData.Bait[29717];
+            if (GetInventoryItemCount(versatileLure.Id) > 0)
+                return versatileLure.Id;
+
+            var firstBait = GatherBuddy.GameData.Bait.FirstOrDefault();
+            if (GetInventoryItemCount(firstBait.Value.Id) > 0)
+                return firstBait.Value.Id;
+
+            return 0;
+        }
+
+        private bool HasPatienceStatus()
+        {
+            var patienceAction = GetCorrectPatienceAction();
+            if (patienceAction == null)
+                return true;
+
+            var statuses = patienceAction.StatusProvide;
+            return Player.Status.Any(s => statuses.Contains(s.StatusId));
+        }
+
+        private Actions.FishingAction? GetCorrectPatienceAction()
+        {
+            if (Player.Level >= Actions.PatienceII.MinLevel)
+                return Actions.PatienceII;
+            if (Player.Level >= Actions.Patience.MinLevel)
+                return Actions.Patience;
+
+            return null;
         }
 
         private void HandleBite(IEnumerable<GatherTarget> targets, ConfigPreset config)
         {
             if (targets.Any(t => t.Fish?.BiteType == GatherBuddy.TugType.Bite))
             {
-                var hookset = targets.First(t => t.Fish!.BiteType == GatherBuddy.TugType.Bite).Fish.HookSet;
-                if (hookset is HookSet.Powerful or HookSet.Precise
-                 && Player.Status.All(s => !Actions.Patience.StatusProvide.Contains(s.StatusId)))
+                if (!HasPatienceStatus())
                 {
                     EnqueueActionWithDelay(() => UseAction(Actions.Hook));
                     return;
                 }
+                var hookset = targets.First(t => t.Fish!.BiteType == GatherBuddy.TugType.Bite).Fish.HookSet;
                 switch (hookset)
                 {
                     case HookSet.Powerful: EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset)); break;
