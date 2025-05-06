@@ -132,7 +132,7 @@ public partial class AutoGatherListsManager
 
     public void ChangePreferredLocation(AutoGatherList list, IGatherable? item, ILocation? location)
     {
-        if (item == null || location == null)
+        if (item == null)
             return;
         if (list.SetPreferredLocation(item, location))
         {

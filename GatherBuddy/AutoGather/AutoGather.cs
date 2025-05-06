@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using Dalamud.Game.Addon.Lifecycle;
+using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.ClientState.Conditions;
 using ECommons.DalamudServices;
 using ECommons.GameHelpers;
@@ -49,6 +51,33 @@ namespace GatherBuddy.AutoGather
             _activeItemList              =  new ActiveItemList(plugin.AutoGatherListsManager);
             ArtisanExporter              =  new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
             Svc.Chat.CheckMessageHandled += OnMessageHandled;
+            Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", OnGatheringFinalize);
+        }
+
+        private void OnGatheringFinalize(AddonEvent type, AddonArgs args)
+        {
+            GatherTarget gatherTarget;
+            if (!_activeItemList.IsInitialized)
+                // If Auto-Gather is enabled after opening the node, the active item list is not initialized.
+                gatherTarget = _activeItemList.GetNextOrDefault(new List<uint>()).FirstOrDefault();
+            else
+                // Otherwise, we don't want the list to suddenly change while gathering.
+                gatherTarget = _activeItemList.CurrentOrDefault;
+            var targetNode = Svc.Targets.Target ?? Svc.Targets.PreviousTarget;
+            if (targetNode != null && targetNode.ObjectKind is ObjectKind.GatheringPoint)
+            {
+                _activeItemList.MarkVisited(targetNode);
+
+                if (gatherTarget.Gatherable?.NodeType is NodeType.Regular or NodeType.Ephemeral
+                 && VisitedNodes.Last?.Value != targetNode.DataId
+                 && gatherTarget.Node?.WorldPositions.ContainsKey(targetNode.DataId) == true)
+                {
+                    FarNodesSeenSoFar.Clear();
+                    VisitedNodes.AddLast(targetNode.DataId);
+                    while (VisitedNodes.Count > (gatherTarget.Node.WorldPositions.Count <= 4 ? 2 : 4))
+                        VisitedNodes.RemoveFirst();
+                }
+            }
         }
 
         private void OnMessageHandled(XivChatType type, int timestamp, ref SeString sender, ref SeString message, ref bool isHandled)
@@ -119,6 +148,8 @@ namespace GatherBuddy.AutoGather
                 else
                 {
                     WentHome = true; //Prevents going home right after enabling auto-gather
+                    if (AutoHook.Enabled)
+                        AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
                 }
 
                 _enabled = value;
@@ -557,8 +588,7 @@ namespace GatherBuddy.AutoGather
             return;
         }
 
-        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData =
-            new Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)>();
+        public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData = new();
 
         private void DoFishMovement(IEnumerable<GatherTarget> next)
         {
@@ -903,6 +933,8 @@ namespace GatherBuddy.AutoGather
             _advancedUnstuck.Dispose();
             NodeTracker.Dispose();
             _activeItemList.Dispose();
+            Svc.Chat.CheckMessageHandled -= OnMessageHandled;
+            Svc.AddonLifecycle.UnregisterListener(AddonEvent.PreFinalize, "Gathering", OnGatheringFinalize);
         }
     }
 }

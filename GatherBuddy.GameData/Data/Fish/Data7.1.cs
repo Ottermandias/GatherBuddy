@@ -46,6 +46,7 @@ public static partial class Fish
             .Time(540, 660);
         data.Apply(44347, Patch.Crossroads) // Cloudsail
             .Bait(data, 43853)
+            .Lure(Enums.Lure.Ambitious)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(44334, Patch.Crossroads) // Oily Ropefish
             .Bait(data, 28634)
