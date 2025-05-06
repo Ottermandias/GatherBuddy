@@ -130,24 +130,6 @@ namespace GatherBuddy.AutoGather
                 if (GatheringAddon != null && NodeTracker.Ready)
                 {
                     DoGatherWindowActions(target);
-                    if (target != default)
-                    {
-                        var targetNode = Svc.Targets.Target;
-                        if (targetNode != null && targetNode.ObjectKind is ObjectKind.GatheringPoint)
-                        {
-                            _activeItemList.MarkVisited(targetNode);
-
-                            if (target.Gatherable?.NodeType is NodeType.Regular or NodeType.Ephemeral
-                             && VisitedNodes.Last?.Value != targetNode.DataId
-                             && target.Node?.WorldPositions.ContainsKey(targetNode.DataId) == true)
-                            {
-                                FarNodesSeenSoFar.Clear();
-                                VisitedNodes.AddLast(targetNode.DataId);
-                                while (VisitedNodes.Count > (target.Node.WorldPositions.Count <= 4 ? 2 : 4))
-                                    VisitedNodes.RemoveFirst();
-                            }
-                        }
-                    }
                 }
             }
         }
