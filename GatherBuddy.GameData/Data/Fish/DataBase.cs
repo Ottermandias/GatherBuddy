@@ -256,6 +256,15 @@ public static partial class Fish
         fish.BigFishOverride = value;
         return fish;
     }
+    
+    private static Classes.Fish? ForceLegendaryFish(this Classes.Fish? fish, bool value)
+    {
+        if (fish == null)
+            return null;
+        
+        fish.LegendaryFish = value;
+        return fish;
+    }
 
     private static Classes.Fish? Slap(this Classes.Fish? fish, GameData data, uint fishId)
     {
@@ -283,6 +292,15 @@ public static partial class Fish
             return null;
 
         fish.MultiHook = value;
+        return fish;
+    }
+
+    private static Classes.Fish? Points(this Classes.Fish? fish, int value)
+    {
+        if (fish == null)
+            return null;
+        
+        fish.Points = value;
         return fish;
     }
 

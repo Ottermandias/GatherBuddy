@@ -50,6 +50,9 @@ public partial class Fish : IComparable<Fish>, IGatherable
     public bool IsBigFish
         => BigFishOverride.Value ?? ItemData.Rarity > 1;
 
+    public bool IsLegendaryFish
+        => LegendaryFish.Value ?? false;
+
     public OceanArea OceanArea { get; internal set; } = OceanArea.None;
 
     public bool OceanFish

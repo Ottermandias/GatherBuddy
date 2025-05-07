@@ -124,7 +124,7 @@ public partial class FishTimerWindow
             // Some non-spectral ocean fish have weather restrictions, but this is not handled.
             var hasWeatherRestriction = fish.FishRestrictions.HasFlag(FishRestrictions.Weather) && !fish.OceanFish;
             if (GatherBuddy.Time.ServerTime < uptime.Start
-             && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsBigFish || hasWeatherRestriction))
+             && (!flags.HasFlag(FishRecord.Effects.FishEyes) || fish.IsLegendaryFish || hasWeatherRestriction || fish.Patch < Patch.Endwalker))
                 Unavailable = true;
             if (fish.Snagging == Snagging.Required && !flags.HasFlag(FishRecord.Effects.Snagging))
                 Unavailable = true;

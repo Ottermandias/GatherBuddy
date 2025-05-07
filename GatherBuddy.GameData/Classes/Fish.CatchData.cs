@@ -25,6 +25,8 @@ public partial class Fish
     public string            Guide           { get; internal set; } = string.Empty;
     public OceanTime         OceanTime       { get; internal set; } = OceanTime.Always;
     public int               MultiHook       { get; internal set; }
+    public int               Points          { get; internal set; }
 
     internal OptionalBool BigFishOverride { get; set; } = null;
+    internal OptionalBool LegendaryFish   { get; set; } = null;
 }
