@@ -227,7 +227,7 @@ public partial class FishTimerWindow
             var       clipRectMin = ImGui.GetCursorScreenPos();
             var       clipRectMax = clipRectMin + ImGui.GetContentRegionAvail();
             var       collectible = _fish.Collectible && GatherBuddy.Config.ShowCollectableHints;
-            var       multiHook   = _fish.DoubleHook > 1 && GatherBuddy.Config.ShowMultiHookHints;
+            var       multiHook   = _fish.MultiHook > 1 && GatherBuddy.Config.ShowMultiHookHints;
             if (collectible)
                 clipRectMax.X -= window._iconSize.X;
             if (multiHook)
@@ -256,7 +256,7 @@ public partial class FishTimerWindow
             {
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X);
 
-                var hookIcon = _fish.DoubleHook switch
+                var hookIcon = _fish.MultiHook switch
                 {
                     2 => DoubleHookIcon,
                     3 => TripleHookIcon,
@@ -272,17 +272,17 @@ public partial class FishTimerWindow
                         using var tooltip = ImRaii.Tooltip();
                         window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
                         
-                        if (_fish.DoubleHookExtension < 1)
+                        if (_fish.MutliHookSecondValue < 1)
                         {
-                            ImUtf8.Text($"Double Hook for {_fish.DoubleHook} fish{(_fish.Points > 0 ? $" worth {_fish.Points * _fish.DoubleHook} points" : "")}");
-                            ImUtf8.Text($"Triple Hook for {2 * _fish.DoubleHook - 1} fish{(_fish.Points > 0 ? $" worth {_fish.Points * (2 * _fish.DoubleHook - 1)} points" : "")}");
+                            ImUtf8.Text($"Double Hook for {_fish.MultiHook} fish{(_fish.Points > 0 ? $" worth {_fish.Points * _fish.MultiHook} points" : "")}");
+                            ImUtf8.Text($"Triple Hook for {2 * _fish.MultiHook - 1} fish{(_fish.Points > 0 ? $" worth {_fish.Points * (2 * _fish.MultiHook - 1)} points" : "")}");
                         }
                         else
                         {
-                            ImUtf8.Text($"Double Hook for {_fish.DoubleHook}-{_fish.DoubleHookExtension} fish" +
-                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * _fish.DoubleHook} and {_fish.Points * _fish.DoubleHookExtension} points" : "")}");
-                            ImUtf8.Text($"Triple Hook for {2 * _fish.DoubleHook - 1}-{2 * _fish.DoubleHookExtension - 1} fish" +
-                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * (2 * _fish.DoubleHook - 1)} and {_fish.Points * (2 * _fish.DoubleHookExtension - 1)} points" : "")}");
+                            ImUtf8.Text($"Double Hook for {_fish.MultiHook}-{_fish.MutliHookSecondValue} fish" +
+                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * _fish.MultiHook} and {_fish.Points * _fish.MutliHookSecondValue} points" : "")}");
+                            ImUtf8.Text($"Triple Hook for {2 * _fish.MultiHook - 1}-{2 * _fish.MutliHookSecondValue - 1} fish" +
+                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * (2 * _fish.MultiHook - 1)} and {_fish.Points * (2 * _fish.MutliHookSecondValue - 1)} points" : "")}");
                         }
 
                         window._style.Pop();

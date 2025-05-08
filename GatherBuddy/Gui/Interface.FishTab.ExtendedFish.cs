@@ -74,8 +74,8 @@ public partial class Interface
         public ushort                    UptimePercent;
         public bool                      Unlocked = false;
         public bool                      Collectible;
-        public int                       DoubleHook;
-        public int                       DoubleHookExtension;
+        public int                       MultiHook;
+        public int                       MutliHookSecondValue;
         public int                       Points;
 
         public (ILocation, TimeInterval) Uptime
@@ -254,8 +254,8 @@ public partial class Interface
         {
             Data                = data;
             Collectible         = data.ItemData.IsCollectable;
-            DoubleHook          = data.MultiHook;
-            DoubleHookExtension = data.MultiHookExtension;
+            MultiHook          = data.MultiHook;
+            MutliHookSecondValue = data.MultiHookSecondValue;
             Points              = data.Points;
             Icon                = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
             Territories         = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());

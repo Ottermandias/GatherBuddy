@@ -301,7 +301,7 @@ public static partial class Fish
             return null;
 
         fish.MultiHook = value;
-        fish.MultiHookExtension = value2;
+        fish.MultiHookSecondValue = value2;
         return fish;
     }
 
