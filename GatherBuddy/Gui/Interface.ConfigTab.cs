@@ -273,6 +273,11 @@ public partial class Interface
                 "Store Fish Records on your computer. This is necessary for bite timings for the fish timer window.",
                 GatherBuddy.Config.StoreFishRecords, b => GatherBuddy.Config.StoreFishRecords = b);
 
+        public static void DrawShowLocalTimeInRecordsBox()
+            => DrawCheckbox("Use Local Time",
+                "When displaying timestamps in the Fish Records Tab, use local time instead of Unix time.",
+                GatherBuddy.Config.UseUnixTimeFishRecords, b => GatherBuddy.Config.UseUnixTimeFishRecords = b);
+
         public static void DrawFishTimerScale()
         {
             var value = GatherBuddy.Config.FishTimerScale / 1000f;
@@ -589,6 +594,7 @@ public partial class Interface
             if (ImGui.TreeNodeEx("Fish Timer"))
             {
                 ConfigFunctions.DrawKeepRecordsBox();
+                ConfigFunctions.DrawShowLocalTimeInRecordsBox();
                 ConfigFunctions.DrawFishTimerBox();
                 ConfigFunctions.DrawFishTimerEditBox();
                 ConfigFunctions.DrawFishTimerClickthroughBox();

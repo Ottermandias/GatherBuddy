@@ -48,6 +48,7 @@ public partial class Configuration : IPluginConfiguration
     public XivChatType      ChatTypeError          { get; set; } = XivChatType.ErrorMessage;
     public bool             AddIngameContextMenus  { get; set; } = true;
     public bool             StoreFishRecords       { get; set; } = true;
+    public bool             UseUnixTimeFishRecords { get; set; } = true;
     public bool             PrintClipboardMessages { get; set; } = true;
     public bool             HideClippy             { get; set; } = false;
     public bool             ShowStatusLine         { get; set; } = true;
