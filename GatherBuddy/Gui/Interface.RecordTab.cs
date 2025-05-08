@@ -115,7 +115,10 @@ public partial class Interface
         private sealed class SizeHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
-                => $"{record.Size / 10f:F1}";
+                => $"{record.Size / 10f:F1}{(GatherBuddy.Config.TextBasedLargeCollectable 
+                    ? (record.Flags.HasFlag(FishRecord.Effects.Large) ? " L" : " A") 
+                    + (record.Flags.HasFlag(FishRecord.Effects.Collectible) ? "C" : "N")
+                    : "")}";
 
             public override float Width
                 => 50 * ImGuiHelpers.GlobalScale;
@@ -193,7 +196,13 @@ public partial class Interface
         private sealed class CastStartHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
-                => (record.TimeStamp.Time / 1000).ToString();
+            {
+                if (!GatherBuddy.Config.UseUnixTimeFishRecords)
+                    return (record.TimeStamp.Time / 1000).ToString();
+                
+                var dateTime = DateTimeOffset.FromUnixTimeMilliseconds(record.TimeStamp.Time).ToLocalTime();
+                return dateTime.ToString("g");
+            }
 
             public override float Width
                 => 80 * ImGuiHelpers.GlobalScale;
