@@ -655,10 +655,10 @@ namespace GatherBuddy.AutoGather
 
         private void DoNodeMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
         {
-            var allPositions = next.SelectMany(ne => ne.Node.WorldPositions
+            var allPositions = next.SelectMany(ne => ne.Node?.WorldPositions
                     .ExceptBy(VisitedNodes, n => n.Key)
                     .SelectMany(w => w.Value)
-                    .Where(v => !IsBlacklisted(v))).Select(s => s)
+                    .Where(v => !IsBlacklisted(v)) ?? []).Select(s => s)
                 .ToHashSet();
 
             var visibleNodes = Svc.Objects
@@ -675,7 +675,7 @@ namespace GatherBuddy.AutoGather
             if (closestTargetableNode != null)
             {
                 AutoStatus = "Moving to node...";
-                var targetItem = next.First(ti => ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId)).Gatherable;
+                var targetItem = next.First(ti => ti.Node != null && ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId)).Gatherable;
                 MoveToCloseNode(closestTargetableNode, targetItem, config);
                 return;
             }
