@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
+using System.Text;
 using Dalamud.Game;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility;
@@ -31,12 +32,29 @@ namespace GatherBuddy.Gui;
 
 public partial class Interface
 {
-    private static readonly FrozenDictionary<uint, FishingSpot>  Locations = GatherBuddy.GameData.FishingSpots;
-    private static readonly FrozenDictionary<uint,Bait>          Baits     = GatherBuddy.GameData.Bait;
-    private                 List<FishRecord>                     _records;                
-    private                 int                                  _selectedFishingSpotIdx = 0;
-    private                 FishingSpot                          _selectedSpot           = Locations.First().Value;
-    private                 ClippedSelectableCombo<FishingSpot>? _fishingSpotCombo;
+    private static readonly FrozenDictionary<uint, FishingSpot>     Locations = GatherBuddy.GameData.FishingSpots;
+    private static readonly FrozenDictionary<uint,Bait>             Baits     = GatherBuddy.GameData.Bait;
+    private static readonly FrozenDictionary<ushort, CosmicMission> Missions  = GatherBuddy.GameData.CosmicFishingMissions;
+    private                 List<FishRecord>                        _records;                
+    private                 int                                     _selectedFishingSpotIdx = 0;
+    private                 FishingSpot                             _selectedSpot           = Locations.First().Value;
+    private                 ClippedSelectableCombo<FishingSpot>?    _fishingSpotCombo;
+
+
+    private static string CosmicHandler(FishingSpot spot)
+    {
+        var    name    = spot.Name.AsSpan();
+        if (name.EndsWith(')'))
+        {
+            if (ushort.TryParse(name[^5..^1], out var parsedNumber))
+            {
+                name    = name[..^8];
+                return $"{name} ({Missions[parsedNumber].Name})";
+            }
+        }
+
+        return $"{name}";
+    }
     
     private void DrawSelectorDropdown()
     {
@@ -46,9 +64,9 @@ public partial class Interface
             _fishingSpotCombo = new ClippedSelectableCombo<FishingSpot>(
                 "FishingSpotSelector",
                 "Fishing Spot",
-                250,
+                500,
                 spots,
-                s => s.Name.ToString()
+                s => CosmicHandler(s)
             );
         }
 
@@ -61,10 +79,182 @@ public partial class Interface
         }
     }
 
+    private void DrawCopier()
+    {
+        var copyStatsString = GenerateSpotReport();
+        if(ImGui.Button($"Copy Fish Stats for {CosmicHandler(_selectedSpot)}"))
+            ImGui.SetClipboardText(copyStatsString);
+            
+        if(ImGui.IsItemHovered())
+            ImGui.SetTooltip(copyStatsString);
+    }
+    
+    private static bool HasAnyLureFlag(Effects flags)
+    {
+        const Effects lureFlags =
+            Effects.AmbitiousLure1 |
+            Effects.AmbitiousLure2 |
+            Effects.ModestLure1 |
+            Effects.ModestLure2;
+
+        return (flags & lureFlags) != 0;
+    }
+    
+    private string GenerateSpotReport()
+    {
+        var recordsAtSpot = _records
+            .Where(r => r.SpotId == _selectedSpot.Id && r.HasCatch && r.HasBait)
+            .GroupBy(r => r.BaitId)
+            .ToList();
+
+        var sb = new StringBuilder();
+        
+        // Location Name + Special Handler for Cosmic Missions
+        var name    = _selectedSpot.Name.AsSpan();
+        ushort numbers = 0;
+        if (name.EndsWith(')'))
+        {
+            if (ushort.TryParse(name[^5..^1], out var parsedNumber))
+            {
+                numbers = parsedNumber;
+                name    = name[..^8];
+            }
+        }
+        sb.AppendLine($"Location: {name}");
+        if (numbers > 0)
+            sb.AppendLine($"Mission: {Missions[numbers].Name}");
+        sb.AppendLine("");
+
+        foreach (var baitGroup in recordsAtSpot)
+        {
+            var baitRecords = baitGroup.ToList();
+            var bait        = baitRecords[0].BaitId;
+            var baitName    = GatherBuddy.GameData.Bait.TryGetValue(bait, out var b) ? b.Name : 
+                GatherBuddy.GameData.Fishes.TryGetValue(bait, out var f)          ? $"Mooch - {new Bait(f.ItemData).Name}" : Bait.Unknown.Name;
+                
+            // Bait Name
+            sb.AppendLine($"Bait: {baitName}");
+
+            var fishGroups = baitRecords
+                .GroupBy(r => r.CatchId)
+                .ToList();
+
+            foreach (var fishGroup in fishGroups)
+            {
+                var fishRecords = fishGroup.ToList();
+                var fish = fishRecords[0].Catch!;
+                var count = fishRecords.Count;
+
+                if (count == 0)
+                {
+                    sb.AppendLine($"{fish.Name}:\n- (0 Caught)");
+                    continue;
+                }
+                
+                // Always include fish name
+                sb.AppendLine($"{fish.Name}:");
+                
+                // Time
+                var timeRecords = fishRecords.Where(r =>
+                    !HasAnyLureFlag(r.Flags) || r.Flags.HasFlag(Effects.ValidLure)).ToList();
+
+                if (timeRecords.Count == 0)
+                {
+                    sb.AppendLine("- No valid time data.");
+                }
+                else
+                {
+                    var minTime = timeRecords.Min(r => r.Bite) / 1000f;
+                    var maxTime = timeRecords.Max(r => r.Bite) / 1000f;
+
+                    var isMinLure = timeRecords.Where(r => HasAnyLureFlag(r.Flags)).Min(r => r.Bite)/1000f == minTime;
+
+                    var timeLine = $"- Times: {minTime} - {maxTime} ({timeRecords.Count} caught)";
+                    if (isMinLure)
+                        timeLine += " (Lure Min!)";
+
+                    sb.AppendLine(timeLine);
+                }
+                
+                var filterFlags = new[]
+                {
+                    Effects.Patience,
+                    Effects.Patience2,
+                    Effects.PrizeCatch,
+                };
+                
+                (string label, List<ushort> sizes, Dictionary<FishRecord.Effects, int> effectCounts, int count) Classify(
+                    IEnumerable<FishRecord> records, string label)
+                {
+                    var list          = records.ToList();
+                    var sizes         = list.Select(r => r.Size).ToList();
+                    var effectCounter = new Dictionary<FishRecord.Effects, int>();
+
+                    foreach (var flag in filterFlags)
+                        effectCounter[flag] = list.Count(r => r.Flags.HasFlag(flag));
+
+                    return (label, sizes, effectCounter, list.Count);
+                }
+                
+                var normal = Classify(
+                    fishRecords.Where(r => !r.Flags.HasFlag(Effects.Large) && !r.Flags.HasFlag(Effects.BigGameFishing)),
+                    "Average");
+
+                var large = Classify(
+                    fishRecords.Where(r => r.Flags.HasFlag(Effects.Large) && !r.Flags.HasFlag(Effects.BigGameFishing)),
+                    "Large");
+
+                var bgf = Classify(
+                    fishRecords.Where(r => r.Flags.HasFlag(Effects.BigGameFishing)),
+                    "BGF");
+
+                
+                string Format((string label, List<ushort> sizes, Dictionary<Effects, int> effects, int count) group)
+                {
+                    if (group.sizes.Count == 0)
+                        return $"No {group.label} Fish";
+
+                    var min = group.sizes.Min() / 10f;
+                    var max = group.sizes.Max() / 10f;
+
+                    var effectText = string.Join(", ",
+                        filterFlags
+                            .Where(f => group.effects[f] > 0)
+                            .Select(f => $"{f}: {group.effects[f]}"));
+
+                    return $"{min} - {max} ({group.count}" + 
+                        (effectText != "" ? $" | [{effectText}])" : ")");
+                }
+
+                var sizeParts = new List<string>
+                {
+                    Format(normal),
+                    Format(large),
+                    Format(bgf),
+                };
+
+                sb.AppendLine("- Sizes: " + string.Join(" | ", sizeParts));
+                
+                
+                var doubleHook = fishRecords.Where(r => r.Hook == HookSet.DoubleHook).Average(r => r.Amount);
+                var tripleHook = fishRecords.Where(r => r.Hook == HookSet.TripleHook).Average(r => r.Amount);
+                
+                var hookLine = new List<string>();
+                if (doubleHook > 0) hookLine.Add($"Double Hook Yield: {doubleHook}");
+                if (tripleHook > 0) hookLine.Add($"Triple Hook Yield: {tripleHook}");
+
+                if (hookLine.Count != 0)
+                    sb.AppendLine($"- {string.Join(" | ", hookLine)}");
+            }
+
+            sb.AppendLine("");
+        }
+
+        return sb.ToString().TrimEnd();
+    }
+
     private void DrawFishingSpotInfo()
     {
-        // if (_selectedSpot == null) return;
-
         // Draw Coordinates
         ImGui.Text($"Coordinates: ({_selectedSpot.IntegralXCoord}, {_selectedSpot.IntegralYCoord})");
         ImGui.Text($"Territory: {_selectedSpot.Territory.Name}");  // Assuming Territory has a Name property
@@ -164,11 +354,24 @@ public partial class Interface
         const float bottomMargin = 30f;
         const int   yTicks       = 5;
         var         padding      = 5 * ImGuiHelpers.GlobalScale;
+        
+        var colorPalette = new List<Vector4>
+        {
+            new (0.5f, 0.5f, 0.5f, 1f),
+            new (1f, 1f, 0.3f, 1f),
+            new (0.4f, 0.6f, 1f, 1f),
+        };
 
         // Determine the range of fish sizes
         var minSize     = entries.Min(r => r.Size / 10f);
         var maxSize     = entries.Max(r => r.Size / 10f);
         var sizeRange   = maxSize - minSize;
+        if (sizeRange == 0)
+        {
+            minSize   -= 1f;
+            maxSize   += 1f;
+            sizeRange = maxSize;
+        }
         var bucketWidth = sizeRange / bucketCount;
 
         // Initialize buckets
@@ -215,9 +418,9 @@ public partial class Interface
 
             var (normal, large, bgf) = buckets[i];
 
-            DrawStack(ref y, normal, new Vector4(0.5f, 0.5f, 0.5f, 1f)); // Gray
-            DrawStack(ref y, large,  new Vector4(1f, 1f, 0.3f, 1f));     // Yellow
-            DrawStack(ref y, bgf,    new Vector4(0.4f, 0.6f, 1f, 1f));   // Blue
+            DrawStack(ref y, normal, colorPalette[0]); // Gray
+            DrawStack(ref y, large,  colorPalette[1]); // Yellow
+            DrawStack(ref y, bgf,    colorPalette[2]);    // Blue
 
             // X-axis labels (bucket ranges)
             var fromVal  = minSize + (i * bucketWidth);
@@ -246,8 +449,26 @@ public partial class Interface
         drawList.AddText(new Vector2(cursor.X + leftMargin + chartWidth * 0.5f - 20f, origin.Y + 20f), ImGui.GetColorU32(ImGuiCol.Text), "Size");
         drawList.AddText(ImGui.GetFont(), ImGui.GetFontSize(), new Vector2(cursor.X + 5f, cursor.Y), ImGui.GetColorU32(ImGuiCol.Text), "Count");
 
+        // Legend
+        float legendX = origin.X + chartWidth + 10f;
+        float legendY = cursor.Y;
+        for (int i = 0; i < colorPalette.Count; i++)
+        {
+            var sizeName =
+                new List<string>
+                {
+                    "Average",
+                    "Large",
+                    "Big Game Fishing",
+                }[i];
+            var label    = $"{sizeName}";
+            drawList.AddRectFilled(new Vector2(legendX,        legendY), new Vector2(legendX + textHeight, legendY + textHeight), ImGui.ColorConvertFloat4ToU32(colorPalette[i]));
+            drawList.AddText(new Vector2(legendX + textHeight, legendY), ImGui.GetColorU32(ImGuiCol.Text), label);
+            legendY += textHeight + 4f;
+        }
+
         // Reserve space for the chart
-        ImGui.Dummy(new Vector2(leftMargin + chartWidth, chartHeight + bottomMargin + 20f));
+        ImGui.Dummy(new Vector2(leftMargin + chartWidth + 100f, chartHeight + bottomMargin + 20f));
     }
 
     void DrawAmountCaught(int count)
@@ -260,13 +481,6 @@ public partial class Interface
         float percentage = (entries.Count / (float)baitTotal) * 100f;
         ImGui.Text($"Percent of baited catches: {percentage:F2}");
     }
-
-    // void DrawBiteTimeDistribution(List<FishRecord> entries)
-    // {
-    //     var bites = entries.Select(r => (float)r.Bite).ToArray();
-    //     if (bites.Length > 0)
-    //         ImGui.PlotHistogram("Bite Time (ms)", ref bites[0], bites.Length, 0, null, bites.Min(), bites.Max(), new Vector2(ImGui.GetWindowSize().X / 2, 150));
-    // }
     
     private static void DrawBiteTimeHistogram(List<FishRecord> entries)
     {
@@ -394,18 +608,93 @@ public partial class Interface
                 var   baitColor = ImGui.ColorConvertFloat4ToU32(baitColors[bait]);
                 var   barTop    = new Vector2(x + barWidth,              y);
                 var counter = new List<int>{
-                    lRecords.Count(e => !e.Flags.HasFlag(Effects.Chum) &&
+                    lRecords.Count(e =>
+                        !e.Flags.HasFlag(Effects.Chum) &&
                         !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
                         !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
                         !e.Flags.HasFlag(Effects.ModestLure1) &&
                         !e.Flags.HasFlag(Effects.ModestLure2)),
-                    lRecords.Count(e => e.Flags.HasFlag(Effects.Chum)),                                                       // Chum
-                    lRecords.Count(e => e.Flags.HasFlag(Effects.AmbitiousLure1) && !e.Flags.HasFlag(Effects.AmbitiousLure2)), // Alure1
-                    lRecords.Count(e => !e.Flags.HasFlag(Effects.AmbitiousLure1) && e.Flags.HasFlag(Effects.AmbitiousLure2)), // Alure2
-                    lRecords.Count(e => e.Flags.HasFlag(Effects.AmbitiousLure1) && e.Flags.HasFlag(Effects.AmbitiousLure2)),  // Alure3
-                    lRecords.Count(e => e.Flags.HasFlag(Effects.ModestLure1) && !e.Flags.HasFlag(Effects.ModestLure2)),        // Mlure1
-                    lRecords.Count(e => !e.Flags.HasFlag(Effects.ModestLure1) && e.Flags.HasFlag(Effects.ModestLure2)),        // Mlure2
-                    lRecords.Count(e => e.Flags.HasFlag(Effects.ModestLure1) && e.Flags.HasFlag(Effects.ModestLure2)),        // Mlure3
+                    
+                    lRecords.Count(e =>
+                        e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    
+                    lRecords.Count(e =>
+                        e.Flags.HasFlag(Effects.Chum) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        e.Flags.HasFlag(Effects.Chum) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        e.Flags.HasFlag(Effects.ModestLure1) &&
+                        e.Flags.HasFlag(Effects.ModestLure2)),
+                    
+                    lRecords.Count(e =>
+                        !e.Flags.HasFlag(Effects.Chum) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        !e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        !e.Flags.HasFlag(Effects.Chum) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        !e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        e.Flags.HasFlag(Effects.ModestLure1) &&
+                        !e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        !e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        !e.Flags.HasFlag(Effects.ModestLure1) &&
+                        e.Flags.HasFlag(Effects.ModestLure2)),
+                    lRecords.Count(e =>
+                        !e.Flags.HasFlag(Effects.Chum) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure1) &&
+                        !e.Flags.HasFlag(Effects.AmbitiousLure2) &&
+                        e.Flags.HasFlag(Effects.ModestLure1) &&
+                        e.Flags.HasFlag(Effects.ModestLure2)),
                 };
                 
                 for(var j = 0; j < counter.Count; j++)
@@ -415,9 +704,20 @@ public partial class Interface
                         continue;
                     var barBot = new Vector2(x, barTop.Y);
                     barTop.Y -= c / (float)maxCount * chartHeight;
+                    
+                    //First Draw bait background
                     drawList.AddRectFilled(barBot, barTop, baitColor);
-                    if (j != 0)
-                        DrawHatchedRect(barBot, barTop, 10f, drawList, baitColor, hatchColors[j-1]);
+                    
+                    // Then draw if it was chummed
+                    if (j is >= 1 and <= 7)
+                        DrawHatchedRectDown(barBot, barTop, 10f, drawList, baitColor, hatchColors[0]);
+
+                    // Then draw lure if present
+                    if (j is >= 2 and <= 7)
+                        DrawHatchedRectUp(barBot, barTop, 10f, drawList, baitColor, hatchColors[j-1]);
+                    else if (j is >= 8 and <= 13)
+                        DrawHatchedRectUp(barBot, barTop, 10f, drawList, baitColor, hatchColors[j-7]);
+
                     var heightTextSize = ImGui.CalcTextSize($"{c}");
                     drawList.AddText(new Vector2(x + barWidth/2 - heightTextSize.X/2, barBot.Y - (c / (float)maxCount * chartHeight)/2 - heightTextSize.Y/2),ImGui.GetColorU32(ImGuiCol.Text),$"{c}");
                 }
@@ -464,7 +764,11 @@ public partial class Interface
                     "ModestLure3",
                 }[k];
             var label    = $"{baitName}";
-            DrawHatchedRect(new Vector2(legendX, legendY), new Vector2(legendX + textHeight, legendY + textHeight), 4f, drawList, 0, hatchColors[k]);
+            if (k == 0)
+                DrawHatchedRectDown(new Vector2(legendX, legendY), new Vector2(legendX + textHeight, legendY + textHeight), 4f, drawList, 0, hatchColors[k]);
+            else
+                DrawHatchedRectUp(new Vector2(legendX, legendY), new Vector2(legendX + textHeight, legendY + textHeight), 4f, drawList, 0, hatchColors[k]);
+
             drawList.AddText(new Vector2(legendX + textHeight, legendY), ImGui.GetColorU32(ImGuiCol.Text), label);
             legendY += textHeight + 4f;
         }
@@ -489,18 +793,18 @@ public partial class Interface
             return;
 
         DrawSelectorDropdown();
+        DrawCopier();
         DrawFishingSpotInfo();
         DrawFishInfo();
     }
     
-    private static void DrawHatchedRect(Vector2 from, Vector2 to, float thickness, ImDrawListPtr drawList, uint colorBait, uint colorFlag)
+    private static void DrawHatchedRectUp(Vector2 from, Vector2 to, float thickness, ImDrawListPtr drawList, uint colorBait, uint colorFlag)
     {
-        // Ensure proper top-left to bottom-right ordering
         Vector2 min = new Vector2(Math.Min(from.X, to.X), Math.Min(from.Y, to.Y));
         Vector2 max = new Vector2(Math.Max(from.X, to.X), Math.Max(from.Y, to.Y));
 
-        drawList.AddRectFilled(min, max, colorBait);
-        drawList.PushClipRect(min, max, true); // 'true' ensures the clip rect is respected even if it's zero-sized
+        drawList.AddRectFilled(min, max, 0x00000000);
+        drawList.PushClipRect(min, max, true);
 
         float height        = max.Y - min.Y;
         float angle         = max.X - min.X;
@@ -511,6 +815,37 @@ public partial class Interface
         var end   = new Vector2(max.X, min.Y + halfThickness - angle);
 
         for (int i = 0; i < block; ++i)
+        {
+            drawList.AddQuadFilled(start,
+                new Vector2(start.X, start.Y - halfThickness),
+                end,
+                new Vector2(end.X, end.Y + halfThickness),
+                colorFlag);
+
+            start.Y += thickness;
+            end.Y   += thickness;
+        }
+
+        drawList.PopClipRect();
+        drawList.AddRect(min, max, colorFlag);
+    }
+    private static void DrawHatchedRectDown(Vector2 from, Vector2 to, float thickness, ImDrawListPtr drawList, uint colorBait, uint colorFlag)
+    {
+        Vector2 min = new Vector2(Math.Min(from.X, to.X), Math.Min(from.Y, to.Y));
+        Vector2 max = new Vector2(Math.Max(from.X, to.X), Math.Max(from.Y, to.Y));
+
+        drawList.AddRectFilled(min, max, 0x00000000);
+        drawList.PushClipRect(min, max, true);
+
+        float height        = max.Y - min.Y;
+        float angle         = max.X - min.X;
+        int   block         = (int)((height + angle) / thickness);
+        float halfThickness = thickness / 2;
+
+        var start = new Vector2(min.X, min.Y + halfThickness - angle);
+        var end   = new Vector2(max.X, min.Y + halfThickness);
+
+        for (int i = -1; i < block; ++i)
         {
             drawList.AddQuadFilled(start,
                 new Vector2(start.X, start.Y - halfThickness),
