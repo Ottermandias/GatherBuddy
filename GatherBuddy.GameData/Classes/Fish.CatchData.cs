@@ -27,7 +27,8 @@ public partial class Fish
     public int               MultiHook          { get; internal set; }
     public int               MultiHookExtension { get; internal set; }
     public int               Points             { get; internal set; }
+    public bool              LegendaryFish      { get; internal set; } = false;
 
     internal OptionalBool BigFishOverride { get; set; } = null;
-    internal OptionalBool LegendaryFish   { get; set; } = null;
+    
 }
