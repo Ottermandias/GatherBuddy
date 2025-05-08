@@ -115,7 +115,10 @@ public partial class Interface
         private sealed class SizeHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
-                => $"{record.Size / 10f:F1}";
+                => $"{record.Size / 10f:F1}{(GatherBuddy.Config.TextBasedLargeCollectable 
+                    ? (record.Flags.HasFlag(FishRecord.Effects.Large) ? " L" : " A") 
+                    + (record.Flags.HasFlag(FishRecord.Effects.Collectible) ? "C" : "N")
+                    : "")}";
 
             public override float Width
                 => 50 * ImGuiHelpers.GlobalScale;
