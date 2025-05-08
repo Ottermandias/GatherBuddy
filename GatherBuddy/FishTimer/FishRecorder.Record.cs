@@ -187,7 +187,7 @@ public partial class FishRecorder
     {
         Timer.Stop();
         UpdateLure();
-        Record.SetTugHook(GatherBuddy.TugType.Bite, Record.Hook);
+        Record.SetTugHook(GatherBuddy.TugType.Bite, HookSet.None);
         Step |= CatchSteps.FishBit;
         if (LureTimer.ElapsedMilliseconds > 0)
             GatherBuddy.Log.Verbose(
