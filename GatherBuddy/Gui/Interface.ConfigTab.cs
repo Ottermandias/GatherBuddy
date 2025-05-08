@@ -282,7 +282,7 @@ public partial class Interface
                 "When displaying the size of the fish, append extra characters do allow better filtering. \n"
               + "\"A\" or \"L\" to denote Average vs Large Fish."
               + "\"C\" or \"N\" to denote Collected Fish vs Not Collected Fish.",
-                GatherBuddy.Config.UseUnixTimeFishRecords, b => GatherBuddy.Config.UseUnixTimeFishRecords = b);
+                GatherBuddy.Config.TextBasedLargeCollectable, b => GatherBuddy.Config.TextBasedLargeCollectable = b);
 
         public static void DrawFishTimerScale()
         {
