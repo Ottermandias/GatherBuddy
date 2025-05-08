@@ -75,6 +75,8 @@ public partial class Interface
         public bool                      Unlocked = false;
         public bool                      Collectible;
         public int                       DoubleHook;
+        public int                       DoubleHookExtension;
+        public int                       Points;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -250,11 +252,13 @@ public partial class Interface
 
         public ExtendedFish(Fish data)
         {
-            Data        = data;
-            Collectible = data.ItemData.IsCollectable;
-            DoubleHook  = data.MultiHook;
-            Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
-            Territories = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
+            Data                = data;
+            Collectible         = data.ItemData.IsCollectable;
+            DoubleHook          = data.MultiHook;
+            DoubleHookExtension = data.MultiHookExtension;
+            Points              = data.Points;
+            Icon                = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
+            Territories         = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
             if (!Territories.Contains("\n"))
                 Territories = '\0' + Territories;
             SpotNames = string.Join("\n", data.FishingSpots.Select(f => f.Name).Distinct());

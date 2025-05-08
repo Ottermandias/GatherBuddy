@@ -294,6 +294,16 @@ public static partial class Fish
         fish.MultiHook = value;
         return fish;
     }
+    
+    private static Classes.Fish? MultiHook(this Classes.Fish? fish, int value, int value2)
+    {
+        if (fish == null)
+            return null;
+
+        fish.MultiHook = value;
+        fish.MultiHookExtension = value2;
+        return fish;
+    }
 
     private static Classes.Fish? Points(this Classes.Fish? fish, int value)
     {

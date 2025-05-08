@@ -271,8 +271,20 @@ public partial class FishTimerWindow
                     {
                         using var tooltip = ImRaii.Tooltip();
                         window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
-                        ImUtf8.Text($"Double Hook for {_fish.DoubleHook} fish.");
-                        ImUtf8.Text($"Triple Hook for {2 * _fish.DoubleHook - 1} fish.");
+                        
+                        if (_fish.DoubleHookExtension < 1)
+                        {
+                            ImUtf8.Text($"Double Hook for {_fish.DoubleHook} fish{(_fish.Points > 0 ? $" worth {_fish.Points * _fish.DoubleHook} points" : "")}");
+                            ImUtf8.Text($"Triple Hook for {2 * _fish.DoubleHook - 1} fish{(_fish.Points > 0 ? $" worth {_fish.Points * (2 * _fish.DoubleHook - 1)} points" : "")}");
+                        }
+                        else
+                        {
+                            ImUtf8.Text($"Double Hook for {_fish.DoubleHook}-{_fish.DoubleHookExtension} fish" +
+                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * _fish.DoubleHook} and {_fish.Points * _fish.DoubleHookExtension} points" : "")}");
+                            ImUtf8.Text($"Triple Hook for {2 * _fish.DoubleHook - 1}-{2 * _fish.DoubleHookExtension - 1} fish" +
+                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * (2 * _fish.DoubleHook - 1)} and {_fish.Points * (2 * _fish.DoubleHookExtension - 1)} points" : "")}");
+                        }
+
                         window._style.Pop();
                     }
                 }
