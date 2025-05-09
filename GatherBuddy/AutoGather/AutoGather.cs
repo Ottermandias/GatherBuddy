@@ -298,6 +298,11 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
+                if (!fish.Any() && Player.Job == Job.FSH)
+                {
+                    QueueQuitFishingTasks();
+                }
+
                 try
                 {
                     DoActionTasks(gatherTarget);
