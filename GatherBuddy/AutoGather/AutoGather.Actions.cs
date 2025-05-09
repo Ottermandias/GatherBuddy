@@ -211,15 +211,51 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            // if (NeedsSurfaceSlap(target))
+            //     EnqueueActionWithDelay(() => UseAction(Actions.SurfaceSlap));
+            // else if (NeedsIdenticalCast(target))
+            //     EnqueueActionWithDelay(() => UseAction(Actions.IdenticalCast));
+
             if (Player.Status.All(s => !Actions.CollectorsGlove.StatusProvide.Contains(s.StatusId)))
-                EnqueueActionWithDelay(() => UseAction(Actions.CollectorsGlove));
-            if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
+                    EnqueueActionWithDelay(() => UseAction(Actions.CollectorsGlove));
+            else if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
                 EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
-            if (target.Fish?.Snagging == Snagging.Required)
+            else if (target.Fish?.Snagging == Snagging.Required)
                 EnqueueActionWithDelay(() => UseAction(Actions.Snagging));
-            if ((target.Fish?.ItemData.IsCollectable ?? false) && !HasPatienceStatus())
+            else if ((target.Fish?.ItemData.IsCollectable ?? false) && !HasPatienceStatus())
                 EnqueueActionWithDelay(() => UseAction(GetCorrectPatienceAction()!));
-            EnqueueActionWithDelay(() => UseAction(Actions.Cast));
+            else
+                EnqueueActionWithDelay(() => UseAction(Actions.Cast));
+        }
+
+        private bool NeedsIdenticalCast(GatherTarget target)
+        {
+            if (target.Fish == null)
+                return false;
+            if (LastCaughtFish == null)
+                return false;
+            if (PreviouslyCaughtFish == LastCaughtFish)
+                return false;
+            if (LastCaughtFish.FishId == target.Fish.FishId
+             && Player.Status.All(s => !Actions.IdenticalCast.StatusProvide.Contains(s.StatusId)))
+                return true;
+
+            return false;
+        }
+
+        private bool NeedsSurfaceSlap(GatherTarget target)
+        {
+            if (target.Fish == null)
+                return false;
+            if (LastCaughtFish == null)
+                return false;
+            if (PreviouslyCaughtFish == LastCaughtFish)
+                return false;
+            if (LastCaughtFish.FishId != target.Fish.FishId
+             && Player.Status.All(s => !Actions.SurfaceSlap.StatusProvide.Contains(s.StatusId)))
+                return true;
+
+            return false;
         }
 
         private uint GetCorrectBaitId(GatherTarget target)
@@ -268,6 +304,7 @@ namespace GatherBuddy.AutoGather
                     EnqueueActionWithDelay(() => UseAction(Actions.Hook));
                     return;
                 }
+
                 var hookset = targets.First(t => t.Fish!.BiteType == GatherBuddy.TugType.Bite).Fish.HookSet;
                 switch (hookset)
                 {

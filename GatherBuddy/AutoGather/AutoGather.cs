@@ -34,6 +34,7 @@ using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using Lumina.Excel.Sheets;
+using Fish = GatherBuddy.Classes.Fish;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy.AutoGather
@@ -52,6 +53,15 @@ namespace GatherBuddy.AutoGather
             ArtisanExporter              =  new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
             Svc.Chat.CheckMessageHandled += OnMessageHandled;
             Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", OnGatheringFinalize);
+            _plugin.FishRecorder.Parser.CaughtFish += OnFishCaught;
+        }
+
+        public Fish? LastCaughtFish { get; private set; }
+        public Fish? PreviouslyCaughtFish { get; private set; }
+        private void OnFishCaught(Fish arg1, ushort arg2, byte arg3, bool arg4, bool arg5)
+        {
+            PreviouslyCaughtFish = LastCaughtFish;
+            LastCaughtFish       = arg1;
         }
 
         private void OnGatheringFinalize(AddonEvent type, AddonArgs args)
