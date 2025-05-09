@@ -74,7 +74,9 @@ public partial class Interface
         public ushort                    UptimePercent;
         public bool                      Unlocked = false;
         public bool                      Collectible;
-        public int                       DoubleHook;
+        public int                       MultiHook;
+        public int                       MutliHookSecondValue;
+        public int                       Points;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -250,11 +252,13 @@ public partial class Interface
 
         public ExtendedFish(Fish data)
         {
-            Data        = data;
-            Collectible = data.ItemData.IsCollectable;
-            DoubleHook  = data.MultiHook;
-            Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
-            Territories = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
+            Data                = data;
+            Collectible         = data.ItemData.IsCollectable;
+            MultiHook          = data.MultiHook;
+            MutliHookSecondValue = data.MultiHookSecondValue;
+            Points              = data.Points;
+            Icon                = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
+            Territories         = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
             if (!Territories.Contains("\n"))
                 Territories = '\0' + Territories;
             SpotNames = string.Join("\n", data.FishingSpots.Select(f => f.Name).Distinct());
@@ -530,6 +534,17 @@ public partial class Interface
             ImGui.Button(fish.Patch);
         }
 
+        private static void PrintPoints(ExtendedFish fish)
+        {
+            using var color = new ImRaii.Color();
+            if (fish.Data.Points > 0)
+            {
+                color.Push(ImGuiCol.Button, 0xFF006400);
+                ImGui.Button($"Worth {fish.Data.Points} Points");
+                color.Pop();
+            }
+        }
+
         public void SetTooltip(Territory territory, Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool printName, bool standAlone = true)
         {
             using var tooltip = standAlone ? ImRaii.Tooltip() : ImRaii.IEndObject.Empty;
@@ -540,6 +555,7 @@ public partial class Interface
             PrintWeather(this, weatherIconSize);
             PrintBait(this, territory, iconSize, smallIconSize);
             PrintPredators(this, territory, iconSize);
+            PrintPoints(this);
             PrintFolklore(this);
         }
     }

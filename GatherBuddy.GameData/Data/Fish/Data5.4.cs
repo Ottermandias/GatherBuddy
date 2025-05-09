@@ -50,142 +50,182 @@ public static partial class Fish
             .Weather   (data, 3);
         data.Apply     (32055, Patch.FuturesRewritten) // Tortoiseshell Crab
             .Bait      (data, 29715)
+            .Points    (10)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32056, Patch.FuturesRewritten) // Lady's Cameo
             .Bait      (data, 29714)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
+            .Points    (15)
             .Weather   (data, 2, 3, 4, 1);
         data.Apply     (32057, Patch.FuturesRewritten) // Metallic Boxfish
             .Bait      (data, 29714)
+            .Points    (9)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32058, Patch.FuturesRewritten) // Goobbue Ray
             .Bait      (data, 29716)
+            .Points    (33)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32059, Patch.FuturesRewritten) // Watermoura
             .Bait      (data, 29715)
+            .Points    (41)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Weather   (data, 2, 3, 4, 9, 1);
         data.Apply     (32060, Patch.FuturesRewritten) // King Cobrafish
             .Bait      (data, 29716)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Points    (39)
             .Weather   (data, 2, 9, 10, 1);
         data.Apply     (32061, Patch.FuturesRewritten) // Mamahi-mahi
             .Bait      (data, 29716)
+            .Points    (58)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32062, Patch.FuturesRewritten) // Lavandin Remora
             .Bait      (data, 29715)
+            .Points    (52)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32063, Patch.FuturesRewritten) // Spectral Butterfly
             .Bait      (data, 29714)
+            .Points    (100)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 9, 10);
         data.Apply     (32064, Patch.FuturesRewritten) // Cieldalaes Geode
             .Bait      (data, 29715)
+            .Points    (246)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 60, (32057, 3));
         data.Apply     (32065, Patch.FuturesRewritten) // Titanshell Crab
             .Bait      (data, 29715)
+            .Points    (84)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32066, Patch.FuturesRewritten) // Mythril Boxfish
             .Bait      (data, 29714)
+            .Points    (64)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32067, Patch.FuturesRewritten) // Mistbeard's Cup
             .Bait      (data, 29715)
+            .Points    (84)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32068, Patch.FuturesRewritten) // Anomalocaris Saron
             .Bait      (data, 29715)
+            .Points    (84)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32069, Patch.FuturesRewritten) // Flaming Eel
             .Bait      (data, 29715)
+            .Points    (198)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (32070, Patch.FuturesRewritten) // Jetborne Manta
             .Bait      (data, 29716)
+            .Points    (75)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32071, Patch.FuturesRewritten) // Devil's Sting
             .Bait      (data, 29715)
+            .Points    (201)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Day);
         data.Apply     (32072, Patch.FuturesRewritten) // Callichthyid
             .Bait      (data, 29716)
+            .Points    (178)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Day);
         data.Apply     (32073, Patch.FuturesRewritten) // Meandering Mora
             .Bait      (data, 29716)
+            .Points    (283)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (32074, Patch.FuturesRewritten) // Hafgufa
             .Bait      (data, 27590)
+            .Points    (500)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Night)
             .Predators (data, 15, (32070, 2), (32067, 1));
         data.Apply     (32075, Patch.FuturesRewritten) // Thaliak Crab
             .Bait      (data, 29714)
+            .Points    (9)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32076, Patch.FuturesRewritten) // Star of the Destroyer
             .Bait      (data, 29714)
+            .Points    (14)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Weather   (data, 2, 3, 4, 1);
         data.Apply     (32077, Patch.FuturesRewritten) // True Scad
             .Bait      (data, 29715)
+            .Points    (8)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32078, Patch.FuturesRewritten) // Blooded Wrasse
             .Bait      (data, 29716)
+            .Points    (35)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 2, 3, 4, 7, 1);
         data.Apply     (32079, Patch.FuturesRewritten) // Bloodpolish Crab
             .Bait      (data, 29714)
+            .Points    (28)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32080, Patch.FuturesRewritten) // Blue Stitcher
             .Bait      (data, 29715)
+            .Points    (30)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Weather   (data, 2, 7, 8, 1);
         data.Apply     (32081, Patch.FuturesRewritten) // Bloodfresh Tuna
             .Bait      (data, 29716)
+            .Points    (43)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32082, Patch.FuturesRewritten) // Sunken Mask
             .Bait      (data, 29714)
+            .Points    (49)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32083, Patch.FuturesRewritten) // Spectral Eel
             .Bait      (data, 29715)
+            .Points    (100)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 7, 8);
         data.Apply     (32084, Patch.FuturesRewritten) // Bareface
             .Bait      (data, 29715)
+            .Points    (326)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 60, (32082, 1));
         data.Apply     (32085, Patch.FuturesRewritten) // Oracular Crab
             .Bait      (data, 29714)
+            .Points    (102)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Day);
         data.Apply     (32086, Patch.FuturesRewritten) // Dravanian Bream
             .Bait      (data, 29715)
+            .Points    (77)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32087, Patch.FuturesRewritten) // Skaldminni
             .Bait      (data, 29715)
+            .Points    (102)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Night);
         data.Apply     (32088, Patch.FuturesRewritten) // Serrated Clam
             .Bait      (data, 29714)
+            .Points    (74)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32089, Patch.FuturesRewritten) // Beatific Vision
             .Bait      (data, 29715)
+            .Points    (77)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32090, Patch.FuturesRewritten) // Exterminator
             .Bait      (data, 29714)
+            .Points    (255)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Day);
         data.Apply     (32091, Patch.FuturesRewritten) // Gory Tuna
             .Bait      (data, 29716)
+            .Points    (92)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32092, Patch.FuturesRewritten) // Ticinepomis
             .Bait      (data, 29716)
+            .Points    (92)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32093, Patch.FuturesRewritten) // Quartz Hammerhead
             .Bait      (data, 29716)
+            .Points    (460)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32094, Patch.FuturesRewritten) // Seafaring Toad
             .Bait      (data, 2587)
+            .Points    (500)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Ocean     (OceanTime.Day)
             .Predators (data, 15, (32089, 3));

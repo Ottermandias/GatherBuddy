@@ -40,12 +40,15 @@ public static partial class Fish
             .Weather   (data, 2, 1);
         data.Apply     (28937, Patch.EchoesOfAFallenStar) // Galadion Goby
             .Bait      (data, 29714)
+            .Points    (10)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (28938, Patch.EchoesOfAFallenStar) // Galadion Chovy
             .Bait      (data, 29715)
+            .Points    (11)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (28939, Patch.EchoesOfAFallenStar) // Rosy Bream
             .Bait      (data, 29715)
+            .Points    (34)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (28940, Patch.EchoesOfAFallenStar) // Tripod Fish
             .Bait      (data, 29715)
@@ -53,9 +56,11 @@ public static partial class Fish
             .Weather   (data, 2, 15, 16, 1);
         data.Apply     (28941, Patch.EchoesOfAFallenStar) // Sunfly
             .Bait      (data, 29714)
+            .Points    (10)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (28942, Patch.EchoesOfAFallenStar) // Tarnished Shark
             .Bait      (data, 29716)
+            .Points    (34)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 7, 1);
         data.Apply     (29673, Patch.EchoesOfAFallenStar) // Thinker's Coral
@@ -69,6 +74,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29719, Patch.EchoesOfAFallenStar) // Jasperhead
             .Bait      (data, 29715)
+            .Points    (40)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 2, 7, 8, 1);
         data.Apply     (29720, Patch.EchoesOfAFallenStar) // Merlthor Lobster
@@ -79,23 +85,29 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29722, Patch.EchoesOfAFallenStar) // Ghoul Barracuda
             .Bait      (data, 29715)
+            .Points    (10)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 2, 3, 4, 1);
         data.Apply     (29723, Patch.EchoesOfAFallenStar) // Leopard Eel
             .Bait      (data, 29716)
+            .Points    (14)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Weather   (data, 2, 3, 4, 1);
         data.Apply     (29724, Patch.EchoesOfAFallenStar) // Marine Bomb
             .Bait      (data, 29715)
+            .Points    (27)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29725, Patch.EchoesOfAFallenStar) // Momora Mora
             .Bait      (data, 29716)
+            .Points    (22)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (29726, Patch.EchoesOfAFallenStar) // Merlthor Butterfly
             .Bait      (data, 29714)
+            .Points    (22)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29727, Patch.EchoesOfAFallenStar) // Gladius
             .Mooch     (data, 29715, 29722)
+            .Points    (49)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29728, Patch.EchoesOfAFallenStar) // Rhotano Wahoo
             .Bait      (data, 29715)
@@ -120,6 +132,7 @@ public static partial class Fish
             .Weather   (data, 2, 11, 14, 1);
         data.Apply     (29734, Patch.EchoesOfAFallenStar) // Cyan Octopus
             .Bait      (data, 29715)
+            .Points    (59)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29735, Patch.EchoesOfAFallenStar) // Chrome Hammerhead
             .Bait      (data, 29716)
@@ -136,9 +149,11 @@ public static partial class Fish
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29739, Patch.EchoesOfAFallenStar) // La Noscean Jelly
             .Bait      (data, 29714)
+            .Points    (10)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29740, Patch.EchoesOfAFallenStar) // Shaggy Seadragon
             .Bait      (data, 29714)
+            .Points    (35)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Weather   (data, 2, 5, 6, 1);
         data.Apply     (29741, Patch.EchoesOfAFallenStar) // Net Crawler
@@ -156,6 +171,7 @@ public static partial class Fish
             .Predators (data, 60, (28938, 3));
         data.Apply     (29745, Patch.EchoesOfAFallenStar) // Little Leviathan
             .Bait      (data, 29716)
+            .Points    (204)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 60, (29727, 1));
         data.Apply     (29746, Patch.EchoesOfAFallenStar) // Sabaton
@@ -171,47 +187,60 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29749, Patch.EchoesOfAFallenStar) // Heavenskey
             .Bait      (data, 29714)
+            .Points    (67)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29750, Patch.EchoesOfAFallenStar) // Ghost Shark
             .Bait      (data, 29716)
+            .Points    (78)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29751, Patch.EchoesOfAFallenStar) // Quicksilver Blade
             .Bait      (data, 29716)
+            .Points    (213)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29752, Patch.EchoesOfAFallenStar) // Navigator's Print
             .Bait      (data, 29715)
+            .Points    (71)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29753, Patch.EchoesOfAFallenStar) // Casket Oyster
             .Bait      (data, 29714)
+            .Points    (222)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Day);
         data.Apply     (29754, Patch.EchoesOfAFallenStar) // Fishmonger
             .Bait      (data, 29716)
+            .Points    (78)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29755, Patch.EchoesOfAFallenStar) // Mythril Sovereign
             .Bait      (data, 29715)
+            .Points    (196)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Day);
         data.Apply     (29756, Patch.EchoesOfAFallenStar) // Nimble Dancer
             .Bait      (data, 29714)
+            .Points    (444)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Day);
         data.Apply     (29757, Patch.EchoesOfAFallenStar) // Sea Nettle
             .Bait      (data, 29714)
+            .Points    (156)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29758, Patch.EchoesOfAFallenStar) // Great Grandmarlin
             .Mooch     (data, 29714, 29761)
+            .Points    (127)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29759, Patch.EchoesOfAFallenStar) // Shipwreck's Sail
             .Bait      (data, 29716)
+            .Points    (59)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29760, Patch.EchoesOfAFallenStar) // Azeyma's Sleeve
             .Bait      (data, 29715)
+            .Points    (69)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29761, Patch.EchoesOfAFallenStar) // Hi-aetherlouse
             .Bait      (data, 29714)
+            .Points    (65)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29762, Patch.EchoesOfAFallenStar) // Floating Saucer
             .Bait      (data, 29715)
@@ -219,6 +248,7 @@ public static partial class Fish
             .Ocean     (OceanTime.Night);
         data.Apply     (29763, Patch.EchoesOfAFallenStar) // Aetheric Seadragon
             .Mooch     (data, 29714, 29761)
+            .Points    (245)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
             .Ocean     (OceanTime.Night);
         data.Apply     (29764, Patch.EchoesOfAFallenStar) // Coral Seadragon
@@ -228,9 +258,11 @@ public static partial class Fish
         data.Apply     (29765, Patch.EchoesOfAFallenStar) // Roguesaurus
             .Mooch     (data, 29714, 29761)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Points    (345)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29766, Patch.EchoesOfAFallenStar) // Merman's Mane
             .Bait      (data, 29715)
+            .Points    (94)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (29767, Patch.EchoesOfAFallenStar) // Sweeper
             .Bait      (data, 29716)
@@ -275,6 +307,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29779, Patch.EchoesOfAFallenStar) // Charlatan Survivor
             .Bait      (data, 29715)
+            .Points    (69)
             .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (29780, Patch.EchoesOfAFallenStar) // Prodigal Son
             .Bait      (data, 29715)
@@ -284,6 +317,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (29782, Patch.EchoesOfAFallenStar) // Funnel Shark
             .Bait      (data, 29716)
+            .Points    (213)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29783, Patch.EchoesOfAFallenStar) // The Fallen One
@@ -292,27 +326,33 @@ public static partial class Fish
             .Ocean     (OceanTime.Sunset);
         data.Apply     (29784, Patch.EchoesOfAFallenStar) // Spectral Megalodon
             .Bait      (data, 29715)
+            .Points    (100)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 7, 8);
         data.Apply     (29785, Patch.EchoesOfAFallenStar) // Spectral Discus
             .Bait      (data, 29715)
+            .Points    (100)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 5, 6);
         data.Apply     (29786, Patch.EchoesOfAFallenStar) // Spectral Sea Bo
             .Bait      (data, 29714)
+            .Points    (100)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 15, 16);
         data.Apply     (29787, Patch.EchoesOfAFallenStar) // Spectral Bass
             .Bait      (data, 29716)
+            .Points    (100)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Weather   (data, 2, 3, 4, 11, 14);
         data.Apply     (29788, Patch.EchoesOfAFallenStar) // Sothis
             .Bait      (data, 2603)
+            .Points    (500)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Night)
             .Predators (data, 15, (29749, 2), (29752, 1));
         data.Apply     (29789, Patch.EchoesOfAFallenStar) // Coral Manta
             .Bait      (data, 2613)
+            .Points    (500)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Night)
             .Predators (data, 15, (29758, 2));
