@@ -114,13 +114,13 @@ public partial class GatherBuddy : IDalamudPlugin
             AlarmManager        = AlarmManager.Load();
             AutoGatherListsManager = AutoGatherListsManager.Load();
             GatherWindowManager = GatherWindowManager.Load(AlarmManager);
-            AutoGather = new AutoGather.AutoGather(this);
             AlarmManager.ForceEnable();
 
             InitializeCommands();
 
             FishRecorder = new FishRecorder(Dalamud.Interop);
             FishRecorder.Enable();
+            AutoGather   = new AutoGather.AutoGather(this);
             WindowSystem = new WindowSystem(Name);
             Interface    = new Interface(this);
             WindowSystem.AddWindow(Interface);

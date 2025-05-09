@@ -34,6 +34,7 @@ using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using Lumina.Excel.Sheets;
+using Fish = GatherBuddy.Classes.Fish;
 using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy.AutoGather
@@ -52,6 +53,15 @@ namespace GatherBuddy.AutoGather
             ArtisanExporter              =  new Reflection.ArtisanExporter(plugin.AutoGatherListsManager);
             Svc.Chat.CheckMessageHandled += OnMessageHandled;
             Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", OnGatheringFinalize);
+            _plugin.FishRecorder.Parser.CaughtFish += OnFishCaught;
+        }
+
+        public Fish? LastCaughtFish { get; private set; }
+        public Fish? PreviouslyCaughtFish { get; private set; }
+        private void OnFishCaught(Fish arg1, ushort arg2, byte arg3, bool arg4, bool arg5)
+        {
+            PreviouslyCaughtFish = LastCaughtFish;
+            LastCaughtFish       = arg1;
         }
 
         private void OnGatheringFinalize(AddonEvent type, AddonArgs args)
@@ -288,31 +298,36 @@ namespace GatherBuddy.AutoGather
 
                 AutoStatus = "Gathering...";
                 StopNavigation();
-                if (gatherTarget.Fish != null)
+
+                var fish = _activeItemList.GetNextOrDefault(new List<uint>()).Where(g => g.Fish != null);
+                if (fish.Any() && Player.Job == Job.FSH)
                 {
-                    var fish = _activeItemList.GetNextOrDefault(new List<uint>()).Where(g => g.Fish != null);
                     if (GatherBuddy.Config.AutoGatherConfig.UseNavigation)
                         DoFishMovement(fish);
                     DoFishingTasks(fish);
                     return;
                 }
-                else
+
+                if (!fish.Any() && Player.Job == Job.FSH)
                 {
-                    try
-                    {
-                        DoActionTasks(gatherTarget);
-                    }
-                    catch (NoGatherableItemsInNodeException)
-                    {
-                        CloseGatheringAddons();
-                    }
-                    catch (NoCollectableActionsException)
-                    {
-                        Communicator.PrintError(
-                            "Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
-                        AbortAutoGather();
-                    }
+                    QueueQuitFishingTasks();
                 }
+
+                try
+                {
+                    DoActionTasks(gatherTarget);
+                }
+                catch (NoGatherableItemsInNodeException)
+                {
+                    CloseGatheringAddons();
+                }
+                catch (NoCollectableActionsException)
+                {
+                    Communicator.PrintError(
+                        "Unable to pick a collectability increasing action to use. Make sure that at least one of the collectable actions is enabled.");
+                    AbortAutoGather();
+                }
+
 
                 return;
             }
@@ -592,31 +607,29 @@ namespace GatherBuddy.AutoGather
 
         private void DoFishMovement(IEnumerable<GatherTarget> next)
         {
-            var fish = next.First().Fish;
-            if (fish == null)
-                throw new InvalidOperationException("Fish is null");
+            var fish = next.First(ne => ne.Fish != null);
 
-            if (!FishingSpotData.TryGetValue(next.First(), out var fishingSpotData))
+            if (!FishingSpotData.TryGetValue(fish, out var fishingSpotData))
             {
-                var positionData = _plugin.FishRecorder.GetPositionForFishingSpot(next.First().FishingSpot);
+                var positionData = _plugin.FishRecorder.GetPositionForFishingSpot(fish!.FishingSpot);
                 if (!positionData.HasValue)
                 {
                     Communicator.PrintError(
-                        $"No position data for fishing spot {next.First().FishingSpot.Name}. Auto-Fishing cannot continue.");
+                        $"No position data for fishing spot {fish.FishingSpot.Name}. Auto-Fishing cannot continue.");
                     AbortAutoGather();
                     return;
                 }
 
                 DateTime spotExpiration =
                     DateTime.Now.AddMinutes(GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes); //TODO: Make this configurable
-                FishingSpotData.Add(next.First(), (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
+                FishingSpotData.Add(fish, (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
                 return;
             }
 
             if (fishingSpotData.Expiration < DateTime.Now)
             {
                 Svc.Log.Debug("Time for a new fishing spot!");
-                FishingSpotData.Remove(next.First());
+                FishingSpotData.Remove(fish);
                 if (IsGathering || IsFishing)
                 {
                     QueueQuitFishingTasks();
@@ -655,10 +668,12 @@ namespace GatherBuddy.AutoGather
 
         private void DoNodeMovement(IEnumerable<GatherTarget> next, ConfigPreset config)
         {
-            var allPositions = next.SelectMany(ne => ne.Node.WorldPositions
-                    .ExceptBy(VisitedNodes, n => n.Key)
-                    .SelectMany(w => w.Value)
-                    .Where(v => !IsBlacklisted(v))).Select(s => s)
+            var allPositions = next.Where(n => n.Location.Territory.Id == Player.Territory)
+                .SelectMany(ne => ne.Node?.WorldPositions
+                        .ExceptBy(VisitedNodes, n => n.Key)
+                        .SelectMany(w => w.Value)
+                        .Where(v => !IsBlacklisted(v))
+                 ?? []).Select(s => s)
                 .ToHashSet();
 
             var visibleNodes = Svc.Objects
@@ -675,7 +690,8 @@ namespace GatherBuddy.AutoGather
             if (closestTargetableNode != null)
             {
                 AutoStatus = "Moving to node...";
-                var targetItem = next.First(ti => ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId)).Gatherable;
+                var targetItem = next.First(ti => ti.Node != null && ti.Node.WorldPositions.ContainsKey(closestTargetableNode.DataId))
+                    .Gatherable;
                 MoveToCloseNode(closestTargetableNode, targetItem, config);
                 return;
             }
