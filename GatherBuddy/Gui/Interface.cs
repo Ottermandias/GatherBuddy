@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
-using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.Time;
 using ImGuiNET;
