@@ -33,27 +33,28 @@ public partial class Configuration : IPluginConfiguration
 
 
     // General Config
-    public bool             OpenOnStart            { get; set; } = false;
-    public bool             MainWindowLockPosition { get; set; } = false;
-    public bool             MainWindowLockResize   { get; set; } = false;
-    public bool             CloseOnEscape          { get; set; } = true;
-    public bool             UseGearChange          { get; set; } = true;
-    public bool             UseTeleport            { get; set; } = true;
-    public bool             UseCoordinates         { get; set; } = true;
-    public bool             UseFlag                { get; set; } = true;
-    public bool             WriteCoordinates       { get; set; } = true;
-    public bool             PrintUptime            { get; set; } = true;
-    public bool             SkipTeleportIfClose    { get; set; } = true;
-    public XivChatType      ChatTypeMessage        { get; set; } = XivChatType.Echo;
-    public XivChatType      ChatTypeError          { get; set; } = XivChatType.ErrorMessage;
-    public bool             AddIngameContextMenus  { get; set; } = true;
-    public bool             StoreFishRecords       { get; set; } = true;
-    public bool             PrintClipboardMessages { get; set; } = true;
-    public bool             HideClippy             { get; set; } = false;
-    public bool             ShowStatusLine         { get; set; } = true;
-    public ModifiableHotkey MainInterfaceHotkey    { get; set; } = new();
-    public bool             PlaceCustomWaymarks    { get; set; } = true;
-    public GatheringType    PreferredGatheringType { get; set; } = GatheringType.Multiple;
+    public bool             OpenOnStart               { get; set; } = false;
+    public bool             MainWindowLockPosition    { get; set; } = false;
+    public bool             MainWindowLockResize      { get; set; } = false;
+    public bool             CloseOnEscape             { get; set; } = true;
+    public bool             UseGearChange             { get; set; } = true;
+    public bool             UseTeleport               { get; set; } = true;
+    public bool             UseCoordinates            { get; set; } = true;
+    public bool             UseFlag                   { get; set; } = true;
+    public bool             WriteCoordinates          { get; set; } = true;
+    public bool             PrintUptime               { get; set; } = true;
+    public bool             SkipTeleportIfClose       { get; set; } = true;
+    public XivChatType      ChatTypeMessage           { get; set; } = XivChatType.Echo;
+    public XivChatType      ChatTypeError             { get; set; } = XivChatType.ErrorMessage;
+    public bool             AddIngameContextMenus     { get; set; } = true;
+    public bool             StoreFishRecords          { get; set; } = true;
+    public bool             UseUnixTimeFishRecords    { get; set; } = true;
+    public bool             PrintClipboardMessages    { get; set; } = true;
+    public bool             HideClippy                { get; set; } = false;
+    public bool             ShowStatusLine            { get; set; } = true;
+    public ModifiableHotkey MainInterfaceHotkey       { get; set; } = new();
+    public bool             PlaceCustomWaymarks       { get; set; } = true;
+    public GatheringType    PreferredGatheringType    { get; set; } = GatheringType.Multiple;
 
     // Weather tab
     public bool ShowWeatherNames { get; set; } = true;
