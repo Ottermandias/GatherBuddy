@@ -84,7 +84,7 @@ public partial class Configuration : IPluginConfiguration
     public bool   HideFishSizePopup       { get; set; } = false;
     public ushort FishTimerScale          { get; set; } = 40000;
     public byte   ShowSecondIntervals     { get; set; } = 7;
-    public int    SecondIntervalsRounding { get; set; } = 2;
+    public int    SecondIntervalsRounding { get; set; } = 1;
     public bool   ShowCollectableHints    { get; set; } = true;
     public bool   ShowMultiHookHints      { get; set; } = true;
 

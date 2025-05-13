@@ -316,10 +316,10 @@ public partial class Interface
         
         public static void DrawFishTimerIntervalsRounding()
         {
-            int value = GatherBuddy.Config.SecondIntervalsRounding;
+            var value = GatherBuddy.Config.SecondIntervalsRounding;
             ImGui.SetNextItemWidth(SetInputWidth);
             var ret = ImGui.DragInt("Fish Timer Interval Rounding", ref value, 0.01f, 0, 3);
-            ImGuiUtil.HoverTooltip("Round the displayed seconds value to this number of digits past the decimal. \n"
+            ImGuiUtil.HoverTooltip("Round the displayed second value to this number of digits past the decimal. \n"
                 + "Set to 0 to display only whole numbers.");
             if (!ret)
                 return;
