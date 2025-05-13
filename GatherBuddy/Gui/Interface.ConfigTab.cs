@@ -324,6 +324,24 @@ public partial class Interface
             GatherBuddy.Config.ShowSecondIntervals = newValue;
             GatherBuddy.Config.Save();
         }
+        
+        public static void DrawFishTimerIntervalsRounding()
+        {
+            var value = GatherBuddy.Config.SecondIntervalsRounding;
+            ImGui.SetNextItemWidth(SetInputWidth);
+            var ret = ImGui.DragInt("Fish Timer Interval Rounding", ref value, 0.01f, 0, 3);
+            ImGuiUtil.HoverTooltip("Round the displayed second value to this number of digits past the decimal. \n"
+                + "Set to 0 to display only whole numbers.");
+            if (!ret)
+                return;
+
+            var newValue = (byte)Math.Clamp(value, 0, 3);
+            if (newValue == GatherBuddy.Config.SecondIntervalsRounding)
+                return;
+
+            GatherBuddy.Config.SecondIntervalsRounding = newValue;
+            GatherBuddy.Config.Save();
+        }
 
         public static void DrawHideFishPopupBox()
             => DrawCheckbox("Hide Catch Popup",
@@ -610,6 +628,7 @@ public partial class Interface
                 ConfigFunctions.DrawFishTimerUptimesBox();
                 ConfigFunctions.DrawFishTimerScale();
                 ConfigFunctions.DrawFishTimerIntervals();
+                ConfigFunctions.DrawFishTimerIntervalsRounding();
                 ConfigFunctions.DrawHideFishPopupBox();
                 ConfigFunctions.DrawCollectableHintPopupBox();
                 ConfigFunctions.DrawDoubleHookHintPopupBox();
