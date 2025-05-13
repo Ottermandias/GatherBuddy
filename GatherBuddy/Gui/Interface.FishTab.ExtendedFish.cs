@@ -514,7 +514,7 @@ public partial class Interface
             if (fish.Intuition.Length == 0)
                 return;
 
-            ImUtf8.TextFramed(fish.Intuition, 0xFF802000, size);
+            ImUtf8.TextFramed(fish.Intuition, 0xFF802000);
         }
 
         private static void PrintFolklore(ExtendedFish fish)
@@ -525,11 +525,14 @@ public partial class Interface
                 ImGui.SameLine();
             }
 
-            ImUtf8.TextFramed(fish.Patch, 0xFF802080, default, 0xFF000000);
+            ImUtf8.TextFramed(fish.Patch, 0xFFC0C0C0, default, 0xFF000000);
         }
 
         private static void PrintPoints(ExtendedFish fish)
-            => ImUtf8.TextFramed($"Worth {fish.Data.Points} Points", 0xFF006400);
+        {
+            if (fish.Data.Points > 0)
+                ImUtf8.TextFramed($"Worth {fish.Data.Points} Points", 0xFF006400);
+        }
 
         public void SetTooltip(Territory territory, Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool printName,
             bool standAlone = true)
