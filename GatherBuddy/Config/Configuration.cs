@@ -49,7 +49,6 @@ public partial class Configuration : IPluginConfiguration
     public bool             AddIngameContextMenus     { get; set; } = true;
     public bool             StoreFishRecords          { get; set; } = true;
     public bool             UseUnixTimeFishRecords    { get; set; } = true;
-    public bool             TextBasedLargeCollectable { get; set; } = true;
     public bool             PrintClipboardMessages    { get; set; } = true;
     public bool             HideClippy                { get; set; } = false;
     public bool             ShowStatusLine            { get; set; } = true;

@@ -17,6 +17,7 @@ using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Time;
 using GatherBuddy.Weather;
+using OtterGui.Text;
 
 namespace GatherBuddy.Gui;
 
@@ -115,10 +116,7 @@ public partial class Interface
         private sealed class SizeHeader : ColumnString<FishRecord>
         {
             public override string ToName(FishRecord record)
-                => $"{record.Size / 10f:F1}{(GatherBuddy.Config.TextBasedLargeCollectable 
-                    ? (record.Flags.HasFlag(FishRecord.Effects.Large) ? " L" : " A") 
-                    + (record.Flags.HasFlag(FishRecord.Effects.Collectible) ? "C" : "N")
-                    : "")}";
+                => $"{record.Size / 10f:F1}";
 
             public override float Width
                 => 50 * ImGuiHelpers.GlobalScale;
@@ -199,7 +197,7 @@ public partial class Interface
             {
                 if (!GatherBuddy.Config.UseUnixTimeFishRecords)
                     return (record.TimeStamp.Time / 1000).ToString();
-                
+
                 var dateTime = DateTimeOffset.FromUnixTimeMilliseconds(record.TimeStamp.Time).ToLocalTime();
                 return dateTime.ToString("g");
             }
@@ -347,7 +345,7 @@ public partial class Interface
                 => lhs.Bite.CompareTo(rhs.Bite);
         }
 
-        private class FlagHeader : ColumnFlags<FlagHeader.ColumnEffects, FishRecord>
+        private class FlagHeader : TriStateColumnFlags<FlagHeader.ColumnEffects, FishRecord>
         {
             private          float                                           _iconScale;
             private readonly (ISharedImmediateTexture, FishRecord.Effects)[] _effects;
@@ -355,6 +353,10 @@ public partial class Interface
             [Flags]
             public enum ColumnEffects : ulong
             {
+                LargeCatch        = FishRecord.Effects.Large,
+                AverageCatch      = (ulong)FishRecord.Effects.Large << 32,
+                CollectibleOn     = FishRecord.Effects.Collectible,
+                CollectibleOff    = (ulong)FishRecord.Effects.Collectible << 32,
                 PatienceOn        = FishRecord.Effects.Patience,
                 PatienceOff       = (ulong)FishRecord.Effects.Patience << 32,
                 Patience2On       = FishRecord.Effects.Patience2,
@@ -373,8 +375,6 @@ public partial class Interface
                 IdenticalCastOff  = (ulong)FishRecord.Effects.IdenticalCast << 32,
                 SurfaceSlapOn     = FishRecord.Effects.SurfaceSlap,
                 SurfaceSlapOff    = (ulong)FishRecord.Effects.SurfaceSlap << 32,
-                CollectibleOn     = FishRecord.Effects.Collectible,
-                CollectibleOff    = (ulong)FishRecord.Effects.Collectible << 32,
                 BigGameFishingOn  = FishRecord.Effects.BigGameFishing,
                 BigGameFishingOff = (ulong)FishRecord.Effects.BigGameFishing << 32,
                 AmbitiousLureOn   = FishRecord.Effects.AmbitiousLure1 | FishRecord.Effects.AmbitiousLure2,
@@ -385,67 +385,43 @@ public partial class Interface
 
             private static readonly ColumnEffects Mask = Enum.GetValues<ColumnEffects>().Aggregate((a, b) => a | b);
 
-            private static readonly ColumnEffects[] _values =
+            private static readonly (ColumnEffects On, ColumnEffects Off)[] _values =
             [
-                ColumnEffects.PatienceOn,
-                ColumnEffects.PatienceOff,
-                ColumnEffects.Patience2On,
-                ColumnEffects.Patience2Off,
-                ColumnEffects.IntuitionOn,
-                ColumnEffects.IntuitionOff,
-                ColumnEffects.SnaggingOn,
-                ColumnEffects.SnaggingOff,
-                ColumnEffects.FishEyesOn,
-                ColumnEffects.FishEyesOff,
-                ColumnEffects.ChumOn,
-                ColumnEffects.ChumOff,
-                ColumnEffects.PrizeCatchOn,
-                ColumnEffects.PrizeCatchOff,
-                ColumnEffects.IdenticalCastOn,
-                ColumnEffects.IdenticalCastOff,
-                ColumnEffects.SurfaceSlapOn,
-                ColumnEffects.SurfaceSlapOff,
-                ColumnEffects.CollectibleOn,
-                ColumnEffects.CollectibleOff,
-                ColumnEffects.BigGameFishingOn,
-                ColumnEffects.BigGameFishingOff,
-                ColumnEffects.AmbitiousLureOn,
-                ColumnEffects.AmbitiousLureOff,
-                ColumnEffects.ModestLureOn,
-                ColumnEffects.ModestLureOff,
+                (ColumnEffects.LargeCatch, ColumnEffects.AverageCatch),
+                (ColumnEffects.CollectibleOn, ColumnEffects.CollectibleOff),
+                (ColumnEffects.PatienceOn, ColumnEffects.PatienceOff),
+                (ColumnEffects.Patience2On, ColumnEffects.Patience2Off),
+                (ColumnEffects.IntuitionOn, ColumnEffects.IntuitionOff),
+                (ColumnEffects.SnaggingOn, ColumnEffects.SnaggingOff),
+                (ColumnEffects.FishEyesOn, ColumnEffects.FishEyesOff),
+                (ColumnEffects.ChumOn, ColumnEffects.ChumOff),
+                (ColumnEffects.PrizeCatchOn, ColumnEffects.PrizeCatchOff),
+                (ColumnEffects.IdenticalCastOn, ColumnEffects.IdenticalCastOff),
+                (ColumnEffects.SurfaceSlapOn, ColumnEffects.SurfaceSlapOff),
+                (ColumnEffects.BigGameFishingOn, ColumnEffects.BigGameFishingOff),
+                (ColumnEffects.AmbitiousLureOn, ColumnEffects.AmbitiousLureOff),
+                (ColumnEffects.ModestLureOn, ColumnEffects.ModestLureOff),
             ];
 
             private static readonly string[] _names =
             [
-                "Patience On",
-                "Patience Off",
-                "Patience II On",
-                "Patience II Off",
-                "Intuition On",
-                "Intuition Off",
-                "Snagging On",
-                "Snagging Off",
-                "Fish Eyes On",
-                "Fish Eyes Off",
-                "Chum On",
-                "Chum Off",
-                "Prize Catch On",
-                "Prize Catch Off",
-                "Identical Cast On",
-                "Identical Cast Off",
-                "Surface Slap On",
-                "Surface Slap Off",
-                "Collectible On",
-                "Collectible Off",
-                "Big Game Fishing On",
-                "Big Game Fishing Off",
-                "Ambitious Lure On",
-                "Ambitious Lure Off",
-                "Modest Lure On",
-                "Modest Lure Off",
+                "Large Catch",
+                "Collectible",
+                "Patience",
+                "Patience II",
+                "Intuition",
+                "Snagging",
+                "Fish Eyes",
+                "Chum",
+                "Prize Catch",
+                "Identical Cast",
+                "Surface Slap",
+                "Big Game Fishing",
+                "Ambitious Lure",
+                "Modest Lure",
             ];
 
-            protected override IReadOnlyList<ColumnEffects> Values
+            protected override IReadOnlyList<(ColumnEffects On, ColumnEffects Off)> Values
                 => _values;
 
             protected override string[] Names
@@ -459,26 +435,38 @@ public partial class Interface
                     _filter &= ~value;
             }
 
+            protected override void SetValue((ColumnEffects On, ColumnEffects Off) value, bool? enable)
+            {
+                switch (enable)
+                {
+                    case null:  _filter |= value.On | value.Off; break;
+                    case true:  _filter =  (_filter | value.On) & ~value.Off; break;
+                    case false: _filter =  (_filter | value.Off) & ~value.On; break;
+                }
+            }
+
             private ColumnEffects _filter;
 
             public FlagHeader()
             {
                 _effects =
                 [
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(216023), (FishRecord.Effects)_values[00]), // Patience
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211106), (FishRecord.Effects)_values[02]), // Patience II
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211101), (FishRecord.Effects)_values[04]), // Intuition
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211102), (FishRecord.Effects)_values[06]), // Snagging
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211103), (FishRecord.Effects)_values[08]), // Fish Eyes
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211104), (FishRecord.Effects)_values[10]), // Chum
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211119), (FishRecord.Effects)_values[12]), // Prize Catch
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211116), (FishRecord.Effects)_values[14]), // Identical Cast
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211115), (FishRecord.Effects)_values[16]), // Surface Slap
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211008), (FishRecord.Effects)_values[18]), // Collector's Glove
-                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211122), (FishRecord.Effects)_values[20]), // Big Game Fishing
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211112), (FishRecord.Effects)_values[00].On), // Nature's Bounty
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211008), (FishRecord.Effects)_values[01].On), // Collector's Glove
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(216023), (FishRecord.Effects)_values[02].On), // Patience
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211106), (FishRecord.Effects)_values[03].On), // Patience II
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211101), (FishRecord.Effects)_values[04].On), // Intuition
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211102), (FishRecord.Effects)_values[05].On), // Snagging
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211103), (FishRecord.Effects)_values[06].On), // Fish Eyes
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211104), (FishRecord.Effects)_values[07].On), // Chum
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211119), (FishRecord.Effects)_values[08].On), // Prize Catch
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211116), (FishRecord.Effects)_values[09].On), // Identical Cast
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211115), (FishRecord.Effects)_values[10].On), // Surface Slap
+                    (Icons.DefaultStorage.TextureProvider.GetFromGameIcon(211122), (FishRecord.Effects)_values[11].On), // Big Game Fishing
                 ];
-                AllFlags = Mask;
-                _filter  = AllFlags;
+                AllFlags   =  Mask;
+                _filter    =  AllFlags;
+                ComboFlags |= ImGuiComboFlags.HeightLarge;
             }
 
             public override float Width
@@ -494,7 +482,7 @@ public partial class Interface
                         _iconScale = scale;
                     }
 
-                    return 13 * (_iconScale * TextHeight + 1);
+                    return 14 * (_iconScale * TextHeight + 1);
                 }
             }
 
@@ -532,7 +520,7 @@ public partial class Interface
 
                 using var tt = ImRaii.Tooltip();
                 ImGui.Image(wrap.ImGuiHandle, new Vector2(wrap.Width, wrap.Height));
-                ImGui.TextUnformatted(tooltip);
+                ImUtf8.Text(tooltip);
             }
 
             public override void DrawColumn(FishRecord item, int idx)
@@ -551,30 +539,16 @@ public partial class Interface
                         ImGui.SameLine();
                         switch (item.Flags.ModestLure())
                         {
-                            case 0:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), false, "Modest Lure");
-                                break;
-                            case 1:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), true, "Modest Lure");
-                                break;
-                            case 2:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218910), true, "Modest Lure");
-                                break;
-                            case 3:
-                                DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218911), true, "Modest Lure");
-                                break;
+                            case 0: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), false, "Modest Lure"); break;
+                            case 1: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218909), true,  "Modest Lure"); break;
+                            case 2: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218910), true,  "Modest Lure"); break;
+                            case 3: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218911), true,  "Modest Lure"); break;
                         }
 
                         return;
-                    case 1:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218905), true, "Ambitious Lure");
-                        break;
-                    case 2:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218906), true, "Ambitious Lure");
-                        break;
-                    case 3:
-                        DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218907), true, "Ambitious Lure");
-                        break;
+                    case 1: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218905), true, "Ambitious Lure"); break;
+                    case 2: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218906), true, "Ambitious Lure"); break;
+                    case 3: DrawIcon(Icons.DefaultStorage.TextureProvider.GetFromGameIcon(218907), true, "Ambitious Lure"); break;
                 }
 
                 ImGui.SameLine();
@@ -643,39 +617,39 @@ public partial class Interface
 
     private void DrawRecordTab()
     {
-        using var id  = ImRaii.PushId("Fish Records");
-        using var tab = ImRaii.TabItem("Fish Records");
-        ImGuiUtil.HoverTooltip("The records of my fishing prowess have been greatly exaggerated.\n"
-          + "Find, cleanup and share all data you have collected while fishing.");
+        using var id  = ImUtf8.PushId("Fish Records"u8);
+        using var tab = ImUtf8.TabItem("Fish Records"u8);
+        ImUtf8.HoverTooltip("The records of my fishing prowess have been greatly exaggerated.\n"u8
+          + "Find, cleanup and share all data you have collected while fishing."u8);
         if (!tab)
             return;
 
         _recordTable.Draw(ImGui.GetTextLineHeightWithSpacing());
 
-        var textSize = ImGui.CalcTextSize("00000000") with { Y = 0 };
+        var textSize = ImUtf8.CalcTextSize("00000000"u8) with { Y = 0 };
         if (_recordTable.CurrentItems != _recordTable.TotalItems)
             ImGuiUtil.DrawTextButton($"{_recordTable.CurrentItems}", textSize, ImGui.GetColorU32(ImGuiCol.Button),
                 ColorId.AvailableItem.Value());
         else
             ImGuiUtil.DrawTextButton($"{_recordTable.CurrentItems}", textSize, ImGui.GetColorU32(ImGuiCol.Button));
         ImGui.SameLine();
-        if (ImGui.Button("Cleanup"))
+        if (ImUtf8.Button("Cleanup"u8))
         {
             _plugin.FishRecorder.RemoveDuplicates();
             _plugin.FishRecorder.RemoveInvalid();
         }
 
-        ImGuiUtil.HoverTooltip("Delete all entries that were marked as invalid for some reason,\n"
-          + "as well as all entries that have a duplicate (with the same content id and timestamp).\n"
-          + "Usually, there should be none such entries.\n"
-          + "Use at your own risk, no backup will be created automatically.");
+        ImUtf8.HoverTooltip("Delete all entries that were marked as invalid for some reason,\n"u8
+          + "as well as all entries that have a duplicate (with the same content id and timestamp).\n"u8
+          + "Usually, there should be none such entries.\n"u8
+          + "Use at your own risk, no backup will be created automatically."u8);
 
         ImGui.SameLine();
         try
         {
-            if (ImGui.Button("Copy to Clipboard"))
+            if (ImUtf8.Button("Copy to Clipboard"u8))
                 ImGui.SetClipboardText(_plugin.FishRecorder.ExportBase64());
-            ImGuiUtil.HoverTooltip("Export all fish records to your clipboard, to share them with other people. This may be a lot");
+            ImUtf8.HoverTooltip("Export all fish records to your clipboard, to share them with other people. This may be a lot"u8);
         }
         catch
         {
@@ -685,9 +659,9 @@ public partial class Interface
         ImGui.SameLine();
         try
         {
-            if (ImGui.Button("Import from Clipboard"))
+            if (ImUtf8.Button("Import from Clipboard"u8))
                 _plugin.FishRecorder.ImportBase64(ImGui.GetClipboardText());
-            ImGuiUtil.HoverTooltip("Import a set of fish records shared with you from your clipboard. Should automatically skip duplicates.");
+            ImUtf8.HoverTooltip("Import a set of fish records shared with you from your clipboard. Should automatically skip duplicates."u8);
         }
         catch
         {
@@ -697,13 +671,13 @@ public partial class Interface
         ImGui.SameLine();
         try
         {
-            if (ImGui.Button("Export JSON"))
+            if (ImUtf8.Button("Export JSON"u8))
             {
                 ImGui.OpenPopup(RecordTable.FileNamePopup);
                 WriteJson = true;
             }
 
-            ImGuiUtil.HoverTooltip("Given a path, export all records as a single JSON file.");
+            ImUtf8.HoverTooltip("Given a path, export all records as a single JSON file."u8);
         }
         catch
         {
@@ -713,13 +687,13 @@ public partial class Interface
         ImGui.SameLine();
         try
         {
-            if (ImGui.Button("Export TSV"))
+            if (ImUtf8.Button("Export TSV"u8))
             {
                 ImGui.OpenPopup(RecordTable.FileNamePopup);
                 WriteTsv = true;
             }
 
-            ImGuiUtil.HoverTooltip("Given a path, export all records as a single TSV file.");
+            ImUtf8.HoverTooltip("Given a path, export all records as a single TSV file."u8);
         }
         catch
         {
@@ -729,7 +703,7 @@ public partial class Interface
         ImGui.SameLine();
         try
         {
-            if (ImGui.Button("Copy Caught Fish JSON"))
+            if (ImUtf8.Button("Copy Caught Fish JSON"u8))
             {
                 var logFish = GatherBuddy.GameData.Fishes.Values.Where(f => f.InLog && f.FishingSpots.Count > 0).ToArray();
                 var ids     = logFish.Where(f => GatherBuddy.FishLog.IsUnlocked(f)).Select(f => f.ItemId).ToArray();

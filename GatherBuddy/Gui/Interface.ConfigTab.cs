@@ -274,16 +274,10 @@ public partial class Interface
                 GatherBuddy.Config.StoreFishRecords, b => GatherBuddy.Config.StoreFishRecords = b);
 
         public static void DrawShowLocalTimeInRecordsBox()
-            => DrawCheckbox("Use Local Time",
+            => DrawCheckbox("Use Local Time in Records",
                 "When displaying timestamps in the Fish Records Tab, use local time instead of Unix time.",
                 GatherBuddy.Config.UseUnixTimeFishRecords, b => GatherBuddy.Config.UseUnixTimeFishRecords = b);
-        public static void DrawUseTextBasedLargeCollectableSignifiers()
-            => DrawCheckbox("Denote Large and Collectable with Letters",
-                "When displaying the size of the fish, append extra characters do allow better filtering. \n"
-              + "\"A\" or \"L\" to denote Average vs Large Fish."
-              + "\"C\" or \"N\" to denote Collected Fish vs Not Collected Fish.",
-                GatherBuddy.Config.TextBasedLargeCollectable, b => GatherBuddy.Config.TextBasedLargeCollectable = b);
-
+        
         public static void DrawFishTimerScale()
         {
             var value = GatherBuddy.Config.FishTimerScale / 1000f;
@@ -619,7 +613,6 @@ public partial class Interface
             {
                 ConfigFunctions.DrawKeepRecordsBox();
                 ConfigFunctions.DrawShowLocalTimeInRecordsBox();
-                ConfigFunctions.DrawUseTextBasedLargeCollectableSignifiers();
                 ConfigFunctions.DrawFishTimerBox();
                 ConfigFunctions.DrawFishTimerEditBox();
                 ConfigFunctions.DrawFishTimerClickthroughBox();
