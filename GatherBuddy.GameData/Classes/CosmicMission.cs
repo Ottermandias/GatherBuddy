@@ -14,6 +14,6 @@ public class CosmicMission
     public CosmicMission(WKSMissionUnit data)
     {
         Data = data;
-        Name = MultiString.ParseSeStringLumina(Data.Unknown0);
+        Name = MultiString.ParseSeStringLumina(Data.Item);
     }
 }

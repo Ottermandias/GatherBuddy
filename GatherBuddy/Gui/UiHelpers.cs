@@ -8,6 +8,7 @@ using GatherBuddy.Time;
 using ImGuiNET;
 using OtterGui;
 using OtterGui.Table;
+using OtterGui.Text;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -22,14 +23,14 @@ public partial class Interface
         if (item.Locations.Count() == 1)
         {
             using var style = ImRaii.PushStyle(ImGuiStyleVar.ButtonTextAlign, new Vector2(0, 0.5f));
-            ImGuiUtil.DrawTextButton(item.Locations.First().Name, new Vector2(width, 0), ImGui.GetColorU32(ImGuiCol.FrameBg));
+            ImUtf8.TextFramed(item.Locations.First().Name, ImGui.GetColorU32(ImGuiCol.FrameBg), new Vector2(width, 0));
             DrawLocationTooltip(item.Locations.First());
             return false;
         }
 
         var text = current?.Name ?? noPreferred;
         ImGui.SetNextItemWidth(width);
-        using var combo = ImRaii.Combo("##Location", text);
+        using var combo = ImUtf8.Combo("##Location"u8, text);
         DrawLocationTooltip(current);
         if (!combo)
             return false;
@@ -45,8 +46,8 @@ public partial class Interface
         var idx = 0;
         foreach (var loc in item.Locations)
         {
-            using var id = ImRaii.PushId(idx++);
-            if (ImGui.Selectable(loc.Name, loc.Id == (current?.Id ?? 0)))
+            using var id = ImUtf8.PushId(idx++);
+            if (ImUtf8.Selectable(loc.Name, loc.Id == (current?.Id ?? 0)))
             {
                 ret     = loc;
                 changed = true;
@@ -70,33 +71,33 @@ public partial class Interface
         };
         using var color = ImRaii.PushColor(ImGuiCol.Text, colorId);
         if (rightAligned)
-            ImGuiUtil.RightAlign(timeString);
+            ImUtf8.TextRightAligned(timeString);
         else
-            ImGui.TextUnformatted(timeString);
+            ImUtf8.Text(timeString);
         color.Pop();
         if ((uptimeDependency || !char.IsLetter(timeString[0])) && ImGui.IsItemHovered())
         {
             using var tt = ImRaii.Tooltip();
 
             if (uptimeDependency)
-                ImGuiUtil.DrawTextButton("Uptime Dependency", Vector2.Zero, 0xFF202080);
+                ImUtf8.TextFramed("Uptime Dependency"u8, 0xFF202080);
 
             if (!char.IsLetter(timeString[0]))
-                ImGui.Text($"{uptime.Start}\n{uptime.End}\n{uptime.DurationString()}");
+                ImUtf8.Text($"{uptime.Start}\n{uptime.End}\n{uptime.DurationString()}");
         }
     }
 
     internal static void HoverTooltip(string text)
     {
         if (!text.StartsWith('\0'))
-            ImGuiUtil.HoverTooltip(text);
+            ImUtf8.HoverTooltip(text);
     }
 
     public static void AlignTextToSize(string text, Vector2 size)
     {
         var cursor = ImGui.GetCursorPos();
         ImGui.SetCursorPos(cursor + new Vector2(ImGui.GetStyle().ItemSpacing.X / 2, (size.Y - ImGui.GetTextLineHeight()) / 2));
-        ImGui.Text(text);
+        ImUtf8.Text(text);
         ImGui.SameLine();
         ImGui.SetCursorPosY(cursor.Y);
         ImGui.NewLine();
