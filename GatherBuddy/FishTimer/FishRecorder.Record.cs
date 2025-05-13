@@ -272,14 +272,12 @@ public partial class FishRecorder
             return;
 
         LastState = state;
-        GatherBuddy.Log.Verbose($"Fishing state: {state}");
         switch (state)
         {
             case FishingState.Bite:    OnBite(); break;
             case FishingState.Reeling: Step |= CatchSteps.FishReeled; break;
             case FishingState.PoleReady:
             case FishingState.Quit:
-                GatherBuddy.Log.Verbose("Quiting!");
                 OnFishingStop();
                 break;
             case FishingState.PullPoleIn:
