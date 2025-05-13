@@ -98,7 +98,7 @@ public static partial class Fish
         data.Apply     (17588, Patch.TheFarEdgeOfFate) // Problematicus
             .Mooch     (data, 28634, 12754)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
-            .ForceLegendaryFish(true)
+            .ForceLegendary()
             .Time      (600, 900)
             .Snag      (data, Snagging.None)
             .Predators (data, 180, (12800, 3), (12754, 5))
@@ -106,14 +106,14 @@ public static partial class Fish
         data.Apply     (17589, Patch.TheFarEdgeOfFate) // Opabinia
             .Mooch     (data, 30136, 12776)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
-            .ForceLegendaryFish(true)
+            .ForceLegendary()
             .Snag      (data, Snagging.None)
             .Predators (data, 105, (13727, 3))
             .Weather   (data, 9);
         data.Apply     (17590, Patch.TheFarEdgeOfFate) // Armor Fish
             .Mooch     (data, 12705, 12757)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
-            .ForceLegendaryFish(true)
+            .ForceLegendary()
             .Time      (60, 240)
             .Snag      (data, Snagging.None)
             .Predators (data, 160, (12757, 6))
@@ -123,7 +123,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (300, 420)
             .Snag      (data, Snagging.None)
-            .ForceLegendaryFish(true)
+            .ForceLegendary()
             .Predators (data, 60, (12810, 3), (12753, 3))
             .Weather   (data, 1);
         data.Apply     (17592, Patch.TheFarEdgeOfFate) // Charibenet
@@ -131,13 +131,13 @@ public static partial class Fish
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (0, 180)
             .Snag      (data, Snagging.None)
-            .ForceLegendaryFish(true)
+            .ForceLegendary()
             .Predators (data, 120, (12715, 5))
             .Weather   (data, 16);
         data.Apply     (17593, Patch.TheFarEdgeOfFate) // Raimdellopterus
             .Mooch     (data, 12712, 12805)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
-            .ForceLegendaryFish(true)
+            .ForceLegendary()
             .Time      (300, 480)
             .Snag      (data, Snagging.None)
             .Predators (data, 100, (12805, 5))

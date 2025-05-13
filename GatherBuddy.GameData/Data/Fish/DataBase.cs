@@ -253,16 +253,18 @@ public static partial class Fish
         if (fish == null)
             return null;
 
-        fish.BigFishOverride = value;
+        fish.FishType = value
+            ? fish.FishType is FishType.Legendary ? FishType.Legendary : FishType.Big
+            : FishType.Normal;
         return fish;
     }
-    
-    private static Classes.Fish? ForceLegendaryFish(this Classes.Fish? fish, bool value)
+
+    private static Classes.Fish? ForceLegendary(this Classes.Fish? fish)
     {
         if (fish == null)
             return null;
-        
-        fish.LegendaryFish = value;
+
+        fish.FishType = FishType.Legendary;
         return fish;
     }
 
@@ -286,30 +288,31 @@ public static partial class Fish
         return fish;
     }
 
-    private static Classes.Fish? MultiHook(this Classes.Fish? fish, int value)
+    private static Classes.Fish? MultiHook(this Classes.Fish? fish, byte value)
     {
         if (fish == null)
             return null;
 
-        fish.MultiHook = value;
-        return fish;
-    }
-    
-    private static Classes.Fish? MultiHook(this Classes.Fish? fish, int value, int value2)
-    {
-        if (fish == null)
-            return null;
-
-        fish.MultiHook = value;
-        fish.MultiHookSecondValue = value2;
+        fish.MultiHookLower = value;
+        fish.MultiHookUpper = value;
         return fish;
     }
 
-    private static Classes.Fish? Points(this Classes.Fish? fish, int value)
+    private static Classes.Fish? MultiHook(this Classes.Fish? fish, byte valueLower, byte valueUpper)
     {
         if (fish == null)
             return null;
-        
+
+        fish.MultiHookLower = valueLower;
+        fish.MultiHookUpper = valueUpper;
+        return fish;
+    }
+
+    private static Classes.Fish? Points(this Classes.Fish? fish, short value)
+    {
+        if (fish == null)
+            return null;
+
         fish.Points = value;
         return fish;
     }

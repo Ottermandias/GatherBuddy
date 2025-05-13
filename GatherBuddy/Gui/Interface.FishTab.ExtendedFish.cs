@@ -74,9 +74,15 @@ public partial class Interface
         public ushort                    UptimePercent;
         public bool                      Unlocked = false;
         public bool                      Collectible;
-        public int                       MultiHook;
-        public int                       MutliHookSecondValue;
-        public int                       Points;
+
+        public byte MultiHookLower
+            => Data.MultiHookLower;
+
+        public byte MutliHookUpper
+            => Data.MultiHookUpper;
+
+        public short Points
+            => Data.Points;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
