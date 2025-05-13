@@ -25,6 +25,7 @@ public static partial class Fish
         data.Apply     (33239, Patch.DeathUntoDawn) // Listracanthus
             .Mooch     (data, 27589, 28925)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Time      (960, 1440)
             .Transition(data, 1, 2)
             .Weather   (data, 4);
@@ -32,11 +33,13 @@ public static partial class Fish
             .Bait      (data, 27588)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (600, 960)
+            .ForceLegendary()
             .Predators (data, 350, (33319, 1), (27452, 5));
         data.Apply     (33241, Patch.DeathUntoDawn) // Cinder Surprise
             .Bait      (data, 27584)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (0, 120)
+            .ForceLegendary()
             .Predators (data, 360, (27462, 10))
             .Transition(data, 11)
             .Weather   (data, 14);
@@ -44,15 +47,18 @@ public static partial class Fish
             .Bait      (data, 27589)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (1410, 1440)
+            .ForceLegendary()
             .Transition(data, 10)
             .Weather   (data, 1);
         data.Apply     (33243, Patch.DeathUntoDawn) // Greater Serpent of Ronka
             .Mooch     (data, 27587, 27490, 27491, 28071)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Time      (600, 720);
         data.Apply     (33244, Patch.DeathUntoDawn) // Lancetfish
             .Bait      (data, 27590)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Time      (0, 120)
             .Predators (data, 700, (33325, 2))
             .Transition(data, 2)

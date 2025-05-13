@@ -1,5 +1,4 @@
 using GatherBuddy.Enums;
-using GatherBuddy.Data;
 
 namespace GatherBuddy.Data;
 
@@ -21,6 +20,7 @@ public static partial class Fish
             .Bait      (data, 2606)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 350, (4913, 3))
+            .ForceLegendary()
             .Weather   (data, 7, 8);
         data.Apply     (8755, Patch.DreamsOfIce) // Coelacanthus
             .Mooch     (data, 2596, 4898)
@@ -30,6 +30,7 @@ public static partial class Fish
         data.Apply     (8756, Patch.DreamsOfIce) // Endoceras
             .Mooch     (data, 2596, 4898)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Time      (1200, 240)
             .Transition(data, 1, 2)
             .Weather   (data, 4, 3, 5);
@@ -65,6 +66,7 @@ public static partial class Fish
         data.Apply     (8763, Patch.DreamsOfIce) // Kuno the Killer
             .Mooch     (data, 2599, 4978, 5002)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Predators (data, 1400, (8762, 1));
         data.Apply     (8764, Patch.DreamsOfIce) // Pirate's Bane
             .Mooch     (data, 2585, 4869, 4904)
@@ -89,6 +91,7 @@ public static partial class Fish
         data.Apply     (8768, Patch.DreamsOfIce) // Helicoprion
             .Mooch     (data, 2600, 5035)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Time      (480, 1200)
             .Transition(data, 4, 3)
             .Weather   (data, 14);
@@ -110,6 +113,7 @@ public static partial class Fish
             .Weather   (data, 16);
         data.Apply     (8772, Patch.DreamsOfIce) // Shonisaurus
             .Mooch     (data, 2605, 5040, 8771)
+            .ForceLegendary()
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (8773, Patch.DreamsOfIce) // Magicked Mushroom
             .Mooch     (data, 2620, 4995)
@@ -123,6 +127,7 @@ public static partial class Fish
         data.Apply     (8775, Patch.DreamsOfIce) // Namitaro
             .Bait      (data, 2624)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Predators (data, 60, (8774, 1));
         data.Apply     (8776, Patch.DreamsOfIce) // Blood Red Bonytongue
             .Mooch     (data, 2599, 4978)

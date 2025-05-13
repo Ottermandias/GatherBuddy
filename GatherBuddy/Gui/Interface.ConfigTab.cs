@@ -273,6 +273,11 @@ public partial class Interface
                 "Store Fish Records on your computer. This is necessary for bite timings for the fish timer window.",
                 GatherBuddy.Config.StoreFishRecords, b => GatherBuddy.Config.StoreFishRecords = b);
 
+        public static void DrawShowLocalTimeInRecordsBox()
+            => DrawCheckbox("Use Local Time in Records",
+                "When displaying timestamps in the Fish Records Tab, use local time instead of Unix time.",
+                GatherBuddy.Config.UseUnixTimeFishRecords, b => GatherBuddy.Config.UseUnixTimeFishRecords = b);
+        
         public static void DrawFishTimerScale()
         {
             var value = GatherBuddy.Config.FishTimerScale / 1000f;
@@ -311,6 +316,24 @@ public partial class Interface
                 return;
 
             GatherBuddy.Config.ShowSecondIntervals = newValue;
+            GatherBuddy.Config.Save();
+        }
+        
+        public static void DrawFishTimerIntervalsRounding()
+        {
+            var value = GatherBuddy.Config.SecondIntervalsRounding;
+            ImGui.SetNextItemWidth(SetInputWidth);
+            var ret = ImGui.DragInt("Fish Timer Interval Rounding", ref value, 0.01f, 0, 3);
+            ImGuiUtil.HoverTooltip("Round the displayed second value to this number of digits past the decimal. \n"
+                + "Set to 0 to display only whole numbers.");
+            if (!ret)
+                return;
+
+            var newValue = (byte)Math.Clamp(value, 0, 3);
+            if (newValue == GatherBuddy.Config.SecondIntervalsRounding)
+                return;
+
+            GatherBuddy.Config.SecondIntervalsRounding = newValue;
             GatherBuddy.Config.Save();
         }
 
@@ -611,6 +634,7 @@ public partial class Interface
             if (ImGui.TreeNodeEx("Fish Timer"))
             {
                 ConfigFunctions.DrawKeepRecordsBox();
+                ConfigFunctions.DrawShowLocalTimeInRecordsBox();
                 ConfigFunctions.DrawFishTimerBox();
                 ConfigFunctions.DrawFishTimerEditBox();
                 ConfigFunctions.DrawFishTimerClickthroughBox();
@@ -619,6 +643,7 @@ public partial class Interface
                 ConfigFunctions.DrawFishTimerUptimesBox();
                 ConfigFunctions.DrawFishTimerScale();
                 ConfigFunctions.DrawFishTimerIntervals();
+                ConfigFunctions.DrawFishTimerIntervalsRounding();
                 ConfigFunctions.DrawHideFishPopupBox();
                 ConfigFunctions.DrawCollectableHintPopupBox();
                 ConfigFunctions.DrawDoubleHookHintPopupBox();

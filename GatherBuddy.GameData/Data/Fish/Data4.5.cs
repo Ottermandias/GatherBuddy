@@ -96,31 +96,37 @@ public static partial class Fish
         data.Apply     (24990, Patch.ARequiemForHeroes) // Xenacanthus
             .Mooch     (data, 20675, 24207)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Time      (960, 1200);
         data.Apply     (24991, Patch.ARequiemForHeroes) // Drepanaspis
             .Bait      (data, 20619)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Predators (data, 175, (23060, 2))
+            .ForceLegendary()
             .Weather   (data, 11);
         data.Apply     (24992, Patch.ARequiemForHeroes) // Stethacanthus
             .Mooch     (data, 20616, 20025)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1080)
+            .ForceLegendary()
             .Predators (data, 350, (20040, 2));
         data.Apply     (24993, Patch.ARequiemForHeroes) // The Ruby Dragon
             .Mooch     (data, 20676, 24214)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (240, 480)
             .Transition(data, 9)
+            .ForceLegendary()
             .Weather   (data, 3);
         data.Apply     (24994, Patch.ARequiemForHeroes) // Warden of the Seven Hues
             .Bait      (data, 20675)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .ForceLegendary()
             .Predators (data, 175, (23056, 3), (24203, 3), (24204, 5));
         data.Apply     (24995, Patch.ARequiemForHeroes) // The Unconditional
             .Bait      (data, 20675)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
             .Time      (330, 390)
+            .ForceLegendary()
             .Transition(data, 7)
             .Weather   (data, 1);
     }
