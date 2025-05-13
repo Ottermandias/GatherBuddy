@@ -351,7 +351,29 @@ public partial class Interface
             => DrawCheckbox("Show Multi Hook Hints",
                 "Show if a fish can be double or triple hooked in Cosmic Exploration.", // TODO: add ocean fishing when implemented.
                 GatherBuddy.Config.ShowMultiHookHints, b => GatherBuddy.Config.ShowMultiHookHints = b);
-
+        
+        
+        // Fish Stats Window
+        public static void DrawEnableFishStats()
+            => DrawCheckbox("Enable Fish Stats",
+                "New tab for aggregating and reporting fish stats based on local records. Currently in testing.",
+                GatherBuddy.Config.EnableFishStats, b => GatherBuddy.Config.EnableFishStats = b);
+        public static void DrawEnableReportTime()  
+            => DrawCheckbox("Copy Time Stats when reporting.",
+                "When copying the report, add min and max times to the report.",
+                GatherBuddy.Config.EnableReportTime, b => GatherBuddy.Config.EnableReportTime = b);
+        public static void DrawEnableReportSize()  
+            => DrawCheckbox("Copy Sizes Stats when reporting.",
+                "When copying the report, add min and max sizes to the report.",
+                GatherBuddy.Config.EnableReportSize, b => GatherBuddy.Config.EnableReportSize = b);
+        public static void DrawEnableReportMulti() 
+            => DrawCheckbox("Copy Multi Hook Stats when reporting.",
+                "When copying the report, add stats about multi-hook yields to the report.",
+                GatherBuddy.Config.EnableReportMulti, b => GatherBuddy.Config.EnableReportMulti = b);
+        public static void DrawEnableGraphs()      
+            => DrawCheckbox("Enable Graphs.",
+                "When viewing a fishing spot, enable visualization of fish report data. Extreme Testing!",
+                GatherBuddy.Config.EnableFishStatsGraphs, b => GatherBuddy.Config.EnableFishStatsGraphs = b);
 
         // Spearfishing Helper
         public static void DrawSpearfishHelperBox()
@@ -625,6 +647,16 @@ public partial class Interface
                 ConfigFunctions.DrawHideFishPopupBox();
                 ConfigFunctions.DrawCollectableHintPopupBox();
                 ConfigFunctions.DrawDoubleHookHintPopupBox();
+                ImGui.TreePop();
+            }
+
+            if (ImGui.TreeNodeEx("Fish Stats [Testing]"))
+            {
+                ConfigFunctions.DrawEnableFishStats();
+                ConfigFunctions.DrawEnableReportTime();
+                ConfigFunctions.DrawEnableReportSize();
+                ConfigFunctions.DrawEnableReportMulti();
+                ConfigFunctions.DrawEnableGraphs();
                 ImGui.TreePop();
             }
 

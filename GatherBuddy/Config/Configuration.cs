@@ -88,6 +88,14 @@ public partial class Configuration : IPluginConfiguration
     public int    SecondIntervalsRounding { get; set; } = 1;
     public bool   ShowCollectableHints    { get; set; } = true;
     public bool   ShowMultiHookHints      { get; set; } = true;
+    
+    // Fish Stats Tab
+    public bool EnableFishStats       { get; set; } = false;
+    public bool EnableReportTime      { get; set; } = true;
+    public bool EnableReportSize      { get; set; } = true;
+    public bool EnableReportMulti     { get; set; } = true;
+    public bool EnableFishStatsGraphs { get; set; } = false;
+    public int  FishStatsSelectedIdx  { get; set; }
 
     // Spearfish Helper
     public bool ShowSpearfishHelper          { get; set; } = true;
