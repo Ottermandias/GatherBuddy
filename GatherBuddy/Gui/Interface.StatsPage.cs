@@ -131,7 +131,7 @@ public partial class Interface
                 // Time
                 if (GatherBuddy.Config.EnableReportTime)
                 {
-                    var timeRecords = fishRecords.Where(r => !r.Flags.HasLure() || r.Flags.HasValidLure()).ToList();
+                    var timeRecords = fishRecords.Where(r => (!r.Flags.HasLure() || r.Flags.HasValidLure()) && !r.Flags.HasFlag(Effects.Chum)).ToList();
 
                     if (timeRecords.Count == 0)
                     {
