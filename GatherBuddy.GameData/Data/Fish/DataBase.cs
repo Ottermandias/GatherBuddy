@@ -452,13 +452,13 @@ public static partial class Fish
                         case (null, null): break;
                         case (null, _) v:
                             fish.MultiHook(
-                                fish.MultiHookLower > 0 && fish.MultiHookLower <= v.MultiHookUpper.Value
+                                fish.MultiHookLower > 0 && fish.MultiHookLower <= v.MultiHookUpper!.Value
                                     ? fish.MultiHookLower
-                                    : v.MultiHookUpper.Value, v.MultiHookUpper.Value);
+                                    : v.MultiHookUpper!.Value, v.MultiHookUpper!.Value);
                             break;
                         case (_, null) v:
-                            fish.MultiHook(v.MultiHookLower.Value,
-                                fish.MultiHookUpper >= v.MultiHookLower.Value ? fish.MultiHookUpper : v.MultiHookLower.Value);
+                            fish.MultiHook(v.MultiHookLower!.Value,
+                                fish.MultiHookUpper >= v.MultiHookLower!.Value ? fish.MultiHookUpper : v.MultiHookLower!.Value);
                             break;
                     }
 
