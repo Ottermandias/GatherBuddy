@@ -25,7 +25,8 @@ namespace GatherBuddy;
 
 public class GameData
 {
-    internal IDataManager                                   DataManager { get; }
+    public readonly string OverrideFile;
+    internal IDataManager DataManager { get; }
     internal FrozenDictionary<byte, CumulativeWeatherRates> CumulativeWeatherRates = FrozenDictionary<byte, CumulativeWeatherRates>.Empty;
 
     public readonly Logger Log;
@@ -53,6 +54,7 @@ public class GameData
 
     public int TimedGatherables     { get; }
     public int MultiNodeGatherables { get; }
+    public int OverriddenFish       { get; private set; }
 
     public (IGatherable? Item, ILocation? Location) GetConfig(ObjectType type, uint itemId, uint locationId)
         => type switch
@@ -64,10 +66,20 @@ public class GameData
             _ => (null, null),
         };
 
-    public GameData(IDataManager gameData, Logger log)
+    public bool ReimportOverrides()
     {
-        Log         = log;
-        DataManager = gameData;
+        if (!this.ApplyOverrides())
+            return false;
+
+        OverriddenFish = Fishes.Values.Count(f => f.HasOverridenData);
+        return true;
+    }
+
+    public GameData(IDataManager gameData, Logger log, string overrideFile)
+    {
+        Log          = log;
+        DataManager  = gameData;
+        OverrideFile = overrideFile;
         try
         {
             GatheringIcons = new GatheringIcons(gameData);
@@ -156,6 +168,7 @@ public class GameData
                 throw new Exception("Could not fetch any fish, this is certainly an error, terminating.");
 
             Data.Fish.Apply(this);
+            OverriddenFish = Fishes.Values.Count(f => f.HasOverridenData);
 
             FishingSpots = DataManager.GetExcelSheet<FishingSpotRow>()
                 .Where(f => f.PlaceName.RowId != 0 && (f.TerritoryType.RowId > 0 || f.RowId == 10000 || f.RowId >= 10017))

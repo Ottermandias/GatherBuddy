@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Interface.Utility;
@@ -137,13 +138,46 @@ public partial class Interface
         ImGui.SameLine();
         using var style = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, Vector2.Zero);
         ImGui.NewLine();
-        ImGui.TextUnformatted($"{table.CurrentItems} / {table.TotalItems} {name} Visible");
+        ImUtf8.Text($"{table.CurrentItems} / {table.TotalItems} {name} Visible");
         if (table.TotalColumns != table.VisibleColumns)
         {
-            ImGui.SameLine();
-            ImGui.Dummy(new Vector2(50 * ImGuiHelpers.GlobalScale, 0));
-            ImGui.SameLine();
-            ImGui.TextUnformatted($"{table.TotalColumns - table.VisibleColumns} Columns Hidden");
+            ImGui.SameLine(0, 50 * ImGuiHelpers.GlobalScale);
+            ImUtf8.Text($"{table.TotalColumns - table.VisibleColumns} Columns Hidden");
+        }
+
+        if (typeof(T) == typeof(ExtendedFish))
+        {
+            if (File.Exists(GatherBuddy.GameData.OverrideFile))
+            {
+                ImGui.SameLine(0, 50 * ImGuiHelpers.GlobalScale);
+                if (ImUtf8.SmallButton("Reimport Fish Overrides") && GatherBuddy.GameData.ReimportOverrides())
+                {
+                    GatherBuddy.UptimeManager.ResetModifiedUptimes();
+                    foreach (var fish in ExtendedFishList.Where(f => f.Data.HasOverridenData))
+                        fish.Update();
+                }
+            }
+
+            using (var popup = ImUtf8.PopupContextItem("##Context"u8))
+            {
+                if (popup)
+                    if (ImUtf8.MenuItem("Move to Backup"u8))
+                        try
+                        {
+                            File.Move(GatherBuddy.GameData.OverrideFile, Path.ChangeExtension(GatherBuddy.GameData.OverrideFile, ".json.bak"),
+                                true);
+                        }
+                        catch (Exception ex)
+                        {
+                            GatherBuddy.Log.Error($"Could not move fish data override file to backup:\n{ex}");
+                        }
+            }
+
+            if (GatherBuddy.GameData.OverriddenFish > 0)
+            {
+                ImGui.SameLine(0, 50 * ImGuiHelpers.GlobalScale);
+                ImUtf8.Text($"{GatherBuddy.GameData.OverriddenFish} Fish Overridden");
+            }
         }
     }
 

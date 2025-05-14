@@ -13,6 +13,7 @@ public enum ColorId
     ChangedLocationBg,
     HighlightText,
     AvailableBait,
+    CustomFishData,
 
     FishTimerWeakTug,
     FishTimerStrongTug,
@@ -66,6 +67,7 @@ public static class ColorIdExtensions
             ColorId.ChangedLocationBg                      => (0x80009000, "Custom Location Data Background",                                "The background of customly set aetherytes or coordinates for specific locations."),
             ColorId.HighlightText                          => (0xFF00A0FF, "Highlight Text",                                                 "Color used to highlight text under specific circumstances."),
             ColorId.AvailableBait                          => (0xFFB0E0FF, "Available Bait",                                                 "Color used to highlight bait in the fish window if you carry the bait in your inventory."),
+            ColorId.CustomFishData                         => (0xFFFFFFA0, "Custom Fish Data",                                               "Color used to highlight fish with custom overriden data in the fish table."),
                                                                                                                                             
             ColorId.FishTimerWeakTug                       => (0x8000A000, "Fish Timer Window Weak Tug",                                     "Fish that bite with a weak tug (!)."),
             ColorId.FishTimerStrongTug                     => (0x8000A0A0, "Fish Timer Window Strong Tug",                                   "Fish that bite with a strong tug (!!)."),

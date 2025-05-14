@@ -82,13 +82,13 @@ public partial class GatherBuddy : IDalamudPlugin
         {
             Dalamud.Initialize(pluginInterface);
             Icons.Init(Dalamud.GameData, Dalamud.Textures);
-            Log     = new Logger();
+            Log = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             Backup.CreateAutomaticBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
-            Config         = Configuration.Load();
-            Language       = Dalamud.ClientState.ClientLanguage;
-            GameData       = new GameData(Dalamud.GameData, Log);
-            Time           = new SeTime();
+            Config = Configuration.Load();
+            Language = Dalamud.ClientState.ClientLanguage;
+            GameData = new GameData(Dalamud.GameData, Log, Path.Combine(pluginInterface.GetPluginConfigDirectory(), "fish_overrides.json"));
+            Time = new SeTime();
             WaymarkManager = new WaymarkManager();
 
             WeatherManager      = new WeatherManager(GameData);

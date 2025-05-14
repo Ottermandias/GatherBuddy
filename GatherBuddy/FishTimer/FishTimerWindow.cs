@@ -28,7 +28,7 @@ public partial class FishTimerWindow : Window, IDisposable
       | ImGuiWindowFlags.NoNavFocus;
 
     private          FishingSpot? _spot;
-    private          FishCache[]  _availableFish    = Array.Empty<FishCache>();
+    private          FishCache[]  _availableFish    = [];
     private          TimeStamp    _nextUptimeChange = TimeStamp.MaxValue;
     private readonly FishRecorder _recorder;
     private readonly int          _maxNumLines = GatherBuddy.GameData.FishingSpots.Values.Where(f => !f.Spearfishing).Max(f => f.Items.Length);

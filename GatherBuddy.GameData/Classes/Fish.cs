@@ -53,6 +53,8 @@ public partial class Fish : IComparable<Fish>, IGatherable
     public bool IsLegendary
         => FishType is FishType.Legendary;
 
+    public bool HasOverridenData { get; internal set; }
+
     public OceanArea OceanArea { get; internal set; } = OceanArea.None;
 
     public bool OceanFish

@@ -6,14 +6,12 @@ using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
-using OtterGui;
 using OtterGui.Extensions;
 using OtterGui.Text;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
-using static GatherBuddy.Gui.Interface.ExtendedFish;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -57,26 +55,28 @@ public partial class Interface
         }
 
         public Fish                    Data;
-        public ISharedImmediateTexture Icon;
-        public string                  Territories;
-        public string                  SpotNames;
-        public string                  Aetherytes;
+        public ISharedImmediateTexture Icon        = null!;
+        public string                  Territories = string.Empty;
+        public string                  SpotNames   = string.Empty;
+        public string                  Aetherytes  = string.Empty;
 
-        public string                    Time;
-        public ISharedImmediateTexture[] WeatherIcons;
-        public ISharedImmediateTexture[] TransitionIcons;
-        public BaitOrder[]               Bait;
+        public string                    Time            = string.Empty;
+        public ISharedImmediateTexture[] WeatherIcons    = [];
+        public ISharedImmediateTexture[] TransitionIcons = [];
+        public BaitOrder[]               Bait            = [];
         public ISharedImmediateTexture?  Snagging;
         public ISharedImmediateTexture?  Lure;
-        public Predator[]                Predators;
-        public string                    Patch;
-        public string                    UptimeString;
-        public string                    Intuition;
-        public string                    FishType;
+        public Predator[]                Predators    = [];
+        public string                    Patch        = string.Empty;
+        public string                    UptimeString = string.Empty;
+        public string                    Intuition    = string.Empty;
+        public string                    FishType     = string.Empty;
         public bool                      UptimeDependency;
         public ushort                    UptimePercent;
         public bool                      Unlocked = false;
-        public bool                      Collectible;
+
+        public bool Collectible
+            => Data.ItemData.IsCollectable;
 
         public byte MultiHookLower
             => Data.MultiHookLower;
@@ -261,45 +261,49 @@ public partial class Interface
 
         public ExtendedFish(Fish data)
         {
-            Data        = data;
-            Collectible = data.ItemData.IsCollectable;
-            Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
-            Territories = string.Join('\n', data.FishingSpots.Select(f => f.Territory.Name).Distinct());
+            Data = data;
+            Update();
+        }
+
+        public void Update()
+        {
+            Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(Data.ItemData.Icon));
+            Territories = string.Join('\n', Data.FishingSpots.Select(f => f.Territory.Name).Distinct());
             if (!Territories.Contains('\n'))
                 Territories = '\0' + Territories;
-            SpotNames = string.Join('\n', data.FishingSpots.Select(f => f.Name).Distinct());
+            SpotNames = string.Join('\n', Data.FishingSpots.Select(f => f.Name).Distinct());
             if (!SpotNames.Contains('\n'))
                 SpotNames = '\0' + SpotNames;
             Aetherytes = string.Join('\n',
-                data.FishingSpots.Where(f => f.ClosestAetheryte != null).Select(f => f.ClosestAetheryte!.Name).Distinct());
+                Data.FishingSpots.Where(f => f.ClosestAetheryte != null).Select(f => f.ClosestAetheryte!.Name).Distinct());
             if (!Aetherytes.Contains('\n'))
                 Aetherytes = '\0' + Aetherytes;
-            Patch = string.Intern($"Patch {data.Patch.ToVersionString()}");
-            FishType = data.OceanFish ? "Ocean Fish" :
-                data.IsSpearFish      ? "Spearfishing" :
-                data.IsBigFish        ? "Big Fish" : "Regular Fish";
+            Patch = string.Intern($"Patch {Data.Patch.ToVersionString()}");
+            FishType = Data.OceanFish ? "Ocean Fish" :
+                Data.IsSpearFish      ? "Spearfishing" :
+                Data.IsBigFish        ? "Big Fish" : "Regular Fish";
 
-            Time = !data.FishRestrictions.HasFlag(FishRestrictions.Time)
+            Time = !Data.FishRestrictions.HasFlag(FishRestrictions.Time)
                 ? "Always Up"
-                : data.OceanFish
-                    ? PrintOceanTime(data.OceanTime)
-                    : data.Interval.AlwaysUp()
+                : Data.OceanFish
+                    ? PrintOceanTime(Data.OceanTime)
+                    : Data.Interval.AlwaysUp()
                         ? "Unknown Uptime"
-                        : string.Intern(data.Interval.PrintHours());
+                        : string.Intern(Data.Interval.PrintHours());
 
-            UptimePercent = SetUptime(data);
+            UptimePercent = SetUptime(Data);
             UptimeString  = string.Intern($"{(UptimePercent / 100f).ToString("F1", CultureInfo.InvariantCulture)}%");
             if (UptimeString == "0.0%")
                 UptimeString = "<0.1%";
-            WeatherIcons     = SetWeather(data);
-            TransitionIcons  = SetTransition(data);
-            Predators        = SetPredators(data);
-            Bait             = SetBait(data);
-            Snagging         = SetSnagging(data, Bait);
-            Lure             = SetLure(data, Bait);
-            UptimeDependency = SetUptimeDependency(data, Bait);
-            Intuition        = SetIntuition(data);
-            Unlocked         = GatherBuddy.FishLog.IsUnlocked(data);
+            WeatherIcons     = SetWeather(Data);
+            TransitionIcons  = SetTransition(Data);
+            Predators        = SetPredators(Data);
+            Bait             = SetBait(Data);
+            Snagging         = SetSnagging(Data, Bait);
+            Lure             = SetLure(Data, Bait);
+            UptimeDependency = SetUptimeDependency(Data, Bait);
+            Intuition        = SetIntuition(Data);
+            Unlocked         = GatherBuddy.FishLog.IsUnlocked(Data);
         }
 
         private static string PrintOceanTime(OceanTime time)

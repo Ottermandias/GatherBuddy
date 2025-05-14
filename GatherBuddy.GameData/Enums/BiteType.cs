@@ -1,5 +1,9 @@
-﻿namespace GatherBuddy.Enums;
+﻿using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 
+namespace GatherBuddy.Enums;
+
+[JsonConverter(typeof(StringEnumConverter))]
 public enum BiteType : byte
 {
     Unknown   = 0,

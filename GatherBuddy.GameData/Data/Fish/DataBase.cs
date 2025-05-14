@@ -1,5 +1,4 @@
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,6 +6,8 @@ using System.Runtime.CompilerServices;
 using GatherBuddy.Enums;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
+using Newtonsoft.Json;
+using OtterGui.Extensions;
 
 namespace GatherBuddy.Data;
 
@@ -85,10 +86,10 @@ public static partial class Fish
             if (data.Bait.TryGetValue(baitId.Value, out var bait))
                 fish.InitialBait = bait;
             else if (data.Fishes.TryGetValue(baitId.Value, out var fsh))
-                fish.Mooches = new[]
-                {
+                fish.Mooches =
+                [
                     fsh,
-                };
+                ];
             else
                 throw new Exception($"Could not find bait {baitId.Value}.");
         }
@@ -123,10 +124,10 @@ public static partial class Fish
         try
         {
             if (data.Fishes.TryGetValue(moochId, out var fsh))
-                fish.Mooches = new[]
-                {
+                fish.Mooches =
+                [
                     fsh,
-                };
+                ];
             else
                 throw new Exception($"Could not find fish {moochId}.");
         }
@@ -341,25 +342,26 @@ public static partial class Fish
 
     private static void ApplyMooches(this GameData data)
     {
+        foreach (var fish in data.Fishes.Values.Where(f => !f.IsSpearFish))
+            ApplyMooch(fish);
+        return;
+
         (Bait, Classes.Fish[]) ApplyMooch(Classes.Fish fish)
         {
             if (fish.InitialBait != Structs.Bait.Unknown)
                 return (fish.InitialBait, fish.Mooches);
 
             if (fish.Mooches.Length == 0)
-                return (Structs.Bait.Unknown, Array.Empty<Classes.Fish>());
+                return (Structs.Bait.Unknown, []);
 
             var (b, m) = ApplyMooch(fish.Mooches[^1]);
             if (b == Structs.Bait.Unknown)
-                return (Structs.Bait.Unknown, Array.Empty<Classes.Fish>());
+                return (Structs.Bait.Unknown, []);
 
             fish.InitialBait = b;
             fish.Mooches     = m.Append(fish.Mooches[^1]).ToArray();
             return (fish.InitialBait, fish.Mooches);
         }
-
-        foreach (var fish in data.Fishes.Values.Where(f => !f.IsSpearFish))
-            ApplyMooch(fish);
     }
 
     internal static void Apply(GameData data)
@@ -397,7 +399,99 @@ public static partial class Fish
         data.ApplyCrossroads();
         data.ApplySeekersOfEternity();
         data.ApplyMooches();
+        data.ApplyOverrides();
         //DumpUnknown(Patch.SeekersOfEternity, data.Fishes.Values);
+    }
+
+    public static bool ApplyOverrides(this GameData data)
+    {
+        try
+        {
+            if (!File.Exists(data.OverrideFile))
+                return false;
+
+            var text = File.ReadAllText(data.OverrideFile);
+            var list = JsonConvert.DeserializeObject<List<FishOverrideData>>(text);
+            if (list is null)
+                return false;
+
+            var count = 0;
+            foreach (var (custom, index) in list.WithIndex())
+            {
+                try
+                {
+                    if (!data.Fishes.TryGetValue(custom.ItemId, out var fish))
+                    {
+                        data.Log.Warning($"Could not identify fish with ItemID {custom.ItemId} at index {index}.");
+                        continue;
+                    }
+
+                    fish.HasOverridenData = true;
+
+                    if (custom.BaitId is { } bait)
+                        fish.Bait(data, bait);
+
+                    if (custom.MoochId is { } mooch)
+                        fish.Mooch(data, mooch);
+
+                    if (custom.HookSet is not HookSet.Unknown)
+                        fish.Bite(data, custom.HookSet, custom.BiteType is not BiteType.Unknown ? custom.BiteType : fish.BiteType);
+                    else if (custom.BiteType is not BiteType.Unknown)
+                        fish.Bite(data, fish.HookSet, custom.BiteType);
+
+                    if (custom.Lure is { } lure)
+                        fish.Lure(lure);
+
+                    if (custom.IntuitionLength is { } intuition)
+                        fish.Predators(data, intuition, custom.Predators ?? fish.Predators.Select(p => (p.Item1.ItemId, p.Item2)).ToArray());
+                    else if (custom.Predators is { } predators)
+                        fish.Predators(data, fish.IntuitionLength, predators);
+
+                    switch (custom.MultiHookLower, custom.MultiHookUpper)
+                    {
+                        case (null, null): break;
+                        case (null, _) v:
+                            fish.MultiHook(
+                                fish.MultiHookLower > 0 && fish.MultiHookLower <= v.MultiHookUpper.Value
+                                    ? fish.MultiHookLower
+                                    : v.MultiHookUpper.Value, v.MultiHookUpper.Value);
+                            break;
+                        case (_, null) v:
+                            fish.MultiHook(v.MultiHookLower.Value,
+                                fish.MultiHookUpper >= v.MultiHookLower.Value ? fish.MultiHookUpper : v.MultiHookLower.Value);
+                            break;
+                    }
+
+                    if (custom.Points is { } points)
+                        fish.Points(points);
+
+                    if (custom.Snagging is { } snagging)
+                        fish.Snag(data, snagging ? Snagging.Required : Snagging.None);
+
+                    if (custom is { UptimeMinuteOfDayStart: { } start, UptimeMinuteOfDayEnd: { } end })
+                        fish.Time(start, end);
+
+                    if (custom.Transition is { } transition)
+                        fish.Transition(data, transition);
+
+                    if (custom.Weather is { } weather)
+                        fish.Transition(data, weather);
+                    ++count;
+                }
+                catch (Exception e)
+                {
+                    data.Log.Warning($"Error applying fish override data at index {index}:\n{e}");
+                }
+            }
+
+            data.Log.Information($"Successfully applied {count} fish data overrides.");
+            return count > 0;
+        }
+        catch (Exception ex)
+        {
+            data.Log.Error($"Error reading fish override file:\n{ex}");
+            return false;
+        }
     }
 
     public static void DumpUnknown(Patch patch, IEnumerable<Classes.Fish> fish, [CallerFilePath] string? directory = null)
