@@ -883,7 +883,7 @@ public static partial class Fish
         data.Apply(45858, Patch.SeekersOfEternity) // Cobalt Fish
             .Bait(data, 45960)
             .Mission(data, 488)
-            .Points(500)
+            .Points(600)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45856, Patch.SeekersOfEternity) // Galactic Flarefish
             .Bait(data, 45960)
@@ -956,19 +956,19 @@ public static partial class Fish
             .Mission(data, 491)
             .Bite(data, HookSet.Unknown, BiteType.Strong);
         data.Apply(45861, Patch.SeekersOfEternity) // Gleamingray
-            .Bait(data)
+            .Bait(data, 45963)
             .Mission(data, 491)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45862, Patch.SeekersOfEternity) // Lunar Butterfly
-            .Bait(data)
+            .Bait(data, 45965)
             .Mission(data, 491)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45863, Patch.SeekersOfEternity) // Lunar Seagrapes
-            .Bait(data)
+            .Bait(data, 45965)
             .Mission(data, 491)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(45864, Patch.SeekersOfEternity) // Fishingway
-            .Bait(data)
+            .Bait(data, 45963)
             .Mission(data, 491)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 

@@ -25,7 +25,7 @@ public partial class Interface
     private static readonly FrozenDictionary<ushort, CosmicMission> Missions                = GatherBuddy.GameData.CosmicFishingMissions;
     private                 List<FishRecord>                        _records                = [];
     private                 int                                     _selectedFishingSpotIdx = GatherBuddy.Config.FishStatsSelectedIdx;
-    private                 FishingSpot                             _selectedSpot           = Locations.First().Value;
+    private                 FishingSpot                             _selectedSpot           = Locations.Values[GatherBuddy.Config.FishStatsSelectedIdx];
     private                 ClippedSelectableCombo<FishingSpot>?    _fishingSpotCombo;
 
     private static string CosmicHandler(FishingSpot spot)
@@ -79,6 +79,7 @@ public partial class Interface
         var recordsAtSpot = _records
             .Where(r => r.SpotId == _selectedSpot.Id && r is { HasCatch: true, HasBait: true })
             .GroupBy(r => r.BaitId)
+            .OrderBy(g => g.First().Bait)
             .ToList();
 
         var sb = new StringBuilder();
@@ -109,8 +110,17 @@ public partial class Interface
             // Bait Name
             sb.AppendLine($"Bait: {baitName}");
 
+            var fishIdToIndex = _selectedSpot.Items
+                .Select((fish, index) => new { fish.FishId, index })
+                .ToDictionary(x => x.FishId, x => x.index);
+
             var fishGroups = baitRecords
                 .GroupBy(r => r.CatchId)
+                .OrderBy(g =>
+                {
+                    var fishId = g.First().Catch!.FishId;
+                    return fishIdToIndex.GetValueOrDefault(fishId, int.MaxValue);
+                })
                 .ToList();
 
             foreach (var fishGroup in fishGroups)
