@@ -110,7 +110,7 @@ namespace GatherBuddy.AutoGather
         }
 
 
-        private unsafe void DoActionTasks(GatherTarget target)
+        private unsafe void DoActionTasks(IEnumerable<GatherTarget> target)
         {
             if (MasterpieceAddon != null)
             {
@@ -217,7 +217,7 @@ namespace GatherBuddy.AutoGather
             //     EnqueueActionWithDelay(() => UseAction(Actions.IdenticalCast));
 
             if (Player.Status.All(s => !Actions.CollectorsGlove.StatusProvide.Contains(s.StatusId)))
-                    EnqueueActionWithDelay(() => UseAction(Actions.CollectorsGlove));
+                EnqueueActionWithDelay(() => UseAction(Actions.CollectorsGlove));
             else if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
                 EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
             else if (target.Fish?.Snagging == Snagging.Required)
@@ -315,24 +315,30 @@ namespace GatherBuddy.AutoGather
             }
         }
 
-        private unsafe void DoGatherWindowActions(GatherTarget target)
+        private unsafe void DoGatherWindowActions(IEnumerable<GatherTarget> target)
         {
             if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit)
                 LuckUsed = new(0);
 
-            //Use The Giving Land out of order to gather random crystals.
-            if (ShouldUseGivingLandOutOfOrder(target.Gatherable))
+            foreach (var t in target)
             {
-                EnqueueActionWithDelay(() => UseAction(Actions.GivingLand));
-                return;
+                //Use The Giving Land out of order to gather random crystals.
+                if (ShouldUseGivingLandOutOfOrder(t.Gatherable))
+                {
+                    EnqueueActionWithDelay(() => UseAction(Actions.GivingLand));
+                    return;
+                }
             }
 
-            if (!HasGivingLandBuff && ShouldUseLuck(target.Gatherable))
+            foreach (var t in target)
             {
-                LuckUsed[1] = true;
-                LuckUsed[2] = NodeTracker.Revisit;
-                EnqueueActionWithDelay(() => UseAction(Actions.Luck));
-                return;
+                if (!HasGivingLandBuff && ShouldUseLuck(t.Gatherable))
+                {
+                    LuckUsed[1] = true;
+                    LuckUsed[2] = NodeTracker.Revisit;
+                    EnqueueActionWithDelay(() => UseAction(Actions.Luck));
+                    return;
+                }
             }
 
             var (useSkills, slot) = GetItemSlotToGather(target);

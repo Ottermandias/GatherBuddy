@@ -163,9 +163,6 @@
       "gatherbuddy.models": {
         "type": "Project"
       },
-      "gatherbuddy.secretkeys": {
-        "type": "Project"
-      },
       "ottergui": {
         "type": "Project",
         "dependencies": {
