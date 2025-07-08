@@ -1,8 +1,5 @@
 ﻿using Dalamud.Game;
 using GatherBuddy.Classes;
-using GatherBuddy.Interfaces;
-using GatherBuddy.Utility;
-using System;
 using System.Collections.Frozen;
 using System.Collections.Generic;
 using System.Linq;

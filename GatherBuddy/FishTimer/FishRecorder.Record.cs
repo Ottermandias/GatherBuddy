@@ -34,6 +34,7 @@ public partial class FishRecorder
         FishCaught     = 0x08,
         Mooch          = 0x10,
         FishReeled     = 0x20,
+        NoMoreHook     = 0x40,
     }
 
     public readonly   FishingParser Parser;
@@ -211,8 +212,11 @@ public partial class FishRecorder
 
     private void OnHooking(HookSet hook)
     {
-        Record.SetTugHook(Record.Tug, hook);
-        GatherBuddy.Log.Verbose($"Hooking {Record.Tug} tug with {hook}.");
+        if (!Step.HasFlag(CatchSteps.FishReeled) && !Step.HasFlag(CatchSteps.NoMoreHook))
+        {
+            Record.SetTugHook(Record.Tug, hook);
+            GatherBuddy.Log.Verbose($"Hooking {Record.Tug} tug with {hook}.");
+        }
     }
 
     private void OnCatch(Fish fish, ushort size, byte amount, bool large, bool collectible)
@@ -280,7 +284,6 @@ public partial class FishRecorder
             return;
 
         LastState = state;
-
         switch (state)
         {
             case FishingState.Bite:    OnBite(); break;
@@ -288,6 +291,9 @@ public partial class FishRecorder
             case FishingState.PoleReady:
             case FishingState.Quit:
                 OnFishingStop();
+                break;
+            case FishingState.PullPoleIn:
+                Step |= CatchSteps.NoMoreHook;
                 break;
         }
     }

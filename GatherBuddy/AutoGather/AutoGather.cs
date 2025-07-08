@@ -285,13 +285,13 @@ namespace GatherBuddy.AutoGather
 
             if (IsGathering)
             {
-                GatherTarget gatherTarget;
+                IEnumerable<GatherTarget> gatherTarget;
                 if (!_activeItemList.IsInitialized)
                     // If Auto-Gather is enabled after opening the node, the active item list is not initialized.
-                    gatherTarget = _activeItemList.GetNextOrDefault(new List<uint>()).FirstOrDefault();
+                    gatherTarget = _activeItemList.GetNextOrDefault([Svc.Targets.Target!.DataId]);
                 else
                     // Otherwise, we don't want the list to suddenly change while gathering.
-                    gatherTarget = _activeItemList.CurrentOrDefault;
+                    gatherTarget = [_activeItemList.CurrentOrDefault];
 
                 if (!GatherBuddy.Config.AutoGatherConfig.DoGathering)
                     return;

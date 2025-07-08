@@ -57,6 +57,18 @@ public class UptimeManager : IDisposable
     public void ResetLocations()
         => _lastReset++;
 
+    public void ResetModifiedUptimes()
+    {
+        foreach (var fish in TimedGatherables.OfType<Fish>().Where(f => f.HasOverridenData))
+        {
+            switch (fish.InternalLocationId)
+            {
+                case > 0: _bestUptime[fish.InternalLocationId]    = (null!, TimeInterval.Never); break;
+                case < 0: _bestLocation[~fish.InternalLocationId] = (null!, 0); break;
+            }
+        }
+    }
+
     // Get the best location if nothing has reset locations,
     // otherwise update the best aetheryte and return that.
     private ILocation GetLocation(IGatherable item)
@@ -109,10 +121,8 @@ public class UptimeManager : IDisposable
     private static TimeInterval GetUptime(Fish fish, Territory territory, TimeStamp now)
     {
         if (fish.OceanFish)
-        {
             // Ocean fish timing is based on the real world time, not server time.
             return OceanUptime.GetOceanUptime(fish, now);
-        }
 
         if (fish.FishRestrictions == FishRestrictions.Time)
             return fish.Interval == RepeatingInterval.Always ? TimeInterval.Invalid : fish.Interval.NextRealUptime(now);
@@ -179,12 +189,8 @@ public class UptimeManager : IDisposable
         {
             switch (item)
             {
-                case Gatherable g:
-                    (loc, bestTime) = GetBestUptime(g.NodeList, GatherBuddy.Time.ServerTime);
-                    break;
-                case Fish f:
-                    (loc, bestTime) = GetBestUptime(f, f.FishingSpots, GatherBuddy.Time.ServerTime);
-                    break;
+                case Gatherable g: (loc, bestTime) = GetBestUptime(g.NodeList, GatherBuddy.Time.ServerTime); break;
+                case Fish f:       (loc, bestTime) = GetBestUptime(f,          f.FishingSpots, GatherBuddy.Time.ServerTime); break;
             }
 
             Debug.Assert(loc != null);
@@ -299,7 +305,7 @@ public class UptimeManager : IDisposable
         _currentTerritory = territory;
         var rawT = Dalamud.GameData.GetExcelSheet<TerritoryTypeTelepo>().GetRowOrDefault(territory);
         (_aetherStreamX, _aetherStreamY, _aetherPlane) =
-            rawT == null ? ((ushort)0, (ushort)0, (ushort)0) : (rawT.Value.X, rawT.Value.Y, (ushort) rawT.Value.Relay.RowId);
+            rawT == null ? ((ushort)0, (ushort)0, (ushort)0) : (rawT.Value.X, rawT.Value.Y, (ushort)rawT.Value.Relay.RowId);
 
         if (GatherBuddy.Config.AetherytePreference == AetherytePreference.Cost)
             ResetLocations();

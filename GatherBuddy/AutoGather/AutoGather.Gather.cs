@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -61,7 +62,7 @@ namespace GatherBuddy.AutoGather
         /// </summary>
         /// <returns>UseSkills: True if the selected item is in the gathering list; false if we gather a collectable or some unneeded junk
         /// Slot: ItemSlot of item to gather</returns>
-        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(GatherTarget gatherTarget)
+        private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(IEnumerable<GatherTarget> gatherTarget)
         {
             var available = NodeTracker.Available
                 .Where(CheckItemOvercap)
@@ -72,7 +73,7 @@ namespace GatherBuddy.AutoGather
                 return (false, available.First(i => i.Item.IsTreasureMap));
             }
 
-            var target = gatherTarget.Item != null ? available.Where(s => s.Item == gatherTarget.Item).FirstOrDefault() : null;
+            var target = available.FirstOrDefault(a => gatherTarget.Any(i => i.Gatherable?.ItemId == a.Item.ItemId));
 
             //Gather crystals when using The Giving Land
             if (HasGivingLandBuff && (target == null || !target.Item.IsCrystal))
@@ -82,7 +83,7 @@ namespace GatherBuddy.AutoGather
                     return (true, crystal);
             }
 
-            if (target != null && gatherTarget.Item!.GetInventoryCount() < gatherTarget.Quantity)
+            if (target != null && target.Item.GetInventoryCount() < gatherTarget.First(t => t.Gatherable?.ItemId == target.Item.ItemId).Quantity)
             {
                 //The target item is found in the node, would not overcap and we need to gather more of it
                 return (!target.Collectable, target);

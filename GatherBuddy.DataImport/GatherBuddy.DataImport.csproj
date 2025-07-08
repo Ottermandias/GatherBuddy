@@ -7,13 +7,17 @@
         <Nullable>enable</Nullable>
     </PropertyGroup>
 
+    <PropertyGroup>
+        <DalamudLibPath>$(AppData)\XIVLauncher\addon\Hooks\dev\</DalamudLibPath>
+    </PropertyGroup>
+
     <ItemGroup>
       <ProjectReference Include="..\GatherBuddy.Models\GatherBuddy.Models.csproj" />
     </ItemGroup>
 
     <ItemGroup>
       <Reference Include="Newtonsoft.Json">
-        <HintPath>..\..\..\AppData\Roaming\XIVLauncher\addon\Hooks\dev\Newtonsoft.Json.dll</HintPath>
+          <HintPath>$(DalamudLibPath)Newtonsoft.Json.dll</HintPath>
       </Reference>
     </ItemGroup>
 

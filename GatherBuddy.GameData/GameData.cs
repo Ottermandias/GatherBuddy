@@ -28,7 +28,8 @@ namespace GatherBuddy;
 
 public class GameData
 {
-    internal IDataManager                                   DataManager { get; }
+    public readonly string OverrideFile;
+    internal IDataManager DataManager { get; }
     internal FrozenDictionary<byte, CumulativeWeatherRates> CumulativeWeatherRates = FrozenDictionary<byte, CumulativeWeatherRates>.Empty;
 
     public readonly Logger Log;
@@ -57,6 +58,7 @@ public class GameData
 
     public int TimedGatherables     { get; }
     public int MultiNodeGatherables { get; }
+    public int OverriddenFish       { get; private set; }
 
     public (IGatherable? Item, ILocation? Location) GetConfig(ObjectType type, uint itemId, uint locationId)
         => type switch
@@ -68,11 +70,20 @@ public class GameData
             _ => (null, null),
         };
 
-    public GameData(IDataManager gameData, Logger log, Dictionary<uint, List<Vector3>> worldCoordsDict)
+    public bool ReimportOverrides()
+    {
+        if (!this.ApplyOverrides())
+            return false;
+
+        OverriddenFish = Fishes.Values.Count(f => f.HasOverridenData);
+        return true;
+    }
+    public GameData(IDataManager gameData, Logger log, Dictionary<uint, List<Vector3>> worldCoordsDict, string overrideFile)
     {
         Log         = log;
         DataManager = gameData;
         WorldCoords = worldCoordsDict;
+        OverrideFile = overrideFile;
         try
         {
             GatheringIcons = new GatheringIcons(gameData);
@@ -133,14 +144,14 @@ public class GameData
                 throw new Exception("Could not fetch any gathering nodes, this is certainly an error, terminating.");
 
             CosmicFishingMissions = DataManager.GetExcelSheet<WKSMissionUnit>()
-                .Where(m => m.Unknown0.ByteLength > 0 && m.Unknown1 is 19)
+                .Where(m => m.Item.ByteLength > 0 && m.Unknown1 is 19)
                 .ToFrozenDictionary(m => (ushort)m.RowId, m => new CosmicMission(m));
             Log.Verbose("Collected {NumCosmicMissions} different cosmic fishing missions.", CosmicFishingMissions.Count);
 
             Bait = DataManager.GetExcelSheet<Item>()
                 .Where(i => i.ItemSearchCategory.RowId == Structs.Bait.FishingTackleRow)
-                .Concat(DataManager.GetExcelSheet<WKSItemInfo>().Where(i => i.Unknown3 is 5)
-                    .Select(i => DataManager.GetExcelSheet<Item>().GetRow(i.Unknown0))) // Unknown3 is WKSItemSubCategory, Unknown 0 is ItemId.
+                .Concat(DataManager.GetExcelSheet<WKSItemInfo>().Where(i => i.WKSItemSubCategory is 5)
+                    .Select(i => DataManager.GetExcelSheet<Item>().GetRow(i.Item)))
                 .ToFrozenDictionary(b => b.RowId, b => new Bait(b));
             Log.Verbose("Collected {NumBaits} different types of bait.", Bait.Count);
             if (Bait.Count is 0)
@@ -161,6 +172,7 @@ public class GameData
                 throw new Exception("Could not fetch any fish, this is certainly an error, terminating.");
 
             Data.Fish.Apply(this);
+            OverriddenFish = Fishes.Values.Count(f => f.HasOverridenData);
 
             FishingSpots = DataManager.GetExcelSheet<FishingSpotRow>()
                 .Where(f => f.PlaceName.RowId != 0 && (f.TerritoryType.RowId > 0 || f.RowId == 10000 || f.RowId >= 10017))

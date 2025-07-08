@@ -1,7 +1,4 @@
-﻿using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Numerics;
+﻿using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -9,9 +6,13 @@ using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
 using ImGuiNET;
-using OtterGui;
+using OtterGui.Extensions;
+using OtterGui.Text;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Numerics;
 using ImRaii = OtterGui.Raii.ImRaii;
-using Dalamud.Interface.Textures;
 
 namespace GatherBuddy.Gui;
 
@@ -54,27 +55,37 @@ public partial class Interface
         }
 
         public Fish                    Data;
-        public ISharedImmediateTexture Icon;
-        public string                  Territories;
-        public string                  SpotNames;
-        public string                  Aetherytes;
+        public ISharedImmediateTexture Icon        = null!;
+        public string                  Territories = string.Empty;
+        public string                  SpotNames   = string.Empty;
+        public string                  Aetherytes  = string.Empty;
 
-        public string                    Time;
-        public ISharedImmediateTexture[] WeatherIcons;
-        public ISharedImmediateTexture[] TransitionIcons;
-        public BaitOrder[]               Bait;
+        public string                    Time            = string.Empty;
+        public ISharedImmediateTexture[] WeatherIcons    = [];
+        public ISharedImmediateTexture[] TransitionIcons = [];
+        public BaitOrder[]               Bait            = [];
         public ISharedImmediateTexture?  Snagging;
         public ISharedImmediateTexture?  Lure;
-        public Predator[]                Predators;
-        public string                    Patch;
-        public string                    UptimeString;
-        public string                    Intuition;
-        public string                    FishType;
+        public Predator[]                Predators    = [];
+        public string                    Patch        = string.Empty;
+        public string                    UptimeString = string.Empty;
+        public string                    Intuition    = string.Empty;
+        public string                    FishType     = string.Empty;
         public bool                      UptimeDependency;
         public ushort                    UptimePercent;
         public bool                      Unlocked = false;
-        public bool                      Collectible;
-        public int                       DoubleHook;
+
+        public bool Collectible
+            => Data.ItemData.IsCollectable;
+
+        public byte MultiHookLower
+            => Data.MultiHookLower;
+
+        public byte MutliHookUpper
+            => Data.MultiHookUpper;
+
+        public short Points
+            => Data.Points;
 
         public (ILocation, TimeInterval) Uptime
             => GatherBuddy.UptimeManager.BestLocation(Data);
@@ -133,9 +144,9 @@ public partial class Interface
         private static BaitOrder[] SetBait(Fish fish)
         {
             if (fish.IsSpearFish)
-                return new BaitOrder[]
-                {
-                    new()
+                return
+                [
+                    new BaitOrder
                     {
                         Name    = string.Intern($"{fish.Size.ToName()} and {fish.Speed.ToName()}"),
                         Fish    = null,
@@ -143,11 +154,11 @@ public partial class Interface
                         Bite    = Bites.Unknown,
                         HookSet = null,
                     },
-                };
+                ];
 
             var ret  = new BaitOrder[fish.Mooches.Length + 1];
             var bait = fish.InitialBait;
-            ret[0] = new BaitOrder()
+            ret[0] = new BaitOrder
             {
                 Icon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(bait.Icon)),
                 Name = bait.Name,
@@ -158,7 +169,7 @@ public partial class Interface
                 var f = fish.Mooches[idx];
                 ret[idx].HookSet = Icons.FromHookSet(f.HookSet);
                 ret[idx].Bite    = Bites.FromBiteType(f.BiteType);
-                ret[idx + 1] = new BaitOrder()
+                ret[idx + 1] = new BaitOrder
                 {
                     Icon = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(f.ItemData.Icon)),
                     Name = f.Name[GatherBuddy.Language],
@@ -250,46 +261,49 @@ public partial class Interface
 
         public ExtendedFish(Fish data)
         {
-            Data        = data;
-            Collectible = data.ItemData.IsCollectable;
-            DoubleHook  = data.MultiHook;
-            Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(data.ItemData.Icon));
-            Territories = string.Join("\n", data.FishingSpots.Select(f => f.Territory.Name).Distinct());
-            if (!Territories.Contains("\n"))
+            Data = data;
+            Update();
+        }
+
+        public void Update()
+        {
+            Icon        = Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(Data.ItemData.Icon));
+            Territories = string.Join('\n', Data.FishingSpots.Select(f => f.Territory.Name).Distinct());
+            if (!Territories.Contains('\n'))
                 Territories = '\0' + Territories;
-            SpotNames = string.Join("\n", data.FishingSpots.Select(f => f.Name).Distinct());
-            if (!SpotNames.Contains("\n"))
+            SpotNames = string.Join('\n', Data.FishingSpots.Select(f => f.Name).Distinct());
+            if (!SpotNames.Contains('\n'))
                 SpotNames = '\0' + SpotNames;
-            Aetherytes = string.Join("\n",
-                data.FishingSpots.Where(f => f.ClosestAetheryte != null).Select(f => f.ClosestAetheryte!.Name).Distinct());
-            if (!Aetherytes.Contains("\n"))
+            Aetherytes = string.Join('\n',
+                Data.FishingSpots.Where(f => f.ClosestAetheryte != null).Select(f => f.ClosestAetheryte!.Name).Distinct());
+            if (!Aetherytes.Contains('\n'))
                 Aetherytes = '\0' + Aetherytes;
-            Patch = string.Intern($"Patch {data.Patch.ToVersionString()}");
-            FishType = data.OceanFish ? "Ocean Fish" :
-                data.IsSpearFish      ? "Spearfishing" :
-                data.IsBigFish        ? "Big Fish" : "Regular Fish";
+            Patch = string.Intern($"Patch {Data.Patch.ToVersionString()}");
+            FishType = Data.OceanFish ? "Ocean Fish" :
+                Data.IsSpearFish      ? "Spearfishing" :
+                Data.IsBigFish        ? "Big Fish" : "Regular Fish";
 
-            Time = !data.FishRestrictions.HasFlag(FishRestrictions.Time)
+            Time = !Data.FishRestrictions.HasFlag(FishRestrictions.Time)
                 ? "Always Up"
-                : data.OceanFish
-                    ? PrintOceanTime(data.OceanTime)
-                    : data.Interval.AlwaysUp()
+                : Data.OceanFish
+                    ? PrintOceanTime(Data.OceanTime)
+                    : Data.Interval.AlwaysUp()
                         ? "Unknown Uptime"
-                        : string.Intern(data.Interval.PrintHours());
+                        : string.Intern(Data.Interval.PrintHours());
 
-            UptimePercent = SetUptime(data);
+            UptimePercent = SetUptime(Data);
             UptimeString  = string.Intern($"{(UptimePercent / 100f).ToString("F1", CultureInfo.InvariantCulture)}%");
             if (UptimeString == "0.0%")
                 UptimeString = "<0.1%";
-            WeatherIcons     = SetWeather(data);
-            TransitionIcons  = SetTransition(data);
-            Predators        = SetPredators(data);
-            Bait             = SetBait(data);
-            Snagging         = SetSnagging(data, Bait);
-            Lure             = SetLure(data, Bait);
-            UptimeDependency = SetUptimeDependency(data, Bait);
-            Intuition        = SetIntuition(data);
-            Unlocked         = GatherBuddy.FishLog.IsUnlocked(data);
+            WeatherIcons     = SetWeather(Data);
+            TransitionIcons  = SetTransition(Data);
+            Predators        = SetPredators(Data);
+            Bait             = SetBait(Data);
+            Snagging         = SetSnagging(Data, Bait);
+            Lure             = SetLure(Data, Bait);
+            UptimeDependency = SetUptimeDependency(Data, Bait);
+            Intuition        = SetIntuition(Data);
+            Unlocked         = GatherBuddy.FishLog.IsUnlocked(Data);
         }
 
         private static string PrintOceanTime(OceanTime time)
@@ -307,26 +321,22 @@ public partial class Interface
         }
 
         private static void PrintName(ExtendedFish fish)
-        {
-            using var border = ImRaii.PushStyle(ImGuiStyleVar.FrameBorderSize, 1);
-            using var color  = ImRaii.PushColor(ImGuiCol.Border, ImGui.GetColorU32(ImGuiCol.Text));
-            ImGuiUtil.DrawTextButton(fish.Data.Name[GatherBuddy.Language], Vector2.Zero, 0);
-        }
+            => ImUtf8.TextFramed(fish.Data.Name[GatherBuddy.Language], 0, default, 0, ImGui.GetColorU32(ImGuiCol.Text));
 
         private static void PrintTime(ExtendedFish fish)
-            => ImGuiUtil.DrawTextButton(fish.Time, Vector2.Zero, ColorId.HeaderEorzeaTime.Value());
+            => ImUtf8.TextFramed(fish.Time, ColorId.HeaderEorzeaTime.Value());
 
         private static void PrintWeather(ExtendedFish fish, Vector2 weatherIconSize)
         {
             if (!fish.Data.FishRestrictions.HasFlag(FishRestrictions.Weather))
             {
-                ImGuiUtil.DrawTextButton("No Weather Restrictions", Vector2.Zero, ColorId.HeaderWeather.Value());
+                ImUtf8.TextFramed("No Weather Restrictions"u8, ColorId.HeaderWeather.Value());
                 return;
             }
 
             if (fish.WeatherIcons.Length == 0 && fish.TransitionIcons.Length == 0)
             {
-                ImGuiUtil.DrawTextButton("Unknown Weather Restrictions", Vector2.Zero, ColorId.HeaderWeather.Value());
+                ImUtf8.TextFramed("Unknown Weather Restrictions"u8, ColorId.HeaderWeather.Value());
                 return;
             }
 
@@ -385,7 +395,7 @@ public partial class Interface
         {
             if (fish.Bait.Length == 0)
             {
-                ImGuiUtil.DrawTextButton("Unknown Catch Method", Vector2.Zero, 0xFF0000A0);
+                ImUtf8.TextFramed("Unknown Catch Method"u8, 0xFF0000A0);
                 return;
             }
 
@@ -413,7 +423,7 @@ public partial class Interface
 
             var offsetSmall = (smallIconSize.Y - ImGui.GetTextLineHeight()) / 2;
             var offsetBig   = (iconSize.Y - ImGui.GetTextLineHeight()) / 2;
-            foreach (var bait in fish.Bait)
+            foreach (var (bait, idx) in fish.Bait.WithIndex())
             {
                 size = iconSize;
                 if (bait.Icon.TryGetWrap(out var wrap, out _))
@@ -431,8 +441,7 @@ public partial class Interface
                         ImGui.Image(wrap.ImGuiHandle, smallIconSize);
                     else
                         ImGui.Dummy(smallIconSize);
-                    using var color = ImRaii.PushColor(ImGuiCol.Button, bait.Bite.Item2);
-                    ImGui.Button(bait.Bite.Item1, smallIconSize);
+                    ImUtf8.TextFramed(bait.Bite.Item1, bait.Bite.Item2, smallIconSize);
                     style.Pop(2);
                 }
 
@@ -448,7 +457,7 @@ public partial class Interface
                     {
                         using var group = ImRaii.Group();
                         ImGui.SetCursorPosY(pos + offsetSmall);
-                        ImGui.TextUnformatted(bait.Name);
+                        ImUtf8.Text(bait.Name);
                         ImGui.SetCursorPosY(pos + smallIconSize.Y + offsetSmall);
                         DrawTimeInterval(uptime, false, false);
                         printed = true;
@@ -457,13 +466,13 @@ public partial class Interface
 
                 ImGui.SetCursorPosY(pos + offsetBig);
                 if (!printed)
-                    ImGui.TextUnformatted(bait.Name);
-                if (bait.Equals(fish.Bait.Last()))
+                    ImUtf8.Text(bait.Name);
+                if (idx == fish.Bait.Length - 1)
                     break;
 
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(pos + offsetBig);
-                ImGui.TextUnformatted(" → ");
+                ImUtf8.Text(" → ");
                 ImGui.SameLine();
             }
 
@@ -475,15 +484,14 @@ public partial class Interface
             if (fish.Predators.Length == 0 && fish.Intuition.Length == 0)
                 return;
 
-            using var color  = ImRaii.PushColor(ImGuiCol.Button, 0xFF0040C0);
             using var style  = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing with { X = ImGuiHelpers.GlobalScale });
             var       size   = iconSize / 1.5f;
             var       offset = (size.Y - ImGui.GetTextLineHeightWithSpacing()) / 2f;
             foreach (var predator in fish.Predators)
             {
                 var       pos   = ImGui.GetCursorPosY();
-                using var group = ImRaii.Group();
-                ImGui.Button(predator.Amount, size);
+                using var group = ImUtf8.Group();
+                ImUtf8.TextFramed(predator.Amount, 0xFF0040C0, size);
                 ImGui.SameLine();
                 if (predator.Icon.TryGetWrap(out var wrap, out _))
                     ImGui.Image(wrap.ImGuiHandle, size);
@@ -492,7 +500,7 @@ public partial class Interface
                 style.Push(ImGuiStyleVar.ItemSpacing, new Vector2(3 * ImGuiHelpers.GlobalScale, 0));
                 ImGui.SameLine();
                 ImGui.SetCursorPosY(pos + offset);
-                ImGui.TextUnformatted(predator.Name);
+                ImUtf8.Text(predator.Name);
                 var uptime = GatherBuddy.UptimeManager.NextUptime(predator.Fish, territory, GatherBuddy.Time.ServerTime);
                 if (uptime != TimeInterval.Always)
                 {
@@ -510,27 +518,28 @@ public partial class Interface
             if (fish.Intuition.Length == 0)
                 return;
 
-            color.Push(ImGuiCol.Button, 0xFF802000);
-            ImGui.Button(fish.Intuition);
+            ImUtf8.TextFramed(fish.Intuition, 0xFF802000);
         }
 
         private static void PrintFolklore(ExtendedFish fish)
         {
-            using var color = new ImRaii.Color();
             if (fish.Data.Folklore.Length != 0)
             {
-                color.Push(ImGuiCol.Button, 0xFF802080);
-                ImGui.Button(fish.Data.Folklore);
-                color.Pop();
+                ImUtf8.TextFramed(fish.Data.Folklore, 0xFF802080);
                 ImGui.SameLine();
             }
 
-            color.Push(ImGuiCol.Button, 0xFFC0C0C0)
-                .Push(ImGuiCol.Text, 0xFF000000);
-            ImGui.Button(fish.Patch);
+            ImUtf8.TextFramed(fish.Patch, 0xFFC0C0C0, default, 0xFF000000);
         }
 
-        public void SetTooltip(Territory territory, Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool printName, bool standAlone = true)
+        private static void PrintPoints(ExtendedFish fish)
+        {
+            if (fish.Data.Points > 0)
+                ImUtf8.TextFramed($"Worth {fish.Data.Points} Points", 0xFF006400);
+        }
+
+        public void SetTooltip(Territory territory, Vector2 iconSize, Vector2 smallIconSize, Vector2 weatherIconSize, bool printName,
+            bool standAlone = true)
         {
             using var tooltip = standAlone ? ImRaii.Tooltip() : ImRaii.IEndObject.Empty;
             using var style   = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing * new Vector2(1f, 1.5f));
@@ -540,6 +549,7 @@ public partial class Interface
             PrintWeather(this, weatherIconSize);
             PrintBait(this, territory, iconSize, smallIconSize);
             PrintPredators(this, territory, iconSize);
+            PrintPoints(this);
             PrintFolklore(this);
         }
     }

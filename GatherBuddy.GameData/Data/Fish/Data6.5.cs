@@ -80,6 +80,7 @@ public static partial class Fish
         data.Apply(41407, Patch.GrowingLight) // Hyphalosaurus
             .Mooch(data, 36412)
             .Time(540, 720)
+            .ForceLegendary()
             .Predators(data, 90, (36412, 3))
             .Transition(data, 1)
             .Weather(data, 2)
@@ -87,6 +88,7 @@ public static partial class Fish
         data.Apply(41408, Patch.GrowingLight) // Gharlichthys
             .Bait(data, 36593)
             .Time(840, 960)
+            .ForceLegendary()
             .Predators(data, 300, (36454, 12))
             .Transition(data, 8)
             .Weather(data, 2)
@@ -94,6 +96,7 @@ public static partial class Fish
         data.Apply(41409, Patch.GrowingLight) // Snowy Parexus
             .Bait(data, 36591)
             .Time(960, 1440)
+            .ForceLegendary()
             .Predators(data, 35, (36458, 3))
             .Transition(data, 2)
             .Weather(data, 15)
@@ -102,6 +105,7 @@ public static partial class Fish
             .Bait(data, 36590)
             .Time(930, 990)
             .Transition(data, 2)
+            .ForceLegendary()
             .Weather(data, 49)
             .Bite(data, HookSet.Precise, BiteType.Legendary);
         data.Apply(41411, Patch.GrowingLight) // Lopoceras Elegans
@@ -109,10 +113,12 @@ public static partial class Fish
             .Time(480, 600)
             .Transition(data, 148)
             .Weather(data, 2)
+            .ForceLegendary()
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41412, Patch.GrowingLight) // Sidereal Whale
             .Mooch(data, 36518)
             .Time(0, 480)
+            .ForceLegendary()
             .Predators(data, 600, (36521, 1), (36520, 2), (36519, 3))
             .Transition(data, 49)
             .Weather(data, 149)
