@@ -3,10 +3,10 @@
     <TargetFramework>net9.0-windows</TargetFramework>
     <LangVersion>preview</LangVersion>
     <PlatformTarget>x64</PlatformTarget>
-		<RootNamespace>GatherBuddy</RootNamespace>
-		<AssemblyName>GatherBuddyReborn</AssemblyName>
-		<Version>7.2.2.4</Version>
-		<Company>SoftOtter</Company>
+    <RootNamespace>GatherBuddy</RootNamespace>
+    <AssemblyName>GatherBuddyReborn</AssemblyName>
+    <Version>7.2.2.4</Version>
+    <Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2024</Copyright>
     <Deterministic>true</Deterministic>

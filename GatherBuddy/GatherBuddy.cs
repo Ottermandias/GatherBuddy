@@ -59,15 +59,15 @@ public partial class GatherBuddy : IDalamudPlugin
         Timeout = TimeSpan.FromMilliseconds(1500),
     };
 
-    public static WeatherManager WeatherManager { get; private set; } = null!;
-    public static UptimeManager  UptimeManager  { get; private set; } = null!;
-    public static FishLog        FishLog        { get; private set; } = null!;
-    public static EventFramework EventFramework { get; private set; } = null!;
-    public static CurrentBait    CurrentBait    { get; private set; } = null!;
-    public static CurrentWeather CurrentWeather { get; private set; } = null!;
-    public static SeTugType      TugType        { get; private set; } = null!;
-    public static WaymarkManager WaymarkManager { get; private set; } = null!;
-    public static AutoGather.AutoGather AutoGather { get; private set; } = null!;
+    public static WeatherManager        WeatherManager { get; private set; } = null!;
+    public static UptimeManager         UptimeManager  { get; private set; } = null!;
+    public static FishLog               FishLog        { get; private set; } = null!;
+    public static EventFramework        EventFramework { get; private set; } = null!;
+    public static CurrentBait           CurrentBait    { get; private set; } = null!;
+    public static CurrentWeather        CurrentWeather { get; private set; } = null!;
+    public static SeTugType             TugType        { get; private set; } = null!;
+    public static WaymarkManager        WaymarkManager { get; private set; } = null!;
+    public static AutoGather.AutoGather AutoGather     { get; private set; } = null!;
 
 
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
@@ -94,26 +94,27 @@ public partial class GatherBuddy : IDalamudPlugin
             Log     = new Logger();
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             Backup.CreateAutomaticBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
-            Config         = Configuration.Load();
-            Language       = Dalamud.ClientState.ClientLanguage;
-            GameData       = new GameData(Dalamud.GameData, Log, WorldData.WorldLocationsByNodeId);
-            Time           = new SeTime();
+            Config   = Configuration.Load();
+            Language = Dalamud.ClientState.ClientLanguage;
+            GameData = new GameData(Dalamud.GameData, Log, WorldData.WorldLocationsByNodeId, "fish_overrides.json");
+            Time     = new SeTime();
+
             WaymarkManager = new WaymarkManager();
 
-            WeatherManager      = new WeatherManager(GameData);
-            UptimeManager       = new UptimeManager(GameData);
-            FishLog             = new FishLog(Dalamud.SigScanner, Dalamud.GameData);
-            EventFramework      = new EventFramework();
-            CurrentBait         = new CurrentBait(Dalamud.SigScanner);
-            CurrentWeather      = new CurrentWeather(Dalamud.SigScanner);
-            TugType             = new SeTugType(Dalamud.SigScanner);
-            Executor            = new Executor(this);
-            ContextMenu         = new ContextMenu(this, Dalamud.ContextMenu, Executor);
-            GatherGroupManager  = GatherGroup.GatherGroupManager.Load();
-            LocationManager     = LocationManager.Load();
-            AlarmManager        = AlarmManager.Load();
+            WeatherManager         = new WeatherManager(GameData);
+            UptimeManager          = new UptimeManager(GameData);
+            FishLog                = new FishLog(Dalamud.SigScanner, Dalamud.GameData);
+            EventFramework         = new EventFramework();
+            CurrentBait            = new CurrentBait(Dalamud.SigScanner);
+            CurrentWeather         = new CurrentWeather(Dalamud.SigScanner);
+            TugType                = new SeTugType(Dalamud.SigScanner);
+            Executor               = new Executor(this);
+            ContextMenu            = new ContextMenu(this, Dalamud.ContextMenu, Executor);
+            GatherGroupManager     = GatherGroup.GatherGroupManager.Load();
+            LocationManager        = LocationManager.Load();
+            AlarmManager           = AlarmManager.Load();
             AutoGatherListsManager = AutoGatherListsManager.Load();
-            GatherWindowManager = GatherWindowManager.Load(AlarmManager);
+            GatherWindowManager    = GatherWindowManager.Load(AlarmManager);
             AlarmManager.ForceEnable();
 
             InitializeCommands();
@@ -130,7 +131,7 @@ public partial class GatherBuddy : IDalamudPlugin
             Dalamud.PluginInterface.UiBuilder.Draw         += WindowSystem.Draw;
             Dalamud.PluginInterface.UiBuilder.OpenConfigUi += Interface.Toggle;
             Dalamud.PluginInterface.UiBuilder.OpenMainUi   += Interface.Toggle;
-            Dalamud.Framework.Update += Update;
+            Dalamud.Framework.Update                       += Update;
 
 
             Ipc = new GatherBuddyIpc(this);
@@ -152,26 +153,29 @@ public partial class GatherBuddy : IDalamudPlugin
             if (plugin.Name == "GatherBuddy" && plugin.IsLoaded)
             {
                 Log.Error("First Party GatherBuddy detected. Please uninstall it to use this version.");
-                Communicator.PrintError("[GatherBuddy Reborn] First Party GatherBuddy detected. Please uninstall it and restart your game to use this version.");
+                Communicator.PrintError(
+                    "[GatherBuddy Reborn] First Party GatherBuddy detected. Please uninstall it and restart your game to use this version.");
                 break;
             }
         }
     }
 
-    private int LastObjectsLength;
+    private int      LastObjectsLength;
     private DateTime LastObjectsScan = DateTime.Now;
+
     private void Update(IFramework framework)
     {
         var prev = LastObjectsLength;
         LastObjectsLength = Svc.Objects.Length;
         //Scan objects every 5 secons or when the number of objects change
-        if (prev != LastObjectsLength || (DateTime.Now - LastObjectsScan).TotalSeconds >= 5) 
+        if (prev != LastObjectsLength || (DateTime.Now - LastObjectsScan).TotalSeconds >= 5)
         {
             LastObjectsScan = DateTime.Now;
             var objs = Svc.Objects.Where(o => o.ObjectKind == ObjectKind.GatheringPoint);
             foreach (var obj in objs)
                 WorldData.AddLocation(obj.DataId, obj.Position);
         }
+
         AutoGather.DoAutoGather();
     }
 

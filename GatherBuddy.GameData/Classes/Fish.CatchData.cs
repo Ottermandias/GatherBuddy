@@ -1,7 +1,6 @@
 using GatherBuddy.Enums;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
-using OtterGui.Classes;
 
 namespace GatherBuddy.Classes;
 
@@ -24,7 +23,8 @@ public partial class Fish
     public Fish?             SurfaceSlap     { get; internal set; }
     public string            Guide           { get; internal set; } = string.Empty;
     public OceanTime         OceanTime       { get; internal set; } = OceanTime.Always;
-    public int               MultiHook       { get; internal set; }
-
-    internal OptionalBool BigFishOverride { get; set; } = null;
+    public short             Points          { get; internal set; }
+    public byte              MultiHookLower  { get; internal set; }
+    public byte              MultiHookUpper  { get; internal set; }
+    public FishType          FishType        { get; internal set; }
 }

@@ -282,7 +282,7 @@ public partial class Interface
             if (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().TryGetRow(id, out var row))
             {
                 ImGuiUtil.DrawTableColumn("Current Mission");
-                ImGuiUtil.DrawTableColumn($"{row.Unknown0.ExtractText()} ({id})");
+                ImGuiUtil.DrawTableColumn($"{row.Item.ExtractText()} ({id})");
             }
         }
 
@@ -941,7 +941,7 @@ public partial class Interface
                 missionId = uint.Parse(match.Groups[2].Value);
                 name = spotName
                   + " "
-                  + (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().GetRowOrDefault(missionId)?.Unknown0.ExtractText() ?? "Unknown");
+                  + (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().GetRowOrDefault(missionId)?.Item.ExtractText() ?? "Unknown");
             }
 
             text += $"\n        // {name}\n";

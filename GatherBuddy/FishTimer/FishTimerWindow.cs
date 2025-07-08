@@ -28,7 +28,7 @@ public partial class FishTimerWindow : Window, IDisposable
       | ImGuiWindowFlags.NoNavFocus;
 
     private          FishingSpot? _spot;
-    private          FishCache[]  _availableFish    = Array.Empty<FishCache>();
+    private          FishCache[]  _availableFish    = [];
     private          TimeStamp    _nextUptimeChange = TimeStamp.MaxValue;
     private readonly FishRecorder _recorder;
     private readonly int          _maxNumLines = GatherBuddy.GameData.FishingSpots.Values.Where(f => !f.Spearfishing).Max(f => f.Items.Length);
@@ -125,7 +125,7 @@ public partial class FishTimerWindow : Window, IDisposable
             drawList.AddLine(start - scale, end - scale, 0x80000000, ImGuiHelpers.GlobalScale);
             drawList.AddLine(start,         end,         0xFFFFFFFF, ImGuiHelpers.GlobalScale);
             drawList.AddLine(start + scale, end + scale, 0x80000000, ImGuiHelpers.GlobalScale);
-            var t = (i * time / 1000).ToString();
+            var t = Math.Round(i * (double)time / 1000, GatherBuddy.Config.SecondIntervalsRounding).ToString();
             ImGuiUtil.TextShadowed(ImGui.GetWindowDrawList(), end with { X = end.X - ImGui.CalcTextSize(t).X / 2 }, t, 0xFFFFFFFF, 0x80000000);
         }
     }
