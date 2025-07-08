@@ -8,6 +8,7 @@ using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
+using GatherBuddy.Models;
 using ImGuiNET;
 using OtterGui.Text;
 using OtterGui.Widgets;
