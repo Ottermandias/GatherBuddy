@@ -391,6 +391,14 @@ public partial class Interface
             _plugin.AutoGatherListsManager.AddItem(list, gatherables[_autoGatherListsCache.NewGatherableIdx]);
 
         ImGui.SameLine();
+        var allEnabled = list.Items.All(i => list.EnabledItems[i]);
+        if (ImGui.Checkbox("##AllEnabled", ref allEnabled))
+        {
+            list.Items.Each(i => _plugin.AutoGatherListsManager.ChangeEnabled(list, i, allEnabled));
+        }
+        ImGuiUtil.HoverTooltip((allEnabled ? "Disable" : "Enable" ) + " all items in the list");
+
+        ImGui.SameLine();
         if (selector.Draw(_autoGatherListsCache.NewGatherableIdx, out var idx))
         {
             _autoGatherListsCache.NewGatherableIdx = idx;
