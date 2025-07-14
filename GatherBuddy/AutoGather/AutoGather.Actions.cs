@@ -3,13 +3,13 @@ using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
 using System;
 using System.Linq;
-using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using GatherBuddy.CustomInfo;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.Enums;
 using ECommons;
 using ECommons.DalamudServices;
 using ECommons.Throttlers;
+using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
@@ -26,7 +26,7 @@ namespace GatherBuddy.AutoGather
         {
             if (gatherable == null)
                 return false;
-            if (LuckUsed[1] || NodeTracker.HiddenRevealed)
+            if (LuckUsed || GatheringWindowReader!.HiddenRevealed)
                 return false;
             if (!gatherable.GatheringData.IsHidden && !gatherable.IsTreasureMap)
                 return false;
@@ -79,7 +79,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot))
                 return false;
-            if (slot.Item.GetInventoryCount() > 9999 - 3 - slot.Yield - (slot.RandomYield ? GivingLandYield : 0))
+            if (slot.Item.GetInventoryCount() > 9999 - 3 - slot.Yield - (slot.HasGivingLandBuff ? GivingLandYield : 0))
                 return false;
 
             return true;
@@ -127,7 +127,7 @@ namespace GatherBuddy.AutoGather
             else
             {
                 CurrentCollectableRotation = null;
-                if (GatheringAddon != null && NodeTracker.Ready)
+                if (GatheringAddon != null && GatheringWindowReader != null)
                 {
                     DoGatherWindowActions(target);
                 }
@@ -317,8 +317,8 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoGatherWindowActions(IEnumerable<GatherTarget> target)
         {
-            if (LuckUsed[1] && !LuckUsed[2] && NodeTracker.Revisit)
-                LuckUsed = new(0);
+            if (GatheringWindowReader == null)
+                return;
 
             foreach (var t in target)
             {
@@ -334,8 +334,7 @@ namespace GatherBuddy.AutoGather
             {
                 if (!HasGivingLandBuff && ShouldUseLuck(t.Gatherable))
                 {
-                    LuckUsed[1] = true;
-                    LuckUsed[2] = NodeTracker.Revisit;
+                    LuckUsed = true;
                     EnqueueActionWithDelay(() => UseAction(Actions.Luck));
                     return;
                 }
@@ -349,7 +348,7 @@ namespace GatherBuddy.AutoGather
 
                 if (configPreset.ChooseBestActionsAutomatically)
                 {
-                    if (ShouldUseWise(NodeTracker.Integrity, NodeTracker.MaxIntegrity))
+                    if (ShouldUseWise(GatheringWindowReader.IntegrityRemaining, GatheringWindowReader.IntegrityMax))
                     {
                         ActionSequence = null; //Recalculate rotation since we've got unaccounted 6 GP and 1 integrity.
                         EnqueueActionWithDelay(() => UseAction(Actions.Wise));
@@ -358,7 +357,7 @@ namespace GatherBuddy.AutoGather
                     {
                         if (ActionSequence == null)
                         {
-                            var task = RotationSolver.SolveAsync(slot, configPreset);
+                            var task = RotationSolver.SolveAsync(slot, configPreset, GatheringWindowReader);
 
                             if (task.Wait(1))
                             {
@@ -393,7 +392,7 @@ namespace GatherBuddy.AutoGather
                 }
                 else
                 {
-                    if (ShouldUseWise(NodeTracker.Integrity, NodeTracker.MaxIntegrity))
+                    if (ShouldUseWise(GatheringWindowReader.IntegrityRemaining, GatheringWindowReader.IntegrityMax))
                         EnqueueActionWithDelay(() => UseAction(Actions.Wise));
                     else if (ShouldUseGift2(slot, config))
                         EnqueueActionWithDelay(() => UseAction(Actions.Gift2));
@@ -550,6 +549,8 @@ namespace GatherBuddy.AutoGather
         private bool CheckConditions(Actions.BaseAction action, ConfigPreset.ActionConfig config, Gatherable item, ItemSlot slot,
             bool autoMode = false)
         {
+            if (GatheringWindowReader == null)
+                return false;
             // autoMode = true is used for TGL out-of-order check that occurs before the rotation solver kicks in.
             if (config.Enabled == false && !autoMode)
                 return false;
@@ -567,12 +568,12 @@ namespace GatherBuddy.AutoGather
                 return false;
             if (action.EffectType is Actions.EffectType.CrystalsYield && !item.IsCrystal)
                 return false;
-            if (action.EffectType is Actions.EffectType.Integrity && NodeTracker.Integrity > Math.Min(2, NodeTracker.MaxIntegrity - 1))
+            if (action.EffectType is Actions.EffectType.Integrity && GatheringWindowReader.IntegrityRemaining > Math.Min(2, GatheringWindowReader.IntegrityMax - 1))
                 return false;
-            if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.Rare)
+            if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.IsRare)
                 return false;
             if (config is ConfigPreset.ActionConfigIntegrity config2
-             && (!autoMode && config2.MinIntegrity > NodeTracker.MaxIntegrity || (config2.FirstStepOnly || autoMode) && NodeTracker.Touched))
+             && (!autoMode && config2.MinIntegrity > GatheringWindowReader.IntegrityMax || (config2.FirstStepOnly || autoMode) && GatheringWindowReader.Touched))
                 return false;
             if (config is ConfigPreset.ActionConfigBoon config3
              && (slot.BoonChance == -1 || !autoMode && (slot.BoonChance < config3.MinBoonChance || slot.BoonChance > config3.MaxBoonChance)))
@@ -583,7 +584,7 @@ namespace GatherBuddy.AutoGather
             return true;
         }
 
-        public static int CalculateBountifulBonus(Gatherable item)
+        public static sbyte CalculateBountifulBonus(Gatherable item)
         {
             if (!QuestManager.IsQuestComplete(Actions.BountifulII.QuestId))
                 return 1;

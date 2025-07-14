@@ -123,7 +123,6 @@ namespace GatherBuddy.AutoGather
         public TaskManager                TaskManager { get; }
 
         private           bool             _enabled { get; set; } = false;
-        internal readonly GatheringTracker NodeTracker = new();
 
         public bool Waiting { get; private set; }
 
@@ -207,7 +206,7 @@ namespace GatherBuddy.AutoGather
         public void DoAutoGather()
         {
             if (!IsGathering)
-                LuckUsed = new(0); //Reset the flag even if auto-gather was disabled mid-gathering
+                LuckUsed = false; //Reset the flag even if auto-gather was disabled mid-gathering
 
             if (!Enabled)
             {
@@ -947,7 +946,6 @@ namespace GatherBuddy.AutoGather
         public void Dispose()
         {
             _advancedUnstuck.Dispose();
-            NodeTracker.Dispose();
             _activeItemList.Dispose();
             Svc.Chat.CheckMessageHandled -= OnMessageHandled;
             Svc.AddonLifecycle.UnregisterListener(AddonEvent.PreFinalize, "Gathering", OnGatheringFinalize);

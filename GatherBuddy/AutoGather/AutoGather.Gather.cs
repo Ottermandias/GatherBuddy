@@ -7,8 +7,8 @@ using GatherBuddy.Classes;
 using System.Linq;
 using System.Runtime.InteropServices;
 using ECommons.Automation.UIInput;
-using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using Dalamud.Game.ClientState.Conditions;
+using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
 
@@ -28,10 +28,6 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void EnqueueGatherItem(ItemSlot slot)
         {
-            var gatheringAddon = GatheringAddon;
-            if (gatheringAddon == null)
-                return;
-
             if (slot.Item.ItemData.IsCollectable)
             {
                 // Since it's possible that we are not gathering the top item in the list,
@@ -39,15 +35,7 @@ namespace GatherBuddy.AutoGather
                 CurrentCollectableRotation = new CollectableRotation(MatchConfigPreset(slot.Item), slot.Item, _activeItemList.FirstOrDefault(x => x.Item == slot.Item).Quantity);
             }
 
-            var itemIndex           = slot.Index;
-            var receiveEventAddress = new nint(gatheringAddon->AtkUnitBase.AtkEventListener.VirtualTable->ReceiveEvent);
-            var eventDelegate       = Marshal.GetDelegateForFunctionPointer<ClickHelper.ReceiveEventDelegate>(receiveEventAddress);
-
-            var target    = AtkStage.Instance();
-            var eventData = EventData.ForNormalTarget(target, &gatheringAddon->AtkUnitBase);
-            var inputData = InputData.Empty();
-
-            EnqueueActionWithDelay(() => eventDelegate.Invoke(&gatheringAddon->AtkUnitBase.AtkEventListener, EventType.CHANGE, (uint)itemIndex, eventData.Data, inputData.Data));
+            EnqueueActionWithDelay(slot.Gather);
 
             if (slot.Item.IsTreasureMap)
             {
@@ -64,7 +52,10 @@ namespace GatherBuddy.AutoGather
         /// Slot: ItemSlot of item to gather</returns>
         private (bool UseSkills, ItemSlot Slot) GetItemSlotToGather(IEnumerable<GatherTarget> gatherTarget)
         {
-            var available = NodeTracker.Available
+            if (GatheringWindowReader == null)
+                throw new InvalidOperationException("GatheringWindowReader is null");
+            var available = GatheringWindowReader.ItemSlots
+                .Where(i => !i.IsEmpty)
                 .Where(CheckItemOvercap)
                 .ToList();
 
@@ -86,7 +77,7 @@ namespace GatherBuddy.AutoGather
             if (target != null && target.Item.GetInventoryCount() < gatherTarget.First(t => t.Gatherable?.ItemId == target.Item.ItemId).Quantity)
             {
                 //The target item is found in the node, would not overcap and we need to gather more of it
-                return (!target.Collectable, target);
+                return (!target.IsCollectable, target);
             }
 
             //Items in the gathering list
@@ -111,14 +102,14 @@ namespace GatherBuddy.AutoGather
             var slot = gatherList.FirstOrDefault();
             if (slot != null)
             {
-                return (!slot.Collectable, slot);
+                return (!slot.IsCollectable, slot);
             }
 
             //If there is any fallback item, gather it
             slot = fallbackList.FirstOrDefault();
             if (slot != null)
             {
-                return (fallbackSkills && !slot.Collectable, slot);
+                return (fallbackSkills && !slot.IsCollectable, slot);
             }
 
             //Check if we should and can abandon the node
@@ -138,7 +129,7 @@ namespace GatherBuddy.AutoGather
                 return (false, slot);
             }
             //If there are no crystals, gather anything which is not treasure map nor collectable
-            slot = available.Where(s => !s.Item.IsTreasureMap && !s.Collectable).FirstOrDefault();
+            slot = available.FirstOrDefault(s => (!s.Item?.IsTreasureMap ?? false) && !s.IsCollectable);
             if (slot != null)
             {
                 return (false, slot);
@@ -149,6 +140,8 @@ namespace GatherBuddy.AutoGather
 
         private bool CheckItemOvercap(ItemSlot s)
         {
+            if (s.Item == null)
+                return false;
             //If it's a treasure map, we can have only one in the inventory
             if (s.Item.IsTreasureMap && GetInventoryItemCount(s.Item.ItemId) != 0)
                 return false;
@@ -160,14 +153,17 @@ namespace GatherBuddy.AutoGather
         
         private ItemSlot? GetAnyCrystalInNode()
         {
-            return NodeTracker.Available
-                .Where(s => s.Item.IsCrystal)
+            if (GatheringWindowReader == null)
+                throw new InvalidOperationException("GatheringWindowReader is null");
+            return GatheringWindowReader.ItemSlots
+                .Where(s => s.Item != null)
+                .Where(s => s.Item!.IsCrystal)
                 .Where(CheckItemOvercap)
                 //Prioritize crystals in the gathering list
                 .GroupJoin(_activeItemList.Where(i => i.Gatherable?.IsCrystal ?? false), s => s.Item, i => i.Item, (s, x) => (Slot: s, Order: x.Any()?1:0))
                 .OrderBy(x => x.Order)
                 //Prioritize crystals with a lower amount in the inventory
-                .ThenBy(x => x.Slot.Item.GetInventoryCount())
+                .ThenBy(x => x.Slot.Item!.GetInventoryCount())
                 .Select(x => x.Slot)
                 .FirstOrDefault();
         }

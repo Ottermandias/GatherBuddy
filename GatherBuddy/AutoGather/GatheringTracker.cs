@@ -96,7 +96,7 @@ namespace GatherBuddy.AutoGather
             ResetArgs();
 
             Svc.AddonLifecycle.RegisterListener(AddonEvent.PostRefresh, "Gathering", Handler);
-            Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", Handler);
+            //Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", Handler);
             Svc.AddonLifecycle.RegisterListener(AddonEvent.PostSetup, "Gathering", Handler);
         }
 
