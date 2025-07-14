@@ -139,13 +139,19 @@ public partial class Interface
 
         private static ReadOnlyCollection<IGatherable> GenAllGatherables()
         {
-            List<IGatherable> gatherables = new();
-            gatherables.AddRange(GatherBuddy.GameData.Gatherables.Values
-                .Where(g => g.NodeList.SelectMany(l => l.WorldPositions.Values).SelectMany(p => p).Any()));
-            gatherables.AddRange(GatherBuddy.GameData.Fishes.Values);
-            var orderedEnumerable = gatherables.OrderBy(g => g.Name[GatherBuddy.Language]);
-            return orderedEnumerable.ToList().AsReadOnly();
+            var all = GatherBuddy.GameData.Gatherables.Values
+                .Where(g => g.NodeList.SelectMany(l => l.WorldPositions.Values)
+                    .SelectMany(p => p).Any())
+                .Cast<IGatherable>()
+                .Concat(GatherBuddy.GameData.Fishes.Values)
+                .GroupBy(g => g.ItemId)
+                .Select(g => g.First())
+                .OrderBy(g => g.Name[GatherBuddy.Language])
+                .ToList()
+                .AsReadOnly();
+            return all;
         }
+
 
         [MemberNotNull(nameof(FilteredGatherables)), MemberNotNull(nameof(GatherableSelector)), MemberNotNull(nameof(AllGatherables))]
         private void UpdateGatherables()

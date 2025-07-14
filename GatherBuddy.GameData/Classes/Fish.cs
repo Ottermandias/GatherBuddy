@@ -39,6 +39,9 @@ public partial class Fish : IComparable<Fish>, IGatherable
     public ObjectType Type
         => ObjectType.Fish;
 
+    public bool IsCrystal     => ItemData.FilterGroup == 11;
+    public bool IsTreasureMap => ItemData.FilterGroup == 18;
+
     public uint FishId
         => FishData?.RowId ?? SpearfishData!.Value.RowId;
 

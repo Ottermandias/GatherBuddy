@@ -127,7 +127,7 @@ public class AutoGatherList
             quantity = 1;
         if (quantity > 999999)
             quantity = 999999;
-        if (quantity > 1 && item is Gatherable { IsTreasureMap: true })
+        if (quantity > 1 && item.IsTreasureMap)
             quantity = 1;
         return quantity;
     }
@@ -235,7 +235,7 @@ public class AutoGatherList
                 changes |= list.quantities[item] != quantity;
                 if (cfg.PrefferedLocations.TryGetValue(itemId, out var locId))
                 {
-                    if (item.NodeList.Where(n => n.Id == locId).FirstOrDefault() is var loc and not null)
+                    if (item.NodeList.FirstOrDefault(n => n.Id == locId) is var loc and not null)
                         list.SetPreferredLocation(item, loc);
                     else
                         changes = true;
@@ -245,7 +245,7 @@ public class AutoGatherList
                     list.SetEnabled(item, enabled);
             }
 
-            if (GatherBuddy.GameData.Fishes.TryGetValue(itemId, out var fish)
+            if (GatherBuddy.GameData.Fishes.Where(f => !f.Value.IsTreasureMap).ToDictionary().TryGetValue(itemId, out var fish)
              && list.Add(fish, quantity = cfg.Quantities.GetValueOrDefault(fish.ItemId)))
             {
                 changes |= list.quantities[fish] != quantity;

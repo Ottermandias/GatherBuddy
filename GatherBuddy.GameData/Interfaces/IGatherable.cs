@@ -20,4 +20,8 @@ public interface IGatherable
     public uint                   ItemId          { get; }
     public Item                   ItemData        { get; }
     public ObjectType             Type            { get; }
+
+    public bool IsCrystal { get; }
+
+    public bool IsTreasureMap { get; }
 }
