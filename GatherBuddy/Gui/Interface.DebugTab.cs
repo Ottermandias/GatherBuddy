@@ -851,37 +851,35 @@ public partial class Interface
             }
         }
 
-        var tr = GatherBuddy.AutoGather.NodeTracker;
-        if (ImGui.CollapsingHeader("GatheringTracker"))
+        var tr = GatherBuddy.AutoGather.GatheringWindowReader;
+        if (ImGui.CollapsingHeader("Gather Window Reader"))
         {
             var text = new StringBuilder();
-            if (tr.Ready)
+            if (tr != null)
             {
-                text.AppendLine($"Type: {tr.NodeType}");
-                text.AppendLine($"Revisit: {tr.Revisit}");
                 text.AppendLine($"Touched: {tr.Touched}");
                 text.AppendLine($"HiddenRevealed: {tr.HiddenRevealed}");
-                text.AppendLine($"Integrty: {tr.Integrity}/{tr.MaxIntegrity}");
+                text.AppendLine($"Integrty: {tr.IntegrityRemaining}/{tr.IntegrityMax}");
                 text.Append($"Quick gathering: {(!tr.QuickGatheringAllowed ? "not" : "")} allowed");
-                if (tr.QuickGatheringAllowed) text.Append($", {(!tr.QuickGatheringChecked ? "not" : "")} checked");
+                if (tr.QuickGatheringAllowed) text.Append($", {(!tr.QuickGatheringEnabled ? "not" : "")} checked");
                 if (tr.QuickGatheringInProgress) text.Append($", in progress");
                 text.AppendLine();
                 for (var i = 0; i < 8; i++)
                 {
-                    var n = tr[i];
+                    var n = tr.ItemSlots[i];
                     text.Append($"Slot {i}:");
-                    if (n.Empty)
+                    if (n.IsEmpty)
                     {
                         text.AppendLine(" empty;");
                         continue;
                     }
-                    text.Append($" {n.Item.Name};");
-                    if (!n.Enabled) text.Append(" disabled;");
-                    text.Append($" level: {n.Level}; yield: {n.Yield}{(n.RandomYield ? "+?" : "")}; chance: {n.GatherChance}; boon: {n.BoonChance};");
-                    if (n.Hidden) text.Append(" hidden;");
-                    if (n.Rare) text.Append(" rare;");
-                    if (n.Bonus) text.Append(" bonus;");
-                    if (n.Collectable) text.Append($" collectable;");
+                    text.Append($" {n.Item?.Name[GatherBuddy.Language] ?? "None"};");
+                    //if (!n.Enabled) text.Append(" disabled;");
+                    text.Append($" level: {n.ItemLevel}; yield: {n.Yield}{(n.HasGivingLandBuff ? "+?" : "")}; chance: {n.GatherChance}; boon: {n.BoonChance};");
+                    if (n.IsHidden) text.Append(" hidden;");
+                    if (n.IsRare) text.Append(" rare;");
+                    if (n.HasBonus) text.Append(" bonus;");
+                    if (n.IsCollectable) text.Append($" collectable;");
                     text.AppendLine();
                 }
             }

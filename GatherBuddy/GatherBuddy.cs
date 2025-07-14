@@ -176,7 +176,14 @@ public partial class GatherBuddy : IDalamudPlugin
                 WorldData.AddLocation(obj.DataId, obj.Position);
         }
 
-        AutoGather.DoAutoGather();
+        try
+        {
+            AutoGather.DoAutoGather();
+        }
+        catch (Exception e)
+        {
+            Log.Error($"Error while running auto gather: {e}");
+        }
     }
 
     void IDisposable.Dispose()

@@ -1,4 +1,5 @@
-﻿using Dalamud.Game.ClientState.Conditions;
+﻿using System;
+using Dalamud.Game.ClientState.Conditions;
 using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
@@ -15,7 +16,9 @@ using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.Linq;
 using System.Numerics;
+using ECommons;
 using ECommons.MathHelpers;
+using GatherBuddy.AutoGather.AtkReaders;
 
 namespace GatherBuddy.AutoGather
 {
@@ -48,6 +51,9 @@ namespace GatherBuddy.AutoGather
         public  Angle      CurrentRotation      { get; private set; } = default;
         private ILocation? CurrentFarNodeLocation;
         public bool LureSuccess { get; private set; } = false;
+
+        public unsafe GatheringReader? GatheringWindowReader
+            => GenericHelpers.TryGetAddonByName("Gathering", out AtkUnitBase* addon) ? new GatheringReader(addon) : null;
 
         public static IReadOnlyList<InventoryType> InventoryTypes { get; } =
         [
@@ -117,7 +123,7 @@ namespace GatherBuddy.AutoGather
         public  string      AutoStatus { get; private set; } = "Idle";
         public  int         LastCollectability = 0;
         public  int         LastIntegrity      = 0;
-        private BitVector32 LuckUsed;
+        private bool LuckUsed;
         private bool        WentHome;
 
         internal IEnumerable<GatherTarget> ItemsToGather

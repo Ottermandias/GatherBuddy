@@ -7,9 +7,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using Actions = GatherBuddy.AutoGather.AutoGather.Actions;
-using ItemSlot = GatherBuddy.AutoGather.GatheringTracker.ItemSlot;
 using ECommons.ExcelServices;
 using ECommons;
+using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.CustomInfo;
 
 namespace GatherBuddy.AutoGather.Helpers
@@ -137,7 +137,7 @@ namespace GatherBuddy.AutoGather.Helpers
                     return false;
                 if (_action.EffectType is Actions.EffectType.BoonChance or Actions.EffectType.BoonYield && slot.BoonChance <= 0)
                     return false;
-                if (_action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.Rare)
+                if (_action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.IsRare)
                     return false;
                 if (_action == Actions.GivingLand && !AutoGather.IsGivingLandOffCooldown)
                     return false;
@@ -251,11 +251,11 @@ namespace GatherBuddy.AutoGather.Helpers
             }
         }
 
-        public static async Task<IEnumerable<Actions.BaseAction?>> SolveAsync(ItemSlot slot, ConfigPreset config)
+        public static async Task<IEnumerable<Actions.BaseAction?>> SolveAsync(ItemSlot slot, ConfigPreset config, GatheringReader gatheringWindow)
         {
             Debug.Assert(Svc.Framework.IsInFrameworkUpdateThread);
 
-            if (slot.Rare) return [null];
+            if (slot.IsRare) return [null];
 
             var timer = new Stopwatch();
             timer.Start();
@@ -264,32 +264,32 @@ namespace GatherBuddy.AutoGather.Helpers
 
             var global = new GlobalState()
             {
-                PlayerJob = Player.Job,
-                PlayerLevel = Player.Level,
-                MaxGP = Player.Object.MaxGp,
-                InitialGP = Player.Object.CurrentGp,
-                MaxIntegrity = slot.Node.MaxIntegrity,
-                BountifulYield = AutoGather.CalculateBountifulBonus(slot.Item),
-                BountyYield = Player.Level >= 71 ? 3 : 2,
-                IsCrystal = slot.Item.IsCrystal,
-                OptimizeForCost = slot.Item.NodeType == Enums.NodeType.Regular,
-                AvailableActions = SolverActions.Where(a => a.Filter(slot)).ToList(),
-                GPRegenPerTick = gpQuest ? (Player.Level switch { >= 83 => 8u, >= 80 => 7u, _ => 6u }) : 5u,
-                GPRegenPerHit = (gpQuest && Player.Level >= 80) ? 6u : 5u,
+                PlayerJob              = Player.Job,
+                PlayerLevel            = Player.Level,
+                MaxGP                  = Player.Object.MaxGp,
+                InitialGP              = Player.Object.CurrentGp,
+                MaxIntegrity           = gatheringWindow.IntegrityMax,
+                BountifulYield         = AutoGather.CalculateBountifulBonus(slot.Item),
+                BountyYield            = Player.Level >= 71 ? 3 : 2,
+                IsCrystal              = slot.Item.IsCrystal,
+                OptimizeForCost        = slot.Item.NodeType == Enums.NodeType.Regular,
+                AvailableActions       = SolverActions.Where(a => a.Filter(slot)).ToList(),
+                GPRegenPerTick         = gpQuest ? (Player.Level switch { >= 83 => 8u, >= 80 => 7u, _ => 6u }) : 5u,
+                GPRegenPerHit          = (gpQuest && Player.Level >= 80) ? 6u : 5u,
                 SpendGPOnBestNodesOnly = config.SpendGPOnBestNodesOnly,
-                BaseBoonChance = slot.BoonChance > 0 ? CalculateBoonChance(slot.Item.GatheringData.GatheringItemLevel.RowId) : 0
+                BaseBoonChance         = slot.BoonChance > 0 ? CalculateBoonChance(slot.Item.GatheringData.GatheringItemLevel.RowId) : 0
             };
             var state = new State()
             {
-                Global = global,
+                Global     = global,
                 TotalYield = 0,
-                GP = (ushort)Player.Object.CurrentGp,
-                Integrity = (byte)slot.Node.Integrity,
-                BoonChance = (byte)Math.Max(slot.BoonChance, 0),
+                GP         = (ushort)Player.Object.CurrentGp,
+                Integrity  = (byte)gatheringWindow.IntegrityRemaining,
+                BoonChance = (byte)Math.Max((int)slot.BoonChance, 0),
                 Yield = (byte)(slot.Yield
                     - (Player.Status.Any(s => s.StatusId == Actions.BountifulII.EffectId || s.StatusId == Actions.Bountiful.EffectId) ? global.BountifulYield : 0)
-                    + (slot.RandomYield ? GivingLandYield : 0)
-                    - (slot.Bonus ? 1 : 0)), //May vary, but there is no easy way to tell the exact value.
+                    + (slot.HasGivingLandBuff ? GivingLandYield : 0)
+                    - (slot.HasBonus ? 1 : 0)), //May vary, but there is no easy way to tell the exact value.
                 BoonYield = (byte)(Player.Status.Any(s => s.StatusId == Actions.Tidings.EffectId) ? 2 : 1),
                 Effects = Player.Status.Join(SolverActions, s => s.StatusId, a => a.Action?.EffectId ?? 0, (s, a) => a.Effect).Aggregate(EffectType.None, (a, b) => a | b)
                     | (Player.Status.Any(s => s.StatusId == Actions.BountifulII.EffectId) ? EffectType.Bountiful : EffectType.None)
