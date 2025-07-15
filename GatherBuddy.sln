@@ -27,6 +27,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatherBuddy.Models", "Gathe
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GatherBuddy.DataImport", "GatherBuddy.DataImport\GatherBuddy.DataImport.csproj", "{2DCE4068-8DEA-48E4-AD91-BDCCBAF45F42}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoRetainerAPI", "AutoRetainerAPI\AutoRetainerAPI\AutoRetainerAPI.csproj", "{0E07569D-F5E3-48A2-86C9-F2709340041D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -162,6 +164,20 @@ Global
 		{2DCE4068-8DEA-48E4-AD91-BDCCBAF45F42}.ReleaseForms|Any CPU.Build.0 = Debug|Any CPU
 		{2DCE4068-8DEA-48E4-AD91-BDCCBAF45F42}.ReleaseForms|x64.ActiveCfg = Debug|Any CPU
 		{2DCE4068-8DEA-48E4-AD91-BDCCBAF45F42}.ReleaseForms|x64.Build.0 = Debug|Any CPU
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.Debug|x64.ActiveCfg = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.Debug|x64.Build.0 = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.DebugForms|Any CPU.ActiveCfg = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.DebugForms|Any CPU.Build.0 = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.DebugForms|x64.ActiveCfg = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.DebugForms|x64.Build.0 = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.Release|Any CPU.ActiveCfg = Release|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.Release|Any CPU.Build.0 = Release|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.Release|x64.ActiveCfg = Release|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.Release|x64.Build.0 = Release|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.ReleaseForms|Any CPU.ActiveCfg = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.ReleaseForms|Any CPU.Build.0 = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.ReleaseForms|x64.ActiveCfg = Debug|x64
+		{0E07569D-F5E3-48A2-86C9-F2709340041D}.ReleaseForms|x64.Build.0 = Debug|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
