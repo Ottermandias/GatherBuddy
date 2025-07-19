@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using AutoRetainerAPI;
 using Dalamud.Game.Addon.Lifecycle;
 using Dalamud.Game.Addon.Lifecycle.AddonArgTypes;
 using Dalamud.Game.ClientState.Conditions;
@@ -55,7 +56,6 @@ namespace GatherBuddy.AutoGather
             Svc.AddonLifecycle.RegisterListener(AddonEvent.PreFinalize, "Gathering", OnGatheringFinalize);
             _plugin.FishRecorder.Parser.CaughtFish += OnFishCaught;
         }
-
         public Fish? LastCaughtFish { get; private set; }
         public Fish? PreviouslyCaughtFish { get; private set; }
         private void OnFishCaught(Fish arg1, ushort arg2, byte arg3, bool arg4, bool arg5)
@@ -124,7 +124,16 @@ namespace GatherBuddy.AutoGather
 
         private           bool             _enabled { get; set; } = false;
 
-        public bool Waiting { get; private set; }
+        public bool Waiting
+        {
+            get;
+            private set
+            {
+                if (GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode)
+                    GatherBuddy.AutoRetainerApi.Suppressed = !value;
+                field                                  = value;
+            }
+        } = false;
 
         public unsafe bool Enabled
         {
@@ -328,6 +337,13 @@ namespace GatherBuddy.AutoGather
                 }
 
 
+                return;
+            }
+
+            if (AutoRetainer.IsEnabled && GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode && AutoRetainer.AreAnyRetainersAvailableForCurrentChara())
+            {
+                Waiting = true;
+                _plugin.Ipc.AutoGatherWaiting();
                 return;
             }
 

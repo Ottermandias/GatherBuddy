@@ -64,6 +64,12 @@
         "resolved": "17.11.4",
         "contentHash": "mudqUHhNpeqIdJoUx2YDWZO/I9uEDYVowan89R6wsomfnUJQk6HteoQTlNjZDixhT2B4IXMkMtgZtoceIjLRmA=="
       },
+      "autoretainerapi": {
+        "type": "Project",
+        "dependencies": {
+          "ECommons": "[2.2.0.2, )"
+        }
+      },
       "ecommons": {
         "type": "Project"
       },
