@@ -42,6 +42,7 @@ namespace GatherBuddy.AutoGather
         [Obsolete] public ActionConfig ScourConfig { get; set; } = new(true, (uint)AutoGather.Actions.Scour.GpCost, uint.MaxValue, new ActionConditions());
         public int TimedNodePrecog { get; set; } = 20;
         public bool DoGathering { get; set; } = true;
+        public bool AutoRetainerMultiMode { get; set; } = false;
         [Obsolete] public uint MinimumGPForGathering { get; set; } = 0;
         [Obsolete] public uint MinimumGPForCollectableRotation { get; set; } = 700;
         [Obsolete] public bool AlwaysUseSolidAgeCollectables { get; set; } = false;

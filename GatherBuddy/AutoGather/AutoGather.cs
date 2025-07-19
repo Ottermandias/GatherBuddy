@@ -129,7 +129,8 @@ namespace GatherBuddy.AutoGather
             get;
             private set
             {
-                GatherBuddy.AutoRetainerApi.Suppressed = !value;
+                if (GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode)
+                    GatherBuddy.AutoRetainerApi.Suppressed = !value;
                 field                                  = value;
             }
         } = false;
@@ -339,7 +340,7 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            if (AutoRetainer.IsEnabled && AutoRetainer.AreAnyRetainersAvailableForCurrentChara())
+            if (AutoRetainer.IsEnabled && GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode && AutoRetainer.AreAnyRetainersAvailableForCurrentChara())
             {
                 Waiting = true;
                 _plugin.Ipc.AutoGatherWaiting();

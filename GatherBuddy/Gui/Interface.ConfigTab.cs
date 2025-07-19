@@ -135,6 +135,14 @@ public partial class Interface
             ImGuiUtil.HoverTooltip("The maximum number of minutes you will fish at a fishing spot.");
         }
 
+        public static void DrawAutoretainerBox()
+        {
+            DrawCheckbox("Wait for AutoRetainer Multi-mode", "Pause GBR automatically when AutoRetainer has retainers to process during Multi-mode",
+                GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode, b => GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode = b);
+            ImGui.SameLine();
+            ImGuiEx.PluginAvailabilityIndicator([new ImGuiEx.RequiredPluginInfo("AutoRetainer")]);
+        }
+
         public static void DrawLifestreamCommandTextInput()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.LifestreamCommand;
@@ -848,6 +856,7 @@ public partial class Interface
                 ConfigFunctions.DrawUseNavigationBox();
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawRepairBox();
+                ConfigFunctions.DrawAutoretainerBox();
                 if (GatherBuddy.Config.AutoGatherConfig.DoRepair)
                 {
                     ConfigFunctions.DrawRepairThreshold();
