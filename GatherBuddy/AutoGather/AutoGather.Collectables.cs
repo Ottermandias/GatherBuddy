@@ -1,6 +1,7 @@
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.Classes;
 using System;
 using System.Linq;
@@ -30,7 +31,7 @@ namespace GatherBuddy.AutoGather
             [GeneratedRegex(@"\d+")]
             private static partial Regex NumberRegex();
 
-            public Actions.BaseAction GetNextAction(AddonGatheringMasterpiece* MasterpieceAddon)
+            public Actions.BaseAction GetNextAction(GatheringMasterpieceReader masterpieceReader)
             {
                 var itemsLeft = (int)(quantity - item.GetInventoryCount());
 
@@ -38,17 +39,17 @@ namespace GatherBuddy.AutoGather
                     throw new NoGatherableItemsInNodeException();
 
                 var regex = NumberRegex();
-                int collectability   = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(6)->NodeText.ToString());
-                int currentIntegrity = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(126)->NodeText.ToString());
-                int maxIntegrity     = int.Parse(MasterpieceAddon->AtkUnitBase.GetTextNodeById(129)->NodeText.ToString());
-                int scourColl        = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(84)->NodeText.ToString()).Value);
-                int meticulousColl   = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(108)->NodeText.ToString()).Value);
-                int brazenColl       = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetTextNodeById(93)->NodeText.ToString()).Value);
+                int collectability   = masterpieceReader.CollectabilityCurrent;
+                int currentIntegrity = masterpieceReader.IntegrityCurrent;
+                int maxIntegrity     = masterpieceReader.IntegrityMax;
+                int scourColl        = masterpieceReader.ScourGain;
+                int meticulousColl   = masterpieceReader.MeticulousGain;
+                int brazenColl       = masterpieceReader.BrazenGainMax;
 
                 if (ShouldUseWise(currentIntegrity, maxIntegrity))
                     return Actions.Wise;
 
-                var (targetScore, minScore) = GetCollectabilityScores(MasterpieceAddon);
+                var (targetScore, minScore) = GetCollectabilityScores(masterpieceReader);
 
                 if (collectability >= targetScore)
                 {
@@ -91,27 +92,26 @@ namespace GatherBuddy.AutoGather
                 throw new NoCollectableActionsException();
             }
 
-            private (int targetScore, int minScore) GetCollectabilityScores(AddonGatheringMasterpiece* MasterpieceAddon)
+            private (int targetScore, int minScore) GetCollectabilityScores(GatheringMasterpieceReader masterpieceReader)
             {
                 if (config.CollectableManualScores)
                     return (config.CollectableTagetScore, config.CollectableMinScore);
 
-                var regex = NumberRegex();
                 int targetScore, minScore;
 
-                // Check nodes in descending order (15, 14, 13) and use the first visible one for target score
-                if (MasterpieceAddon->AtkUnitBase.GetNodeById(15)->IsVisible())
-                    targetScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(15)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
-                else if (MasterpieceAddon->AtkUnitBase.GetNodeById(14)->IsVisible())
-                    targetScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(14)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+                // Check reward tiers in descending order and use the first visible one for target score
+                if (masterpieceReader.HighVisible)
+                    targetScore = masterpieceReader.HighThreshold;
+                else if (masterpieceReader.MidVisible)
+                    targetScore = masterpieceReader.MidThreshold;
                 else
-                    targetScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+                    targetScore = masterpieceReader.LowThreshold;
 
                 // For custom deliveries and quest items, we always want max collectability
                 if (item.GatheringData.Unknown3 is 3 or 4 or 6)
                     minScore = targetScore;
                 else
-                    minScore = int.Parse(regex.Match(MasterpieceAddon->AtkUnitBase.GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText.ToString()).Value);
+                    minScore = masterpieceReader.LowThreshold;
 
                 return (targetScore, minScore);
             }

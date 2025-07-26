@@ -112,7 +112,7 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoActionTasks(IEnumerable<GatherTarget> target)
         {
-            if (MasterpieceAddon != null)
+            if (MasterpieceReader?.IsValid == true)
             {
                 if (CurrentCollectableRotation == null)
                 {
@@ -481,38 +481,18 @@ namespace GatherBuddy.AutoGather
 
         private unsafe void DoCollectibles()
         {
-            if (MasterpieceAddon == null || CurrentCollectableRotation == null)
+            if (MasterpieceReader?.IsValid != true || CurrentCollectableRotation == null)
                 return;
 
-            var textNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(6);
-            if (textNode == null)
-                return;
+            int collectibility = MasterpieceReader.CollectabilityCurrent;
+            int integrity = MasterpieceReader.IntegrityCurrent;
 
-            var text = textNode->NodeText.ToString();
-
-            var integrityNode = MasterpieceAddon->AtkUnitBase.GetTextNodeById(126);
-            if (integrityNode == null)
-                return;
-
-            var integrityText = integrityNode->NodeText.ToString();
-
-            if (!int.TryParse(text, out var collectibility))
-            {
-                collectibility = 99999; // default value
-            }
-
-            if (!int.TryParse(integrityText, out var integrity))
-            {
-                collectibility = 99999;
-                integrity      = 99999;
-            }
-
-            if (collectibility < 99999)
+            if (integrity > 0)
             {
                 LastCollectability = collectibility;
                 LastIntegrity      = integrity;
 
-                var collectibleAction = CurrentCollectableRotation.GetNextAction(MasterpieceAddon);
+                var collectibleAction = CurrentCollectableRotation.GetNextAction(MasterpieceReader);
 
                 EnqueueActionWithDelay(() => UseAction(collectibleAction));
             }

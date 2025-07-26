@@ -53,7 +53,14 @@ namespace GatherBuddy.AutoGather
         public bool LureSuccess { get; private set; } = false;
 
         public unsafe GatheringReader? GatheringWindowReader
-            => GenericHelpers.TryGetAddonByName("Gathering", out AtkUnitBase* addon) ? new GatheringReader(addon) : null;
+            => GenericHelpers.TryGetAddonByName("Gathering", out AtkUnitBase* addon)
+                ? new GatheringReader(addon)
+                : null;
+
+        public unsafe GatheringMasterpieceReader? MasterpieceReader
+            => GenericHelpers.TryGetAddonByName("GatheringMasterpiece", out AtkUnitBase* add)
+                ? new GatheringMasterpieceReader(add)
+                : null;
 
         public static IReadOnlyList<InventoryType> InventoryTypes { get; } =
         [
