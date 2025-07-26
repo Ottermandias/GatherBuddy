@@ -630,7 +630,7 @@ namespace GatherBuddy.AutoGather
                 if (!positionData.HasValue)
                 {
                     Communicator.PrintError(
-                        $"No position data for fishing spot {fish.FishingSpot.Name}. Auto-Fishing cannot continue.");
+                        $"No position data for fishing spot {fish.FishingSpot.Name}. Auto-Fishing cannot continue. Please, manually fish at least once at {fish.FishingSpot.Name} so GBR can know its location.");
                     AbortAutoGather();
                     return;
                 }
