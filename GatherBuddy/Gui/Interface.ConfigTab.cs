@@ -2,6 +2,7 @@
 using System.Numerics;
 using Dalamud.Game.Text;
 using Dalamud.Interface.Utility;
+using ECommons.DalamudServices;
 using ECommons.ImGuiMethods;
 using FFXIVClientStructs.STD;
 using GatherBuddy.Alarms;
@@ -64,6 +65,7 @@ public partial class Interface
                 GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle, b => GatherBuddy.Config.AutoGatherConfig.GoHomeWhenIdle = b);
             ImGui.SameLine();
             ImGuiEx.PluginAvailabilityIndicator([new("Lifestream")]);
+            Svc.Framework.Run
         }
 
         public static void DrawUseSkillsForFallabckBox()
