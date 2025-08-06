@@ -793,7 +793,7 @@ namespace GatherBuddy.AutoGather
                 TaskManager.Enqueue(() => Callback.Fire(addon, true,  0));
                 TaskManager.Enqueue(() => Callback.Fire(addon, false, -2));
                 TaskManager.DelayNext(1000);
-                TaskManager.Enqueue(() => Callback.Fire((AtkUnitBase*)Dalamud.GameGui.GetAddonByName("SelectYesno"), true, 0));
+                TaskManager.Enqueue(() => Callback.Fire((AtkUnitBase*)(nint)Dalamud.GameGui.GetAddonByName("SelectYesno"), true, 0));
                 TaskManager.Enqueue(YesAlready.Unlock);
                 return;
             }
