@@ -210,8 +210,8 @@ namespace GatherBuddy.AutoGather
                 if (targetNode != null && targetNode.ObjectKind is ObjectKind.GatheringPoint)
                 {
                     _activeItemList.MarkVisited(targetNode);
-                    var gatherable = gatherTarget.Gatherable;
-                    var node = gatherTarget.Node;
+                    var gatherable = gatherTarget.Value.Gatherable;
+                    var node = gatherTarget.Value.Node;
                     if (gatherable != null && (gatherable.NodeType == NodeType.Regular || gatherable.NodeType == NodeType.Ephemeral)
                         && (VisitedNodes.Last?.Value != targetNode.DataId)
                         && node != null && node.WorldPositions.ContainsKey(targetNode.DataId))
@@ -249,7 +249,6 @@ namespace GatherBuddy.AutoGather
             }
 
             if (!_homeWorldWarning && !Functions.OnHomeWorld())
-            catch (Exception)
             {
                 _homeWorldWarning = true;
                 Communicator.PrintError("You are not on your home world, some items will not be gatherable.");
