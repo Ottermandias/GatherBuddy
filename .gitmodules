@@ -1,6 +1,6 @@
 [submodule "OtterGui"]
 	path = OtterGui
-	url = https://github.com/NostraThomas99/OtterGui
+	url = https://github.com/Ottermandias/OtterGui
 	branch = main
 [submodule "ECommons"]
 	path = ECommons
