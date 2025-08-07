@@ -36,7 +36,7 @@ public static partial class Fish
             .Bait(data, 43857)
             .Time(1080, 1440)
             .Transition(data, 1, 2)
-            .Weather(data, 8)
+            .Weather(data, 6)
             .Bite(data, HookSet.Precise, BiteType.Legendary);
         data.Apply(46194, Patch.ThePromiseOfTomorrow) // Sprouting Perch
             .Bait(data, 43858)
@@ -66,4 +66,3 @@ public static partial class Fish
     }
     // @formatter:on
 }
-

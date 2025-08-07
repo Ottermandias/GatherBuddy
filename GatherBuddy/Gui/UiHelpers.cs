@@ -157,7 +157,7 @@ public partial class Interface
                         fish.Update();
                 }
             }
-
+            
             using (var popup = ImUtf8.PopupContextItem("##Context"u8))
             {
                 if (popup)
@@ -172,7 +172,7 @@ public partial class Interface
                             GatherBuddy.Log.Error($"Could not move fish data override file to backup:\n{ex}");
                         }
             }
-
+            
             if (GatherBuddy.GameData.OverriddenFish > 0)
             {
                 ImGui.SameLine(0, 50 * ImGuiHelpers.GlobalScale);
