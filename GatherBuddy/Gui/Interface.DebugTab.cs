@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
@@ -11,13 +12,13 @@ using GatherBuddy.Levenshtein;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
 using GatherBuddy.Time;
-using ImGuiNET;
 using Lumina.Excel.Sheets;
 using OtterGui;
 using OtterGui.Text;
 using static GatherBuddy.FishTimer.FishRecord;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
+using ImGuiTable = OtterGui.ImGuiTable;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -131,19 +132,19 @@ public partial class Interface
                 GatherBuddy.UptimeManager.ResetLocations();
 
             if (FishTimerWindow.CollectableIcon.TryGetWrap(out var wrapCollectable, out _))
-                ImGui.Image(wrapCollectable.ImGuiHandle, wrapCollectable.Size);
+                ImGui.Image(wrapCollectable.Handle, wrapCollectable.Size);
 
             ImGui.SameLine();
             if (FishTimerWindow.DoubleHookIcon.TryGetWrap(out var wrapDoubleHook, out _))
-                ImGui.Image(wrapDoubleHook.ImGuiHandle, wrapDoubleHook.Size);
+                ImGui.Image(wrapDoubleHook.Handle, wrapDoubleHook.Size);
 
             ImGui.SameLine();
             if (FishTimerWindow.TripleHookIcon.TryGetWrap(out var wrapTripleHook, out _))
-                ImGui.Image(wrapTripleHook.ImGuiHandle, wrapTripleHook.Size);
+                ImGui.Image(wrapTripleHook.Handle, wrapTripleHook.Size);
 
             ImGui.SameLine();
             if (FishTimerWindow.QuadHookIcon.TryGetWrap(out var wrapQuadHook, out _))
-                ImGui.Image(wrapQuadHook.ImGuiHandle, wrapQuadHook.Size);
+                ImGui.Image(wrapQuadHook.Handle, wrapQuadHook.Size);
         }
     }
 
@@ -239,7 +240,7 @@ public partial class Interface
             if (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().TryGetRow(id, out var row))
             {
                 ImGuiUtil.DrawTableColumn("Current Mission");
-                ImGuiUtil.DrawTableColumn($"{row.Item.ExtractText()} ({id})");
+                ImGuiUtil.DrawTableColumn($"{row.Name.ExtractText()} ({id})");
             }
         }
 
@@ -614,7 +615,7 @@ public partial class Interface
                 missionId = uint.Parse(match.Groups[2].Value);
                 name = spotName
                   + " "
-                  + (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().GetRowOrDefault(missionId)?.Item.ExtractText() ?? "Unknown");
+                  + (Dalamud.GameData.GetExcelSheet<WKSMissionUnit>().GetRowOrDefault(missionId)?.Name.ExtractText() ?? "Unknown");
             }
 
             text += $"\n        // {name}\n";

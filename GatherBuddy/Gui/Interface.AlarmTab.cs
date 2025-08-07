@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Components;
 using Dalamud.Interface.Utility;
@@ -10,7 +11,6 @@ using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
-using ImGuiNET;
 using OtterGui;
 using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -132,8 +132,7 @@ public partial class Interface
 
         public static readonly Sounds[] SoundIds = Enum.GetValues<Sounds>().Where(s => s != Sounds.Unknown).ToArray();
 
-        public static readonly string SoundIdNames =
-            string.Join("\0", SoundIds.Select(s => s == Sounds.None ? "No Sound" : $"Sound {s.ToIdx()}"));
+        public static readonly string[] SoundIdNames = SoundIds.Select(s => s == Sounds.None ? "No Sound" : $"Sound {s.ToIdx()}").ToArray();
 
         public readonly AlarmSelector  Selector;
         public readonly TimedItemCombo ItemCombo = new(string.Empty);

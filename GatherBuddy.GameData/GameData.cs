@@ -140,14 +140,14 @@ public class GameData
                 throw new Exception("Could not fetch any gathering nodes, this is certainly an error, terminating.");
 
             CosmicFishingMissions = DataManager.GetExcelSheet<WKSMissionUnit>()
-                .Where(m => m.Item.ByteLength > 0 && m.Unknown1 is 19)
+                .Where(m => m.Name.ByteLength > 0 && (m.ClassJobCategory[0].RowId is 19 || m.ClassJobCategory[1].RowId is 19))
                 .ToFrozenDictionary(m => (ushort)m.RowId, m => new CosmicMission(m));
             Log.Verbose("Collected {NumCosmicMissions} different cosmic fishing missions.", CosmicFishingMissions.Count);
 
             Bait = DataManager.GetExcelSheet<Item>()
                 .Where(i => i.ItemSearchCategory.RowId == Structs.Bait.FishingTackleRow)
-                .Concat(DataManager.GetExcelSheet<WKSItemInfo>().Where(i => i.WKSItemSubCategory is 5)
-                    .Select(i => DataManager.GetExcelSheet<Item>().GetRow(i.Item)))
+                .Concat(DataManager.GetExcelSheet<WKSItemInfo>().Where(i => i.WKSItemSubCategory.RowId is 5)
+                    .Select(i => i.Item.Value))
                 .ToFrozenDictionary(b => b.RowId, b => new Bait(b));
             Log.Verbose("Collected {NumBaits} different types of bait.", Bait.Count);
             if (Bait.Count is 0)

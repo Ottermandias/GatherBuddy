@@ -1,5 +1,6 @@
 ﻿using System.Linq;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using FFXIVClientStructs.FFXIV.Component.GUI;
@@ -7,7 +8,6 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.SeFunctions;
-using ImGuiNET;
 using OtterGui;
 using ImRaii = OtterGui.Raii.ImRaii;
 
@@ -78,19 +78,19 @@ public partial class SpearfishingHelper : Window
             else
             {
                 if (Icons.FromSpeed(fish.Speed).TryGetWrap(out var speedWrap, out _))
-                    ImGui.Image(speedWrap.ImGuiHandle, iconSize);
+                    ImGui.Image(speedWrap.Handle, iconSize);
                 else
                     ImGui.Dummy(iconSize);
                 ImGui.SameLine();
                 if (Icons.FromSize(fish.Size).TryGetWrap(out var sizeWrap, out _))
-                    ImGui.Image(sizeWrap.ImGuiHandle, iconSize);
+                    ImGui.Image(sizeWrap.Handle, iconSize);
                 else
                     ImGui.Dummy(iconSize);
                 ImGui.SameLine();
             }
 
             if (Icons.DefaultStorage.TryLoadIcon(fish.ItemData.Icon, out var icon))
-                ImGui.Image(icon.ImGuiHandle, iconSize);
+                ImGui.Image(icon.Handle, iconSize);
             else
                 ImGui.Dummy(iconSize);
             var pos = ImGui.GetCursorPos();
@@ -150,7 +150,7 @@ public partial class SpearfishingHelper : Window
     {
         var oldOpen = _isOpen;
         
-        _addon  = (SpearfishWindow*)Dalamud.GameGui.GetAddonByName("SpearFishing", 1);
+        _addon  = (SpearfishWindow*)Dalamud.GameGui.GetAddonByName("SpearFishing", 1).Address;
         _isOpen = _addon != null && _addon->Base.WindowNode != null;
         if (!_isOpen)
             return false;

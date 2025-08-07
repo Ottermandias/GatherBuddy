@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
-using ImGuiNET;
 using OtterGui;
 using OtterGui.Table;
 using ImRaii = OtterGui.Raii.ImRaii;

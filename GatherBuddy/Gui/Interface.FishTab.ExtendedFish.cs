@@ -5,13 +5,13 @@ using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
-using ImGuiNET;
 using OtterGui.Extensions;
 using OtterGui.Text;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;
@@ -349,7 +349,7 @@ public partial class Interface
                 {
                     ImGui.SameLine();
                     if (w.TryGetWrap(out var wrap, out _))
-                        ImGui.Image(wrap.ImGuiHandle, weatherIconSize);
+                        ImGui.Image(wrap.Handle, weatherIconSize);
                     else
                         ImGui.Dummy(weatherIconSize);
                 }
@@ -370,7 +370,7 @@ public partial class Interface
                     {
                         ImGui.SameLine();
                         if (w.TryGetWrap(out var wrap, out _))
-                            ImGui.Image(wrap.ImGuiHandle, weatherIconSize);
+                            ImGui.Image(wrap.Handle, weatherIconSize);
                         else
                             ImGui.Dummy(weatherIconSize);
                     }
@@ -384,7 +384,7 @@ public partial class Interface
                 {
                     ImGui.SameLine();
                     if (w.TryGetWrap(out var wrap, out _))
-                        ImGui.Image(wrap.ImGuiHandle, weatherIconSize);
+                        ImGui.Image(wrap.Handle, weatherIconSize);
                     else
                         ImGui.Dummy(weatherIconSize);
                 }
@@ -406,7 +406,7 @@ public partial class Interface
             if (fish.Snagging != null)
             {
                 if (fish.Snagging.TryGetWrap(out var wrap, out _))
-                    ImGui.Image(wrap.ImGuiHandle, iconSize);
+                    ImGui.Image(wrap.Handle, iconSize);
                 else
                     ImGui.Dummy(iconSize);
                 ImGui.SameLine();
@@ -415,7 +415,7 @@ public partial class Interface
             if (fish.Lure != null)
             {
                 if (fish.Lure.TryGetWrap(out var wrap, out _))
-                    ImGui.Image(wrap.ImGuiHandle, iconSize);
+                    ImGui.Image(wrap.Handle, iconSize);
                 else
                     ImGui.Dummy(iconSize);
                 ImGui.SameLine();
@@ -427,7 +427,7 @@ public partial class Interface
             {
                 size = iconSize;
                 if (bait.Icon.TryGetWrap(out var wrap, out _))
-                    ImGui.Image(wrap.ImGuiHandle, size);
+                    ImGui.Image(wrap.Handle, size);
                 else
                     ImGui.Dummy(size);
 
@@ -438,7 +438,7 @@ public partial class Interface
                     using var _ = ImRaii.Group();
                     style.Push(ImGuiStyleVar.FramePadding, Vector2.Zero);
                     if (bait.HookSet!.TryGetWrap(out wrap, out var _))
-                        ImGui.Image(wrap.ImGuiHandle, smallIconSize);
+                        ImGui.Image(wrap.Handle, smallIconSize);
                     else
                         ImGui.Dummy(smallIconSize);
                     ImUtf8.TextFramed(bait.Bite.Item1, bait.Bite.Item2, smallIconSize);
@@ -494,7 +494,7 @@ public partial class Interface
                 ImUtf8.TextFramed(predator.Amount, 0xFF0040C0, size);
                 ImGui.SameLine();
                 if (predator.Icon.TryGetWrap(out var wrap, out _))
-                    ImGui.Image(wrap.ImGuiHandle, size);
+                    ImGui.Image(wrap.Handle, size);
                 else
                     ImGui.Dummy(size);
                 style.Push(ImGuiStyleVar.ItemSpacing, new Vector2(3 * ImGuiHelpers.GlobalScale, 0));

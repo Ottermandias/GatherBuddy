@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.Text;
-using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Alarms;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
-using ImGuiNET;
 using OtterGui;
 using OtterGui.Widgets;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -224,7 +223,7 @@ public partial class Interface
         {
             var cur = (int)current;
             ImGui.SetNextItemWidth(90 * ImGuiHelpers.GlobalScale);
-            if (ImGui.Combo(label, ref cur, AlarmCache.SoundIdNames))
+            if (ImGui.Combo(new ImU8String(label), ref cur, AlarmCache.SoundIdNames))
                 setter((Sounds)cur);
             ImGuiUtil.HoverTooltip(description);
         }

@@ -1,8 +1,8 @@
-﻿<Project Sdk="Dalamud.NET.Sdk/12.0.2">
+﻿<Project Sdk="Dalamud.NET.Sdk/13.0.0">
   <PropertyGroup>
     <RootNamespace>GatherBuddy</RootNamespace>
     <AssemblyName>GatherBuddy</AssemblyName>
-    <Version>3.8.1.0</Version>
+    <Version>3.8.2.0</Version>
     <Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2025</Copyright>
