@@ -5,6 +5,3 @@
 [submodule "ECommons"]
 	path = ECommons
 	url = https://github.com/NightmareXIV/ECommons
-[submodule "AutoRetainerAPI"]
-	path = AutoRetainerAPI
-	url = https://github.com/PunishXIV/AutoRetainerAPI
