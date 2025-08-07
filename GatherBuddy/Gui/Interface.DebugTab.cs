@@ -33,8 +33,8 @@ using System.Collections;
 using ECommons;
 using ECommons.ExcelServices;
 using GatherBuddy.AutoGather.Lists;
-using GatherBuddy.Models;
 using Action = System.Action;
+using Effects = GatherBuddy.Models.Effects;
 
 namespace GatherBuddy.Gui;
 
@@ -806,7 +806,7 @@ public partial class Interface
 
         unsafe
         {
-            var addon = (AddonGatheringMasterpiece*)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece");
+            var addon = (AddonGatheringMasterpiece*)(nint)Dalamud.GameGui.GetAddonByName("GatheringMasterpiece");
             if (addon != null && addon->IsFullyLoaded() && addon->IsReady)
             {
                 ImGui.Text($"Min collectability: {addon->GetComponentByNodeId(13)->GetTextNodeById(3)->GetAsAtkTextNode()->NodeText} {addon->AtkUnitBase.GetNodeById(13)->IsVisible()}");

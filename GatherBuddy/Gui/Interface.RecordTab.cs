@@ -15,7 +15,7 @@ using System.Text;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility;
-using GatherBuddy.Models;
+using Effects = GatherBuddy.Models.Effects;
 using GatherBuddy.Time;
 using GatherBuddy.Weather;
 using OtterGui.Text;

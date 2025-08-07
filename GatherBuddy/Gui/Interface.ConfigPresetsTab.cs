@@ -359,7 +359,7 @@ namespace GatherBuddy.Gui
                     new Vector2(-1.5f * ImGui.GetStyle().ItemSpacing.X, ImGui.GetFrameHeightWithSpacing() * 3 + ItemSpacing.Y));
                 Span<int> ilvl = [preset.ItemLevel.Min, preset.ItemLevel.Max];
                 ImGui.SetNextItemWidth(SetInputWidth);
-                if (ImGui.DragInt2("Minimum and maximum item", ref ilvl[0], 0.2f, 1, useGlv ? ConfigPreset.MaxGvl : ConfigPreset.MaxLevel))
+                if (ImGui.DragInt("Minimum and maximum item", ref ilvl[0], 0.2f, 1, useGlv ? ConfigPreset.MaxGvl : ConfigPreset.MaxLevel))
                 {
                     state.ChangingMin    = preset.ItemLevel.Min != ilvl[0];
                     preset.ItemLevel.Min = ilvl[0];
@@ -615,7 +615,7 @@ namespace GatherBuddy.Gui
             if (!hideGP)
             {
                 Span<int> gp = [action.MinGP, action.MaxGP];
-                if (ImGui.DragInt2("Minimum and maximum GP", ref gp[0], 1, 0, ConfigPreset.MaxGP))
+                if (ImGui.DragInt("Minimum and maximum GP", ref gp[0], 1, 0, ConfigPreset.MaxGP))
                 {
                     state.ChangingMin = action.MinGP != gp[0];
                     action.MinGP      = gp[0];
@@ -639,7 +639,7 @@ namespace GatherBuddy.Gui
             if (action is ConfigPreset.ActionConfigBoon action3)
             {
                 Span<int> chance = [action3.MinBoonChance, action3.MaxBoonChance];
-                if (ImGui.DragInt2("Minimum and maximum boon chance", ref chance[0], 0.2f, 0, 100))
+                if (ImGui.DragInt("Minimum and maximum boon chance", ref chance[0], 0.2f, 0, 100))
                 {
                     state.ChangingMin     = action3.MinBoonChance != chance[0];
                     action3.MinBoonChance = chance[0];

@@ -3,6 +3,7 @@ using System.Buffers.Binary;
 using System.Collections.Generic;
 using System.Linq;
 using ECommons.Automation;
+using ECommons.DalamudServices;
 using ECommons.UIHelpers;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Enums;
@@ -30,7 +31,7 @@ public unsafe class GatheringReader(AtkUnitBase* addon) : AtkReader(addon)
         => (ItemLevelRaw1 != 0 && ItemLevelRaw1 != 0xFFFFFFFF ? BinaryPrimitives.ReverseEndianness(ItemLevelRaw1) : BinaryPrimitives.ReverseEndianness(ItemLevelRaw2));
 
     private List<ItemSlotReader> ItemSlotReaders
-        => Loop<ItemSlotReader>(6, 11, 8);
+        => Loop<ItemSlotReader>(5, 11, 8);
 
     public List<ItemSlot> ItemSlots
     {
@@ -40,6 +41,7 @@ public unsafe class GatheringReader(AtkUnitBase* addon) : AtkReader(addon)
             for (var i = 0; i < 8; ++i)
             {
                 var slot = ItemSlotReaders[i];
+                Svc.Log.Debug($"GatheringReader: Slot {i} - Item: {slot.Item?.Name.English ?? "None"} - HasBonus: {slot.HasBonus} - RequiresPerception: {slot.RequiresPerception} - HasGivingLandBuff: {slot.HasGivingLandBuff} - IsCollectable: {slot.IsCollectable} - Yield: {slot.Yield} - BoonChance: {slot.BoonChance}");
                 result.Add(new ItemSlot(i, slot, ItemSlotFlags, GatherChances, ItemLevel));
             }
 
@@ -48,25 +50,25 @@ public unsafe class GatheringReader(AtkUnitBase* addon) : AtkReader(addon)
     }
 
     private uint ItemSlotFlags
-        => ReadUInt(99).GetValueOrDefault();
+        => ReadUInt(96).GetValueOrDefault();
 
     public bool QuickGatheringAllowed
-        => ReadBool(106).GetValueOrDefault();
+        => ReadBool(105).GetValueOrDefault();
 
     public bool QuickGatheringEnabled
-        => ReadBool(107).GetValueOrDefault();
+        => ReadBool(106).GetValueOrDefault();
 
     public bool QuickGatheringInProgress
-        => ReadBool(108).GetValueOrDefault();
+        => ReadBool(107).GetValueOrDefault();
 
     private uint LastSelectedSlot
-        => ReadUInt(109).GetValueOrDefault();
+        => ReadUInt(108).GetValueOrDefault();
 
     public int IntegrityRemaining
-        => (int)ReadUInt(110).GetValueOrDefault();
+        => (int)ReadUInt(109).GetValueOrDefault();
 
     public int IntegrityMax
-        => (int)ReadUInt(111).GetValueOrDefault();
+        => (int)ReadUInt(110).GetValueOrDefault();
 
     public bool Touched
         => IntegrityRemaining != IntegrityMax;

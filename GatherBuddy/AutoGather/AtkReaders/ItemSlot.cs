@@ -15,7 +15,7 @@ public class ItemSlot(int index, ItemSlotReader reader, uint itemSlotFlags, uint
             Callback.Fire(addon, true, index, 0);
         }
     }
-    public bool Enabled => reader.Enabled;
+    //public bool Enabled => reader.Enabled;
     public bool HasBonus => reader.HasBonus;
     public bool RequiresPerception => reader.RequiresPerception;
     public bool HasGivingLandBuff => reader.HasGivingLandBuff;

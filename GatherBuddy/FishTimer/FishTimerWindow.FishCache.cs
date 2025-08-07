@@ -12,6 +12,8 @@ using Dalamud.Bindings.ImGui;
 using OtterGui.Text;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
+using FishingSpot = GatherBuddy.Classes.FishingSpot;
+using Effects = GatherBuddy.Models.Effects;
 
 namespace GatherBuddy.FishTimer;
 

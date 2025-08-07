@@ -14,6 +14,7 @@ using OtterGui.Widgets;
 using static GatherBuddy.FishTimer.FishRecord;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using Bait = GatherBuddy.Structs.Bait;
+using Effects = GatherBuddy.Models.Effects;
 
 
 namespace GatherBuddy.Gui;
