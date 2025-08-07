@@ -39,8 +39,8 @@ namespace GatherBuddy.AutoGather
 
             if (slot.Item.IsTreasureMap)
             {
-                TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.Gathering42], 1000);
-                TaskManager.Enqueue(() => !Dalamud.Conditions[ConditionFlag.Gathering42]);
+                TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.ExecutingGatheringAction], 1000);
+                TaskManager.Enqueue(() => !Dalamud.Conditions[ConditionFlag.ExecutingGatheringAction]);
                 TaskManager.Enqueue(DiscipleOfLand.RefreshNextTreasureMapAllowance);
             }
         }

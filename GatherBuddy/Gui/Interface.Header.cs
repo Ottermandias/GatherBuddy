@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Textures;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
-using ImGuiNET;
 using OtterGui;
 using ImRaii = OtterGui.Raii.ImRaii;
 
@@ -139,7 +139,7 @@ public partial class Interface
     {
         if (icon != null && icon.TryGetWrap(out var wrap, out _))
         {
-            ImGui.Image(wrap.ImGuiHandle, size, Vector2.Zero, Vector2.One, tint);
+            ImGui.Image(wrap.Handle, size, Vector2.Zero, Vector2.One, tint);
             ImGuiUtil.HoverTooltip($"{weather.Name} ({weather.Id})");
         }
         else

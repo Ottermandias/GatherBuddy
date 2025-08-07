@@ -171,7 +171,7 @@ public class ContextMenu : IDisposable
 
     private static unsafe IntPtr AgentById(AgentId id)
     {
-        var uiModule = (UIModule*)Dalamud.GameGui.GetUIModule();
+        var uiModule = (UIModule*)Dalamud.GameGui.GetUIModule().Address;
         var agents   = uiModule->GetAgentModule();
         var agent    = agents->GetAgentByInternalId(id);
         return (IntPtr)agent;

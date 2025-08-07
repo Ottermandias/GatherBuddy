@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Threading.Tasks;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game;
 using Dalamud.Game.Text.SeStringHandling;
 using GatherBuddy.Alarms;
@@ -16,7 +17,6 @@ using GatherBuddy.GatherHelper;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.Structs;
-using ImGuiNET;
 using ImRaii = OtterGui.Raii.ImRaii;
 
 namespace GatherBuddy.Gui;

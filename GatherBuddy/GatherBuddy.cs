@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net.Http;
 using System.Reflection;
-using AutoRetainerAPI;
 using Dalamud;
 using Dalamud.Game.ClientState.Objects.Enums;
 using Dalamud.Game;
@@ -69,7 +68,6 @@ public partial class GatherBuddy : IDalamudPlugin
     public static SeTugType             TugType         { get; private set; } = null!;
     public static WaymarkManager        WaymarkManager  { get; private set; } = null!;
     public static AutoGather.AutoGather AutoGather      { get; private set; } = null!;
-    public static AutoRetainerApi       AutoRetainerApi { get; private set; } = null!;
 
 
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
@@ -100,8 +98,6 @@ public partial class GatherBuddy : IDalamudPlugin
             Language = Dalamud.ClientState.ClientLanguage;
             GameData = new GameData(Dalamud.GameData, Log, WorldData.WorldLocationsByNodeId, "fish_overrides.json");
             Time     = new SeTime();
-
-            AutoRetainerApi = new AutoRetainerApi();
 
             WaymarkManager = new WaymarkManager();
 

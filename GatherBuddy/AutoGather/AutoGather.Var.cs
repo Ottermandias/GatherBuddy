@@ -41,7 +41,7 @@ namespace GatherBuddy.AutoGather
         }
 
         public bool IsGathering
-            => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.Gathering42];
+            => Dalamud.Conditions[ConditionFlag.Gathering] || Dalamud.Conditions[ConditionFlag.ExecutingGatheringAction];
 
         public bool IsFishing
             => Dalamud.Conditions[ConditionFlag.Fishing];
@@ -146,7 +146,7 @@ namespace GatherBuddy.AutoGather
 
         private static unsafe T* GetAddon<T>(string name) where T : unmanaged
         {
-            var addon = (AtkUnitBase*)Dalamud.GameGui.GetAddonByName(name);
+            var addon = (AtkUnitBase*)(nint)Dalamud.GameGui.GetAddonByName(name);
             if (addon != null && addon->IsFullyLoaded() && addon->IsReady)
                 return (T*)addon;
             else
@@ -202,8 +202,8 @@ namespace GatherBuddy.AutoGather
                  || Dalamud.Conditions[ConditionFlag.Occupied]
                  || Dalamud.Conditions[ConditionFlag.Occupied39]
                  || Dalamud.Conditions[ConditionFlag.Unconscious]
-                 || Dalamud.Conditions[ConditionFlag.Gathering42]
-                 || Dalamud.Conditions[ConditionFlag.Unknown57] // Mounting up
+                 || Dalamud.Conditions[ConditionFlag.ExecutingGatheringAction]
+                 || Dalamud.Conditions[ConditionFlag.Mounting] // Mounting up
                     //Node is open? Fades off shortly after closing the node, can't use items (but can mount) while it's set
                  || Dalamud.Conditions[85] && !Dalamud.Conditions[ConditionFlag.Gathering]
                  || Dalamud.ClientState.LocalPlayer.IsDead
