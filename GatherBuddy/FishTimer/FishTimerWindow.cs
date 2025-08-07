@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
-using Dalamud.Bindings.ImGui;
 using OtterGui;
 using OtterGui.Extensions;
 using OtterGui.Raii;

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Game.Text;
 using Dalamud.Interface.Utility;
 using ECommons.DalamudServices;
@@ -8,7 +9,8 @@ using FFXIVClientStructs.STD;
 using GatherBuddy.Alarms;
 using GatherBuddy.AutoGather;
 using GatherBuddy.Config;
-using Dalamud.Bindings.ImGui;
+using GatherBuddy.Enums;
+using GatherBuddy.FishTimer;
 using OtterGui;
 using OtterGui.Widgets;
 using FishRecord = GatherBuddy.FishTimer.FishRecord;
@@ -479,7 +481,7 @@ public partial class Interface
         {
             var cur = (int)current;
             ImGui.SetNextItemWidth(90 * ImGuiHelpers.GlobalScale);
-            if (ImGui.Combo(label, ref cur, AlarmCache.SoundIdNames))
+            if (ImGui.Combo(new ImU8String(label), ref cur, AlarmCache.SoundIdNames))
                 setter((Sounds)cur);
             ImGuiUtil.HoverTooltip(description);
         }

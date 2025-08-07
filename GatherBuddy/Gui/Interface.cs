@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.Time;
-using Dalamud.Bindings.ImGui;
 using Functions = GatherBuddy.Plugin.Functions;
 using ImRaii = OtterGui.Raii.ImRaii;
 

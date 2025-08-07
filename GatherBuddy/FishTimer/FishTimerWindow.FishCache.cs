@@ -4,12 +4,11 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.Time;
-using Dalamud.Bindings.ImGui;
 using System;
 using System.Linq;
 using System.Numerics;
 using System.Reflection;
-using GatherBuddy.Models;
+using Dalamud.Bindings.ImGui;
 using OtterGui.Text;
 using static GatherBuddy.Gui.Interface;
 using ImRaii = OtterGui.Raii.ImRaii;
@@ -166,7 +165,7 @@ public partial class FishTimerWindow
             {
                 var begin = new Vector2(pos.X + areaStart, pos.Y);
                 var end   = new Vector2(pos.X + areaEnd,   pos.Y + height);
-                ptr.AddRectFilled(begin, end, 0x40000000, 0);
+                ptr.AddRectFilled(begin, end, 0x40000000, 0, ImDrawFlags.None);
             }
 
             // Draw marker lines only if they are useful.
@@ -193,7 +192,7 @@ public partial class FishTimerWindow
             pos.Y += i * ImGui.GetFrameHeightWithSpacing();
             var size = window._windowSize with { Y = ImGui.GetFrameHeight() };
             // Background
-            ImGui.GetWindowDrawList().AddRectFilled(pos, pos + size, _color.Value(), 0);
+            ImGui.GetWindowDrawList().AddRectFilled(pos, pos + size, _color.Value(), 0, ImDrawFlags.None);
 
             // Markers and highlights.
             pos.X  += window._iconSize.X;
@@ -216,7 +215,7 @@ public partial class FishTimerWindow
 
             // Icon
             if (_icon.TryGetWrap(out var wrap, out _))
-                ImGui.Image(wrap.ImGuiHandle, window._iconSize);
+                ImGui.Image(wrap.Handle, window._iconSize);
             else
                 ImGui.Dummy(window._iconSize);
 
@@ -267,7 +266,7 @@ public partial class FishTimerWindow
 
                 if (hookIcon?.TryGetWrap(out var wrap2, out _) ?? false)
                 {
-                    ImGui.Image(wrap2.ImGuiHandle, window._iconSize);
+                    ImGui.Image(wrap2.Handle, window._iconSize);
                     if (ImGui.IsItemHovered())
                     {
                         using var tooltip = ImRaii.Tooltip();
@@ -304,7 +303,7 @@ public partial class FishTimerWindow
 
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0));
                 if (CollectableIcon.TryGetWrap(out var wrap3, out _))
-                    ImGui.Image(wrap3.ImGuiHandle, window._iconSize, Vector2.Zero, Vector2.One, tint);
+                    ImGui.Image(wrap3.Handle, window._iconSize, Vector2.Zero, Vector2.One, tint);
                 else
                     ImGui.Dummy(window._iconSize);
             }

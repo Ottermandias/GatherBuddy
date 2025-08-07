@@ -7,12 +7,12 @@ using GatherBuddy.Config;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
 using GatherBuddy.Plugin;
-using Dalamud.Bindings.ImGui;
 using OtterGui;
 using OtterGui.Table;
 using Newtonsoft.Json;
 using ImRaii = OtterGui.Raii.ImRaii;
 using System.Text;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Textures;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Models;
@@ -515,12 +515,12 @@ public partial class Interface
                     return;
                 }
 
-                ImGui.Image(wrap.ImGuiHandle, size, Vector2.Zero, Vector2.One, tint);
+                ImGui.Image(wrap.Handle, size, Vector2.Zero, Vector2.One, tint);
                 if (!ImGui.IsItemHovered())
                     return;
 
                 using var tt = ImRaii.Tooltip();
-                ImGui.Image(wrap.ImGuiHandle, new Vector2(wrap.Width, wrap.Height));
+                ImGui.Image(wrap.Handle, new Vector2(wrap.Width, wrap.Height));
                 ImUtf8.Text(tooltip);
             }
 

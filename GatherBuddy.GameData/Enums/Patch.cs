@@ -38,6 +38,7 @@ public enum Patch : ushort
     Dawntrail                  = 700,
     Crossroads                 = 710,
     SeekersOfEternity          = 720,
+    ThePromiseOfTomorrow       = 730,
 }
 
 [Flags]
@@ -76,6 +77,7 @@ public enum PatchFlag : ulong
     Dawntrail                  = 1ul << 30,
     Crossroads                 = 1ul << 31,
     SeekersOfEternity          = 1ul << 32,
+    ThePromiseOfTomorrow       = 1ul << 33,
 }
 
 public static class PatchExtensions
@@ -135,6 +137,7 @@ public static class PatchExtensions
             70 => "Dawntrail",
             71 => "Crossroads",
             72 => "Seekers of Eternity",
+            73 => "The Promise of Tomorrow",
             _  => "Unknown",
         };
     }
@@ -176,6 +179,7 @@ public static class PatchExtensions
             Patch.Dawntrail                  => PatchFlag.Dawntrail,
             Patch.Crossroads                 => PatchFlag.Crossroads,
             Patch.SeekersOfEternity          => PatchFlag.SeekersOfEternity,
+            Patch.ThePromiseOfTomorrow       => PatchFlag.ThePromiseOfTomorrow,
             _                                => 0,
         };
     }
@@ -217,6 +221,7 @@ public static class PatchExtensions
             PatchFlag.Dawntrail                  => Patch.Dawntrail,
             PatchFlag.Crossroads                 => Patch.Crossroads,
             PatchFlag.SeekersOfEternity          => Patch.SeekersOfEternity,
+            PatchFlag.ThePromiseOfTomorrow       => Patch.ThePromiseOfTomorrow,
             _                                    => Patch.Unknown,
         };
     }

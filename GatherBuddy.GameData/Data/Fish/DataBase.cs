@@ -398,6 +398,7 @@ public static partial class Fish
         data.ApplyDawntrail();
         data.ApplyCrossroads();
         data.ApplySeekersOfEternity();
+        data.ApplyThePromiseOfTomorrow();
         data.ApplyMooches();
         data.ApplyOverrides();
         //DumpUnknown(Patch.SeekersOfEternity, data.Fishes.Values);

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Dalamud.Bindings.ImGui;
 using Dalamud.Interface;
 using Dalamud.Interface.Utility;
 using GatherBuddy.Classes;
@@ -10,7 +11,6 @@ using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
 using GatherBuddy.SeFunctions;
 using GatherBuddy.Structs;
-using Dalamud.Bindings.ImGui;
 using OtterGui;
 using OtterGui.Table;
 using ImRaii = OtterGui.Raii.ImRaii;
