@@ -40,30 +40,6 @@ public static partial class Fish
         data.Apply(46779, Patch.ThePromiseOfTomorrow) // Sunray Ray
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(17951, Patch.ThePromiseOfTomorrow) // Dafangshi
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29573, Patch.ThePromiseOfTomorrow) // Splendid Piranha
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29574, Patch.ThePromiseOfTomorrow) // Splendid Pirarucu
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29578, Patch.ThePromiseOfTomorrow) // Splendid Sponge
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29579, Patch.ThePromiseOfTomorrow) // Splendid Cockle
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29581, Patch.ThePromiseOfTomorrow) // Splendid Night's Bass
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29589, Patch.ThePromiseOfTomorrow) // Splendid Mammoth Shellfish
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(43556, Patch.ThePromiseOfTomorrow) // Timeworn Loboskin Map
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
     }
     // @formatter:on
 }
