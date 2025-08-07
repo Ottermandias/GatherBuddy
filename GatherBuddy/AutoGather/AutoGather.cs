@@ -105,8 +105,6 @@ namespace GatherBuddy.AutoGather
             get;
             private set
             {
-                if (GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode)
-                    GatherBuddy.AutoRetainerApi.Suppressed = !value;
                 field                                  = value;
             }
         } = false;
