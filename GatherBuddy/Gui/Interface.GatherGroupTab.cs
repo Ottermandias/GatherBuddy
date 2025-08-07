@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Time;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using OtterGui;
 using System.Linq;
 using System.Numerics;

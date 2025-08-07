@@ -9,7 +9,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
 using GatherBuddy.Models;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using OtterGui.Text;
 using OtterGui.Widgets;
 using static GatherBuddy.FishTimer.FishRecord;

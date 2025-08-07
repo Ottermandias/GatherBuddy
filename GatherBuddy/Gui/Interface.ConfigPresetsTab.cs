@@ -2,7 +2,7 @@
 using Dalamud.Interface.Utility.Raii;
 using GatherBuddy.AutoGather;
 using GatherBuddy.Config;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using Lumina.Excel.Sheets;
 using Newtonsoft.Json;
 using OtterGui;

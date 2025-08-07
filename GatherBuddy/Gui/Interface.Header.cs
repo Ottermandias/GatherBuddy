@@ -6,7 +6,7 @@ using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Plugin;
 using GatherBuddy.Time;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using OtterGui;
 using ImRaii = OtterGui.Raii.ImRaii;
 

@@ -8,7 +8,7 @@ using FFXIVClientStructs.STD;
 using GatherBuddy.Alarms;
 using GatherBuddy.AutoGather;
 using GatherBuddy.Config;
-using ImGuiNET;
+using Dalamud.Bindings.ImGui;
 using OtterGui;
 using OtterGui.Widgets;
 using FishRecord = GatherBuddy.FishTimer.FishRecord;
