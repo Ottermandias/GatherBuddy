@@ -12,14 +12,14 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(46189, Patch.ThePromiseOfTomorrow) // Prime Adjudicator
             .Bait(data, 43858)
-            .Time(480, 960)
+            .Time(720, 960)
             .Transition(data, 2)
             .Weather(data, 4)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(46190, Patch.ThePromiseOfTomorrow) // Crenicichla Miyaka
             .Bait(data, 43858)
             .Time(360, 480)
-            .Transition(data, 1, 2)
+            .Transition(data, 1, 2, 7)
             .Weather(data, 7)
             .Lure(Enums.Lure.Ambitious)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
@@ -30,8 +30,11 @@ public static partial class Fish
             .Weather(data, 7)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(46192, Patch.ThePromiseOfTomorrow) // Lotl-in-waiting
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Mooch(data, 43728)
+            .Time(0, 480)
+            .Transition(data, 2)
+            .Weather(data, 3)
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(46193, Patch.ThePromiseOfTomorrow) // Azure Diver
             .Bait(data, 43857)
             .Time(1080, 1440)
@@ -50,7 +53,7 @@ public static partial class Fish
             .Predators(data, 350, (43781, 3))
             .Transition(data, 2, 3)
             .Weather(data, 7)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(46196, Patch.ThePromiseOfTomorrow) // Gondola Louvar
             .Bait(data, 43859)
             .Time(480, 720)
@@ -66,3 +69,4 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
