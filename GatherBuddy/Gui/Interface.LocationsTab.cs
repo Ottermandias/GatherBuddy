@@ -28,6 +28,7 @@ public partial class Interface
         private static float _coordColumnWidth;
         private static float _radiusColumnWidth;
         private static float _typeColumnWidth;
+        private static float _levelColumnWidth;
 
         protected override void PreDraw()
         {
@@ -39,12 +40,14 @@ public partial class Interface
             _aetheryteColumnWidth = GatherBuddy.GameData.Aetherytes.Values.Max(a => TextWidth(a.Name)) / ImGuiHelpers.GlobalScale;
             _coordColumnWidth     = TextWidth("X-Coord") / ImGuiHelpers.GlobalScale + Table.ArrowWidth;
             _radiusColumnWidth    = TextWidth("Radius") / ImGuiHelpers.GlobalScale + Table.ArrowWidth;
+            _levelColumnWidth    = TextWidth("Level") / ImGuiHelpers.GlobalScale + Table.ArrowWidth;
             _typeColumnWidth      = Enum.GetValues<GatheringType>().Max(t => TextWidth(t.ToString())) / ImGuiHelpers.GlobalScale;
         }
 
         private static readonly NameColumn      _nameColumn      = new() { Label = "Name" };
         private static readonly TypeColumn      _typeColumn      = new() { Label = "Type" };
         private static readonly TerritoryColumn _territoryColumn = new() { Label = "Territory" };
+        private static readonly LevelColumn     _levelColumn     = new() { Label = "Level" };
         private static readonly AetheryteColumn _aetheryteColumn = new() { Label = "Aetheryte" };
         private static readonly XCoordColumn    _xCoordColumn    = new() { Label = "X-Coord" };
         private static readonly YCoordColumn    _yCoordColumn    = new() { Label = "Y-Coord" };
@@ -126,6 +129,21 @@ public partial class Interface
 
             public override float Width
                 => _territoryColumnWidth * ImGuiHelpers.GlobalScale;
+
+            public override void DrawColumn(ILocation item, int _)
+            {
+                ImGui.AlignTextToFramePadding();
+                base.DrawColumn(item, _);
+            }
+        }
+
+        private sealed class LevelColumn() : ColumnNumber<ILocation>(ComparisonMethod.LessEqual)
+        {
+            public override int ToValue(ILocation item)
+                => (item as GatheringNode)?.Level ?? 1;
+
+            public override float Width
+                => _levelColumnWidth * ImGuiHelpers.GlobalScale;
 
             public override void DrawColumn(ILocation item, int _)
             {
@@ -353,7 +371,7 @@ public partial class Interface
 
         public LocationTable()
             : base("##LocationTable", _plugin.LocationManager.AllLocations, _nameColumn,
-                _typeColumn, _aetheryteColumn, _xCoordColumn, _yCoordColumn, _radiusColumn, _markerColumn, _territoryColumn, _itemColumn)
+                _typeColumn, _aetheryteColumn, _xCoordColumn, _yCoordColumn, _radiusColumn, _markerColumn, _territoryColumn, _levelColumn, _itemColumn)
         { }
     }
 
