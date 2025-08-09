@@ -6,6 +6,7 @@ using GatherBuddy.Classes;
 using System;
 using System.Linq;
 using System.Text.RegularExpressions;
+using ECommons.DalamudServices;
 
 namespace GatherBuddy.AutoGather
 {
@@ -100,19 +101,22 @@ namespace GatherBuddy.AutoGather
                 int targetScore, minScore;
 
                 // Check reward tiers in descending order and use the first visible one for target score
-                if (masterpieceReader.HighVisible)
+                if (masterpieceReader.HighThreshold > 0)
                     targetScore = masterpieceReader.HighThreshold;
-                else if (masterpieceReader.MidVisible)
+                else if (masterpieceReader.MidThreshold > 0)
                     targetScore = masterpieceReader.MidThreshold;
                 else
                     targetScore = masterpieceReader.LowThreshold;
 
+                // For minScore, pick the lowest non-zero threshold
+                int[] thresholds = { masterpieceReader.LowThreshold, masterpieceReader.MidThreshold, masterpieceReader.HighThreshold };
+                minScore = thresholds.Where(t => t > 0).DefaultIfEmpty(1).Min();
+
                 // For custom deliveries and quest items, we always want max collectability
                 if (item.GatheringData.Unknown3 is 3 or 4 or 6)
                     minScore = targetScore;
-                else
-                    minScore = masterpieceReader.LowThreshold;
 
+                Svc.Log.Verbose($"Using target collectability {targetScore} and minimum collectability {minScore} for {item.Name}.");
                 return (targetScore, minScore);
             }
 
