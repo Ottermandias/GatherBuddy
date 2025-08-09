@@ -78,13 +78,13 @@ namespace GatherBuddy.AutoGather.Lists
             if (IsUpdateNeeded())
                 DoUpdate();
 
-            Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
+            //Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
             IEnumerable<GatherTarget> nearbyItems = [];
             nearbyItems = this.Any(n => !n.Node?.Times.AlwaysUp() ?? false)
                 ? [this.First(n => n.Time.InRange(AutoGather.AdjustedServerTime))]
                 : this.Where(i => i.Node?.WorldPositions.Keys.Any(nearbyNodes.Contains) ?? false);
 
-            Svc.Log.Verbose($"Nearby items: ({nearbyItems.Count()}): {string.Join(", ", nearbyItems.Select(x => x.Item.Name))}.");
+            //Svc.Log.Verbose($"Nearby items: ({nearbyItems.Count()}): {string.Join(", ", nearbyItems.Select(x => x.Item.Name))}.");
             return nearbyItems.Any() ? nearbyItems : _gatherableItems.Where(NeedsGathering);
         }
 
@@ -149,11 +149,11 @@ namespace GatherBuddy.AutoGather.Lists
         private void UpdateItemsToGather()
         {
             // Items are unlocked in tiers of 5 levels, so we round up to the nearest 5.
-            var       minerLevel         = (DiscipleOfLand.MinerLevel + 5) / 5 * 5;
-            var       botanistLevel      = (DiscipleOfLand.BotanistLevel + 5) / 5 * 5;
-            var       adjustedServerTime = _lastUpdateTime;
-            var       territoryId        = _lastTerritoryId;
-            DateTime? nextAllowance      = null;
+            var minerLevel = (DiscipleOfLand.MinerLevel + 5) / 5 * 5;
+            var botanistLevel = (DiscipleOfLand.BotanistLevel + 5) / 5 * 5;
+            var adjustedServerTime = _lastUpdateTime;
+            var territoryId = _lastTerritoryId;
+            DateTime? nextAllowance = null;
 
             var nodes = _listsManager.ActiveItems
                 // Filter out items that are already gathered.
@@ -169,9 +169,9 @@ namespace GatherBuddy.AutoGather.Lists
                 // Remove nodes with a level higher than the player can gather.
                 .Where(info => info.Node.GatheringType.ToGroup() switch
                 {
-                    GatheringType.Miner    => info.Node.Level <= minerLevel,
+                    GatheringType.Miner => info.Node.Level <= minerLevel,
                     GatheringType.Botanist => info.Node.Level <= botanistLevel,
-                    _                      => false
+                    _ => false
                 })
                 // Remove nodes that are not up.
                 .Where(x => x.Time.InRange(adjustedServerTime))
@@ -181,7 +181,7 @@ namespace GatherBuddy.AutoGather.Lists
                 .GroupBy(x => x.Item, x => x, (_, g) => g
                     // Prioritize preferred location, then preferred job, then the rest.
                     .OrderBy(x =>
-                        x.Node == x.PreferredLocation                                                 ? 0
+                        x.Node == x.PreferredLocation ? 0
                         : x.Node.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType ? 1
                             : 2)
                     // Prioritize closest nodes in the current territory.
@@ -196,7 +196,7 @@ namespace GatherBuddy.AutoGather.Lists
                          ?? int.MaxValue,
                         // Order by teleportation cost.
                         AetherytePreference.Cost => GetTeleportationCost(x.Node),
-                        _                        => 0
+                        _ => 0
                     })
                     .First()
                 )
@@ -222,7 +222,7 @@ namespace GatherBuddy.AutoGather.Lists
                          ?? int.MaxValue,
                         // Order by teleportation cost.
                         AetherytePreference.Cost => GetTeleportationCost(x.PreferredLocation),
-                        _                        => 0
+                        _ => 0
                     })
                     .First()
                 )
@@ -240,8 +240,9 @@ namespace GatherBuddy.AutoGather.Lists
             }
 
             _gatherableItems.Clear();
-            _gatherableItems.AddRange(nodes.Select(x => new GatherTarget(x.Item, x.Node,              x.Time, x.Quantity)));
-            _gatherableItems.AddRange(fish.Select(x => new GatherTarget(x.Fish,  x.PreferredLocation, x.Time, x.Quantity)));
+            _gatherableItems.AddRange(nodes.Select(x => new GatherTarget(x.Item, x.Node, x.Time, x.Quantity)));
+            _gatherableItems.AddRange(fish.Select(x => new GatherTarget(x.Fish, x.PreferredLocation, x.Time, x.Quantity)));
+            Svc.Log.Verbose($"Gatherable items: ({_gatherableItems.Count}): {string.Join(", ", _gatherableItems.Select(x => x.Item.Name))}.");
         }
 
         private bool RequiresHomeWorld((Gatherable Item, uint Quantity) valueTuple)
