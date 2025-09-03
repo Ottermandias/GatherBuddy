@@ -1,4 +1,4 @@
-using GatherBuddy.Enums;
+﻿using GatherBuddy.Enums;
 
 namespace GatherBuddy.Data;
 
@@ -62,6 +62,937 @@ public static partial class Fish
         data.Apply(46779, Patch.ThePromiseOfTomorrow) // Sunray Ray
             .Bait(data, 43857)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
+
+
+        // The Lehr  Aquatic Foodstuffs
+        data.Apply(47422, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
+            .Bait(data)
+            .Mission(data, 965)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47423, Patch.ThePromiseOfTomorrow) // Eelsplorer
+            .Bait(data)
+            .Mission(data, 965)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47424, Patch.ThePromiseOfTomorrow) // Lehr Brotula
+            .Bait(data)
+            .Mission(data, 965)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // West Beaconveil  Efficient Large Specimen Procurement
+        data.Apply(47425, Patch.ThePromiseOfTomorrow) // Glass Stitcher
+            .Bait(data)
+            .Mission(data, 966)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47426, Patch.ThePromiseOfTomorrow) // Glass Discus
+            .Bait(data)
+            .Mission(data, 966)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47427, Patch.ThePromiseOfTomorrow) // Opal Ammonite
+            .Bait(data)
+            .Mission(data, 966)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Opalescent Crossing  Opalescent Crossing Specimen Survey
+        data.Apply(47428, Patch.ThePromiseOfTomorrow) // Pearl Shell
+            .Bait(data)
+            .Mission(data, 967)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47429, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
+            .Bait(data)
+            .Mission(data, 967)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47430, Patch.ThePromiseOfTomorrow) // Untitled Work No. 33
+            .Bait(data)
+            .Mission(data, 967)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Lehr  Bulk Provision Procurement
+        data.Apply(47431, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
+            .Bait(data)
+            .Mission(data, 968)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47432, Patch.ThePromiseOfTomorrow) // Eelsplorer
+            .Bait(data)
+            .Mission(data, 968)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47433, Patch.ThePromiseOfTomorrow) // Lehr Salamander
+            .Bait(data)
+            .Mission(data, 968)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Opalescent Crossing  Opalescent Crossing Distribution Survey
+        data.Apply(47434, Patch.ThePromiseOfTomorrow) // Pearl Shell
+            .Bait(data)
+            .Mission(data, 969)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47435, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
+            .Bait(data)
+            .Mission(data, 969)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47436, Patch.ThePromiseOfTomorrow) // Lampwork Cucumber
+            .Bait(data)
+            .Mission(data, 969)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // West Beaconveil  Large Mutant Cultivated Specimens
+        data.Apply(47437, Patch.ThePromiseOfTomorrow) // Glass Stitcher
+            .Bait(data)
+            .Mission(data, 970)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47438, Patch.ThePromiseOfTomorrow) // Biodome
+            .Bait(data)
+            .Mission(data, 970)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47439, Patch.ThePromiseOfTomorrow) // Roseveil Bijou
+            .Bait(data)
+            .Mission(data, 970)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Lehr  Efficient Aquatic Foodstuffs Procurement
+        data.Apply(47440, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
+            .Bait(data)
+            .Mission(data, 971)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47441, Patch.ThePromiseOfTomorrow) // Eelsplorer
+            .Bait(data)
+            .Mission(data, 971)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47442, Patch.ThePromiseOfTomorrow) // Dark Expanse Catfish
+            .Bait(data)
+            .Mission(data, 971)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47443, Patch.ThePromiseOfTomorrow) // Light Expanse Catfish
+            .Bait(data)
+            .Mission(data, 971)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // West Beaconveil  West Beaconveil Distribution Survey
+        data.Apply(47444, Patch.ThePromiseOfTomorrow) // Glass Stitcher
+            .Bait(data)
+            .Mission(data, 972)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47445, Patch.ThePromiseOfTomorrow) // Glass Jellyfish
+            .Bait(data)
+            .Mission(data, 972)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47446, Patch.ThePromiseOfTomorrow) // Untitled Work No. 11
+            .Bait(data)
+            .Mission(data, 972)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47447, Patch.ThePromiseOfTomorrow) // Glass Ribbon-arm
+            .Bait(data)
+            .Mission(data, 972)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Lehr  Fish Paste Ingredients
+        data.Apply(47448, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
+            .Bait(data)
+            .Mission(data, 973)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47449, Patch.ThePromiseOfTomorrow) // Eelsplorer
+            .Bait(data)
+            .Mission(data, 973)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47450, Patch.ThePromiseOfTomorrow) // Cosmocaecilian
+            .Bait(data)
+            .Mission(data, 973)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47451, Patch.ThePromiseOfTomorrow) // Lehr Carp
+            .Bait(data)
+            .Mission(data, 973)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // West Beaconveil  Multi-purpose Bait Test
+        data.Apply(47452, Patch.ThePromiseOfTomorrow) // Glass Stitcher
+            .Bait(data)
+            .Mission(data, 974)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47453, Patch.ThePromiseOfTomorrow) // Glass Discus
+            .Bait(data)
+            .Mission(data, 974)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47454, Patch.ThePromiseOfTomorrow) // Phaenna's Arrow
+            .Bait(data)
+            .Mission(data, 974)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47455, Patch.ThePromiseOfTomorrow) // Boro Bead
+            .Bait(data)
+            .Mission(data, 974)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Lehr  Emergency Bulk Provision Procurement
+        data.Apply(47456, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
+            .Bait(data)
+            .Mission(data, 975)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47457, Patch.ThePromiseOfTomorrow) // Eelsplorer
+            .Bait(data)
+            .Mission(data, 975)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47458, Patch.ThePromiseOfTomorrow) // Gymnarchus
+            .Bait(data)
+            .Mission(data, 975)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47459, Patch.ThePromiseOfTomorrow) // Inlay Ray
+            .Bait(data)
+            .Mission(data, 975)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Opalescent Crossing  Vitrified Freshwater Fish
+        data.Apply(47460, Patch.ThePromiseOfTomorrow) // Pearl Shell
+            .Bait(data)
+            .Mission(data, 976)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47461, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
+            .Bait(data)
+            .Mission(data, 976)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47462, Patch.ThePromiseOfTomorrow) // Bony Wraithfish
+            .Bait(data)
+            .Mission(data, 976)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47463, Patch.ThePromiseOfTomorrow) // Emeraldback
+            .Bait(data)
+            .Mission(data, 976)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Opalescent Crossing  High-silica Environment Observation
+        data.Apply(47464, Patch.ThePromiseOfTomorrow) // Pearl Shell
+            .Bait(data)
+            .Mission(data, 977)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47465, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
+            .Bait(data)
+            .Mission(data, 977)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47466, Patch.ThePromiseOfTomorrow) // Sandblaster
+            .Bait(data)
+            .Mission(data, 977)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47467, Patch.ThePromiseOfTomorrow) // Opal Shell
+            .Bait(data)
+            .Mission(data, 977)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Upper Soda-lime Float  Upper Soda-lime Float Distribution Survey
+        data.Apply(47480, Patch.ThePromiseOfTomorrow) // Frosted Shell
+            .Bait(data)
+            .Mission(data, 978)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47481, Patch.ThePromiseOfTomorrow) // Untitled Work No. 98
+            .Bait(data)
+            .Mission(data, 978)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47482, Patch.ThePromiseOfTomorrow) // Pendantfish
+            .Bait(data)
+            .Mission(data, 978)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47483, Patch.ThePromiseOfTomorrow) // Hammerhead Antiblaster
+            .Bait(data)
+            .Mission(data, 978)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47484, Patch.ThePromiseOfTomorrow) // Isosceles Cobalt
+            .Bait(data)
+            .Mission(data, 978)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Central Soda-lime Channel  Central Soda-lime Channel Distribution Survey
+        data.Apply(47485, Patch.ThePromiseOfTomorrow) // Glass Dahlia
+            .Bait(data)
+            .Mission(data, 979)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47486, Patch.ThePromiseOfTomorrow) // Fishy Jellyfish
+            .Bait(data)
+            .Mission(data, 979)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47487, Patch.ThePromiseOfTomorrow) // Glass Skeleton
+            .Bait(data)
+            .Mission(data, 979)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47488, Patch.ThePromiseOfTomorrow) // Blue Pane
+            .Bait(data)
+            .Mission(data, 979)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47489, Patch.ThePromiseOfTomorrow) // Crystallized Throwstone
+            .Bait(data)
+            .Mission(data, 979)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Soda-lime Tributary  Arthrolure Field Test
+        data.Apply(47490, Patch.ThePromiseOfTomorrow) // White Starburst
+            .Bait(data)
+            .Mission(data, 980)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47491, Patch.ThePromiseOfTomorrow) // Skippingway
+            .Bait(data)
+            .Mission(data, 980)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47492, Patch.ThePromiseOfTomorrow) // Glass Coral
+            .Bait(data)
+            .Mission(data, 980)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47493, Patch.ThePromiseOfTomorrow) // Sun-purpled Tapestry
+            .Bait(data)
+            .Mission(data, 980)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47494, Patch.ThePromiseOfTomorrow) // Lime Impesctor
+            .Bait(data)
+            .Mission(data, 980)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Lower Soda-lime Float  River Basin Large Aquatic Resources
+        data.Apply(47495, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
+            .Bait(data)
+            .Mission(data, 981)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47496, Patch.ThePromiseOfTomorrow) // Float Cloud
+            .Bait(data)
+            .Mission(data, 981)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47497, Patch.ThePromiseOfTomorrow) // Navy Coelacanth
+            .Bait(data)
+            .Mission(data, 981)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47498, Patch.ThePromiseOfTomorrow) // Iceglass Gar
+            .Bait(data)
+            .Mission(data, 981)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47499, Patch.ThePromiseOfTomorrow) // Moonstone Mora
+            .Bait(data)
+            .Mission(data, 981)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Prismatic Pull  Saltpeter Shore Sunken Resources
+        data.Apply(47500, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
+            .Bait(data)
+            .Mission(data, 982)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47501, Patch.ThePromiseOfTomorrow) // Desertingway
+            .Bait(data)
+            .Mission(data, 982)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47502, Patch.ThePromiseOfTomorrow) // Goldflake Sandfish
+            .Bait(data)
+            .Mission(data, 982)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47503, Patch.ThePromiseOfTomorrow) // Sandglass Glob
+            .Bait(data)
+            .Mission(data, 982)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47504, Patch.ThePromiseOfTomorrow) // Prismatic Moraine
+            .Bait(data)
+            .Mission(data, 982)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // West Beaconveil  Mutant Aquatic Specimen Observations
+        data.Apply(47505, Patch.ThePromiseOfTomorrow) // Glass Stitcher
+            .Bait(data)
+            .Mission(data, 983)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47506, Patch.ThePromiseOfTomorrow) // Glass Discus
+            .Bait(data)
+            .Mission(data, 983)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47507, Patch.ThePromiseOfTomorrow) // Isosceles Amethyst
+            .Bait(data)
+            .Mission(data, 983)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47508, Patch.ThePromiseOfTomorrow) // Iceglass Floe
+            .Bait(data)
+            .Mission(data, 983)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47509, Patch.ThePromiseOfTomorrow) // Super Starburst
+            .Bait(data)
+            .Mission(data, 983)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Opalescent Crossing  Vitrified Freshwater Fish Observations
+        data.Apply(47510, Patch.ThePromiseOfTomorrow) // Pearl Shell
+            .Bait(data)
+            .Mission(data, 984)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47511, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
+            .Bait(data)
+            .Mission(data, 984)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47512, Patch.ThePromiseOfTomorrow) // Kintsugi Chip
+            .Bait(data)
+            .Mission(data, 984)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47513, Patch.ThePromiseOfTomorrow) // Opalescent Stingship
+            .Bait(data)
+            .Mission(data, 984)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Prismatic Pull  Saltpeter Shore Large Resources
+        data.Apply(47514, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
+            .Bait(data)
+            .Mission(data, 985)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47515, Patch.ThePromiseOfTomorrow) // Desertingway
+            .Bait(data)
+            .Mission(data, 985)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47516, Patch.ThePromiseOfTomorrow) // Ammochronologist
+            .Bait(data)
+            .Mission(data, 985)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47517, Patch.ThePromiseOfTomorrow) // Polarized Eel
+            .Bait(data)
+            .Mission(data, 985)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47518, Patch.ThePromiseOfTomorrow) // Quicksand Mantaroid
+            .Bait(data)
+            .Mission(data, 985)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Lehr Cultivated Specimen Survey
+        data.Apply(47519, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
+            .Bait(data)
+            .Mission(data, 986)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47520, Patch.ThePromiseOfTomorrow) // Eelsplorer
+            .Bait(data)
+            .Mission(data, 986)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47521, Patch.ThePromiseOfTomorrow) // Star Crabtain
+            .Bait(data)
+            .Mission(data, 986)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47522, Patch.ThePromiseOfTomorrow) // Lehr Killifish
+            .Bait(data)
+            .Mission(data, 986)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47523, Patch.ThePromiseOfTomorrow) // Doomed Voyager
+            .Bait(data)
+            .Mission(data, 986)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47524, Patch.ThePromiseOfTomorrow) // Bottom-layer
+            .Bait(data)
+            .Mission(data, 986)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // West Beaconveil Stardust Bait Test
+        data.Apply(47525, Patch.ThePromiseOfTomorrow) // Potash Guppish
+            .Bait(data)
+            .Mission(data, 987)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47526, Patch.ThePromiseOfTomorrow) // Aurora Shell
+            .Bait(data)
+            .Mission(data, 987)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47527, Patch.ThePromiseOfTomorrow) // Untitled Work No. 66
+            .Bait(data)
+            .Mission(data, 987)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47528, Patch.ThePromiseOfTomorrow) // Imitation Engraver
+            .Bait(data)
+            .Mission(data, 987)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47529, Patch.ThePromiseOfTomorrow) // Isosceles Pearl
+            .Bait(data)
+            .Mission(data, 987)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Opalescent Crossing Elemental-esque Aquaculture Specimens
+        data.Apply(47530, Patch.ThePromiseOfTomorrow) // Pearl Shell
+            .Bait(data)
+            .Mission(data, 988)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47531, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
+            .Bait(data)
+            .Mission(data, 988)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47532, Patch.ThePromiseOfTomorrow) // Selenium Herring
+            .Bait(data)
+            .Mission(data, 988)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47533, Patch.ThePromiseOfTomorrow) // Codmonaut
+            .Bait(data)
+            .Mission(data, 988)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47534, Patch.ThePromiseOfTomorrow) // Opalite Impesctor
+            .Bait(data)
+            .Mission(data, 988)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Prismatic Pull Prismatic Pull Distribution Survey
+        data.Apply(47535, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
+            .Bait(data)
+            .Mission(data, 989)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47536, Patch.ThePromiseOfTomorrow) // Desertingway
+            .Bait(data)
+            .Mission(data, 989)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47537, Patch.ThePromiseOfTomorrow) // Gold Broochback
+            .Bait(data)
+            .Mission(data, 989)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47538, Patch.ThePromiseOfTomorrow) // Nitric Chelid
+            .Bait(data)
+            .Mission(data, 989)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47539, Patch.ThePromiseOfTomorrow) // Sunken Kite
+            .Bait(data)
+            .Mission(data, 989)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Central Soda-lime Channel Aquatic Glass Resource Distribution Survey
+        data.Apply(47540, Patch.ThePromiseOfTomorrow) // Glass Dahlia
+            .Bait(data)
+            .Mission(data, 990)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47541, Patch.ThePromiseOfTomorrow) // Fishy Jellyfish
+            .Bait(data)
+            .Mission(data, 990)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47542, Patch.ThePromiseOfTomorrow) // Suspect Skeletonfish
+            .Bait(data)
+            .Mission(data, 990)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47543, Patch.ThePromiseOfTomorrow) // Cobalt Glass Eel
+            .Bait(data)
+            .Mission(data, 990)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47544, Patch.ThePromiseOfTomorrow) // Cast Flowers
+            .Bait(data)
+            .Mission(data, 990)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Soda-lime Tributary EX: Red Cosmomaggot Field Test
+        data.Apply(47556, Patch.ThePromiseOfTomorrow) // White Starburst
+            .Bait(data)
+            .Mission(data, 991)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47557, Patch.ThePromiseOfTomorrow) // Skippingway
+            .Bait(data)
+            .Mission(data, 991)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47558, Patch.ThePromiseOfTomorrow) // Glass Coral
+            .Bait(data)
+            .Mission(data, 991)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47559, Patch.ThePromiseOfTomorrow) // Blown Bubble
+            .Bait(data)
+            .Mission(data, 991)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47560, Patch.ThePromiseOfTomorrow) // Cobalt Horn
+            .Bait(data)
+            .Mission(data, 991)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Lower Soda-lime Float EX: Large River Resources
+        data.Apply(47561, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
+            .Bait(data)
+            .Mission(data, 992)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47562, Patch.ThePromiseOfTomorrow) // Float Cloud
+            .Bait(data)
+            .Mission(data, 992)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47563, Patch.ThePromiseOfTomorrow) // Navy Coelacanth
+            .Bait(data)
+            .Mission(data, 992)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47564, Patch.ThePromiseOfTomorrow) // Obsidian Mussel
+            .Bait(data)
+            .Mission(data, 992)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47565, Patch.ThePromiseOfTomorrow) // Glass Sculptor
+            .Bait(data)
+            .Mission(data, 992)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47566, Patch.ThePromiseOfTomorrow) // Prismatic Cluster
+            .Bait(data)
+            .Mission(data, 992)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Capsule Pools EX: Capsule Pools Distribution Survey
+        data.Apply(47609, Patch.ThePromiseOfTomorrow) // Glass Guppish
+            .Bait(data)
+            .Mission(data, 993)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47610, Patch.ThePromiseOfTomorrow) // Nyctichthys
+            .Bait(data)
+            .Mission(data, 993)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47611, Patch.ThePromiseOfTomorrow) // Five-star Bijou
+            .Bait(data)
+            .Mission(data, 993)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47612, Patch.ThePromiseOfTomorrow) // Capsule Castoff
+            .Bait(data)
+            .Mission(data, 993)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47613, Patch.ThePromiseOfTomorrow) // Capsule Amber
+            .Bait(data)
+            .Mission(data, 993)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Prismatic Pull EX+: Large Saltpeter Shore Resources
+        data.Apply(47632, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
+            .Bait(data)
+            .Mission(data, 994)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47633, Patch.ThePromiseOfTomorrow) // Desertingway
+            .Bait(data)
+            .Mission(data, 994)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47634, Patch.ThePromiseOfTomorrow) // Sandglass Helm
+            .Bait(data)
+            .Mission(data, 994)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47635, Patch.ThePromiseOfTomorrow) // Reluctant Paperweight
+            .Bait(data)
+            .Mission(data, 994)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47636, Patch.ThePromiseOfTomorrow) // Glass Vajrajaw
+            .Bait(data)
+            .Mission(data, 994)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47637, Patch.ThePromiseOfTomorrow) // Saltpeter Rose
+            .Bait(data)
+            .Mission(data, 994)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Upper Soda-lime Float EX+: Stardust Bait Test
+        data.Apply(47638, Patch.ThePromiseOfTomorrow) // Frosted Shell
+            .Bait(data)
+            .Mission(data, 995)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47639, Patch.ThePromiseOfTomorrow) // Untitled Work No. 98
+            .Bait(data)
+            .Mission(data, 995)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47640, Patch.ThePromiseOfTomorrow) // Pendantfish
+            .Bait(data)
+            .Mission(data, 995)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47641, Patch.ThePromiseOfTomorrow) // Amethyst Bijou
+            .Bait(data)
+            .Mission(data, 995)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47642, Patch.ThePromiseOfTomorrow) // Frothfish
+            .Bait(data)
+            .Mission(data, 995)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47643, Patch.ThePromiseOfTomorrow) // Soda-blue Impesctor
+            .Bait(data)
+            .Mission(data, 995)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Upper Soda-lime Float Precision Lens Development Support
+        data.Apply(47545, Patch.ThePromiseOfTomorrow) // Frosted Shell
+            .Bait(data)
+            .Mission(data, 996)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47546, Patch.ThePromiseOfTomorrow) // Untitled Work No. 98
+            .Bait(data)
+            .Mission(data, 996)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47547, Patch.ThePromiseOfTomorrow) // Pendantfish
+            .Bait(data)
+            .Mission(data, 996)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47548, Patch.ThePromiseOfTomorrow) // Untitled Work No. 432
+            .Bait(data)
+            .Mission(data, 996)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47549, Patch.ThePromiseOfTomorrow) // Sodiment Licker
+            .Bait(data)
+            .Mission(data, 996)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47550, Patch.ThePromiseOfTomorrow) // Soda-lime Streamer
+            .Bait(data)
+            .Mission(data, 996)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Central Soda-lime Channel Hyper-aetheroconductive Materials
+        data.Apply(47567, Patch.ThePromiseOfTomorrow) // Glass Dahlia
+            .Bait(data)
+            .Mission(data, 997)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47568, Patch.ThePromiseOfTomorrow) // Fishy Jellyfish
+            .Bait(data)
+            .Mission(data, 997)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47569, Patch.ThePromiseOfTomorrow) // Decorative Disc
+            .Bait(data)
+            .Mission(data, 997)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47570, Patch.ThePromiseOfTomorrow) // Milky Irisfish
+            .Bait(data)
+            .Mission(data, 997)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47571, Patch.ThePromiseOfTomorrow) // Applebrow
+            .Bait(data)
+            .Mission(data, 997)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47572, Patch.ThePromiseOfTomorrow) // Untitled Work No. 765
+            .Bait(data)
+            .Mission(data, 997)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Central Soda-lime Channel EX: Large Aquatic Resources
+        data.Apply(47551, Patch.ThePromiseOfTomorrow) // Glass Dahlia
+            .Bait(data)
+            .Mission(data, 998)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47552, Patch.ThePromiseOfTomorrow) // Fishy Jellyfish
+            .Bait(data)
+            .Mission(data, 998)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47553, Patch.ThePromiseOfTomorrow) // Limingway
+            .Bait(data)
+            .Mission(data, 998)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47554, Patch.ThePromiseOfTomorrow) // Gold Ruby Pansyfin
+            .Bait(data)
+            .Mission(data, 998)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47555, Patch.ThePromiseOfTomorrow) // Sinking Crystascute
+            .Bait(data)
+            .Mission(data, 998)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Soda-lime Tributary EX: Rare Aquatic Resources
+        data.Apply(47573, Patch.ThePromiseOfTomorrow) // White Starburst
+            .Bait(data)
+            .Mission(data, 999)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47574, Patch.ThePromiseOfTomorrow) // Skippingway
+            .Bait(data)
+            .Mission(data, 999)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47575, Patch.ThePromiseOfTomorrow) // Glass Coral
+            .Bait(data)
+            .Mission(data, 999)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47576, Patch.ThePromiseOfTomorrow) // Shallnot Shell
+            .Bait(data)
+            .Mission(data, 999)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47577, Patch.ThePromiseOfTomorrow) // Full-blown Bubble
+            .Bait(data)
+            .Mission(data, 999)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Lower Soda-lime Float EX: Elemental-esque River Specimens
+        data.Apply(47614, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
+            .Bait(data)
+            .Mission(data, 1000)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47615, Patch.ThePromiseOfTomorrow) // Float Cloud
+            .Bait(data)
+            .Mission(data, 1000)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47616, Patch.ThePromiseOfTomorrow) // Navy Coelacanths
+            .Bait(data)
+            .Mission(data, 1000)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47617, Patch.ThePromiseOfTomorrow) // Filigree Floret
+            .Bait(data)
+            .Mission(data, 1000)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47618, Patch.ThePromiseOfTomorrow) // Soda Mocktail
+            .Bait(data)
+            .Mission(data, 1000)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47619, Patch.ThePromiseOfTomorrow) // Bubbling Impesctor
+            .Bait(data)
+            .Mission(data, 1000)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Lower Soda-lime Float Lower Soda-lime Float Distribution Survey
+        data.Apply(47579, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
+            .Bait(data)
+            .Mission(data, 1001)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47580, Patch.ThePromiseOfTomorrow) // Float Cloud
+            .Bait(data)
+            .Mission(data, 1001)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47581, Patch.ThePromiseOfTomorrow) // Navy Coelacanth
+            .Bait(data)
+            .Mission(data, 1001)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47582, Patch.ThePromiseOfTomorrow) // Untitled Work No. 345
+            .Bait(data)
+            .Mission(data, 1001)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47583, Patch.ThePromiseOfTomorrow) // Royal Comet tail
+            .Bait(data)
+            .Mission(data, 1001)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47584, Patch.ThePromiseOfTomorrow) // Grim Impesctor
+            .Bait(data)
+            .Mission(data, 1001)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Bubble Bursters EX: Bubble Bursters Distribution Survey
+        data.Apply(47626, Patch.ThePromiseOfTomorrow) // Bursting Anemone
+            .Bait(data)
+            .Mission(data, 1002)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47627, Patch.ThePromiseOfTomorrow) // Bubble Eater
+            .Bait(data)
+            .Mission(data, 1002)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47628, Patch.ThePromiseOfTomorrow) // Phainofly Fish
+            .Bait(data)
+            .Mission(data, 1002)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47629, Patch.ThePromiseOfTomorrow) // Bubblegazer
+            .Bait(data)
+            .Mission(data, 1002)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47630, Patch.ThePromiseOfTomorrow) // Cthonic Tapestry
+            .Bait(data)
+            .Mission(data, 1002)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47631, Patch.ThePromiseOfTomorrow) // Chasm Avatar
+            .Bait(data)
+            .Mission(data, 1002)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Fusingway Flow EX+: Fusingway Flow Distribution Survey
+        data.Apply(47650, Patch.ThePromiseOfTomorrow) // Shearclaw
+            .Bait(data)
+            .Mission(data, 1003)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47651, Patch.ThePromiseOfTomorrow) // Bellows Crab
+            .Bait(data)
+            .Mission(data, 1003)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47652, Patch.ThePromiseOfTomorrow) // Crimplouse
+            .Bait(data)
+            .Mission(data, 1003)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47653, Patch.ThePromiseOfTomorrow) // Pipetongue
+            .Bait(data)
+            .Mission(data, 1003)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47654, Patch.ThePromiseOfTomorrow) // Specious Shark
+            .Bait(data)
+            .Mission(data, 1003)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47655, Patch.ThePromiseOfTomorrow) // Vent Impesctor
+            .Bait(data)
+            .Mission(data, 1003)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Prismatic Pull EX+: Elemental-esque Saltpeter Shore Specimens
+        data.Apply(47668, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
+            .Bait(data)
+            .Mission(data, 1004)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47669, Patch.ThePromiseOfTomorrow) // Desertingway
+            .Bait(data)
+            .Mission(data, 1004)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47670, Patch.ThePromiseOfTomorrow) // Mosaic Bricklayer
+            .Bait(data)
+            .Mission(data, 1004)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47671, Patch.ThePromiseOfTomorrow) // Sandglass Slasher
+            .Bait(data)
+            .Mission(data, 1004)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47672, Patch.ThePromiseOfTomorrow) // Garbled Gar
+            .Bait(data)
+            .Mission(data, 1004)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47673, Patch.ThePromiseOfTomorrow) // Sandwyrm
+            .Bait(data)
+            .Mission(data, 1004)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Capsule Pools EX+: Elemental-esque Chasm Specimens
+        data.Apply(47656, Patch.ThePromiseOfTomorrow) // Glass Guppish
+            .Bait(data)
+            .Mission(data, 1005)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47657, Patch.ThePromiseOfTomorrow) // Nyctichthys
+            .Bait(data)
+            .Mission(data, 1005)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47658, Patch.ThePromiseOfTomorrow) // False Tetraform
+            .Bait(data)
+            .Mission(data, 1005)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47659, Patch.ThePromiseOfTomorrow) // Capsulette
+            .Bait(data)
+            .Mission(data, 1005)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47660, Patch.ThePromiseOfTomorrow) // Glass Nib
+            .Bait(data)
+            .Mission(data, 1005)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47661, Patch.ThePromiseOfTomorrow) // Encapsulated Impesctor
+            .Bait(data)
+            .Mission(data, 1005)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Fusingway Flow EX+: Elemental-esque Vent Specimens
+        data.Apply(47662, Patch.ThePromiseOfTomorrow) // Shearclaw
+            .Bait(data)
+            .Mission(data, 1006)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47663, Patch.ThePromiseOfTomorrow) // Bellows Crab
+            .Bait(data)
+            .Mission(data, 1006)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47664, Patch.ThePromiseOfTomorrow) // Crimplouse
+            .Bait(data)
+            .Mission(data, 1006)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47665, Patch.ThePromiseOfTomorrow) // Garnet Seahorse
+            .Bait(data)
+            .Mission(data, 1006)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47666, Patch.ThePromiseOfTomorrow) // Confusing Catfusion
+            .Bait(data)
+            .Mission(data, 1006)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47667, Patch.ThePromiseOfTomorrow) // Fused Animus
+            .Bait(data)
+            .Mission(data, 1006)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // The Lehr  Soup Broth Ingredients
+        data.Apply(47674, Patch.ThePromiseOfTomorrow) // Starfaring Goby
+            .Bait(data)
+            .Mission(data, 1037)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47675, Patch.ThePromiseOfTomorrow) // Initiative Trout
+            .Bait(data)
+            .Mission(data, 1037)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Opalescent Crossing  Oil-extractable Aquatic Life
+        data.Apply(47676, Patch.ThePromiseOfTomorrow) // Faux Cloudfish
+            .Bait(data)
+            .Mission(data, 1038)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47677, Patch.ThePromiseOfTomorrow) // Trailing Snailfish
+            .Bait(data)
+            .Mission(data, 1038)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Bubble Bursters  Elemental-esque Specimen Acquisition
+        data.Apply(47678, Patch.ThePromiseOfTomorrow) // Bursting Anemone
+            .Bait(data)
+            .Mission(data, 1039)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47679, Patch.ThePromiseOfTomorrow) // Midnight Impression
+            .Bait(data)
+            .Mission(data, 1039)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(47680, Patch.ThePromiseOfTomorrow) // Blue Starburst
+            .Bait(data)
+            .Mission(data, 1039)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
     }
     // @formatter:on
 }
