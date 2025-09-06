@@ -344,7 +344,7 @@ public static partial class Fish
             .Mission(data, 979)
             .Points(200)
             .MultiHook(2)
-            .Bite(data, HookSet.Powerful, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47489, Patch.ThePromiseOfTomorrow) // Crystallized Throwstone
             .Bait(data)
             .Mission(data, 979)
