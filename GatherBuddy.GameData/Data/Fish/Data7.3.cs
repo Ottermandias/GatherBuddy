@@ -66,216 +66,226 @@ public static partial class Fish
 
         // The Lehr  Aquatic Foodstuffs
         data.Apply(47422, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 965)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47423, Patch.ThePromiseOfTomorrow) // Eelsplorer
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 965)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47424, Patch.ThePromiseOfTomorrow) // Lehr Brotula
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 965)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // West Beaconveil  Efficient Large Specimen Procurement
         data.Apply(47425, Patch.ThePromiseOfTomorrow) // Glass Stitcher
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 966)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47426, Patch.ThePromiseOfTomorrow) // Glass Discus
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 966)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47427, Patch.ThePromiseOfTomorrow) // Opal Ammonite
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 966)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Opalescent Crossing  Opalescent Crossing Specimen Survey //TODO: Confirm Multihook
         data.Apply(47428, Patch.ThePromiseOfTomorrow) // Pearl Shell
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 967)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47429, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 967)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47430, Patch.ThePromiseOfTomorrow) // Untitled Work No. 33
-            .Bait(data)
+            .Bait(data, 47681)
             .Mission(data, 967)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
-        // The Lehr  Bulk Provision Procurement //TODO: Confirm Points
+        // The Lehr  Bulk Provision Procurement
         data.Apply(47431, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 968)
             .MultiHook(2)
+            .Points(50)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47432, Patch.ThePromiseOfTomorrow) // Eelsplorer
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 968)
             .MultiHook(2)
+            .Points(100)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47433, Patch.ThePromiseOfTomorrow) // Lehr Salamander
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 968)
             .MultiHook(2)
+            .Points(150)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Opalescent Crossing  Opalescent Crossing Distribution Survey //TODO: Confirm Multihook
         data.Apply(47434, Patch.ThePromiseOfTomorrow) // Pearl Shell
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 969)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47435, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 969)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47436, Patch.ThePromiseOfTomorrow) // Lampwork Cucumber
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 969)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // West Beaconveil  Large Mutant Cultivated Specimens
         data.Apply(47437, Patch.ThePromiseOfTomorrow) // Glass Stitcher
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 970)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47438, Patch.ThePromiseOfTomorrow) // Biodome
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 970)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47439, Patch.ThePromiseOfTomorrow) // Roseveil Bijou
-            .Bait(data)
+            .Bait(data, 47682)
             .Mission(data, 970)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // The Lehr  Efficient Aquatic Foodstuffs Procurement //TODO: Confirm Points
         data.Apply(47440, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 971)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47441, Patch.ThePromiseOfTomorrow) // Eelsplorer
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 971)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47442, Patch.ThePromiseOfTomorrow) // Dark Expanse Catfish
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 971)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47443, Patch.ThePromiseOfTomorrow) // Light Expanse Catfish
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 971)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // West Beaconveil  West Beaconveil Distribution Survey //TODO: Confirm Multihook
         data.Apply(47444, Patch.ThePromiseOfTomorrow) // Glass Stitcher
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 972)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47445, Patch.ThePromiseOfTomorrow) // Glass Jellyfish
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 972)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47446, Patch.ThePromiseOfTomorrow) // Untitled Work No. 11
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 972)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47447, Patch.ThePromiseOfTomorrow) // Glass Ribbon-arm
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 972)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
-        // The Lehr  Fish Paste Ingredients //TODO: Confirm Points
+        // The Lehr  Fish Paste Ingredients
         data.Apply(47448, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 973)
             .MultiHook(2)
+            .Points(50)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47449, Patch.ThePromiseOfTomorrow) // Eelsplorer
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 973)
             .MultiHook(2)
+            .Points(100)
             .Bite(data, HookSet.Unknown, BiteType.Strong);
         data.Apply(47450, Patch.ThePromiseOfTomorrow) // Cosmocaecilian
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 973)
             .MultiHook(2)
+            .Points(200)
             .Bite(data, HookSet.Unknown, BiteType.Strong);
         data.Apply(47451, Patch.ThePromiseOfTomorrow) // Lehr Carp
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 973)
             .MultiHook(2)
+            .Points(300)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // West Beaconveil  Multi-purpose Bait Test //TODO: Confirm Multihook
         data.Apply(47452, Patch.ThePromiseOfTomorrow) // Glass Stitcher
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 974)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47453, Patch.ThePromiseOfTomorrow) // Glass Discus
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 974)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47454, Patch.ThePromiseOfTomorrow) // Phaenna's Arrow
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 974)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47455, Patch.ThePromiseOfTomorrow) // Boro Bead
-            .Bait(data)
+            .Bait(data, 47684)
             .Mission(data, 974)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
-        // The Lehr  Emergency Bulk Provision Procurement //TODO: Confirm points + Multihook
+        // The Lehr  Emergency Bulk Provision Procurement
         data.Apply(47456, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
-            .Bait(data)
+            .Bait(data, 47685)
             .Mission(data, 975)
+            .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47457, Patch.ThePromiseOfTomorrow) // Eelsplorer
-            .Bait(data)
+            .Bait(data, 47685)
             .Mission(data, 975)
+            .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47458, Patch.ThePromiseOfTomorrow) // Gymnarchus
-            .Bait(data)
+            .Bait(data, 47685)
             .Mission(data, 975)
+            .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47459, Patch.ThePromiseOfTomorrow) // Inlay Ray
-            .Bait(data)
+            .Bait(data, 47685)
             .Mission(data, 975)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Opalescent Crossing  Vitrified Freshwater Fish //TODO: Confirm Points
         data.Apply(47460, Patch.ThePromiseOfTomorrow) // Pearl Shell
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 976)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47461, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 976)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47462, Patch.ThePromiseOfTomorrow) // Bony Wraithfish
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 976)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47463, Patch.ThePromiseOfTomorrow) // Emeraldback
-            .Bait(data)
+            .Bait(data, 47683)
             .Mission(data, 976)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
@@ -289,64 +299,64 @@ public static partial class Fish
             .Mission(data, 977)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47466, Patch.ThePromiseOfTomorrow) // Sandblaster
-            .Bait(data)
+            .Bait(data, 47685)
             .Mission(data, 977)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47467, Patch.ThePromiseOfTomorrow) // Opal Shell
-            .Bait(data)
+            .Bait(data, 47685)
             .Mission(data, 977)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Upper Soda-lime Float  Upper Soda-lime Float Distribution Survey //TODO: Confirm Multihook
         data.Apply(47480, Patch.ThePromiseOfTomorrow) // Frosted Shell
-            .Bait(data)
+            .Bait(data, 47686)
             .Mission(data, 978)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47481, Patch.ThePromiseOfTomorrow) // Untitled Work No. 98
-            .Bait(data)
+            .Bait(data, 47686)
             .Mission(data, 978)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47482, Patch.ThePromiseOfTomorrow) // Pendantfish
-            .Bait(data)
+            .Bait(data, 47686)
             .Mission(data, 978)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47483, Patch.ThePromiseOfTomorrow) // Hammerhead Antiblaster
-            .Bait(data)
+            .Bait(data, 47686)
             .Mission(data, 978)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47484, Patch.ThePromiseOfTomorrow) // Isosceles Cobalt
-            .Bait(data)
+            .Bait(data, 47686)
             .Mission(data, 978)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Central Soda-lime Channel  Central Soda-lime Channel Distribution Survey //TODO: Confirm Multihook
         data.Apply(47485, Patch.ThePromiseOfTomorrow) // Glass Dahlia
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 979)
             .Points(50)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47486, Patch.ThePromiseOfTomorrow) // Fishy Jellyfish
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 979)
             .Points(100)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47487, Patch.ThePromiseOfTomorrow) // Glass Skeleton
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 979)
             .Points(150)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47488, Patch.ThePromiseOfTomorrow) // Blue Pane
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 979)
             .Points(200)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47489, Patch.ThePromiseOfTomorrow) // Crystallized Throwstone
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 979)
             .Points(500)
             .MultiHook(2)
@@ -354,185 +364,188 @@ public static partial class Fish
 
         // Western Soda-lime Tributary  Arthrolure Field Test //TODO: Confirm Points
         data.Apply(47490, Patch.ThePromiseOfTomorrow) // White Starburst
-            .Bait(data)
+            .Bait(data, 47589)
             .Mission(data, 980)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47491, Patch.ThePromiseOfTomorrow) // Skippingway
-            .Bait(data)
+            .Bait(data, 47589)
             .Mission(data, 980)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47492, Patch.ThePromiseOfTomorrow) // Glass Coral
-            .Bait(data)
+            .Bait(data, 47589)
             .Mission(data, 980)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47493, Patch.ThePromiseOfTomorrow) // Sun-purpled Tapestry
-            .Bait(data)
+            .Bait(data, 47589)
             .Mission(data, 980)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47494, Patch.ThePromiseOfTomorrow) // Lime Impesctor
-            .Bait(data)
+            .Bait(data, 47589)
             .Mission(data, 980)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Lower Soda-lime Float  River Basin Large Aquatic Resources //TODO: Confirm Points
         data.Apply(47495, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 981)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47496, Patch.ThePromiseOfTomorrow) // Float Cloud
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 981)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47497, Patch.ThePromiseOfTomorrow) // Navy Coelacanth
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 981)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47498, Patch.ThePromiseOfTomorrow) // Iceglass Gar
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 981)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47499, Patch.ThePromiseOfTomorrow) // Moonstone Mora
-            .Bait(data)
+            .Bait(data, 47687)
             .Mission(data, 981)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // The Prismatic Pull  Saltpeter Shore Sunken Resources //TODO: confirm Points
         data.Apply(47500, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
-            .Bait(data)
+            .Bait(data, 47691)
             .Mission(data, 982)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47501, Patch.ThePromiseOfTomorrow) // Desertingway
-            .Bait(data)
+            .Bait(data, 47691)
             .Mission(data, 982)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47502, Patch.ThePromiseOfTomorrow) // Goldflake Sandfish
-            .Bait(data)
+            .Bait(data, 47691)
             .Mission(data, 982)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47503, Patch.ThePromiseOfTomorrow) // Sandglass Glob
-            .Bait(data)
+            .Bait(data, 47691)
             .Mission(data, 982)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47504, Patch.ThePromiseOfTomorrow) // Prismatic Moraine
-            .Bait(data)
+            .Bait(data, 47691)
             .Mission(data, 982)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // West Beaconveil  Mutant Aquatic Specimen Observations //Todo: Confirm Multihook
         data.Apply(47505, Patch.ThePromiseOfTomorrow) // Glass Stitcher
-            .Bait(data)
+            .Bait(data, 47689)
             .Mission(data, 983)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47506, Patch.ThePromiseOfTomorrow) // Glass Discus
-            .Bait(data)
+            .Bait(data, 47686)
             .Mission(data, 983)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47507, Patch.ThePromiseOfTomorrow) // Isosceles Amethyst
-            .Bait(data)
+            .Bait(data, 47689)
             .Mission(data, 983)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47508, Patch.ThePromiseOfTomorrow) // Iceglass Floe
-            .Bait(data)
+            .Bait(data, 47686)
             .Mission(data, 983)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47509, Patch.ThePromiseOfTomorrow) // Super Starburst
-            .Bait(data)
+            .Bait(data, 47689)
             .Mission(data, 983)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Opalescent Crossing  Vitrified Freshwater Fish Observations //TODO: Confirm Multihook
         data.Apply(47510, Patch.ThePromiseOfTomorrow) // Pearl Shell
-            .Bait(data)
+            .Bait(data, 47688)
             .Mission(data, 984)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47511, Patch.ThePromiseOfTomorrow) // Cobalt Bijou
-            .Bait(data)
+            .Bait(data, 47688)
             .Mission(data, 984)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47512, Patch.ThePromiseOfTomorrow) // Kintsugi Chip
-            .Bait(data)
+            .Bait(data, 47688)
             .Mission(data, 984)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47513, Patch.ThePromiseOfTomorrow) // Opalescent Stingship
-            .Bait(data)
+            .Bait(data, 47688)
             .Mission(data, 984)
             .MultiHook(3)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // The Prismatic Pull  Saltpeter Shore Large Resources //TODO: confirm multi //TODO: confirm points
         data.Apply(47514, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
-            .Bait(data)
+            .Bait(data, 47690)
             .Mission(data, 985)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47515, Patch.ThePromiseOfTomorrow) // Desertingway
-            .Bait(data)
+            .Bait(data, 47690)
             .Mission(data, 985)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47516, Patch.ThePromiseOfTomorrow) // Ammochronologist
-            .Bait(data)
+            .Bait(data, 47690)
             .Mission(data, 985)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47517, Patch.ThePromiseOfTomorrow) // Polarized Eel
-            .Bait(data)
+            .Bait(data, 47690)
             .Mission(data, 985)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47518, Patch.ThePromiseOfTomorrow) // Quicksand Mantaroid
-            .Bait(data)
+            .Bait(data, 47690)
             .Mission(data, 985)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // The Lehr Cultivated Specimen Survey
         data.Apply(47519, Patch.ThePromiseOfTomorrow) // Macrobrachium Phaennense
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 986)
+            .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47520, Patch.ThePromiseOfTomorrow) // Eelsplorer
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 986)
+            .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47521, Patch.ThePromiseOfTomorrow) // Star Crabtain
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 986)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47522, Patch.ThePromiseOfTomorrow) // Lehr Killifish
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 986)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47523, Patch.ThePromiseOfTomorrow) // Doomed Voyager
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 986)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47524, Patch.ThePromiseOfTomorrow) // Bottom-layer
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 986)
-            .Bite(data, HookSet.Powerful, BiteType.Strong);
+            .Predators(data, 220, (47523, 2))
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // West Beaconveil Stardust Bait Test //TODO: confirm points //TODO: Confirm Bite of Isoceles Pear????
         data.Apply(47525, Patch.ThePromiseOfTomorrow) // Potash Guppish
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 987)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47526, Patch.ThePromiseOfTomorrow) // Aurora Shell
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 987)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47527, Patch.ThePromiseOfTomorrow) // Untitled Work No. 66
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 987)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47528, Patch.ThePromiseOfTomorrow) // Imitation Engraver
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 987)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47529, Patch.ThePromiseOfTomorrow) // Isosceles Pearl
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 987)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
@@ -565,27 +578,27 @@ public static partial class Fish
 
         // The Prismatic Pull Prismatic Pull Distribution Survey //TODO: Confirm Multi //TODO: Confirm Points
         data.Apply(47535, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
-            .Bait(data)
+            .Bait(data, 47697)
             .Mission(data, 989)
             .Points(50)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47536, Patch.ThePromiseOfTomorrow) // Desertingway
-            .Bait(data)
+            .Bait(data, 47697)
             .Mission(data, 989)
             .Points(100)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47537, Patch.ThePromiseOfTomorrow) // Gold Broochback
-            .Bait(data)
+            .Bait(data, 47697)
             .Mission(data, 989)
             .Points(150)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47538, Patch.ThePromiseOfTomorrow) // Nitric Chelid
-            .Bait(data)
+            .Bait(data, 47697)
             .Mission(data, 989)
             .Points(400)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47539, Patch.ThePromiseOfTomorrow) // Sunken Kite
-            .Bait(data)
+            .Bait(data, 47697)
             .Mission(data, 989)
             .Points(600)
             .MultiHook(2)
@@ -593,73 +606,75 @@ public static partial class Fish
 
         // Central Soda-lime Channel Aquatic Glass Resource Distribution Survey //TODO: Confirm Points
         data.Apply(47540, Patch.ThePromiseOfTomorrow) // Glass Dahlia
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 990)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47541, Patch.ThePromiseOfTomorrow) // Fishy Jellyfish
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 990)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47542, Patch.ThePromiseOfTomorrow) // Suspect Skeletonfish
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 990)
+            .Points(500)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47543, Patch.ThePromiseOfTomorrow) // Cobalt Glass Eel
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 990)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47544, Patch.ThePromiseOfTomorrow) // Cast Flowers
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 990)
+            .Points(1250)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Western Soda-lime Tributary EX: Red Cosmomaggot Field Test //TODO: Confirm Points
         data.Apply(47556, Patch.ThePromiseOfTomorrow) // White Starburst
-            .Bait(data)
+            .Bait(data, 47593)
             .Mission(data, 991)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47557, Patch.ThePromiseOfTomorrow) // Skippingway
-            .Bait(data)
+            .Bait(data, 47593)
             .Mission(data, 991)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47558, Patch.ThePromiseOfTomorrow) // Glass Coral
-            .Bait(data)
+            .Bait(data, 47593)
             .Mission(data, 991)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47559, Patch.ThePromiseOfTomorrow) // Blown Bubble
-            .Bait(data)
+            .Bait(data, 47593)
             .Mission(data, 991)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47560, Patch.ThePromiseOfTomorrow) // Cobalt Horn
-            .Bait(data)
+            .Bait(data, 47593)
             .Mission(data, 991)
             .Lure(Enums.Lure.Ambitious)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Lower Soda-lime Float EX: Large River Resources //TODO: Confirm Multi //TODO: Confirm Points
         data.Apply(47561, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 992)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47562, Patch.ThePromiseOfTomorrow) // Float Cloud
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 992)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47563, Patch.ThePromiseOfTomorrow) // Navy Coelacanth
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 992)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47564, Patch.ThePromiseOfTomorrow) // Obsidian Mussel
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 992)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47565, Patch.ThePromiseOfTomorrow) // Glass Sculptor
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 992)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47566, Patch.ThePromiseOfTomorrow) // Prismatic Cluster
-            .Bait(data)
+            .Bait(data, 47695)
             .Mission(data, 992)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
@@ -794,23 +809,23 @@ public static partial class Fish
 
         // Central Soda-lime Channel EX: Large Aquatic Resources
         data.Apply(47551, Patch.ThePromiseOfTomorrow) // Glass Dahlia
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 998)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47552, Patch.ThePromiseOfTomorrow) // Fishy Jellyfish
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 998)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47553, Patch.ThePromiseOfTomorrow) // Limingway
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 998)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47554, Patch.ThePromiseOfTomorrow) // Gold Ruby Pansyfin
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 998)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47555, Patch.ThePromiseOfTomorrow) // Sinking Crystascute
-            .Bait(data)
+            .Bait(data, 47693)
             .Mission(data, 998)
             .Lure(Enums.Lure.Ambitious)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
@@ -836,64 +851,68 @@ public static partial class Fish
         data.Apply(47577, Patch.ThePromiseOfTomorrow) // Full-blown Bubble
             .Bait(data)
             .Mission(data, 999)
+            .Predators(data, 160, (47576, 2))
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Lower Soda-lime Float EX: Elemental-esque River Specimens //TODO: Confirm Points //TODO: Confirm Multihook
         data.Apply(47614, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1000)
             .Points(100)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47615, Patch.ThePromiseOfTomorrow) // Float Cloud
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1000)
             .Points(100)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47616, Patch.ThePromiseOfTomorrow) // Navy Coelacanths
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1000)
             .Points(200)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47617, Patch.ThePromiseOfTomorrow) // Filigree Floret
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1000)
             .Points(50)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47618, Patch.ThePromiseOfTomorrow) // Soda Mocktail
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1000)
             .Points(500)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47619, Patch.ThePromiseOfTomorrow) // Bubbling Impesctor
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1000)
             .Points(1500)
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Lower Soda-lime Float Lower Soda-lime Float Distribution Survey //TODO: Confirm Points
         data.Apply(47579, Patch.ThePromiseOfTomorrow) // Kissing Counterfeit
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1001)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47580, Patch.ThePromiseOfTomorrow) // Float Cloud
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1001)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47581, Patch.ThePromiseOfTomorrow) // Navy Coelacanth
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1001)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47582, Patch.ThePromiseOfTomorrow) // Untitled Work No. 345
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1001)
+            .Points(200)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47583, Patch.ThePromiseOfTomorrow) // Royal Comet tail
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1001)
+            .Points(360)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47584, Patch.ThePromiseOfTomorrow) // Grim Impesctor
-            .Bait(data)
+            .Bait(data, 47692)
             .Mission(data, 1001)
+            .Points(440)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Bubble Bursters EX: Bubble Bursters Distribution Survey
