@@ -313,8 +313,12 @@ public class GatherWindow : Window
         {
             GatherBuddy.AutoGather.Enabled = !GatherBuddy.AutoGather.Enabled;
         }
+        if (ImGui.IsItemClicked(ImGuiMouseButton.Right))
+        {
+            _plugin.Interface.Toggle();
+        }
         color.Pop();
-        ImGuiUtil.HoverTooltip("Click to enable/disable auto-gather");
+        ImGuiUtil.HoverTooltip("Click to enable/disable auto-gather. Right click to toggle interface");
         using var table = ImRaii.Table("##table", GatherBuddy.Config.ShowGatherWindowTimers ? 2 : 1);
         if (!table)
             return;
