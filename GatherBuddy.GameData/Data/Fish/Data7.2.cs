@@ -620,23 +620,23 @@ public static partial class Fish
         data.Apply(45831, Patch.SeekersOfEternity) // Ctenophora Lunaris
             .Bait(data)
             .Mission(data, 479)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45832, Patch.SeekersOfEternity) // Protomyke #721
             .Bait(data)
             .Mission(data, 479)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45833, Patch.SeekersOfEternity) // Argonauta Lunaris
             .Bait(data)
             .Mission(data, 479)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45834, Patch.SeekersOfEternity) // Nadirichthys
             .Bait(data)
             .Mission(data, 479)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45835, Patch.SeekersOfEternity) // Atolla Jellyfish
             .Bait(data)
             .Mission(data, 479)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Strong);
 
         // Glimmerpond Alpha A-2: Foodstuff Emergency
         data.Apply(45836, Patch.SeekersOfEternity) // Arsenic Axolotl
@@ -976,53 +976,54 @@ public static partial class Fish
         data.Apply(45889, Patch.SeekersOfEternity) // Ctenophora Lunaris
             .Bait(data)
             .Mission(data, 492)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45890, Patch.SeekersOfEternity) // Protomyke #721
             .Bait(data)
             .Mission(data, 492)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45891, Patch.SeekersOfEternity) // Argonauta Lunaris
             .Bait(data)
             .Mission(data, 492)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45892, Patch.SeekersOfEternity) // Aetherial Sword
             .Bait(data)
             .Mission(data, 492)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45893, Patch.SeekersOfEternity) // Moon Manta
             .Bait(data)
             .Mission(data, 492)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(45894, Patch.SeekersOfEternity) // Nadir Ambulocetus
             .Bait(data)
             .Mission(data, 492)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Aetherial Falls A-3: Unidentified Aquatic Specimens I
         data.Apply(45907, Patch.SeekersOfEternity) // Ctenophora Lunaris
             .Bait(data)
             .Mission(data, 493)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45908, Patch.SeekersOfEternity) // Protomyke #721
             .Bait(data)
             .Mission(data, 493)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45909, Patch.SeekersOfEternity) // Argonauta Lunaris
             .Bait(data)
             .Mission(data, 493)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45910, Patch.SeekersOfEternity) // Aetherial Sword
             .Bait(data)
             .Mission(data, 493)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45911, Patch.SeekersOfEternity) // Macropinna
             .Bait(data)
             .Mission(data, 493)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(45912, Patch.SeekersOfEternity) // Deepmoon Seadragon
             .Bait(data)
             .Mission(data, 493)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(5)
+            .Bite(data, HookSet.Precise, BiteType.Legendary);
 
         // Palus Arsenici A-3: Unidentified Aquatic Specimens II
         data.Apply(45895, Patch.SeekersOfEternity) // Lunar Scorpion
@@ -1032,49 +1033,57 @@ public static partial class Fish
         data.Apply(45896, Patch.SeekersOfEternity) // Arsenical Proto-hropken
             .Bait(data)
             .Mission(data, 494)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45897, Patch.SeekersOfEternity) // Lunar Oil Eel
             .Bait(data)
             .Mission(data, 494)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45898, Patch.SeekersOfEternity) // Galactic Noise
             .Bait(data)
             .Mission(data, 494)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45899, Patch.SeekersOfEternity) // Onychodictyon
             .Bait(data)
             .Mission(data, 494)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45900, Patch.SeekersOfEternity) // Eolactoria Arsenici
             .Bait(data)
             .Mission(data, 494)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Lure(Enums.Lure.Modest)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Glimmerpond Beta A-3: Unidentified Aquatic Specimens III
         data.Apply(45901, Patch.SeekersOfEternity) // Lunar Goldfish
             .Bait(data)
             .Mission(data, 495)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(50)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45902, Patch.SeekersOfEternity) // Lunar Minnow
             .Bait(data)
             .Mission(data, 495)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(50)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(45903, Patch.SeekersOfEternity) // Lunar Glassfish
             .Bait(data)
             .Mission(data, 495)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(50)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(45904, Patch.SeekersOfEternity) // Gleaming Deathworm
             .Bait(data)
             .Mission(data, 495)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(500)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(45905, Patch.SeekersOfEternity) // Leanchoilia
             .Bait(data)
             .Mission(data, 495)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(45906, Patch.SeekersOfEternity) // Harpagofututor
+            .Points(150)
+            .MultiHook(2)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
+        data.Apply(45906, Patch.SeekersOfEternity) // Harpagofututor //TODO: Intuition Fish, 3 Leanchoilia + 1 Lunar Glassfish
             .Bait(data)
             .Mission(data, 495)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(5000)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Southeast Well A-2: Processed Aquatic Metals
         data.Apply(45913, Patch.SeekersOfEternity) // Star Pleco
