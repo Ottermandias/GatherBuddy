@@ -50,7 +50,7 @@ public unsafe class GatheringReader(AtkUnitBase* addon) : AtkReader(addon)
     }
 
     private uint ItemSlotFlags
-        => ReadUInt(96).GetValueOrDefault();
+        => ReadUInt(98).GetValueOrDefault();
 
     public bool QuickGatheringAllowed
         => ReadBool(105).GetValueOrDefault();
