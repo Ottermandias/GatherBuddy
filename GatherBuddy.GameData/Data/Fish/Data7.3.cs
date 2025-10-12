@@ -686,23 +686,25 @@ public static partial class Fish
         data.Apply(47609, Patch.ThePromiseOfTomorrow) // Glass Guppish
             .Bait(data)
             .Mission(data, 993)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47610, Patch.ThePromiseOfTomorrow) // Nyctichthys
             .Bait(data)
             .Mission(data, 993)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47611, Patch.ThePromiseOfTomorrow) // Five-star Bijou
             .Bait(data)
             .Mission(data, 993)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47612, Patch.ThePromiseOfTomorrow) // Capsule Castoff
             .Bait(data)
             .Mission(data, 993)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(400)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47613, Patch.ThePromiseOfTomorrow) // Capsule Amber
             .Bait(data)
             .Mission(data, 993)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(500)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // The Prismatic Pull EX+: Large Saltpeter Shore Resources //TODO: Confirm Multi //TODO: Confirm Points
         data.Apply(47632, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
@@ -923,140 +925,151 @@ public static partial class Fish
         data.Apply(47626, Patch.ThePromiseOfTomorrow) // Bursting Anemone
             .Bait(data)
             .Mission(data, 1002)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47627, Patch.ThePromiseOfTomorrow) // Bubble Eater
             .Bait(data)
             .Mission(data, 1002)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47628, Patch.ThePromiseOfTomorrow) // Phainofly Fish
             .Bait(data)
             .Mission(data, 1002)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47629, Patch.ThePromiseOfTomorrow) // Bubblegazer
             .Bait(data)
             .Mission(data, 1002)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47630, Patch.ThePromiseOfTomorrow) // Cthonic Tapestry
             .Bait(data)
             .Mission(data, 1002)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47631, Patch.ThePromiseOfTomorrow) // Chasm Avatar
             .Bait(data)
             .Mission(data, 1002)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Lure(Enums.Lure.Ambitious)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
-        // Fusingway Flow EX+: Fusingway Flow Distribution Survey
+        // Fusingway Flow EX+: Fusingway Flow Distribution Survey //TODO: Confirm Multihook, Unfinished Data, This fish is labeled wrong?!
         data.Apply(47650, Patch.ThePromiseOfTomorrow) // Shearclaw
             .Bait(data)
             .Mission(data, 1003)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Weak);
         data.Apply(47651, Patch.ThePromiseOfTomorrow) // Bellows Crab
             .Bait(data)
             .Mission(data, 1003)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47652, Patch.ThePromiseOfTomorrow) // Crimplouse
             .Bait(data)
             .Mission(data, 1003)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47653, Patch.ThePromiseOfTomorrow) // Pipetongue
             .Bait(data)
             .Mission(data, 1003)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(47654, Patch.ThePromiseOfTomorrow) // Specious Shark
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
+        data.Apply(47654, Patch.ThePromiseOfTomorrow) // Specious Shark <- ????? Garnet Seahorse????
             .Bait(data)
             .Mission(data, 1003)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(3)
+            .Bite(data, HookSet.Unknown, BiteType.Weak);
         data.Apply(47655, Patch.ThePromiseOfTomorrow) // Vent Impesctor
             .Bait(data)
             .Mission(data, 1003)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(4)
+            .Bite(data, HookSet.Precise, BiteType.Legendary);
 
-        // The Prismatic Pull EX+: Elemental-esque Saltpeter Shore Specimens
+        // The Prismatic Pull EX+: Elemental-esque Saltpeter Shore Specimens //TODO: Unfinished Data
         data.Apply(47668, Patch.ThePromiseOfTomorrow) // Untitled Work No. 288
             .Bait(data)
             .Mission(data, 1004)
+            .Points(200)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
         data.Apply(47669, Patch.ThePromiseOfTomorrow) // Desertingway
             .Bait(data)
             .Mission(data, 1004)
+            .MultiHook(2)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
         data.Apply(47670, Patch.ThePromiseOfTomorrow) // Mosaic Bricklayer
             .Bait(data)
             .Mission(data, 1004)
+            .Points(600)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
         data.Apply(47671, Patch.ThePromiseOfTomorrow) // Sandglass Slasher
             .Bait(data)
             .Mission(data, 1004)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(200)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47672, Patch.ThePromiseOfTomorrow) // Garbled Gar
             .Bait(data)
             .Mission(data, 1004)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Points(2000)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47673, Patch.ThePromiseOfTomorrow) // Sandwyrm
             .Bait(data)
             .Mission(data, 1004)
+            .Points(10000)
+            .Lure(Enums.Lure.Ambitious)
             .Bite(data, HookSet.Unknown, BiteType.Unknown);
 
-        // Capsule Pools EX+: Elemental-esque Chasm Specimens
+        // Capsule Pools EX+: Elemental-esque Chasm Specimens //TODO:Unfinished Data
         data.Apply(47656, Patch.ThePromiseOfTomorrow) // Glass Guppish
             .Bait(data)
             .Mission(data, 1005)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47657, Patch.ThePromiseOfTomorrow) // Nyctichthys
             .Bait(data)
             .Mission(data, 1005)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47658, Patch.ThePromiseOfTomorrow) // False Tetraform
             .Bait(data)
             .Mission(data, 1005)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47659, Patch.ThePromiseOfTomorrow) // Capsulette
             .Bait(data)
             .Mission(data, 1005)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47660, Patch.ThePromiseOfTomorrow) // Glass Nib
             .Bait(data)
             .Mission(data, 1005)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47661, Patch.ThePromiseOfTomorrow) // Encapsulated Impesctor
             .Bait(data)
             .Mission(data, 1005)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Predators(data, 420, (47659,2))
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
 
-        // Fusingway Flow EX+: Elemental-esque Vent Specimens
+        // Fusingway Flow EX+: Elemental-esque Vent Specimens //TODO: Unifinished Data, This is missing a fish?!
         data.Apply(47662, Patch.ThePromiseOfTomorrow) // Shearclaw
             .Bait(data)
             .Mission(data, 1006)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Weak);
         data.Apply(47663, Patch.ThePromiseOfTomorrow) // Bellows Crab
             .Bait(data)
             .Mission(data, 1006)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Weak);
         data.Apply(47664, Patch.ThePromiseOfTomorrow) // Crimplouse
             .Bait(data)
             .Mission(data, 1006)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(47665, Patch.ThePromiseOfTomorrow) // Garnet Seahorse
+            .Bite(data, HookSet.Unknown, BiteType.Strong);
+        data.Apply(47665, Patch.ThePromiseOfTomorrow) // Garnet Seahorse <- Why are u here, perhaps Specious Shark?! Seems to be confusion in fishcord too....
             .Bait(data)
             .Mission(data, 1006)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47666, Patch.ThePromiseOfTomorrow) // Confusing Catfusion
             .Bait(data)
             .Mission(data, 1006)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(47667, Patch.ThePromiseOfTomorrow) // Fused Animus
             .Bait(data)
             .Mission(data, 1006)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // The Lehr  Soup Broth Ingredients
         data.Apply(47674, Patch.ThePromiseOfTomorrow) // Starfaring Goby
-            .Bait(data)
+            .Bait(data, 47702)
             .Mission(data, 1037)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47675, Patch.ThePromiseOfTomorrow) // Initiative Trout
-            .Bait(data)
+            .Bait(data, 47702)
             .Mission(data, 1037)
             .MultiHook(2)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
@@ -1065,25 +1078,28 @@ public static partial class Fish
         data.Apply(47676, Patch.ThePromiseOfTomorrow) // Faux Cloudfish
             .Bait(data)
             .Mission(data, 1038)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(2)
+            .Bite(data, HookSet.Unknown, BiteType.Weak);
         data.Apply(47677, Patch.ThePromiseOfTomorrow) // Trailing Snailfish
             .Bait(data)
             .Mission(data, 1038)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(2)
+            .Bite(data, HookSet.Unknown, BiteType.Strong);
 
         // Bubble Bursters  Elemental-esque Specimen Acquisition
         data.Apply(47678, Patch.ThePromiseOfTomorrow) // Bursting Anemone
             .Bait(data)
             .Mission(data, 1039)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47679, Patch.ThePromiseOfTomorrow) // Midnight Impression
             .Bait(data)
             .Mission(data, 1039)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47680, Patch.ThePromiseOfTomorrow) // Blue Starburst
             .Bait(data)
             .Mission(data, 1039)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(2)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
     }
     // @formatter:on
 }
