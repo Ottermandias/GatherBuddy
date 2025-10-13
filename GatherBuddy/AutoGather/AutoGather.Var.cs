@@ -96,6 +96,17 @@ namespace GatherBuddy.AutoGather
             if (Dalamud.Conditions[ConditionFlag.InFlight] || Dalamud.Conditions[ConditionFlag.Diving])
                 return true;
 
+            if (GatherBuddy.Config.AutoGatherConfig.ForceWalking || Dalamud.ClientState.LocalPlayer == null)
+            {
+                return false;
+            }
+
+            if (Functions.InTheDiadem())
+            {
+                return Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, destination)
+                 >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
+            }
+
             var territory = Dalamud.ClientState.TerritoryType;
             var territoryRow = Svc.Data.GameData.GetExcelSheet<LuminaTerritoryType>();
             if (territoryRow == null)
@@ -108,11 +119,6 @@ namespace GatherBuddy.AutoGather
             var aetherCurrentComp = territoryRow.GetRow(territory).AetherCurrentCompFlgSet.RowId;
             if (aetherCurrentComp == 0)
                 return false;
-
-            if (GatherBuddy.Config.AutoGatherConfig.ForceWalking || Dalamud.ClientState.LocalPlayer == null)
-            {
-                return false;
-            }
 
             return playerState->IsAetherCurrentZoneComplete(aetherCurrentComp) && Vector3.Distance(Dalamud.ClientState.LocalPlayer.Position, destination)
              >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance;
