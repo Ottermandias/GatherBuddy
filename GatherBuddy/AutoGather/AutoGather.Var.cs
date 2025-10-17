@@ -200,7 +200,10 @@ namespace GatherBuddy.AutoGather
             => GetAddon<AddonRepair>("Repair");
 
         public IEnumerable<IGatherable> ItemsToGatherInZone
-            => _activeItemList.Where(i => i.Node?.Territory.Id == Dalamud.ClientState.TerritoryType).Select(i => i.Item);
+            => _activeItemList
+                .Where(i => i.Node?.Territory.Id == Dalamud.ClientState.TerritoryType)
+                .Where(i => LocationMatchesJob(i.Location))
+                .Select(i => i.Item);
 
         private bool LocationMatchesJob(ILocation loc)
             => loc.GatheringType.ToGroup() == JobAsGatheringType;
