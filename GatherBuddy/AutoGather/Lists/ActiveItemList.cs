@@ -1,5 +1,6 @@
-﻿using Dalamud.Game.ClientState.Objects.Types;
+using Dalamud.Game.ClientState.Objects.Types;
 using Dalamud.Utility;
+using ECommons.ExcelServices;
 using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.AutoGather.Extensions;
@@ -79,13 +80,30 @@ namespace GatherBuddy.AutoGather.Lists
                 DoUpdate();
 
             //Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
+            
+            // Get the first item that still needs gathering
+            var firstItemNeedingGathering = _gatherableItems.FirstOrDefault(NeedsGathering);
+            if (firstItemNeedingGathering == default)
+                return [];
+            
             IEnumerable<GatherTarget> nearbyItems = [];
-            nearbyItems = this.Any(n => !n.Node?.Times.AlwaysUp() ?? false)
-                ? [this.First(n => n.Time.InRange(AutoGather.AdjustedServerTime))]
-                : this.Where(i => i.Node?.WorldPositions.Keys.Any(nearbyNodes.Contains) ?? false);
+            
+            // For timed nodes, return just the first one that's in range
+            if (this.Any(n => !n.Node?.Times.AlwaysUp() ?? false))
+            {
+                nearbyItems = [this.First(n => n.Time.InRange(AutoGather.AdjustedServerTime))];
+            }
+            else
+            {
+                // For regular nodes, ONLY return nearby nodes for the FIRST item that needs gathering
+                // This prevents the bot from jumping between different items in the same zone
+                nearbyItems = this
+                    .Where(i => i.Item == firstItemNeedingGathering.Item) // Same item only
+                    .Where(i => i.Node?.WorldPositions.Keys.Any(nearbyNodes.Contains) ?? false);
+            }
 
             //Svc.Log.Verbose($"Nearby items: ({nearbyItems.Count()}): {string.Join(", ", nearbyItems.Select(x => x.Item.Name))}.");
-            return nearbyItems.Any() ? nearbyItems : _gatherableItems.Where(NeedsGathering);
+            return nearbyItems.Any() ? nearbyItems : [firstItemNeedingGathering];
         }
 
         /// <summary>
@@ -179,11 +197,17 @@ namespace GatherBuddy.AutoGather.Lists
                 .Where(x => !_visitedTimedNodes.ContainsKey(x.Node))
                 // Group by item and select the best node.
                 .GroupBy(x => x.Item, x => x, (_, g) => g
-                    // Prioritize preferred location, then preferred job, then the rest.
+                    // Prioritize preferred location, then current job, then preferred job, then the rest.
                     .OrderBy(x =>
                         x.Node == x.PreferredLocation ? 0
-                        : x.Node.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType ? 1
-                            : 2)
+                        : x.Node.GatheringType.ToGroup() == (Player.Job switch
+                        {
+                            Job.MIN => GatheringType.Miner,
+                            Job.BTN => GatheringType.Botanist,
+                            _ => GatheringType.Unknown
+                        }) ? 1
+                        : x.Node.GatheringType.ToGroup() == GatherBuddy.Config.PreferredGatheringType ? 2
+                            : 3)
                     // Prioritize closest nodes in the current territory.
                     .ThenBy(x => GetHorizontalSquaredDistanceToPlayer(x.Node))
                     // Order by end time, longest first as in the original UptimeManager.NextUptime().
@@ -201,7 +225,14 @@ namespace GatherBuddy.AutoGather.Lists
                     .First()
                 )
                 // Prioritize timed nodes first.
-                .OrderBy(x => x.Time == TimeInterval.Always);
+                .OrderBy(x => x.Time == TimeInterval.Always)
+                // Then prioritize nodes matching current job.
+                .ThenBy(x => x.Node.GatheringType.ToGroup() != (Player.Job switch
+                {
+                    Job.MIN => GatheringType.Miner,
+                    Job.BTN => GatheringType.Botanist,
+                    _ => GatheringType.Unknown
+                }));
 
             var fish = _listsManager.ActiveFish
                 .Where(NeedsGathering)
