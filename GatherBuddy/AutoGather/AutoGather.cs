@@ -141,6 +141,7 @@ namespace GatherBuddy.AutoGather
                     _diademRecentlyGatheredNodes.Clear();
                     _diademArborCallUsedAt = DateTime.MinValue;
                     _diademArborCallTarget = null;
+                    _lastNonTimedNodeTerritory = 0;
                 }
                 else
                 {
@@ -588,9 +589,60 @@ namespace GatherBuddy.AutoGather
             if (Lifestream.Enabled)
                 Lifestream.Abort();
             WentHome = false;
+            
+            var isTimedNode = next.First().Node?.Times.AlwaysUp() == false;
+            if (!isTimedNode && next.First().Location.Territory.Id == territoryId)
+            {
+                _lastNonTimedNodeTerritory = territoryId;
+            }
 
             if (next.First().Location.Territory.Id != territoryId)
             {
+                if (_lastNonTimedNodeTerritory != 0 && _lastNonTimedNodeTerritory != territoryId)
+                {
+                    var itemsInPreviousZone = _activeItemList
+                        .Where(i => i.Node?.Territory.Id == _lastNonTimedNodeTerritory)
+                        .Where(i => i.Node?.Times.AlwaysUp() != false)
+                        .ToList();
+                    
+                    if (itemsInPreviousZone.Any())
+                    {
+                        var previousZoneItem = itemsInPreviousZone.First();
+                        if (!LocationMatchesJob(previousZoneItem.Location))
+                        {
+                            if (ChangeGearSet(previousZoneItem.Location.GatheringType.ToGroup(), 2400))
+                            {
+                                return;
+                            }
+                        }
+                        else
+                        {
+                            AutoStatus = "Teleporting back to previous zone...";
+                            StopNavigation();
+                            if (!MoveToTerritory(previousZoneItem.Location))
+                                AbortAutoGather();
+                            return;
+                        }
+                    }
+                }
+                
+                var itemsInCurrentZone = _activeItemList
+                    .Where(i => i.Node?.Territory.Id == territoryId)
+                    .Where(i => i.Node?.Times.AlwaysUp() != false)
+                    .ToList();
+                
+                if (itemsInCurrentZone.Any())
+                {
+                    var currentZoneItem = itemsInCurrentZone.First();
+                    if (!LocationMatchesJob(currentZoneItem.Location))
+                    {
+                        if (ChangeGearSet(currentZoneItem.Location.GatheringType.ToGroup(), 2400))
+                        {
+                            return;
+                        }
+                    }
+                }
+                
                 if (Dalamud.Conditions[ConditionFlag.BoundByDuty] && !Functions.InTheDiadem())
                 {
                     AutoStatus = "Can not teleport when bound by duty";

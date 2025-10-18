@@ -173,6 +173,8 @@ namespace GatherBuddy.AutoGather
         
         private DateTime _diademArborCallUsedAt = DateTime.MinValue;
         private Vector3? _diademArborCallTarget = null;
+        
+        private uint _lastNonTimedNodeTerritory = 0;
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
 
