@@ -81,22 +81,18 @@ namespace GatherBuddy.AutoGather.Lists
 
             //Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
             
-            // Get the first item that still needs gathering
             var firstItemNeedingGathering = _gatherableItems.FirstOrDefault(NeedsGathering);
             if (firstItemNeedingGathering == default)
                 return [];
             
             IEnumerable<GatherTarget> nearbyItems = [];
             
-            // For timed nodes, return just the first one that's in range
             if (this.Any(n => !n.Node?.Times.AlwaysUp() ?? false))
             {
                 nearbyItems = [this.First(n => n.Time.InRange(AutoGather.AdjustedServerTime))];
             }
             else
             {
-                // For regular nodes, ONLY return nearby nodes for the FIRST item that needs gathering
-                // This prevents the bot from jumping between different items in the same zone
                 nearbyItems = this
                     .Where(i => i.Item == firstItemNeedingGathering.Item) // Same item only
                     .Where(i => i.Node?.WorldPositions.Keys.Any(nearbyNodes.Contains) ?? false);
@@ -226,7 +222,6 @@ namespace GatherBuddy.AutoGather.Lists
                 )
                 // Prioritize timed nodes first.
                 .OrderBy(x => x.Time == TimeInterval.Always)
-                // Then prioritize nodes matching current job.
                 .ThenBy(x => x.Node.GatheringType.ToGroup() != (Player.Job switch
                 {
                     Job.MIN => GatheringType.Miner,

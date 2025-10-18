@@ -103,8 +103,8 @@ public partial class AutoGather
             }
         }
 
-        //MIN/BTN Actions
         public static readonly BaseAction Prospect      = new(210, 227, 217, 225);
+        public static readonly BaseAction ArborCall     = new(211, 228);
         public static readonly BaseAction Sneak         = new(304, 303, 47);
         public static readonly BaseAction TwelvesBounty = new(282, 280, 825, type: EffectType.CrystalsYield);
         public static readonly BaseAction Bountiful     = new(4087, 4073, 756, type: EffectType.Yield);
@@ -125,7 +125,6 @@ public partial class AutoGather
         public static readonly BaseAction Gift2         = new(25590, 25589, 759, type: EffectType.BoonChance);
         public static readonly BaseAction Tidings       = new(21204, 21203, 2667, type: EffectType.BoonYield);
 
-        //Fishing Actions
         public static readonly FishingAction Cast             = new FishingAction(289);
         public static readonly FishingAction Quit             = new FishingAction(299);
         public static readonly FishingAction Hook             = new FishingAction(296);

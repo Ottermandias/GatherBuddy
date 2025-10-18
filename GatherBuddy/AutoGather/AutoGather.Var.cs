@@ -142,7 +142,6 @@ namespace GatherBuddy.AutoGather
                         result = new Vector2(miniMapGatheringMarker.MapMarker.X / 16, miniMapGatheringMarker.MapMarker.Y / 16);
                         break;
                     }
-                    // GatherBuddy.Log.Information(miniMapGatheringMarker.MapMarker.IconId +  " => X: " + miniMapGatheringMarker.MapMarker.X / 16 + " Y: " + miniMapGatheringMarker.MapMarker.Y / 16);
                 }
 
                 return result;
@@ -163,6 +162,19 @@ namespace GatherBuddy.AutoGather
 
         public readonly HashSet<Vector3> FarNodesSeenSoFar = [];
         public readonly LinkedList<uint> VisitedNodes      = [];
+
+        private readonly Dictionary<Vector3, DateTime> _diademSpawnAreaLastChecked = new();
+        private Vector3? _currentDiademPatrolTarget = null;
+        private const float DiademSpawnAreaCheckRadius = 80f;
+        private const int DiademSpawnAreaRecheckSeconds = 180;
+        
+        private readonly LinkedList<Vector3> _diademRecentlyGatheredNodes = new();
+        private const int DiademNodeRespawnWindow = 8;
+        
+        private DateTime _diademArborCallUsedAt = DateTime.MinValue;
+        private Vector3? _diademArborCallTarget = null;
+        
+        private uint _lastNonTimedNodeTerritory = 0;
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
 

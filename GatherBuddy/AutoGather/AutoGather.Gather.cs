@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using Dalamud.Game.ClientState.Objects.Types;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
@@ -11,6 +11,7 @@ using Dalamud.Game.ClientState.Conditions;
 using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
+using GatherBuddy.Plugin;
 
 namespace GatherBuddy.AutoGather
 {
@@ -110,6 +111,26 @@ namespace GatherBuddy.AutoGather
             if (slot != null)
             {
                 return (fallbackSkills && !slot.IsCollectable, slot);
+            }
+
+            if (Functions.InTheDiadem() && gatherTarget.Any())
+            {
+                var targetLevels = gatherTarget
+                    .Where(gt => gt.Gatherable != null)
+                    .Select(gt => gt.Gatherable!.Level)
+                    .Distinct()
+                    .ToHashSet();
+
+                slot = available
+                    .Where(s => s.Item != null && targetLevels.Contains(s.Item.Level))
+                    .Where(s => !s.Item!.IsTreasureMap && !s.IsCollectable)
+                    .OrderBy(s => s.ItemLevel) // Prioritize lower level slots first (e.g., lv10 before lv60)
+                    .FirstOrDefault();
+
+                if (slot != null)
+                {
+                    return (false, slot); // Gather without skills for substitute items
+                }
             }
 
             //Check if we should and can abandon the node
