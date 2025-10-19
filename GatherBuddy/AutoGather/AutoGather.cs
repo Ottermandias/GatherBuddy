@@ -141,6 +141,7 @@ namespace GatherBuddy.AutoGather
                     _diademRecentlyGatheredNodes.Clear();
                     _diademArborCallUsedAt = DateTime.MinValue;
                     _diademArborCallTarget = null;
+                    _diademVisitedNodes.Clear();
                     _lastNonTimedNodeTerritory = 0;
                 }
                 else
@@ -221,13 +222,20 @@ namespace GatherBuddy.AutoGather
                         _diademRecentlyGatheredNodes.AddLast(targetNode.Position);
                         while (_diademRecentlyGatheredNodes.Count > DiademNodeRespawnWindow)
                             _diademRecentlyGatheredNodes.RemoveFirst();
+                            
+                        _diademVisitedNodes.AddLast(targetNode.Position);
+                        while (_diademVisitedNodes.Count > DiademVisitedNodeTrackingCount)
+                            _diademVisitedNodes.RemoveFirst();
+                            
+                        FarNodesSeenSoFar.Add(targetNode.Position);
                     }
                     
                     if (gatherable != null && (gatherable.NodeType == NodeType.Regular || gatherable.NodeType == NodeType.Ephemeral)
                         && (VisitedNodes.Last?.Value != targetNode.DataId)
                         && node != null && node.WorldPositions.ContainsKey(targetNode.DataId))
                     {
-                        FarNodesSeenSoFar.Clear();
+                        if (!Functions.InTheDiadem())
+                            FarNodesSeenSoFar.Clear();
                         VisitedNodes.AddLast(targetNode.DataId);
                         while (VisitedNodes.Count > (node.WorldPositions.Count <= 4 ? 2 : 4))
                             VisitedNodes.RemoveFirst();
@@ -777,6 +785,21 @@ namespace GatherBuddy.AutoGather
             if (ActivateGatheringBuffs(false))
                 return;
 
+            const float NearbyNodeDistance = 150f;
+            foreach (var visibleNode in allVisibleNodes.Where(node => !node.IsTargetable))
+            {
+                var nodePosition = visibleNode.Position;
+                if (Vector3.Distance(Player.Position, nodePosition) < NearbyNodeDistance)
+                {
+                    if (!FarNodesSeenSoFar.Contains(nodePosition))
+                        FarNodesSeenSoFar.Add(nodePosition);
+                }
+            }
+            
+            const int MaxSeenNodes = 100;
+            if (FarNodesSeenSoFar.Count > MaxSeenNodes)
+                FarNodesSeenSoFar.Clear();
+
             var targetableNodes = allVisibleNodes.Where(o => o.IsTargetable).ToList();
             
             if (targetableNodes.Any())
@@ -784,144 +807,53 @@ namespace GatherBuddy.AutoGather
                 var closestNode = targetableNodes.First();
                 var distance = Vector3.Distance(Player.Position, closestNode.Position);
                 
-                _diademArborCallTarget = null;
-                
                 AutoStatus = $"Moving to Diadem node ({distance:F0}y)...";
                 var targetItem = next.First().Gatherable;
                 MoveToCloseNode(closestNode, targetItem, config);
                 return;
             }
-
-            var now = DateTime.Now;
-            var arborCallExpired = (now - _diademArborCallUsedAt).TotalSeconds > 15;
             
-            if (!_diademArborCallTarget.HasValue || arborCallExpired)
+            AutoStatus = "Searching for next Diadem node...";
+            
+            var currentTerritoryId = Svc.ClientState.TerritoryType;
+            if (!Functions.InTheDiadem())
             {
-                if (Dalamud.Conditions[ConditionFlag.Mounting])
-                {
-                    AutoStatus = "Waiting to finish mounting...";
-                    return;
-                }
-                
-                if (CanAct)
-                {
-                    unsafe
-                    {
-                        var am = ActionManager.Instance();
-                        var actionStatus = am->GetActionStatus(ActionType.Action, Actions.ArborCall.ActionId);
-                        
-                        if (actionStatus == 0)
-                        {
-                            AutoStatus = "Using Arbor Call to locate nodes...";
-                            GatherBuddy.Log.Information($"[Diadem] Using Arbor Call/Lay of the Land (ActionId: {Actions.ArborCall.ActionId})");
-                            
-                            HashSet<Vector2> existingMarkers = new();
-                            unsafe
-                            {
-                                var map = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
-                                var markers = map->MiniMapGatheringMarkers;
-                                if (markers != null)
-                                {
-                                    foreach (var marker in markers)
-                                    {
-                                        if (marker.MapMarker.X != 0 && marker.MapMarker.Y != 0)
-                                        {
-                                            existingMarkers.Add(new Vector2(marker.MapMarker.X, marker.MapMarker.Y));
-                                        }
-                                    }
-                                }
-                            }
-                            
-                            TaskManager.Enqueue(() => am->UseAction(ActionType.Action, Actions.ArborCall.ActionId));
-                            TaskManager.DelayNext(500);
-                            TaskManager.Enqueue(() =>
-                            {
-                                unsafe
-                                {
-                                    var map = FFXIVClientStructs.FFXIV.Client.UI.Agent.AgentMap.Instance();
-                                    var markers = map->MiniMapGatheringMarkers;
-                                    if (markers != null)
-                                    {
-                                        Vector3? closestMarker = null;
-                                        float closestDistance = float.MaxValue;
-                                        
-                                        foreach (var miniMapGatheringMarker in markers)
-                                        {
-                                            if (miniMapGatheringMarker.MapMarker.X != 0 && miniMapGatheringMarker.MapMarker.Y != 0)
-                                            {
-                                                var markerCoord = new Vector2(miniMapGatheringMarker.MapMarker.X, miniMapGatheringMarker.MapMarker.Y);
-                                                
-                                                if (existingMarkers.Contains(markerCoord))
-                                                    continue;
-                                                
-                                                var markerPos = new Vector2(
-                                                    miniMapGatheringMarker.MapMarker.X / 16f,
-                                                    miniMapGatheringMarker.MapMarker.Y / 16f);
-                                                var markerWorld = VNavmesh.Query.Mesh.NearestPoint(
-                                                    new Vector3(markerPos.X, Player.Position.Y, markerPos.Y),
-                                                    10, 10000);
-                                                var distance = Vector3.Distance(Player.Position, markerWorld);
-                                                
-                                                if (distance < closestDistance)
-                                                {
-                                                    closestDistance = distance;
-                                                    closestMarker = markerWorld;
-                                                }
-                                            }
-                                        }
-                                        
-                                        if (closestMarker.HasValue)
-                                        {
-                                            _diademArborCallTarget = closestMarker.Value;
-                                            _diademArborCallUsedAt = DateTime.Now;
-                                            GatherBuddy.Log.Information($"[Diadem] Arbor Call marker found at {closestMarker.Value}, distance: {closestDistance:F1}y");
-                                        }
-                                        else
-                                        {
-                                            GatherBuddy.Log.Warning("[Diadem] No NEW markers found after Arbor Call (may only see clouded/weather nodes)");
-                                        }
-                                    }
-                                }
-                            });
-                            return;
-                        }
-                        else
-                        {
-                            GatherBuddy.Log.Warning($"[Diadem] Arbor Call not available, status: {actionStatus}");
-                        }
-                    }
-                }
-                
-                AutoStatus = "Waiting to use Arbor Call...";
+                AutoStatus = "Not in Diadem, aborting...";
                 return;
             }
             
-            if (_diademArborCallTarget.HasValue)
+            var potentialNodePositions = GatherBuddy.GameData.GatheringNodes.Values
+                .Where(node => node.Territory.Id == currentTerritoryId)
+                .Where(node => node.GatheringType.ToGroup() == currentJob)
+                .SelectMany(node => node.WorldPositions.Values.SelectMany(positions => positions))
+                .Where(pos => !IsBlacklisted(pos))
+                .Where(pos => !_diademVisitedNodes.Any(visited => Vector3.Distance(visited, pos) < DiademNodeProximityThreshold))
+                .Where(pos => !FarNodesSeenSoFar.Contains(pos))
+                .OrderBy(pos => Vector3.Distance(Player.Position, pos))
+                .ToList();
+            
+            if (potentialNodePositions.Any())
             {
-                var distance = Vector3.Distance(Player.Position, _diademArborCallTarget.Value);
+                var targetPosition = potentialNodePositions.First();
+                var distance = Vector3.Distance(Player.Position, targetPosition);
                 
-                if (distance < 30f)
-                {
-                    _diademArborCallTarget = null;
-                    return;
-                }
+                AutoStatus = $"Moving to next Diadem node ({distance:F0}y)...";
                 
-                AutoStatus = $"Heading to Arbor Call marker ({distance:F0}y)...";
-                
-                if (!Dalamud.Conditions[ConditionFlag.Mounted])
+                if (!Dalamud.Conditions[ConditionFlag.Mounted] && distance >= GatherBuddy.Config.AutoGatherConfig.MountUpDistance)
                 {
                     if (GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting)
-                        Navigate(_diademArborCallTarget.Value, false);
+                        Navigate(targetPosition, false);
                     EnqueueMountUp();
                 }
                 else
                 {
-                    Navigate(_diademArborCallTarget.Value, ShouldFly(_diademArborCallTarget.Value));
+                    Navigate(targetPosition, ShouldFly(targetPosition));
                 }
-                return;
             }
-            
-            AutoStatus = "No nodes found, waiting...";
+            else
+            {
+                AutoStatus = "No suitable Diadem nodes found, waiting...";
+            }
         }
 
         private void DoNodeMovement(IEnumerable<GatherTarget> next, ConfigPreset config)

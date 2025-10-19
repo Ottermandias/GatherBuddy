@@ -53,7 +53,16 @@ public partial class Interface
             {
                 using var id    = ImRaii.PushId(idx);
                 using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
-                return ImGui.Selectable(CheckUnnamed(Items[idx].Name), idx == CurrentIdx);
+                var itemCount = Items[idx].Items.Count;
+                var displayName = $"({itemCount}) {CheckUnnamed(Items[idx].Name)}";
+                var isSelected = ImGui.Selectable(displayName, idx == CurrentIdx);
+                
+                if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
+                {
+                    _plugin.AutoGatherListsManager.ToggleList(Items[idx]);
+                }
+                
+                return isSelected;
             }
 
             protected override bool OnDelete(int idx)
@@ -332,6 +341,7 @@ public partial class Interface
           + "items from fallback lists would be gathered instead if they could be found in that node.",
             list.Fallback, (v) => _plugin.AutoGatherListsManager.SetFallback(list, v));
 
+        ImGui.Text($"{list.Items.Count} Items in List");
         ImGui.NewLine();
         ImGui.SetCursorPosX(ImGui.GetCursorPosX() - ImGui.GetStyle().ItemInnerSpacing.X);
         using var box = ImRaii.ListBox("##gatherWindowList", new Vector2(-1.5f * ImGui.GetStyle().ItemSpacing.X, -1));

@@ -48,7 +48,15 @@ namespace GatherBuddy.Gui
             {
                 using var id    = ImRaii.PushId(idx);
                 using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
-                return ImGui.Selectable(CheckUnnamed(Items[idx].Name), idx == CurrentIdx);
+                var isSelected = ImGui.Selectable(CheckUnnamed(Items[idx].Name), idx == CurrentIdx);
+                
+                if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left) && idx != Items.Count - 1)
+                {
+                    Items[idx].Enabled = !Items[idx].Enabled;
+                    Save();
+                }
+                
+                return isSelected;
             }
 
             protected override bool OnDelete(int idx)
