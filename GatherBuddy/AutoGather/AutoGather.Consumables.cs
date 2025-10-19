@@ -57,6 +57,9 @@ namespace GatherBuddy.AutoGather
 
         private static bool IsItemDoLFood(Item item)
         {
+            if (item.RowId is 4751 or 4650 or 4728 or 4745)
+                return true;
+                
             if (item.ItemUICategory.RowId != 46)
                 return false;
             // 10 GP, 71 gathering, 73 perception
