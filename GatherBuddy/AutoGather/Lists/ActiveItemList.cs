@@ -17,7 +17,9 @@ using System.Numerics;
 using ECommons.DalamudServices;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
-
+using GatherBuddy.SeFunctions;
+using UmbralNodes = GatherBuddy.Data.UmbralNodes;
+using EnhancedCurrentWeather = GatherBuddy.SeFunctions.EnhancedCurrentWeather;
 namespace GatherBuddy.AutoGather.Lists
 {
     internal class ActiveItemList : IEnumerable<GatherTarget>, IDisposable
@@ -81,7 +83,52 @@ namespace GatherBuddy.AutoGather.Lists
 
             //Svc.Log.Verbose($"Nearby nodes: {string.Join(", ", nearbyNodes.Select(x => x.ToString("X8")))}.");
             
-            var firstItemNeedingGathering = _gatherableItems.FirstOrDefault(NeedsGathering);
+            GatherTarget firstItemNeedingGathering;
+            if (Plugin.Functions.InTheDiadem())
+            {
+                var currentWeather = EnhancedCurrentWeather.GetCurrentWeatherId();
+                var isUmbralWeather = UmbralNodes.IsUmbralWeather(currentWeather);
+                
+                if (isUmbralWeather)
+                {
+                    var umbralWeatherType = (UmbralNodes.UmbralWeatherType)currentWeather;
+                    var currentJob = Player.Job switch
+                    {
+                        Job.MIN => GatheringType.Miner,
+                        Job.BTN => GatheringType.Botanist,
+                        _ => GatheringType.Unknown
+                    };
+                    
+                    
+                    var priorityUmbralItem = _gatherableItems
+                        .Where(NeedsGathering)
+                        .Where(target => target.Gatherable != null && UmbralNodes.IsUmbralItem(target.Gatherable.ItemId))
+                        .FirstOrDefault(target => 
+                        {
+                            var umbralInfo = UmbralNodes.GetUmbralItemInfo(target.Gatherable.ItemId);
+                            return umbralInfo.HasValue && 
+                                   umbralInfo.Value.Weather == umbralWeatherType;
+                        });
+                    
+                    if (priorityUmbralItem != default)
+                    {
+                        firstItemNeedingGathering = priorityUmbralItem;
+                    }
+                    else
+                    {
+                        firstItemNeedingGathering = _gatherableItems.FirstOrDefault(NeedsGathering);
+                    }
+                }
+                else
+                {
+                    firstItemNeedingGathering = _gatherableItems.FirstOrDefault(NeedsGathering);
+                }
+            }
+            else
+            {
+                firstItemNeedingGathering = _gatherableItems.FirstOrDefault(NeedsGathering);
+            }
+            
             if (firstItemNeedingGathering == default)
                 return [];
             
@@ -93,13 +140,52 @@ namespace GatherBuddy.AutoGather.Lists
             }
             else
             {
-                nearbyItems = this
-                    .Where(i => i.Item == firstItemNeedingGathering.Item) // Same item only
-                    .Where(i => i.Node?.WorldPositions.Keys.Any(nearbyNodes.Contains) ?? false);
+                var isUmbralItem = firstItemNeedingGathering.Gatherable != null && 
+                                  UmbralNodes.IsUmbralItem(firstItemNeedingGathering.Gatherable.ItemId);
+                                  
+                if (isUmbralItem && Plugin.Functions.InTheDiadem())
+                {
+                    var currentWeather = EnhancedCurrentWeather.GetCurrentWeatherId();
+                    var isUmbralWeather = UmbralNodes.IsUmbralWeather(currentWeather);
+                    
+                    if (isUmbralWeather)
+                    {
+                        
+                        var currentJob = Player.Job switch
+                        {
+                            Job.MIN => GatheringType.Miner,
+                            Job.BTN => GatheringType.Botanist,
+                            _ => GatheringType.Unknown
+                        };
+                        var umbralWeather = (UmbralNodes.UmbralWeatherType)currentWeather;
+                        
+                        nearbyItems = _gatherableItems
+                            .Where(target => target.Gatherable != null && UmbralNodes.IsUmbralItem(target.Gatherable.ItemId))
+                            .Where(target => 
+                            {
+                                var umbralInfo = UmbralNodes.GetUmbralItemInfo(target.Gatherable.ItemId);
+                                return umbralInfo.HasValue && 
+                                       umbralInfo.Value.Weather == umbralWeather &&
+                                       UmbralNodes.GetGatheringType(umbralInfo.Value.NodeType) == currentJob;
+                            })
+                            .Where(NeedsGathering);
+                    }
+                    else
+                    {
+                        nearbyItems = [];
+                    }
+                }
+                else
+                {
+                    nearbyItems = this
+                        .Where(i => i.Item == firstItemNeedingGathering.Item)
+                        .Where(i => i.Node?.WorldPositions.Keys.Any(nearbyNodes.Contains) ?? false);
+                }
+                    
             }
 
-            //Svc.Log.Verbose($"Nearby items: ({nearbyItems.Count()}): {string.Join(", ", nearbyItems.Select(x => x.Item.Name))}.");
-            return nearbyItems.Any() ? nearbyItems : [firstItemNeedingGathering];
+            var result = nearbyItems.Any() ? nearbyItems : [firstItemNeedingGathering];
+            return result;
         }
 
         /// <summary>
@@ -268,6 +354,9 @@ namespace GatherBuddy.AutoGather.Lists
             _gatherableItems.Clear();
             _gatherableItems.AddRange(nodes.Select(x => new GatherTarget(x.Item, x.Node, x.Time, x.Quantity)));
             _gatherableItems.AddRange(fish.Select(x => new GatherTarget(x.Fish, x.PreferredLocation, x.Time, x.Quantity)));
+            
+            AddUmbralItemsIfAvailable(adjustedServerTime, minerLevel, botanistLevel);
+            
             Svc.Log.Verbose($"Gatherable items: ({_gatherableItems.Count}): {string.Join(", ", _gatherableItems.Select(x => x.Item.Name))}.");
         }
 
@@ -416,6 +505,77 @@ namespace GatherBuddy.AutoGather.Lists
             _teleportationCosts.TrimExcess();
         }
 
+        private void AddUmbralItemsIfAvailable(TimeStamp adjustedServerTime, int minerLevel, int botanistLevel)
+        {
+            var currentWeather = EnhancedCurrentWeather.GetCurrentWeatherId();
+            var isInDiadem = Plugin.Functions.InTheDiadem();
+            var isUmbralWeather = UmbralNodes.IsUmbralWeather(currentWeather);
+            
+            if (!isUmbralWeather || !isInDiadem)
+                return;
+                
+            var umbralWeatherType = (UmbralNodes.UmbralWeatherType)currentWeather;
+            
+            var umbralItemsToGather = _listsManager.ActiveItems
+                .Where(NeedsGathering)
+                .Where(x => UmbralNodes.UmbralNodeData.Any(entry => entry.ItemIds.Contains(x.Item.ItemId)))
+                .Where(x => (RequiresHomeWorld(x) && Plugin.Functions.OnHomeWorld()) || !RequiresHomeWorld(x))
+                .ToList();
+                
+            if (!umbralItemsToGather.Any())
+                return;
+                
+            foreach (var itemEntry in umbralItemsToGather)
+            {
+                var item = itemEntry.Item;
+                var quantity = itemEntry.Quantity;
+                
+                var umbralNodeEntry = UmbralNodes.UmbralNodeData.FirstOrDefault(entry => 
+                    entry.ItemIds.Contains(item.ItemId));
+                    
+                if (umbralNodeEntry.NodeId == 0)
+                    continue;
+                    
+                var itemGatheringType = item.GatheringType.ToGroup();
+                
+                var umbralGatheringType = umbralNodeEntry.NodeType switch
+                {
+                    UmbralNodes.CloudedNodeType.CloudedRockyOutcrop => GatheringType.Miner,
+                    UmbralNodes.CloudedNodeType.CloudedMineralDeposit => GatheringType.Miner,
+                    UmbralNodes.CloudedNodeType.CloudedMatureTree => GatheringType.Botanist,
+                    UmbralNodes.CloudedNodeType.CloudedLushVegetation => GatheringType.Botanist,
+                    _ => itemGatheringType
+                };
+                
+                if (umbralNodeEntry.Weather != umbralWeatherType)
+                    continue;
+                
+                var requiredLevel = item.Level;
+                var playerLevel = umbralGatheringType switch
+                {
+                    GatheringType.Miner => minerLevel,
+                    GatheringType.Botanist => botanistLevel,
+                    _ => 0
+                };
+                
+                if (requiredLevel > playerLevel)
+                    continue;
+                    
+                var currentTerritoryId = Dalamud.ClientState.TerritoryType;
+                var templateNode = GatherBuddy.GameData.GatheringNodes.Values
+                    .Where(node => node.Territory.Id is 901 or 929 or 939 && 
+                        node.GatheringType.ToGroup() == umbralGatheringType)
+                    .OrderBy(node => node.Territory.Id == currentTerritoryId ? 0 : 1)
+                    .FirstOrDefault();
+                        
+                if (templateNode != null)
+                {
+                    var gatherTarget = new GatherTarget(item, templateNode, TimeInterval.Always, quantity);
+                    _gatherableItems.Add(gatherTarget);
+                }
+            }
+        }
+
         public void Dispose()
         {
             if (_listsManager != null)
@@ -424,6 +584,8 @@ namespace GatherBuddy.AutoGather.Lists
             }
         }
     }
+
+
 
     public record struct GatherTarget(IGatherable Item, ILocation Location, TimeInterval Time, uint Quantity)
     {

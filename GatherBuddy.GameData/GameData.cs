@@ -189,6 +189,7 @@ public class GameData
 
             HiddenMaps.Apply(this);
             ForcedAetherytes.Apply(this);
+            UmbralNodes.Apply(this);
 
             OceanRoutes   = SetupOceanRoutes(gameData, FishingSpots);
             OceanTimeline = new OceanTimeline(gameData, OceanRoutes);

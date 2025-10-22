@@ -9,6 +9,7 @@ using Dalamud.Interface;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
+using GatherBuddy.Data;
 using GatherBuddy.Config;
 using GatherBuddy.CustomInfo;
 using GatherBuddy.Plugin;
@@ -150,7 +151,7 @@ public partial class Interface
         {
             var all = GatherBuddy.GameData.Gatherables.Values
                 .Where(g => g.NodeList.SelectMany(l => l.WorldPositions.Values)
-                    .SelectMany(p => p).Any())
+                    .SelectMany(p => p).Any() || UmbralNodes.IsUmbralItem(g.ItemId)) // Include umbral items
                 .Cast<IGatherable>()
                 .Concat(GatherBuddy.GameData.Fishes.Values)
                 .GroupBy(g => g.ItemId)
@@ -287,7 +288,7 @@ public partial class Interface
                     {
                         var gatherable =
                             GatherBuddy.GameData.Gatherables.Values.FirstOrDefault(g => g.Name[Dalamud.ClientState.ClientLanguage] == itemName);
-                        if (gatherable == null || gatherable.NodeList.Count == 0)
+                        if (gatherable == null || (gatherable.NodeList.Count == 0 && !UmbralNodes.IsUmbralItem(gatherable.ItemId)))
                             continue;
 
                         list.Add(gatherable, (uint)quantity);
