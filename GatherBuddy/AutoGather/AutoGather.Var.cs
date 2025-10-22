@@ -178,6 +178,10 @@ namespace GatherBuddy.AutoGather
         private const int DiademVisitedNodeTrackingCount = 20;
         private const float DiademNodeProximityThreshold = 5f;
         
+        private uint _lastUmbralWeather = 0;
+        private bool _hasGatheredUmbralThisSession = false;
+        private uint _lastTerritory = 0;
+        
         private uint _lastNonTimedNodeTerritory = 0;
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;

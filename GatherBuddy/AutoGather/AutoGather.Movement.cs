@@ -3,8 +3,10 @@ using ECommons.GameHelpers;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.CustomInfo;
+using GatherBuddy.Data;
 using GatherBuddy.Interfaces;
 using GatherBuddy.Plugin;
+using GatherBuddy.SeFunctions;
 using System;
 using System.Linq;
 using System.Numerics;
@@ -82,6 +84,7 @@ namespace GatherBuddy.AutoGather
 
             if (hSeparation < 3.5)
             {
+                
                 var waitGP = targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.CollectableMinGP;
                 waitGP |= !targetItem.ItemData.IsCollectable && Player.Object.CurrentGp < config.GatherableMinGP;
 
@@ -133,17 +136,45 @@ namespace GatherBuddy.AutoGather
                             return;
                         }
 
-                        if (vSeparation < 3)                        
-                            if (targetItem.GatheringType.ToGroup() != JobAsGatheringType && targetItem.GatheringType != GatheringType.Multiple) {
-                                if (ChangeGearSet(targetItem.GatheringType.ToGroup(), 0)){
+                        if (vSeparation < 3)
+                        {
+                            
+                            var targetGatheringType = targetItem.GatheringType.ToGroup();
+                            var isUmbralItem = UmbralNodes.IsUmbralItem(targetItem.ItemId);
+                            if (isUmbralItem && Functions.InTheDiadem())
+                            {
+                                var currentWeather = EnhancedCurrentWeather.GetCurrentWeatherId();
+                                if (UmbralNodes.IsUmbralWeather(currentWeather))
+                                {
+                                    var umbralWeather = (UmbralNodes.UmbralWeatherType)currentWeather;
+                                    targetGatheringType = umbralWeather switch
+                                    {
+                                        UmbralNodes.UmbralWeatherType.UmbralFlare => GatheringType.Miner,
+                                        UmbralNodes.UmbralWeatherType.UmbralLevin => GatheringType.Miner,
+                                        UmbralNodes.UmbralWeatherType.UmbralDuststorms => GatheringType.Botanist,
+                                        UmbralNodes.UmbralWeatherType.UmbralTempest => GatheringType.Botanist,
+                                        _ => targetGatheringType
+                                    };
+                                }
+                            }
+                            
+                            var shouldSkipJobSwitch = Functions.InTheDiadem() && _hasGatheredUmbralThisSession;
+                            
+                            if (targetGatheringType != JobAsGatheringType && targetGatheringType != GatheringType.Multiple && !shouldSkipJobSwitch) {
+                                if (ChangeGearSet(targetGatheringType, 0)){
                                     EnqueueNodeInteraction(gameObject, targetItem);
                                 } else {
                                     AbortAutoGather();
                                 }
                             }
                             else {
+                                if (shouldSkipJobSwitch && targetGatheringType != JobAsGatheringType)
+                                {
+                                    Svc.Log.Information($"[Umbral] Skipping job switch at node after umbral gathering (staying on {JobAsGatheringType})");
+                                }
                                 EnqueueNodeInteraction(gameObject, targetItem);
                             }
+                        }
 
                         // The node could be behind a rock or a tree and not be interactable. This happened in the Endwalker, but seems not to be reproducible in the Dawntrail.
                         // Enqueue navigation anyway, just in case.

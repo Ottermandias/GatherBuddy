@@ -1,4 +1,6 @@
-﻿using Dalamud.Game;
+using Dalamud.Game;
+using FFXIVClientStructs.FFXIV.Client.Game;
+using GatherBuddy.Plugin;
 
 namespace GatherBuddy.SeFunctions;
 
@@ -18,5 +20,20 @@ public sealed class CurrentWeather : SeAddressBase
     { }
 
     public unsafe byte Current
-        => *(byte*)Address;
+    {
+        get
+        {
+            if (Functions.InTheDiadem())
+            {
+                var weatherManager = WeatherManager.Instance();
+                if (weatherManager != null)
+                {
+                    return weatherManager->GetCurrentWeather();
+                }
+            }
+            
+            // normal detection for non-Diadem
+            return *(byte*)Address;
+        }
+    }
 }

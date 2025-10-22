@@ -33,8 +33,10 @@ using System.Collections;
 using ECommons;
 using ECommons.ExcelServices;
 using GatherBuddy.AutoGather.Lists;
-using Action = System.Action;
+using GatherBuddy.SeFunctions;
+using Newtonsoft.Json;
 using Effects = GatherBuddy.Models.Effects;
+using Action = System.Action;
 
 namespace GatherBuddy.Gui;
 
@@ -170,6 +172,21 @@ public partial class Interface
                 _plugin.AutoGatherListsManager.AddList(list);
             }
 
+
+            if (ImGui.Button("Test Enhanced Weather"))
+            {
+                var enhancedWeather = EnhancedCurrentWeather.GetCurrentWeatherWithDebug();
+                var originalWeather = GatherBuddy.CurrentWeather.Current;
+                
+                GatherBuddy.Log.Information($"[Weather Test] Enhanced: {enhancedWeather}, Original: {originalWeather}");
+                
+                if (GatherBuddy.GameData.Weathers.TryGetValue(enhancedWeather, out var eWeather))
+                    GatherBuddy.Log.Information($"[Weather Test] Enhanced Weather Name: {eWeather.Name}");
+                    
+                if (GatherBuddy.GameData.Weathers.TryGetValue(originalWeather, out var oWeather))
+                    GatherBuddy.Log.Information($"[Weather Test] Original Weather Name: {oWeather.Name}");
+            }
+
             if (FishTimerWindow.CollectableIcon.TryGetWrap(out var wrapCollectable, out _))
                 ImGui.Image(wrapCollectable.Handle, wrapCollectable.Size);
 
@@ -218,6 +235,12 @@ public partial class Interface
          && GatherBuddy.GameData.Weathers.TryGetValue(GatherBuddy.CurrentWeather.Current, out var w)
                 ? w.Name
                 : "None");
+        ImGuiUtil.DrawTableColumn("Enhanced Weather (ClientStructs)");
+        var enhancedId = EnhancedCurrentWeather.GetCurrentWeatherId();
+        ImGuiUtil.DrawTableColumn(Dalamud.ClientState.TerritoryType != 0
+         && GatherBuddy.GameData.Weathers.TryGetValue(enhancedId, out var ew)
+                ? $"{ew.Name} ({enhancedId})"
+                : $"None ({enhancedId})");
     }
 
     private static unsafe void DrawDebugFishingState()
