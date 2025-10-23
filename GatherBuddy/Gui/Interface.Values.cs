@@ -26,7 +26,7 @@ public partial class Interface
         Scale             = ImGuiHelpers.GlobalScale;
         ItemSpacing       = ImGui.GetStyle().ItemSpacing;
         FramePadding      = ImGui.GetStyle().FramePadding;
-        SelectorWidth     = Math.Max(ImGui.GetWindowSize().X * 0.15f, 150 * Scale);
+        SelectorWidth     = Math.Max(ImGui.GetWindowSize().X * 0.15f, 225 * Scale);
         SetInputWidth     = 200f * ImGuiHelpers.GlobalScale;
         TextHeight        = ImGui.GetTextLineHeight();
         TextHeightSpacing = ImGui.GetTextLineHeightWithSpacing();

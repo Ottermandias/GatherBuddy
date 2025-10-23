@@ -39,98 +39,23 @@ public partial class Interface
         }
     }
 
+    private static AutoGatherListsDragDropData? _dragDropData;
+
     private class AutoGatherListsCache : IDisposable
     {
-        public class AutoGatherListSelector : ItemSelector<AutoGatherList>
-        {
-            public AutoGatherListSelector()
-                : base(_plugin.AutoGatherListsManager.Lists, Flags.All)
-            { }
-
-            protected override bool Filtered(int idx)
-                => Filter.Length != 0 && !Items[idx].Name.Contains(Filter, StringComparison.InvariantCultureIgnoreCase);
-
-            protected override bool OnDraw(int idx)
-            {
-                using var id    = ImRaii.PushId(idx);
-                using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !Items[idx].Enabled);
-                var itemCount = Items[idx].Items.Count;
-                var displayName = $"({itemCount}) {CheckUnnamed(Items[idx].Name)}";
-                var isSelected = ImGui.Selectable(displayName, idx == CurrentIdx);
-                
-                if (ImGui.IsItemHovered() && ImGui.IsMouseDoubleClicked(ImGuiMouseButton.Left))
-                {
-                    _plugin.AutoGatherListsManager.ToggleList(Items[idx]);
-                }
-                
-                return isSelected;
-            }
-
-            protected override bool OnDelete(int idx)
-            {
-                _plugin.AutoGatherListsManager.DeleteList(idx);
-                return true;
-            }
-
-            protected override bool OnAdd(string name)
-            {
-                var list = new AutoGatherList()
-                {
-                    Name = name,
-                };
-                _plugin.AutoGatherListsManager.AddList(list);
-                return true;
-            }
-
-            protected override bool OnClipboardImport(string name, string data)
-            {
-                if (!AutoGatherList.Config.FromBase64(data, out var cfg))
-                    return false;
-
-                AutoGatherList.FromConfig(cfg, out var list);
-                list.Name = name;
-                _plugin.AutoGatherListsManager.AddList(list);
-                return true;
-            }
-
-            protected override bool OnDuplicate(string name, int idx)
-            {
-                if (Items.Count <= idx || idx < 0)
-                    return false;
-
-                var list = _plugin.AutoGatherListsManager.Lists[idx].Clone();
-                list.Name = name;
-                _plugin.AutoGatherListsManager.AddList(list);
-                return true;
-            }
-
-            protected override void OnDrop(object? data, int idx)
-            {
-                if (Items.Count <= idx || idx < 0)
-                    return;
-                if (data is not AutoGatherListsDragDropData obj)
-                    return;
-
-                var list = _plugin.AutoGatherListsManager.Lists[idx];
-                _plugin.AutoGatherListsManager.RemoveItem(obj.list, obj.ItemIdx);
-                _plugin.AutoGatherListsManager.AddItem(list, obj.Item);
-            }
-
-
-            protected override bool OnMove(int idx1, int idx2)
-            {
-                _plugin.AutoGatherListsManager.MoveList(idx1, idx2);
-                return true;
-            }
-        }
-
         public AutoGatherListsCache()
         {
             UpdateGatherables();
             WorldData.WorldLocationsChanged += UpdateGatherables;
+            _plugin.AutoGatherListsManager.ListOrderChanged += OnListOrderChanged;
         }
 
-        public readonly AutoGatherListSelector Selector = new();
+        private void OnListOrderChanged()
+        {
+            Selector.RefreshView();
+        }
+
+        public readonly AutoGatherListFileSystemSelector Selector = new();
 
         public  ReadOnlyCollection<IGatherable>     AllGatherables      { get; private set; }
         public  ReadOnlyCollection<IGatherable>     FilteredGatherables { get; private set; }
@@ -191,6 +116,7 @@ public partial class Interface
         public void Dispose()
         {
             WorldData.WorldLocationsChanged -= UpdateGatherables;
+            _plugin.AutoGatherListsManager.ListOrderChanged -= OnListOrderChanged;
         }
 
         public int  NewGatherableIdx;
@@ -201,14 +127,14 @@ public partial class Interface
     private readonly AutoGatherListsCache _autoGatherListsCache;
 
     public AutoGatherList? CurrentAutoGatherList
-        => _autoGatherListsCache.Selector.EnsureCurrent();
+        => _autoGatherListsCache.Selector.Selected;
 
     private void DrawAutoGatherListsLine()
     {
         if (ImGuiUtil.DrawDisabledButton(FontAwesomeIcon.Copy.ToIconString(), IconButtonSize, "Copy current auto-gather list to clipboard.",
-                _autoGatherListsCache.Selector.Current == null, true))
+                _autoGatherListsCache.Selector.Selected == null, true))
         {
-            var list = _autoGatherListsCache.Selector.Current!;
+            var list = _autoGatherListsCache.Selector.Selected!;
             try
             {
                 var s = new AutoGatherList.Config(list).ToBase64();
@@ -261,7 +187,7 @@ public partial class Interface
         }
 
         if (ImGuiUtil.DrawDisabledButton("Import from TeamCraft", Vector2.Zero, "Populate list from clipboard contents (TeamCraft format)",
-                _autoGatherListsCache.Selector.Current == null))
+                _autoGatherListsCache.Selector.Selected == null))
         {
             var clipboardText = ImGuiUtil.GetClipboardText();
             if (!string.IsNullOrEmpty(clipboardText))
@@ -282,7 +208,7 @@ public partial class Interface
                         items[itemName] = quantity;
                     }
 
-                    var list = _autoGatherListsCache.Selector.Current!;
+                    var list = _autoGatherListsCache.Selector.Selected!;
 
                     foreach (var (itemName, quantity) in items)
                     {
@@ -390,11 +316,26 @@ public partial class Interface
                 _plugin.AutoGatherListsManager.ChangePreferredLocation(list, item, newLoc);
             group.Dispose();
 
-            _autoGatherListsCache.Selector.CreateDropSource(new AutoGatherListsDragDropData(list, item, i), item.Name[GatherBuddy.Language]);
+            // Custom drag-drop for moving items within and between lists
+            using (var source = ImRaii.DragDropSource())
+            {
+                if (source.Success)
+                {
+                    _dragDropData = new AutoGatherListsDragDropData(list, item, i);
+                    ImGui.SetDragDropPayload("AutoGatherListItem", ReadOnlySpan<byte>.Empty);
+                    ImGui.TextUnformatted(item.Name[GatherBuddy.Language]);
+                }
+            }
 
             var localIdx = i;
-            _autoGatherListsCache.Selector.CreateDropTarget<AutoGatherListsDragDropData>(d
-                => _plugin.AutoGatherListsManager.MoveItem(d.list, d.ItemIdx, localIdx));
+            using (var target = ImRaii.DragDropTarget())
+            {
+                if (target.Success && ImGuiUtil.IsDropping("AutoGatherListItem") && _dragDropData != null)
+                {
+                    _plugin.AutoGatherListsManager.MoveItem(_dragDropData.list, _dragDropData.ItemIdx, localIdx);
+                    _dragDropData = null;
+                }
+            }
         }
 
         if (deleteIndex >= 0)
@@ -436,13 +377,29 @@ public partial class Interface
 
         AutoGather.AutoGatherUI.DrawAutoGatherStatus();
 
-        _autoGatherListsCache.Selector.Draw(SelectorWidth);
+        var selectorWidth = _autoGatherListsCache.Selector.SelectorWidth;
+        using (var child = ImRaii.Child("AutoGatherListSelector", new Vector2(selectorWidth, -1), false))
+        {
+            if (child)
+                _autoGatherListsCache.Selector.Draw();
+        }
+
+        ImGui.SameLine();
+        ImGui.Button("##splitter", new Vector2(4, -1));
+        if (ImGui.IsItemActive())
+        {
+            var delta = ImGui.GetIO().MouseDelta.X;
+            selectorWidth += delta;
+            selectorWidth = Math.Clamp(selectorWidth, 150f * Scale, ImGui.GetWindowWidth() * 0.5f);
+            _autoGatherListsCache.Selector.SelectorWidth = selectorWidth;
+        }
+
         ImGui.SameLine();
 
         ItemDetailsWindow.Draw("List Details", DrawAutoGatherListsLine, () =>
         {
-            if (_autoGatherListsCache.Selector.Current != null)
-                DrawAutoGatherList(_autoGatherListsCache.Selector.Current);
+            if (_autoGatherListsCache.Selector.Selected != null)
+                DrawAutoGatherList(_autoGatherListsCache.Selector.Selected);
         });
     }
 }
