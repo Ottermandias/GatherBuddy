@@ -76,7 +76,13 @@ public partial class Interface
         {
             var all = GatherBuddy.GameData.Gatherables.Values
                 .Where(g => g.NodeList.SelectMany(l => l.WorldPositions.Values)
-                    .SelectMany(p => p).Any() || UmbralNodes.IsUmbralItem(g.ItemId)) // Include umbral items
+                    .SelectMany(p => p).Any() 
+                    || UmbralNodes.IsUmbralItem(g.ItemId) // Include umbral items
+                    || (g.NodeList.Any(n => n.Territory.Id is 901 or 929 or 939) // Include Diadem items
+                        && (g.Name[GatherBuddy.Language].Contains("Grade 4") // Grade 4: include all
+                            || (g.Name[GatherBuddy.Language].Contains("Artisanal") // Grade 2/3: only Artisanal
+                                && (g.Name[GatherBuddy.Language].Contains("Grade 2") 
+                                    || g.Name[GatherBuddy.Language].Contains("Grade 3"))))))
                 .Cast<IGatherable>()
                 .Concat(GatherBuddy.GameData.Fishes.Values)
                 .GroupBy(g => g.ItemId)
@@ -214,7 +220,13 @@ public partial class Interface
                     {
                         var gatherable =
                             GatherBuddy.GameData.Gatherables.Values.FirstOrDefault(g => g.Name[Dalamud.ClientState.ClientLanguage] == itemName);
-                        if (gatherable == null || (gatherable.NodeList.Count == 0 && !UmbralNodes.IsUmbralItem(gatherable.ItemId)))
+                        if (gatherable == null || (gatherable.NodeList.Count == 0 
+                            && !UmbralNodes.IsUmbralItem(gatherable.ItemId) 
+                            && !(gatherable.NodeList.Any(n => n.Territory.Id is 901 or 929 or 939)
+                                && (gatherable.Name[Dalamud.ClientState.ClientLanguage].Contains("Grade 4")
+                                    || (gatherable.Name[Dalamud.ClientState.ClientLanguage].Contains("Artisanal")
+                                        && (gatherable.Name[Dalamud.ClientState.ClientLanguage].Contains("Grade 2") 
+                                            || gatherable.Name[Dalamud.ClientState.ClientLanguage].Contains("Grade 3")))))))
                             continue;
 
                         list.Add(gatherable, (uint)quantity);

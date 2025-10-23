@@ -737,7 +737,11 @@ namespace GatherBuddy.AutoGather
             }
 
             
-            if (next.First().Location.Territory.Id != territoryId)
+            // fuck Diadem. Covering all zoneIDs for Diadem to gather g2/3/4.
+            var isCurrentDiadem = territoryId is 901 or 929 or 939;
+            var isTargetDiadem = next.First().Location.Territory.Id is 901 or 929 or 939;
+            
+            if (next.First().Location.Territory.Id != territoryId && !(isCurrentDiadem && isTargetDiadem))
             {
                 if (_lastNonTimedNodeTerritory != 0 && _lastNonTimedNodeTerritory != territoryId)
                 {
