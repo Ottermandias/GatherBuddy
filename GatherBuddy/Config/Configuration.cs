@@ -59,7 +59,8 @@ public partial class Configuration : IPluginConfiguration
     public GatheringType    PreferredGatheringType    { get; set; } = GatheringType.Multiple;
 
     // AutoGather Config
-    public AutoGatherConfig AutoGatherConfig { get; set; } = new();
+    public AutoGatherConfig AutoGatherConfig              { get; set; } = new();
+    public float            AutoGatherListSelectorWidth { get; set; } = 225f;
 
     // Weather tab
     public bool ShowWeatherNames { get; set; } = true;

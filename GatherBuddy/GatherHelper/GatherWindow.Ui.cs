@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
@@ -8,6 +8,7 @@ using Dalamud.Game.ClientState.Keys;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
 using GatherBuddy.AutoGather.Extensions;
+using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
@@ -23,9 +24,10 @@ public class GatherWindow : Window
 {
     private readonly GatherBuddy _plugin;
 
-    private int       _deleteSet              = -1;
-    private int       _deleteItemIdx          = -1;
-    private bool      _deleteAutoGather;
+    private int              _deleteSet        = -1;
+    private int              _deleteItemIdx    = -1;
+    private bool             _deleteAutoGather;
+    private AutoGatherList?  _deleteListObj    = null;
     private TimeStamp _earliestKeyboardToggle = TimeStamp.Epoch;
     private Vector2   _lastSize               = Vector2.Zero;
     private Vector2   _newPosition            = Vector2.Zero;
@@ -154,9 +156,8 @@ public class GatherWindow : Window
 
             if (clicked && Functions.CheckModifier(GatherBuddy.Config.GatherWindowDeleteModifier, false))
                 if (quantity > 0)
-                    for (var i = 0; i < _plugin.AutoGatherListsManager.Lists.Count; ++i)
+                    foreach (var list in _plugin.AutoGatherListsManager.Lists)
                     {
-                        var list = _plugin.AutoGatherListsManager.Lists[i];
                         if (!list.Enabled)
                             continue;
 
@@ -166,7 +167,7 @@ public class GatherWindow : Window
                         if (idx < 0)
                             continue;
 
-                        _deleteSet = i;
+                        _deleteListObj = list;
                         _deleteItemIdx = idx;
                         _deleteAutoGather = true;
                         break;
@@ -196,20 +197,20 @@ public class GatherWindow : Window
 
     private void DeleteItem()
     {
-        if (_deleteSet < 0 || _deleteItemIdx < 0)
+        if (_deleteItemIdx < 0)
             return;
 
-        if (_deleteAutoGather)
+        if (_deleteAutoGather && _deleteListObj != null)
         {
-            var list = _plugin.AutoGatherListsManager.Lists[_deleteSet];
-            _plugin.AutoGatherListsManager.RemoveItem(list, _deleteItemIdx);
+            _plugin.AutoGatherListsManager.RemoveItem(_deleteListObj, _deleteItemIdx);
+            _deleteListObj = null;
         }
-        else
+        else if (!_deleteAutoGather && _deleteSet >= 0)
         {
             var preset = _plugin.GatherWindowManager.Presets[_deleteSet];
             _plugin.GatherWindowManager.RemoveItem(preset, _deleteItemIdx);
+            _deleteSet = -1;
         }
-        _deleteSet     = -1;
         _deleteItemIdx = -1;
     }
 

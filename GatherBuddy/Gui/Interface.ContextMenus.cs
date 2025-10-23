@@ -215,7 +215,7 @@ public partial class Interface
 
     private void DrawAddToAutoGather(IGatherable item)
     {
-        var current = _autoGatherListsCache.Selector.EnsureCurrent();
+        var current = _autoGatherListsCache.Selector.Selected;
 
         if (ImGui.Selectable("Add to Auto-Gather List"))
         {

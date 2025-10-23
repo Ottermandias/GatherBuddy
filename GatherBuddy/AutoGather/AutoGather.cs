@@ -631,6 +631,20 @@ namespace GatherBuddy.AutoGather
 
             if (territoryId == 886 && next.First().Node.Territory.Id is 901 or 929 or 939)
             {
+                if (JobAsGatheringType == GatheringType.Unknown)
+                {
+                    var requiredGatheringType = next.First().Location.GatheringType.ToGroup();
+                    if (ChangeGearSet(requiredGatheringType, 2400))
+                    {
+                        return;
+                    }
+                    else
+                    {
+                        AbortAutoGather();
+                        return;
+                    }
+                }
+                
                 var dutyNpc                    = Svc.Objects.FirstOrDefault(o => o.DataId == 1031694);
                 var selectStringAddon          = Dalamud.GameGui.GetAddonByName("SelectString");
                 var talkAddon                  = Dalamud.GameGui.GetAddonByName("Talk");
