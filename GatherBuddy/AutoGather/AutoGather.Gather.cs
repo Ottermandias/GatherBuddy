@@ -11,7 +11,9 @@ using Dalamud.Game.ClientState.Conditions;
 using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
+using GatherBuddy.Data;
 using GatherBuddy.Plugin;
+using ECommons.GameHelpers;
 
 namespace GatherBuddy.AutoGather
 {
@@ -25,6 +27,31 @@ namespace GatherBuddy.AutoGather
 
             TaskManager.Enqueue(() => targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address));
             TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.Gathering], 500);
+            
+            TaskManager.Enqueue(() => {
+                if (!Dalamud.Conditions[ConditionFlag.Gathering])
+                {
+                    targetSystem->OpenObjectInteraction((FFXIVClientStructs.FFXIV.Client.Game.Object.GameObject*)gameObject.Address);
+                }
+            });
+            TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.Gathering], 500);
+            
+            TaskManager.Enqueue(() => {
+                if (!Dalamud.Conditions[ConditionFlag.Gathering] && Dalamud.Conditions[ConditionFlag.Mounted] && Dalamud.Conditions[ConditionFlag.InFlight] && !Dalamud.Conditions[ConditionFlag.Diving])
+                {
+                    try
+                    {
+                        var floor = VNavmesh.Query.Mesh.PointOnFloor(Player.Position, false, 3);
+                        Navigate(floor, true);
+                        TaskManager.Enqueue(() => !IsPathGenerating);
+                        TaskManager.DelayNext(50);
+                        TaskManager.Enqueue(() => !IsPathing, 1000);
+                        EnqueueDismount();
+                    }
+                    catch { }
+                    TaskManager.Enqueue(() => { if (Dalamud.Conditions[ConditionFlag.Mounted]) _advancedUnstuck.Force(); });
+                }
+            });
         }
 
         private unsafe void EnqueueGatherItem(ItemSlot slot)
@@ -129,7 +156,7 @@ namespace GatherBuddy.AutoGather
 
                 if (slot != null)
                 {
-                    return (false, slot); // Gather without skills for substitute items
+                    return (true, slot);
                 }
             }
 

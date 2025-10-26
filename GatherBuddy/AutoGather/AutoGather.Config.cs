@@ -43,6 +43,8 @@ namespace GatherBuddy.AutoGather
         public int TimedNodePrecog { get; set; } = 20;
         public bool DoGathering { get; set; } = true;
         public bool AutoRetainerMultiMode { get; set; } = false;
+        public int AutoRetainerMultiModeThreshold { get; set; } = 300;
+        public bool AutoRetainerDelayForTimedNodes { get; set; } = true;
         [Obsolete] public uint MinimumGPForGathering { get; set; } = 0;
         [Obsolete] public uint MinimumGPForCollectableRotation { get; set; } = 700;
         [Obsolete] public bool AlwaysUseSolidAgeCollectables { get; set; } = false;

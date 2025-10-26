@@ -74,8 +74,7 @@ public partial class Interface
             var flag = selected ? ImGuiTreeNodeFlags.Selected | LeafFlags : LeafFlags;
             
             using var color = ImRaii.PushColor(ImGuiCol.Text, ColorId.DisabledText.Value(), !list.Enabled);
-            var itemCount = list.Items.Count;
-            var displayName = $"({itemCount}) {CheckUnnamed(list.Name)}";
+            var displayName = CheckUnnamed(list.Name);
             
             using var _ = ImRaii.TreeNode(displayName, flag);
             

@@ -216,6 +216,9 @@ namespace GatherBuddy.Plugin
 
         [EzIPC("Lifestream.AethernetTeleport", applyPrefix: false)]
         internal static readonly Func<string, bool> AethernetTeleport;
+        
+        [EzIPC("Lifestream.ChangeCharacter", applyPrefix: false)]
+        internal static readonly Func<string, string, int> ChangeCharacter;
     }
 
     internal static class YesAlready
@@ -282,6 +285,10 @@ namespace GatherBuddy.Plugin
         [EzIPC] internal static readonly Action EnableMultiMode;
         [EzIPC] internal static readonly Func<int> GetInventoryFreeSlotCount;
         [EzIPC] internal static readonly Action EnqueueHET;
+        [EzIPC] internal static readonly Func<ulong, long?> GetClosestRetainerVentureSecondsRemaining;
+        [EzIPC] internal static readonly Func<bool> CanAutoLogin;
+        [EzIPC] internal static readonly Func<string, bool> Relog;
         [EzIPC("AutoRetainer.GC.EnqueueInitiation", applyPrefix: false)] internal static readonly Action EnqueueGCInitiation;
+        [EzIPC("AutoRetainer.GetRegisteredCIDs", applyPrefix: false)] internal static readonly Func<List<ulong>> GetRegisteredCIDs;
     }
 }

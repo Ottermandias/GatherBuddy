@@ -11,6 +11,7 @@ using ECommons.ExcelServices;
 using ECommons;
 using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.CustomInfo;
+using GatherBuddy.Data;
 
 namespace GatherBuddy.AutoGather.Helpers
 {
@@ -255,7 +256,8 @@ namespace GatherBuddy.AutoGather.Helpers
         {
             Debug.Assert(Svc.Framework.IsInFrameworkUpdateThread);
 
-            if (slot.IsRare) return [null];
+            var isUmbralItem = slot.Item != null && Data.UmbralNodes.IsUmbralItem(slot.Item.ItemId);
+            if (slot.IsRare && !isUmbralItem) return [null];
 
             var timer = new Stopwatch();
             timer.Start();
@@ -300,6 +302,10 @@ namespace GatherBuddy.AutoGather.Helpers
                 await Task.Run(() => SolveInternal(state));
             }
             else if (slot.Item.NodeType is Enums.NodeType.Regular)
+            {
+                await SolveForRegularNodes(state);
+            }
+            else if (isUmbralItem)
             {
                 await SolveForRegularNodes(state);
             }
