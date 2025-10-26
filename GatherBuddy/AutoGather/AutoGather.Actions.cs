@@ -13,6 +13,7 @@ using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Extensions;
 using GatherBuddy.AutoGather.Lists;
+using GatherBuddy.Data;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
 using GatherBuddy.Plugin;
@@ -345,8 +346,11 @@ namespace GatherBuddy.AutoGather
             {
                 var configPreset = MatchConfigPreset(slot.Item);
                 var config       = configPreset.GatherableActions;
+                
+                var isUmbralItem = UmbralNodes.IsUmbralItem(slot.Item.ItemId);
+                var forceAutomaticActions = isUmbralItem; // Umbral items always use automatic action selection
 
-                if (configPreset.ChooseBestActionsAutomatically)
+                if (configPreset.ChooseBestActionsAutomatically || forceAutomaticActions)
                 {
                     if (ShouldUseWise(GatheringWindowReader.IntegrityRemaining, GatheringWindowReader.IntegrityMax))
                     {

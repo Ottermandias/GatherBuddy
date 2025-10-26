@@ -146,6 +146,24 @@ public partial class Interface
             ImGuiEx.PluginAvailabilityIndicator([new ImGuiEx.RequiredPluginInfo("AutoRetainer")]);
         }
 
+        public static void DrawAutoretainerThreshold()
+        {
+            var tmp = GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiModeThreshold;
+            if (ImGui.DragInt("AutoRetainer Threshold (Seconds)", ref tmp, 1, 0, 3600))
+            {
+                GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiModeThreshold = tmp;
+                GatherBuddy.Config.Save();
+            }
+
+            ImGuiUtil.HoverTooltip("How many seconds before a retainer venture completes GBR should pause and wait for MultiMode.");
+        }
+
+        public static void DrawAutoretainerTimedNodeDelayBox()
+            => DrawCheckbox("Delay AutoRetainer for timed nodes",
+                "Wait to process retainers until after active/upcoming timed nodes are gathered.",
+                GatherBuddy.Config.AutoGatherConfig.AutoRetainerDelayForTimedNodes,
+                b => GatherBuddy.Config.AutoGatherConfig.AutoRetainerDelayForTimedNodes = b);
+
         public static void DrawLifestreamCommandTextInput()
         {
             var tmp = GatherBuddy.Config.AutoGatherConfig.LifestreamCommand;
@@ -860,6 +878,11 @@ public partial class Interface
                 ConfigFunctions.DrawForceWalkingBox();
                 ConfigFunctions.DrawRepairBox();
                 ConfigFunctions.DrawAutoretainerBox();
+                if (GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiMode)
+                {
+                    ConfigFunctions.DrawAutoretainerThreshold();
+                    ConfigFunctions.DrawAutoretainerTimedNodeDelayBox();
+                }
                 if (GatherBuddy.Config.AutoGatherConfig.DoRepair)
                 {
                     ConfigFunctions.DrawRepairThreshold();
