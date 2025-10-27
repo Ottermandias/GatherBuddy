@@ -139,7 +139,11 @@ namespace GatherBuddy.AutoGather.Helpers
                 if (_action.EffectType is Actions.EffectType.BoonChance or Actions.EffectType.BoonYield && slot.BoonChance <= 0)
                     return false;
                 if (_action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.IsRare)
-                    return false;
+                {
+                    var isUmbralItem = slot.Item != null && Data.UmbralNodes.IsUmbralItem(slot.Item.ItemId);
+                    if (!isUmbralItem)
+                        return false;
+                }
                 if (_action == Actions.GivingLand && !AutoGather.IsGivingLandOffCooldown)
                     return false;
                 if (_action == Actions.TwelvesBounty && (Player.Level < 50 && slot.Item.Level == 50 || Player.Level < 41 && slot.Item.Level == 25))
@@ -257,7 +261,8 @@ namespace GatherBuddy.AutoGather.Helpers
             Debug.Assert(Svc.Framework.IsInFrameworkUpdateThread);
 
             var isUmbralItem = slot.Item != null && Data.UmbralNodes.IsUmbralItem(slot.Item.ItemId);
-            if (slot.IsRare && !isUmbralItem) return [null];
+            if (slot.IsRare && !isUmbralItem)
+                return Array.Empty<Actions.BaseAction>();
 
             var timer = new Stopwatch();
             timer.Start();
@@ -353,22 +358,25 @@ namespace GatherBuddy.AutoGather.Helpers
 
             //When Bountiful's yield is 3 and the item is not a crystal, we can skip all the calculations,
             //because nothing can beat that, except actions for crystals.
-            if (bountifulYield < 3000 || bounty != null)
+            //Exception: In Diadem, +5 integrity nodes (10 total) may beat Bountiful +3, so always simulate.
+            var forceDiademSimulation = Plugin.Functions.InTheDiadem() && state.Global.SpendGPOnBestNodesOnly;
+            if (bountifulYield < 3000 || bounty != null || forceDiademSimulation)
             {
                 state.Global.AvailableActions.RemoveAll(x => x.Action == Actions.Bountiful || x.Action == Actions.GivingLand);
                 state.Global.BaselineYield = (uint)(state.Yield * 1000 + state.BoonChance * 10 * state.BoonYield) * state.Integrity;
 
                 if (state.Global.SpendGPOnBestNodesOnly)
                 {
-                    //Assumptions: there are nodes with +2 integrity, +3 yield or +100% boon bonus and we can hit breakpoints;
+                    //Assumptions: there are nodes with +2 integrity, +3 yield, +5 integrity (Diadem), or +100% boon bonus and we can hit breakpoints;
                     //there are no nodes with more than 1 bonus.
-                    //We solve rotation for those 3 hypothetical nodes to find out best yield/gp ratio then accept
+                    //We solve rotation for those hypothetical nodes to find out best yield/gp ratio then accept
                     //any rotation within MaxYieldDiffPercent% of the best value.
 
                     //With end-game gear+food and full GP while hitting all breakpoints:
                     //+60-100% boon: 2 yield / 100 gp
                     //+3 yield: 2.484 yield / 100 gp
                     //+2 integrity: 2.4 yield / 100 gp
+                    //+5 integrity (Diadem): ~3+ yield / 100 gp
 
                     //Start with little less than full GP
                     var startingGP = (ushort)state.Global.MaxGP;
@@ -376,7 +384,7 @@ namespace GatherBuddy.AutoGather.Helpers
                     if (startingGP > startingGPDelta) startingGP -= (ushort)startingGPDelta;
 
                     //Solve for +2 integrity bonus
-                    var stateIntegrity = new State()
+                    var stateIntegrity2 = new State()
                     {
                         Global = state.Global with
                         {
@@ -391,6 +399,27 @@ namespace GatherBuddy.AutoGather.Helpers
                         Effects = EffectType.None,
                         GP = startingGP
                     };
+
+                    //Solve for +5 integrity bonus (Diadem only - base 5 + 5 bonus = 10)
+                    State? stateIntegrity5 = null;
+                    if (Plugin.Functions.InTheDiadem())
+                    {
+                        stateIntegrity5 = new State()
+                        {
+                            Global = state.Global with
+                            {
+                                MaxIntegrity = 10,
+                                InitialGP = startingGP,
+                                BaselineYield = (1 * 1000 + state.Global.BaseBoonChance * 10) * 10
+                            },
+                            BoonChance = (byte)state.Global.BaseBoonChance,
+                            BoonYield = 1,
+                            Integrity = 10,
+                            Yield = 1,
+                            Effects = EffectType.None,
+                            GP = startingGP
+                        };
+                    }
 
                     //Solve for +3 yield bonus
                     var stateYield = new State()
@@ -429,19 +458,27 @@ namespace GatherBuddy.AutoGather.Helpers
                     var tasks = new List<Task>
                     {
                         Task.Run(() => SolveInternal(state)),
-                        Task.Run(() => SolveInternal(stateIntegrity)),
+                        Task.Run(() => SolveInternal(stateIntegrity2)),
                         Task.Run(() => SolveInternal(stateYield))
                     };
+
+                    if (stateIntegrity5 != null)
+                        tasks.Add(Task.Run(() => SolveInternal(stateIntegrity5.Value)));
 
                     if (state.BoonChance != 0)
                         tasks.Add(Task.Run(() => SolveInternal(stateBoon)));
 
                     await Task.WhenAll(tasks);
 
-                    GatherBuddy.Log.Debug($"Rotation solver: yield / 100gp current: {state.Global.BestYield / 1000m}; integrity+2: {stateIntegrity.Global.BestYield / 1000m}; yield+3: {stateYield.Global.BestYield / 1000m}; boon+100: {stateBoon.Global.BestYield / 1000m}; filler {fillerYield / 1000m}.");
+                    var integrity5Yield = stateIntegrity5?.Global.BestYield ?? 0u;
+                    var debugMsg = $"Rotation solver: yield / 100gp current: {state.Global.BestYield / 1000m}; integrity+2: {stateIntegrity2.Global.BestYield / 1000m}";
+                    if (stateIntegrity5 != null)
+                        debugMsg += $"; integrity+5: {integrity5Yield / 1000m}";
+                    debugMsg += $"; yield+3: {stateYield.Global.BestYield / 1000m}; boon+100: {stateBoon.Global.BestYield / 1000m}; filler {fillerYield / 1000m}.";
+                    GatherBuddy.Log.Debug(debugMsg);
 
-                    bestSimulatedYield = Math.Max(Math.Max(stateIntegrity.Global.BestYield, stateYield.Global.BestYield), stateBoon.Global.BestYield);
-                    state.Global.Iterations += stateIntegrity.Global.Iterations + stateYield.Global.Iterations + stateBoon.Global.Iterations;
+                    bestSimulatedYield = Math.Max(Math.Max(Math.Max(stateIntegrity2.Global.BestYield, integrity5Yield), stateYield.Global.BestYield), stateBoon.Global.BestYield);
+                    state.Global.Iterations += stateIntegrity2.Global.Iterations + (stateIntegrity5?.Global.Iterations ?? 0) + stateYield.Global.Iterations + stateBoon.Global.Iterations;
                 }
                 else
                 {

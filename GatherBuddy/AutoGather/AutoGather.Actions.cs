@@ -346,11 +346,8 @@ namespace GatherBuddy.AutoGather
             {
                 var configPreset = MatchConfigPreset(slot.Item);
                 var config       = configPreset.GatherableActions;
-                
-                var isUmbralItem = UmbralNodes.IsUmbralItem(slot.Item.ItemId);
-                var forceAutomaticActions = isUmbralItem; // Umbral items always use automatic action selection
 
-                if (configPreset.ChooseBestActionsAutomatically || forceAutomaticActions)
+                if (configPreset.ChooseBestActionsAutomatically)
                 {
                     if (ShouldUseWise(GatheringWindowReader.IntegrityRemaining, GatheringWindowReader.IntegrityMax))
                     {
@@ -555,7 +552,11 @@ namespace GatherBuddy.AutoGather
             if (action.EffectType is Actions.EffectType.Integrity && GatheringWindowReader.IntegrityRemaining > Math.Min(2, GatheringWindowReader.IntegrityMax - 1))
                 return false;
             if (action.EffectType is not Actions.EffectType.Other and not Actions.EffectType.GatherChance && slot.IsRare)
-                return false;
+            {
+                var isUmbralItem = Data.UmbralNodes.IsUmbralItem(item.ItemId);
+                if (!isUmbralItem)
+                    return false;
+            }
             if (config is ConfigPreset.ActionConfigIntegrity config2
              && (!autoMode && config2.MinIntegrity > GatheringWindowReader.IntegrityMax || (config2.FirstStepOnly || autoMode) && GatheringWindowReader.Touched))
                 return false;
