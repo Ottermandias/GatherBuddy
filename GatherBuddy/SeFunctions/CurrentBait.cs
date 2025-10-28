@@ -23,7 +23,7 @@ public sealed class CurrentBait : SeAddressBase
             {
                 var cosmicManager = WKSManager.Instance();
                 if (cosmicManager != null)
-                    return *(uint*)((byte*)cosmicManager + Offsets.CurrentCosmicBaitOffset);
+                    return cosmicManager->FishingBait;
             }
 
             return *(uint*)Address;
