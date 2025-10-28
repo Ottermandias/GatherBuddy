@@ -170,6 +170,7 @@ namespace GatherBuddy.AutoGather
                     WentHome = true; //Prevents going home right after enabling auto-gather
                     if (AutoHook.Enabled)
                         AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
+                    YesAlready.Lock();
                 }
 
                 _enabled = value;
@@ -357,7 +358,6 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
-            YesAlready.Unlock(); // Clean up lock that may have been left behind by cancelled tasks
 
             if (FreeInventorySlots == 0)
             {
@@ -734,7 +734,6 @@ namespace GatherBuddy.AutoGather
                             TaskManager.Enqueue(contents.Commence);
                             TaskManager.Enqueue(() => _diademQueuingInProgress = false);
                             TaskManager.Enqueue(() => Dalamud.Conditions[ConditionFlag.BoundByDuty]);
-                            TaskManager.Enqueue(YesAlready.Unlock);
                             return;
                         }
                         case false when contentsFinderConfirmAddon == nint.Zero
@@ -746,7 +745,6 @@ namespace GatherBuddy.AutoGather
                                 if (targetSystem == null)
                                     return;
 
-                                TaskManager.Enqueue(YesAlready.Lock);
                                 TaskManager.Enqueue(StopNavigation);
                                 TaskManager.Enqueue(()
                                     => targetSystem->OpenObjectInteraction(
@@ -1326,12 +1324,11 @@ namespace GatherBuddy.AutoGather
             AgentModule.Instance()->GetAgentByInternalId(AgentId.ContentsFinderMenu)->Show();
             if (GenericHelpers.TryGetAddonByName("ContentsFinderMenu", out AtkUnitBase* addon))
             {
-                TaskManager.Enqueue(YesAlready.Lock);
                 TaskManager.Enqueue(() => Callback.Fire(addon, true,  0));
                 TaskManager.Enqueue(() => Callback.Fire(addon, false, -2));
                 TaskManager.DelayNext(1000);
                 TaskManager.Enqueue(() => Callback.Fire((AtkUnitBase*)(nint)Dalamud.GameGui.GetAddonByName("SelectYesno"), true, 0));
-                TaskManager.Enqueue(YesAlready.Unlock);
+                TaskManager.Enqueue(() => GenericHelpers.IsScreenReady());
                 return;
             }
         }
