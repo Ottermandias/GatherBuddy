@@ -266,7 +266,7 @@ public static partial class Fish
         data.Apply     (12786, Patch.Heavensward) // Magma Louse
             .Mooch     (data, 12709, 12754)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
-            .Time      (1080, 300);
+            .Time      (1080, 360);
         data.Apply     (12787, Patch.Heavensward) // Cometoise
             .Mooch     (data, 28634, 12754)
             .Bite      (data, HookSet.Powerful, BiteType.Strong);
