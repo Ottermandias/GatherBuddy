@@ -125,9 +125,17 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
             10_000 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(759), // the rows in between are no longer used diadem objects
             > 10_016 and < 10_026 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(939),
             > 10_025 and < 10_031 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1073),
+
+            // Sinus Ardorum
             > 10_030 and < 10_040 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
             > 10_042 and < 10_094 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
-            10_096 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
+            10_096                => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1237),
+
+            // Phaenna
+            > 10_107 and < 10_136 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1291),
+            > 10_136 and < 10_145 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1291),
+            > 10_146              => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1291),
+
             _ => spot.TerritoryType.ValueNullable,
         };
 
@@ -137,6 +145,7 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
         switch (spot.RowId)
         {
             case > 10_042 and < 10_094:
+            {
                 var missionRow = spot.RowId - 10_043 + 451;
                 if (missionRow > 495)
                 {
@@ -147,7 +156,12 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
                 }
 
                 return name + $" ({missionRow:D5})";
-            case 10_096: return name + " (00544)";
+            }
+            case 10_096:                return $"{name} (00544)";
+            case > 10_107 and < 10_136: return $"{name} ({spot.RowId - 10_108 + 965:D5})";
+            case > 10_136 and < 10_145: return $"{name} ({spot.RowId - 10_137 + 993:D5})";
+            case > 10_146 and < 10_153: return $"{name} ({spot.RowId - 10_147 + 1001:D5})";
+            case > 10_152 and < 10_156: return $"{name} ({spot.RowId - 10_153 + 1037:D5})";
         }
 
         return name;

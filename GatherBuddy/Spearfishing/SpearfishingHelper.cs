@@ -51,7 +51,7 @@ public partial class SpearfishingHelper
         if (Dalamud.Targets.Target.ObjectKind != ObjectKind.GatheringPoint)
             return null;
 
-        var id = Dalamud.Targets.Target.DataId;
+        var id = Dalamud.Targets.Target.BaseId;
         return SpearfishingSpots.GetValueOrDefault(id);
     }
 

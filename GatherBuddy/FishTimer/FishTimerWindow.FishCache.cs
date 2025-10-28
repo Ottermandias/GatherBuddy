@@ -277,7 +277,10 @@ public partial class FishTimerWindow
                         if (_fish.MutliHookUpper == _fish.MultiHookLower)
                         {
                             ImUtf8.Text($"Double Hook for {_fish.MultiHookLower} fish{(_fish.Points > 0 ? $" worth {_fish.Points * _fish.MultiHookLower} points" : "")}");
-                            ImUtf8.Text($"Triple Hook for {2 * _fish.MultiHookLower - 1} fish{(_fish.Points > 0 ? $" worth {_fish.Points * (2 * _fish.MultiHookLower - 1)} points" : "")}");
+                            ImUtf8.Text($"Triple Hook for {2 * _fish.MultiHookLower - 1} fish{(_fish.Points > 0 ? $" worth {_fish.Points * (2 * _fish.MultiHookLower - 1)} points" : "")}"); 
+                            //TODO: This formula breaks for Deepmoon Seadragon which triple hooks to 8 instead of 9 as would be expected.
+                            //Feels like there should be a more proper solution, but as of right now since there are no 5/9 fish to counter example:
+                            //TH=(-3*x^3+9x^2-14x^2+18)/6 does work.
                         }
                         else
                         {
@@ -285,6 +288,7 @@ public partial class FishTimerWindow
                                 $"{(_fish.Points > 0 ? $" worth between {_fish.Points * _fish.MultiHookLower} and {_fish.Points * _fish.MutliHookUpper} points" : "")}");
                             ImUtf8.Text($"Triple Hook for {2 * _fish.MultiHookLower - 1}-{2 * _fish.MutliHookUpper - 1} fish" +
                                 $"{(_fish.Points > 0 ? $" worth between {_fish.Points * (2 * _fish.MultiHookLower - 1)} and {_fish.Points * (2 * _fish.MutliHookUpper - 1)} points" : "")}");
+                            //TODO: See above
                         }
 
                         window._style.Pop();

@@ -68,7 +68,7 @@ public partial class FishingParser
                         var wks = WKSManager.Instance();
                         if (wks is not null)
                         {
-                            missionId = *(ushort*)((byte*)wks + Offsets.CurrentCosmicQuestOffset);
+                            missionId = wks->CurrentMissionUnitRowId;
                             GatherBuddy.Log.Verbose($"Loaded quest: {missionId.Value}");
                         }
                     }
