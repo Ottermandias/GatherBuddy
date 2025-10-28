@@ -94,7 +94,6 @@ public unsafe partial class AutoGather
 
         AutoStatus = "Repairing...";
         StopNavigation();
-        YesAlready.Lock();
 
         var delay = (int)GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
         if (RepairAddon == null)
@@ -110,7 +109,6 @@ public unsafe partial class AutoGather
         TaskManager.DelayNext(delay);
         TaskManager.Enqueue(() => { if (RepairAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, -1); }, 1000, true, "Close repair menu.");
         TaskManager.DelayNext(delay);
-        TaskManager.Enqueue(YesAlready.Unlock);
 
         return true;
     }
