@@ -273,22 +273,31 @@ namespace GatherBuddy.Plugin
 
     internal static class AutoRetainer
     {
+        public class OfflineRetainerData
+        {
+            public string Name { get; set; } = string.Empty;
+            public uint VentureEndsAt { get; set; }
+            public bool HasVenture { get; set; }
+        }
+
+        public class OfflineCharacterData
+        {
+            public ulong CID { get; set; }
+            public string Name { get; set; } = string.Empty;
+            public string World { get; set; } = string.Empty;
+            public bool Enabled { get; set; }
+            public List<OfflineRetainerData> RetainerData { get; set; } = new();
+        }
+
         private static EzIPCDisposalToken[] _disposalTokens = EzIPC.Init(typeof(AutoRetainer), "AutoRetainer.PluginState", SafeWrapper.IPCException);
 
         internal static bool IsEnabled => IPCSubscriber.IsReady("AutoRetainer");
 
         [EzIPC] internal static readonly Func<bool> IsBusy;
         [EzIPC] internal static readonly Func<Dictionary<ulong, HashSet<string>>> GetEnabledRetainers;
-        [EzIPC] internal static readonly Func<bool> AreAnyRetainersAvailableForCurrentChara;
         [EzIPC] internal static readonly Action AbortAllTasks;
         [EzIPC] internal static readonly Action DisableAllFunctions;
         [EzIPC] internal static readonly Action EnableMultiMode;
-        [EzIPC] internal static readonly Func<int> GetInventoryFreeSlotCount;
-        [EzIPC] internal static readonly Action EnqueueHET;
-        [EzIPC] internal static readonly Func<ulong, long?> GetClosestRetainerVentureSecondsRemaining;
-        [EzIPC] internal static readonly Func<bool> CanAutoLogin;
-        [EzIPC] internal static readonly Func<string, bool> Relog;
-        [EzIPC("AutoRetainer.GC.EnqueueInitiation", applyPrefix: false)] internal static readonly Action EnqueueGCInitiation;
-        [EzIPC("AutoRetainer.GetRegisteredCIDs", applyPrefix: false)] internal static readonly Func<List<ulong>> GetRegisteredCIDs;
+        [EzIPC("AutoRetainer.GetOfflineCharacterData", applyPrefix: false)] internal static readonly Func<ulong, OfflineCharacterData> GetOfflineCharacterData;
     }
 }
