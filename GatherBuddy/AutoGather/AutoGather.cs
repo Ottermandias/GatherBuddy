@@ -1568,15 +1568,16 @@ namespace GatherBuddy.AutoGather
                     }
                 }
                 
-                if (AutoRetainer.GetRegisteredCIDs == null)
+                if (AutoRetainer.GetEnabledRetainers == null || AutoRetainer.GetOfflineCharacterData == null)
                     return false;
 
-                var registeredCIDs = AutoRetainer.GetRegisteredCIDs();
+                var enabledRetainers = AutoRetainer.GetEnabledRetainers();
                 
-                if (registeredCIDs == null || !registeredCIDs.Any())
+                if (enabledRetainers == null || !enabledRetainers.Any())
                 {
                     if (_autoRetainerMultiModeEnabled)
                     {
+                        AutoRetainer.AbortAllTasks?.Invoke();
                         AutoRetainer.DisableAllFunctions?.Invoke();
                         _autoRetainerMultiModeEnabled = false;
                     }
@@ -1584,18 +1585,39 @@ namespace GatherBuddy.AutoGather
                 }
 
                 var threshold = GatherBuddy.Config.AutoGatherConfig.AutoRetainerMultiModeThreshold;
+                var currentTime = DateTimeOffset.UtcNow.ToUnixTimeSeconds();
                 bool hasRetainersReady = false;
                 long? closestTime = null;
 
-                foreach (var cid in registeredCIDs)
+                foreach (var (cid, retainerNames) in enabledRetainers)
                 {
-                    var secondsRemaining = AutoRetainer.GetClosestRetainerVentureSecondsRemaining?.Invoke(cid);
-                    if (secondsRemaining.HasValue && (secondsRemaining.Value <= 0 || secondsRemaining.Value <= threshold))
+                    if (!retainerNames.Any())
+                        continue;
+
+                    var charData = AutoRetainer.GetOfflineCharacterData(cid);
+                    if (charData == null || charData.RetainerData == null)
+                        continue;
+
+                    if (!charData.Enabled)
+                        continue;
+
+                    foreach (var retainer in charData.RetainerData)
                     {
-                        hasRetainersReady = true;
-                        var effectiveTime = secondsRemaining.Value <= 0 ? 0 : secondsRemaining.Value;
-                        if (!closestTime.HasValue || effectiveTime < closestTime.Value)
-                            closestTime = effectiveTime;
+                        if (!retainerNames.Contains(retainer.Name))
+                            continue;
+
+                        if (!retainer.HasVenture)
+                            continue;
+
+                        var secondsRemaining = (long)retainer.VentureEndsAt - currentTime;
+                        
+                        if (secondsRemaining <= 0 || secondsRemaining <= threshold)
+                        {
+                            hasRetainersReady = true;
+                            var effectiveTime = secondsRemaining <= 0 ? 0 : secondsRemaining;
+                            if (!closestTime.HasValue || effectiveTime < closestTime.Value)
+                                closestTime = effectiveTime;
+                        }
                     }
                 }
 
@@ -1617,6 +1639,7 @@ namespace GatherBuddy.AutoGather
                 {
                     if (_autoRetainerMultiModeEnabled)
                     {
+                        AutoRetainer.AbortAllTasks?.Invoke();
                         AutoRetainer.DisableAllFunctions?.Invoke();
                         _autoRetainerMultiModeEnabled = false;
                     }

@@ -380,6 +380,7 @@ namespace GatherBuddy.AutoGather
                         if (!ActionSequence.MoveNext())
                         {
                             ActionSequence = null;
+                            EnqueueGatherItem(slot);
                         }
                         else
                         {
