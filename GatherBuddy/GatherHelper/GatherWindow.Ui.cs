@@ -154,7 +154,25 @@ public class GatherWindow : Window
             color.Pop();
             CreateTooltip(item, loc, time);
 
-            if (clicked && Functions.CheckModifier(GatherBuddy.Config.GatherWindowDeleteModifier, false))
+            if (clicked && Dalamud.Keys[VirtualKey.MENU])
+            {
+                if (quantity > 0)
+                    foreach (var list in _plugin.AutoGatherListsManager.Lists)
+                    {
+                        if (!list.Enabled)
+                            continue;
+
+                        if (item is not Gatherable gatherable)
+                            continue;
+                        var idx = list.Items.IndexOf(gatherable);
+                        if (idx < 0)
+                            continue;
+
+                        _plugin.AutoGatherListsManager.ChangeEnabled(list, gatherable, false);
+                        break;
+                    }
+            }
+            else if (clicked && Functions.CheckModifier(GatherBuddy.Config.GatherWindowDeleteModifier, false))
                 if (quantity > 0)
                     foreach (var list in _plugin.AutoGatherListsManager.Lists)
                     {

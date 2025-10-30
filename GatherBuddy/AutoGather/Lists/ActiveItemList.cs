@@ -99,7 +99,6 @@ namespace GatherBuddy.AutoGather.Lists
                         _ => GatheringType.Unknown
                     };
                     
-                    
                     var priorityUmbralItem = _gatherableItems
                         .Where(NeedsGathering)
                         .Where(target => target.Gatherable != null && UmbralNodes.IsUmbralItem(target.Gatherable.ItemId))
@@ -116,7 +115,9 @@ namespace GatherBuddy.AutoGather.Lists
                     }
                     else
                     {
-                        firstItemNeedingGathering = _gatherableItems.FirstOrDefault(NeedsGathering);
+                        firstItemNeedingGathering = _gatherableItems
+                            .Where(NeedsGathering)
+                            .FirstOrDefault(target => target.Gatherable == null || !UmbralNodes.IsUmbralItem(target.Gatherable.ItemId));
                     }
                 }
                 else

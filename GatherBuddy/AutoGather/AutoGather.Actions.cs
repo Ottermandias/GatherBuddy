@@ -9,6 +9,7 @@ using Dalamud.Game.ClientState.Objects.Enums;
 using ECommons;
 using ECommons.DalamudServices;
 using ECommons.Throttlers;
+using ECommons.UIHelpers.AddonMasterImplementations;
 using GatherBuddy.AutoGather.AtkReaders;
 using GatherBuddy.AutoGather.Helpers;
 using GatherBuddy.AutoGather.Extensions;
@@ -137,10 +138,17 @@ namespace GatherBuddy.AutoGather
 
         public FishingState LastState = FishingState.None;
 
-        private void DoFishingTasks(IEnumerable<GatherTarget> targets)
+        private unsafe void DoFishingTasks(IEnumerable<GatherTarget> targets)
         {
+            if (!_fishingYesAlreadyUnlocked)
+            {
+                YesAlready.Unlock();
+                _fishingYesAlreadyUnlocked = true;
+            }
+
             var state  = GatherBuddy.EventFramework.FishingState;
             var config = MatchConfigPreset(targets.First(t => t.Fish != null).Fish!);
+            
             if (DoUseConsumablesWithoutCastTime(config, true))
             {
                 TaskManager.DelayNext(1000);
@@ -624,6 +632,11 @@ namespace GatherBuddy.AutoGather
 
         private void QueueQuitFishingTasks()
         {
+            if (_fishingYesAlreadyUnlocked)
+            {
+                YesAlready.Lock();
+                _fishingYesAlreadyUnlocked = false;
+            }
             EnqueueActionWithDelay(() => UseAction(Actions.Quit));
             TaskManager.DelayNext(3000); //Delay to make sure we stand up properly
         }
