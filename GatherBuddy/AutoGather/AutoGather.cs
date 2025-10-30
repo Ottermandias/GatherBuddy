@@ -125,6 +125,7 @@ namespace GatherBuddy.AutoGather
                     AutoStatus = "Idle...";
                     TaskManager.Abort();
                     YesAlready.Unlock();
+                    _fishingYesAlreadyUnlocked = false;
 
                     _activeItemList.Reset();
                     Waiting                    = false;
@@ -693,7 +694,7 @@ namespace GatherBuddy.AutoGather
                 }
             }
 
-            if (territoryId == 886 && next.First().Node.Territory.Id is 901 or 929 or 939)
+            if (territoryId == 886 && next.First().Node?.Territory.Id is 901 or 929 or 939)
             {
                 if (JobAsGatheringType == GatheringType.Unknown)
                 {
