@@ -5,7 +5,7 @@ namespace GatherBuddy.AutoHookIntegration.Models;
 public class AHBaseBiteConfig
 {
     [JsonProperty("HooksetEnabled")]
-    public bool HooksetEnabled { get; set; } = true;
+    public bool HooksetEnabled { get; set; } = false;
 
     [JsonProperty("EnableHooksetSwap")]
     public bool EnableHooksetSwap { get; set; }

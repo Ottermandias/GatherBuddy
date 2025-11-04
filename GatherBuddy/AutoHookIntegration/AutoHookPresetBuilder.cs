@@ -43,25 +43,11 @@ public class AutoHookPresetBuilder
         var preset = new AHCustomPresetConfig(presetName);
         var fishArray = fishList.ToArray();
         
-        GatherBuddy.Log.Debug($"[AutoHook] Building preset with {fishArray.Length} input fish");
-        foreach (var fish in fishArray)
-        {
-            GatherBuddy.Log.Debug($"[AutoHook]   - {fish.Name[GatherBuddy.Language]} (ID: {fish.ItemId}, Mooches: {fish.Mooches.Length}, InitialBait: {fish.InitialBait.Id})");
-        }
-        
         var allFishWithMooches = CollectAllFishInMoochChains(fishArray);
-        GatherBuddy.Log.Debug($"[AutoHook] After collecting mooch chains: {allFishWithMooches.Count} total fish");
         
         // Separate fish that are caught with real bait vs those caught by mooching
         var fishWithBait = allFishWithMooches.Where(f => f.Mooches.Length == 0).ToList();
         var fishWithMooch = allFishWithMooches.Where(f => f.Mooches.Length > 0).ToList();
-        
-        GatherBuddy.Log.Debug($"[AutoHook] Fish with bait: {fishWithBait.Count}, Fish with mooch: {fishWithMooch.Count}");
-        foreach (var fish in fishWithMooch)
-        {
-            var moochChain = string.Join(" -> ", fish.Mooches.Select(m => m.Name[GatherBuddy.Language]));
-            GatherBuddy.Log.Debug($"[AutoHook]   Mooch: {fish.Name[GatherBuddy.Language]} needs: {moochChain}");
-        }
         
         // Create HookConfigs for fish caught with bait
         var baitGroups = fishWithBait.GroupBy(f => f.InitialBait.Id);
@@ -96,6 +82,16 @@ public class AutoHookPresetBuilder
         }
         
         GatherBuddy.Log.Debug($"[AutoHook] Created {preset.ListOfBaits.Count} bait configs and {preset.ListOfMooch.Count} mooch configs");
+        
+        // Debug: Check hookset states
+        foreach (var baitCfg in preset.ListOfBaits)
+        {
+            GatherBuddy.Log.Debug($"[AutoHook] Bait {baitCfg.BaitFish.Id}: Weak={baitCfg.NormalHook.PatienceWeak.HooksetEnabled}, Strong={baitCfg.NormalHook.PatienceStrong.HooksetEnabled}, Legendary={baitCfg.NormalHook.PatienceLegendary.HooksetEnabled}");
+        }
+        foreach (var moochCfg in preset.ListOfMooch)
+        {
+            GatherBuddy.Log.Debug($"[AutoHook] Mooch {moochCfg.BaitFish.Id}: Weak={moochCfg.NormalHook.PatienceWeak.HooksetEnabled}, Strong={moochCfg.NormalHook.PatienceStrong.HooksetEnabled}, Legendary={moochCfg.NormalHook.PatienceLegendary.HooksetEnabled}");
+        }
         
         // Add all fish configs
         foreach (var fish in allFishWithMooches)
@@ -139,8 +135,13 @@ public class AutoHookPresetBuilder
         var ahBiteType = ConvertBiteType(fish.BiteType);
         var ahHookType = ConvertHookSet(fish.HookSet);
         
+        GatherBuddy.Log.Debug($"[AutoHook] Configuring hook for {fish.Name[GatherBuddy.Language]}: BiteType={fish.BiteType}->{ahBiteType}, HookSet={fish.HookSet}->{ahHookType}");
+        
         if (ahBiteType == AHBiteType.Unknown || ahHookType == AHHookType.Unknown)
+        {
+            GatherBuddy.Log.Warning($"[AutoHook] Unknown bite/hook type for {fish.Name[GatherBuddy.Language]}, skipping");
             return;
+        }
 
         ConfigureLures(hookConfig.NormalHook, fish.Lure);
         SetHookConfiguration(hookConfig.NormalHook, ahBiteType, ahHookType);
@@ -181,24 +182,44 @@ public class AutoHookPresetBuilder
         double minTime = 0,
         double maxTime = 0)
     {
-        var biteConfig = biteType switch
+        // Get all three bite configs for this bite type (Patience, Double, Triple)
+        var (patienceConfig, doubleConfig, tripleConfig) = biteType switch
         {
-            AHBiteType.Weak => hookset.PatienceWeak,
-            AHBiteType.Strong => hookset.PatienceStrong,
-            AHBiteType.Legendary => hookset.PatienceLegendary,
-            _ => null
+            AHBiteType.Weak => (hookset.PatienceWeak, hookset.DoubleWeak, hookset.TripleWeak),
+            AHBiteType.Strong => (hookset.PatienceStrong, hookset.DoubleStrong, hookset.TripleStrong),
+            AHBiteType.Legendary => (hookset.PatienceLegendary, hookset.DoubleLegendary, hookset.TripleLegendary),
+            _ => (null, null, null)
         };
 
-        if (biteConfig == null) return;
+        if (patienceConfig == null) return;
 
-        biteConfig.HooksetEnabled = true;
-        biteConfig.HooksetType = hookType;
+        GatherBuddy.Log.Debug($"[AutoHook] Setting {biteType} hookset: Enabled={true}, Type={hookType}");
+        
+        // Set Patience hookset
+        patienceConfig.HooksetEnabled = true;
+        patienceConfig.HooksetType = hookType;
+        
+        // Set Double hookset
+        doubleConfig!.HooksetEnabled = true;
+        doubleConfig.HooksetType = hookType;
+        
+        // Set Triple hookset
+        tripleConfig!.HooksetEnabled = true;
+        tripleConfig.HooksetType = hookType;
 
         if (minTime > 0 || maxTime > 0)
         {
-            biteConfig.HookTimerEnabled = true;
-            biteConfig.MinHookTimer = minTime;
-            biteConfig.MaxHookTimer = maxTime;
+            patienceConfig.HookTimerEnabled = true;
+            patienceConfig.MinHookTimer = minTime;
+            patienceConfig.MaxHookTimer = maxTime;
+            
+            doubleConfig.HookTimerEnabled = true;
+            doubleConfig.MinHookTimer = minTime;
+            doubleConfig.MaxHookTimer = maxTime;
+            
+            tripleConfig.HookTimerEnabled = true;
+            tripleConfig.MinHookTimer = minTime;
+            tripleConfig.MaxHookTimer = maxTime;
         }
     }
 

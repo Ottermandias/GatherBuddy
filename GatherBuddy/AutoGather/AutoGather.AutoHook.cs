@@ -51,20 +51,13 @@ public partial class AutoGather
         try
         {
             var fishingSpot = target.FishingSpot;
-            var fishList = fishingSpot.Items
-                .Where(f => f is Classes.Fish)
-                .Cast<Classes.Fish>()
-                .ToList();
-
-            if (!fishList.Any())
-            {
-                Svc.Log.Warning($"[AutoGather] No fish found at {fishingSpot.Name}, skipping AutoHook preset");
-                return;
-            }
-
-            var presetName = $"GBR_{fishingSpot.Name.Replace(" ", "")}_{DateTime.Now:HHmmss}";
             
-            Svc.Log.Information($"[AutoGather] Creating AutoHook preset '{presetName}' with {fishList.Count} fish");
+            // Only create preset for the target fish (and its mooch chain)
+            var fishList = new[] { target.Fish };
+
+            var presetName = $"GBR_{target.Fish.Name[GatherBuddy.Language].Replace(" ", "")}_{DateTime.Now:HHmmss}";
+            
+            Svc.Log.Information($"[AutoGather] Creating AutoHook preset '{presetName}' for {target.Fish.Name[GatherBuddy.Language]}");
             
             var gbrPreset = MatchConfigPreset(target.Fish);
             var success = AutoHookService.ExportPresetToAutoHook(presetName, fishList, gbrPreset);

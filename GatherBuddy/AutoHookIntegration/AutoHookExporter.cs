@@ -16,9 +16,13 @@ public static class AutoHookExporter
         var json = JsonConvert.SerializeObject(preset, 
             new JsonSerializerSettings 
             { 
-                DefaultValueHandling = DefaultValueHandling.Ignore,
+                DefaultValueHandling = DefaultValueHandling.Include,
                 NullValueHandling = NullValueHandling.Ignore
             });
+        
+        // Log first 2000 chars to see hookset config
+        var logLength = Math.Min(2000, json.Length);
+        GatherBuddy.Log.Debug($"[AutoHook Export] JSON (first {logLength} chars):\n{json.Substring(0, logLength)}");
         
         var compressed = CompressString(json);
         return ExportPrefix + compressed;
