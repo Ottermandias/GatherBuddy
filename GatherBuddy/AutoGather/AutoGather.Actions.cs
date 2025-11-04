@@ -171,6 +171,9 @@ namespace GatherBuddy.AutoGather
 
         private void HandleWaiting(GatherTarget target, ConfigPreset config)
         {
+            if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                return;
+
             if (target.Fish?.Lure == Lure.Ambitious && !LureSuccess)
             {
                 EnqueueActionWithDelay(() => UseAction(Actions.AmbitiousLure));
@@ -185,6 +188,8 @@ namespace GatherBuddy.AutoGather
         private void HandleReady(GatherTarget target, ConfigPreset config)
         {
             LureSuccess = false;
+
+            SetupAutoHookForFishing(target);
 
             var bait = GetCorrectBaitId(target);
             if (bait == 0)
@@ -217,6 +222,12 @@ namespace GatherBuddy.AutoGather
                 }
 
                 TaskManager.DelayNext(1000);
+                return;
+            }
+
+            if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+            {
+                EnqueueActionWithDelay(() => UseAction(Actions.Cast));
                 return;
             }
 

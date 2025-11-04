@@ -131,6 +131,8 @@ namespace GatherBuddy.AutoGather
                     Waiting                    = false;
                     ActionSequence             = null;
                     CurrentCollectableRotation = null;
+                    
+                    CleanupAutoHook();
 
                     if (VNavmesh.Enabled && IsPathGenerating)
                         VNavmesh.Nav.PathfindCancelAll();
@@ -1186,9 +1188,15 @@ namespace GatherBuddy.AutoGather
                 return;
             }
             
+            var gatherableItemsInDiadem = next
+                .Where(target => target.Node?.Territory.Id == currentTerritoryId)
+                .Select(target => target.Item)
+                .ToHashSet();
+            
             var potentialNodePositions = GatherBuddy.GameData.GatheringNodes.Values
                 .Where(node => node.Territory.Id == currentTerritoryId)
                 .Where(node => node.GatheringType.ToGroup() == currentJob)
+                .Where(node => node.Items.Any(item => gatherableItemsInDiadem.Contains(item)))
                 .SelectMany(node => node.WorldPositions.Values.SelectMany(positions => positions))
                 .Where(pos => !IsBlacklisted(pos))
                 .Where(pos => !_diademVisitedNodes.Any(visited => Vector3.Distance(visited, pos) < DiademNodeProximityThreshold))

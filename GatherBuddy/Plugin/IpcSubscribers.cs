@@ -269,6 +269,15 @@ namespace GatherBuddy.Plugin
 
         [EzIPC("AutoHook.CreateAndSelectAnonymousPreset", applyPrefix: false)]
         internal static readonly Action<string> CreateAndSelectAnonymousPreset;
+        
+        [EzIPC("AutoHook.ImportAndSelectPreset", applyPrefix: false)]
+        internal static readonly Action<string> ImportAndSelectPreset;
+        
+        [EzIPC("AutoHook.SetPreset", applyPrefix: false)]
+        internal static readonly Action<string> SetPreset;
+        
+        [EzIPC("AutoHook.DeleteSelectedPreset", applyPrefix: false)]
+        internal static readonly Action DeleteSelectedPreset;
     }
 
     internal static class AutoRetainer

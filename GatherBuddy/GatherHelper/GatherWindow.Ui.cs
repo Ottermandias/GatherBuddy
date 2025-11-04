@@ -162,13 +162,11 @@ public class GatherWindow : Window
                         if (!list.Enabled)
                             continue;
 
-                        if (item is not Gatherable gatherable)
-                            continue;
-                        var idx = list.Items.IndexOf(gatherable);
+                        var idx = list.Items.IndexOf(item);
                         if (idx < 0)
                             continue;
 
-                        _plugin.AutoGatherListsManager.ChangeEnabled(list, gatherable, false);
+                        _plugin.AutoGatherListsManager.ChangeEnabled(list, item, false);
                         break;
                     }
             }
@@ -179,9 +177,7 @@ public class GatherWindow : Window
                         if (!list.Enabled)
                             continue;
 
-                        if (item is not Gatherable gatherable)
-                            continue;
-                        var idx = list.Items.IndexOf(gatherable);
+                        var idx = list.Items.IndexOf(item);
                         if (idx < 0)
                             continue;
 
