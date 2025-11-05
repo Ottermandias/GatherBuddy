@@ -146,6 +146,33 @@ namespace GatherBuddy.AutoGather
                 _fishingYesAlreadyUnlocked = true;
             }
 
+            if (SpiritbondMax > 0)
+            {
+                if (IsFishing)
+                {
+                    QueueQuitFishingTasks();
+                    return;
+                }
+
+                if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                {
+                    AutoHook.SetPluginState?.Invoke(false);
+                }
+
+                DoMateriaExtraction();
+                TaskManager.Enqueue(() =>
+                {
+                    if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                    {
+                        AutoHook.SetPluginState?.Invoke(true);
+                    }
+                });
+                return;
+            }
+
+            if (RepairIfNeededForFishing())
+                return;
+
             var state  = GatherBuddy.EventFramework.FishingState;
             var config = MatchConfigPreset(targets.First(t => t.Fish != null).Fish!);
             

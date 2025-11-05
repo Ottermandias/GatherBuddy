@@ -656,8 +656,8 @@ namespace GatherBuddy.AutoGather
 
             var territoryId = Svc.ClientState.TerritoryType;
             //Idyllshire to The Dravanian Hinterlands
-            if ((territoryId == 478 && next.First().Node.Territory.Id == 399)
-             || (territoryId == 418 && next.First().Node.Territory.Id is 901 or 929 or 939) && Lifestream.Enabled)
+            if ((territoryId == 478 && (next.First().Node?.Territory.Id == 399 || next.First().FishingSpot?.Territory.Id == 399))
+             || (territoryId == 418 && next.First().Node?.Territory.Id is 901 or 929 or 939) && Lifestream.Enabled)
             {
                 var aetheryte = Svc.Objects.Where(x => x.ObjectKind == ObjectKind.Aetheryte && x.IsTargetable)
                     .OrderBy(x => x.Position.DistanceToPlayer()).FirstOrDefault();
@@ -677,7 +677,8 @@ namespace GatherBuddy.AutoGather
                         switch (territoryId)
                         {
                             case 478:
-                                var exit = next.First().Node.DefaultXCoord < 2000 ? 91u : 92u;
+                                var xCoord = next.First().Node?.DefaultXCoord ?? next.First().FishingSpot?.DefaultXCoord ?? 0;
+                                var exit = xCoord < 2000 ? 91u : 92u;
                                 name = Dalamud.GameData.GetExcelSheet<Lumina.Excel.Sheets.Aetheryte>().GetRow(exit).AethernetName.Value.Name
                                     .ToString();
                                 break;
@@ -1188,15 +1189,9 @@ namespace GatherBuddy.AutoGather
                 return;
             }
             
-            var gatherableItemsInDiadem = next
-                .Where(target => target.Node?.Territory.Id == currentTerritoryId)
-                .Select(target => target.Item)
-                .ToHashSet();
-            
             var potentialNodePositions = GatherBuddy.GameData.GatheringNodes.Values
                 .Where(node => node.Territory.Id == currentTerritoryId)
                 .Where(node => node.GatheringType.ToGroup() == currentJob)
-                .Where(node => node.Items.Any(item => gatherableItemsInDiadem.Contains(item)))
                 .SelectMany(node => node.WorldPositions.Values.SelectMany(positions => positions))
                 .Where(pos => !IsBlacklisted(pos))
                 .Where(pos => !_diademVisitedNodes.Any(visited => Vector3.Distance(visited, pos) < DiademNodeProximityThreshold))

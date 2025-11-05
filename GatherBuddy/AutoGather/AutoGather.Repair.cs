@@ -112,4 +112,71 @@ public unsafe partial class AutoGather
 
         return true;
     }
+
+    private bool RepairIfNeededForFishing()
+    {
+        if (Svc.Condition[ConditionFlag.Mounted] || Player.Job is not Job.FSH)
+            return false;
+
+        var itemToRepair = EquipmentNeedingRepair();
+
+        if (itemToRepair == null)
+            return false;
+
+        if (IsFishing)
+        {
+            QueueQuitFishingTasks();
+            TaskManager.Enqueue(() => !IsFishing, 5000, "Wait until fishing stopped.");
+        }
+
+        if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+        {
+            AutoHook.SetPluginState?.Invoke(false);
+        }
+
+        if (!GatherBuddy.Config.AutoGatherConfig.DoRepair)
+        {
+            Communicator.PrintError("Your gear is almost broken. Repair it before enabling Auto-Gather.");
+            AbortAutoGather("Repairs needed.");
+            return true;
+        }
+
+        if (!HasRepairJob((Item)itemToRepair))
+        {
+            AbortAutoGather("Repairs needed, but no repair job found.");
+            return true;
+        }
+        if (!HasDarkMatter((Item)itemToRepair))
+        {
+            AbortAutoGather("Repairs needed, but no dark matter found.");
+            return true;
+        }
+
+        AutoStatus = "Repairing...";
+        StopNavigation();
+
+        var delay = (int)GatherBuddy.Config.AutoGatherConfig.ExecutionDelay;
+        if (RepairAddon == null)
+            ActionManager.Instance()->UseAction(ActionType.GeneralAction, 6);
+
+        TaskManager.Enqueue(() => RepairAddon != null, 1000, true, "Wait until repair menu is ready.");
+        TaskManager.DelayNext(delay);
+        TaskManager.Enqueue(() => { if (RepairAddon is var addon && addon != null) new AddonMaster.Repair(addon).RepairAll(); }, 1000, "Repairing all.");
+        TaskManager.Enqueue(() => SelectYesnoAddon != null, 1000, true, "Wait until YesnoAddon is ready.");
+        TaskManager.DelayNext(delay);
+        TaskManager.Enqueue(() => { if (SelectYesnoAddon is var addon && addon != null) new AddonMaster.SelectYesno(addon).Yes(); }, 1000, "Confirm repairs.");
+        TaskManager.Enqueue(() => !Svc.Condition[ConditionFlag.Occupied39], 5000, "Wait for repairs.");
+        TaskManager.DelayNext(delay);
+        TaskManager.Enqueue(() => { if (RepairAddon is var addon and not null) Callback.Fire(&addon->AtkUnitBase, true, -1); }, 1000, true, "Close repair menu.");
+        TaskManager.DelayNext(delay);
+        TaskManager.Enqueue(() =>
+        {
+            if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+            {
+                AutoHook.SetPluginState?.Invoke(true);
+            }
+        });
+
+        return true;
+    }
 }
