@@ -81,7 +81,7 @@ namespace GatherBuddy.AutoGather
         {
             if (!CheckConditions(Actions.TwelvesBounty, config.TwelvesBounty, slot.Item, slot))
                 return false;
-            if (slot.Item.GetInventoryCount() > 9999 - 3 - slot.Yield - (slot.HasGivingLandBuff ? GivingLandYield : 0))
+            if (slot.Item.GetInventoryCount() > 9999 - 3)
                 return false;
 
             return true;
@@ -442,6 +442,8 @@ namespace GatherBuddy.AutoGather
                 {
                     if (ShouldUseWise(GatheringWindowReader.IntegrityRemaining, GatheringWindowReader.IntegrityMax))
                         EnqueueActionWithDelay(() => UseAction(Actions.Wise));
+                    else if (ShouldUseTwelvesBounty(slot, config))
+                        EnqueueActionWithDelay(() => UseAction(Actions.TwelvesBounty));
                     else if (ShouldUseGift2(slot, config))
                         EnqueueActionWithDelay(() => UseAction(Actions.Gift2));
                     else if (ShouldUseGift1(slot, config))
@@ -452,8 +454,6 @@ namespace GatherBuddy.AutoGather
                         EnqueueActionWithDelay(() => UseAction(Actions.SolidAge));
                     else if (ShouldUseGivingLand(slot, configPreset))
                         EnqueueActionWithDelay(() => UseAction(Actions.GivingLand));
-                    else if (ShouldUseTwelvesBounty(slot, config))
-                        EnqueueActionWithDelay(() => UseAction(Actions.TwelvesBounty));
                     else if (ShouldUseKingII(slot, config))
                         EnqueueActionWithDelay(() => UseAction(Actions.Yield2));
                     else if (ShouldUseKingI(slot, config))

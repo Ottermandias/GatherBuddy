@@ -133,6 +133,9 @@ public class UptimeManager : IDisposable
         if (fish.CurrentWeather.Length == 0 && fish.PreviousWeather.Length == 0)
             return TimeInterval.Invalid;
 
+        if (territory.Id is 901 or 929 or 939)
+            return TimeInterval.Invalid;
+
         var wl = GatherBuddy.WeatherManager.RequestForecast(territory, fish.CurrentWeather, fish.PreviousWeather, fish.Interval, now);
         if (wl.Timestamp == TimeStamp.Epoch)
             return TimeInterval.Invalid;

@@ -391,21 +391,33 @@ public static partial class Fish
         data.Apply     (30005, Patch.EchoesOfAFallenStar) // Grade 2 Skybuilders' Blind Manta
             .Bait      (data);
         data.Apply     (30006, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Rhomaleosaurus
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (30007, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Gobbie Mask
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (30008, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Pterodactyl
-            .Bait      (data);
+            .Bait      (data, 30280)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (30009, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Skyfish
-            .Bait      (data);
+            .Bait      (data, 30281)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (30010, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Cometfish
-            .Bait      (data);
+            .Bait      (data, 30278)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 133);
         data.Apply     (30011, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Anomalocaris
-            .Bait      (data);
+            .Bait      (data, 30279)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary) 
+            .Weather   (data, 134);
         data.Apply     (30012, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Rhamphorhynchus
-            .Bait      (data);
+            .Bait      (data, 30280)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 135);
         data.Apply     (30013, Patch.EchoesOfAFallenStar) // Grade 2 Artisanal Skybuilders' Dragon's Soul
-            .Bait      (data);
+            .Bait      (data, 30281)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
+            .Weather   (data, 136);
     }
     // @formatter:on
 }

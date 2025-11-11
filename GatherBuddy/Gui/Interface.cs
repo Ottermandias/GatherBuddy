@@ -22,7 +22,7 @@ public partial class Interface : Window, IDisposable
 
     public static IReadOnlyList<ExtendedFish> ExtendedFishList
         => _extendedFishList ??= GatherBuddy.GameData.Fishes.Values
-            .Where(f => f.FishingSpots.Count > 0 && f.InLog)
+            .Where(f => f.FishingSpots.Count > 0)
             .Select(f => new ExtendedFish(f)).ToList();
 
     public Interface(GatherBuddy plugin)

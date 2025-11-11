@@ -113,21 +113,33 @@ public static partial class Fish
         data.Apply     (31595, Patch.ReflectionsInCrystal) // Grade 3 Skybuilders' Gurnard
             .Bait      (data);
         data.Apply     (31596, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Oscar
-            .Bait      (data);
+            .Bait      (data, 30278)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (31597, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Blind Manta
-            .Bait      (data);
+            .Bait      (data, 30279)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (31598, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Mosasaur
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary);  
         data.Apply     (31599, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Storm Chaser
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (31600, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Archaeopteryx
-            .Bait      (data);
+            .Bait      (data, 30280)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
+            .Weather   (data, 136);
         data.Apply     (31601, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Wyvern
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 133);
         data.Apply     (31602, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Cloudshark
-            .Bait      (data);
+            .Bait      (data, 30279)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 135);
         data.Apply     (31603, Patch.ReflectionsInCrystal) // Grade 3 Artisanal Skybuilders' Helicoprion
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 134);
     }
     // @formatter:on
 }

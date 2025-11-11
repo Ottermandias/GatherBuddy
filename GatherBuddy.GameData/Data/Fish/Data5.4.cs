@@ -300,57 +300,87 @@ public static partial class Fish
             .Ocean     (OceanTime.Sunset)
             .Predators (data, 45, (32110, 1));
         data.Apply     (32882, Patch.FuturesRewritten) // Grade 4 Skybuilders' Zagas Khaal
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32883, Patch.FuturesRewritten) // Grade 4 Skybuilders' Goldsmith Crab
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32884, Patch.FuturesRewritten) // Grade 4 Skybuilders' Common Bitterling
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32885, Patch.FuturesRewritten) // Grade 4 Skybuilders' Skyloach
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32886, Patch.FuturesRewritten) // Grade 4 Skybuilders' Glacier Core
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32887, Patch.FuturesRewritten) // Grade 4 Skybuilders' Kissing Fish
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32888, Patch.FuturesRewritten) // Grade 4 Skybuilders' Cavalry Catfish
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32889, Patch.FuturesRewritten) // Grade 4 Skybuilders' Manasail
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32890, Patch.FuturesRewritten) // Grade 4 Skybuilders' Starflower
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32891, Patch.FuturesRewritten) // Grade 4 Skybuilders' Cyan Crab
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32892, Patch.FuturesRewritten) // Grade 4 Skybuilders' Fickle Krait
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32893, Patch.FuturesRewritten) // Grade 4 Skybuilders' Proto-hropken
-            .Bait      (data);
+            .Bait      (data, 29717)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32894, Patch.FuturesRewritten) // Grade 4 Skybuilders' Ghost Faerie
-            .Bait      (data);
+            .Bait      (data, 30280)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32895, Patch.FuturesRewritten) // Grade 4 Skybuilders' Ashfish
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32896, Patch.FuturesRewritten) // Grade 4 Skybuilders' Whitehorse
-            .Bait      (data);
+            .Bait      (data, 30281)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32897, Patch.FuturesRewritten) // Grade 4 Skybuilders' Ocean Cloud
-            .Bait      (data);
+            .Bait      (data, 30280)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32898, Patch.FuturesRewritten) // Grade 4 Skybuilders' Black Fanfish
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32899, Patch.FuturesRewritten) // Grade 4 Skybuilders' Sunfish
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32900, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Sweatfish
-            .Bait      (data);
+            .Bait      (data, 30281)
+            .Bite      (data, HookSet.Precise, BiteType.Weak);
         data.Apply     (32901, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Sculptor
-            .Bait      (data);
+            .Bait      (data, 30280)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32902, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Little Thalaos
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Strong);
         data.Apply     (32903, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Lightning Chaser
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary);
         data.Apply     (32904, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Marrella
-            .Bait      (data);
+            .Bait      (data, 30281)
+            .Bite      (data, HookSet.Precise, BiteType.Legendary)
+            .Weather   (data, 134);
         data.Apply     (32905, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Crimson Namitaro
-            .Bait      (data);
+            .Bait      (data, 30280)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 133);
         data.Apply     (32906, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Griffin
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 136);
         data.Apply     (32907, Patch.FuturesRewritten) // Grade 4 Artisanal Skybuilders' Meganeura
-            .Bait      (data);
+            .Mooch     (data, 32894)
+            .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Weather   (data, 135);
     }
     // @formatter:on
 }
