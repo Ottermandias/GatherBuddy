@@ -224,7 +224,7 @@ namespace GatherBuddy.AutoGather
             playerObject->SetRotation(angle.Rad);
         }
 
-        private void Navigate(Vector3 destination, bool shouldFly, Angle angle = default)
+        private void Navigate(Vector3 destination, bool shouldFly, Angle angle = default, bool preferGround = false)
         {
             if (CurrentDestination == destination && (IsPathing || IsPathGenerating))
                 return;
@@ -234,13 +234,13 @@ namespace GatherBuddy.AutoGather
             StopNavigation();
             CurrentDestination = destination;
             CurrentRotation    = angle;
-            var correctedDestination = GetCorrectedDestination(CurrentDestination);
+            var correctedDestination = GetCorrectedDestination(CurrentDestination, preferGround);
             GatherBuddy.Log.Debug($"Navigating to {destination} (corrected to {correctedDestination})");
 
             LastNavigationResult = VNavmesh.SimpleMove.PathfindAndMoveTo(correctedDestination, shouldFly);
         }
 
-        private static Vector3 GetCorrectedDestination(Vector3 destination)
+        private static Vector3 GetCorrectedDestination(Vector3 destination, bool preferGround = false)
         {
             const float MaxHorizontalSeparation = 3.0f;
             const float MaxVerticalSeparation = 2.5f;
@@ -266,6 +266,30 @@ namespace GatherBuddy.AutoGather
                     GatherBuddy.Log.Warning($"Query.Mesh.NearestPoint() returned a point with too large vertical separation {separation}. Maximum allowed is {MaxVerticalSeparation}.");
                 else
                     return correctedDestination;
+                
+                if (preferGround)
+                {
+                    const float GroundSearchRadius = 15f;
+                    const float MaxGroundHorizontalSeparation = 7.5f;
+                    const float MaxGroundVerticalSeparation = 10f;
+                    
+                    try
+                    {
+                        var groundPoint = VNavmesh.Query.Mesh.PointOnFloor(destination, false, GroundSearchRadius);
+                        var hDist = Vector2.Distance(groundPoint.ToVector2(), destination.ToVector2());
+                        var vDist = Math.Abs(groundPoint.Y - destination.Y);
+                        
+                        if (hDist <= MaxGroundHorizontalSeparation && vDist <= MaxGroundVerticalSeparation)
+                        {
+                            GatherBuddy.Log.Debug($"Using ground point for fishing: horizontal {hDist:F2}y, vertical {vDist:F2}y from target");
+                            return groundPoint;
+                        }
+                    }
+                    catch (Exception e)
+                    {
+                        GatherBuddy.Log.Debug($"Failed to find ground point for fishing: {e.Message}");
+                    }
+                }
             }
             catch (Exception) { }
 
@@ -293,12 +317,12 @@ namespace GatherBuddy.AutoGather
             if (!Dalamud.Conditions[ConditionFlag.Mounted])
             {
                 if (GatherBuddy.Config.AutoGatherConfig.MoveWhileMounting)
-                    Navigate(position, false, angle);
+                    Navigate(position, false, angle, preferGround: true);
                 EnqueueMountUp();
             }
             else
             {
-                Navigate(position, ShouldFly(position), angle);
+                Navigate(position, ShouldFly(position), angle, preferGround: true);
             }
         }
 

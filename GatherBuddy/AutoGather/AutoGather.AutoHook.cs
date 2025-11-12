@@ -45,6 +45,8 @@ public partial class AutoGather
         if (_currentAutoHookTarget?.Fish?.ItemId == target.Fish.ItemId 
             && _currentAutoHookPresetName != null)
         {
+            AutoHook.SetPluginState?.Invoke(true);
+            Svc.Log.Debug($"[AutoGather] Re-enabled existing AutoHook preset '{_currentAutoHookPresetName}'");
             return;
         }
 
@@ -92,6 +94,7 @@ public partial class AutoGather
         {
             if (_currentAutoHookPresetName != null)
             {
+                AutoHook.SetPreset?.Invoke(_currentAutoHookPresetName);
                 AutoHook.DeleteSelectedPreset?.Invoke();
                 Svc.Log.Debug($"[AutoGather] Deleted AutoHook preset '{_currentAutoHookPresetName}'");
             }

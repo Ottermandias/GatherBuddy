@@ -411,7 +411,18 @@ namespace GatherBuddy.AutoGather
                 if (fish.Any() && Player.Job == Job.FSH)
                 {
                     if (GatherBuddy.Config.AutoGatherConfig.UseNavigation)
+                    {
+                        var pathGenerating = IsPathGenerating;
+                        var pathing = IsPathing;
+                        var unstuckResult = _advancedUnstuck.Check(CurrentDestination, pathGenerating, pathing);
+                        if (unstuckResult == AdvancedUnstuckCheckResult.Fail)
+                        {
+                            StopNavigation();
+                            AutoStatus = "Advanced unstuck in progress!";
+                            return;
+                        }
                         DoFishMovement(fish);
+                    }
                     DoFishingTasks(fish);
                     return;
                 }
@@ -950,6 +961,7 @@ namespace GatherBuddy.AutoGather
         }
 
         public readonly Dictionary<GatherTarget, (Vector3 Position, Angle Rotation, DateTime Expiration)> FishingSpotData = new();
+        private readonly Dictionary<Vector3, DateTime> _fishingSpotDismountAttempts = new();
 
         private void DoFishMovement(IEnumerable<GatherTarget> next)
         {
@@ -966,34 +978,98 @@ namespace GatherBuddy.AutoGather
                     return;
                 }
 
-                DateTime spotExpiration =
-                    DateTime.Now.AddMinutes(GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes); //TODO: Make this configurable
-                FishingSpotData.Add(fish, (positionData.Value.Position, positionData.Value.Rotation, spotExpiration));
+                FishingSpotData.Add(fish, (positionData.Value.Position, positionData.Value.Rotation, DateTime.MaxValue));
                 return;
             }
 
             if (fishingSpotData.Expiration < DateTime.Now)
             {
                 Svc.Log.Debug("Time for a new fishing spot!");
+                var oldPosition = fishingSpotData.Position;
                 FishingSpotData.Remove(fish);
+
+                if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                {
+                    AutoHook.SetPluginState?.Invoke(false);
+                    TaskManager.DelayNext(500);
+                    Svc.Log.Debug("[AutoGather] AutoHook disabled for relocation to a new position at the same fishing spot");
+                }
+
                 if (IsGathering || IsFishing)
                 {
                     QueueQuitFishingTasks();
                 }
 
+                const float MinRelocationDistance = 10.0f;
+                var positionData = _plugin.FishRecorder.GetPositionForFishingSpot(fish!.FishingSpot, oldPosition, MinRelocationDistance);
+                if (!positionData.HasValue)
+                {
+                    Communicator.PrintError(
+                        $"No alternate position data for fishing spot {fish.FishingSpot.Name}. Auto-Fishing cannot continue.");
+                    AbortAutoGather();
+                    return;
+                }
+
+                FishingSpotData.Add(fish, (positionData.Value.Position, positionData.Value.Rotation, DateTime.MaxValue));
+
+                return;
+            }
+
+            if (IsFishing)
+            {
+                StopNavigation();
+                AutoStatus = "Fishing...";
+                DoFishingTasks(next);
                 return;
             }
 
             if (Vector3.Distance(fishingSpotData.Position, Player.Position) < 1)
             {
                 if (Dalamud.Conditions[ConditionFlag.Mounted])
+                {
+                    if (!_fishingSpotDismountAttempts.TryGetValue(fishingSpotData.Position, out var firstAttempt))
+                    {
+                        _fishingSpotDismountAttempts[fishingSpotData.Position] = DateTime.Now;
+                    }
+                    else if ((DateTime.Now - firstAttempt).TotalSeconds > 5)
+                    {
+                        Svc.Log.Warning("[AutoGather] Failed to dismount at fishing spot for 5+ seconds, forcing unstuck to find landable spot");
+                        _fishingSpotDismountAttempts.Remove(fishingSpotData.Position);
+                        _advancedUnstuck.ForceFishing();
+                        AutoStatus = "Can't land here, finding landable spot...";
+                        return;
+                    }
+                    
                     EnqueueDismount();
+                    AutoStatus = "Dismounting...";
+                    return;
+                }
+                
+                if (_fishingSpotDismountAttempts.ContainsKey(fishingSpotData.Position))
+                {
+                    _fishingSpotDismountAttempts.Remove(fishingSpotData.Position);
+                }
 
                 var playerAngle = new Angle(Player.Rotation);
                 if (playerAngle != fishingSpotData.Rotation)
+                {
                     TaskManager.Enqueue(() => SetRotation(fishingSpotData.Rotation));
-                Svc.Log.Debug($"Fishing Spot is valid for {(fishingSpotData.Expiration - DateTime.Now).TotalSeconds} seconds");
+                    AutoStatus = "Adjusting rotation...";
+                    return;
+                }
 
+                if (fishingSpotData.Expiration == DateTime.MaxValue)
+                {
+                    var newExpiration = DateTime.Now.AddMinutes(GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes);
+                    FishingSpotData[fish] = (fishingSpotData.Position, fishingSpotData.Rotation, newExpiration);
+                    Svc.Log.Information($"[AutoGather] Started fishing spot timer: {GatherBuddy.Config.AutoGatherConfig.MaxFishingSpotMinutes} minutes");
+                }
+                else
+                {
+                    Svc.Log.Debug($"Fishing Spot is valid for {(fishingSpotData.Expiration - DateTime.Now).TotalSeconds} seconds");
+                }
+
+                StopNavigation();
                 AutoStatus = "Fishing...";
                 DoFishingTasks(next);
                 return;

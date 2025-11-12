@@ -198,18 +198,19 @@ namespace GatherBuddy.AutoGather
 
         private void HandleWaiting(GatherTarget target, ConfigPreset config)
         {
-            if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
-                return;
-
-            if (target.Fish?.Lure == Lure.Ambitious && !LureSuccess)
-            {
-                EnqueueActionWithDelay(() => UseAction(Actions.AmbitiousLure));
-            }
-
-            if (target.Fish?.Lure == Lure.Modest && !LureSuccess)
-            {
-                EnqueueActionWithDelay(() => UseAction(Actions.ModestLure));
-            }
+            // Old fishing logic - disabled in favor of AutoHook integration
+            // if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+            //     return;
+            //
+            // if (target.Fish?.Lure == Lure.Ambitious && !LureSuccess)
+            // {
+            //     EnqueueActionWithDelay(() => UseAction(Actions.AmbitiousLure));
+            // }
+            //
+            // if (target.Fish?.Lure == Lure.Modest && !LureSuccess)
+            // {
+            //     EnqueueActionWithDelay(() => UseAction(Actions.ModestLure));
+            // }
         }
 
         private void HandleReady(GatherTarget target, ConfigPreset config)
@@ -258,21 +259,22 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            // Old fishing logic - disabled in favor of AutoHook integration
             // if (NeedsSurfaceSlap(target))
             //     EnqueueActionWithDelay(() => UseAction(Actions.SurfaceSlap));
             // else if (NeedsIdenticalCast(target))
             //     EnqueueActionWithDelay(() => UseAction(Actions.IdenticalCast));
-
-            if (Player.Status.All(s => !Actions.CollectorsGlove.StatusProvide.Contains(s.StatusId)))
-                EnqueueActionWithDelay(() => UseAction(Actions.CollectorsGlove));
-            else if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
-                EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
-            else if (target.Fish?.Snagging == Snagging.Required)
-                EnqueueActionWithDelay(() => UseAction(Actions.Snagging));
-            else if ((target.Fish?.ItemData.IsCollectable ?? false) && !HasPatienceStatus())
-                EnqueueActionWithDelay(() => UseAction(GetCorrectPatienceAction()!));
-            else
-                EnqueueActionWithDelay(() => UseAction(Actions.Cast));
+            //
+            // if (Player.Status.All(s => !Actions.CollectorsGlove.StatusProvide.Contains(s.StatusId)))
+            //     EnqueueActionWithDelay(() => UseAction(Actions.CollectorsGlove));
+            // else if (Player.Status.Any(s => s is { StatusId: 2778, Param: >= 3 }))
+            //     EnqueueActionWithDelay(() => UseAction(Actions.ThaliaksFavor));
+            // else if (target.Fish?.Snagging == Snagging.Required)
+            //     EnqueueActionWithDelay(() => UseAction(Actions.Snagging));
+            // else if ((target.Fish?.ItemData.IsCollectable ?? false) && !HasPatienceStatus())
+            //     EnqueueActionWithDelay(() => UseAction(GetCorrectPatienceAction()!));
+            // else
+            //     EnqueueActionWithDelay(() => UseAction(Actions.Cast));
         }
 
         private bool NeedsIdenticalCast(GatherTarget target)

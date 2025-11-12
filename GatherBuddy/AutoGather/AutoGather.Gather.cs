@@ -151,7 +151,7 @@ namespace GatherBuddy.AutoGather
                 slot = available
                     .Where(s => s.Item != null && targetLevels.Contains(s.Item.Level))
                     .Where(s => !s.Item!.IsTreasureMap && !s.IsCollectable)
-                    .OrderBy(s => s.ItemLevel) // Prioritize lower level slots first (e.g., lv10 before lv60)
+                    .OrderByDescending(s => s.ItemLevel)
                     .FirstOrDefault();
 
                 if (slot != null)

@@ -46,7 +46,7 @@ public partial class FishRecorder
         GatherBuddy.Log.Information($"Queued {records.Count()} records for upload");
     }
 
-    private readonly Random _random = new();
+    private readonly Random _random = new(Guid.NewGuid().GetHashCode());
     public (Vector3 Position, Angle Rotation)? GetPositionForFishingSpot(FishingSpot spot)
     {
         var allValidRecords = RemoteRecords.Union(Records).Where(r => r.FishingSpot == spot && r.PositionDataValid);
@@ -55,6 +55,32 @@ public partial class FishRecorder
 
         var random = _random.Next(0, allValidRecords.Count());
         var selectedRecord = allValidRecords.ElementAt(random);
+        return (selectedRecord.Position, selectedRecord.RotationAngle);
+    }
+
+    public (Vector3 Position, Angle Rotation)? GetPositionForFishingSpot(FishingSpot spot, Vector3 avoidPosition, float minDistance)
+    {
+        var allValidRecords = RemoteRecords.Union(Records).Where(r => r.FishingSpot == spot && r.PositionDataValid).ToList();
+        if (allValidRecords.Count == 0)
+            return null;
+
+        var farEnough = allValidRecords
+            .Where(r => Vector3.Distance(r.Position, avoidPosition) >= minDistance)
+            .ToList();
+
+        FishRecord selectedRecord;
+        if (farEnough.Count > 0)
+        {
+            var random = _random.Next(0, farEnough.Count);
+            selectedRecord = farEnough[random];
+        }
+        else
+        {
+            selectedRecord = allValidRecords
+                .OrderByDescending(r => Vector3.Distance(r.Position, avoidPosition))
+                .First();
+        }
+
         return (selectedRecord.Position, selectedRecord.RotationAngle);
     }
 

@@ -67,7 +67,8 @@ public partial class FishRecorder : IDisposable
     private void AddUnchecked(FishRecord record)
     {
         Records.Add(record);
-        RecordsToUpload.Enqueue(record);
+        if (ShouldUploadRecord(record))
+            RecordsToUpload.Enqueue(record);
         AddRecordToTimes(record);
         AddChanges();
     }
@@ -194,4 +195,68 @@ public partial class FishRecorder : IDisposable
 
     private bool CheckSimilarity(FishRecord record)
         => !Records.Any(r => Similar(r, record));
+
+    private bool ShouldUploadRecord(FishRecord record)
+    {
+        if (!record.PositionDataValid)
+        {
+            GatherBuddy.Log.Debug($"[Upload Filter] Skipping upload - position data invalid");
+            return false;
+        }
+
+        if (record.FishingSpot == null)
+        {
+            GatherBuddy.Log.Debug($"[Upload Filter] Skipping upload - fishing spot is null");
+            return false;
+        }
+
+        var allKnownPositions = RemoteRecords
+            .Union(RecordsToUpload)
+            .Where(r => r.FishingSpot == record.FishingSpot && r.PositionDataValid)
+            .Select(r => r.Position)
+            .Distinct(new Vector3Comparer())
+            .ToList();
+
+        GatherBuddy.Log.Debug($"[Upload Filter] Fishing spot '{record.FishingSpot.Name}' has {allKnownPositions.Count} unique positions");
+
+        if (allKnownPositions.Count >= 50)
+        {
+            GatherBuddy.Log.Debug($"[Upload Filter] Skipping upload - fishing spot already has 50+ positions");
+            return false;
+        }
+
+        var recordPosition = record.Position;
+        var positionExists = allKnownPositions.Any(pos => ArePositionsIdentical(pos, recordPosition));
+        
+        if (positionExists)
+        {
+            GatherBuddy.Log.Debug($"[Upload Filter] Skipping upload - position already exists in database or upload queue");
+            return false;
+        }
+        
+        GatherBuddy.Log.Information($"[Upload Filter] Queuing record for upload - new position for '{record.FishingSpot.Name}' ({recordPosition.X:F2}, {recordPosition.Y:F2}, {recordPosition.Z:F2})");
+        return true;
+    }
+
+    private static bool ArePositionsIdentical(System.Numerics.Vector3 pos1, System.Numerics.Vector3 pos2)
+    {
+        const float epsilon = 1.0f;
+        return Math.Abs(pos1.X - pos2.X) < epsilon
+            && Math.Abs(pos1.Y - pos2.Y) < epsilon
+            && Math.Abs(pos1.Z - pos2.Z) < epsilon;
+    }
+
+    private class Vector3Comparer : IEqualityComparer<System.Numerics.Vector3>
+    {
+        public bool Equals(System.Numerics.Vector3 x, System.Numerics.Vector3 y)
+            => ArePositionsIdentical(x, y);
+
+        public int GetHashCode(System.Numerics.Vector3 obj)
+        {
+            var x = (int)obj.X;
+            var y = (int)obj.Y;
+            var z = (int)obj.Z;
+            return HashCode.Combine(x, y, z);
+        }
+    }
 }

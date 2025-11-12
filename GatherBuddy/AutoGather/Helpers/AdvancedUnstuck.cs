@@ -1,9 +1,11 @@
-﻿using Dalamud.Plugin.Services;
+using Dalamud.Plugin.Services;
 using ECommons.GameHelpers;
 using ECommons.MathHelpers;
 using GatherBuddy.CustomInfo;
 using System;
 using System.Numerics;
+using Dalamud.Game.ClientState.Conditions;
+using GatherBuddy.Plugin;
 
 namespace GatherBuddy.AutoGather.Movement
 {
@@ -99,12 +101,84 @@ namespace GatherBuddy.AutoGather.Movement
             }
         }
 
+        public void ForceFishing()
+        {
+            if (!IsRunning)
+            {
+                GatherBuddy.Log.Warning("Advanced Unstuck: force start for fishing (finding landable spot).");
+                StartFishing();
+            }
+        }
+
         private void Start()
         {
             var rng = new Random();
             float rnd() => (rng.Next(2) == 0 ? -1 : 1) * rng.NextSingle();
             var newPosition = Player.Position + Vector3.Normalize(new Vector3(rnd(), rnd(), rnd())) * 25f;
             _movementController.DesiredPosition = newPosition;
+            _movementController.Enabled = true;
+            _unstuckStart = DateTime.Now;
+            Dalamud.Framework.Update += RunningUpdate;
+        }
+
+        private void StartFishing()
+        {
+            if (!VNavmesh.Enabled || VNavmesh.Query.Mesh.PointOnFloor == null)
+            {
+                GatherBuddy.Log.Error("vNavmesh mesh query not available, cannot unstuck for fishing safely");
+                return;
+            }
+
+            var rng = new Random();
+            Vector3 landablePosition = default;
+            
+            for (int distance = 15; distance <= 60; distance += 5)
+            {
+                for (int angleStep = 0; angleStep < 16; angleStep++)
+                {
+                    var angle = (float)(angleStep * Math.PI * 2 / 16);
+                    var offset = new Vector3(
+                        (float)Math.Cos(angle) * distance,
+                        0,
+                        (float)Math.Sin(angle) * distance
+                    );
+                    
+                    var testPosition = Player.Position + offset;
+                    
+                    try
+                    {
+                        var floorPosition = VNavmesh.Query.Mesh.PointOnFloor.Invoke(testPosition, true, 50f);
+                        
+                        if (floorPosition != default)
+                        {
+                            var distanceToFloor = Vector3.Distance(floorPosition, Player.Position);
+                            var heightDiff = Math.Abs(floorPosition.Y - testPosition.Y);
+                            
+                            if (distanceToFloor > 10f && heightDiff < 30f)
+                            {
+                                landablePosition = floorPosition;
+                                GatherBuddy.Log.Information($"[Fishing Unstuck] Found landable position at {distanceToFloor:F1}y away (height diff: {heightDiff:F1}y)");
+                                break;
+                            }
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        GatherBuddy.Log.Debug($"Error querying mesh at distance {distance}, angle {angleStep}: {ex.Message}");
+                    }
+                }
+                
+                if (landablePosition != default)
+                    break;
+            }
+            
+            if (landablePosition == default)
+            {
+                GatherBuddy.Log.Error("[Fishing Unstuck] CRITICAL: Could not find any landable position within 60y. Manual intervention required.");
+                return;
+            }
+            
+            _movementController.DesiredPosition = landablePosition;
             _movementController.Enabled = true;
             _unstuckStart = DateTime.Now;
             Dalamud.Framework.Update += RunningUpdate;
