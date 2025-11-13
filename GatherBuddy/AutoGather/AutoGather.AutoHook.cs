@@ -11,6 +11,7 @@ public partial class AutoGather
 {
     private GatherTarget? _currentAutoHookTarget;
     private string? _currentAutoHookPresetName;
+    private bool _isCurrentPresetUserOwned;
 
     private void CleanupAutoHookIfNeeded(GatherTarget newTarget)
     {
@@ -52,32 +53,47 @@ public partial class AutoGather
 
         try
         {
-            var fishingSpot = target.FishingSpot;
-            
-            // Only create preset for the target fish (and its mooch chain)
-            var fishList = new[] { target.Fish };
+            var fishName = target.Fish.Name[GatherBuddy.Language];
+            var fishId = target.Fish.ItemId;
+            string? presetName = null;
+            bool isUserPreset = false;
 
-            var presetName = $"GBR_{target.Fish.Name[GatherBuddy.Language].Replace(" ", "")}_{DateTime.Now:HHmmss}";
-            
-            Svc.Log.Information($"[AutoGather] Creating AutoHook preset '{presetName}' for {target.Fish.Name[GatherBuddy.Language]}");
-            
-            var gbrPreset = MatchConfigPreset(target.Fish);
-            var success = AutoHookService.ExportPresetToAutoHook(presetName, fishList, gbrPreset);
-            
-            if (success)
+            if (GatherBuddy.Config.AutoGatherConfig.UseExistingAutoHookPresets)
             {
-                _currentAutoHookTarget = target;
-                _currentAutoHookPresetName = presetName;
+                presetName = fishId.ToString();
+                isUserPreset = true;
+                
+                Svc.Log.Information($"[AutoGather] Using user preset by ID: trying '{presetName}' for {fishName}");
+                AutoHook.SetPreset?.Invoke(presetName);
+            }
+
+            if (presetName == null)
+            {
+                var fishList = new[] { target.Fish };
+                presetName = $"GBR_{fishName.Replace(" ", "")}_{DateTime.Now:HHmmss}";
+                
+                Svc.Log.Information($"[AutoGather] Creating AutoHook preset '{presetName}' for {fishName}");
+                
+                var gbrPreset = MatchConfigPreset(target.Fish);
+                var success = AutoHookService.ExportPresetToAutoHook(presetName, fishList, gbrPreset);
+                
+                if (!success)
+                {
+                    Svc.Log.Error($"[AutoGather] Failed to create AutoHook preset");
+                    return;
+                }
                 
                 AutoHook.SetPreset?.Invoke(presetName);
-                AutoHook.SetPluginState?.Invoke(true);
-                
-                Svc.Log.Information($"[AutoGather] AutoHook preset '{presetName}' selected and activated successfully");
             }
-            else
-            {
-                Svc.Log.Error($"[AutoGather] Failed to create AutoHook preset");
-            }
+
+            _currentAutoHookTarget = target;
+            _currentAutoHookPresetName = presetName;
+            _isCurrentPresetUserOwned = isUserPreset;
+            
+            AutoHook.SetPluginState?.Invoke(true);
+            
+            var presetType = isUserPreset ? "user" : "generated";
+            Svc.Log.Information($"[AutoGather] AutoHook preset '{presetName}' ({presetType}) for {fishName} selected and activated successfully");
         }
         catch (Exception ex)
         {
@@ -94,9 +110,16 @@ public partial class AutoGather
         {
             if (_currentAutoHookPresetName != null)
             {
-                AutoHook.SetPreset?.Invoke(_currentAutoHookPresetName);
-                AutoHook.DeleteSelectedPreset?.Invoke();
-                Svc.Log.Debug($"[AutoGather] Deleted AutoHook preset '{_currentAutoHookPresetName}'");
+                if (_isCurrentPresetUserOwned)
+                {
+                    Svc.Log.Debug($"[AutoGather] Preserving user-owned preset '{_currentAutoHookPresetName}'");
+                }
+                else
+                {
+                    AutoHook.SetPreset?.Invoke(_currentAutoHookPresetName);
+                    AutoHook.DeleteSelectedPreset?.Invoke();
+                    Svc.Log.Debug($"[AutoGather] Deleted GBR-generated preset '{_currentAutoHookPresetName}'");
+                }
             }
             
             AutoHook.SetPluginState?.Invoke(false);
@@ -104,6 +127,7 @@ public partial class AutoGather
             
             _currentAutoHookTarget = null;
             _currentAutoHookPresetName = null;
+            _isCurrentPresetUserOwned = false;
         }
         catch (Exception ex)
         {

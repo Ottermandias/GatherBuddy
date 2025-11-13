@@ -545,6 +545,7 @@ public partial class Interface
             using var style   = ImRaii.PushStyle(ImGuiStyleVar.ItemSpacing, ImGui.GetStyle().ItemSpacing * new Vector2(1f, 1.5f));
             if (printName)
                 PrintName(this);
+            ImUtf8.TextFramed($"Item ID: {Data.ItemId}", 0xFF808080);
             PrintTime(this);
             PrintWeather(this, weatherIconSize);
             PrintBait(this, territory, iconSize, smallIconSize);

@@ -186,19 +186,21 @@ namespace GatherBuddy.AutoGather
             {
                 switch (state)
                 {
-                    case FishingState.Bite: HandleBite(targets, config); break;
+                    // Old fishing logic
+                    // GBR only handles bait switching and casting
+                    // case FishingState.Bite: HandleBite(targets, config); break;
                     case FishingState.None:
                     case FishingState.PoleReady:
                         HandleReady(targets.First(t => t.Fish != null), config);
                         break;
-                    case FishingState.Waiting3: HandleWaiting(targets.First(t => t.Fish != null), config); break;
+                    // case FishingState.Waiting3: HandleWaiting(targets.First(t => t.Fish != null), config); break;
                 }
             }
         }
 
         private void HandleWaiting(GatherTarget target, ConfigPreset config)
         {
-            // Old fishing logic - disabled in favor of AutoHook integration
+            // Old fishing logic 
             // if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
             //     return;
             //
@@ -344,25 +346,26 @@ namespace GatherBuddy.AutoGather
             return null;
         }
 
-        private void HandleBite(IEnumerable<GatherTarget> targets, ConfigPreset config)
-        {
-            if (targets.Any(t => t.Fish?.BiteType == GatherBuddy.TugType.Bite))
-            {
-                if (!HasPatienceStatus())
-                {
-                    EnqueueActionWithDelay(() => UseAction(Actions.Hook));
-                    return;
-                }
-
-                var hookset = targets.First(t => t.Fish!.BiteType == GatherBuddy.TugType.Bite).Fish.HookSet;
-                switch (hookset)
-                {
-                    case HookSet.Powerful: EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset)); break;
-                    case HookSet.Precise:  EnqueueActionWithDelay(() => UseAction(Actions.PrecisionHookset)); break;
-                    default:               EnqueueActionWithDelay(() => UseAction(Actions.Hook)); break;
-                }
-            }
-        }
+        // Old fishing logic
+        // private void HandleBite(IEnumerable<GatherTarget> targets, ConfigPreset config)
+        // {
+        //     if (targets.Any(t => t.Fish?.BiteType == GatherBuddy.TugType.Bite))
+        //     {
+        //         if (!HasPatienceStatus())
+        //         {
+        //             EnqueueActionWithDelay(() => UseAction(Actions.Hook));
+        //             return;
+        //         }
+        //
+        //         var hookset = targets.First(t => t.Fish!.BiteType == GatherBuddy.TugType.Bite).Fish.HookSet;
+        //         switch (hookset)
+        //         {
+        //             case HookSet.Powerful: EnqueueActionWithDelay(() => UseAction(Actions.PowerfulHookset)); break;
+        //             case HookSet.Precise:  EnqueueActionWithDelay(() => UseAction(Actions.PrecisionHookset)); break;
+        //             default:               EnqueueActionWithDelay(() => UseAction(Actions.Hook)); break;
+        //         }
+        //     }
+        // }
 
         private unsafe void DoGatherWindowActions(IEnumerable<GatherTarget> target)
         {

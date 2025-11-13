@@ -833,6 +833,19 @@ public partial class Interface
         public static void DrawAlwaysMapsBox()
             => DrawCheckbox("Always gather maps when available",      "GBR will always grab maps first if it sees one in a node",
                 GatherBuddy.Config.AutoGatherConfig.AlwaysGatherMaps, b => GatherBuddy.Config.AutoGatherConfig.AlwaysGatherMaps = b);
+
+        public static void DrawUseExistingAutoHookPresetsBox()
+        {
+            DrawCheckbox("Use existing AutoHook presets",
+                "Use your own AutoHook presets instead of GBR-generated ones.\n"
+              + "Name your preset using the fish's Item ID (e.g., '46188' for Goldentail).\n"
+              + "Find Fish IDs by hovering over fish in the Fish tab.\n"
+              + "Your presets will never be deleted - only GBR-generated presets are cleaned up.",
+                GatherBuddy.Config.AutoGatherConfig.UseExistingAutoHookPresets,
+                b => GatherBuddy.Config.AutoGatherConfig.UseExistingAutoHookPresets = b);
+            ImGui.SameLine();
+            ImGuiEx.PluginAvailabilityIndicator([new("AutoHook")]);
+        }
     }
 
 
@@ -889,6 +902,7 @@ public partial class Interface
                 }
 
                 ConfigFunctions.DrawFishingSpotMinutes();
+                ConfigFunctions.DrawUseExistingAutoHookPresetsBox();
                 ConfigFunctions.DrawMaterialExtraction();
                 ConfigFunctions.DrawAetherialReduction();
                 ConfigFunctions.DrawLifestreamCommandTextInput();

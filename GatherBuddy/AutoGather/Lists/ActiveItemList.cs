@@ -50,7 +50,8 @@ namespace GatherBuddy.AutoGather.Lists
         /// True if there are items that need to be gathered; otherwise, false.
         /// </value>
         public bool HasItemsToGather
-            => _listsManager.ActiveItems.Where(NeedsGathering).Any();
+            => _listsManager.ActiveItems.Where(NeedsGathering).Any() 
+            || _listsManager.ActiveFish.Where(NeedsGathering).Any();
 
         public bool IsInitialized
             => _lastUpdateTime != TimeStamp.MinValue;
