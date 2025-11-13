@@ -1,9 +1,11 @@
 using System;
+using System.IO;
 using System.Linq;
 using ECommons.DalamudServices;
 using GatherBuddy.AutoGather.Lists;
 using GatherBuddy.AutoHookIntegration;
 using GatherBuddy.Plugin;
+using Newtonsoft.Json.Linq;
 
 namespace GatherBuddy.AutoGather;
 
@@ -60,11 +62,19 @@ public partial class AutoGather
 
             if (GatherBuddy.Config.AutoGatherConfig.UseExistingAutoHookPresets)
             {
-                presetName = fishId.ToString();
-                isUserPreset = true;
-                
-                Svc.Log.Information($"[AutoGather] Using user preset by ID: trying '{presetName}' for {fishName}");
-                AutoHook.SetPreset?.Invoke(presetName);
+                var userPresetName = FindAutoHookPreset(fishId.ToString());
+                if (userPresetName != null)
+                {
+                    presetName = userPresetName;
+                    isUserPreset = true;
+
+                    Svc.Log.Information($"[AutoGather] Found user preset '{presetName}' for {fishName}");
+                    AutoHook.SetPreset?.Invoke(presetName);
+                }
+                else
+                {
+                    Svc.Log.Debug($"[AutoGather] No user preset found for fish ID {fishId}, will generate one");
+                }
             }
 
             if (presetName == null)
@@ -132,6 +142,51 @@ public partial class AutoGather
         catch (Exception ex)
         {
             Svc.Log.Error($"[AutoGather] Exception cleaning up AutoHook: {ex.Message}");
+        }
+    }
+
+    private string? FindAutoHookPreset(string fishId)
+    {
+        try
+        {
+            // Resolve AutoHook config path: .../pluginConfigs/AutoHook.json
+            var pluginConfigsDir = Svc.PluginInterface.ConfigDirectory.Parent?.FullName;
+            if (string.IsNullOrEmpty(pluginConfigsDir))
+                return null;
+
+            var configPath = Path.Combine(pluginConfigsDir, "AutoHook.json");
+            if (!File.Exists(configPath))
+            {
+                Svc.Log.Debug($"[AutoGather] AutoHook config not found at {configPath}");
+                return null;
+            }
+
+            var json = File.ReadAllText(configPath);
+            var config = JObject.Parse(json);
+
+            var customPresets = config["HookPresets"]?["CustomPresets"] as JArray;
+            if (customPresets == null)
+            {
+                Svc.Log.Debug("[AutoGather] No CustomPresets found in AutoHook config");
+                return null;
+            }
+
+            foreach (var preset in customPresets)
+            {
+                var presetName = preset?["PresetName"]?.ToString();
+                if (presetName != null && presetName.Equals(fishId, StringComparison.Ordinal))
+                {
+                    Svc.Log.Debug($"[AutoGather] Found matching preset in config: {presetName}");
+                    return presetName;
+                }
+            }
+
+            return null;
+        }
+        catch (Exception ex)
+        {
+            Svc.Log.Error($"[AutoGather] Error reading AutoHook config: {ex.Message}");
+            return null;
         }
     }
 }
