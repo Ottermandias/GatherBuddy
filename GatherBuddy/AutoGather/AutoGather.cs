@@ -30,6 +30,7 @@ using NodeType = GatherBuddy.Enums.NodeType;
 using ECommons.UIHelpers.AddonMasterImplementations;
 using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.AutoGather.Helpers;
@@ -174,6 +175,7 @@ namespace GatherBuddy.AutoGather
                     if (AutoHook.Enabled)
                         AutoHook.SetPluginState(false); //Make sure AutoHook doesn't interfere with us
                     YesAlready.Lock();
+                    DisableQuickGathering();
                 }
 
                 _enabled = value;
@@ -206,6 +208,22 @@ namespace GatherBuddy.AutoGather
             {
                 GatherBuddy.Log.Warning("Lifestream not found or not ready");
                 return false;
+            }
+        }
+
+        private unsafe void DisableQuickGathering()
+        {
+            try
+            {
+                var raptureAtkModule = RaptureAtkModule.Instance();
+                if (raptureAtkModule == null)
+                    return;
+
+                raptureAtkModule->QuickGatheringEnabled = false;
+            }
+            catch (Exception e)
+            {
+                GatherBuddy.Log.Error($"Failed to disable Quick Gathering: {e.Message}");
             }
         }
 
@@ -820,45 +838,49 @@ namespace GatherBuddy.AutoGather
             
             if (next.First().Location.Territory.Id != territoryId && !(isCurrentDiadem && isTargetDiadem))
             {
-                if (_lastNonTimedNodeTerritory != 0 && _lastNonTimedNodeTerritory != territoryId)
+                if (GatherBuddy.Config.AutoGatherConfig.SortingMethod == AutoGatherConfig.SortingType.Location)
                 {
-                    var itemsInPreviousZone = _activeItemList
-                        .Where(i => i.Node?.Territory.Id == _lastNonTimedNodeTerritory)
-                        .Where(i => i.Node?.Times.AlwaysUp() != false)
-                        .ToList();
-                    
-                    if (itemsInPreviousZone.Any())
+                    if (_lastNonTimedNodeTerritory != 0 && _lastNonTimedNodeTerritory != territoryId)
                     {
-                        var previousZoneItem = itemsInPreviousZone.First();
-                        if (!LocationMatchesJob(previousZoneItem.Location))
+                        var itemsInPreviousZone = _activeItemList
+                            .Where(i => i.Node?.Territory.Id == _lastNonTimedNodeTerritory)
+                            .Where(i => i.Node?.Times.AlwaysUp() != false)
+                            .ToList();
+                        
+                        if (itemsInPreviousZone.Any())
                         {
-                            if (ChangeGearSet(previousZoneItem.Location.GatheringType.ToGroup(), 2400))
+                            var previousZoneItem = itemsInPreviousZone.First();
+                            if (!LocationMatchesJob(previousZoneItem.Location))
                             {
-                                return;
+                                if (ChangeGearSet(previousZoneItem.Location.GatheringType.ToGroup(), 2400))
+                                {
+                                    return;
+                                }
                             }
-                        }
-                        else
-                        {
-                            AutoStatus = "Teleporting back to previous zone...";
+                            
                             StopNavigation();
                             if (!MoveToTerritory(previousZoneItem.Location))
                                 AbortAutoGather();
                             return;
                         }
                     }
-                }
-                
-                var itemsInCurrentZone = _activeItemList
-                    .Where(i => i.Node?.Territory.Id == territoryId)
-                    .Where(i => i.Node?.Times.AlwaysUp() != false)
-                    .ToList();
-                
-                if (itemsInCurrentZone.Any())
-                {
-                    var currentZoneItem = itemsInCurrentZone.First();
-                    if (!LocationMatchesJob(currentZoneItem.Location))
+                    
+                    var itemsInCurrentZone = _activeItemList
+                        .Where(i => i.Node?.Territory.Id == territoryId)
+                        .Where(i => i.Node?.Times.AlwaysUp() != false)
+                        .ToList();
+                    
+                    if (itemsInCurrentZone.Any())
                     {
-                        if (ChangeGearSet(currentZoneItem.Location.GatheringType.ToGroup(), 2400))
+                        var currentZoneItem = itemsInCurrentZone.First();
+                        if (!LocationMatchesJob(currentZoneItem.Location))
+                        {
+                            if (ChangeGearSet(currentZoneItem.Location.GatheringType.ToGroup(), 2400))
+                            {
+                                return;
+                            }
+                        }
+                        else
                         {
                             return;
                         }
@@ -905,12 +927,12 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            var targetGatheringType = next.First().Location.GatheringType.ToGroup();
+            
             var config = MatchConfigPreset(next.First().Gatherable);
 
             if (DoUseConsumablesWithoutCastTime(config))
                 return;
-
-            var targetGatheringType = next.First().Location.GatheringType.ToGroup();
             var firstItem = next.First().Gatherable;
             
             if (firstItem != null && UmbralNodes.UmbralNodeData.Any(entry => entry.ItemIds.Contains(firstItem.ItemId)))
@@ -941,6 +963,7 @@ namespace GatherBuddy.AutoGather
             {
                 if (!ChangeGearSet(targetGatheringType, 2400))
                     AbortAutoGather();
+                return;
             }
 
             if (next.First().Fish != null)

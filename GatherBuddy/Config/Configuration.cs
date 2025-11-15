@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Numerics;
 using Dalamud.Configuration;
@@ -14,7 +15,7 @@ namespace GatherBuddy.Config;
 
 public partial class Configuration : IPluginConfiguration
 {
-    public int Version { get; set; } = 6;
+    public int Version { get; set; } = 7;
 
     // Set Names
     public string BotanistSetName { get; set; } = "Botanist";
@@ -145,17 +146,39 @@ public partial class Configuration : IPluginConfiguration
 
     public static Configuration Load()
     {
-        if (Dalamud.PluginInterface.GetPluginConfig() is Configuration config)
+        try
         {
-            config.AddColors();
-            config.Migrate4To5();
-            config.Migrate5To6();
-            return config;
+            if (Dalamud.PluginInterface.GetPluginConfig() is Configuration config)
+            {
+                config.AddColors();
+                config.Migrate4To5();
+                config.Migrate5To6();
+                config.Migrate6To7();
+                return config;
+            }
+        }
+        catch (Exception ex)
+        {
+            GatherBuddy.Log.Error($"Failed to load configuration, creating new one: {ex}");
+            try
+            {
+                var configPath = Dalamud.PluginInterface.ConfigFile.FullName;
+                var backupPath = $"{configPath}.backup_{DateTime.Now:yyyyMMdd_HHmmss}";
+                if (File.Exists(configPath))
+                {
+                    File.Copy(configPath, backupPath);
+                    GatherBuddy.Log.Warning($"Corrupted config backed up to: {backupPath}");
+                }
+            }
+            catch (Exception backupEx)
+            {
+                GatherBuddy.Log.Error($"Failed to backup corrupted config: {backupEx}");
+            }
         }
 
-        config = new Configuration();
-        config.Save();
-        return config;
+        var newConfig = new Configuration();
+        newConfig.Save();
+        return newConfig;
     }
 
     public void Migrate4To5()
@@ -175,6 +198,20 @@ public partial class Configuration : IPluginConfiguration
 
         ShowItems |= ItemFilter.Dawntrail;
         Version   =  6;
+        Save();
+    }
+
+    public void Migrate6To7()
+    {
+        if (Version >= 7)
+            return;
+
+        if (AutoGatherConfig == null)
+        {
+            AutoGatherConfig = new();
+        }
+
+        Version = 7;
         Save();
     }
 }

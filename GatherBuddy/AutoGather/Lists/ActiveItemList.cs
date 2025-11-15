@@ -32,6 +32,7 @@ namespace GatherBuddy.AutoGather.Lists
         private          uint                                    _lastTerritoryId;
         private          bool                                    _activeItemsChanged;
         private          bool                                    _gatheredSomething;
+        private          GatheringType                           _lastJob            = GatheringType.Unknown;
 
         internal ReadOnlyDictionary<GatheringNode, TimeInterval> DebugVisitedTimedLocations
             => _visitedTimedNodes.AsReadOnly();
@@ -443,9 +444,18 @@ namespace GatherBuddy.AutoGather.Lists
         /// </returns>
         private bool IsUpdateNeeded()
         {
+            var currentJob = Player.Job switch
+            {
+                Job.MIN => GatheringType.Miner,
+                Job.BTN => GatheringType.Botanist,
+                Job.FSH => GatheringType.Fisher,
+                _ => GatheringType.Unknown
+            };
+            
             if (_activeItemsChanged
              || _lastUpdateTime.TotalEorzeaHours() != AutoGather.AdjustedServerTime.TotalEorzeaHours()
-             || _lastTerritoryId != Dalamud.ClientState.TerritoryType)
+             || _lastTerritoryId != Dalamud.ClientState.TerritoryType
+             || _lastJob != currentJob)
                 return true;
 
             if (_gatheredSomething)
@@ -477,11 +487,19 @@ namespace GatherBuddy.AutoGather.Lists
             var eorzeaHour         = adjustedServerTime.TotalEorzeaHours();
             var lastTerritoryId    = _lastTerritoryId;
             var lastEorzeaHour     = _lastUpdateTime.TotalEorzeaHours();
+            var currentJob = Player.Job switch
+            {
+                Job.MIN => GatheringType.Miner,
+                Job.BTN => GatheringType.Botanist,
+                Job.FSH => GatheringType.Fisher,
+                _ => GatheringType.Unknown
+            };
 
             _activeItemsChanged = false;
             _gatheredSomething  = false;
             _lastUpdateTime     = adjustedServerTime;
             _lastTerritoryId    = territoryId;
+            _lastJob            = currentJob;
 
             if (territoryId != lastTerritoryId)
                 UpdateTeleportationCosts();

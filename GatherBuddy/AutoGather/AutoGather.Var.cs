@@ -184,6 +184,7 @@ namespace GatherBuddy.AutoGather
         private uint _lastTerritory = 0;
         
         private uint _lastNonTimedNodeTerritory = 0;
+        private GatheringType _lastJob = GatheringType.Unknown;
 
         private IEnumerator<Actions.BaseAction?>? ActionSequence;
 

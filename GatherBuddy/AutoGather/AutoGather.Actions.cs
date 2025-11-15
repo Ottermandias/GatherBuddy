@@ -176,10 +176,13 @@ namespace GatherBuddy.AutoGather
             var state  = GatherBuddy.EventFramework.FishingState;
             var config = MatchConfigPreset(targets.First(t => t.Fish != null).Fish!);
             
-            if (DoUseConsumablesWithoutCastTime(config, true))
+            if (!GatherBuddy.Config.AutoGatherConfig.UseAutoHook || !AutoHook.Enabled)
             {
-                TaskManager.DelayNext(1000);
-                return;
+                if (DoUseConsumablesWithoutCastTime(config, true))
+                {
+                    TaskManager.DelayNext(1000);
+                    return;
+                }
             }
 
             if (EzThrottler.Throttle("GBR Fishing", 500))
@@ -257,6 +260,7 @@ namespace GatherBuddy.AutoGather
 
             if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
             {
+                TaskManager.DelayNext(2000);
                 EnqueueActionWithDelay(() => UseAction(Actions.Cast));
                 return;
             }
@@ -371,6 +375,12 @@ namespace GatherBuddy.AutoGather
         {
             if (GatheringWindowReader == null)
                 return;
+
+            if (LastIntegrity > 0 && GatheringWindowReader.IntegrityRemaining > LastIntegrity + 1)
+            {
+                ActionSequence = null;
+            }
+            LastIntegrity = GatheringWindowReader.IntegrityRemaining;
 
             foreach (var t in target)
             {

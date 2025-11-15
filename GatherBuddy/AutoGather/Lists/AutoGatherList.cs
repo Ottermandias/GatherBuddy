@@ -45,6 +45,7 @@ public class AutoGatherList
             items              = new(items),
             quantities         = new(quantities),
             preferredLocations = new(preferredLocations),
+            enabledItems       = new(enabledItems),
             Name               = Name,
             Description        = Description,
             FolderPath         = FolderPath,

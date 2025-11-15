@@ -159,17 +159,27 @@ namespace GatherBuddy.Gui
                 else
                 {
                     //Convert old settings to the new Default preset
-                    Items.Add(GatherBuddy.Config.AutoGatherConfig.ConvertToPreset());
-                    Items[0].ChooseBestActionsAutomatically = true;
-                    Save();
-                    GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed        = true;
-                    GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone = true;
-                    GatherBuddy.Config.Save();
+                    if (GatherBuddy.Config.AutoGatherConfig != null)
+                    {
+                        Items.Add(GatherBuddy.Config.AutoGatherConfig.ConvertToPreset());
+                        Items[0].ChooseBestActionsAutomatically = true;
+                        Save();
+                        GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed        = true;
+                        GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone = true;
+                        GatherBuddy.Config.Save();
+                    }
+                    else
+                    {
+                        Items.Add(new ConfigPreset { Name = "Default" });
+                    }
                 }
 
-                Items[Items.Count - 1] = Items[Items.Count - 1].MakeDefault();
+                if (Items.Count > 0)
+                {
+                    Items[Items.Count - 1] = Items[Items.Count - 1].MakeDefault();
+                }
 
-                if (!GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone)
+                if (GatherBuddy.Config.AutoGatherConfig != null && !GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone && Items.Count > 0)
                 {
                     Items[Items.Count - 1].ChooseBestActionsAutomatically            = true;
                     GatherBuddy.Config.AutoGatherConfig.RotationSolverConversionDone = true;
@@ -177,7 +187,7 @@ namespace GatherBuddy.Gui
                     GatherBuddy.Config.Save();
                 }
 
-                if (!GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed)
+                if (GatherBuddy.Config.AutoGatherConfig != null && !GatherBuddy.Config.AutoGatherConfig.ConfigConversionFixed && Items.Count > 0)
                 {
                     var def = Items[Items.Count - 1];
                     fixAction(def.GatherableActions.Bountiful);
