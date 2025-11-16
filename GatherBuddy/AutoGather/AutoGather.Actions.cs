@@ -170,6 +170,30 @@ namespace GatherBuddy.AutoGather
                 return;
             }
 
+            if (FreeInventorySlots < 20 && HasReducibleItems())
+            {
+                if (IsFishing)
+                {
+                    QueueQuitFishingTasks();
+                    return;
+                }
+
+                if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                {
+                    AutoHook.SetPluginState?.Invoke(false);
+                }
+
+                ReduceItems(false);
+                TaskManager.Enqueue(() =>
+                {
+                    if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                    {
+                        AutoHook.SetPluginState?.Invoke(true);
+                    }
+                });
+                return;
+            }
+
             if (RepairIfNeededForFishing())
                 return;
 

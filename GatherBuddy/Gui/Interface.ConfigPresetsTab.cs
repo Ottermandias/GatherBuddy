@@ -33,7 +33,7 @@ namespace GatherBuddy.Gui
             private const string FileName = "actions.json";
 
             public ConfigPresetsSelector()
-                : base([], Flags.All ^ Flags.Drop)
+                : base(new List<ConfigPreset>(), Flags.All ^ Flags.Drop)
             {
                 Load();
             }

@@ -650,7 +650,27 @@ namespace GatherBuddy.AutoGather
 
                     if (HasReducibleItems())
                     {
+                        if (Player.Job == Job.FSH)
+                        {
+                            if (IsFishing)
+                            {
+                                QueueQuitFishingTasks();
+                                TaskManager.Enqueue(() => !IsFishing, 5000, "Wait until fishing stopped.");
+                            }
+
+                            if (GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                            {
+                                TaskManager.Enqueue(() => AutoHook.SetPluginState?.Invoke(false));
+                            }
+                        }
+
                         ReduceItems(true);
+
+                        if (Player.Job == Job.FSH && GatherBuddy.Config.AutoGatherConfig.UseAutoHook && AutoHook.Enabled)
+                        {
+                            TaskManager.Enqueue(() => AutoHook.SetPluginState?.Invoke(true));
+                        }
+
                         return;
                     }
 
@@ -840,49 +860,54 @@ namespace GatherBuddy.AutoGather
             {
                 if (GatherBuddy.Config.AutoGatherConfig.SortingMethod == AutoGatherConfig.SortingType.Location)
                 {
-                    if (_lastNonTimedNodeTerritory != 0 && _lastNonTimedNodeTerritory != territoryId)
+                    var nextIsTimedNode = next.First().Node?.Times.AlwaysUp() == false;
+                    
+                    if (!nextIsTimedNode)
                     {
-                        var itemsInPreviousZone = _activeItemList
-                            .Where(i => i.Node?.Territory.Id == _lastNonTimedNodeTerritory)
+                        if (_lastNonTimedNodeTerritory != 0 && _lastNonTimedNodeTerritory != territoryId)
+                        {
+                            var itemsInPreviousZone = _activeItemList
+                                .Where(i => i.Node?.Territory.Id == _lastNonTimedNodeTerritory)
+                                .Where(i => i.Node?.Times.AlwaysUp() != false)
+                                .ToList();
+                            
+                            if (itemsInPreviousZone.Any())
+                            {
+                                var previousZoneItem = itemsInPreviousZone.First();
+                                if (!LocationMatchesJob(previousZoneItem.Location))
+                                {
+                                    if (ChangeGearSet(previousZoneItem.Location.GatheringType.ToGroup(), 2400))
+                                    {
+                                        return;
+                                    }
+                                }
+                                
+                                StopNavigation();
+                                if (!MoveToTerritory(previousZoneItem.Location))
+                                    AbortAutoGather();
+                                return;
+                            }
+                        }
+                        
+                        var itemsInCurrentZone = _activeItemList
+                            .Where(i => i.Node?.Territory.Id == territoryId)
                             .Where(i => i.Node?.Times.AlwaysUp() != false)
                             .ToList();
                         
-                        if (itemsInPreviousZone.Any())
+                        if (itemsInCurrentZone.Any())
                         {
-                            var previousZoneItem = itemsInPreviousZone.First();
-                            if (!LocationMatchesJob(previousZoneItem.Location))
+                            var currentZoneItem = itemsInCurrentZone.First();
+                            if (!LocationMatchesJob(currentZoneItem.Location))
                             {
-                                if (ChangeGearSet(previousZoneItem.Location.GatheringType.ToGroup(), 2400))
+                                if (ChangeGearSet(currentZoneItem.Location.GatheringType.ToGroup(), 2400))
                                 {
                                     return;
                                 }
                             }
-                            
-                            StopNavigation();
-                            if (!MoveToTerritory(previousZoneItem.Location))
-                                AbortAutoGather();
-                            return;
-                        }
-                    }
-                    
-                    var itemsInCurrentZone = _activeItemList
-                        .Where(i => i.Node?.Territory.Id == territoryId)
-                        .Where(i => i.Node?.Times.AlwaysUp() != false)
-                        .ToList();
-                    
-                    if (itemsInCurrentZone.Any())
-                    {
-                        var currentZoneItem = itemsInCurrentZone.First();
-                        if (!LocationMatchesJob(currentZoneItem.Location))
-                        {
-                            if (ChangeGearSet(currentZoneItem.Location.GatheringType.ToGroup(), 2400))
+                            else
                             {
                                 return;
                             }
-                        }
-                        else
-                        {
-                            return;
                         }
                     }
                 }
