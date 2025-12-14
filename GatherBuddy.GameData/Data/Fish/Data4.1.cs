@@ -53,7 +53,7 @@ public static partial class Fish
             .Spear     (data, SpearfishSize.Large, SpearfishSpeed.LynFast);
         data.Apply     (21180, Patch.TheLegendReturns) // Snailfish
             .Spear     (data, SpearfishSize.Average, SpearfishSpeed.Fast)
-            .Predators (data, 0, (21179, 10));
+            .Predators (data, 0, (21179, 7));
     }
     // @formatter:on
 }
