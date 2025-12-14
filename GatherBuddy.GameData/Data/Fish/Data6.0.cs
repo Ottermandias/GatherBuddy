@@ -399,7 +399,8 @@ public static partial class Fish
             .Spear     (data, SpearfishSize.Small, SpearfishSpeed.ExtremelySlow);
         data.Apply     (36535, Patch.Endwalker) // Tebqeyiq Smelt
             .Spear     (data, SpearfishSize.Small, SpearfishSpeed.SuperFast)
-            .Predators (data, 0, (36531, 10), (36546, 2), (36547, 3));
+            .Predators (data, 20, (36531, 7), (36546, 2), (36547, 3))
+            .Comment   ("Catch 2 Xiphactinus and 3 Dusky Sharks in one node.");
         data.Apply     (36536, Patch.Endwalker) // Shallows Cod
             .Spear     (data, SpearfishSize.Average, SpearfishSpeed.VerySlow);
         data.Apply     (36537, Patch.Endwalker) // Meyhane Reveler
@@ -422,7 +423,7 @@ public static partial class Fish
             .Spear     (data, SpearfishSize.Large, SpearfishSpeed.Average);
         data.Apply     (36546, Patch.Endwalker) // Xiphactinus
             .Spear     (data, SpearfishSize.Large, SpearfishSpeed.Average)
-            .Predators (data, 0, (36531, 10));
+            .Predators (data, 0, (36531, 7));
         data.Apply     (36547, Patch.Endwalker) // Dusky Shark
             .Spear     (data, SpearfishSize.Large, SpearfishSpeed.Fast);
         data.Apply     (36548, Patch.Endwalker) // Coffer Shell
@@ -477,7 +478,7 @@ public static partial class Fish
             .Spear     (data, SpearfishSize.Small, SpearfishSpeed.Slow);
         data.Apply     (36573, Patch.Endwalker) // Pipefish
             .Spear     (data, SpearfishSize.Small, SpearfishSpeed.Fast)
-            .Predators (data, 0, (36553, 10));
+            .Predators (data, 0, (36553, 7));
         data.Apply     (36574, Patch.Endwalker) // Righteye Flounder
             .Spear     (data, SpearfishSize.Average, SpearfishSpeed.Average);
         data.Apply     (36575, Patch.Endwalker) // Mini Yasha
@@ -488,7 +489,7 @@ public static partial class Fish
             .Spear     (data, SpearfishSize.Average, SpearfishSpeed.Slow);
         data.Apply     (36578, Patch.Endwalker) // Shogun's Kabuto
             .Spear     (data, SpearfishSize.Large, SpearfishSpeed.Slow)
-            .Predators (data, 0, (36553, 10));
+            .Predators (data, 0, (36553, 7));
         data.Apply     (36579, Patch.Endwalker) // Bluefin Trevally
             .Spear     (data, SpearfishSize.Large, SpearfishSpeed.Slow);
         data.Apply     (36580, Patch.Endwalker) // Kitefin Shark
