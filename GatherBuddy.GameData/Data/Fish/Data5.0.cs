@@ -497,10 +497,10 @@ public static partial class Fish
             .Spear     (data, SpearfishSize.Large, SpearfishSpeed.Average);
         data.Apply     (27580, Patch.Shadowbringers) // Viis Ear
             .Spear     (data, SpearfishSize.Small, SpearfishSpeed.VeryFast)
-            .Predators (data, 0, (27569, 10));
+            .Predators (data, 0, (27569, 7));
         data.Apply     (27581, Patch.Shadowbringers) // Rak'tika Goby
             .Spear     (data, SpearfishSize.Small, SpearfishSpeed.Average)
-            .Predators (data, 0, (27569, 10));
+            .Predators (data, 0, (27569, 7));
     }
     // @formatter:on
 }
