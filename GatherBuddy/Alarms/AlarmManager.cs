@@ -212,7 +212,7 @@ public partial class AlarmManager : IDisposable
         if (Functions.BetweenAreas())
             return;
 
-        if (GatherBuddy.Config.AlarmsOnlyWhenLoggedIn && Dalamud.ClientState.LocalPlayer == null)
+        if (GatherBuddy.Config.AlarmsOnlyWhenLoggedIn && !Dalamud.ClientState.IsLoggedIn)
             return;
 
         if (!GatherBuddy.Config.AlarmsInDuty && Functions.BoundByDuty())

@@ -162,15 +162,15 @@ public class Executor
     private void DoTeleport()
     {
         _teleporting = false;
-        if (!GatherBuddy.Config.UseTeleport || _location?.ClosestAetheryte == null)
+        if (!GatherBuddy.Config.UseTeleport || _location?.ClosestAetheryte is null)
             return;
 
         if (GatherBuddy.Config.SkipTeleportIfClose
          && Dalamud.ClientState.TerritoryType == _location.Territory.Id
-         && Dalamud.ClientState.LocalPlayer != null)
+         && Dalamud.Objects.LocalPlayer is {} player)
         {
             // Check distance of player to node against distance of aetheryte to node.
-            var playerPos = Dalamud.ClientState.LocalPlayer.Position;
+            var playerPos = player.Position;
             var aetheryte = _location.ClosestAetheryte;
             var posX      = Maps.NodeToMap(playerPos.X, _location.Territory.SizeFactor);
             var posY      = Maps.NodeToMap(playerPos.Z, _location.Territory.SizeFactor);
@@ -306,7 +306,7 @@ public class Executor
 
     public bool DoCommand(string argument)
     {
-        if (Dalamud.ClientState.LocalPlayer == null || Dalamud.Conditions[ConditionFlag.BetweenAreas])
+        if (Dalamud.Objects.LocalPlayer is null || Dalamud.Conditions[ConditionFlag.BetweenAreas])
             return true;
 
         switch (argument)

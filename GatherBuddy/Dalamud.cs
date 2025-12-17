@@ -19,6 +19,8 @@ public class Dalamud
     [PluginService] public static ISigScanner             SigScanner      { get; private set; } = null!;
     [PluginService] public static IDataManager            GameData        { get; private set; } = null!;
     [PluginService] public static IClientState            ClientState     { get; private set; } = null!;
+    [PluginService] public static IObjectTable            Objects         { get; private set; } = null!;
+    [PluginService] public static IPlayerState            PlayerState     { get; private set; } = null!;
     [PluginService] public static IChatGui                Chat            { get; private set; } = null!;
     [PluginService] public static IFramework              Framework       { get; private set; } = null!;
     [PluginService] public static ICondition              Conditions      { get; private set; } = null!;

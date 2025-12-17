@@ -49,11 +49,11 @@ public unsafe class WaymarkManager
 
     public void SetWaymark(int idx)
     {
-        if (idx is < 0 || idx > WaymarkSet.Count || _markingController == null || Dalamud.ClientState.LocalPlayer == null)
+        if (idx is < 0 || idx > WaymarkSet.Count || _markingController == null || Dalamud.Objects.LocalPlayer is not {} player)
             return;
 
         ref var marker = ref _markingController->FieldMarkers[idx];
-        var     pos    = Dalamud.ClientState.LocalPlayer.Position;
+        var     pos    = player.Position;
         marker.Position = pos;
         marker.X        = (int)(pos.X * 1000 + 0.9f);
         marker.Y        = (int)(pos.Y * 1000 + 0.9f);

@@ -301,7 +301,7 @@ public partial class FishTimerWindow
             // Collectable Icon
             if (collectible)
             {
-                var tint = Dalamud.ClientState.LocalPlayer?.StatusList.Any(s => s.StatusId is 805) is true
+                var tint = Dalamud.Objects.LocalPlayer?.StatusList.Any(s => s.StatusId is 805) is true
                     ? Vector4.One
                     : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
 

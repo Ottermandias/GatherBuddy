@@ -14,7 +14,7 @@ public static unsafe class Teleporter
             return false;
         }
 
-        if (Dalamud.ClientState.LocalPlayer == null)
+        if (!Dalamud.PlayerState.IsLoaded)
             return true;
         teleport->UpdateAetheryteList();
 

@@ -91,7 +91,6 @@ public partial class GatheringNode : IComparable<GatheringNode>, ILocation
             foreach (var g in gatherableList)
             {
                 if (data.GatherablesByGatherId.TryGetValue(g, out var gatherable)
-                 && gatherable.GatheringData.IsHidden
                  && !Items.Contains(gatherable))
                     Items.Add(gatherable);
             }
