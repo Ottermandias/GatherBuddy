@@ -402,7 +402,7 @@ public static partial class Fish
         data.ApplyIntoTheMist();
         data.ApplyMooches();
         data.ApplyOverrides();
-        DumpUnknown(Patch.IntoTheMist, data.Fishes.Values);
+        //DumpUnknown(Patch.IntoTheMist, data.Fishes.Values);
     }
 
     public static bool ApplyOverrides(this GameData data)
