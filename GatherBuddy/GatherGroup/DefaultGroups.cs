@@ -110,6 +110,7 @@ public static class GroupData
         CreateDefaultGroup("90***", "Contains Diadochos crafting nodes.",                   (39710, 0), (39705, 2), (39706, 4), (39708, 6), (39707, 8), (39709, 10)),
         CreateDefaultGroup("100*", "Contains Archeo Kingdom crafting nodes.",               (44137, 0), (44140, 2), (44138, 4), (44135, 6), (44139, 8), (44136, 10)),
         CreateDefaultGroup("100**", "Contains Ceremonial crafting nodes.",                  (45968, 0), (45973, 2), (45971, 4), (45972, 6), (45970, 8), (45969, 10)),
+        CreateDefaultGroup("100***", "Contains Courtly crafting nodes.",                    (49209, 0), (49212, 2), (49210, 4), (49211, 6), (49207, 8), (49208, 10)),
         CreateDefaultGroup("100purple", "Contains level 100 purple scrip nodes.",           (43926, 0), (43927, 2), (44233, 4), (44234, 6), (43920, 8), (43919, 10)),
         CreateDefaultGroup("100orange", "Contains level 100 orange scrip nodes.",           (43923, 0), (43928, 2), (43922, 4), (43929, 6), (43921, 8), (43930, 10)),
         CreateDarkMatterGroup(),

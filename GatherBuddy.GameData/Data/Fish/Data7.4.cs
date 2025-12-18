@@ -9,52 +9,40 @@ public static partial class Fish
     {
         data.Apply(49794, Patch.IntoTheMist) // Purse of Riches
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(49795, Patch.IntoTheMist) // Punutiy Pain
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Mooch(data, 43701)
+            .Time(480, 960)
+            .Weather(data, 7)
+            .Transition(data, 3)
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(49796, Patch.IntoTheMist) // Shuckfin Dace
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bait(data, 43858)
+            .Time(240, 360)
+            .Weather(data, 7)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49797, Patch.IntoTheMist) // Shin Snuffler
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bait(data, 43858)
+            .Time(0, 120)
+            .Weather(data, 4)
+            .Predators(data, 300, (43735, 3))
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49798, Patch.IntoTheMist) // Moxutural Greatgar
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Mooch(data, 43736)
+            .Time(960, 1440)
+            .Weather(data, 7)
+            .Transition(data, 2)
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(49799, Patch.IntoTheMist) // Heirloom Goldgrouper
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(49800, Patch.IntoTheMist) // Datnioides Aeroplanos
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(49801, Patch.IntoTheMist) // Esperance Carp
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(17951, Patch.IntoTheMist) // Dafangshi
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29573, Patch.IntoTheMist) // Splendid Piranha
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29574, Patch.IntoTheMist) // Splendid Pirarucu
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29578, Patch.IntoTheMist) // Splendid Sponge
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29579, Patch.IntoTheMist) // Splendid Cockle
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29581, Patch.IntoTheMist) // Splendid Night's Bass
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(29589, Patch.IntoTheMist) // Splendid Mammoth Shellfish
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
-        data.Apply(43556, Patch.IntoTheMist) // Timeworn Loboskin Map
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Predators(data, 300, (43796, 3), (43798, 3))
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
     }
     // @formatter:on
 }

@@ -364,24 +364,24 @@ public static partial class Fish
 
         // Western Soda-lime Tributary  Arthrolure Field Test
         data.Apply(47490, Patch.ThePromiseOfTomorrow) // White Starburst
-            .Bait(data, 47589)
+            .Bait(data, 47689)
             .Mission(data, 980)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47491, Patch.ThePromiseOfTomorrow) // Skippingway
-            .Bait(data, 47589)
+            .Bait(data, 47689)
             .Mission(data, 980)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47492, Patch.ThePromiseOfTomorrow) // Glass Coral
-            .Bait(data, 47589)
+            .Bait(data, 47689)
             .Mission(data, 980)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47493, Patch.ThePromiseOfTomorrow) // Sun-purpled Tapestry
-            .Bait(data, 47589)
+            .Bait(data, 47689)
             .Mission(data, 980)
             .Points(400)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47494, Patch.ThePromiseOfTomorrow) // Lime Impesctor
-            .Bait(data, 47589)
+            .Bait(data, 47689)
             .Mission(data, 980)
             .Points(1000)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
@@ -634,23 +634,23 @@ public static partial class Fish
 
         // Western Soda-lime Tributary EX: Red Cosmomaggot Field Test //TODO: Confirm Points
         data.Apply(47556, Patch.ThePromiseOfTomorrow) // White Starburst
-            .Bait(data, 47593)
+            .Bait(data, 47693)
             .Mission(data, 991)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47557, Patch.ThePromiseOfTomorrow) // Skippingway
-            .Bait(data, 47593)
+            .Bait(data, 47693)
             .Mission(data, 991)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47558, Patch.ThePromiseOfTomorrow) // Glass Coral
-            .Bait(data, 47593)
+            .Bait(data, 47693)
             .Mission(data, 991)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(47559, Patch.ThePromiseOfTomorrow) // Blown Bubble
-            .Bait(data, 47593)
+            .Bait(data, 47693)
             .Mission(data, 991)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(47560, Patch.ThePromiseOfTomorrow) // Cobalt Horn
-            .Bait(data, 47593)
+            .Bait(data, 47693)
             .Mission(data, 991)
             .Lure(Enums.Lure.Ambitious)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
