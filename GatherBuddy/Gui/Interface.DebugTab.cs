@@ -197,11 +197,14 @@ public partial class Interface
             ? "Never"
             : TimeInterval.DurationString(_plugin.FishRecorder.SaveTime, TimeStamp.UtcNow, false));
         ImGuiUtil.DrawTableColumn("UiState Address");
-        ImGuiUtil.DrawTableColumn($"{(IntPtr)FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance():X}");
+        ImGui.TableNextColumn();
+        GatherBuddy.Dynamis.DrawPointer(FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance());
         ImGuiUtil.DrawTableColumn("Event Framework Address");
-        ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.Address.ToString("X"));
+        ImGui.TableNextColumn();
+        GatherBuddy.Dynamis.DrawPointer(GatherBuddy.EventFramework.Address);
         ImGuiUtil.DrawTableColumn("Fishing Manager Address");
-        ImGuiUtil.DrawTableColumn($"0x{(nint)GatherBuddy.EventFramework.FishingManager:X}");
+        ImGui.TableNextColumn();
+        GatherBuddy.Dynamis.DrawPointer(GatherBuddy.EventFramework.FishingManager);
         ImGuiUtil.DrawTableColumn("Fishing State");
         ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.FishingState.ToString());
         ImGuiUtil.DrawTableColumn("Num SwimBait");

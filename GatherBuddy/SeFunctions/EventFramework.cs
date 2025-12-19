@@ -22,19 +22,19 @@ public sealed unsafe class EventFramework
     [StructLayout(LayoutKind.Explicit)]
     internal struct FishingManagerStruct
     {
-        [FieldOffset(0x228)]
+        [FieldOffset(0x1C8)]
         public FishingState FishingState;
 
-        [FieldOffset(0x23C)]
+        [FieldOffset(0x1DC)]
         public byte CurrentSelectedSwimBait;
 
-        [FieldOffset(0x240)]
+        [FieldOffset(0x1E0)]
         public uint SwimBaitId1;
 
-        [FieldOffset(0x244)]
+        [FieldOffset(0x1E4)]
         public uint SwimBaitId2;
 
-        [FieldOffset(0x248)]
+        [FieldOffset(0x1E8)]
         public uint SwimBaitId3;
     }
 

@@ -25,6 +25,7 @@ using GatherBuddy.Weather;
 using OtterGui;
 using OtterGui.Classes;
 using OtterGui.Log;
+using OtterGui.Services;
 
 namespace GatherBuddy;
 
@@ -61,6 +62,7 @@ public partial class GatherBuddy : IDalamudPlugin
     public static CurrentWeather CurrentWeather { get; private set; } = null!;
     public static SeTugType      TugType        { get; private set; } = null!;
     public static WaymarkManager WaymarkManager { get; private set; } = null!;
+    public static DynamisIpc     Dynamis        { get; private set; } = null!;
 
     internal readonly GatherGroup.GatherGroupManager GatherGroupManager;
     internal readonly LocationManager                LocationManager;
@@ -82,7 +84,8 @@ public partial class GatherBuddy : IDalamudPlugin
         {
             Dalamud.Initialize(pluginInterface);
             Icons.Init(Dalamud.GameData, Dalamud.Textures);
-            Log = new Logger();
+            Log     = new Logger();
+            Dynamis = new DynamisIpc(pluginInterface, Log);
             Version = Assembly.GetExecutingAssembly().GetName().Version?.ToString() ?? "";
             Backup.CreateAutomaticBackup(Log, pluginInterface.ConfigDirectory, GatherBuddyBackupFiles());
             Config = Configuration.Load();
