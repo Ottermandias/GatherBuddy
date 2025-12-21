@@ -12,7 +12,7 @@ public static partial class Fish
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(49795, Patch.IntoTheMist) // Punutiy Pain
             .Mooch(data, 43701)
-            .Time(480, 960)
+            .Time(480, 720)
             .Weather(data, 7)
             .Transition(data, 3)
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
@@ -29,16 +29,22 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49798, Patch.IntoTheMist) // Moxutural Greatgar
             .Mooch(data, 43736)
-            .Time(960, 1440)
+            .Time(1200, 1320)
             .Weather(data, 7)
-            .Transition(data, 2)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49799, Patch.IntoTheMist) // Heirloom Goldgrouper
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bait(data, 43855)
+            .Time(480, 960)
+            .Weather(data, 2)
+            .Transition(data, 4)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49800, Patch.IntoTheMist) // Datnioides Aeroplanos
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bait(data, 43858)
+            .Time(120, 240)
+            .Weather(data, 7)
+            .Transition(data, 4)
+            .Lure(Enums.Lure.Ambitious)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49801, Patch.IntoTheMist) // Esperance Carp
             .Bait(data)
             .Predators(data, 300, (43796, 3), (43798, 3))
@@ -46,3 +52,4 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
