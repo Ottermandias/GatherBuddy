@@ -1033,7 +1033,7 @@ public static partial class Fish
         data.Apply(47661, Patch.ThePromiseOfTomorrow) // Encapsulated Impesctor
             .Bait(data)
             .Mission(data, 1005)
-            .Predators(data, 420, (47659,2))
+            .Predators(data, 420, (47659, 3))
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Fusingway Flow EX+: Elemental-esque Vent Specimens //TODO: Unifinished Data, This is missing a fish?!
@@ -1103,5 +1103,6 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
