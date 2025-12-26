@@ -47,7 +47,7 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49801, Patch.IntoTheMist) // Esperance Carp
             .Bait(data, 43858)
-            .Time(960, 1440)
+            .Time(1320, 1440)
             .Weather(data, 3)
             .Transition(data, 7)
             .Predators(data, 300, (43796, 3), (43798, 3))
@@ -55,6 +55,7 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
 
