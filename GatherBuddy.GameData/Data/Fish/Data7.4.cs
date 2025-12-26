@@ -15,7 +15,7 @@ public static partial class Fish
             .Time(480, 720)
             .Weather(data, 7)
             .Transition(data, 3)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49796, Patch.IntoTheMist) // Shuckfin Dace
             .Bait(data, 43858)
             .Time(240, 360)
@@ -34,7 +34,7 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49799, Patch.IntoTheMist) // Heirloom Goldgrouper
             .Bait(data, 43855)
-            .Time(480, 960)
+            .Time(720, 960)
             .Weather(data, 2)
             .Transition(data, 4)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
@@ -46,10 +46,16 @@ public static partial class Fish
             .Lure(Enums.Lure.Ambitious)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49801, Patch.IntoTheMist) // Esperance Carp
-            .Bait(data)
+            .Bait(data, 43858)
+            .Time(1320, 1440)
+            .Weather(data, 3)
+            .Transition(data, 7)
             .Predators(data, 300, (43796, 3), (43798, 3))
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
     }
     // @formatter:on
 }
+
+
+
 
