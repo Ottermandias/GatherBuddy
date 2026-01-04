@@ -56,7 +56,7 @@ public static partial class Fish
             .Time(720, 960)
             .Transition(data, 2)
             .Weather(data, 49)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(41419, Patch.GrowingLight) // Stargilt Lobster
             .Bait(data, 36594)
             .Time(1140, 1320)
