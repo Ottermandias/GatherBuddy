@@ -51,10 +51,11 @@ public static partial class Fish
             .Weather(data, 3)
             .Transition(data, 7)
             .Predators(data, 300, (43796, 3), (43798, 3))
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
     }
     // @formatter:on
 }
+
 
 
 

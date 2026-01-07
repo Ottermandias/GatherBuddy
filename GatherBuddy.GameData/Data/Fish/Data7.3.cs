@@ -32,7 +32,7 @@ public static partial class Fish
             .Time(0, 240)
             .Transition(data, 2)
             .Weather(data, 3)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(46193, Patch.ThePromiseOfTomorrow) // Azure Diver
             .Bait(data, 43857)
             .Time(1080, 1440)
@@ -1103,6 +1103,7 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
 
