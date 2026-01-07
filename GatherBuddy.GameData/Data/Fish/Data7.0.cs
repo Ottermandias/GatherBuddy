@@ -405,7 +405,8 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43793, Patch.Dawntrail) // Devotion Clam
             .Bait(data, 43856)
-            .Bite(data, HookSet.Precise, BiteType.Weak);
+            .Bite(data, HookSet.Precise, BiteType.Weak)
+            .Snag(data, Snagging.Required);
         data.Apply(43794, Patch.Dawntrail) // Forgotten One
             .Bait(data, 43859)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
