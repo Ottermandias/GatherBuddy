@@ -477,7 +477,7 @@ public static partial class Fish
                         fish.Transition(data, transition);
 
                     if (custom.Weather is { } weather)
-                        fish.Transition(data, weather);
+                        fish.Weather(data, weather);
                     ++count;
                 }
                 catch (Exception e)
