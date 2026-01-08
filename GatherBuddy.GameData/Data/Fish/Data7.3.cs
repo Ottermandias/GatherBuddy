@@ -1006,8 +1006,7 @@ public static partial class Fish
             .Bait(data)
             .Mission(data, 1004)
             .Points(10000)
-            .Lure(Enums.Lure.Ambitious)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Capsule Pools EX+: Elemental-esque Chasm Specimens //TODO:Unfinished Data
         data.Apply(47656, Patch.ThePromiseOfTomorrow) // Glass Guppish
@@ -1103,6 +1102,7 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
 
