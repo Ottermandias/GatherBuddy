@@ -10,7 +10,7 @@ public static partial class Fish
         data.Apply     (30432, Patch.ReflectionsInCrystal) // The Sinsteeped
             .Bait      (data, 27582)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
-            .Time      (1320, 1440)
+            .Time      (1350, 1410)
             .Weather   (data, 1, 2);
         data.Apply     (30433, Patch.ReflectionsInCrystal) // Sweetheart
             .Bait      (data, 27589)
