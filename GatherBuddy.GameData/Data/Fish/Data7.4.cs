@@ -8,8 +8,11 @@ public static partial class Fish
     private static void ApplyIntoTheMist(this GameData data)
     {
         data.Apply(49794, Patch.IntoTheMist) // Purse of Riches
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bait(data, 43859)
+            .Time(960, 1080)
+            .Weather(data, 7)
+            .Transition(data, 3)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(49795, Patch.IntoTheMist) // Punutiy Pain
             .Mooch(data, 43701)
             .Time(480, 720)
@@ -55,6 +58,7 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
 
