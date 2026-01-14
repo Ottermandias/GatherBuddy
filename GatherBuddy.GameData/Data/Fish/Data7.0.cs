@@ -121,7 +121,7 @@ public static partial class Fish
             .Bait(data, 43849)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43701, Patch.Dawntrail) // Hunu Peacock Bass
-            .Bait(data, 43852)
+            .Bait(data, 43849)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43702, Patch.Dawntrail) // Pelubane
             .Bait(data, 43852)
