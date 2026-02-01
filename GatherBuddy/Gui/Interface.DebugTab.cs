@@ -592,8 +592,8 @@ public partial class Interface
     private static void DrawCosmicFishDataButton()
     {
         ImGui.PushItemWidth(100);
-        ImUtf8.InputScalar($"Start ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_startId)?.Name}", ref _startId);
-        ImUtf8.InputScalar($"End ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_endId)?.Name}",     ref _endId);
+        ImUtf8.InputScalar($"Start ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_startId)?.Name}###startid", ref _startId);
+        ImUtf8.InputScalar($"End ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_endId)?.Name}###endid",     ref _endId);
         ImGui.PopItemWidth();
 
         if (!ImUtf8.Button("Copy Most Recent Unknown Fish Data"u8))
