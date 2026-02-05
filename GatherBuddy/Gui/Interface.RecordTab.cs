@@ -211,7 +211,13 @@ public partial class Interface
             public override void DrawColumn(FishRecord record, int _)
             {
                 base.DrawColumn(record, _);
-                ImGuiUtil.HoverTooltip(record.TimeStamp.ToString());
+                if (ImGui.IsItemHovered())
+                {
+                    using var tt = ImUtf8.Tooltip();
+                    ImUtf8.Text($"{record.TimeStamp}");
+                    var et = record.TimeStamp.ConvertToEorzea().RoundToSecond();
+                    ImUtf8.Text($"{et.CurrentHour:D2}:{et.CurrentMinute:D2}:{et.CurrentSecond:D2} ET");
+                }
             }
         }
 
