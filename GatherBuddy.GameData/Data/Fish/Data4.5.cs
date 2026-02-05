@@ -62,7 +62,6 @@ public static partial class Fish
             .Bait      (data, 20675)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (960, 1440)
-            .Transition(data, 2)
             .Weather   (data, 8);
         data.Apply     (24889, Patch.ARequiemForHeroes) // Axelrod
             .Bait      (data, 20675)
