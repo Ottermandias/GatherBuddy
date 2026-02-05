@@ -573,7 +573,7 @@ public static partial class Fish
             .Mission(data, 1344)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50205, Patch.IntoTheMist) // Geras Eel
-            .Bait(data 50244)
+            .Bait(data, 50244)
             .Mission(data, 1344)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50206, Patch.IntoTheMist) // Mirrorshark
