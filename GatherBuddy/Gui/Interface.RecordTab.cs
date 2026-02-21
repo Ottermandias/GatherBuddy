@@ -90,7 +90,7 @@ public partial class Interface
                 => 50 * ImGuiHelpers.GlobalScale;
 
             public override int Compare(FishRecord lhs, FishRecord rhs)
-                => lhs.Perception.CompareTo(rhs.Gathering);
+                => lhs.Perception.CompareTo(rhs.Perception);
 
             public override void DrawColumn(FishRecord record, int _)
                 => ImGuiUtil.RightAlign(ToName(record));
