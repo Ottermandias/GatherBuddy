@@ -24,7 +24,7 @@ public static partial class Fish
             .Mooch     (data, 20613, 20064)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (480, 720)
-            .Weather   (data, 3);
+            .Weather   (data, 3, 4);
         data.Apply     (24207, Patch.PreludeInViolet) // Hardhead Trout
             .Bait      (data, 20675)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
@@ -66,6 +66,7 @@ public static partial class Fish
         data.Apply     (24215, Patch.PreludeInViolet) // Argonautica
             .Mooch     (data, 20617, 20112)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
+            .Transition(data, 1, 2)
             .Weather   (data, 5);
         data.Apply     (24216, Patch.PreludeInViolet) // Hagoromo Bijin
             .Bait      (data, 20675)
