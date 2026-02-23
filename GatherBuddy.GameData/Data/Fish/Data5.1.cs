@@ -14,7 +14,7 @@ public static partial class Fish
         data.Apply     (28066, Patch.VowsOfVirtueDeedsOfCruelty) // Winged Dame
             .Bait      (data, 27590)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
-            .Time      (720, 1140)
+            .Time      (720, 1200)
             .Weather   (data, 1);
         data.Apply     (28067, Patch.VowsOfVirtueDeedsOfCruelty) // The Unforgiven
             .Bait      (data, 27589)
