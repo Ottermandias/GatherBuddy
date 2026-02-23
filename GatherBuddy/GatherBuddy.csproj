@@ -2,7 +2,7 @@
   <PropertyGroup>
     <RootNamespace>GatherBuddy</RootNamespace>
     <AssemblyName>GatherBuddy</AssemblyName>
-    <Version>3.8.5.1</Version>
+    <Version>3.8.5.2</Version>
     <Company>SoftOtter</Company>
     <Product>GatherBuddy</Product>
     <Copyright>Copyright © 2025</Copyright>
@@ -20,3 +20,4 @@
   </ItemGroup>
 
 </Project>
+
