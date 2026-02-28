@@ -486,29 +486,29 @@ public static partial class Fish
 
         // The Subterrain EX: Desert Burrow Environmental Survey
         data.Apply(50185, Patch.IntoTheMist) // Burrow Shrimp
-            .Bait(data)
+            .Bait(data, 50241)
             .Mission(data, 1341)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50186, Patch.IntoTheMist) // Pseudoturtle
-            .Bait(data)
+            .Bait(data, 50241)
             .Mission(data, 1341)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50187, Patch.IntoTheMist) // Burrow Clam
-            .Bait(data)
+            .Bait(data, 50241)
             .Mission(data, 1341)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50188, Patch.IntoTheMist) // Inverted Bass
-            .Bait(data)
+            .Bait(data, 50241)
             .Mission(data, 1341)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50189, Patch.IntoTheMist) // Pseudosnake
-            .Bait(data)
+            .Bait(data, 50241)
             .Mission(data, 1341)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50190, Patch.IntoTheMist) // Ruined Relic
-            .Bait(data)
+            .Bait(data, 50241)
             .Mission(data, 1341)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Under Overboard EX: Gravitational Sphere Impact
         data.Apply(50191, Patch.IntoTheMist) // Oizykelp
@@ -587,81 +587,85 @@ public static partial class Fish
 
         // Under Overboard EX+: Voyager Relic Survey I
         data.Apply(50208, Patch.IntoTheMist) // Oizykelp
-            .Bait(data)
+            .Bait(data, 50243)
             .Mission(data, 1345)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50209, Patch.IntoTheMist) // Geras Cloud
-            .Bait(data)
+            .Bait(data, )
             .Mission(data, 1345)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50210, Patch.IntoTheMist) // Platinum Coral
-            .Bait(data)
+            .Bait(data, )
             .Mission(data, 1345)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50211, Patch.IntoTheMist) // Reliqued Bangle
-            .Bait(data)
+            .Bait(data, )
             .Mission(data, 1345)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50212, Patch.IntoTheMist) // Reliqued Ring
-            .Bait(data)
+            .Bait(data, )
             .Mission(data, 1345)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(3)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50213, Patch.IntoTheMist) // Reliqued Coin
-            .Bait(data)
+            .Bait(data, )
             .Mission(data, 1345)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .MultiHook(5)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // The Moros Well EX+: Voyager Relic Survey II
         data.Apply(50214, Patch.IntoTheMist) // Moros Scorpion
-            .Bait(data)
+            .Bait(data, 50247)
             .Mission(data, 1346)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50215, Patch.IntoTheMist) // Pseudomonkfish
-            .Bait(data)
+            .Bait(data, 50247)
             .Mission(data, 1346)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50216, Patch.IntoTheMist) // Pseudogecko
-            .Bait(data)
+            .Bait(data, 50247)
             .Mission(data, 1346)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50217, Patch.IntoTheMist) // Molten Lamprey
-            .Bait(data)
+            .Bait(data, 50247)
             .Mission(data, 1346)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50218, Patch.IntoTheMist) // Oizyhelix
-            .Bait(data)
+            .Bait(data, 50247)
             .Mission(data, 1346)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50219, Patch.IntoTheMist) // Reliqued Vessel
-            .Bait(data)
+            .Bait(data, 50247)
             .Mission(data, 1346)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // The Subterrain EX+: Ruin Currents Environmental Survey
         data.Apply(50220, Patch.IntoTheMist) // Burrow Shrimp
-            .Bait(data)
+            .Bait(data, 50239)
             .Mission(data, 1347)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50221, Patch.IntoTheMist) // Pseudoturtle
-            .Bait(data)
+            .Bait(data, 50239)
             .Mission(data, 1347)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50222, Patch.IntoTheMist) // Upside-down Aether Eye
-            .Bait(data)
+            .Bait(data, 50239)
             .Mission(data, 1347)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50223, Patch.IntoTheMist) // Inverted Carp
-            .Bait(data)
+            .Bait(data, 50239)
             .Mission(data, 1347)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50224, Patch.IntoTheMist) // Burrow Bolo
-            .Bait(data)
+            .Bait(data, 50239)
             .Mission(data, 1347)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Lure(Enums.Lure.Ambitious)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50225, Patch.IntoTheMist) // Euhedroturtle
-            .Bait(data)
+            .Bait(data, 50239)
             .Mission(data, 1347)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Predators(data, 380, (50224, 2))
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Magnetic Horizon  Iron Coral Collection
         data.Apply(50226, Patch.IntoTheMist) // Inverted Anchovy
@@ -686,6 +690,7 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
 
