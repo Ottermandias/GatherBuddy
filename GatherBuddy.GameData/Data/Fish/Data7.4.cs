@@ -591,24 +591,24 @@ public static partial class Fish
             .Mission(data, 1345)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50209, Patch.IntoTheMist) // Geras Cloud
-            .Bait(data, )
+            .Bait(data, 50243)
             .Mission(data, 1345)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50210, Patch.IntoTheMist) // Platinum Coral
-            .Bait(data, )
+            .Bait(data, 50243)
             .Mission(data, 1345)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50211, Patch.IntoTheMist) // Reliqued Bangle
-            .Bait(data, )
+            .Bait(data, 50243)
             .Mission(data, 1345)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50212, Patch.IntoTheMist) // Reliqued Ring
-            .Bait(data, )
+            .Bait(data, 50243)
             .Mission(data, 1345)
             .MultiHook(3)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50213, Patch.IntoTheMist) // Reliqued Coin
-            .Bait(data, )
+            .Bait(data, 50243)
             .Mission(data, 1345)
             .MultiHook(5)
             .Bite(data, HookSet.Precise, BiteType.Weak);
@@ -690,6 +690,7 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
 
