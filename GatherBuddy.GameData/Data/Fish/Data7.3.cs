@@ -505,7 +505,7 @@ public static partial class Fish
             .Mission(data, 986)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
-        data.Apply(47520, Patch.ThePromiseOfTomorrow) // Eelsplorer
+        data.Apply(47520, Patch.ThePromiseOfTomorrow) // Stellar Skink
             .Bait(data, 47693)
             .Mission(data, 986)
             .MultiHook(2)
@@ -1106,6 +1106,7 @@ public static partial class Fish
     }
     // @formatter:on
 }
+
 
 
 
