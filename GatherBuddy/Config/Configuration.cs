@@ -88,6 +88,7 @@ public partial class Configuration : IPluginConfiguration
     public int    SecondIntervalsRounding { get; set; } = 1;
     public bool   ShowCollectableHints    { get; set; } = true;
     public bool   ShowMultiHookHints      { get; set; } = true;
+    public bool   ShowOceanTypeHints      { get; set; } = true;
     
     // Fish Stats Tab
     public bool EnableFishStats       { get; set; } = false;

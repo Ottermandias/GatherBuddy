@@ -340,6 +340,15 @@ public static partial class Fish
         return fish;
     }
 
+    private static Classes.Fish? OceanType(this Classes.Fish? fish, OceanSpecies value)
+    {
+        if (fish == null)
+            return null;
+        
+        fish.OceanSpecies = value;
+        return fish;
+    }
+
     private static void ApplyMooches(this GameData data)
     {
         foreach (var fish in data.Fishes.Values.Where(f => !f.IsSpearFish))

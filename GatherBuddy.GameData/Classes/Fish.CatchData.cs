@@ -23,6 +23,7 @@ public partial class Fish
     public Fish?             SurfaceSlap     { get; internal set; }
     public string            Guide           { get; internal set; } = string.Empty;
     public OceanTime         OceanTime       { get; internal set; } = OceanTime.Always;
+    public OceanSpecies      OceanSpecies    { get; internal set; }
     public short             Points          { get; internal set; }
     public byte              MultiHookLower  { get; internal set; }
     public byte              MultiHookUpper  { get; internal set; }

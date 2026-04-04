@@ -28,6 +28,28 @@ public partial class FishTimerWindow
 
     public static readonly ISharedImmediateTexture QuadHookIcon =
         Dalamud.Textures.GetFromManifestResource(Assembly.GetExecutingAssembly(), "QuadHookIcon.bmp");
+    
+    public static readonly ISharedImmediateTexture OctopusIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065913));
+    public static readonly ISharedImmediateTexture SharkIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065914));
+    public static readonly ISharedImmediateTexture JellyfishIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065915));
+    public static readonly ISharedImmediateTexture SeadragonIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065916));
+    public static readonly ISharedImmediateTexture FuguIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065917));
+    public static readonly ISharedImmediateTexture CrabIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065918));
+    public static readonly ISharedImmediateTexture MantaIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065919));
+    public static readonly ISharedImmediateTexture ShellfishIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065930));
+    public static readonly ISharedImmediateTexture SquidIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065931));
+    public static readonly ISharedImmediateTexture ShrimpIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065932));
+    
 
     private readonly struct FishCache
     {
@@ -199,6 +221,11 @@ public partial class FishTimerWindow
             size.X -= window._iconSize.X;
             DrawMarkers(ptr, pos, size.Y, size.X);
         }
+        
+        private int TripleHookCount(int x)
+        {
+            return (int)Math.Round(Math.Pow(x,3)/6 + 3 * Math.Pow(x, 2)/2 - 7*(float)x/3 + 3);
+        }
 
         public void Draw(FishTimerWindow window)
         {
@@ -228,9 +255,12 @@ public partial class FishTimerWindow
             var       clipRectMax = clipRectMin + ImGui.GetContentRegionAvail();
             var       collectible = _fish.Collectible && GatherBuddy.Config.ShowCollectableHints;
             var       multiHook   = _fish.MultiHookLower > 1 && GatherBuddy.Config.ShowMultiHookHints;
+            var       oceanType   = _fish.OceanSpecies != 0 && GatherBuddy.Config.ShowOceanTypeHints;
             if (collectible)
                 clipRectMax.X -= window._iconSize.X;
             if (multiHook)
+                clipRectMax.X -= window._iconSize.X;
+            if (oceanType)
                 clipRectMax.X -= window._iconSize.X;
             if (textWidth > 0)
                 clipRectMax.X -= textWidth + window._originalSpacing.X + padding;
@@ -251,7 +281,7 @@ public partial class FishTimerWindow
                     ImGuiHelpers.ScaledVector2(30, 30), true);
                 window._style.Pop();
             }
-
+            
             if (multiHook)
             {
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X);
@@ -275,20 +305,54 @@ public partial class FishTimerWindow
                         if (_fish.MutliHookUpper == _fish.MultiHookLower)
                         {
                             ImUtf8.Text($"Double Hook for {_fish.MultiHookLower} fish{(_fish.Points > 0 ? $" worth {_fish.Points * _fish.MultiHookLower} points" : "")}");
-                            ImUtf8.Text($"Triple Hook for {2 * _fish.MultiHookLower - 1} fish{(_fish.Points > 0 ? $" worth {_fish.Points * (2 * _fish.MultiHookLower - 1)} points" : "")}"); 
-                            //TODO: This formula breaks for Deepmoon Seadragon which triple hooks to 8 instead of 9 as would be expected.
-                            //Feels like there should be a more proper solution, but as of right now since there are no 5/9 fish to counter example:
-                            //TH=(-3*x^3+9x^2-14x^2+18)/6 does work.
+                            ImUtf8.Text($"Triple Hook for {TripleHookCount(_fish.MultiHookLower)} fish{(_fish.Points > 0 ? $" worth {_fish.Points * TripleHookCount(_fish.MultiHookLower)} points" : "")}"); 
                         }
                         else
                         {
                             ImUtf8.Text($"Double Hook for {_fish.MultiHookLower}-{_fish.MutliHookUpper} fish" +
                                 $"{(_fish.Points > 0 ? $" worth between {_fish.Points * _fish.MultiHookLower} and {_fish.Points * _fish.MutliHookUpper} points" : "")}");
-                            ImUtf8.Text($"Triple Hook for {2 * _fish.MultiHookLower - 1}-{2 * _fish.MutliHookUpper - 1} fish" +
-                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * (2 * _fish.MultiHookLower - 1)} and {_fish.Points * (2 * _fish.MutliHookUpper - 1)} points" : "")}");
-                            //TODO: See above
+                            ImUtf8.Text($"Triple Hook for {TripleHookCount(_fish.MultiHookLower)}-{TripleHookCount(_fish.MutliHookUpper)} fish" +
+                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * (TripleHookCount(_fish.MultiHookLower))} and {_fish.Points * TripleHookCount(_fish.MutliHookUpper)} points" : "")}");
                         }
 
+                        window._style.Pop();
+                    }
+                }
+                else
+                {
+                    ImGui.Dummy(window._iconSize);
+                }
+            }
+            
+            if (oceanType)
+            {
+                ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0));
+                
+                var typeIcon = _fish.OceanSpecies switch
+                {
+                    OceanSpecies.Octopus   => OctopusIcon,
+                    OceanSpecies.Shark     => SharkIcon,
+                    OceanSpecies.Jellyfish => JellyfishIcon,
+                    OceanSpecies.Seadragon => SeadragonIcon,
+                    OceanSpecies.Fugu      => FuguIcon,
+                    OceanSpecies.Crab      => CrabIcon,
+                    OceanSpecies.Manta     => MantaIcon,
+                    OceanSpecies.Shellfish => ShellfishIcon,
+                    OceanSpecies.Squid     => SquidIcon,
+                    OceanSpecies.Shrimp    => ShrimpIcon,
+                    _                      => null,
+                };
+                
+                if (typeIcon?.TryGetWrap(out var wrap2, out _) ?? false)
+                {
+                    ImGui.Image(wrap2.Handle, window._iconSize);
+                    if (ImGui.IsItemHovered())
+                    {
+                        using var tooltip = ImRaii.Tooltip();
+                        window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
+                        
+                        ImUtf8.Text($"This fish is a {_fish.OceanSpecies.ToString().ToLower()}");
+                        
                         window._style.Pop();
                     }
                 }
@@ -305,7 +369,7 @@ public partial class FishTimerWindow
                     ? Vector4.One
                     : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
 
-                ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0));
+                ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0) - (oceanType ? window._iconSize.X : 0));
                 if (CollectableIcon.TryGetWrap(out var wrap3, out _))
                     ImGui.Image(wrap3.Handle, window._iconSize, Vector2.Zero, Vector2.One, tint);
                 else

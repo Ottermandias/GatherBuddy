@@ -145,6 +145,46 @@ public partial class Interface
             ImGui.SameLine();
             if (FishTimerWindow.QuadHookIcon.TryGetWrap(out var wrapQuadHook, out _))
                 ImGui.Image(wrapQuadHook.Handle, wrapQuadHook.Size);
+            
+            ImGui.SameLine();
+            if (FishTimerWindow.OctopusIcon.TryGetWrap(out var wrapOctopus, out _))
+                ImGui.Image(wrapOctopus.Handle, wrapOctopus.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.SharkIcon.TryGetWrap(out var wrapShark, out _))
+                ImGui.Image(wrapShark.Handle, wrapShark.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.JellyfishIcon.TryGetWrap(out var wrapJellyfish, out _))
+                ImGui.Image(wrapJellyfish.Handle, wrapJellyfish.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.SeadragonIcon.TryGetWrap(out var wrapSeadragon, out _))
+                ImGui.Image(wrapSeadragon.Handle, wrapSeadragon.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.FuguIcon.TryGetWrap(out var wrapFugu, out _))
+                ImGui.Image(wrapFugu.Handle, wrapFugu.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.CrabIcon.TryGetWrap(out var wrapCrab, out _))
+                ImGui.Image(wrapCrab.Handle, wrapCrab.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.MantaIcon.TryGetWrap(out var wrapManta, out _))
+                ImGui.Image(wrapManta.Handle, wrapManta.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.ShellfishIcon.TryGetWrap(out var wrapShellfish, out _))
+                ImGui.Image(wrapShellfish.Handle, wrapShellfish.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.SquidIcon.TryGetWrap(out var wrapSquid, out _))
+                ImGui.Image(wrapSquid.Handle, wrapSquid.Size);
+
+            ImGui.SameLine();
+            if (FishTimerWindow.ShrimpIcon.TryGetWrap(out var wrapShrimp, out _))
+                ImGui.Image(wrapShrimp.Handle, wrapShrimp.Size);
         }
     }
 

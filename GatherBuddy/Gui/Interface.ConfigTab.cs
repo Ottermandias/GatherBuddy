@@ -348,9 +348,12 @@ public partial class Interface
 
         public static void DrawDoubleHookHintPopupBox()
             => DrawCheckbox("Show Multi Hook Hints",
-                "Show if a fish can be double or triple hooked in Cosmic Exploration.", // TODO: add ocean fishing when implemented.
+                "Show if a fish can be double or triple hooked in Cosmic Exploration and Ocean Fishing",
                 GatherBuddy.Config.ShowMultiHookHints, b => GatherBuddy.Config.ShowMultiHookHints = b);
-        
+        public static void DrawOceanTypeHintPopupBox()
+            => DrawCheckbox("Show Ocean Type Hints",
+                "Show what type of fish in Ocean Fishing",
+                GatherBuddy.Config.ShowOceanTypeHints, b => GatherBuddy.Config.ShowOceanTypeHints = b);
         
         // Fish Stats Window
         public static void DrawEnableFishStats()

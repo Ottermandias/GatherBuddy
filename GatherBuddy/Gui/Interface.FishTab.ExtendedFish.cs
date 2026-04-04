@@ -80,6 +80,9 @@ public partial class Interface
 
         public byte MultiHookLower
             => Data.MultiHookLower;
+        
+        public OceanSpecies OceanSpecies
+            => Data.OceanSpecies;
 
         public byte MutliHookUpper
             => Data.MultiHookUpper;
