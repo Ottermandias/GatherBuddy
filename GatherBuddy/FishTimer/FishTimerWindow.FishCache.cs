@@ -388,7 +388,7 @@ public partial class FishTimerWindow
             if (timeString is null)
                 return;
 
-            var offset = ImGui.CalcTextSize(timeString).X + (collectible ? window._iconSize.X : 0) + (multiHook ? window._iconSize.X : 0);
+            var offset = ImGui.CalcTextSize(timeString).X + (collectible ? window._iconSize.X : 0) + (multiHook ? window._iconSize.X : 0) + (oceanType ? window._iconSize.X : 0);
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImUtf8.TextFrameAligned(timeString);
         }
