@@ -224,7 +224,15 @@ public partial class FishTimerWindow
         
         private int TripleHookCount(int x)
         {
-            return (int)Math.Round(Math.Pow(x,3)/6 + 3 * Math.Pow(x, 2)/2 - 7*(float)x/3 + 3);
+            return x switch
+            {
+                1 => 1,
+                2 => 3,
+                3 => 5,
+                4 => 7,
+                5 => 8,
+                _ => 1
+            };
         }
 
         public void Draw(FishTimerWindow window)
