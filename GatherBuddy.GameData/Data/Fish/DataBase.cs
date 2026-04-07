@@ -27,7 +27,7 @@ public static partial class Fish
 
     private static Classes.Fish? Transition(this Classes.Fish? fish, GameData data, params uint[] previousWeathers)
     {
-        if (fish == null)
+        if (fish is null)
             return null;
 
         try
@@ -36,7 +36,10 @@ public static partial class Fish
                     ? weather
                     : throw new Exception($"Could not find weather {w}."))
                 .ToArray();
-            fish.FishRestrictions |= FishRestrictions.Weather;
+            if (fish.PreviousWeather.Length > 0)
+                fish.FishRestrictions |= FishRestrictions.Weather;
+            else if (fish.CurrentWeather.Length is 0)
+                fish.FishRestrictions &= ~FishRestrictions.Weather;
         }
         catch (Exception e)
         {
@@ -57,7 +60,10 @@ public static partial class Fish
                     ? weather
                     : throw new Exception($"Could not find weather {w}."))
                 .ToArray();
-            fish.FishRestrictions |= FishRestrictions.Weather;
+            if (fish.CurrentWeather.Length > 0)
+                fish.FishRestrictions |= FishRestrictions.Weather;
+            else if (fish.PreviousWeather.Length is 0)
+                fish.FishRestrictions &= ~FishRestrictions.Weather;
         }
         catch (Exception e)
         {
@@ -480,7 +486,17 @@ public static partial class Fish
                         fish.Snag(data, snagging ? Snagging.Required : Snagging.None);
 
                     if (custom is { UptimeMinuteOfDayStart: { } start, UptimeMinuteOfDayEnd: { } end })
-                        fish.Time(start, end);
+                    {
+                        if (start % 1440 == end % 1440)
+                        {
+                            fish.FishRestrictions &= ~FishRestrictions.Time;
+                            fish.Interval         =  RepeatingInterval.Always;
+                        }
+                        else
+                        {
+                            fish.Time(start, end);
+                        }
+                    }
 
                     if (custom.Transition is { } transition)
                         fish.Transition(data, transition);

@@ -270,7 +270,7 @@ public partial class FishTimerWindow
             var       clipRectMax = clipRectMin + ImGui.GetContentRegionAvail();
             var       collectible = _fish.Collectible && GatherBuddy.Config.ShowCollectableHints;
             var       multiHook   = _fish.MultiHookLower > 1 && GatherBuddy.Config.ShowMultiHookHints;
-            var       oceanType   = _fish.OceanSpecies != 0 && GatherBuddy.Config.ShowOceanTypeHints;
+            var       oceanType   = _fish.OceanSpecies is not 0 && GatherBuddy.Config.ShowOceanTypeHints;
             if (collectible)
                 clipRectMax.X -= window._iconSize.X;
             if (multiHook)
