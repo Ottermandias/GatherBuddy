@@ -649,6 +649,7 @@ public partial class Interface
                 ConfigFunctions.DrawHideFishPopupBox();
                 ConfigFunctions.DrawCollectableHintPopupBox();
                 ConfigFunctions.DrawDoubleHookHintPopupBox();
+                ConfigFunctions.DrawOceanTypeHintPopupBox();
                 ImGui.TreePop();
             }
 

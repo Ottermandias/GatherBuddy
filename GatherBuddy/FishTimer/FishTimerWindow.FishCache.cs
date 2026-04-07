@@ -28,28 +28,37 @@ public partial class FishTimerWindow
 
     public static readonly ISharedImmediateTexture QuadHookIcon =
         Dalamud.Textures.GetFromManifestResource(Assembly.GetExecutingAssembly(), "QuadHookIcon.bmp");
-    
+
     public static readonly ISharedImmediateTexture OctopusIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065913));
+
     public static readonly ISharedImmediateTexture SharkIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065914));
+
     public static readonly ISharedImmediateTexture JellyfishIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065915));
+
     public static readonly ISharedImmediateTexture SeadragonIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065916));
+
     public static readonly ISharedImmediateTexture FuguIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065917));
+
     public static readonly ISharedImmediateTexture CrabIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065918));
+
     public static readonly ISharedImmediateTexture MantaIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065919));
+
     public static readonly ISharedImmediateTexture ShellfishIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065930));
+
     public static readonly ISharedImmediateTexture SquidIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065931));
+
     public static readonly ISharedImmediateTexture ShrimpIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065932));
-    
+
 
     private readonly struct FishCache
     {
@@ -221,19 +230,17 @@ public partial class FishTimerWindow
             size.X -= window._iconSize.X;
             DrawMarkers(ptr, pos, size.Y, size.X);
         }
-        
-        private int TripleHookCount(int x)
-        {
-            return x switch
+
+        private static int TripleHookCount(int x)
+            => x switch
             {
                 1 => 1,
                 2 => 3,
                 3 => 5,
                 4 => 7,
                 5 => 8,
-                _ => 1
+                _ => 1,
             };
-        }
 
         public void Draw(FishTimerWindow window)
         {
@@ -289,7 +296,7 @@ public partial class FishTimerWindow
                     ImGuiHelpers.ScaledVector2(30, 30), true);
                 window._style.Pop();
             }
-            
+
             if (multiHook)
             {
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X);
@@ -309,18 +316,20 @@ public partial class FishTimerWindow
                     {
                         using var tooltip = ImRaii.Tooltip();
                         window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
-                        
+
                         if (_fish.MutliHookUpper == _fish.MultiHookLower)
                         {
-                            ImUtf8.Text($"Double Hook for {_fish.MultiHookLower} fish{(_fish.Points > 0 ? $" worth {_fish.Points * _fish.MultiHookLower} points" : "")}");
-                            ImUtf8.Text($"Triple Hook for {TripleHookCount(_fish.MultiHookLower)} fish{(_fish.Points > 0 ? $" worth {_fish.Points * TripleHookCount(_fish.MultiHookLower)} points" : "")}"); 
+                            ImUtf8.Text(
+                                $"Double Hook for {_fish.MultiHookLower} fish{(_fish.Points > 0 ? $" worth {_fish.Points * _fish.MultiHookLower} points" : "")}");
+                            ImUtf8.Text(
+                                $"Triple Hook for {TripleHookCount(_fish.MultiHookLower)} fish{(_fish.Points > 0 ? $" worth {_fish.Points * TripleHookCount(_fish.MultiHookLower)} points" : "")}");
                         }
                         else
                         {
-                            ImUtf8.Text($"Double Hook for {_fish.MultiHookLower}-{_fish.MutliHookUpper} fish" +
-                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * _fish.MultiHookLower} and {_fish.Points * _fish.MutliHookUpper} points" : "")}");
-                            ImUtf8.Text($"Triple Hook for {TripleHookCount(_fish.MultiHookLower)}-{TripleHookCount(_fish.MutliHookUpper)} fish" +
-                                $"{(_fish.Points > 0 ? $" worth between {_fish.Points * (TripleHookCount(_fish.MultiHookLower))} and {_fish.Points * TripleHookCount(_fish.MutliHookUpper)} points" : "")}");
+                            ImUtf8.Text($"Double Hook for {_fish.MultiHookLower}-{_fish.MutliHookUpper} fish"
+                              + $"{(_fish.Points > 0 ? $" worth between {_fish.Points * _fish.MultiHookLower} and {_fish.Points * _fish.MutliHookUpper} points" : "")}");
+                            ImUtf8.Text($"Triple Hook for {TripleHookCount(_fish.MultiHookLower)}-{TripleHookCount(_fish.MutliHookUpper)} fish"
+                              + $"{(_fish.Points > 0 ? $" worth between {_fish.Points * TripleHookCount(_fish.MultiHookLower)} and {_fish.Points * TripleHookCount(_fish.MutliHookUpper)} points" : "")}");
                         }
 
                         window._style.Pop();
@@ -331,11 +340,11 @@ public partial class FishTimerWindow
                     ImGui.Dummy(window._iconSize);
                 }
             }
-            
+
             if (oceanType)
             {
                 ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0));
-                
+
                 var typeIcon = _fish.OceanSpecies switch
                 {
                     OceanSpecies.Octopus   => OctopusIcon,
@@ -350,7 +359,7 @@ public partial class FishTimerWindow
                     OceanSpecies.Shrimp    => ShrimpIcon,
                     _                      => null,
                 };
-                
+
                 if (typeIcon?.TryGetWrap(out var wrap2, out _) ?? false)
                 {
                     ImGui.Image(wrap2.Handle, window._iconSize);
@@ -358,9 +367,9 @@ public partial class FishTimerWindow
                     {
                         using var tooltip = ImRaii.Tooltip();
                         window._style.Push(ImGuiStyleVar.ItemSpacing, window._originalSpacing);
-                        
+
                         ImUtf8.Text($"This fish is a {_fish.OceanSpecies.ToString().ToLower()}");
-                        
+
                         window._style.Pop();
                     }
                 }
@@ -377,7 +386,10 @@ public partial class FishTimerWindow
                     ? Vector4.One
                     : new Vector4(0.75f, 0.75f, 0.75f, 0.5f);
 
-                ImGui.SameLine(window._windowSize.X - window._iconSize.X - (multiHook ? window._iconSize.X : 0) - (oceanType ? window._iconSize.X : 0));
+                ImGui.SameLine(window._windowSize.X
+                  - window._iconSize.X
+                  - (multiHook ? window._iconSize.X : 0)
+                  - (oceanType ? window._iconSize.X : 0));
                 if (CollectableIcon.TryGetWrap(out var wrap3, out _))
                     ImGui.Image(wrap3.Handle, window._iconSize, Vector2.Zero, Vector2.One, tint);
                 else
@@ -388,7 +400,10 @@ public partial class FishTimerWindow
             if (timeString is null)
                 return;
 
-            var offset = ImGui.CalcTextSize(timeString).X + (collectible ? window._iconSize.X : 0) + (multiHook ? window._iconSize.X : 0) + (oceanType ? window._iconSize.X : 0);
+            var offset = ImGui.CalcTextSize(timeString).X
+              + (collectible ? window._iconSize.X : 0)
+              + (multiHook ? window._iconSize.X : 0)
+              + (oceanType ? window._iconSize.X : 0);
             ImGui.SameLine(window._windowSize.X - offset - padding);
             ImUtf8.TextFrameAligned(timeString);
         }
