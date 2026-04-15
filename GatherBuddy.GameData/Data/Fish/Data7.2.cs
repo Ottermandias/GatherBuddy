@@ -1079,9 +1079,10 @@ public static partial class Fish
             .Points(150)
             .MultiHook(2)
             .Bite(data, HookSet.Precise, BiteType.Weak);
-        data.Apply(45906, Patch.SeekersOfEternity) // Harpagofututor //TODO: Intuition Fish, 3 Leanchoilia + 1 Lunar Glassfish
+        data.Apply(45906, Patch.SeekersOfEternity) // Harpagofututor
             .Bait(data)
             .Mission(data, 495)
+            .Predators(data, 240, (45905, 3), (45903, 1))
             .Points(5000)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
