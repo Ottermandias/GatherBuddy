@@ -9,28 +9,41 @@ public static partial class Fish
     {
         data.Apply(51999, Patch.TrailToTheHeavens) // Ole Ole Ole
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52000, Patch.TrailToTheHeavens) // Iron Oxydoras
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52001, Patch.TrailToTheHeavens) // Excavator Catfish
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52002, Patch.TrailToTheHeavens) // Moonmarking Saucer
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Mooch(data, 43740)
+            .Weather(data, 1)
+            .Transition(data, 7)
+            .Time(960, 1440)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52003, Patch.TrailToTheHeavens) // Autarch's Supper
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bait(data, 43858)
+            .Weather(data, 7)
+            .Transition(data, 4)
+            .Time(960, 1080)
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52004, Patch.TrailToTheHeavens) // Bitterbark Caiman 
             .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52005, Patch.TrailToTheHeavens) // Vagrant Keeper
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bait(data, 43857)
+            .Weather(data, 6)
+            .Transition(data, 3)
+            .Time(0, 480)
+            .Predators(data, 120, (43760, 3))
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52006, Patch.TrailToTheHeavens) // Shined Copper Shark
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+            .Bait(data, 43859)
+            .Weather(data, 3)
+            .Transition(data, 4)
+            .Time(480, 780)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Ocean Fish
         data.Apply(51209, Patch.TrailToTheHeavens) // First Mate's Finger

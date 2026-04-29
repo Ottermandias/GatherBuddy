@@ -49,7 +49,8 @@ public partial class FishingParser
     {
         switch (message.LogKind)
         {
-            case FishingMessage:
+            case XivChatType.Gathering:
+            case XivChatType.GatheringSystemMessage:
             {
                 var text = message.Message.TextValue;
 

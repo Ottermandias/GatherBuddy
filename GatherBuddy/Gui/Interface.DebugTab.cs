@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
-using Dalamud.Bindings.ImGui;
+﻿using Dalamud.Bindings.ImGui;
 using Dalamud.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
@@ -14,8 +9,16 @@ using GatherBuddy.Structs;
 using GatherBuddy.Time;
 using Lumina.Excel.Sheets;
 using OtterGui;
+using OtterGui.Log;
 using OtterGui.Text;
+using OtterGui.Widgets;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
+using System.Text.RegularExpressions;
 using static GatherBuddy.FishTimer.FishRecord;
+using static System.Net.Mime.MediaTypeNames;
 using Aetheryte = GatherBuddy.Classes.Aetheryte;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
 using ImGuiTable = OtterGui.ImGuiTable;
@@ -526,7 +529,8 @@ public partial class Interface
             }
         }
 
-        using (var table = ImRaii.Table("##OceanTimeline", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.BordersOuter))
+        using (var table = ImRaii.Table("##OceanTimeline", 9,
+                   ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.BordersOuter))
         {
             if (table)
             {
@@ -576,6 +580,74 @@ public partial class Interface
         }
     }
 
+    private class TerritoryFilterCombo()
+        : FilterComboCache<Territory>(() => GatherBuddy.GameData.Territories.Values.ToList(), MouseWheelType.Control, GatherBuddy.Log)
+    {
+        protected override string ToString(Territory obj)
+            => $"{obj.Name} ({obj.Id})";
+    }
+
+    private class WeatherFilterCombo()
+        : FilterComboCache<string>(() => GatherBuddy.GameData.Weathers.Values.Select(w => w.Name).Distinct().ToList(), MouseWheelType.Control,
+            GatherBuddy.Log)
+    {
+        protected override string ToString(string obj)
+            => obj;
+    }
+
+    private class FishBaitCombo()
+        : FilterComboCache<FishBaitCombo.StringId>(
+            () => GatherBuddy.GameData.Fishes.Values.Select(f => new StringId(f.Name.English, f.ItemId))
+                .Concat(GatherBuddy.GameData.Bait.Values.Select(b => new StringId(b.Name, b.Id))).ToList(), MouseWheelType.Control,
+            GatherBuddy.Log)
+    {
+        public record StringId(string Name, uint Id);
+
+        protected override string ToString(StringId obj)
+            => obj.Name;
+    }
+
+    private readonly TerritoryFilterCombo _territoryCombo = new();
+    private readonly WeatherFilterCombo   _weatherCombo   = new();
+    private readonly FishBaitCombo        _fishBaitCombo  = new();
+
+    private void DrawDebugFishHelper()
+    {
+        _territoryCombo.Draw("##Territory", _territoryCombo.CurrentSelection?.Name ?? "Choose Territory", string.Empty,
+            300 * ImUtf8.GlobalScale,
+            ImUtf8.TextHeightSpacing);
+        ImGui.SameLine();
+        _weatherCombo.Draw("##Weather", _weatherCombo.CurrentSelection ?? "Choose Weather", string.Empty, 150 * ImUtf8.GlobalScale,
+            ImUtf8.TextHeightSpacing);
+        if (_territoryCombo.CurrentSelection is { } territory && _weatherCombo.CurrentSelection is { Length: > 0 } weather)
+        {
+            ImGui.SameLine();
+            var weathers = territory.WeatherRates.Rates.Where(w => w.Weather.Name == _weatherCombo.CurrentSelection).Select(w => w.Weather.Id).ToList();
+            if (weather.Length > 0)
+            {
+                var text = string.Join(", ", weathers);
+                ImUtf8.Text(text);
+                if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                    ImGui.SetClipboardText(text);
+            }
+            else
+            {
+                ImUtf8.Text("Territory does not support this weather."u8);
+            }
+        }
+
+        _fishBaitCombo.Draw("##fish", _fishBaitCombo.CurrentSelection?.Name ?? "Choose Fish or Bait", string.Empty, 300 * ImUtf8.GlobalScale,
+            ImUtf8.TextHeightSpacing);
+        if (_fishBaitCombo.CurrentSelection is { } fish)
+        {
+            ImGui.SameLine();
+            var text = $"{fish.Id}";
+            ImUtf8.Text(text);
+            if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
+                ImGui.SetClipboardText(text);
+        }
+    }
+
     private void DrawDebugTab()
     {
         if (!GatherBuddy.DebugMode)
@@ -587,6 +659,8 @@ public partial class Interface
 
         if (!tab)
             return;
+
+        DrawDebugFishHelper();
 
         using var child = ImRaii.Child(string.Empty);
         if (!child)
