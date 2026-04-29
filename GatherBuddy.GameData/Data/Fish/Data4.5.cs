@@ -91,7 +91,7 @@ public static partial class Fish
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Time      (0, 480)
             .Transition(data, 2)
-            .Weather   (data, 4);
+            .Weather   (data, 3, 4, 5);
         data.Apply     (24990, Patch.ARequiemForHeroes) // Xenacanthus
             .Mooch     (data, 20675, 24207)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
