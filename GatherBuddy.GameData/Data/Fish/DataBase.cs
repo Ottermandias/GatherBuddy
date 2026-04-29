@@ -415,9 +415,10 @@ public static partial class Fish
         data.ApplySeekersOfEternity();
         data.ApplyThePromiseOfTomorrow();
         data.ApplyIntoTheMist();
+        data.ApplyTrailToTheHeavens();
         data.ApplyMooches();
         data.ApplyOverrides();
-        //DumpUnknown(Patch.IntoTheMist, data.Fishes.Values);
+        //DumpUnknown(Enum.GetValues<Patch>()[^1], data.Fishes.Values);
     }
 
     public static bool ApplyOverrides(this GameData data)

@@ -64,13 +64,13 @@ public partial class AlarmManager : IDisposable
     }
 
     private static void TriggerWeatherAlarm()
-        => UIGlobals.PlaySoundEffect((uint)GatherBuddy.Config.WeatherAlarm);
+        => UIGlobals.PlayChatSoundEffect((uint)GatherBuddy.Config.WeatherAlarm.ToIdx());
 
     private static void TriggerHourAlarm()
-        => UIGlobals.PlaySoundEffect((uint)GatherBuddy.Config.HourAlarm);
+        => UIGlobals.PlayChatSoundEffect((uint)GatherBuddy.Config.HourAlarm.ToIdx());
 
     public static void PreviewAlarm(Sounds id)
-        => UIGlobals.PlaySoundEffect((uint)id);
+        => UIGlobals.PlayChatSoundEffect((uint)id.ToIdx());
 
 
     public void AddActiveAlarm(Alarm alarm, bool trigger = true)
@@ -232,7 +232,7 @@ public partial class AlarmManager : IDisposable
             LastItemAlarm = (alarm, location, uptime);
 
         if (alarm.SoundId > Sounds.Unknown)
-            UIGlobals.PlaySoundEffect((uint)alarm.SoundId);
+            UIGlobals.PlayChatSoundEffect((uint)alarm.SoundId.ToIdx());
 
         // Some lax rounding for display.
         var newUptime = uptime;

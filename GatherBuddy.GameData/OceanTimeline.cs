@@ -20,7 +20,7 @@ public class OceanTimeline
         {
             OceanArea.Aldenard => Aldenard,
             OceanArea.Othard   => Othard,
-            _                  => Array.Empty<OceanRoute>(),
+            _                  => [],
         };
 
     public OceanRoute this[OceanArea area, int idx]

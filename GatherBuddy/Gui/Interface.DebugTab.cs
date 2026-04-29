@@ -145,7 +145,7 @@ public partial class Interface
             ImGui.SameLine();
             if (FishTimerWindow.QuadHookIcon.TryGetWrap(out var wrapQuadHook, out _))
                 ImGui.Image(wrapQuadHook.Handle, wrapQuadHook.Size);
-            
+
             ImGui.SameLine();
             if (FishTimerWindow.OctopusIcon.TryGetWrap(out var wrapOctopus, out _))
                 ImGui.Image(wrapOctopus.Handle, wrapOctopus.Size);
@@ -494,16 +494,28 @@ public partial class Interface
 
     private static void DrawOceanTab()
     {
-        if (!ImGui.CollapsingHeader("Ocean Routes##OceanDebug"))
+        if (!ImGui.CollapsingHeader("Ocean Routes##OceanDebug"u8))
             return;
 
-        using (var table = ImRaii.Table("##Ocean", 8, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        using (var table = ImRaii.Table("##Ocean", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.BordersOuter))
         {
             if (table)
+            {
+                ImGui.TableSetupColumn("Route"u8);
+                ImGui.TableSetupColumn("Time"u8);
+                ImGui.TableSetupColumn("Area"u8);
+                ImGui.TableSetupColumn("Spot 1 Normal"u8);
+                ImGui.TableSetupColumn("Spot 1 Spectral"u8);
+                ImGui.TableSetupColumn("Spot 2 Normal"u8);
+                ImGui.TableSetupColumn("Spot 2 Spectral"u8);
+                ImGui.TableSetupColumn("Spot 3 Normal"u8);
+                ImGui.TableSetupColumn("Spot 3 Spectral"u8);
+                ImGui.TableHeadersRow();
                 foreach (var route in GatherBuddy.GameData.OceanRoutes)
                 {
                     ImGuiUtil.DrawTableColumn(route.ToString());
                     ImGuiUtil.DrawTableColumn(route.StartTime.ToString());
+                    ImGuiUtil.DrawTableColumn(route.Area.ToString());
                     ImGuiUtil.DrawTableColumn(route.GetSpots(0).Normal.Name);
                     ImGuiUtil.DrawTableColumn(route.GetSpots(0).Spectral.Name);
                     ImGuiUtil.DrawTableColumn(route.GetSpots(1).Normal.Name);
@@ -511,25 +523,40 @@ public partial class Interface
                     ImGuiUtil.DrawTableColumn(route.GetSpots(2).Normal.Name);
                     ImGuiUtil.DrawTableColumn(route.GetSpots(2).Spectral.Name);
                 }
+            }
         }
 
-        using (var table = ImRaii.Table("##OceanTimeline", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit))
+        using (var table = ImRaii.Table("##OceanTimeline", 9, ImGuiTableFlags.RowBg | ImGuiTableFlags.SizingFixedFit | ImGuiTableFlags.BordersOuter))
         {
             if (table)
+            {
+                ImGui.TableSetupColumn("#"u8);
+                ImGui.TableSetupColumn("Aldenard"u8);
+                ImGui.TableSetupColumn("Spot 1###A"u8);
+                ImGui.TableSetupColumn("Spot 2###A"u8);
+                ImGui.TableSetupColumn("Spot 3###A"u8);
+                ImGui.TableSetupColumn("Othard"u8);
+                ImGui.TableSetupColumn("Spot 1###O"u8);
+                ImGui.TableSetupColumn("Spot 2###O"u8);
+                ImGui.TableSetupColumn("Spot 3###O"u8);
+                ImGui.TableHeadersRow();
                 for (var idx = 0; idx < GatherBuddy.GameData.OceanTimeline.Count; ++idx)
                 {
                     var routeAldenard = GatherBuddy.GameData.OceanTimeline[OceanArea.Aldenard][idx];
                     var routeOthard   = GatherBuddy.GameData.OceanTimeline[OceanArea.Othard][idx];
                     ImGuiUtil.DrawTableColumn(idx.ToString());
                     ImGuiUtil.DrawTableColumn(routeAldenard.ToString());
+                    ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.GetColorU32(ImGuiCol.TableHeaderBg));
                     ImGuiUtil.DrawTableColumn(routeAldenard.GetSpots(0).Normal.Name);
                     ImGuiUtil.DrawTableColumn(routeAldenard.GetSpots(1).Normal.Name);
                     ImGuiUtil.DrawTableColumn(routeAldenard.GetSpots(2).Normal.Name);
                     ImGuiUtil.DrawTableColumn(routeOthard.ToString());
+                    ImGui.TableSetBgColor(ImGuiTableBgTarget.CellBg, ImGui.GetColorU32(ImGuiCol.TableHeaderBg));
                     ImGuiUtil.DrawTableColumn(routeOthard.GetSpots(0).Normal.Name);
                     ImGuiUtil.DrawTableColumn(routeOthard.GetSpots(1).Normal.Name);
                     ImGuiUtil.DrawTableColumn(routeOthard.GetSpots(2).Normal.Name);
                 }
+            }
         }
     }
 
@@ -633,7 +660,7 @@ public partial class Interface
     {
         ImGui.PushItemWidth(100);
         ImUtf8.InputScalar($"Start ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_startId)?.Name}###startid", ref _startId);
-        ImUtf8.InputScalar($"End ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_endId)?.Name}###endid",     ref _endId);
+        ImUtf8.InputScalar($"End ID: {GatherBuddy.GameData.FishingSpots.GetValueOrDefault(_endId)?.Name}###endid",       ref _endId);
         ImGui.PopItemWidth();
 
         if (!ImUtf8.Button("Copy Most Recent Unknown Fish Data"u8))

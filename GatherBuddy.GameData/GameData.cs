@@ -247,7 +247,7 @@ public class GameData
         {
             var spot = fish.FishData?.FishingSpot.RowId ?? 0u;
             if (set.TryGetValue(spot, out var area))
-                fish.OceanArea = fish.OceanArea == OceanArea.None || fish.OceanArea == area ? area : OceanArea.Unknown;
+                fish.OceanArea = fish.OceanArea is OceanArea.None || fish.OceanArea == area ? area : OceanArea.Unknown;
         }
     }
 
@@ -285,7 +285,12 @@ public class GameData
                 SpotDay    = day,
                 SpotSunset = sunset,
                 SpotNight  = night,
-                Area       = i < 13 ? OceanArea.Aldenard : i < 19 ? OceanArea.Othard : OceanArea.Unknown,
+                Area       = i switch
+                {
+                    < 13 => OceanArea.Aldenard,
+                    < 22 => OceanArea.Othard,
+                    _ => OceanArea.Unknown,
+                },
             };
         }
 

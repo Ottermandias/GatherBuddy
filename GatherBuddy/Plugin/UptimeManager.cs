@@ -22,7 +22,7 @@ public class UptimeManager : IDisposable
     private readonly (ILocation Location, TimeInterval Interval)[] _bestUptime;
     private readonly (ILocation Location, uint Reset)[]            _bestLocation;
     private          uint                                          _lastReset = 1;
-    private          ushort                                        _currentTerritory;
+    private          uint                                          _currentTerritory;
     private          ushort                                        _aetherStreamX;
     private          ushort                                        _aetherStreamY;
     private          ushort                                        _aetherPlane;
@@ -90,7 +90,7 @@ public class UptimeManager : IDisposable
         return closest;
     }
 
-    private void OnTerritoryChange(ushort id)
+    private void OnTerritoryChange(uint id)
         => SetCurrentTerritory(id);
 
     public void Dispose()
@@ -295,7 +295,7 @@ public class UptimeManager : IDisposable
         };
 
     // Get the aetherstream position of the player character, i.e. the aetherstream coordinates of the aetheryte corresponding to the current territory.
-    private void SetCurrentTerritory(ushort territory)
+    private void SetCurrentTerritory(uint territory)
     {
         if (territory == _currentTerritory)
             return;
