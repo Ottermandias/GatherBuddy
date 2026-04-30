@@ -8,8 +8,11 @@ public static partial class Fish
     private static void ApplyTrailToTheHeavens(this GameData data)
     {
         data.Apply(51999, Patch.TrailToTheHeavens) // Ole Ole Ole
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bait(data, 43854)
+            .Weather(data, 15)
+            .Transition(data, 3)
+            .Lure(Enums.Lure.Ambitious)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52000, Patch.TrailToTheHeavens) // Iron Oxydoras
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
@@ -36,7 +39,7 @@ public static partial class Fish
             .Weather(data, 3)
             .Transition(data, 6)
             .Time(0, 480)
-            .Predators(data, 120, (43760, 3))
+            .Predators(data, 300, (43760, 3))
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52006, Patch.TrailToTheHeavens) // Shined Copper Shark
             .Bait(data, 43859)
