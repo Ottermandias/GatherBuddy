@@ -12,13 +12,17 @@ public static partial class Fish
             .Weather(data, 15)
             .Transition(data, 3)
             .Lure(Enums.Lure.Ambitious)
+            .Time(0, 120)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52000, Patch.TrailToTheHeavens) // Iron Oxydoras
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
         data.Apply(52001, Patch.TrailToTheHeavens) // Excavator Catfish
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bait(data, 43855)
+            .Weather(data, 3)
+            .Transition(data, 7)
+            .Time(240, 480)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52002, Patch.TrailToTheHeavens) // Moonmarking Saucer
             .Mooch(data, 43740)
             .Weather(data, 7)
@@ -30,7 +34,7 @@ public static partial class Fish
             .Weather(data, 4)
             .Transition(data, 7)
             .Time(960, 1080)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52004, Patch.TrailToTheHeavens) // Bitterbark Caiman 
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
@@ -38,9 +42,9 @@ public static partial class Fish
             .Bait(data, 43857)
             .Weather(data, 3)
             .Transition(data, 6)
-            .Time(0, 480)
+            .Time(360, 480)
             .Predators(data, 300, (43760, 3))
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52006, Patch.TrailToTheHeavens) // Shined Copper Shark
             .Bait(data, 43859)
             .Weather(data, 4)
