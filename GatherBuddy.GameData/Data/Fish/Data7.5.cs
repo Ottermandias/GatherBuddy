@@ -104,18 +104,18 @@ public static partial class Fish
             .Bait(data, 29714)
             .Points(86)
             .Bite(data, HookSet.Precise, BiteType.Weak)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night)
+            .Ocean(OceanTime.Always)
             .OceanType(OceanSpecies.Mantis);
         data.Apply(51220, Patch.TrailToTheHeavens) // Bright Red Coral
             .Bait(data, 29715)
             .Points(84)
             .Bite(data, HookSet.Precise, BiteType.Weak)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
         data.Apply(51221, Patch.TrailToTheHeavens) // Royal Favorite
             .Bait(data, 29714)
             .Points(69)
             .Bite(data, HookSet.Precise, BiteType.Weak)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
         data.Apply(51222, Patch.TrailToTheHeavens) // Pirate's Purse
             .Bait(data, 29714)
             .Points(199)
@@ -125,18 +125,18 @@ public static partial class Fish
             .Bait(data, 29715)
             .Points(58)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
         data.Apply(51224, Patch.TrailToTheHeavens) // Tylosaurus
             .Bait(data, 29716)
             .Points(68)
             .Bite(data, HookSet.Powerful, BiteType.Legendary)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night)
+            .Ocean(OceanTime.Always)
             .OceanType(OceanSpecies.Prehistoric);
         data.Apply(51225, Patch.TrailToTheHeavens) // Cieldalaes Roosterfish
             .Mooch(data, 51223)
             .Points(100)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night)
+            .Ocean(OceanTime.Always)
             .OceanType(OceanSpecies.Prehistoric);
         data.Apply(51226, Patch.TrailToTheHeavens) // Renegade Rhotanosaurus
             .Bait(data, 29716)
@@ -203,12 +203,12 @@ public static partial class Fish
             .Bait(data, 29714)
             .Points(75)
             .Bite(data, HookSet.Precise, BiteType.Weak)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
         data.Apply(51240, Patch.TrailToTheHeavens) // Guzel Gwl
             .Bait(data, 29715)
             .Points(70)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
         data.Apply(51241, Patch.TrailToTheHeavens) // Darpana
             .Bait(data, 29715)
             .Points(92)
@@ -223,7 +223,7 @@ public static partial class Fish
             .Bait(data, 29716)
             .Points(70)
             .Bite(data, HookSet.Powerful, BiteType.Legendary)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
         data.Apply(51244, Patch.TrailToTheHeavens) // Tiger Mantis
             .Bait(data, 29714)
             .Points(150)
@@ -233,7 +233,7 @@ public static partial class Fish
             .Bait(data, 29716)
             .Points(70)
             .Bite(data, HookSet.Powerful, BiteType.Legendary)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
         data.Apply(51246, Patch.TrailToTheHeavens) // Pliosaurus
             .Bait(data, 29716)
             .Points(204)
@@ -250,7 +250,7 @@ public static partial class Fish
             .Bait(data)
             .Points(300)
             .Bite(data, HookSet.Precise, BiteType.Weak)
-            .Ocean(OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean(OceanTime.Always);
     }
     // @formatter:on
 }
