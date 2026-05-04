@@ -58,6 +58,12 @@ public partial class FishTimerWindow
 
     public static readonly ISharedImmediateTexture ShrimpIcon =
         Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065932));
+    
+    public static readonly ISharedImmediateTexture PrehistoricIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065933));
+    
+    public static readonly ISharedImmediateTexture MantisIcon =
+        Icons.DefaultStorage.TextureProvider.GetFromGameIcon(new GameIconLookup(065934));
 
 
     private readonly struct FishCache
@@ -347,17 +353,19 @@ public partial class FishTimerWindow
 
                 var typeIcon = _fish.OceanSpecies switch
                 {
-                    OceanSpecies.Octopus   => OctopusIcon,
-                    OceanSpecies.Shark     => SharkIcon,
-                    OceanSpecies.Jellyfish => JellyfishIcon,
-                    OceanSpecies.Seadragon => SeadragonIcon,
-                    OceanSpecies.Fugu      => FuguIcon,
-                    OceanSpecies.Crab      => CrabIcon,
-                    OceanSpecies.Manta     => MantaIcon,
-                    OceanSpecies.Shellfish => ShellfishIcon,
-                    OceanSpecies.Squid     => SquidIcon,
-                    OceanSpecies.Shrimp    => ShrimpIcon,
-                    _                      => null,
+                    OceanSpecies.Octopus     => OctopusIcon,
+                    OceanSpecies.Shark       => SharkIcon,
+                    OceanSpecies.Jellyfish   => JellyfishIcon,
+                    OceanSpecies.Seadragon   => SeadragonIcon,
+                    OceanSpecies.Fugu        => FuguIcon,
+                    OceanSpecies.Crab        => CrabIcon,
+                    OceanSpecies.Manta       => MantaIcon,
+                    OceanSpecies.Shellfish   => ShellfishIcon,
+                    OceanSpecies.Squid       => SquidIcon,
+                    OceanSpecies.Shrimp      => ShrimpIcon,
+                    OceanSpecies.Prehistoric => PrehistoricIcon,
+                    OceanSpecies.Mantis      => MantisIcon,
+                    _                        => null,
                 };
 
                 if (typeIcon?.TryGetWrap(out var wrap2, out _) ?? false)
