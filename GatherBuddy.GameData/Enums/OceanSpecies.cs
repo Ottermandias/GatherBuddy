@@ -16,4 +16,6 @@ public enum OceanSpecies : byte
     Shellfish,
     Squid,
     Shrimp,
+    Prehistoric,
+    Mantis,
 }

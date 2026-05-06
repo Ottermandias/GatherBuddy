@@ -148,7 +148,8 @@ public static partial class Fish
             .Points    (102)
             .MultiHook (2)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
-            .Ocean     (OceanTime.Night);
+            .Ocean     (OceanTime.Night)
+            .OceanType(OceanSpecies.Prehistoric);
         data.Apply(40537, Patch.TheDarkThrone) // Impostopus
             .Bait      (data, 29715)
             .Points    (144)
@@ -160,19 +161,22 @@ public static partial class Fish
             .Points    (72)
             .MultiHook (2)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
-            .Ocean     (OceanTime.Day, OceanTime.Sunset, OceanTime.Night);
+            .Ocean     (OceanTime.Day, OceanTime.Sunset, OceanTime.Night)
+            .OceanType(OceanSpecies.Mantis);
         data.Apply(40539, Patch.TheDarkThrone) // Nymeia's Wheel
             .Bait      (data, 29715)
             .Points    (289)
             .MultiHook (2)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
-            .Ocean     (OceanTime.Sunset);
+            .Ocean     (OceanTime.Sunset)
+            .OceanType(OceanSpecies.Prehistoric);
         data.Apply(40540, Patch.TheDarkThrone) // Taniwha
             .Bait      (data, 36593)
             .Points    (500)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Day)
-            .Predators (data, 15, (40534, 3));
+            .Predators (data, 15, (40534, 3))
+            .OceanType(OceanSpecies.Prehistoric);
         data.Apply(40541, Patch.TheDarkThrone) // Ruby Herring
             .Bait      (data, 29715)
             .Points    (14)
