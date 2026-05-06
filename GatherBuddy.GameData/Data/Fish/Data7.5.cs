@@ -21,13 +21,13 @@ public static partial class Fish
             .Bait(data, 43855)
             .Weather(data, 3)
             .Transition(data, 7)
-            .Time(240, 480)
+            .Time(240, 360)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52002, Patch.TrailToTheHeavens) // Moonmarking Saucer
             .Mooch(data, 43740)
             .Weather(data, 7)
             .Transition(data, 1)
-            .Time(960, 1440)
+            .Time(960, 1260)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52003, Patch.TrailToTheHeavens) // Autarch's Supper
             .Bait(data, 43858)
