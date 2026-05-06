@@ -15,8 +15,11 @@ public static partial class Fish
             .Time(0, 120)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52000, Patch.TrailToTheHeavens) // Iron Oxydoras
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Mooch(data, 43709)
+            .Weather(data, 4)
+            .Transition(data, 3)
+            .Time(780, 900)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52001, Patch.TrailToTheHeavens) // Excavator Catfish
             .Bait(data, 43855)
             .Weather(data, 3)
@@ -36,8 +39,11 @@ public static partial class Fish
             .Time(960, 1080)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52004, Patch.TrailToTheHeavens) // Bitterbark Caiman 
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Mooch(data, 43743)
+            .Weather(data, 1)
+            .Transition(data, 4)
+            .Time(960, 1080)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52005, Patch.TrailToTheHeavens) // Vagrant Keeper
             .Bait(data, 43857)
             .Weather(data, 3)
