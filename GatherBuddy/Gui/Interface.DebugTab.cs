@@ -597,11 +597,11 @@ public partial class Interface
 
     private class FishBaitCombo()
         : FilterComboCache<FishBaitCombo.StringId>(
-            () => GatherBuddy.GameData.Fishes.Values.Select(f => new StringId(f.Name.English, f.ItemId))
-                .Concat(GatherBuddy.GameData.Bait.Values.Select(b => new StringId(b.Name, b.Id))).ToList(), MouseWheelType.Control,
+            () => GatherBuddy.GameData.Fishes.Values.Select(f => new StringId(f.Name.English, f.ItemId, true))
+                .Concat(GatherBuddy.GameData.Bait.Values.Select(b => new StringId(b.Name, b.Id, false))).ToList(), MouseWheelType.Control,
             GatherBuddy.Log)
     {
-        public record StringId(string Name, uint Id);
+        public record StringId(string Name, uint Id, bool Mooch);
 
         protected override string ToString(StringId obj)
             => obj.Name;
@@ -645,6 +645,11 @@ public partial class Interface
             ImUtf8.Text(text);
             if (ImGui.IsItemClicked(ImGuiMouseButton.Left))
                 ImGui.SetClipboardText(text);
+            if (fish.Mooch)
+            {
+                ImGui.SameLine();
+                ImUtf8.Text("(Mooch)");
+            }
         }
     }
 
