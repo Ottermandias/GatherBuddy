@@ -126,8 +126,14 @@ public partial class Interface
         {
             using var tt = ImRaii.Tooltip();
             ImGui.TextUnformatted("If this does not correspond to your in-game Eorzea Time, verify that your windows system time is accurate.");
-            ImGui.TextUnformatted($"Next Aldenard Ocean Route: {OceanUptime.NextOceanRoute(OceanArea.Aldenard, TimeStamp.UtcNow)}");
-            ImGui.TextUnformatted($"Next Othard Ocean Route: {OceanUptime.NextOceanRoute(OceanArea.Othard,     TimeStamp.UtcNow)}");
+            ImGui.TextUnformatted($"Next Aldenard Ocean Routes:");
+            ImGui.BulletText($"{OceanUptime.NextOceanRoute(OceanArea.Aldenard,                              TimeStamp.UtcNow)}");
+            ImGui.BulletText($"{OceanUptime.NextOceanRoute(OceanArea.Aldenard,                              TimeStamp.UtcNow.AddHours(2))}");
+            ImGui.BulletText($"{OceanUptime.NextOceanRoute(OceanArea.Aldenard,                              TimeStamp.UtcNow.AddHours(4))}");
+            ImGui.TextUnformatted($"Next Othard Ocean Routes:");
+            ImGui.BulletText($"{OceanUptime.NextOceanRoute(OceanArea.Othard, TimeStamp.UtcNow)}");
+            ImGui.BulletText($"{OceanUptime.NextOceanRoute(OceanArea.Othard, TimeStamp.UtcNow.AddHours(2))}");
+            ImGui.BulletText($"{OceanUptime.NextOceanRoute(OceanArea.Othard, TimeStamp.UtcNow.AddHours(4))}");
         }
     }
 

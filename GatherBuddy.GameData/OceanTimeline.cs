@@ -30,6 +30,6 @@ public class OceanTimeline
     {
         var timelineSheet = gameData.GetExcelSheet<IKDRouteTable>()!;
         Aldenard = timelineSheet.Select(r => routes[(int)r.Route.RowId - 1]).ToArray();
-        Othard   = timelineSheet.Skip(120).Concat(timelineSheet.Take(120)).Select(r => routes[(int)r.Unknown0 - 1]).ToArray();
+        Othard   = timelineSheet.Select(r => routes[(int)r.Unknown0 - 1]).ToArray();
     }
 }
