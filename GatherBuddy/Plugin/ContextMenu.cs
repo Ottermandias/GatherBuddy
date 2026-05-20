@@ -63,13 +63,13 @@ public class ContextMenu : IDisposable
             _lastGatherable = args.AddonName switch
             {
                 null                 => HandleSatisfactionSupply(),
-                "ContentsInfoDetail" => CheckGameObjectItem("ContentsInfo", Offsets.ContentsInfoDetailContextItemId), // Provisioning
-                "RecipeNote"         => CheckGameObjectItem("RecipeNote", Offsets.RecipeNoteContextItemId),
-                "RecipeTree"         => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
-                "RecipeMaterialList" => CheckGameObjectItem(AgentById(AgentId.RecipeItemContext), Offsets.AgentItemContextItemId),
-                "GatheringNote"      => CheckGatheringNote(args),
+                "ContentsInfoDetail" => HandleItem(AgentContentsTimer.Instance()->ContextMenuItemId), // Provisioning
+                "RecipeNote"         => HandleItem(AgentRecipeNote.Instance()->ContextMenuResultItemId),
+                "RecipeTree"         => HandleItem(AgentRecipeItemContext.Instance()->ResultItemId),
+                "RecipeMaterialList" => HandleItem(AgentRecipeItemContext.Instance()->ResultItemId),
+                "GatheringNote"      => HandleGatheringNote(args),
                 "ItemSearch"         => HandleItem((uint)AgentContext.Instance()->UpdateCheckerParam),
-                "ChatLog"            => CheckGameObjectItem("ChatLog", Offsets.ChatLogContextItemId, ValidateChatLogContext),
+                "ChatLog"            => HandleChatLog(args),
                 _                    => null,
             };
         }
@@ -78,19 +78,25 @@ public class ContextMenu : IDisposable
             args.AddMenuItem(_menuItem);
     }
 
-    private static unsafe IGatherable? CheckGatheringNote(IMenuOpenedArgs args)
+    private static unsafe IGatherable? HandleGatheringNote(IMenuOpenedArgs args)
     {
-        var agent = Dalamud.GameGui.FindAgentInterface("GatheringNote");
-        if (agent == IntPtr.Zero)
-            return null;
-
         // This seems to be 1 when a location context is opened,
         // and 4 when an item context is opened.
         var discriminator = *(byte*)(args.AgentPtr + Offsets.GatheringNoteContextDiscriminator);
         if (discriminator != 4)
             return null;
 
-        return HandleItem(*(uint*)(agent + Offsets.GatheringNoteContextItemId));
+        return HandleItem(AgentGatheringNote.Instance()->ContextMenuItemId);
+    }
+
+    private unsafe IGatherable? HandleChatLog(IMenuOpenedArgs args)
+    {
+        var agent = AgentChatLog.Instance();
+
+        if (*(uint*)((nint)(&agent->ContextItemId) + 8) != 3) // Validate context
+            return null;
+
+        return HandleItem(agent->ContextItemId);
     }
 
     private static IGatherable? HandleItem(uint itemId)
@@ -106,41 +112,14 @@ public class ContextMenu : IDisposable
         return GatherBuddy.GameData.Fishes.GetValueOrDefault(itemId);
     }
 
-    private unsafe IGatherable? CheckGameObjectItem(IntPtr agent, int offset, Func<nint, bool> validate)
-        => agent != IntPtr.Zero && validate(agent) ? HandleItem(*(uint*)(agent + offset)) : null;
-
-    private unsafe IGatherable? CheckGameObjectItem(IntPtr agent, int offset)
-        => agent != IntPtr.Zero ? HandleItem(*(uint*)(agent + offset)) : null;
-
-    private IGatherable? CheckGameObjectItem(string name, int offset, Func<nint, bool> validate)
-        => CheckGameObjectItem(Dalamud.GameGui.FindAgentInterface(name), offset, validate);
-
-    private IGatherable? CheckGameObjectItem(string name, int offset)
-        => CheckGameObjectItem(Dalamud.GameGui.FindAgentInterface(name), offset);
-
     private unsafe IGatherable? HandleSatisfactionSupply()
     {
-        var agent = Dalamud.GameGui.FindAgentInterface("SatisfactionSupply");
-        if (agent == IntPtr.Zero)
+        var agent = AgentSatisfactionSupply.Instance();
+
+        var itemIdx = agent->NpcInfo.SelectedItemIndex;
+        if (itemIdx < 0 || itemIdx >= agent->Items.Length)
             return null;
 
-        var itemIdx = *(byte*)(agent + Offsets.SatisfactionSupplyItemIdx);
-        return itemIdx switch
-        {
-            1 => HandleItem(*(uint*)(agent + Offsets.SatisfactionSupplyItem1Id)),
-            2 => HandleItem(*(uint*)(agent + Offsets.SatisfactionSupplyItem2Id)),
-            _ => null,
-        };
-    }
-
-    private static unsafe bool ValidateChatLogContext(nint agent)
-        => *(uint*)(agent + Offsets.ChatLogContextItemId + 8) == 3;
-
-    private static unsafe IntPtr AgentById(AgentId id)
-    {
-        var uiModule = (UIModule*)Dalamud.GameGui.GetUIModule().Address;
-        var agents   = uiModule->GetAgentModule();
-        var agent    = agents->GetAgentByInternalId(id);
-        return (IntPtr)agent;
+        return HandleItem(agent->Items[itemIdx].Id);
     }
 }
