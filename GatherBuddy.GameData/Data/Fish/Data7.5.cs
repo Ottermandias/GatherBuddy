@@ -172,7 +172,7 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Strong)
             .Ocean(OceanTime.Day);
         data.Apply(51228, Patch.TrailToTheHeavens) // Akupara
-            .Mooch(data, 29714, 51223, 51225)
+            .Mooch(data, 29715, 51223, 51225)
             .Points(500)
             .Bite(data, HookSet.Powerful, BiteType.Legendary)
             .Ocean(OceanTime.Sunset)
@@ -281,9 +281,9 @@ public static partial class Fish
         data.Apply(51247, Patch.TrailToTheHeavens) // Manasvin
             .Bait(data, 2591)
             .Points(500)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary)
             .Ocean(OceanTime.Night)
-            .Predators(data, 15, (51243, 2));
+            .Predators(data, 15, (51243, 3));
         data.Apply(51687, Patch.TrailToTheHeavens) // Junior Jinbei
             .Bait(data)
             .Points(300)
