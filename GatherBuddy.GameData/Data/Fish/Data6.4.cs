@@ -146,7 +146,7 @@ public static partial class Fish
         data.Apply(40536, Patch.TheDarkThrone) // Black-jawed Helicoprion
             .Bait      (data, 29716)
             .Points    (102)
-            .MultiHook (2)
+            .MultiHook (4)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary)
             .Ocean     (OceanTime.Night)
             .OceanType(OceanSpecies.Prehistoric);
@@ -312,7 +312,7 @@ public static partial class Fish
             .Points    (15)
             .MultiHook (2)
             .Bite      (data, HookSet.Precise, BiteType.Weak)
-            .Weather   (data, 1, 2, 3, 4, 6, 9);
+            .Weather   (data, 1, 2, 3, 4, 9);
         data.Apply(40564, Patch.TheDarkThrone) // Mantle Moray
             .Bait      (data, 29715)
             .Points    (41)
@@ -329,7 +329,7 @@ public static partial class Fish
             .Points    (38)
             .MultiHook (2)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
-            .Weather   (data, 1, 2, 5, 6, 9);
+            .Weather   (data, 1, 2, 5, 9);
         data.Apply(40567, Patch.TheDarkThrone) // Barded Lobster
             .Bait      (data, 29714)
             .Points    (33)
