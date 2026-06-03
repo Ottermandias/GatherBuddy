@@ -1,4 +1,4 @@
-using GatherBuddy.Enums;
+﻿using GatherBuddy.Enums;
 
 namespace GatherBuddy.Data;
 
@@ -306,6 +306,628 @@ public static partial class Fish
             .Points(300)
             .Bite(data, HookSet.Precise, BiteType.Weak)
             .Ocean(OceanTime.Always);
+
+
+        // Timberpond  Aquaculture Impact Survey
+        data.Apply(52096, Patch.TrailToTheHeavens) // Timberpond Skipper
+            .Bait(data)
+            .Mission(data, 1650)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52097, Patch.TrailToTheHeavens) // Highwood Leaffish
+            .Bait(data)
+            .Mission(data, 1650)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52098, Patch.TrailToTheHeavens) // Prochilodus Cosmica
+            .Bait(data)
+            .Mission(data, 1650)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // New Growth Tapwaters  Timberpond Specimen Survey
+        data.Apply(52099, Patch.TrailToTheHeavens) // Fishform: Modulight
+            .Bait(data)
+            .Mission(data, 1651)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52100, Patch.TrailToTheHeavens) // New Growth Leaffish
+            .Bait(data)
+            .Mission(data, 1651)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52101, Patch.TrailToTheHeavens) // Auxesian Peacock Bass
+            .Bait(data)
+            .Mission(data, 1651)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Timberpond  Timberpond Environmental Survey
+        data.Apply(52102, Patch.TrailToTheHeavens) // Timberpond Skipper
+            .Bait(data)
+            .Mission(data, 1652)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52103, Patch.TrailToTheHeavens) // Highwood Leaffish
+            .Bait(data)
+            .Mission(data, 1652)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52104, Patch.TrailToTheHeavens) // Pioneering Pondfish
+            .Bait(data)
+            .Mission(data, 1652)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // New Growth Tapwaters  Regular Base Resupply
+        data.Apply(52105, Patch.TrailToTheHeavens) // Fishform: Modulight
+            .Bait(data)
+            .Mission(data, 1653)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52106, Patch.TrailToTheHeavens) // New Growth Leaffish
+            .Bait(data)
+            .Mission(data, 1653)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52107, Patch.TrailToTheHeavens) // Timberlouse
+            .Bait(data)
+            .Mission(data, 1653)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Timberpond  Large Aquatic Specimen Distribution Survey
+        data.Apply(52108, Patch.TrailToTheHeavens) // Timberpond Skipper
+            .Bait(data)
+            .Mission(data, 1654)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52109, Patch.TrailToTheHeavens) // Highwood Leaffish
+            .Bait(data)
+            .Mission(data, 1654)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52110, Patch.TrailToTheHeavens) // Fishform: Aquaclear
+            .Bait(data)
+            .Mission(data, 1654)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52111, Patch.TrailToTheHeavens) // Cosmic Belonesox
+            .Bait(data)
+            .Mission(data, 1654)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // New Growth Tapwaters  Auxesia Bait Suitability Testing
+        data.Apply(52112, Patch.TrailToTheHeavens) // Fishform: Modulight
+            .Bait(data)
+            .Mission(data, 1655)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52113, Patch.TrailToTheHeavens) // New Growth Carp
+            .Bait(data)
+            .Mission(data, 1655)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52114, Patch.TrailToTheHeavens) // Fishform: Alluviscoop
+            .Bait(data)
+            .Mission(data, 1655)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52115, Patch.TrailToTheHeavens) // Verdant Dancer
+            .Bait(data)
+            .Mission(data, 1655)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Timberpond  Large Aquatic Specimen Collection
+        data.Apply(52116, Patch.TrailToTheHeavens) // Timberpond Skipper
+            .Bait(data)
+            .Mission(data, 1656)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52117, Patch.TrailToTheHeavens) // Highwood Leaffish
+            .Bait(data)
+            .Mission(data, 1656)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52118, Patch.TrailToTheHeavens) // Stargazy Perch
+            .Bait(data)
+            .Mission(data, 1656)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52119, Patch.TrailToTheHeavens) // Timberpond Muskellunge
+            .Bait(data)
+            .Mission(data, 1656)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // New Growth Tapwaters  Valuable Southern-central Specimens
+        data.Apply(52120, Patch.TrailToTheHeavens) // Fishform: Modulight
+            .Bait(data)
+            .Mission(data, 1657)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52121, Patch.TrailToTheHeavens) // New Growth Leaffish
+            .Bait(data)
+            .Mission(data, 1657)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52122, Patch.TrailToTheHeavens) // Gallivanting Croppie
+            .Bait(data)
+            .Mission(data, 1657)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52123, Patch.TrailToTheHeavens) // Nervure Stalk
+            .Bait(data)
+            .Mission(data, 1657)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Emerald Springs  Sprouting Towerling Environmental Survey
+        data.Apply(52124, Patch.TrailToTheHeavens) // Mossy Globule
+            .Bait(data)
+            .Mission(data, 1658)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52125, Patch.TrailToTheHeavens) // Greatfrond Turtle
+            .Bait(data)
+            .Mission(data, 1658)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52126, Patch.TrailToTheHeavens) // Towerling Stemling
+            .Bait(data)
+            .Mission(data, 1658)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52127, Patch.TrailToTheHeavens) // Crenicichla Cosmica
+            .Bait(data)
+            .Mission(data, 1658)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52128, Patch.TrailToTheHeavens) // Timberland Camofin
+            .Bait(data)
+            .Mission(data, 1658)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Full Bloom Fountain  Cosmic Tarantula Testing
+        data.Apply(52129, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
+            .Bait(data)
+            .Mission(data, 1659)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52130, Patch.TrailToTheHeavens) // Fishform: Aquaflow
+            .Bait(data)
+            .Mission(data, 1659)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52131, Patch.TrailToTheHeavens) // Fatleaf Frog
+            .Bait(data)
+            .Mission(data, 1659)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52132, Patch.TrailToTheHeavens) // Trailing Tendril
+            .Bait(data)
+            .Mission(data, 1659)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52133, Patch.TrailToTheHeavens) // Roaming Pipira
+            .Bait(data)
+            .Mission(data, 1659)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Emerald Springs  Botanifish Research
+        data.Apply(52134, Patch.TrailToTheHeavens) // Mossy Globule
+            .Bait(data)
+            .Mission(data, 1660)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52135, Patch.TrailToTheHeavens) // Sproutfin
+            .Bait(data)
+            .Mission(data, 1660)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52136, Patch.TrailToTheHeavens) // Radial Cichlid
+            .Bait(data)
+            .Mission(data, 1660)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52137, Patch.TrailToTheHeavens) // Pseudohedron
+            .Bait(data)
+            .Mission(data, 1660)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52138, Patch.TrailToTheHeavens) // Topiary Gar
+            .Bait(data)
+            .Mission(data, 1660)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Full Bloom Fountain  Valuable Ruin Specimens
+        data.Apply(52139, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
+            .Bait(data)
+            .Mission(data, 1661)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52140, Patch.TrailToTheHeavens) // Flourishing Guppy
+            .Bait(data)
+            .Mission(data, 1661)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52141, Patch.TrailToTheHeavens) // Cosmic Piraputanga
+            .Bait(data)
+            .Mission(data, 1661)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52142, Patch.TrailToTheHeavens) // Green Guppy
+            .Bait(data)
+            .Mission(data, 1661)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52143, Patch.TrailToTheHeavens) // Fishform: Aquacleanse
+            .Bait(data)
+            .Mission(data, 1661)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Emerald Springs  Aquatic Flora Distribution Survey
+        data.Apply(52144, Patch.TrailToTheHeavens) // Mossy Globule
+            .Bait(data)
+            .Mission(data, 1662)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52145, Patch.TrailToTheHeavens) // Greatfrond Turtle
+            .Bait(data)
+            .Mission(data, 1662)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52146, Patch.TrailToTheHeavens) // Soil Stirrer
+            .Bait(data)
+            .Mission(data, 1662)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52147, Patch.TrailToTheHeavens) // Glade Platter
+            .Bait(data)
+            .Mission(data, 1662)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Emerald Springs Emerald Springs Specimen Survey
+        data.Apply(52148, Patch.TrailToTheHeavens) // Mossy Globule
+            .Bait(data)
+            .Mission(data, 1663)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52149, Patch.TrailToTheHeavens) // Greatfrond Turtle
+            .Bait(data)
+            .Mission(data, 1663)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52150, Patch.TrailToTheHeavens) // Cosmocarp
+            .Bait(data)
+            .Mission(data, 1663)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52151, Patch.TrailToTheHeavens) // Netroot Tortoise
+            .Bait(data)
+            .Mission(data, 1663)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52152, Patch.TrailToTheHeavens) // Arowana Analog
+            .Bait(data)
+            .Mission(data, 1663)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52153, Patch.TrailToTheHeavens) // Topiary Megagar
+            .Bait(data)
+            .Mission(data, 1663)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Full Bloom Fountain Freshwater Arthrolure Testing
+        data.Apply(52154, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
+            .Bait(data)
+            .Mission(data, 1664)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52155, Patch.TrailToTheHeavens) // Fishform: Aquaflow
+            .Bait(data)
+            .Mission(data, 1664)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52156, Patch.TrailToTheHeavens) // Eriocaulon Auxesicum
+            .Bait(data)
+            .Mission(data, 1664)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52157, Patch.TrailToTheHeavens) // Aquagrapes
+            .Bait(data)
+            .Mission(data, 1664)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52158, Patch.TrailToTheHeavens) // Cosmoss
+            .Bait(data)
+            .Mission(data, 1664)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Nervure Aquatic Mechanism Operational Survey
+        data.Apply(52159, Patch.TrailToTheHeavens) // Perchsplorer
+            .Bait(data)
+            .Mission(data, 1665)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52160, Patch.TrailToTheHeavens) // Nervure Driftwood
+            .Bait(data)
+            .Mission(data, 1665)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52161, Patch.TrailToTheHeavens) // Auxesian Marjoram
+            .Bait(data)
+            .Mission(data, 1665)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52162, Patch.TrailToTheHeavens) // Fishform: Aquamotion
+            .Bait(data)
+            .Mission(data, 1665)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52163, Patch.TrailToTheHeavens) // Nervure Corntail
+            .Bait(data)
+            .Mission(data, 1665)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Emerald Springs Emerald Springs Environmental Survey
+        data.Apply(52164, Patch.TrailToTheHeavens) // Mossy Globule
+            .Bait(data)
+            .Mission(data, 1666)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52165, Patch.TrailToTheHeavens) // Mossy Spongescale
+            .Bait(data)
+            .Mission(data, 1666)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52166, Patch.TrailToTheHeavens) // Family Netweaver
+            .Bait(data)
+            .Mission(data, 1666)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52167, Patch.TrailToTheHeavens) // Autumn's Garb
+            .Bait(data)
+            .Mission(data, 1666)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52168, Patch.TrailToTheHeavens) // Eupseudohedron
+            .Bait(data)
+            .Mission(data, 1666)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Full Bloom Fountain Valuable Northern-central Specimens
+        data.Apply(52169, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
+            .Bait(data)
+            .Mission(data, 1667)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52170, Patch.TrailToTheHeavens) // Fishform: Aquaflow
+            .Bait(data)
+            .Mission(data, 1667)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52171, Patch.TrailToTheHeavens) // Stacks Foliafin
+            .Bait(data)
+            .Mission(data, 1667)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52172, Patch.TrailToTheHeavens) // Sylvan Strand
+            .Bait(data)
+            .Mission(data, 1667)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52173, Patch.TrailToTheHeavens) // Fishform: Aquapure
+            .Bait(data)
+            .Mission(data, 1667)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Nervure Aquatic Mechanism Distribution Survey
+        data.Apply(52174, Patch.TrailToTheHeavens) // Perchsplorer
+            .Bait(data)
+            .Mission(data, 1668)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52175, Patch.TrailToTheHeavens) // Nervure Driftwood
+            .Bait(data)
+            .Mission(data, 1668)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52176, Patch.TrailToTheHeavens) // Chlorotic Smelt
+            .Bait(data)
+            .Mission(data, 1668)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52177, Patch.TrailToTheHeavens) // Barkscale
+            .Bait(data)
+            .Mission(data, 1668)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52178, Patch.TrailToTheHeavens) // Nervure Taproot
+            .Bait(data)
+            .Mission(data, 1668)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52179, Patch.TrailToTheHeavens) // Orchidelirium Principal
+            .Bait(data)
+            .Mission(data, 1668)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Full Bloom Fountain EX: Northern-central Specimen Survey
+        data.Apply(52180, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
+            .Bait(data)
+            .Mission(data, 1669)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52181, Patch.TrailToTheHeavens) // Fishform: Aquaflow
+            .Bait(data)
+            .Mission(data, 1669)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52182, Patch.TrailToTheHeavens) // Sylvan Swell
+            .Bait(data)
+            .Mission(data, 1669)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52183, Patch.TrailToTheHeavens) // Resinwhisker
+            .Bait(data)
+            .Mission(data, 1669)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52184, Patch.TrailToTheHeavens) // Grand Green Guppy
+            .Bait(data)
+            .Mission(data, 1669)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Nervure EX: Large Aquatic Organism Distribution Survey
+        data.Apply(52185, Patch.TrailToTheHeavens) // Perchsplorer
+            .Bait(data)
+            .Mission(data, 1670)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52186, Patch.TrailToTheHeavens) // Nervure Driftwood
+            .Bait(data)
+            .Mission(data, 1670)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52187, Patch.TrailToTheHeavens) // Fishform: Aquacycle
+            .Bait(data)
+            .Mission(data, 1670)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52188, Patch.TrailToTheHeavens) // Ripe Citrusfish
+            .Bait(data)
+            .Mission(data, 1670)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52189, Patch.TrailToTheHeavens) // Fishform: Vegiclean
+            .Bait(data)
+            .Mission(data, 1670)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52190, Patch.TrailToTheHeavens) // Topiary Carp
+            .Bait(data)
+            .Mission(data, 1670)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Sylvan Soaking Pool EX: Large Mutant Distribution Survey
+        data.Apply(52191, Patch.TrailToTheHeavens) // Fishform: Alluvimix
+            .Bait(data)
+            .Mission(data, 1671)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52192, Patch.TrailToTheHeavens) // Soaking Betta
+            .Bait(data)
+            .Mission(data, 1671)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52193, Patch.TrailToTheHeavens) // Fishform: Alluvimark
+            .Bait(data)
+            .Mission(data, 1671)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52194, Patch.TrailToTheHeavens) // Indicoresin Trahira
+            .Bait(data)
+            .Mission(data, 1671)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52195, Patch.TrailToTheHeavens) // Turquoise Vine
+            .Bait(data)
+            .Mission(data, 1671)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Full Bloom Fountain EX+: Full Bloom Fountain Specimen Survey
+        data.Apply(52196, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
+            .Bait(data)
+            .Mission(data, 1672)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52197, Patch.TrailToTheHeavens) // Fishform: Aquaflow
+            .Bait(data)
+            .Mission(data, 1672)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52198, Patch.TrailToTheHeavens) // Sylvan Herald
+            .Bait(data)
+            .Mission(data, 1672)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52199, Patch.TrailToTheHeavens) // Chlorotic Pleco
+            .Bait(data)
+            .Mission(data, 1672)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52200, Patch.TrailToTheHeavens) // Blooming Characin
+            .Bait(data)
+            .Mission(data, 1672)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52201, Patch.TrailToTheHeavens) // Topiary Pirarucu
+            .Bait(data)
+            .Mission(data, 1672)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Nervure EX+: Western Nervure Cultivation Survey
+        data.Apply(52202, Patch.TrailToTheHeavens) // Perchsplorer
+            .Bait(data)
+            .Mission(data, 1673)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52203, Patch.TrailToTheHeavens) // Nervure Driftwood
+            .Bait(data)
+            .Mission(data, 1673)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52204, Patch.TrailToTheHeavens) // Autumn's Wealth
+            .Bait(data)
+            .Mission(data, 1673)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52205, Patch.TrailToTheHeavens) // Chlorotic Butterfly
+            .Bait(data)
+            .Mission(data, 1673)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52206, Patch.TrailToTheHeavens) // Pileus Corn Dace
+            .Bait(data)
+            .Mission(data, 1673)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52207, Patch.TrailToTheHeavens) // Verdant Veil
+            .Bait(data)
+            .Mission(data, 1673)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Stratostone Shores EX+: Stratostone Shores Environmental Survey
+        data.Apply(52208, Patch.TrailToTheHeavens) // Skylit Petal
+            .Bait(data)
+            .Mission(data, 1674)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52209, Patch.TrailToTheHeavens) // Indigo Pulpscale
+            .Bait(data)
+            .Mission(data, 1674)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52210, Patch.TrailToTheHeavens) // Sylvan Core
+            .Bait(data)
+            .Mission(data, 1674)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52211, Patch.TrailToTheHeavens) // Fishform: Aquameter
+            .Bait(data)
+            .Mission(data, 1674)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52212, Patch.TrailToTheHeavens) // Bluebloom
+            .Bait(data)
+            .Mission(data, 1674)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52213, Patch.TrailToTheHeavens) // Crabby Indicolite
+            .Bait(data)
+            .Mission(data, 1674)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Sprouting Cisterns Master: Botanifish Diversity Survey
+        data.Apply(52214, Patch.TrailToTheHeavens) // Topiary Gibal
+            .Bait(data)
+            .Mission(data, 1675)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52215, Patch.TrailToTheHeavens) // Botanitrout
+            .Bait(data)
+            .Mission(data, 1675)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52216, Patch.TrailToTheHeavens) // Peachpetal Shell
+            .Bait(data)
+            .Mission(data, 1675)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52217, Patch.TrailToTheHeavens) // Chlorotic Pike
+            .Bait(data)
+            .Mission(data, 1675)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52218, Patch.TrailToTheHeavens) // Riotous Dianthus
+            .Bait(data)
+            .Mission(data, 1675)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52219, Patch.TrailToTheHeavens) // Wisteria Jellyfish
+            .Bait(data)
+            .Mission(data, 1675)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Sprouting Cisterns Master: Botanifish Ecosystem Survey
+        data.Apply(52220, Patch.TrailToTheHeavens) // Topiary Gibal
+            .Bait(data)
+            .Mission(data, 1676)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52221, Patch.TrailToTheHeavens) // Botanitrout
+            .Bait(data)
+            .Mission(data, 1676)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52222, Patch.TrailToTheHeavens) // Cotyledon Grouper
+            .Bait(data)
+            .Mission(data, 1676)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52223, Patch.TrailToTheHeavens) // Greater Petalwing
+            .Bait(data)
+            .Mission(data, 1676)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52224, Patch.TrailToTheHeavens) // Shroud in a Bottle
+            .Bait(data)
+            .Mission(data, 1676)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52225, Patch.TrailToTheHeavens) // Topiary Cetacean
+            .Bait(data)
+            .Mission(data, 1676)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Sprouting Cisterns Master: Legendary Botanifish Survey
+        data.Apply(52226, Patch.TrailToTheHeavens) // Topiary Gibal
+            .Bait(data)
+            .Mission(data, 1677)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52227, Patch.TrailToTheHeavens) // Fishform: Nutrigrowth
+            .Bait(data)
+            .Mission(data, 1677)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52228, Patch.TrailToTheHeavens) // Drifting Dragon
+            .Bait(data)
+            .Mission(data, 1677)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52229, Patch.TrailToTheHeavens) // Auroral Petalfish
+            .Bait(data)
+            .Mission(data, 1677)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52230, Patch.TrailToTheHeavens) // Fishform: Aqualevel
+            .Bait(data)
+            .Mission(data, 1677)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52231, Patch.TrailToTheHeavens) // Topiary Serpent
+            .Bait(data)
+            .Mission(data, 1677)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Western Nervure  Luminescent Aquatic Flora
+        data.Apply(52232, Patch.TrailToTheHeavens) // Perchsplorer
+            .Bait(data)
+            .Mission(data, 1698)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52233, Patch.TrailToTheHeavens) // Auxesian Core
+            .Bait(data)
+            .Mission(data, 1698)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
+        // Full Bloom Fountain  Incense Materials
+        data.Apply(52234, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
+            .Bait(data)
+            .Mission(data, 1699)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+        data.Apply(52235, Patch.TrailToTheHeavens) // Auxesian Cabomba
+            .Bait(data)
+            .Mission(data, 1699)
+            .Bite(data, HookSet.Unknown, BiteType.Unknown);
+
     }
     // @formatter:on
 }

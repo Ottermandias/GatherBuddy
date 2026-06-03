@@ -136,7 +136,9 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
             // Oizys
             > 10_162 and < 10_193 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1310),
 
-            _ => spot.TerritoryType.ValueNullable,
+            // 
+            > 10_200 and < 10_231 => data.DataManager.GetExcelSheet<TerritoryType>().GetRow(1319),
+            _                     => spot.TerritoryType.ValueNullable,
         };
 
     private static string FishingSpotNameHacks(GameData data, FishingSpotRow spot)
@@ -165,6 +167,9 @@ public class FishingSpot : IComparable<FishingSpot>, ILocation
 
             case > 10_162 and < 10_191: return $"{name} ({spot.RowId - 10_163 + 1320:D5})";
             case > 10_190 and < 10_193: return $"{name} ({spot.RowId - 10_191 + 1368:D5})";
+
+            case > 10_200 and < 10_229: return $"{name} ({spot.RowId - 10_201 + 1650:D5})";
+            case > 10_228 and < 10_231: return $"{name} ({spot.RowId - 10_229 + 1698:D5})";
         }
 
         return name;
