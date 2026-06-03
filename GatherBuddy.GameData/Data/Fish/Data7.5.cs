@@ -58,6 +58,23 @@ public static partial class Fish
             .Time(480, 780)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
+        // Custom Delivery Fish
+        data.Apply(52012, Patch.TrailToTheHeavens) // Pote'uka
+            .Bait(data, 28634)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
+        data.Apply(52013, Patch.TrailToTheHeavens) // Harbor Cloud
+            .Bait(data, 28634)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
+        data.Apply(52014, Patch.TrailToTheHeavens) // Iq Ebaji
+            .Bait(data, 28634)
+            .Bite(data, HookSet.Precise, BiteType.Weak);
+        data.Apply(52015, Patch.TrailToTheHeavens) // Yowekwa Inkhead
+            .Bait(data, 28634)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
+        data.Apply(52016, Patch.TrailToTheHeavens) // Burst Lungfish
+            .Bait(data, 28634)
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
+
         // Ocean Fish
         data.Apply(51209, Patch.TrailToTheHeavens) // First Mate's Finger
             .Bait(data, 29714)
