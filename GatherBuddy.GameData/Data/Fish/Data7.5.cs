@@ -493,24 +493,29 @@ public static partial class Fish
 
         // Full Bloom Fountain  Cosmic Tarantula Testing
         data.Apply(52129, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
-            .Bait(data)
+            .Bait(data, 52241)
             .Mission(data, 1659)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52130, Patch.TrailToTheHeavens) // Fishform: Aquaflow
-            .Bait(data)
+            .Bait(data, 52241)
             .Mission(data, 1659)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52131, Patch.TrailToTheHeavens) // Fatleaf Frog
-            .Bait(data)
+            .Bait(data, 52241)
             .Mission(data, 1659)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52132, Patch.TrailToTheHeavens) // Trailing Tendril
-            .Bait(data)
+            .Bait(data, 52241)
             .Mission(data, 1659)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52133, Patch.TrailToTheHeavens) // Roaming Pipira
-            .Bait(data)
+            .Bait(data, 52241)
             .Mission(data, 1659)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Emerald Springs  Botanifish Research
@@ -542,24 +547,29 @@ public static partial class Fish
 
         // Full Bloom Fountain  Valuable Ruin Specimens
         data.Apply(52139, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
-            .Bait(data)
+            .Bait(data, 52240)
             .Mission(data, 1661)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52140, Patch.TrailToTheHeavens) // Flourishing Guppy
-            .Bait(data)
+            .Bait(data, 52240)
             .Mission(data, 1661)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52141, Patch.TrailToTheHeavens) // Cosmic Piraputanga
-            .Bait(data)
+            .Bait(data, 52240)
             .Mission(data, 1661)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52142, Patch.TrailToTheHeavens) // Green Guppy
-            .Bait(data)
+            .Bait(data, 52240)
             .Mission(data, 1661)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52143, Patch.TrailToTheHeavens) // Fishform: Aquacleanse
-            .Bait(data)
+            .Bait(data, 52240)
             .Mission(data, 1661)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Emerald Springs  Aquatic Flora Distribution Survey
@@ -619,24 +629,29 @@ public static partial class Fish
 
         // Full Bloom Fountain Freshwater Arthrolure Testing
         data.Apply(52154, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1664)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52155, Patch.TrailToTheHeavens) // Fishform: Aquaflow
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1664)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52156, Patch.TrailToTheHeavens) // Eriocaulon Auxesicum
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1664)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52157, Patch.TrailToTheHeavens) // Aquagrapes
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1664)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52158, Patch.TrailToTheHeavens) // Cosmoss
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1664)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
         // Western Nervure Aquatic Mechanism Operational Survey
@@ -695,24 +710,29 @@ public static partial class Fish
 
         // Full Bloom Fountain Valuable Northern-central Specimens
         data.Apply(52169, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
-            .Bait(data)
+            .Bait(data, 52244)
             .Mission(data, 1667)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52170, Patch.TrailToTheHeavens) // Fishform: Aquaflow
-            .Bait(data)
+            .Bait(data, 52244)
             .Mission(data, 1667)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52171, Patch.TrailToTheHeavens) // Stacks Foliafin
-            .Bait(data)
+            .Bait(data, 52244)
             .Mission(data, 1667)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52172, Patch.TrailToTheHeavens) // Sylvan Strand
             .Mooch(data, 52171)
             .Mission(data, 1667)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52173, Patch.TrailToTheHeavens) // Fishform: Aquapure
             .Mooch(data, 52171)
             .Mission(data, 1667)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Western Nervure Aquatic Mechanism Distribution Survey
@@ -749,24 +769,29 @@ public static partial class Fish
 
         // Full Bloom Fountain EX: Northern-central Specimen Survey
         data.Apply(52180, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
-            .Bait(data)
+            .Bait(data, 52243)
             .Mission(data, 1669)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52181, Patch.TrailToTheHeavens) // Fishform: Aquaflow
-            .Bait(data)
+            .Bait(data, 52243)
             .Mission(data, 1669)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52182, Patch.TrailToTheHeavens) // Sylvan Swell
-            .Bait(data)
+            .Bait(data, 52243)
             .Mission(data, 1669)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52183, Patch.TrailToTheHeavens) // Resinwhisker
-            .Bait(data)
+            .Bait(data, 52243)
             .Mission(data, 1669)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52184, Patch.TrailToTheHeavens) // Grand Green Guppy
-            .Bait(data)
+            .Bait(data, 52243)
             .Mission(data, 1669)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Predators(data, 95, (52182, 3))
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
@@ -1003,24 +1028,24 @@ public static partial class Fish
 
         // Western Nervure  Luminescent Aquatic Flora // Red Alert Mission: Auroral Flare
         data.Apply(52232, Patch.TrailToTheHeavens) // Perchsplorer
-            .Bait(data)
+            .Bait(data, 52253)
             .Mission(data, 1698)
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52233, Patch.TrailToTheHeavens) // Auxesian Core
-            .Bait(data)
+            .Bait(data, 52253)
             .Mission(data, 1698)
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Full Bloom Fountain  Incense Materials // Red Alert Mission: Floracane 
         data.Apply(52234, Patch.TrailToTheHeavens) // Cosmic Hedgemole Cricket
-            .Bait(data)
+            .Bait(data, 52253)
             .Mission(data, 1699)
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52235, Patch.TrailToTheHeavens) // Auxesian Cabomba
-            .Bait(data)
+            .Bait(data, 52253)
             .Mission(data, 1699)
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
