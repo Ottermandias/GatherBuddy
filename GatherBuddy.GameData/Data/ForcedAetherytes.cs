@@ -19,6 +19,9 @@ public static class ForcedAetherytes
         (641, 111),  // Shirogane -> Kugane
         (1073, 181), // Elysion -> Base Omicron
         (1237, 175), // Sinus Ardorum -> Bestway Burrows
+        (1291, 175), // Phaenna -> Bestway Burrows
+        (1310, 175), // Oizys -> Bestway Burrows
+        (1319, 175), // Auxesia -> Bestway Burrows
     };
 
     public static void ApplyMissingAetherytes(GameData data)

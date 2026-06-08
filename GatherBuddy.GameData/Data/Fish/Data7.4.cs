@@ -372,11 +372,11 @@ public static partial class Fish
         data.Apply(50159, Patch.IntoTheMist) // Moros Crab
             .Bait(data, 50246)
             .Mission(data, 1336)
-            .Bite(data, HookSet.Precise, BiteType.Strong);
+            .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(50160, Patch.IntoTheMist) // Sky Sniffer
             .Bait(data, 50246)
             .Mission(data, 1336)
-            .Bite(data, HookSet.Powerful, BiteType.Weak);
+            .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(50161, Patch.IntoTheMist) // Unmoored Submariner
             .Bait(data, 50246)
             .Mission(data, 1336)
