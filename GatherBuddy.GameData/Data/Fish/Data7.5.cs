@@ -917,26 +917,31 @@ public static partial class Fish
             .MultiHook(5) // Double Hook gives 5; Triple Hook gives 8
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
-        // Stratostone Shores EX+: Stratostone Shores Environmental Survey // Weather-restricted Mission: Clouds
+        // Stratostone Shores EX+: Stratostone Shores Environmental Survey // Weather-restricted Mission: Clouds (Stage 22+)
         data.Apply(52208, Patch.TrailToTheHeavens) // Skylit Petal
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52209, Patch.TrailToTheHeavens) // Indigo Pulpscale
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52210, Patch.TrailToTheHeavens) // Sylvan Core
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52211, Patch.TrailToTheHeavens) // Fishform: Aquameter
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52212, Patch.TrailToTheHeavens) // Bluebloom
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52213, Patch.TrailToTheHeavens) // Crabby Indicolite
             .Bait(data, 52243)
