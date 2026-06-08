@@ -656,27 +656,27 @@ public static partial class Fish
 
         // Western Nervure Aquatic Mechanism Operational Survey
         data.Apply(52159, Patch.TrailToTheHeavens) // Perchsplorer
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1665)
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52160, Patch.TrailToTheHeavens) // Nervure Driftwood
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1665)
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52161, Patch.TrailToTheHeavens) // Auxesian Marjoram
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1665)
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52162, Patch.TrailToTheHeavens) // Fishform: Aquamotion
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1665)
             .MultiHook(3) // Double Hook gives 3; Triple Hook gives 5
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52163, Patch.TrailToTheHeavens) // Nervure Corntail
-            .Bait(data)
+            .Bait(data, 52246)
             .Mission(data, 1665)
             .MultiHook(3) // Double Hook gives 3; Triple Hook gives 5
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
@@ -827,27 +827,29 @@ public static partial class Fish
             .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
-        // Sylvan Soaking Pool EX: Large Mutant Distribution Survey // Time-restricted Mission: 04:00-08:00
+        // Sylvan Soaking Pool EX: Large Mutant Distribution Survey // Time-restricted Mission: 04:00-07:59 (Stage 15+)
         data.Apply(52191, Patch.TrailToTheHeavens) // Fishform: Alluvimix
-            .Bait(data)
+            .Bait(data, 52245)
             .Mission(data, 1671)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52192, Patch.TrailToTheHeavens) // Soaking Betta
-            .Bait(data)
+            .Bait(data, 52245)
             .Mission(data, 1671)
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52193, Patch.TrailToTheHeavens) // Fishform: Alluvimark
-            .Bait(data)
+            .Bait(data, 52245)
             .Mission(data, 1671)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52194, Patch.TrailToTheHeavens) // Indicoresin Trahira
-            .Bait(data)
+            .Bait(data, 52245)
             .Mission(data, 1671)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52195, Patch.TrailToTheHeavens) // Turquoise Vine
-            .Bait(data)
+            .Bait(data, 52245)
             .Mission(data, 1671)
             .Lure(Enums.Lure.Ambitious)
+            .MultiHook(3) // Double Hook gives 3; Triple Hook gives 5
             .Bite(data, HookSet.Powerful, BiteType.Strong);
 
         // Full Bloom Fountain EX+: Full Bloom Fountain Specimen Survey // Time-restricted Mission: 16:00-19:59
@@ -915,26 +917,31 @@ public static partial class Fish
             .MultiHook(5) // Double Hook gives 5; Triple Hook gives 8
             .Bite(data, HookSet.Precise, BiteType.Weak);
 
-        // Stratostone Shores EX+: Stratostone Shores Environmental Survey // Weather-restricted Mission: Clouds
+        // Stratostone Shores EX+: Stratostone Shores Environmental Survey // Weather-restricted Mission: Clouds (Stage 22+)
         data.Apply(52208, Patch.TrailToTheHeavens) // Skylit Petal
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52209, Patch.TrailToTheHeavens) // Indigo Pulpscale
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52210, Patch.TrailToTheHeavens) // Sylvan Core
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52211, Patch.TrailToTheHeavens) // Fishform: Aquameter
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52212, Patch.TrailToTheHeavens) // Bluebloom
             .Bait(data, 52243)
             .Mission(data, 1674)
+            .MultiHook(2) // Double Hook gives 2; Triple Hook gives 3
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(52213, Patch.TrailToTheHeavens) // Crabby Indicolite
             .Bait(data, 52243)
@@ -951,7 +958,7 @@ public static partial class Fish
             .Bait(data, 52247)
             .Mission(data, 1675)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
-            .MultiHook(2);
+            .MultiHook(2); // Double Hook gives 2
         data.Apply(52216, Patch.TrailToTheHeavens) // Peachpetal Shell
             .Bait(data, 52247)
             .Mission(data, 1675)
@@ -1002,6 +1009,7 @@ public static partial class Fish
         data.Apply(52226, Patch.TrailToTheHeavens) // Topiary Gibal
             .Bait(data, 52252)
             .Mission(data, 1677)
+            .MultiHook(2) // Double Hook gives 2
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52227, Patch.TrailToTheHeavens) // Fishform: Nutrigrowth
             .Bait(data, 52249)
