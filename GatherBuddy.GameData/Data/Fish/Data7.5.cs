@@ -951,7 +951,7 @@ public static partial class Fish
             .Bait(data, 52247)
             .Mission(data, 1675)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
-            .MultiHook(2);
+            .MultiHook(2); // Double Hook gives 2
         data.Apply(52216, Patch.TrailToTheHeavens) // Peachpetal Shell
             .Bait(data, 52247)
             .Mission(data, 1675)
@@ -1002,6 +1002,7 @@ public static partial class Fish
         data.Apply(52226, Patch.TrailToTheHeavens) // Topiary Gibal
             .Bait(data, 52252)
             .Mission(data, 1677)
+            .MultiHook(2) // Double Hook gives 2
             .Bite(data, HookSet.Precise, BiteType.Weak);
         data.Apply(52227, Patch.TrailToTheHeavens) // Fishform: Nutrigrowth
             .Bait(data, 52249)
