@@ -29,11 +29,6 @@ public sealed class CurrentBait : SeAddressBase
         }
     }
 
-    private delegate byte ExecuteCommandDelegate(int id, int unk1, uint baitId, int unk2, int unk3);
-
-    [Signature("E8 ?? ?? ?? ?? 41 C6 04 24")]
-    private readonly ExecuteCommandDelegate _executeCommand = null!;
-
     public enum ChangeBaitReturn
     {
         Success,
@@ -57,6 +52,6 @@ public sealed class CurrentBait : SeAddressBase
         if (HasItem(baitId) <= 0)
             return ChangeBaitReturn.NotInInventory;
 
-        return _executeCommand(701, 4, baitId, 0, 0) == 1 ? ChangeBaitReturn.Success : ChangeBaitReturn.UnknownError;
+        return GameMain.ExecuteCommand(701, 4, (int)baitId, 0, 0) ? ChangeBaitReturn.Success : ChangeBaitReturn.UnknownError;
     }
 }
