@@ -1,3 +1,4 @@
+using FFXIVClientStructs.FFXIV.Client.Game.Control;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using GatherBuddy.Plugin;
 
@@ -14,8 +15,9 @@ public static unsafe class Teleporter
             return false;
         }
 
-        if (!Dalamud.PlayerState.IsLoaded)
+        if (Control.Instance()->LocalPlayer == null)
             return true;
+
         teleport->UpdateAetheryteList();
 
         var endPtr = teleport->TeleportList.Last;
