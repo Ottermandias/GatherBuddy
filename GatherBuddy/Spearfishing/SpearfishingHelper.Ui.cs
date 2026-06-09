@@ -3,6 +3,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Component.GUI;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -22,18 +23,18 @@ public partial class SpearfishingHelper : Window
       | ImGuiWindowFlags.NoNavFocus
       | ImGuiWindowFlags.NoBackground;
 
-    private        float            _uiScale       = 1;
-    private        Vector2          _uiPos         = Vector2.Zero;
-    private        Vector2          _uiSize        = Vector2.Zero;
-    private unsafe SpearfishWindow* _addon         = null;
-    private        Vector2          _listSizeText  = Vector2.Zero;
-    private        Vector2          _listSizeIcons = Vector2.Zero;
-    private const  float            _iconSize      = 30;
+    private        float              _uiScale       = 1;
+    private        Vector2            _uiPos         = Vector2.Zero;
+    private        Vector2            _uiSize        = Vector2.Zero;
+    private unsafe AddonSpearFishing* _addon         = null;
+    private        Vector2            _listSizeText  = Vector2.Zero;
+    private        Vector2            _listSizeIcons = Vector2.Zero;
+    private const  float              _iconSize      = 30;
 
     private Vector2 ListSize
         => ImGuiHelpers.GlobalScale * (GatherBuddy.Config.ShowSpearfishListIconsAsText ? _listSizeText : _listSizeIcons);
 
-    private unsafe void DrawFish(FishingSpot? spot, SpearfishWindow.Info info, AtkResNode* node, AtkResNode* fishLines, int idx)
+    private unsafe void DrawFish(FishingSpot? spot, ref AddonSpearFishing.FishInfo info, AtkResNode* node, AtkResNode* fishLines, int idx)
     {
         if (!info.Available)
             return;
@@ -51,7 +52,7 @@ public partial class SpearfishingHelper : Window
         if (GatherBuddy.Config.ShowSpearfishSpeed)
         {
             ImGui.SameLine();
-            ImGui.Text(info.Speed.ToName());
+            ImGui.Text(info.SpearfishSpeed.ToName());
         }
     }
 
@@ -106,9 +107,9 @@ public partial class SpearfishingHelper : Window
         if (!GatherBuddy.Config.ShowSpearfishNames)
             return;
 
-        DrawFish(_currentSpot, _addon->Fish1, _addon->Fish1Node, _addon->FishLines, 5);
-        DrawFish(_currentSpot, _addon->Fish2, _addon->Fish2Node, _addon->FishLines, 3);
-        DrawFish(_currentSpot, _addon->Fish3, _addon->Fish3Node, _addon->FishLines, 1);
+        DrawFish(_currentSpot, ref _addon->Fish[0], _addon->Fish1Node, _addon->FishLines, 5);
+        DrawFish(_currentSpot, ref _addon->Fish[1], _addon->Fish2Node, _addon->FishLines, 3);
+        DrawFish(_currentSpot, ref _addon->Fish[2], _addon->Fish3Node, _addon->FishLines, 1);
     }
 
     private unsafe void DrawFishCenterLine()
@@ -150,8 +151,8 @@ public partial class SpearfishingHelper : Window
     {
         var oldOpen = _isOpen;
         
-        _addon  = (SpearfishWindow*)Dalamud.GameGui.GetAddonByName("SpearFishing", 1).Address;
-        _isOpen = _addon != null && _addon->Base.WindowNode != null;
+        _addon  = (AddonSpearFishing*)RaptureAtkUnitManager.Instance()->GetAddonByName("SpearFishing");
+        _isOpen = _addon != null && _addon->WindowNode != null;
         if (!_isOpen)
             return false;
 
@@ -174,10 +175,10 @@ public partial class SpearfishingHelper : Window
 
     public override unsafe void PreDraw()
     {
-        _uiScale = _addon->Base.Scale;
-        _uiPos   = new Vector2(_addon->Base.X, _addon->Base.Y);
-        _uiSize = new Vector2(_addon->Base.WindowNode->AtkResNode.Width * _uiScale,
-            _addon->Base.WindowNode->AtkResNode.Height * _uiScale);
+        _uiScale = _addon->Scale;
+        _uiPos   = new Vector2(_addon->X, _addon->Y);
+        _uiSize = new Vector2(_addon->WindowNode->AtkResNode.Width * _uiScale,
+            _addon->WindowNode->AtkResNode.Height * _uiScale);
 
         Position = _uiPos;
         SizeConstraints = new WindowSizeConstraints
