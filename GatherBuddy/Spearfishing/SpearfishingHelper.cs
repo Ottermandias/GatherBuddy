@@ -38,9 +38,10 @@ public partial class SpearfishingHelper
             SpearfishingSpots.Add(point.RowId, node);
         }
 
-        IsOpen             = GatherBuddy.Config.ShowSpearfishHelper;
-        RespectCloseHotkey = false;
-        Namespace          = "SpearfishingHelper";
+        IsOpen              = GatherBuddy.Config.ShowSpearfishHelper;
+        RespectCloseHotkey  = false;
+        DisableWindowSounds = true;
+        Namespace           = "SpearfishingHelper";
     }
 
     // We should always have to target a spearfishing spot when opening the window.
