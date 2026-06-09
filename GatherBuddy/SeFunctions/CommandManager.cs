@@ -1,68 +1,33 @@
-using System;
-using System.Runtime.InteropServices;
-using System.Text;
-using Dalamud.Game;
-using Dalamud.Plugin.Services;
+using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI;
 
 namespace GatherBuddy.SeFunctions;
 
 public class CommandManager
 {
-    private readonly ProcessChatBox _processChatBox;
-    private readonly IntPtr         _uiModulePtr;
-
-    public CommandManager(IGameGui gameGui, ProcessChatBox processChatBox)
-    {
-        _processChatBox = processChatBox;
-        _uiModulePtr    = gameGui.GetUIModule();
-    }
-
-    public CommandManager(IGameGui gameGui, ISigScanner sigScanner)
-        : this(gameGui, new ProcessChatBox(sigScanner))
-    { }
-
-    public bool Execute(string message)
+    public static unsafe bool Execute(string message)
     {
         // First try to process the command through Dalamud.
         if (Dalamud.Commands.ProcessCommand(message))
         {
-            GatherBuddy.Log.Verbose($"Executed Dalamud command \"{ message}\".");
+            GatherBuddy.Log.Verbose($"Executed Dalamud command \"{message}\".");
             return true;
         }
 
-        if (_uiModulePtr == IntPtr.Zero)
-        {
-            GatherBuddy.Log.Error("Can not execute \"{message}\" because no uiModulePtr is available.");
-            return false;
-        }
+        const AllowedEntities combinedEntities =
+            AllowedEntities.UppercaseLetters |
+            AllowedEntities.LowercaseLetters |
+            AllowedEntities.Numbers |
+            AllowedEntities.SpecialCharacters |
+            AllowedEntities.OtherCharacters |
+            AllowedEntities.Payloads |
+            AllowedEntities.Unknown8 |
+            AllowedEntities.Unknown9;
 
-        // Then prepare a string to send to the game itself.
-        var (text, length) = PrepareString(message);
-        var payload = PrepareContainer(text, length);
+        using var msg = new Utf8String(message);
+        msg.SanitizeString(combinedEntities, null);
+        UIModule.Instance()->ProcessChatBoxEntry(&msg);
 
-        _processChatBox.Invoke(_uiModulePtr, payload, IntPtr.Zero, (byte)0);
-
-        Marshal.FreeHGlobal(payload);
-        Marshal.FreeHGlobal(text);
         return false;
-    }
-
-    private static (IntPtr, long) PrepareString(string message)
-    {
-        var bytes = Encoding.UTF8.GetBytes(message);
-        var mem   = Marshal.AllocHGlobal(bytes.Length + 30);
-        Marshal.Copy(bytes, 0, mem, bytes.Length);
-        Marshal.WriteByte(mem + bytes.Length, 0);
-        return (mem, bytes.Length + 1);
-    }
-
-    private static IntPtr PrepareContainer(IntPtr message, long length)
-    {
-        var mem = Marshal.AllocHGlobal(400);
-        Marshal.WriteInt64(mem,        message.ToInt64());
-        Marshal.WriteInt64(mem + 0x8,  64);
-        Marshal.WriteInt64(mem + 0x10, length);
-        Marshal.WriteInt64(mem + 0x18, 0);
-        return mem;
     }
 }
