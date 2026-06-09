@@ -1,31 +1,24 @@
-﻿using Dalamud.Plugin.Services;
-using Dalamud.Utility.Signatures;
+﻿using FFXIVClientStructs.FFXIV.Client.Enums;
 using FFXIVClientStructs.FFXIV.Client.Game;
+using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.Game.WKS;
 
 namespace GatherBuddy.SeFunctions;
 
-public sealed class CurrentBait : SeAddressBase
+public sealed class CurrentBait
 {
-    public CurrentBait(ISigScanner sigScanner)
-        : base(sigScanner, "8B 0D ?? ?? ?? ?? 3B D9 75")
-    {
-        Dalamud.Interop.InitializeFromAttributes(this);
-    }
-
     public unsafe uint Current
     {
         get 
         {
-            var territoryId = Dalamud.ClientState.TerritoryType;
-            if (GatherBuddy.GameData.Territories.TryGetValue(territoryId, out var territory) && territory.Data.TerritoryIntendedUse.RowId is 60)
+            if (GameMain.Instance()->CurrentTerritoryIntendedUseId == TerritoryIntendedUse.CosmicExploration)
             {
                 var cosmicManager = WKSManager.Instance();
                 if (cosmicManager != null)
                     return cosmicManager->State.FishingBait;
             }
 
-            return *(uint*)Address;
+            return PlayerState.Instance()->FishingBait;
         }
     }
 

@@ -98,7 +98,7 @@ public partial class GatherBuddy : IDalamudPlugin
             UptimeManager       = new UptimeManager(GameData);
             FishLog             = new FishLog(Dalamud.SigScanner, Dalamud.GameData);
             EventFramework      = new EventFramework();
-            CurrentBait         = new CurrentBait(Dalamud.SigScanner);
+            CurrentBait         = new CurrentBait();
             CurrentWeather      = new CurrentWeather(Dalamud.SigScanner);
             TugType             = new SeTugType(Dalamud.SigScanner);
             Executor            = new Executor(this);
