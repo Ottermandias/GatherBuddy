@@ -4,6 +4,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
