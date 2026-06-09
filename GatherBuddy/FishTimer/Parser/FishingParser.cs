@@ -8,20 +8,17 @@ using GatherBuddy.Enums;
 
 namespace GatherBuddy.FishTimer.Parser;
 
-public partial class FishingParser : IDisposable
+public unsafe partial class FishingParser : IDisposable
 {
-    private delegate bool UseActionDelegate(IntPtr manager, ActionType actionType, uint actionId, ulong targetId, uint a4, uint a5,
-        uint a6, IntPtr a7);
-
     public event Action<FishingSpot?>?                       BeganFishing;
     public event Action?                                     BeganMooching;
     public event Action<Fish, ushort, byte, bool, bool>?     CaughtFish;
     public event Action<FishingSpot>?                        IdentifiedSpot;
     public event Action<HookSet>?                            HookedIn;
     private readonly Hook<AgentCatch.Delegates.UpdateCatch>  _catchHook;
-    private readonly Hook<UseActionDelegate>?                _hookHook;
+    private readonly Hook<ActionManager.Delegates.UseAction> _hookHook;
 
-    public unsafe FishingParser(IGameInteropProvider provider)
+    public FishingParser(IGameInteropProvider provider)
     {
         FishingSpotNames = SetupFishingSpotNames();
 
@@ -29,21 +26,22 @@ public partial class FishingParser : IDisposable
             (nint)AgentCatch.MemberFunctionPointers.UpdateCatch,
             OnCatchUpdate);
 
-        var hookPtr = (IntPtr)ActionManager.MemberFunctionPointers.UseAction;
-        _hookHook = provider.HookFromAddress<UseActionDelegate>(hookPtr, OnUseAction);
+        _hookHook = provider.HookFromAddress<ActionManager.Delegates.UseAction>(
+            (nint)ActionManager.MemberFunctionPointers.UseAction,
+            OnUseAction);
     }
 
     public void Enable()
     {
         _catchHook.Enable();
-        _hookHook?.Enable();
+        _hookHook.Enable();
         Dalamud.Chat.ChatMessage += OnMessageDelegate;
     }
 
     public void Disable()
     {
         _catchHook.Disable();
-        _hookHook?.Disable();
+        _hookHook.Disable();
         Dalamud.Chat.ChatMessage -= OnMessageDelegate;
     }
 
@@ -51,10 +49,10 @@ public partial class FishingParser : IDisposable
     {
         Disable();
         _catchHook.Dispose();
-        _hookHook?.Dispose();
+        _hookHook.Dispose();
     }
 
-    private unsafe void OnCatchUpdate(
+    private void OnCatchUpdate(
         AgentCatch* thisPtr,
         uint itemId,
         bool isLarge,
@@ -88,9 +86,10 @@ public partial class FishingParser : IDisposable
         CaughtFish?.Invoke(fish, size, amount, isLarge, collectible);
     }
 
-    private bool OnUseAction(IntPtr manager, ActionType actionType, uint actionId, ulong targetId, uint a4, uint a5, uint a6, IntPtr a7)
+    private bool OnUseAction(ActionManager* thisPtr, ActionType actionType, uint actionId, ulong targetId, uint extraParam, ActionManager.UseActionMode mode, uint comboRouteId, bool* outOptAreaTargeted)
     {
         if (actionType == ActionType.Action)
+        {
             switch (actionId)
             {
                 case 296:   HookedIn?.Invoke(HookSet.Hook); break;
@@ -100,7 +99,8 @@ public partial class FishingParser : IDisposable
                 case 27523: HookedIn?.Invoke(HookSet.TripleHook); break;
                 case 41278: HookedIn?.Invoke(HookSet.Stellar); break;
             }
+        }
 
-        return _hookHook!.Original(manager, actionType, actionId, targetId, a4, a5, a6, a7);
+        return _hookHook!.Original(thisPtr, actionType, actionId, targetId, extraParam, mode, comboRouteId, outOptAreaTargeted);
     }
 }
