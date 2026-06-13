@@ -175,7 +175,6 @@ public static partial class Fish
             .MultiHook (2)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
             .Ocean(OceanTime.Always)
-            .OceanType(OceanSpecies.Prehistoric);
         data.Apply(51226, Patch.TrailToTheHeavens) // Renegade Rhotanosaurus
             .Bait(data, 29716)
             .Points(160)
