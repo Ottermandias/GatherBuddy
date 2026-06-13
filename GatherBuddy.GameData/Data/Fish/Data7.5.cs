@@ -175,7 +175,6 @@ public static partial class Fish
             .MultiHook (2)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
             .Ocean(OceanTime.Always)
-            .OceanType(OceanSpecies.Prehistoric);
         data.Apply(51226, Patch.TrailToTheHeavens) // Renegade Rhotanosaurus
             .Bait(data, 29716)
             .Points(160)
@@ -276,6 +275,7 @@ public static partial class Fish
             .MultiHook (3)
             .Bite(data, HookSet.Powerful, BiteType.Legendary)
             .Ocean(OceanTime.Always);
+            .OceanType(OceanSpecies.Prehistoric);
         data.Apply(51244, Patch.TrailToTheHeavens) // Tiger Mantis
             .Bait(data, 29714)
             .Points(150)
