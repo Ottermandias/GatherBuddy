@@ -2,9 +2,7 @@
 using Dalamud.Game;
 using Dalamud.Game.Chat;
 using Dalamud.Game.Text;
-using Dalamud.Game.Text.SeStringHandling;
 using FFXIVClientStructs.FFXIV.Client.Game.WKS;
-using GatherBuddy.Plugin;
 
 namespace GatherBuddy.FishTimer.Parser;
 
@@ -70,7 +68,7 @@ public partial class FishingParser
                         var wks = WKSManager.Instance();
                         if (wks is not null)
                         {
-                            missionId = wks->CurrentMissionUnitRowId;
+                            missionId = wks->State.CurrentMission.MissionUnitRowId;
                             GatherBuddy.Log.Verbose($"Loaded quest: {missionId.Value}");
                         }
                     }

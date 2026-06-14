@@ -4,6 +4,7 @@ using System.Numerics;
 using Dalamud.Bindings.ImGui;
 using Dalamud.Interface.Utility;
 using Dalamud.Interface.Windowing;
+using FFXIVClientStructs.FFXIV.Client.Game.Event;
 using GatherBuddy.Config;
 using GatherBuddy.Gui;
 using GatherBuddy.SeFunctions;
@@ -52,11 +53,12 @@ public partial class FishTimerWindow : Window, IDisposable
     public FishTimerWindow(FishRecorder recorder)
         : base("##FishingTimer")
     {
-        _recorder          =  recorder;
-        IsOpen             =  GatherBuddy.Config.ShowFishTimer;
-        Namespace          =  "FishingTimer";
-        RespectCloseHotkey =  false;
-        _recorder.UsedLure += OnLure;
+        _recorder           =  recorder;
+        IsOpen              =  GatherBuddy.Config.ShowFishTimer;
+        Namespace           =  "FishingTimer";
+        RespectCloseHotkey  =  false;
+        DisableWindowSounds = true;
+        _recorder.UsedLure  += OnLure;
     }
 
     public void Dispose()

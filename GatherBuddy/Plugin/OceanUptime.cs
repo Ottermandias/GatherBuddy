@@ -3,6 +3,7 @@ using System;
 using GatherBuddy.Classes;
 using System.Linq;
 using GatherBuddy.Enums;
+using FFXIVClientStructs.FFXIV.Client.Game;
 
 namespace GatherBuddy.Plugin;
 
@@ -30,13 +31,13 @@ public static class OceanUptime
     }
 
     // Returns the current/next TimeInterval from a utc timestamp for this ocean fish.
-    public static TimeInterval GetOceanUptime(Fish fish, TimeStamp utcNow)
+    public unsafe static TimeInterval GetOceanUptime(Fish fish, TimeStamp utcNow)
     {
         // Only consider weather when on an ocean fishing boat.
         // The weather is random per zone, so you need to be there to see it.
         if (Dalamud.ClientState.TerritoryType == OceanFishingTerritoryId && fish.CurrentWeather.Length > 0)
         {
-            var currentWeather = GatherBuddy.CurrentWeather.Current;
+            var currentWeather = WeatherManager.Instance()->GetCurrentWeather();
 
             if (!Array.Exists(fish.CurrentWeather, weather => weather.Id == currentWeather))
             {

@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using Dalamud.Game.ClientState.Objects.Enums;
+using FFXIVClientStructs.FFXIV.Client.UI;
 using GatherBuddy.Enums;
 using GatherBuddy.SeFunctions;
 using Lumina.Excel.Sheets;
 using FishingSpot = GatherBuddy.Classes.FishingSpot;
+using SpearfishSize = GatherBuddy.Enums.SpearfishSize;
 
 namespace GatherBuddy.Spearfishing;
 
@@ -36,9 +38,10 @@ public partial class SpearfishingHelper
             SpearfishingSpots.Add(point.RowId, node);
         }
 
-        IsOpen             = GatherBuddy.Config.ShowSpearfishHelper;
-        RespectCloseHotkey = false;
-        Namespace          = "SpearfishingHelper";
+        IsOpen              = GatherBuddy.Config.ShowSpearfishHelper;
+        RespectCloseHotkey  = false;
+        DisableWindowSounds = true;
+        Namespace           = "SpearfishingHelper";
     }
 
     // We should always have to target a spearfishing spot when opening the window.
@@ -57,7 +60,7 @@ public partial class SpearfishingHelper
 
     // Given the current spot we can read the spearfish window and correspond fish to their speed and size.
     // This may result in more than one fish, but does so rarely. Unknown attributes are seen as valid for any attribute.
-    private static string Identify(FishingSpot? spot, SpearfishWindow.Info info)
+    private static string Identify(FishingSpot? spot, AddonSpearFishing.FishInfo info)
     {
         const string unknown = "Unknown Fish";
 
@@ -65,9 +68,8 @@ public partial class SpearfishingHelper
             return unknown;
 
         var fishes = spot.Items.Where(f =>
-                (f.Speed == info.Speed || f.Speed == SpearfishSpeed.Unknown)
-             && (f.Size == info.Size || f.Size == SpearfishSize.Unknown))
-            .ToList();
-        return fishes.Count == 0 ? unknown : string.Join("\n", fishes.Select(f => f.Name[GatherBuddy.Language]));
+                (f.Speed == info.SpearfishSpeed || f.Speed == SpearfishSpeed.Unknown)
+             && (f.Size == info.SpearfishSize || f.Size == SpearfishSize.None));
+        return fishes.Any() ? string.Join("\n", fishes.Select(f => f.Name[GatherBuddy.Language])) : unknown;
     }
 }

@@ -59,7 +59,6 @@ public partial class GatherBuddy : IDalamudPlugin
     public static FishLog        FishLog        { get; private set; } = null!;
     public static EventFramework EventFramework { get; private set; } = null!;
     public static CurrentBait    CurrentBait    { get; private set; } = null!;
-    public static CurrentWeather CurrentWeather { get; private set; } = null!;
     public static SeTugType      TugType        { get; private set; } = null!;
     public static WaymarkManager WaymarkManager { get; private set; } = null!;
     public static DynamisIpc     Dynamis        { get; private set; } = null!;
@@ -98,8 +97,7 @@ public partial class GatherBuddy : IDalamudPlugin
             UptimeManager       = new UptimeManager(GameData);
             FishLog             = new FishLog(Dalamud.SigScanner, Dalamud.GameData);
             EventFramework      = new EventFramework();
-            CurrentBait         = new CurrentBait(Dalamud.SigScanner);
-            CurrentWeather      = new CurrentWeather(Dalamud.SigScanner);
+            CurrentBait         = new CurrentBait();
             TugType             = new SeTugType(Dalamud.SigScanner);
             Executor            = new Executor(this);
             ContextMenu         = new ContextMenu(Dalamud.ContextMenu, Executor);

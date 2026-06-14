@@ -1,5 +1,6 @@
 ﻿using Dalamud.Bindings.ImGui;
 using Dalamud.Game;
+using FFXIVClientStructs.FFXIV.Client.Game;
 using GatherBuddy.Classes;
 using GatherBuddy.Enums;
 using GatherBuddy.FishTimer;
@@ -221,7 +222,7 @@ public partial class Interface
             : "None");
         ImGuiUtil.DrawTableColumn("Current True Weather");
         ImGuiUtil.DrawTableColumn(Dalamud.ClientState.TerritoryType != 0
-         && GatherBuddy.GameData.Weathers.TryGetValue(GatherBuddy.CurrentWeather.Current, out var w)
+         && GatherBuddy.GameData.Weathers.TryGetValue(WeatherManager.Instance()->GetCurrentWeather(), out var w)
                 ? w.Name
                 : "None");
     }
@@ -244,12 +245,9 @@ public partial class Interface
         ImGuiUtil.DrawTableColumn("UiState Address");
         ImGui.TableNextColumn();
         GatherBuddy.Dynamis.DrawPointer(FFXIVClientStructs.FFXIV.Client.Game.UI.UIState.Instance());
-        ImGuiUtil.DrawTableColumn("Event Framework Address");
+        ImGuiUtil.DrawTableColumn("FishingEventHandler Address");
         ImGui.TableNextColumn();
-        GatherBuddy.Dynamis.DrawPointer(GatherBuddy.EventFramework.Address);
-        ImGuiUtil.DrawTableColumn("Fishing Manager Address");
-        ImGui.TableNextColumn();
-        GatherBuddy.Dynamis.DrawPointer(GatherBuddy.EventFramework.FishingManager);
+        GatherBuddy.Dynamis.DrawPointer(GatherBuddy.EventFramework.FishingEventHandler);
         ImGuiUtil.DrawTableColumn("Fishing State");
         ImGuiUtil.DrawTableColumn(GatherBuddy.EventFramework.FishingState.ToString());
         ImGuiUtil.DrawTableColumn("Num SwimBait");
