@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using Dalamud.Game.Gui.ContextMenu;
 using Dalamud.Plugin.Services;
-using FFXIVClientStructs.FFXIV.Client.UI;
 using FFXIVClientStructs.FFXIV.Client.UI.Agent;
 using GatherBuddy.Interfaces;
 
@@ -115,6 +114,12 @@ public class ContextMenu : IDisposable
     private unsafe IGatherable? HandleSatisfactionSupply()
     {
         var agent = AgentSatisfactionSupply.Instance();
+        if (!agent->IsAgentActive())
+            return null;
+
+        var agentContext = AgentContext.Instance();
+        if (agentContext->CurrentContextMenuTarget != null)
+            return null;
 
         var itemIdx = agent->NpcInfo.SelectedItemIndex;
         if (itemIdx < 0 || itemIdx >= agent->Items.Length)
