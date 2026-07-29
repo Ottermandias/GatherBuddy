@@ -109,7 +109,7 @@ public static partial class Fish
             .Bait(data, 43849)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43697, Patch.Dawntrail) // Driftwood Catfish
-            .Bait(data, 43849)
+            .Bait(data, 43855)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43698, Patch.Dawntrail) // Oho Hunu
             .Bait(data, 43849)
@@ -348,7 +348,7 @@ public static partial class Fish
             .Bait(data, 43855)
             .Bite(data, HookSet.Powerful, BiteType.Strong);
         data.Apply(43775, Patch.Dawntrail) // Goldgrouper
-            .Bait(data, 43855)
+            .Bait(data, 43858)
             .Bite(data, HookSet.Powerful, BiteType.Strong)
             .Lure(Enums.Lure.Ambitious);
         data.Apply(43776, Patch.Dawntrail) // Everkeep Yabby
