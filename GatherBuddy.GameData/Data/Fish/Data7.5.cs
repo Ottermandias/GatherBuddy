@@ -58,6 +58,37 @@ public static partial class Fish
             .Time(480, 780)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
+        data.Apply(52007, Patch.TrailToTheHeavens) // Ner Lar Dor
+            .Bait(data)
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+        data.Apply(52008, Patch.TrailToTheHeavens) // Xehabopo'u
+            .Mooch(data, 43697)
+            .Time(480, 960)
+            .Predators(data, 360, (43697, 6))
+            .Transition(data, 3)
+            .Weather(data, 8)
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+        data.Apply(52009, Patch.TrailToTheHeavens) // Skyfrond
+            .Mooch(data, 43740)
+            .Time(960, 1440)
+            .Predators(data, 900, (52002, 1), (43740, 3))
+            .Transition(data, 1)
+            .Weather(data, 7)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
+        data.Apply(52010, Patch.TrailToTheHeavens) // Rroneek Bichir
+            .Mooch(data, 47993)
+            .Time(1200, 1440)
+            .Transition(data, 2)
+            .Weather(data, 11)
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
+        data.Apply(52297, Patch.TrailToTheHeavens) // Great Ball of Lightning
+            .Bait(data)
+            .Predators(data, 90, (43775, 1))
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+        data.Apply(52011, Patch.TrailToTheHeavens) // Triple Threat
+            .Bait(data)
+            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+
         // Custom Delivery Fish
         data.Apply(52012, Patch.TrailToTheHeavens) // Pote'uka
             .Bait(data, 28634)
