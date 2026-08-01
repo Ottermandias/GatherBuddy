@@ -60,8 +60,8 @@ public static partial class Fish
 
         data.Apply(52007, Patch.TrailToTheHeavens) // Ner Lar Dor
             .Bait(43858)
-            .Weather(data, 4)
-            .Transition(data, 5)
+            .Transition(data, 4)
+            .Weather(data, 5)
             .Lure(Enums.Lure.Modest)
             .Time(840, 960)
             .Bite(data, HookSet.Precision, BiteType.Legendary);
