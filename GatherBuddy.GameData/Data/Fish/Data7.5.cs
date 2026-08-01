@@ -59,32 +59,39 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         data.Apply(52007, Patch.TrailToTheHeavens) // Ner Lar Dor
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bait(43858)
+            .Transition(data, 4)
+            .Weather(data, 5)
+            .Lure(Enums.Lure.Modest)
+            .Time(840, 960)
+            .Bite(data, HookSet.Precision, BiteType.Legendary);
         data.Apply(52008, Patch.TrailToTheHeavens) // Xehabopo'u
             .Mooch(data, 43697)
-            .Time(480, 960)
+            .Time(720, 900)
             .Predators(data, 360, (43697, 6))
             .Transition(data, 3)
             .Weather(data, 8)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52009, Patch.TrailToTheHeavens) // Skyfrond
             .Mooch(data, 43740)
-            .Time(960, 1440)
+            .Time(960, 1260)
             .Predators(data, 900, (52002, 1), (43740, 3))
             .Transition(data, 1)
             .Weather(data, 7)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52010, Patch.TrailToTheHeavens) // Rroneek Bichir
             .Mooch(data, 47993)
-            .Time(1200, 1440)
+            .Time(1320, 1440)
             .Transition(data, 2)
             .Weather(data, 11)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52297, Patch.TrailToTheHeavens) // Great Ball of Lightning
-            .Bait(data)
+            .Bait(43858)
+            .Time(120, 240)
+            .Transition(data, 10)
+            .Weather(data, 50)
             .Predators(data, 90, (43775, 1))
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52011, Patch.TrailToTheHeavens) // Triple Threat
             .Bait(data)
             .Bite(data, HookSet.Unknown, BiteType.Legendary);
