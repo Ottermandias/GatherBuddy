@@ -93,8 +93,12 @@ public static partial class Fish
             .Predators(data, 90, (43775, 1))
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52011, Patch.TrailToTheHeavens) // Triple Threat
-            .Bait(data)
-            .Bite(data, HookSet.Unknown, BiteType.Legendary);
+            .Bait(43859)
+            .Time(480, 960)
+            .Transition(data, 3)
+            .Weather(data, 4)
+            .Predators(data, 600, (52006, 1), (43795, 2))
+            .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         // Custom Delivery Fish
         data.Apply(52012, Patch.TrailToTheHeavens) // Pote'uka
