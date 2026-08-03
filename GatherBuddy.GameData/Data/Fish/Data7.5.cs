@@ -59,12 +59,12 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
 
         data.Apply(52007, Patch.TrailToTheHeavens) // Ner Lar Dor
-            .Bait(43858)
+            .Bait(data, 43858)
             .Transition(data, 4)
             .Weather(data, 5)
             .Lure(Enums.Lure.Modest)
             .Time(840, 960)
-            .Bite(data, HookSet.Precision, BiteType.Legendary);
+            .Bite(data, HookSet.Precise, BiteType.Legendary);
         data.Apply(52008, Patch.TrailToTheHeavens) // Xehabopo'u
             .Mooch(data, 43697)
             .Time(720, 900)
@@ -86,14 +86,14 @@ public static partial class Fish
             .Weather(data, 11)
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52297, Patch.TrailToTheHeavens) // Great Ball of Lightning
-            .Bait(43858)
+            .Bait(data, 43858)
             .Time(120, 240)
             .Transition(data, 10)
             .Weather(data, 50)
             .Predators(data, 90, (43775, 1))
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52011, Patch.TrailToTheHeavens) // Triple Threat
-            .Bait(43859)
+            .Bait(data, 43859)
             .Time(480, 960)
             .Transition(data, 3)
             .Weather(data, 4)
