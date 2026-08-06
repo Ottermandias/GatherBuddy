@@ -123,7 +123,7 @@ public partial class Interface
         ImGui.TableHeadersRow();
 
         DateTime? previousStartDate = null;
-        var       now     = GatherBuddy.Time.ServerTime;
+        var       now               = GatherBuddy.Time.ServerTime;
 
         for (var i = 0; i < uptimes.Length; i++)
         {
