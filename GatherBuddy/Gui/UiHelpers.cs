@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -60,7 +61,7 @@ public partial class Interface
         return changed;
     }
 
-    internal static void DrawTimeInterval(TimeInterval uptime, bool uptimeDependency = false, bool rightAligned = true)
+    internal static void DrawTimeInterval(TimeInterval uptime, bool uptimeDependency = false, bool rightAligned = true, IGatherable? item = null)
     {
         var active = uptime.ToTimeString(GatherBuddy.Time.ServerTime, false, out var timeString);
         var colorId = (active, uptimeDependency) switch
@@ -70,21 +71,98 @@ public partial class Interface
             (false, true)  => ColorId.DependentUpcomingFish.Value(),
             (false, false) => ColorId.UpcomingItem.Value(),
         };
+
         using var color = ImRaii.PushColor(ImGuiCol.Text, colorId);
         if (rightAligned)
             ImUtf8.TextRightAligned(timeString);
         else
             ImUtf8.Text(timeString);
         color.Pop();
-        if ((uptimeDependency || !char.IsLetter(timeString[0])) && ImGui.IsItemHovered())
+
+        DrawTimeIntervalTooltip(uptime, uptimeDependency, item, !char.IsLetter(timeString[0]));
+    }
+
+    internal static void DrawTimeIntervalTooltip(TimeInterval uptime, bool uptimeDependency = false, IGatherable? item = null, bool displayNextWindow = true)
+    {
+        if (!uptimeDependency && !displayNextWindow || !ImGui.IsItemHovered())
+            return;
+
+        using var tt = ImRaii.Tooltip();
+
+        if (uptimeDependency)
+            ImUtf8.TextFramed("Uptime Dependency"u8, 0xFF202080);
+
+        if (!displayNextWindow)
+            return;
+
+        if (item == null || GatherBuddy.Config.DisableUpcomingUptimes)
         {
-            using var tt = ImRaii.Tooltip();
+            ImUtf8.Text($"{uptime.Start}\n{uptime.End}\n{uptime.DurationString()}");
+            return;
+        }
 
-            if (uptimeDependency)
-                ImUtf8.TextFramed("Uptime Dependency"u8, 0xFF202080);
+        var uptimes   = GatherBuddy.UptimeManager.GetUpcomingUptimes(item, GatherBuddy.Config.UpcomingUptimesCount);
+        if (uptimes.Length <= 0)
+        {
+            ImUtf8.Text($"{uptime.Start}\n{uptime.End}\n{uptime.DurationString()}\n\nLoading next {GatherBuddy.Config.UpcomingUptimesCount} windows...");
+            return;
+        }
 
-            if (!char.IsLetter(timeString[0]))
-                ImUtf8.Text($"{uptime.Start}\n{uptime.End}\n{uptime.DurationString()}");
+        var cellPadding = new Vector2(10 , 5) * ImGuiHelpers.GlobalScale;
+
+        using var style = ImRaii.PushStyle(ImGuiStyleVar.CellPadding, cellPadding);
+        using var table = ImRaii.Table("##UptimesTable", 5, ImGuiTableFlags.RowBg);
+        if (!table)
+            return;
+
+        ImGui.TableSetupColumn("Day");
+        ImGui.TableSetupColumn("Time");
+        ImGui.TableSetupColumn("Starts in");
+        ImGui.TableSetupColumn("Duration");
+        ImGui.TableSetupColumn("Downtime");
+        ImGui.TableHeadersRow();
+
+        DateTime? previousStartDate = null;
+        var       now     = GatherBuddy.Time.ServerTime;
+
+        for (var i = 0; i < uptimes.Length; i++)
+        {
+            var startDate = uptimes[i].Start.LocalTime;
+
+            ImGui.TableNextColumn();
+            if (previousStartDate == null || previousStartDate.Value.Date != startDate.Date)
+            {
+                ImUtf8.Text(startDate.ToString("yyyy-MM-dd (ddd)", CultureInfo.InvariantCulture));
+                previousStartDate = startDate;
+            }
+
+            ImGui.TableNextColumn();
+            ImUtf8.Text(startDate.ToString("HH:mm", CultureInfo.InvariantCulture));
+
+            ImGui.TableNextColumn();
+            if (now < uptimes[i].Start)
+            {
+                var startsIn = new TimeInterval(now, uptimes[i].Start);
+                ImUtf8.Text(startsIn.DurationString(true));
+            }
+            else
+            {
+                ImUtf8.Text("Active");
+            }
+
+            ImGui.TableNextColumn();
+            ImUtf8.Text(uptimes[i].DurationString(true));
+
+            ImGui.TableNextColumn();
+            if (i < uptimes.Length - 1)
+            {
+                var downtime = new TimeInterval(uptimes[i].End, uptimes[i + 1].Start);
+                ImUtf8.Text(downtime.DurationString(true));
+            }
+            else
+            {
+                ImUtf8.Text("-");
+            }
         }
     }
 

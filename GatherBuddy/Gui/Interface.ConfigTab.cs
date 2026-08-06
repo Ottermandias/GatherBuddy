@@ -129,6 +129,11 @@ public partial class Interface
                 "Permanently hide the GatherClippy Button in the Gatherables and Fish tabs.",
                 GatherBuddy.Config.HideClippy, v => GatherBuddy.Config.HideClippy = v);
 
+        public static void DrawDisableUpcomingUptimes()
+            => DrawCheckbox("Disable Upcoming Windows Uptime",
+                "Only display information on the next uptime when hovering it.",
+                GatherBuddy.Config.DisableUpcomingUptimes, v => GatherBuddy.Config.DisableUpcomingUptimes = v);
+
         private const string ChatInformationString =
             "Note that the message only gets printed to your chat log, regardless of the selected channel"
           + " - other people will not see your 'Say' message.";
@@ -333,6 +338,23 @@ public partial class Interface
                 return;
 
             GatherBuddy.Config.SecondIntervalsRounding = newValue;
+            GatherBuddy.Config.Save();
+        }
+
+        public static void DrawUpcomingUptimesCount()
+        {
+            var value = GatherBuddy.Config.UpcomingUptimesCount;
+            ImGui.SetNextItemWidth(SetInputWidth);
+            var ret = ImGui.DragUShort("Upcoming Windows Uptime Count", ref value, 0.1f, 1, 20);
+            ImGuiUtil.HoverTooltip("The number of gathering window in the upcoming windows uptime tooltip/pop-up.");
+            if (!ret)
+                return;
+
+            var newValue = Math.Clamp(value, (ushort)0, (ushort)3000);
+            if (newValue == GatherBuddy.Config.UpcomingUptimesCount)
+                return;
+
+            GatherBuddy.Config.UpcomingUptimesCount = newValue;
             GatherBuddy.Config.Save();
         }
 
@@ -630,6 +652,9 @@ public partial class Interface
                 ConfigFunctions.DrawShowStatusLineBox();
                 ConfigFunctions.DrawHideClippyBox();
                 ConfigFunctions.DrawMainInterfaceHotkeyInput();
+                ConfigFunctions.DrawDisableUpcomingUptimes();
+                if (!GatherBuddy.Config.DisableUpcomingUptimes)
+                    ConfigFunctions.DrawUpcomingUptimesCount();
                 ImGui.TreePop();
             }
 

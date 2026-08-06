@@ -1,7 +1,9 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
 using GatherBuddy.Enums;
@@ -18,15 +20,85 @@ namespace GatherBuddy.Plugin;
 public class UptimeManager : IDisposable
 {
     // We only cache the best uptime regarding current server time and corresponding location per item.
-    public readonly  IGatherable[]                                 TimedGatherables;
-    private readonly (ILocation Location, TimeInterval Interval)[] _bestUptime;
-    private readonly (ILocation Location, uint Reset)[]            _bestLocation;
-    private          uint                                          _lastReset = 1;
-    private          uint                                          _currentTerritory;
-    private          ushort                                        _aetherStreamX;
-    private          ushort                                        _aetherStreamY;
-    private          ushort                                        _aetherPlane;
+    public readonly  IGatherable[]                                                                              TimedGatherables;
+    private readonly (ILocation Location, TimeInterval Interval)[]                                              _bestUptime;
+    private readonly (ILocation Location, uint Reset)[]                                                         _bestLocation;
+    private          uint                                                                                       _lastReset = 1;
+    private          uint                                                                                       _currentTerritory;
+    private          ushort                                                                                     _aetherStreamX;
+    private          ushort                                                                                     _aetherStreamY;
+    private          ushort                                                                                     _aetherPlane;
+    private readonly ConcurrentDictionary<int, (TimeStamp Time, TimeInterval[] Uptimes, ushort RequestedCount)> _upcomingUptimesCache = [];
+    private volatile bool                                                                                       _isUpdatingUpcomingUptimes;
 
+    public TimeInterval[] GetUpcomingUptimes(IGatherable item, ushort count)
+    {
+        if (item.InternalLocationId <= 0)
+            return [];
+
+        var now = GatherBuddy.Time.ServerTime;
+        if (_upcomingUptimesCache.TryGetValue(item.InternalLocationId, out var cache))
+        {
+            if (cache.Uptimes.Length == 0 || cache.Uptimes[0].End >= now)
+            {
+                // This guards against invalid uptimes.
+                // Return the current cached uptimes, even if it does not have enough elements, assuming enough elements were requested.
+                if (cache.RequestedCount >= count || cache.Uptimes.Length < cache.RequestedCount)
+                {
+                    return cache.Uptimes.Length <= count ? cache.Uptimes : cache.Uptimes[..count];
+                }
+            }
+        }
+
+        if (_isUpdatingUpcomingUptimes)
+            return [];
+
+        _isUpdatingUpcomingUptimes = true;
+
+        Task.Run(() =>
+        {
+            try
+            {
+                var uptimes       = new List<TimeInterval>(count);
+                var currentNow    = now;
+                var iterations    = 0;
+                var maxIterations = count * 10;
+
+                while (uptimes.Count < count && iterations++ < maxIterations)
+                {
+                    var (_, time) = NextUptime(item, currentNow);
+
+                    if (time.Equals(TimeInterval.Never) || time.Equals(TimeInterval.Always) || time.Equals(TimeInterval.Invalid))
+                        break;
+
+                    if (uptimes.Count > 0)
+                    {
+                        if (time.Start <= uptimes[^1].Start)
+                            break;
+
+                        // Contiguous windows are possible => merging them.
+                        if (uptimes[^1].End == time.Start)
+                        {
+                            uptimes[^1] = new TimeInterval(uptimes[^1].Start, time.End);
+                            currentNow  = time.End;
+                            continue;
+                        }
+                    }
+
+                    uptimes.Add(time);
+                    currentNow = time.End;
+                }
+
+                _upcomingUptimesCache[item.InternalLocationId] = (now, uptimes.ToArray(), count);
+            }
+            finally
+            {
+                _isUpdatingUpcomingUptimes = false;
+            }
+        });
+
+        return [];
+    }
 
     public event Action<IGatherable>? UptimeChange;
 
