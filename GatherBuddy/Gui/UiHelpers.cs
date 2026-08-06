@@ -111,7 +111,7 @@ public partial class Interface
         var cellPadding = new Vector2(10 , 5) * ImGuiHelpers.GlobalScale;
 
         using var style = ImRaii.PushStyle(ImGuiStyleVar.CellPadding, cellPadding);
-        using var table = ImRaii.Table("##UptimesTable", 5, ImGuiTableFlags.RowBg);
+        using var table = ImRaii.Table("##UpcomingUptimesTable", 5, ImGuiTableFlags.RowBg);
         if (!table)
             return;
 

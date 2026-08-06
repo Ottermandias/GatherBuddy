@@ -350,7 +350,7 @@ public partial class Interface
             if (!ret)
                 return;
 
-            var newValue = Math.Clamp(value, (ushort)0, (ushort)3000);
+            var newValue = Math.Clamp(value, (ushort)0, (ushort)500);
             if (newValue == GatherBuddy.Config.UpcomingUptimesCount)
                 return;
 
