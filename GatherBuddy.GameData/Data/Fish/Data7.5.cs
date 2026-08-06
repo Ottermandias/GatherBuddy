@@ -63,7 +63,7 @@ public static partial class Fish
             .Transition(data, 4)
             .Weather(data, 5)
             .Lure(Enums.Lure.Modest)
-            .Time(840, 960)
+            .Time(900, 960)
             .Bite(data, HookSet.Precise, BiteType.Legendary);
         data.Apply(52008, Patch.TrailToTheHeavens) // Xehabopo'u
             .Mooch(data, 43697)
@@ -94,7 +94,7 @@ public static partial class Fish
             .Bite(data, HookSet.Powerful, BiteType.Legendary);
         data.Apply(52011, Patch.TrailToTheHeavens) // Triple Threat
             .Bait(data, 43859)
-            .Time(480, 960)
+            .Time(480, 780)
             .Transition(data, 3)
             .Weather(data, 4)
             .Predators(data, 600, (52006, 1), (43795, 2))
