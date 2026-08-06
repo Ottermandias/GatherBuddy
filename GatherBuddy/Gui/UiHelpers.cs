@@ -95,14 +95,14 @@ public partial class Interface
         if (!displayNextWindow)
             return;
 
-        if (item == null || GatherBuddy.Config.DisableUpcomingUptimes)
+        if (item is null || GatherBuddy.Config.UpcomingUptimesCount <= 1)
         {
             ImUtf8.Text($"{uptime.Start}\n{uptime.End}\n{uptime.DurationString()}");
             return;
         }
 
         var uptimes   = GatherBuddy.UptimeManager.GetUpcomingUptimes(item, GatherBuddy.Config.UpcomingUptimesCount);
-        if (uptimes.Length <= 0)
+        if (uptimes.Count <= 0)
         {
             ImUtf8.Text($"{uptime.Start}\n{uptime.End}\n{uptime.DurationString()}\n\nLoading next {GatherBuddy.Config.UpcomingUptimesCount} windows...");
             return;
@@ -115,22 +115,21 @@ public partial class Interface
         if (!table)
             return;
 
-        ImGui.TableSetupColumn("Day");
-        ImGui.TableSetupColumn("Time");
-        ImGui.TableSetupColumn("Starts in");
-        ImGui.TableSetupColumn("Duration");
-        ImGui.TableSetupColumn("Downtime");
+        ImGui.TableSetupColumn("Day"u8);
+        ImGui.TableSetupColumn("Time"u8);
+        ImGui.TableSetupColumn("Starts in"u8);
+        ImGui.TableSetupColumn("Duration"u8);
+        ImGui.TableSetupColumn("Downtime"u8);
         ImGui.TableHeadersRow();
 
         DateTime? previousStartDate = null;
         var       now     = GatherBuddy.Time.ServerTime;
 
-        for (var i = 0; i < uptimes.Length; i++)
+        foreach (var (i, time) in uptimes.Take(GatherBuddy.Config.UpcomingUptimesCount).Index())
         {
-            var startDate = uptimes[i].Start.LocalTime;
-
+            var startDate = time.Start.LocalTime;
             ImGui.TableNextColumn();
-            if (previousStartDate == null || previousStartDate.Value.Date != startDate.Date)
+            if (previousStartDate is null || previousStartDate.Value.Date != startDate.Date)
             {
                 ImUtf8.Text(startDate.ToString("yyyy-MM-dd (ddd)", CultureInfo.InvariantCulture));
                 previousStartDate = startDate;
@@ -140,28 +139,28 @@ public partial class Interface
             ImUtf8.Text(startDate.ToString("HH:mm", CultureInfo.InvariantCulture));
 
             ImGui.TableNextColumn();
-            if (now < uptimes[i].Start)
+            if (now < time.Start)
             {
-                var startsIn = new TimeInterval(now, uptimes[i].Start);
+                var startsIn = new TimeInterval(now, time.Start);
                 ImUtf8.Text(startsIn.DurationString(true));
             }
             else
             {
-                ImUtf8.Text("Active");
+                ImUtf8.Text("Active"u8);
             }
 
             ImGui.TableNextColumn();
-            ImUtf8.Text(uptimes[i].DurationString(true));
+            ImUtf8.Text(time.DurationString(true));
 
             ImGui.TableNextColumn();
-            if (i < uptimes.Length - 1)
+            if (i < uptimes.Count - 1)
             {
                 var downtime = new TimeInterval(uptimes[i].End, uptimes[i + 1].Start);
                 ImUtf8.Text(downtime.DurationString(true));
             }
             else
             {
-                ImUtf8.Text("-");
+                ImUtf8.Text("-"u8);
             }
         }
     }

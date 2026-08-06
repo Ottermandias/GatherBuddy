@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using GatherBuddy.Classes;
 using GatherBuddy.Config;
@@ -17,93 +18,101 @@ using GatheringType = GatherBuddy.Enums.GatheringType;
 
 namespace GatherBuddy.Plugin;
 
-public class UptimeManager : IDisposable
+public sealed class UptimeCache(UptimeManager manager) : IDisposable
 {
-    // We only cache the best uptime regarding current server time and corresponding location per item.
-    public readonly  IGatherable[]                                                                              TimedGatherables;
-    private readonly (ILocation Location, TimeInterval Interval)[]                                              _bestUptime;
-    private readonly (ILocation Location, uint Reset)[]                                                         _bestLocation;
-    private          uint                                                                                       _lastReset = 1;
-    private          uint                                                                                       _currentTerritory;
-    private          ushort                                                                                     _aetherStreamX;
-    private          ushort                                                                                     _aetherStreamY;
-    private          ushort                                                                                     _aetherPlane;
-    private readonly ConcurrentDictionary<int, (TimeStamp Time, TimeInterval[] Uptimes, ushort RequestedCount)> _upcomingUptimesCache = [];
-    private volatile bool                                                                                       _isUpdatingUpcomingUptimes;
+    private readonly CancellationTokenSource      _cancel = new();
+    private readonly Dictionary<int, CacheObject> _cache  = [];
+    private          Task?                        _updateTask;
 
-    public TimeInterval[] GetUpcomingUptimes(IGatherable item, ushort count)
+    private class CacheObject
+    {
+        public readonly ConcurrentQueue<TimeInterval> NewUptimes     = [];
+        public readonly List<TimeInterval>            CurrentUptimes = [];
+        public          bool                          IsInRequest;
+    }
+
+    public IReadOnlyList<TimeInterval> GetUpcomingUptimes(IGatherable item, ushort count)
     {
         if (item.InternalLocationId <= 0)
             return [];
 
         var now = GatherBuddy.Time.ServerTime;
-        if (_upcomingUptimesCache.TryGetValue(item.InternalLocationId, out var cache))
+        if (!_cache.TryGetValue(item.InternalLocationId, out var cache))
         {
-            if (cache.Uptimes.Length == 0 || cache.Uptimes[0].End >= now)
+            cache = new CacheObject();
+            _cache.Add(item.InternalLocationId, cache);
+        }
+
+        while (cache.NewUptimes.TryDequeue(out var newInterval))
+            cache.CurrentUptimes.Add(newInterval);
+
+        var outdatedIntervalIndex = cache.CurrentUptimes.FindIndex(i => i.End <= now);
+        if (outdatedIntervalIndex >= 0)
+            cache.CurrentUptimes.RemoveRange(0, outdatedIntervalIndex + 1);
+
+        if (cache.CurrentUptimes.Count < count && !cache.IsInRequest)
+        {
+            cache.IsInRequest = true;
+            var requestCount = count - cache.CurrentUptimes.Count;
+            var requestTime  = cache.CurrentUptimes.Count > 0 ? cache.CurrentUptimes[^1].End : now;
+            lock (this)
             {
-                // This guards against invalid uptimes.
-                // Return the current cached uptimes, even if it does not have enough elements, assuming enough elements were requested.
-                if (cache.RequestedCount >= count || cache.Uptimes.Length < cache.RequestedCount)
-                {
-                    return cache.Uptimes.Length <= count ? cache.Uptimes : cache.Uptimes[..count];
-                }
+                if (_updateTask is null || _updateTask.IsCompleted)
+                    _updateTask = Task.Run(
+                        () => UpdateCache(cache, item, requestCount, requestTime), _cancel.Token);
+                else
+                    _updateTask = _updateTask.ContinueWith(_ => UpdateCache(cache, item, requestCount, requestTime), _cancel.Token);
             }
         }
 
-        if (_isUpdatingUpcomingUptimes)
-            return [];
-
-        _isUpdatingUpcomingUptimes = true;
-
-        Task.Run(() =>
-        {
-            try
-            {
-                var uptimes       = new List<TimeInterval>(count);
-                var currentNow    = now;
-                var iterations    = 0;
-                var maxIterations = count * 10;
-
-                while (uptimes.Count < count && iterations++ < maxIterations)
-                {
-                    var (_, time) = NextUptime(item, currentNow);
-
-                    if (time.Equals(TimeInterval.Never) || time.Equals(TimeInterval.Always) || time.Equals(TimeInterval.Invalid))
-                        break;
-
-                    if (uptimes.Count > 0)
-                    {
-                        if (time.Start <= uptimes[^1].Start)
-                            break;
-
-                        // Contiguous windows are possible => merging them.
-                        if (uptimes[^1].End == time.Start)
-                        {
-                            uptimes[^1] = new TimeInterval(uptimes[^1].Start, time.End);
-                            currentNow  = time.End;
-                            continue;
-                        }
-                    }
-
-                    uptimes.Add(time);
-                    currentNow = time.End;
-                }
-
-                _upcomingUptimesCache[item.InternalLocationId] = (now, uptimes.ToArray(), count);
-            }
-            finally
-            {
-                _isUpdatingUpcomingUptimes = false;
-            }
-        });
-
-        return [];
+        return cache.CurrentUptimes;
     }
+
+    private void UpdateCache(CacheObject cache, IGatherable item, int count, TimeStamp from)
+    {
+        try
+        {
+            while (count-- > 0)
+            {
+                var (_, time) = manager.NextUptime(item, from);
+                if (time.Equals(TimeInterval.Never) || time.Equals(TimeInterval.Always) || time.Equals(TimeInterval.Invalid))
+                    break;
+
+                cache.NewUptimes.Enqueue(time);
+                from = time.End;
+            }
+        }
+        finally
+        {
+            cache.IsInRequest = false;
+        }
+    }
+
+    public void Dispose()
+        => _cancel.Cancel();
+}
+
+public class UptimeManager : IDisposable
+{
+    // We only cache the best uptime regarding current server time and corresponding location per item.
+    public readonly  IGatherable[]                                 TimedGatherables;
+    private readonly (ILocation Location, TimeInterval Interval)[] _bestUptime;
+    private readonly (ILocation Location, uint Reset)[]            _bestLocation;
+    private          uint                                          _lastReset = 1;
+    private          uint                                          _currentTerritory;
+    private          ushort                                        _aetherStreamX;
+    private          ushort                                        _aetherStreamY;
+    private          ushort                                        _aetherPlane;
+    private          UptimeCache                                   _upcomingCache;
 
     public event Action<IGatherable>? UptimeChange;
 
+    public IReadOnlyList<TimeInterval> GetUpcomingUptimes(IGatherable item, ushort count)
+        => _upcomingCache.GetUpcomingUptimes(item, count);
+
     public UptimeManager(GameData gameData)
     {
+        _upcomingCache = new UptimeCache(this);
         // Set an array of available timed gatherables.
         TimedGatherables = new IGatherable[gameData.TimedGatherables];
         foreach (var gatherable in gameData.Gatherables.Values.Where(g => g.InternalLocationId > 0))
@@ -131,6 +140,8 @@ public class UptimeManager : IDisposable
 
     public void ResetModifiedUptimes()
     {
+        _upcomingCache.Dispose();
+        _upcomingCache = new UptimeCache(this);
         foreach (var fish in TimedGatherables.OfType<Fish>().Where(f => f.HasOverridenData))
         {
             switch (fish.InternalLocationId)
@@ -166,7 +177,10 @@ public class UptimeManager : IDisposable
         => SetCurrentTerritory(id);
 
     public void Dispose()
-        => Dalamud.ClientState.TerritoryChanged -= OnTerritoryChange;
+    {
+        _upcomingCache.Dispose();
+        Dalamud.ClientState.TerritoryChanged -= OnTerritoryChange;
+    }
 
     // The best interval depends on current time. 
     // If both intervals have already started but not ended, choose the interval that ends later.

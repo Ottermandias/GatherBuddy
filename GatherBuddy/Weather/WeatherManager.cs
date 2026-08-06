@@ -84,7 +84,7 @@ public partial class WeatherManager
         if (idx < 0)
             return duration;
 
-        for (var sanityStop = 0; sanityStop < 24; ++sanityStop)
+        for (var sanityStop = 0; sanityStop < 50; ++sanityStop)
         {
             if (checkPrevious && previousWeather.All(w => w.Id != listing.Weather.Id))
                 return duration;

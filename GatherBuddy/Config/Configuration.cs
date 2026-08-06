@@ -53,7 +53,6 @@ public partial class Configuration : IPluginConfiguration
     public bool             HideClippy                { get; set; } = false;
     public bool             ShowStatusLine            { get; set; } = true;
     public ushort           UpcomingUptimesCount      { get; set; } = 10;
-    public bool             DisableUpcomingUptimes    { get; set; } = false;
     public ModifiableHotkey MainInterfaceHotkey       { get; set; } = new();
     public bool             PlaceCustomWaymarks       { get; set; } = true;
     public GatheringType    PreferredGatheringType    { get; set; } = GatheringType.Multiple;
