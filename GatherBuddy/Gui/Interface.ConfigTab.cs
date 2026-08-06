@@ -276,7 +276,7 @@ public partial class Interface
             => DrawCheckbox("Use Local Time in Records",
                 "When displaying timestamps in the Fish Records Tab, use local time instead of Unix time.",
                 GatherBuddy.Config.UseUnixTimeFishRecords, b => GatherBuddy.Config.UseUnixTimeFishRecords = b);
-        
+
         public static void DrawFishTimerScale()
         {
             var value = GatherBuddy.Config.FishTimerScale / 1000f;
@@ -317,14 +317,14 @@ public partial class Interface
             GatherBuddy.Config.ShowSecondIntervals = newValue;
             GatherBuddy.Config.Save();
         }
-        
+
         public static void DrawFishTimerIntervalsRounding()
         {
             var value = GatherBuddy.Config.SecondIntervalsRounding;
             ImGui.SetNextItemWidth(SetInputWidth);
             var ret = ImGui.DragInt("Fish Timer Interval Rounding", ref value, 0.01f, 0, 3);
             ImGuiUtil.HoverTooltip("Round the displayed second value to this number of digits past the decimal. \n"
-                + "Set to 0 to display only whole numbers.");
+              + "Set to 0 to display only whole numbers.");
             if (!ret)
                 return;
 
@@ -333,6 +333,23 @@ public partial class Interface
                 return;
 
             GatherBuddy.Config.SecondIntervalsRounding = newValue;
+            GatherBuddy.Config.Save();
+        }
+
+        public static void DrawUpcomingUptimesCount()
+        {
+            var value = GatherBuddy.Config.UpcomingUptimesCount;
+            ImGui.SetNextItemWidth(SetInputWidth);
+            var ret = ImGui.DragUShort("Upcoming Windows Uptime Count", ref value, 0.1f, 1, 20);
+            ImGuiUtil.HoverTooltip("The number of gathering window in the upcoming windows uptime tooltip/pop-up.");
+            if (!ret)
+                return;
+
+            var newValue = Math.Clamp(value, (ushort)1, (ushort)100);
+            if (newValue == GatherBuddy.Config.UpcomingUptimesCount)
+                return;
+
+            GatherBuddy.Config.UpcomingUptimesCount = newValue;
             GatherBuddy.Config.Save();
         }
 
@@ -350,29 +367,34 @@ public partial class Interface
             => DrawCheckbox("Show Multi Hook Hints",
                 "Show if a fish can be double or triple hooked in Cosmic Exploration and Ocean Fishing",
                 GatherBuddy.Config.ShowMultiHookHints, b => GatherBuddy.Config.ShowMultiHookHints = b);
+
         public static void DrawOceanTypeHintPopupBox()
             => DrawCheckbox("Show Ocean Type Hints",
                 "Show what type of fish in Ocean Fishing",
                 GatherBuddy.Config.ShowOceanTypeHints, b => GatherBuddy.Config.ShowOceanTypeHints = b);
-        
+
         // Fish Stats Window
         public static void DrawEnableFishStats()
             => DrawCheckbox("Enable Fish Stats",
                 "New tab for aggregating and reporting fish stats based on local records. Currently in testing.",
                 GatherBuddy.Config.EnableFishStats, b => GatherBuddy.Config.EnableFishStats = b);
-        public static void DrawEnableReportTime()  
+
+        public static void DrawEnableReportTime()
             => DrawCheckbox("Copy Time Stats when reporting.",
                 "When copying the report, add min and max times to the report.",
                 GatherBuddy.Config.EnableReportTime, b => GatherBuddy.Config.EnableReportTime = b);
-        public static void DrawEnableReportSize()  
+
+        public static void DrawEnableReportSize()
             => DrawCheckbox("Copy Sizes Stats when reporting.",
                 "When copying the report, add min and max sizes to the report.",
                 GatherBuddy.Config.EnableReportSize, b => GatherBuddy.Config.EnableReportSize = b);
-        public static void DrawEnableReportMulti() 
+
+        public static void DrawEnableReportMulti()
             => DrawCheckbox("Copy Multi Hook Stats when reporting.",
                 "When copying the report, add stats about multi-hook yields to the report.",
                 GatherBuddy.Config.EnableReportMulti, b => GatherBuddy.Config.EnableReportMulti = b);
-        public static void DrawEnableGraphs()      
+
+        public static void DrawEnableGraphs()
             => DrawCheckbox("Enable Graphs.",
                 "When viewing a fishing spot, enable visualization of fish report data. Extreme Testing!",
                 GatherBuddy.Config.EnableFishStatsGraphs, b => GatherBuddy.Config.EnableFishStatsGraphs = b);
@@ -630,6 +652,7 @@ public partial class Interface
                 ConfigFunctions.DrawShowStatusLineBox();
                 ConfigFunctions.DrawHideClippyBox();
                 ConfigFunctions.DrawMainInterfaceHotkeyInput();
+                ConfigFunctions.DrawUpcomingUptimesCount();
                 ImGui.TreePop();
             }
 

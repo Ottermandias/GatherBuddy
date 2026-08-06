@@ -149,7 +149,7 @@ public partial class Interface
             }
 
             public override void DrawColumn(ExtendedGatherable item, int _)
-                => DrawTimeInterval(item.Uptime.Item2);
+                => DrawTimeInterval(item.Uptime.Item2, false, true, item.Data);
 
             public override int Compare(ExtendedGatherable lhs, ExtendedGatherable rhs)
                 => lhs.Uptime.Item2.Compare(rhs.Uptime.Item2);

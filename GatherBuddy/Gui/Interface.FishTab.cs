@@ -231,7 +231,7 @@ public partial class Interface
                 => _nextUptimeColumnWidth * ImGuiHelpers.GlobalScale;
 
             public override void DrawColumn(ExtendedFish item, int _)
-                => DrawTimeInterval(item.Uptime.Item2, item.UptimeDependency);
+                => DrawTimeInterval(item.Uptime.Item2, item.UptimeDependency, true, item.Data);
 
             public override int Compare(ExtendedFish lhs, ExtendedFish rhs)
                 => lhs.Uptime.Item2.Compare(rhs.Uptime.Item2);
