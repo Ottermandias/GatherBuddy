@@ -24,7 +24,7 @@ public static partial class Fish
         data.Apply     (32050, Patch.FuturesRewritten) // Steel Fan
             .Bait      (data, 27585)
             .Bite      (data, HookSet.Precise, BiteType.Legendary)
-            .Transition(data, 3)
+            .Transition(data, 3, 4)
             .Weather   (data, 4);
         data.Apply     (32051, Patch.FuturesRewritten) // Henodus Grandis
             .Mooch     (data, 27457)
