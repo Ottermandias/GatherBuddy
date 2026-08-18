@@ -67,7 +67,7 @@ public static partial class Fish
             .Bite(data, HookSet.Precise, BiteType.Legendary);
         data.Apply(52008, Patch.TrailToTheHeavens) // Xehabopo'u
             .Mooch(data, 43697)
-            .Time(720, 900)
+            .Time(780, 900)
             .Predators(data, 360, (43697, 6))
             .Transition(data, 3)
             .Weather(data, 8)
