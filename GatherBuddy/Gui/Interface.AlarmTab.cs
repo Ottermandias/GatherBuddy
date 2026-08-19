@@ -201,7 +201,12 @@ public partial class Interface
         }
 
         if (ImGui.IsItemDeactivated())
+        {
             _plugin.AlarmManager.ChangeAlarmOffset(group, alarmIdx, Math.Clamp(_alarmCache.ChangedSecondOffset, 0, RealTime.SecondsPerDay));
+            _alarmCache.ChangedAlarmIdx     = -1;
+            _alarmCache.ChangedSecondOffset = 0;
+        }
+
         ImGuiUtil.HoverTooltip("Trigger this alarm this many seconds before the item in question is next available.");
 
         ImGui.TableNextColumn();
