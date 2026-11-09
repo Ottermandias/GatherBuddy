@@ -311,7 +311,6 @@ public static partial class Fish
         data.Apply     (20108, Patch.Stormblood) // Fan Clam
             .Bait      (data, 20617)
             .Bite      (data, HookSet.Powerful, BiteType.Strong)
-            .Snag      (data, Snagging.Required);
         data.Apply     (20109, Patch.Stormblood) // Blockhead
             .Mooch     (data, 20617, 20112)
             .Bite      (data, HookSet.Powerful, BiteType.Legendary);
